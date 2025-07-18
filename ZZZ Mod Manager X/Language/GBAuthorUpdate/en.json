@@ -1,0 +1,23 @@
+{
+  "Title": "Update Author from GameBanana",
+  "UpdateAuthorsLabel": "Update GameBanana authors",
+  "SmartUpdateLabel": "Only unknown values (Smart Update)",
+  "SafetyLockLabel": "Safety lock",
+  "UpdateButton": "Start update",
+  "SafetyLockTitle": "Safety lock",
+  "SafetyLockContent": "Please enable the safety lock first.",
+  "SummaryTitle": "Authors update summary",
+  "SuccessCount": "Successfully updated: {0}",
+  "SkippedMods": "Skipped mods:",
+  "Errors": "Errors:",
+  "None": "None",
+  "NoModJson": "Missing mod.json file",
+  "InvalidUrl": "Invalid or missing URL",
+  "UrlUnavailable": "URL unavailable",
+  "AuthorFetchError": "Error while fetching author",
+  "ErrorTitle": "Authors update error",
+  "TotalChecked": "Total checked: {0}",
+  "CancelButton": "Cancel",
+  "CancelledTitle": "Update cancelled",
+  "CancelledContent": "The update operation was cancelled by the user."
+}

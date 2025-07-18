@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ZZZ Mod Manager X (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "ZZZ Mod Manager X (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

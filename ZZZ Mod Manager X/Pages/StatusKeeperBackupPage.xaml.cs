@@ -1,0 +1,438 @@
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.Linq;
+using System.Diagnostics;
+
+namespace ZZZ_Mod_Manager_X.Pages
+{
+    public sealed partial class StatusKeeperBackupPage : Page
+    {
+        private Dictionary<string, string> _lang = new();
+        private StatusKeeperSettings _settings = new();
+
+        public StatusKeeperBackupPage()
+        {
+            this.InitializeComponent();
+            LoadLanguage();
+            UpdateTexts();
+        }
+
+        private void LoadLanguage()
+        {
+            try
+            {
+                var langFile = ZZZ_Mod_Manager_X.SettingsManager.Current?.LanguageFile ?? "en.json";
+                var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", langFile);
+                if (!File.Exists(langPath))
+                    langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", "en.json");
+                
+                if (File.Exists(langPath))
+                {
+                    var json = File.ReadAllText(langPath);
+                    _lang = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to load language file: {ex.Message}");
+                _lang = new Dictionary<string, string>();
+            }
+        }
+
+        private string T(string key)
+        {
+            return _lang.TryGetValue(key, out var value) ? value : key;
+        }
+
+        private void UpdateTexts()
+        {
+            CreateBackupLabel.Text = T("StatusKeeper_CreateBackup_Label");
+            CreateBackupButton.Content = T("StatusKeeper_CreateBackup_Button");
+            SafetyOverrideLabel.Text = T("StatusKeeper_SafetyOverride_Label");
+            RestoreBackupLabel.Text = T("StatusKeeper_RestoreBackup_Label");
+            RestoreBackupButton.Content = T("StatusKeeper_RestoreBackup_Button");
+            DeleteBackupsLabel.Text = T("StatusKeeper_DeleteBackups_Label");
+            DeleteBackupsButton.Content = T("StatusKeeper_DeleteBackups_Button");
+            CheckBackupButton.Content = T("StatusKeeper_CheckBackups_Button");
+        }
+
+        private void LoadSettingsToUI()
+        {
+            // Load from SettingsManager instead of local _settings
+            SafetyOverride1Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride1Enabled;
+            SafetyOverride2Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride2Enabled;
+            SafetyOverride3Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
+            
+            // Update _settings to match
+            _settings.BackupOverride1Enabled = SettingsManager.Current.StatusKeeperBackupOverride1Enabled;
+            _settings.BackupOverride2Enabled = SettingsManager.Current.StatusKeeperBackupOverride2Enabled;
+            _settings.BackupOverride3Enabled = SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
+            
+            // Enable/disable buttons based on safety toggles
+            UpdateButtonStates();
+        }
+
+        private void UpdateButtonStates()
+        {
+            bool allSafetyTogglesOn = SafetyOverride1Toggle.IsOn && SafetyOverride2Toggle.IsOn && SafetyOverride3Toggle.IsOn;
+            RestoreBackupButton.IsEnabled = allSafetyTogglesOn;
+            DeleteBackupsButton.IsEnabled = allSafetyTogglesOn;
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            if (e.Parameter is StatusKeeperSettings settings)
+            {
+                _settings = settings;
+                LoadSettingsToUI();
+            }
+        }
+
+        private async void CreateBackupButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                CreateBackupButton.IsEnabled = false;
+                CreateBackupButton.Content = T("StatusKeeper_Creating_Backup");
+
+                int backupCount = 0;
+                int skipCount = 0;
+
+                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
+                                   Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+
+                // Policz istniej�ce backupy przed operacj�
+                int beforeBackup = 0;
+                if (Directory.Exists(modLibraryPath))
+                {
+                    beforeBackup = Directory.GetFiles(modLibraryPath, "*.msk", SearchOption.AllDirectories).Length;
+                }
+
+                await Task.Run(() => BackupIniFiles(modLibraryPath, ref backupCount, ref skipCount));
+
+                // Policz backupy po operacji
+                int afterBackup = 0;
+                if (Directory.Exists(modLibraryPath))
+                {
+                    afterBackup = Directory.GetFiles(modLibraryPath, "*.msk", SearchOption.AllDirectories).Length;
+                }
+
+                int newBackups = afterBackup - beforeBackup;
+                int existingBackups = afterBackup - newBackups;
+
+                var message = $"Zako�czono!\nNowych backup�w: {newBackups}\nWszystkich backup�w: {afterBackup}";
+                var dialog = new ContentDialog
+                {
+                    Title = "Kopia zapasowa",
+                    Content = message,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
+
+                Debug.WriteLine($"Backup complete! Created {backupCount} .msk files, skipped {skipCount} existing/disabled files");
+            }
+            catch (Exception error)
+            {
+                Debug.WriteLine($"Backup failed: {error.Message}");
+            }
+            finally
+            {
+                CreateBackupButton.IsEnabled = true;
+                CreateBackupButton.Content = T("StatusKeeper_CreateBackup_Button");
+            }
+        }
+
+        private async void RestoreBackupButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_settings.BackupOverrideEnabled)
+            {
+                Debug.WriteLine("Please enable all safety toggles first");
+                return;
+            }
+
+            try
+            {
+                RestoreBackupButton.IsEnabled = false;
+                RestoreBackupButton.Content = T("StatusKeeper_Restoring");
+
+                int restoreCount = 0;
+                int skipCount = 0;
+
+                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
+                                   Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+
+                await Task.Run(() => RestoreFromBackups(modLibraryPath, ref restoreCount, ref skipCount));
+
+                // Auto-disable safety toggles after successful operation
+                SafetyOverride1Toggle.IsOn = false;
+                SafetyOverride2Toggle.IsOn = false;
+                SafetyOverride3Toggle.IsOn = false;
+                _settings.BackupOverride1Enabled = false;
+                _settings.BackupOverride2Enabled = false;
+                _settings.BackupOverride3Enabled = false;
+                // Reset in SettingsManager as well
+                SettingsManager.Current.StatusKeeperBackupOverride1Enabled = false;
+                SettingsManager.Current.StatusKeeperBackupOverride2Enabled = false;
+                SettingsManager.Current.StatusKeeperBackupOverride3Enabled = false;
+                SettingsManager.Save();
+                UpdateButtonStates();
+
+                Debug.WriteLine($"Restore complete! Restored {restoreCount} files, failed {skipCount} files");
+            }
+            catch (Exception error)
+            {
+                Debug.WriteLine($"Restore failed: {error.Message}");
+            }
+            finally
+            {
+                RestoreBackupButton.IsEnabled = true;
+                RestoreBackupButton.Content = T("StatusKeeper_RestoreBackup_Button");
+            }
+        }
+
+        private async void DeleteBackupsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!_settings.BackupOverrideEnabled)
+            {
+                Debug.WriteLine("Please enable all safety toggles first");
+                return;
+            }
+
+            try
+            {
+                DeleteBackupsButton.IsEnabled = false;
+                DeleteBackupsButton.Content = T("StatusKeeper_Deleting");
+
+                int deleteCount = 0;
+
+                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
+                                   Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+
+                await Task.Run(() => DeleteBackups(modLibraryPath, ref deleteCount));
+
+                // Auto-disable safety toggles after successful operation
+                SafetyOverride1Toggle.IsOn = false;
+                SafetyOverride2Toggle.IsOn = false;
+                SafetyOverride3Toggle.IsOn = false;
+                _settings.BackupOverride1Enabled = false;
+                _settings.BackupOverride2Enabled = false;
+                _settings.BackupOverride3Enabled = false;
+                // Reset in SettingsManager as well
+                SettingsManager.Current.StatusKeeperBackupOverride1Enabled = false;
+                SettingsManager.Current.StatusKeeperBackupOverride2Enabled = false;
+                SettingsManager.Current.StatusKeeperBackupOverride3Enabled = false;
+                SettingsManager.Save();
+                UpdateButtonStates();
+
+                Debug.WriteLine($"Deletion complete! Deleted {deleteCount} backup files");
+            }
+            catch (Exception error)
+            {
+                Debug.WriteLine($"Delete failed: {error.Message}");
+            }
+            finally
+            {
+                DeleteBackupsButton.IsEnabled = true;
+                DeleteBackupsButton.Content = T("StatusKeeper_DeleteBackups_Button");
+            }
+        }
+
+        private async void CheckBackupButton_Click(object sender, RoutedEventArgs e)
+        {
+            var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            int iniCount = 0;
+            int incompleteCount = 0;
+
+            if (Directory.Exists(modLibraryPath))
+            {
+                var iniFiles = Directory.GetFiles(modLibraryPath, "*.ini", SearchOption.AllDirectories)
+                    .Where(f => !Path.GetFileName(f).ToLower().Contains("disabled"))
+                    .ToArray();
+                iniCount = iniFiles.Length;
+                foreach (var ini in iniFiles)
+                {
+                    var backup = ini + ".msk";
+                    if (!File.Exists(backup))
+                    {
+                        incompleteCount++;
+                    }
+                }
+            }
+
+            string message = $"Sprawdzono.\nPlik�w ini: {iniCount}\nBackup�w: {iniCount - incompleteCount}\nBrak backup�w: {incompleteCount}";
+
+            var dialog = new ContentDialog
+            {
+                Title = "Sprawdzanie backup�w",
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
+        }
+
+        // ==================== BACKUP OPERATIONS ====================
+        
+        private void BackupIniFiles(string dir, ref int backupCount, ref int skipCount)
+        {
+            if (!Directory.Exists(dir)) return;
+
+            try
+            {
+                var items = Directory.GetFileSystemEntries(dir);
+
+                foreach (var item in items)
+                {
+                    if (Directory.Exists(item))
+                    {
+                        BackupIniFiles(item, ref backupCount, ref skipCount);
+                    }
+                    else if (File.Exists(item) && item.ToLower().EndsWith(".ini"))
+                    {
+                        var fileName = Path.GetFileName(item);
+
+                        // Skip files with "disabled" in the name (case-insensitive)
+                        if (fileName.ToLower().Contains("disabled"))
+                        {
+                            skipCount++;
+                            continue;
+                        }
+
+                        // Generate backup filename with .msk extension
+                        var backupFileName = fileName + ".msk";
+                        var backupFilePath = Path.Combine(Path.GetDirectoryName(item) ?? "", backupFileName);
+
+                        // Skip if backup already exists (prevent duplicates)
+                        if (File.Exists(backupFilePath))
+                        {
+                            skipCount++;
+                            continue;
+                        }
+
+                        try
+                        {
+                            // Copy INI file to .msk backup file
+                            File.Copy(item, backupFilePath);
+                            backupCount++;
+                        }
+                        catch (Exception err)
+                        {
+                            Debug.WriteLine($"Failed to backup {item}: {err.Message}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in BackupIniFiles for {dir}: {ex.Message}");
+            }
+        }
+
+        private void RestoreFromBackups(string dir, ref int restoreCount, ref int skipCount)
+        {
+            if (!Directory.Exists(dir)) return;
+
+            try
+            {
+                var items = Directory.GetFileSystemEntries(dir);
+
+                foreach (var item in items)
+                {
+                    if (Directory.Exists(item))
+                    {
+                        RestoreFromBackups(item, ref restoreCount, ref skipCount);
+                    }
+                    else if (File.Exists(item) && item.ToLower().EndsWith(".msk"))
+                    {
+                        // Calculate original INI filename by removing .msk extension
+                        var originalFileName = Path.GetFileNameWithoutExtension(item);
+                        var originalFilePath = Path.Combine(Path.GetDirectoryName(item) ?? "", originalFileName);
+
+                        try
+                        {
+                            // Copy .msk file back to original .ini filename
+                            File.Copy(item, originalFilePath, true);
+                            restoreCount++;
+                        }
+                        catch (Exception err)
+                        {
+                            Debug.WriteLine($"Failed to restore {item}: {err.Message}");
+                            skipCount++;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in RestoreFromBackups for {dir}: {ex.Message}");
+            }
+        }
+
+        private void DeleteBackups(string dir, ref int deleteCount)
+        {
+            if (!Directory.Exists(dir)) return;
+
+            try
+            {
+                var items = Directory.GetFileSystemEntries(dir);
+
+                foreach (var item in items)
+                {
+                    if (Directory.Exists(item))
+                    {
+                        DeleteBackups(item, ref deleteCount);
+                    }
+                    else if (File.Exists(item) && item.ToLower().EndsWith(".msk"))
+                    {
+                        try
+                        {
+                            // Permanently delete the backup file
+                            File.Delete(item);
+                            deleteCount++;
+                        }
+                        catch (Exception err)
+                        {
+                            Debug.WriteLine($"Failed to delete {item}: {err.Message}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in DeleteBackups for {dir}: {ex.Message}");
+            }
+        }
+
+        private void SafetyOverride1Toggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            _settings.BackupOverride1Enabled = SafetyOverride1Toggle.IsOn;
+            SettingsManager.Current.StatusKeeperBackupOverride1Enabled = SafetyOverride1Toggle.IsOn;
+            SettingsManager.Save();
+            UpdateButtonStates();
+        }
+
+        private void SafetyOverride2Toggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            _settings.BackupOverride2Enabled = SafetyOverride2Toggle.IsOn;
+            SettingsManager.Current.StatusKeeperBackupOverride2Enabled = SafetyOverride2Toggle.IsOn;
+            SettingsManager.Save();
+            UpdateButtonStates();
+        }
+
+        private void SafetyOverride3Toggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            _settings.BackupOverride3Enabled = SafetyOverride3Toggle.IsOn;
+            SettingsManager.Current.StatusKeeperBackupOverride3Enabled = SafetyOverride3Toggle.IsOn;
+            SettingsManager.Save();
+            UpdateButtonStates();
+        }
+    }
+}

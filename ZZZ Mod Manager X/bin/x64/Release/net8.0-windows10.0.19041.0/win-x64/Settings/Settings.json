@@ -1,0 +1,15 @@
+{
+  "LanguageFile": "en.json",
+  "XXMIModsDirectory": ".\\XXMI\\ZZMI\\Mods",
+  "ModLibraryDirectory": ".\\ModLibrary",
+  "Theme": "Auto",
+  "DynamicModSearchEnabled": true,
+  "ShowOrangeAnimation": true,
+  "SelectedPresetIndex": 0,
+  "StatusKeeperD3dxUserIniPath": ".\\XXMI\\ZZMI\\d3dx_user.ini",
+  "StatusKeeperDynamicSyncEnabled": false,
+  "StatusKeeperLoggingEnabled": true,
+  "StatusKeeperBackupOverride1Enabled": false,
+  "StatusKeeperBackupOverride2Enabled": false,
+  "StatusKeeperBackupOverride3Enabled": false
+}

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="ZZZ_Mod_Manager_X.Pages.StatusKeeperPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ZZZ_Mod_Manager_X.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    mc:Ignorable="d"
+    d:DesignHeight="400"
+    d:DesignWidth="600">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+            <Button x:Name="BackButton" Width="48" Height="48" Click="BackButton_Click" VerticalAlignment="Center"
+                    PointerEntered="BackButton_PointerEntered" PointerExited="BackButton_PointerExited">
+                <FontIcon x:Name="BackIcon" Glyph="&#xE72B;" FontSize="20">
+                    <FontIcon.RenderTransform>
+                        <ScaleTransform x:Name="BackIconScale" ScaleX="1" ScaleY="1"/>
+                    </FontIcon.RenderTransform>
+                </FontIcon>
+            </Button>
+            <TextBlock x:Name="Title" Text="" FontSize="24" FontWeight="Bold" Margin="16,0,0,0" VerticalAlignment="Center"/>
+        </StackPanel>
+        <SelectorBar x:Name="SelectorBar1" Grid.Row="1" SelectionChanged="SelectorBar2_SelectionChanged" Margin="0,0,0,16">
+            <SelectorBarItem x:Name="SelectorBarItemSynchronizacja" Text="" Icon="Clock" IsSelected="True" />
+            <SelectorBarItem x:Name="SelectorBarItemKopiaZapasowa" Text="" Icon="Share" />
+            <SelectorBarItem x:Name="SelectorBarItemLogi" Text="" Icon="Favorite" />
+        </SelectorBar>
+        <Frame x:Name="ContentFrame" Grid.Row="2" IsNavigationStackEnabled="False" />
+    </Grid>
+</Page>

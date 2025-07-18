@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="ZZZ_Mod_Manager_X.Pages.StatusKeeperBackupPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ZZZ_Mod_Manager_X.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0" Spacing="16">
+            <!-- 1. Tworzenie backupu -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock x:Name="CreateBackupLabel" Text="Utwórz kopię zapasową" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                <Button x:Name="CreateBackupButton" Content="" Height="32" MinWidth="120" Click="CreateBackupButton_Click" Margin="-40,0,0,0"/>
+                <Button x:Name="CheckBackupButton" Content="Sprawdź" Height="32" MinWidth="120" Click="CheckBackupButton_Click" Margin="8,0,0,0"/>
+            </StackPanel>
+            
+            <!-- 2. Zabezpieczenie (3-step safety) -->
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="255"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition Width="4"/>
+                    <ColumnDefinition Width="50"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="SafetyOverrideLabel" Text="" Grid.Column="0" VerticalAlignment="Center" Foreground="Red" FontWeight="SemiBold"/>
+                <ToggleSwitch x:Name="SafetyOverride1Toggle" Grid.Column="2" Toggled="SafetyOverride1Toggle_Toggled" OnContent="" OffContent="" Margin="-33,0,0,0"/>
+                <ToggleSwitch x:Name="SafetyOverride2Toggle" Grid.Column="4" Toggled="SafetyOverride2Toggle_Toggled" OnContent="" OffContent="" Margin="-12,0,0,0"/>
+                <ToggleSwitch x:Name="SafetyOverride3Toggle" Grid.Column="6" Toggled="SafetyOverride3Toggle_Toggled" OnContent="" OffContent="" Margin="-8,0,0,0"/>
+            </Grid>
+            
+            <!-- 3. Przywracanie -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock x:Name="RestoreBackupLabel" Text="Przywróć kopię zapasową" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                <Button x:Name="RestoreBackupButton" Content="" Height="32" MinWidth="120" Click="RestoreBackupButton_Click" Margin="-40,0,0,0" IsEnabled="False"/>
+            </StackPanel>
+            
+            <!-- 4. Usuwanie -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock x:Name="DeleteBackupsLabel" Text="Usuń kopie zapasowe" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                <Button x:Name="DeleteBackupsButton" Content="" Height="32" MinWidth="120" Click="DeleteBackupsButton_Click" Margin="-40,0,0,0" IsEnabled="False"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
