@@ -1,0 +1,127 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);8305</NoWarn>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>ZZZ_Mod_Manager_X</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64</Platforms>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <PublishProfile>win-x64.pubxml</PublishProfile>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <Nullable>enable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+    <WindowsPackageType>None</WindowsPackageType>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <Platform>x64</Platform>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <!-- Referencje do pakietów NuGet -->
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.250402" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.250402" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.14.0" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250702007-experimental4" />
+    <PackageReference Include="NLua" Version="1.7.5" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.3.2" />
+  </ItemGroup>
+
+  <!-- Foldery projektu -->
+  <ItemGroup>
+    <Folder Include="Settings\" />
+    <Folder Include="XXMI\" />
+    <Folder Include="ModLibrary\" />
+  </ItemGroup>
+
+  <!-- Kopiowanie wszystkich plików i podfolderów z folderów projektu do katalogu wyjściowego -->
+  <ItemGroup>
+    <Content Include="Assets\Fonts\**\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Settings\**\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Language\**\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="XXMI\**\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ModLibrary\**\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="ZZZ Mod Manager X Launcher\**" />
+    <EmbeddedResource Remove="ZZZ Mod Manager X Launcher\**" />
+    <None Remove="ZZZ Mod Manager X Launcher\**" />
+    <Page Remove="ZZZ Mod Manager X Launcher\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Assets\appicon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="app.ico" />
+    <None Remove="Assets\appicon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="app.ico" />
+    <Resource Include="Assets\appicon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="Assets\Fonts\NotoSans.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\Fonts\NotoSansArabic.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\Fonts\NotoSansDevanagari.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\Fonts\NotoSansHebrew.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\Fonts\NotoSansJP.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\Fonts\NotoSansKR.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\Fonts\NotoSansSC.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\Fonts\NotoSansThai.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PRIResource Remove="ZZZ Mod Manager X Launcher\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Remove="Pages\StatusKeeperBackupPage.xaml" />
+    <Page Remove="Pages\StatusKeeperLogsPage.xaml" />
+    <Page Remove="Pages\StatusKeeperSyncPage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Pages\StatusKeeperBackupPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="Pages\StatusKeeperLogsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="Pages\StatusKeeperSyncPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Pages\StatusKeeperBackupPage.xaml" />
+    <Page Include="Pages\StatusKeeperLogsPage.xaml" />
+    <Page Include="Pages\StatusKeeperSyncPage.xaml" />
+  </ItemGroup>
+</Project>
