@@ -75,6 +75,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         private Dictionary<string, bool> _activeMods = new();
         private string? _lastSymlinkTarget;
         private ObservableCollection<ModTile> _allMods = new();
+        private string? _currentCategory; // Track current category for back navigation
         // Removed static image caches - now using ImageCacheManager
 
         public ICommand ModImageIsInViewportChangedCommand { get; }
@@ -110,6 +111,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             if (e.Parameter is string character && !string.IsNullOrEmpty(character))
             {
+                _currentCategory = character; // Store current category
                 if (string.Equals(character, "other", StringComparison.OrdinalIgnoreCase))
                 {
                     CategoryTitle.Text = LanguageManager.Instance.T("Category_Other_Mods");
@@ -128,6 +130,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             else
             {
+                _currentCategory = null; // All mods view
                 CategoryTitle.Text = LanguageManager.Instance.T("Category_All_Mods");
                 LoadAllMods();
             }
@@ -514,9 +517,14 @@ namespace ZZZ_Mod_Manager_X.Pages
                 if (!IsValidModDirectoryName(mod.Directory))
                     return;
 
-                // Navigate to mod details page, pass Directory (folder name)
+                // Navigate to mod details page, pass both directory and current category
                 var frame = this.Frame;
-                frame?.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModDetailPage), mod.Directory ?? string.Empty);
+                var navParam = new ZZZ_Mod_Manager_X.Pages.ModDetailPage.ModDetailNav
+                {
+                    ModDirectory = mod.Directory ?? string.Empty,
+                    Category = _currentCategory ?? string.Empty
+                };
+                frame?.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModDetailPage), navParam);
             }
         }
 
