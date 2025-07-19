@@ -44,7 +44,7 @@ A comprehensive mod management application for Zenless Zone Zero (ZZZ) game, bui
 ### Required Software
 - **.NET 8 Runtime** (Windows Desktop)
 - **Microsoft Visual C++ Redistributable** (latest)
-- **Windows App SDK** 1.8 or later
+- **Windows App SDK** 1.8 experimental 4 or later
 
 ### File System
 - **NTFS partition** required for mod activation (symbolic link support)
@@ -61,7 +61,7 @@ A comprehensive mod management application for Zenless Zone Zero (ZZZ) game, bui
 1. Ensure your system meets the requirements above
 2. Install .NET 8 Desktop Runtime from [Microsoft's official site](https://dotnet.microsoft.com/download/dotnet/8.0)
 3. Install Visual C++ Redistributable (x64) from [Microsoft](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-4. Install Windows App SDK 1.8+ from [Microsoft Store](https://apps.microsoft.com/detail/9pb2mz1zmb1s) or [GitHub releases](https://github.com/microsoft/WindowsAppSDK/releases)
+4. Install Windows App SDK 1.8+ (experimental 4 currently) from [Microsoft Store](https://apps.microsoft.com/detail/9pb2mz1zmb1s) or [GitHub releases](https://github.com/microsoft/WindowsAppSDK/releases)
 
 ### Installation Steps
 1. Download the latest release from the [Releases](../../releases) page
