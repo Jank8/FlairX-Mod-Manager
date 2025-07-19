@@ -1,5 +1,7 @@
 # ZZZ Mod Manager X
 
+<img align="center" width="128" height="128" alt="appicon" src="https://github.com/user-attachments/assets/69b40b1f-0b89-417b-81a7-70f9507b3c42" />
+
 ZZZ Mod Manager X is a modern application designed to simplify and streamline the management of game modifications (mods).
 
 ## Features
