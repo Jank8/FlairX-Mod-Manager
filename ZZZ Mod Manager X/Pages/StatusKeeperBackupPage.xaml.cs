@@ -108,6 +108,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             try
             {
                 CreateBackupButton.IsEnabled = false;
+                CreateBackupProgressBar.Visibility = Visibility.Visible;
                 CreateBackupButtonText.Text = T("StatusKeeper_Creating_Backup");
 
                 int backupCount = 0;
@@ -154,6 +155,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             finally
             {
+                CreateBackupProgressBar.Visibility = Visibility.Collapsed;
                 CreateBackupButton.IsEnabled = true;
                 CreateBackupButtonText.Text = T("StatusKeeper_CreateBackup_Button");
             }
@@ -256,36 +258,60 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private async void CheckBackupButton_Click(object sender, RoutedEventArgs e)
         {
-            var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-            int iniCount = 0;
-            int incompleteCount = 0;
-
-            if (Directory.Exists(modLibraryPath))
+            try
             {
-                var iniFiles = Directory.GetFiles(modLibraryPath, "*.ini", SearchOption.AllDirectories)
-                    .Where(f => !Path.GetFileName(f).ToLower().Contains("disabled"))
-                    .ToArray();
-                iniCount = iniFiles.Length;
-                foreach (var ini in iniFiles)
+                CheckBackupButton.IsEnabled = false;
+                CheckBackupProgressBar.Visibility = Visibility.Visible;
+                
+                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                int iniCount = 0;
+                int incompleteCount = 0;
+
+                await Task.Run(() =>
                 {
-                    var backup = ini + ".msk";
-                    if (!File.Exists(backup))
+                    if (Directory.Exists(modLibraryPath))
                     {
-                        incompleteCount++;
+                        // Pobierz wszystkie pliki .ini (z wyłączeniem tych z "disabled", "_lod1.ini" i "_lod2.ini" w nazwie)
+                        var iniFiles = Directory.GetFiles(modLibraryPath, "*.ini", SearchOption.AllDirectories)
+                            .Where(f => {
+                                var fileName = Path.GetFileName(f).ToLower();
+                                return !fileName.Contains("disabled") && 
+                                       !fileName.Contains("_lod1.ini") && 
+                                       !fileName.Contains("_lod2.ini") &&
+                                       !fileName.Contains("_lod");
+                            })
+                            .ToArray();
+                        
+                        iniCount = iniFiles.Length;
+                        foreach (var ini in iniFiles)
+                        {
+                            var backup = ini + ".msk";
+                            if (!File.Exists(backup))
+                            {
+                                incompleteCount++;
+                            }
+                        }
                     }
-                }
+                });
+
+                // Użyj kluczy językowych dla tytułu i treści dialogu
+                string message = string.Format(T("StatusKeeper_CheckBackup_Dialog_Message"), 
+                    iniCount, iniCount - incompleteCount, incompleteCount);
+
+                var dialog = new ContentDialog
+                {
+                    Title = T("StatusKeeper_CheckBackup_Dialog_Title"),
+                    Content = message,
+                    CloseButtonText = T("OK"),
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
             }
-
-            string message = $"Sprawdzono.\nPlik�w ini: {iniCount}\nBackup�w: {iniCount - incompleteCount}\nBrak backup�w: {incompleteCount}";
-
-            var dialog = new ContentDialog
+            finally
             {
-                Title = "Sprawdzanie backup�w",
-                Content = message,
-                CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot
-            };
-            await dialog.ShowAsync();
+                CheckBackupProgressBar.Visibility = Visibility.Collapsed;
+                CheckBackupButton.IsEnabled = true;
+            }
         }
 
         // ==================== BACKUP OPERATIONS ====================

@@ -136,6 +136,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                 _isUpdatingAuthors = false;
                 NotifyProgressChanged();
                 UpdateButtonText.Text = T("UpdateButton");
+                UpdateIcon.Visibility = Visibility.Visible;
+                CancelIcon.Visibility = Visibility.Collapsed;
                 // Add immediate dialog after clicking Cancel
                 var cancelDialog = new ContentDialog
                 {
@@ -162,6 +164,8 @@ namespace ZZZ_Mod_Manager_X.Pages
             SafetyLockSwitch.IsOn = false;
             _cts = new CancellationTokenSource();
             UpdateButtonText.Text = T("CancelButton");
+            UpdateIcon.Visibility = Visibility.Collapsed;
+            CancelIcon.Visibility = Visibility.Visible;
             UpdateButton.IsEnabled = true;
             UpdateProgressBar.Visibility = Visibility.Visible;
             _isUpdatingAuthors = true;

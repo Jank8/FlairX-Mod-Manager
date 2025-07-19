@@ -167,6 +167,51 @@ namespace ZZZ_Mod_Manager_X
                 };
             }
 
+            // Sprawdź status synchronizacji po sekundzie od uruchomienia
+            _window?.DispatcherQueue.TryEnqueue(async () =>
+            {
+                // Daj czas na załadowanie UI
+                await Task.Delay(1000);
+                
+                try
+                {
+                    // Sprawdź kompletność backupu w tle
+                    bool hasBackup = ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.HasBackupFilesStatic();
+                    bool isBackupComplete = ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.IsFullBackupPresentStatic();
+                    
+                    // Sprawdź, czy backup jest niepełny lub go brak
+                    if (!hasBackup || !isBackupComplete)
+                    {
+                        // Jeśli synchronizacja jest włączona, wyłącz ją
+                        if (SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
+                        {
+                            // Wyłącz synchronizację
+                            SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
+                            SettingsManager.Save();
+                            
+                            // Zatrzymaj watcher i timer
+                            ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StopWatcherStatic();
+                            ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StopPeriodicSyncStatic();
+                        }
+                        
+                        // Wyświetl komunikat o wyłączeniu synchronizacji
+                        var dialog = new ContentDialog
+                        {
+                            Title = ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.TStatic("StatusKeeper_SyncDisabled_Title"),
+                            Content = ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.TStatic("StatusKeeper_SyncDisabled_Message"),
+                            CloseButtonText = "OK",
+                            XamlRoot = _window?.Content?.XamlRoot
+                        };
+                        
+                        await dialog.ShowAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error checking sync status: {ex.Message}");
+                }
+            });
+            
             // Start StatusKeeperSync (watcher + timer) jeśli dynamiczna synchronizacja jest włączona
             if (SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
             {

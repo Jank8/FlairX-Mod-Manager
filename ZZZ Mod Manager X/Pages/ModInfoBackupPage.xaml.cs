@@ -64,8 +64,13 @@ namespace ZZZ_Mod_Manager_X.Pages
         private async void CreateBackupsButton_Click(object sender, RoutedEventArgs e)
         {
             CreateBackupsButton.IsEnabled = false;
+            CreateBackupsProgressBar.Visibility = Visibility.Visible;
+            
             int count = await Task.Run(() => CreateAllBackups());
+            
+            CreateBackupsProgressBar.Visibility = Visibility.Collapsed;
             CreateBackupsButton.IsEnabled = true;
+            
             await ShowDialog(T("Title"), string.Format(T("ModInfoBackup_BackupComplete"), count), T("OK"));
             UpdateBackupInfo();
         }
@@ -141,12 +146,71 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             if (sender is Button btn && btn.Tag is string tag && int.TryParse(tag, out int backupNum) && backupNum >= 1 && backupNum <= MaxBackups)
             {
+                // Show confirmation dialog before restoring
+                ContentDialog confirmDialog = new ContentDialog
+                {
+                    Title = T("ModInfoBackup_RestoreConfirm_Title"),
+                    Content = string.Format(T("ModInfoBackup_RestoreConfirm_Message"), backupNum),
+                    PrimaryButtonText = T("Yes"),
+                    CloseButtonText = T("No"),
+                    XamlRoot = this.XamlRoot
+                };
+
+                ContentDialogResult result = await confirmDialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                {
+                    return;
+                }
+
                 btn.IsEnabled = false;
+                
+                // Create progress bar for this button
+                ProgressBar? progressBar = null;
+                if (btn == RestoreBackup1Button) progressBar = CreateProgressBarAfter(btn, 4);
+                else if (btn == RestoreBackup2Button) progressBar = CreateProgressBarAfter(btn, 4);
+                else if (btn == RestoreBackup3Button) progressBar = CreateProgressBarAfter(btn, 4);
+                
+                if (progressBar != null) progressBar.Visibility = Visibility.Visible;
+                
                 int count = await Task.Run(() => RestoreAllBackups(backupNum));
+                
+                if (progressBar != null) progressBar.Visibility = Visibility.Collapsed;
                 btn.IsEnabled = true;
+                
                 await ShowDialog(T("Title"), string.Format(T("ModInfoBackup_RestoreComplete"), backupNum, count), T("OK"));
                 UpdateBackupInfo();
             }
+        }
+        
+        private ProgressBar? CreateProgressBarAfter(Button button, int column)
+        {
+            // Find the parent grid
+            if (button.Parent is FrameworkElement parent && parent.Parent is Grid grid)
+            {
+                // Check if we already have a progress bar
+                ProgressBar? existingBar = grid.Children.OfType<ProgressBar>().FirstOrDefault();
+                if (existingBar != null)
+                {
+                    return existingBar;
+                }
+                
+                // Create a new progress bar
+                ProgressBar progressBar = new ProgressBar
+                {
+                    IsIndeterminate = true,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Visibility = Visibility.Collapsed,
+                    Margin = new Thickness(10, 0, 0, 0)
+                };
+                
+                // Add it to the grid in the specified column
+                Grid.SetColumn(progressBar, column);
+                grid.Children.Add(progressBar);
+                
+                return progressBar;
+            }
+            
+            return null;
         }
 
         private int RestoreAllBackups(int backupNum)
@@ -214,9 +278,37 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             if (sender is Button btn && btn.Tag is string tag && int.TryParse(tag, out int backupNum) && backupNum >= 1 && backupNum <= MaxBackups)
             {
+                // Show confirmation dialog before deleting
+                ContentDialog confirmDialog = new ContentDialog
+                {
+                    Title = T("ModInfoBackup_DeleteConfirm_Title"),
+                    Content = string.Format(T("ModInfoBackup_DeleteConfirm_Message"), backupNum),
+                    PrimaryButtonText = T("Yes"),
+                    CloseButtonText = T("No"),
+                    XamlRoot = this.XamlRoot
+                };
+
+                ContentDialogResult result = await confirmDialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                {
+                    return;
+                }
+                
                 btn.IsEnabled = false;
+                
+                // Create progress bar for this button
+                ProgressBar? progressBar = null;
+                if (btn == DeleteBackup1Button) progressBar = CreateProgressBarAfter(btn, 4);
+                else if (btn == DeleteBackup2Button) progressBar = CreateProgressBarAfter(btn, 4);
+                else if (btn == DeleteBackup3Button) progressBar = CreateProgressBarAfter(btn, 4);
+                
+                if (progressBar != null) progressBar.Visibility = Visibility.Visible;
+                
                 int count = await Task.Run(() => DeleteAllBackups(backupNum));
+                
+                if (progressBar != null) progressBar.Visibility = Visibility.Collapsed;
                 btn.IsEnabled = true;
+                
                 await ShowDialog(T("Title"), string.Format(T("ModInfoBackup_DeleteComplete"), backupNum, count), T("OK"));
                 UpdateBackupInfo();
             }

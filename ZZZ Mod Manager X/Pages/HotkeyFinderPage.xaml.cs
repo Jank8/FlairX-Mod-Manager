@@ -62,6 +62,8 @@ namespace ZZZ_Mod_Manager_X.Pages
             AutoDetectLabel.Text = T("AutoDetectLabel");
             RefreshAllLabel.Text = T("RefreshAllLabel");
             RefreshButtonText.Text = _isProcessing ? T("CancelButton") : T("RefreshButton");
+            RefreshIcon.Visibility = _isProcessing ? Visibility.Collapsed : Visibility.Visible;
+            CancelIcon.Visibility = _isProcessing ? Visibility.Visible : Visibility.Collapsed;
             ToolTipService.SetToolTip(AutoDetectToggle, T("AutoDetectLabel"));
             ToolTipService.SetToolTip(RefreshAllToggle, T("RefreshAllLabel"));
             ToolTipService.SetToolTip(RefreshButton, T("RefreshButton"));
@@ -204,6 +206,8 @@ namespace ZZZ_Mod_Manager_X.Pages
             _isProcessing = true;
             _cancellationTokenSource = new CancellationTokenSource(); // Ensure it's always initialized
             RefreshButtonText.Text = T("CancelButton");
+            RefreshIcon.Visibility = Visibility.Collapsed;
+            CancelIcon.Visibility = Visibility.Visible;
             RefreshProgressBar.Visibility = Visibility.Visible;
             RefreshAllToggle.IsOn = false;
             SaveSettings();
@@ -245,6 +249,8 @@ namespace ZZZ_Mod_Manager_X.Pages
             {
                 _isProcessing = false;
                 RefreshButtonText.Text = T("RefreshButton");
+                RefreshIcon.Visibility = Visibility.Visible;
+                CancelIcon.Visibility = Visibility.Collapsed;
                 RefreshProgressBar.Visibility = Visibility.Collapsed;
             }
         }

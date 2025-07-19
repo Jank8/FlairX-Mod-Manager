@@ -34,6 +34,7 @@
                         <FontIcon Glyph="&#xE895;" FontSize="16"/>
                     </StackPanel>
                 </Button>
+                <ProgressBar x:Name="ManualSyncProgressBar" Width="130" Height="32" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="10,0,0,0" />
             </StackPanel>
             <!-- Backup Override Toggles (3-step safety) -->
             <Grid VerticalAlignment="Center">

@@ -1,14 +1,19 @@
 {
   "Title": "ModInfo Backup",
-  "ModInfoBackup_Function": "ModInfo Backup",
-  "ModInfoBackup_BackupAll": "Backup all mods info",
+  "ModInfoBackup_BackupAll": "Backup all mod.json",
   "ModInfoBackup_Restore1": "Restore backup 1 (newest)",
   "ModInfoBackup_Restore2": "Restore backup 2 (middle)",
   "ModInfoBackup_Restore3": "Restore backup 3 (oldest)",
-  "ModInfoBackup_Delete": "Delete",
-  "ModInfoBackup_BackupInfo": "{0} | {1} mods",
-  "ModInfoBackup_BackupComplete": "{0} mods have been backed up as ZIP archives (including mod.json and preview.jpg if available).",
-  "ModInfoBackup_RestoreComplete": "{1} mods restored from backup {0}.",
-  "ModInfoBackup_DeleteComplete": "{1} backup archives have been deleted from backup {0}.",
-  "OK": "OK"
+  "ModInfoBackup_Delete": "Delete backup",
+  "ModInfoBackup_BackupComplete": "Backup complete! Created {0} mod.json backups.",
+  "ModInfoBackup_RestoreComplete": "Restore complete! Restored {0} backups from set {1}.",
+  "ModInfoBackup_DeleteComplete": "Delete complete! Removed {1} backups from set {0}.",
+  "ModInfoBackup_BackupInfo": "Created: {0}, Files: {1}",
+  "OK": "OK",
+  "ModInfoBackup_RestoreConfirm_Title": "Confirm Restore",
+  "ModInfoBackup_RestoreConfirm_Message": "Are you sure you want to restore backup set {0}? This will overwrite current mod.json files.",
+  "ModInfoBackup_DeleteConfirm_Title": "Confirm Delete",
+  "ModInfoBackup_DeleteConfirm_Message": "Are you sure you want to delete backup set {0}? This action cannot be undone.",
+  "Yes": "Yes",
+  "No": "No"
 }

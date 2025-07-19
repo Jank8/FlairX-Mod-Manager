@@ -100,10 +100,13 @@ namespace ZZZ_Mod_Manager_X.Pages
                     string logContent = File.ReadAllText(logPath, System.Text.Encoding.UTF8);
                     if (!string.IsNullOrWhiteSpace(logContent))
                     {
-                        // Najnowsze wpisy na g�rze
+                        // Najnowsze wpisy na górze
                         var lines = logContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
                         Array.Reverse(lines);
                         LogsTextBlock.Text = string.Join("\n", lines);
+                        
+                        // Przewiń na górę, aby pokazać najnowsze wpisy
+                        LogsScrollViewer.ScrollToVerticalOffset(0);
                     }
                     else
                     {

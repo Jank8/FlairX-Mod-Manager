@@ -21,6 +21,7 @@ namespace ZZZ_Mod_Manager_X
         public bool StatusKeeperBackupOverride1Enabled { get; set; } = false;
         public bool StatusKeeperBackupOverride2Enabled { get; set; } = false;
         public bool StatusKeeperBackupOverride3Enabled { get; set; } = false;
+        public bool StatusKeeperSyncWasDisabled { get; set; } = false; // Czy wyświetlić komunikat o wyłączeniu synchronizacji przy następnym uruchomieniu
     }
 
     public static class SettingsManager

@@ -136,6 +136,34 @@ namespace ZZZ_Mod_Manager_X.Pages
             NotifyMainWindowToUpdateHeartButton();
         }
 
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            
+            // Clear the grid to reduce memory usage and improve navigation performance
+            if (ModsGrid?.ItemsSource is IEnumerable<ModTile> currentMods)
+            {
+                // Clear image sources to free up memory
+                foreach (var mod in currentMods)
+                {
+                    if (mod.ImageSource != null)
+                    {
+                        // Don't dispose cached images, just clear the reference
+                        mod.ImageSource = null;
+                    }
+                }
+            }
+            
+            // Clear the grid ItemsSource
+            if (ModsGrid != null)
+            {
+                ModsGrid.ItemsSource = null;
+            }
+            
+            // Clear the observable collection
+            _allMods.Clear();
+        }
+
         private void LoadActiveMods()
         {
             if (File.Exists(ActiveModsStatePath))

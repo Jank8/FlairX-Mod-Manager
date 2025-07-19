@@ -1,0 +1,19 @@
+{
+  "Title": "DUMMY",
+  "AutoDetectLabel": "DUMMY",
+  "RefreshAllLabel": "DUMMY",
+  "RefreshButton": "DUMMY",
+  "CancelButton": "DUMMY",
+  "EnableConfirmFirst": "DUMMY",
+  "ModLibraryNotFound": "DUMMY",
+  "RefreshCompleteMessage": "DUMMY",
+  "RefreshCancelledMessage": "DUMMY",
+  "Processed": "DUMMY",
+  "Success": "DUMMY",
+  "Errors": "DUMMY",
+  "FatalError": "DUMMY",
+  "FatalErrorMessage": "DUMMY",
+  "Warning": "DUMMY",
+  "Info": "DUMMY",
+  "OK": "DUMMY"
+}

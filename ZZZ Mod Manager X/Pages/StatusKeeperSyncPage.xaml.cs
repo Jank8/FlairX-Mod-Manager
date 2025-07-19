@@ -35,6 +35,8 @@ namespace ZZZ_Mod_Manager_X.Pages
             {
                 InitFileLogging(GetLogPath());
             }
+            
+            // Komunikat o wyłączeniu synchronizacji jest teraz wyświetlany w App.xaml.cs
         }
 
         private void LoadLanguage()
@@ -62,6 +64,32 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             return _lang.TryGetValue(key, out var value) ? value : key;
         }
+        
+        // Publiczna statyczna wersja funkcji T() dla użycia z innych klas
+        public static string TStatic(string key)
+        {
+            // Załaduj słownik językowy, jeśli jeszcze nie został załadowany
+            var langFile = ZZZ_Mod_Manager_X.SettingsManager.Current?.LanguageFile ?? "en.json";
+            var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", langFile);
+            if (!File.Exists(langPath))
+                langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", "en.json");
+            
+            Dictionary<string, string> lang = new();
+            if (File.Exists(langPath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(langPath);
+                    lang = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
+                }
+                catch
+                {
+                    // Ignoruj błędy
+                }
+            }
+            
+            return lang.TryGetValue(key, out var value) ? value : key;
+        }
 
         private void UpdateTexts()
         {
@@ -78,9 +106,11 @@ namespace ZZZ_Mod_Manager_X.Pages
             ToolTipService.SetToolTip(ManualSyncButton, T("StatusKeeper_Tooltip_ManualSync"));
         }
 
-        private void LoadSettingsToUI()
+        private async Task LoadSettingsToUIAsync()
         {
             // Ustaw przełączniki na podstawie ustawień
+            bool wasSyncEnabled = SettingsManager.Current.StatusKeeperDynamicSyncEnabled;
+            
             DynamicSyncToggle.IsOn = SettingsManager.Current.StatusKeeperDynamicSyncEnabled;
             BackupOverride1Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride1Enabled;
             BackupOverride2Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride2Enabled;
@@ -90,19 +120,71 @@ namespace ZZZ_Mod_Manager_X.Pages
             bool backupOverrideEnabled = SettingsManager.Current.StatusKeeperBackupOverride1Enabled &&
                                          SettingsManager.Current.StatusKeeperBackupOverride2Enabled &&
                                          SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
-            if (DynamicSyncToggle.IsOn && !backupOverrideEnabled)
+            
+            // Sprawdź stan backupu niezależnie od tego, czy synchronizacja jest włączona
+            bool hasBackup = HasBackupFilesStatic();
+            bool isBackupComplete = IsFullBackupPresentStatic();
+            
+            // Jeśli synchronizacja jest włączona, ale backup jest niepełny lub go brak, wyłącz synchronizację
+            if (DynamicSyncToggle.IsOn && !backupOverrideEnabled && (!hasBackup || !isBackupComplete))
             {
-                if (!HasBackupFilesStatic() || !IsFullBackupPresentStatic())
+                // Wyłącz auto-sync i nadpisz ustawienie
+                DynamicSyncToggle.IsOn = false;
+                SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
+                
+                // Ustaw flagę, że synchronizacja została wyłączona z powodu niepełnego backupu
+                SettingsManager.Current.StatusKeeperSyncWasDisabled = true;
+                SettingsManager.Save();
+                
+                // Pokaż komunikat użytkownikowi
+                if (!hasBackup)
                 {
-                    // Wyłącz auto-sync i nadpisz ustawienie
-                    DynamicSyncToggle.IsOn = false;
-                    SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
-                    SettingsManager.Save();
-                    // Pokaż komunikat użytkownikowi
-                    _ = ShowInfoDialog(T("StatusKeeper_BackupIncomplete_Title"), T("StatusKeeper_BackupIncomplete_Message"));
+                    await ShowInfoDialog(T("StatusKeeper_BackupMissing_Title"), T("StatusKeeper_BackupMissing_Message"));
+                }
+                else if (!isBackupComplete)
+                {
+                    await ShowInfoDialog(T("StatusKeeper_BackupIncomplete_Title"), T("StatusKeeper_BackupIncomplete_Message"));
+                }
+                
+                // Pokaż dodatkowy komunikat o wyłączeniu synchronizacji
+                await ShowInfoDialog(T("StatusKeeper_SyncDisabled_Title"), T("StatusKeeper_SyncDisabled_Message"));
+            }
+            // Jeśli synchronizacja jest wyłączona i flaga StatusKeeperSyncWasDisabled jest ustawiona,
+            // pokaż komunikat o wyłączeniu synchronizacji
+            else if (!DynamicSyncToggle.IsOn && SettingsManager.Current.StatusKeeperSyncWasDisabled && !backupOverrideEnabled)
+            {
+                // Pokaż komunikat o wyłączeniu synchronizacji
+                await ShowInfoDialog(T("StatusKeeper_SyncDisabled_Title"), T("StatusKeeper_SyncDisabled_Message"));
+                
+                // Resetuj flagę, aby komunikat nie pojawiał się przy każdym uruchomieniu
+                SettingsManager.Current.StatusKeeperSyncWasDisabled = false;
+                SettingsManager.Save();
+            }
+            
+            // Sprawdź, czy plik d3dx_user.ini istnieje
+            var d3dxUserPath = GetD3dxUserPathStatic();
+            if (string.IsNullOrEmpty(d3dxUserPath) && DynamicSyncToggle.IsOn)
+            {
+                // Wyłącz auto-sync i nadpisz ustawienie
+                DynamicSyncToggle.IsOn = false;
+                SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
+                SettingsManager.Save();
+                
+                // Pokaż komunikat użytkownikowi
+                await ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
+                
+                // Jeśli synchronizacja była wcześniej włączona, pokaż dodatkowy komunikat o jej wyłączeniu
+                if (wasSyncEnabled)
+                {
+                    await ShowInfoDialog(T("StatusKeeper_SyncDisabled_Title"), T("StatusKeeper_SyncDisabled_Message"));
                 }
             }
-            // Usunięto odwołanie do nieistniejącej kontrolki LoggingToggle
+        }
+        
+        // Zachowujemy starą metodę dla kompatybilności
+        private void LoadSettingsToUI()
+        {
+            _ = LoadSettingsToUIAsync();
         }
 
         // Metoda do zapisu ustawienia logowania, wywołaj ją tam gdzie chcesz zmienić StatusKeeperLoggingEnabled
@@ -146,14 +228,129 @@ namespace ZZZ_Mod_Manager_X.Pages
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            LoadSettingsToUI();
+            
+            LogStatic("OnNavigatedTo called", "DEBUG");
+            
+            // Szybka inicjalizacja UI - tylko odczyt z ustawień (bez I/O operacji)
+            DynamicSyncToggle.IsOn = SettingsManager.Current.StatusKeeperDynamicSyncEnabled;
+            BackupOverride1Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride1Enabled;
+            BackupOverride2Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride2Enabled;
+            BackupOverride3Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
+            
             InitializeBreadcrumbBar();
-            // Automatyczna synchronizacja po starcie, jeśli dynamiczna synchronizacja jest włączona
+            
+            // Sprawdź flagę sync disabled message (szybka operacja)
+            bool showSyncDisabledMessage = SettingsManager.Current.StatusKeeperSyncWasDisabled;
+            if (showSyncDisabledMessage)
+            {
+                SettingsManager.Current.StatusKeeperSyncWasDisabled = false;
+                SettingsManager.Save();
+            }
+            
+            // Przenieś ciężkie operacje do tła, żeby nie blokować UI
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    // Wyświetl komunikat o wyłączeniu synchronizacji w tle
+                    if (showSyncDisabledMessage)
+                    {
+                        this.DispatcherQueue.TryEnqueue(async () =>
+                        {
+                            await ShowInfoDialog(T("StatusKeeper_SyncDisabled_Title"), T("StatusKeeper_SyncDisabled_Message"));
+                        });
+                    }
+                    
+                    // Sprawdź stan backupu w tle (tylko jeśli sync jest włączony)
+                    if (DynamicSyncToggle.IsOn)
+                    {
+                        await ValidateAndHandleSyncStateAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogStatic($"Background validation error: {ex.Message}", "ERROR");
+                }
+            });
+        }
+        
+        private Task ValidateAndHandleSyncStateAsync()
+        {
+            bool backupOverrideEnabled = SettingsManager.Current.StatusKeeperBackupOverride1Enabled &&
+                                         SettingsManager.Current.StatusKeeperBackupOverride2Enabled &&
+                                         SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
+            
+            // Sprawdź backup tylko jeśli override nie jest włączony
+            if (!backupOverrideEnabled)
+            {
+                bool hasBackup = HasBackupFilesStatic();
+                bool isBackupComplete = IsFullBackupPresentStatic();
+                
+                if (!hasBackup || !isBackupComplete)
+                {
+                    // Wyłącz sync na UI thread
+                    this.DispatcherQueue.TryEnqueue(() =>
+                    {
+                        DynamicSyncToggle.IsOn = false;
+                        SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
+                        SettingsManager.Save();
+                    });
+                    
+                    // Pokaż komunikat
+                    this.DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        if (!hasBackup)
+                        {
+                            await ShowInfoDialog(T("StatusKeeper_BackupMissing_Title"), T("StatusKeeper_BackupMissing_Message"));
+                        }
+                        else if (!isBackupComplete)
+                        {
+                            await ShowInfoDialog(T("StatusKeeper_BackupIncomplete_Title"), T("StatusKeeper_BackupIncomplete_Message"));
+                        }
+                    });
+                    return Task.CompletedTask;
+                }
+            }
+            
+            // Sprawdź d3dx_user.ini
+            var d3dxUserPath = GetD3dxUserPathStatic();
+            if (string.IsNullOrEmpty(d3dxUserPath))
+            {
+                // Wyłącz sync na UI thread
+                this.DispatcherQueue.TryEnqueue(() =>
+                {
+                    DynamicSyncToggle.IsOn = false;
+                    SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
+                    SettingsManager.Save();
+                });
+                
+                // Pokaż komunikat
+                this.DispatcherQueue.TryEnqueue(async () =>
+                {
+                    await ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
+                });
+                return Task.CompletedTask;
+            }
+            
+            // Wykonaj automatyczną synchronizację w tle
             if (DynamicSyncToggle.IsOn)
             {
                 _ = SyncPersistentVariables();
             }
+            
+            return Task.CompletedTask;
         }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            
+            // Clear any heavy operations or timers to improve navigation performance
+            // Note: We don't stop the static watcher/timer here as they should persist across navigation
+            LogStatic("OnNavigatedFrom called - cleaning up page resources", "DEBUG");
+        }
+
+
 
         private async void D3dxFilePathPickButton_Click(object sender, RoutedEventArgs e)
         {
@@ -235,6 +432,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                     {
                         DynamicSyncToggle.IsOn = false;
                         SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
+                        // Ustaw flagę, że synchronizacja została wyłączona z powodu braku backupu
+                        SettingsManager.Current.StatusKeeperSyncWasDisabled = true;
                         SettingsManager.Save();
                         LogStatic("Cannot enable auto-sync: No backup files (.msk) found", "WARNING");
                         _ = ShowInfoDialog(T("StatusKeeper_BackupMissing_Title"), T("StatusKeeper_BackupMissing_Message"));
@@ -244,6 +443,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                     {
                         DynamicSyncToggle.IsOn = false;
                         SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
+                        // Ustaw flagę, że synchronizacja została wyłączona z powodu niepełnego backupu
+                        SettingsManager.Current.StatusKeeperSyncWasDisabled = true;
                         SettingsManager.Save();
                         LogStatic("Cannot enable auto-sync: Backup is incomplete", "WARNING");
                         _ = ShowInfoDialog(T("StatusKeeper_BackupIncomplete_Title"), T("StatusKeeper_BackupIncomplete_Message"));
@@ -257,7 +458,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                     DynamicSyncToggle.IsOn = false;
                     SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
                     SettingsManager.Save();
-                    LogStatic("Cannot enable auto-sync: d3dx_user.ini path not set", "ERROR");
+                    LogStatic("Cannot enable auto-sync: d3dx_user.ini path not set or file not found", "ERROR");
+                    _ = ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
                     return;
                 }
 
@@ -285,21 +487,39 @@ namespace ZZZ_Mod_Manager_X.Pages
             {
                 if (!HasBackupFilesStatic())
                 {
+                    // Ustaw flagę, że synchronizacja została wyłączona z powodu braku backupu
+                    SettingsManager.Current.StatusKeeperSyncWasDisabled = true;
+                    SettingsManager.Save();
+                    
                     LogStatic("Cannot sync: No backup files (.msk) found", "WARNING");
                     await ShowInfoDialog(T("StatusKeeper_BackupMissing_Title"), T("StatusKeeper_BackupMissing_Message"));
                     return;
                 }
                 if (!IsFullBackupPresentStatic())
                 {
+                    // Ustaw flagę, że synchronizacja została wyłączona z powodu niepełnego backupu
+                    SettingsManager.Current.StatusKeeperSyncWasDisabled = true;
+                    SettingsManager.Save();
+                    
                     LogStatic("Cannot sync: Backup is incomplete", "WARNING");
                     await ShowInfoDialog(T("StatusKeeper_BackupIncomplete_Title"), T("StatusKeeper_BackupIncomplete_Message"));
                     return;
                 }
             }
 
+            // Sprawdź, czy plik d3dx_user.ini istnieje
+            var d3dxUserPath = GetD3dxUserPathStatic();
+            if (string.IsNullOrEmpty(d3dxUserPath))
+            {
+                LogStatic("Cannot sync: d3dx_user.ini path not set or file not found", "ERROR");
+                await ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
+                return;
+            }
+            
             try
             {
                 ManualSyncButton.IsEnabled = false;
+                ManualSyncProgressBar.Visibility = Visibility.Visible;
                 ManualSyncButtonText.Text = T("StatusKeeper_Syncing");
 
                 if (backupOverrideEnabled)
@@ -327,6 +547,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             finally
             {
+                ManualSyncProgressBar.Visibility = Visibility.Collapsed;
                 ManualSyncButton.IsEnabled = true;
                 ManualSyncButtonText.Text = T("StatusKeeper_ManualSync_Button");
             }
@@ -377,14 +598,29 @@ namespace ZZZ_Mod_Manager_X.Pages
         // Prosty dialog informacyjny (musi być przed użyciem w kodzie)
         private async Task ShowInfoDialog(string title, string message)
         {
+            // Dodaj logowanie przed wyświetleniem dialogu
+            LogStatic($"Showing dialog: {title} - {message}", "DEBUG");
+            
             var dialog = new ContentDialog
             {
                 Title = title,
                 Content = message,
                 CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot
+                XamlRoot = this.XamlRoot,
+                // Ustaw priorytet dialogu na wysoki, aby był wyświetlany na wierzchu
+                DefaultButton = ContentDialogButton.Close
             };
-            await dialog.ShowAsync();
+            
+            try
+            {
+                await dialog.ShowAsync();
+                // Dodaj logowanie po zamknięciu dialogu
+                LogStatic($"Dialog closed: {title}", "DEBUG");
+            }
+            catch (Exception ex)
+            {
+                LogStatic($"Error showing dialog: {ex.Message}", "ERROR");
+            }
         }
 
         // ==================== LOGGING SYSTEM ====================
@@ -433,7 +669,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         // ==================== BACKUP SYSTEM ====================
         
-        private static bool HasBackupFilesStatic()
+        public static bool HasBackupFilesStatic()
         {
             var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
                                 Path.Combine(AppContext.BaseDirectory, "ModLibrary");
@@ -445,29 +681,113 @@ namespace ZZZ_Mod_Manager_X.Pages
             return backupExists;
         }
 
-        // Sprawdza, czy backup jest kompletny: dla każdego pliku .ini istnieje .msk
-        private static bool IsFullBackupPresentStatic()
+        // Sprawdza, czy backup jest kompletny: liczba plików .msk musi być równa liczbie plików .ini
+        public static bool IsFullBackupPresentStatic()
         {
             var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
                                 Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-            var iniFiles = Directory.Exists(modLibraryPath)
-                ? Directory.GetFiles(modLibraryPath, "*.ini", SearchOption.AllDirectories)
-                : Array.Empty<string>();
+            
+            LogStatic($"Sprawdzanie kompletności backupu w katalogu: {modLibraryPath}");
+            
+            if (!Directory.Exists(modLibraryPath))
+            {
+                LogStatic($"Katalog {modLibraryPath} nie istnieje", "ERROR");
+                return false;
+            }
+                
+            // Pobierz wszystkie pliki .ini (z wyłączeniem tych z "disabled", "_lod1.ini" i "_lod2.ini" w nazwie)
+            var allIniFiles = Directory.GetFiles(modLibraryPath, "*.ini", SearchOption.AllDirectories);
+            LogStatic($"Znaleziono łącznie {allIniFiles.Length} plików .ini przed filtrowaniem");
+            
+            var iniFiles = allIniFiles
+                .Where(f => {
+                    var fileName = Path.GetFileName(f).ToLower();
+                    var isValid = !fileName.Contains("disabled") && 
+                                 !fileName.Contains("_lod1.ini") && 
+                                 !fileName.Contains("_lod2.ini") &&
+                                 !fileName.Contains("_lod");
+                    if (!isValid)
+                    {
+                        LogStatic($"Ignorowanie pliku .ini: {f}", "INFO");
+                    }
+                    return isValid;
+                })
+                .ToArray();
+            
+            LogStatic($"Po filtrowaniu zostało {iniFiles.Length} plików .ini");
+                
+            // Pobierz wszystkie pliki .msk (z wyłączeniem tych z "disabled", "_lod1.ini.msk" i "_lod2.ini.msk" w nazwie)
+            var allMskFiles = Directory.GetFiles(modLibraryPath, "*.msk", SearchOption.AllDirectories);
+            LogStatic($"Znaleziono łącznie {allMskFiles.Length} plików .msk przed filtrowaniem");
+            
+            var mskFiles = allMskFiles
+                .Where(f => {
+                    var fileName = Path.GetFileName(f).ToLower();
+                    var isValid = !fileName.Contains("disabled") && 
+                                 !fileName.Contains("_lod1.ini.msk") && 
+                                 !fileName.Contains("_lod2.ini.msk") &&
+                                 !fileName.Contains("_lod");
+                    if (!isValid)
+                    {
+                        LogStatic($"Ignorowanie pliku .msk: {f}", "INFO");
+                    }
+                    return isValid;
+                })
+                .ToArray();
+            
+            LogStatic($"Po filtrowaniu zostało {mskFiles.Length} plików .msk");
+            
+            // Jeśli nie ma plików .ini lub .msk, zwróć false
+            if (iniFiles.Length == 0)
+            {
+                LogStatic("Nie znaleziono plików .ini po filtrowaniu", "WARNING");
+                return false;
+            }
+            
+            if (mskFiles.Length == 0)
+            {
+                LogStatic("Nie znaleziono plików .msk po filtrowaniu - brak backupu", "WARNING");
+                return false;
+            }
+            
+            // Sprawdź, czy liczba plików .msk jest równa liczbie plików .ini
+            if (mskFiles.Length != iniFiles.Length)
+            {
+                LogStatic($"Backup niekompletny: znaleziono {iniFiles.Length} plików .ini, ale tylko {mskFiles.Length} plików .msk", "WARNING");
+                
+                // Wypisz pliki .ini bez odpowiadających im plików .msk
+                foreach (var ini in iniFiles)
+                {
+                    var backup = ini + ".msk";
+                    if (!File.Exists(backup))
+                    {
+                        LogStatic($"Brak backupu dla pliku: {ini}", "WARNING");
+                    }
+                }
+                
+                return false;
+            }
+            
+            // Sprawdź, czy dla każdego pliku .ini istnieje odpowiadający mu plik .msk
+            bool allBackupsExist = true;
             foreach (var ini in iniFiles)
             {
-                var fileName = Path.GetFileName(ini).ToLower();
-                // Pomijaj pliki z "disabled" w nazwie (tak jak backup)
-                if (fileName.Contains("disabled"))
-                    continue;
                 var backup = ini + ".msk";
                 if (!File.Exists(backup))
                 {
                     LogStatic($"Brak backupu dla pliku: {ini}", "WARNING");
-                    return false;
+                    allBackupsExist = false;
                 }
             }
-            // Zwróć true tylko jeśli są jakiekolwiek pliki .ini (nie-disabled)
-            return iniFiles.Any(f => !Path.GetFileName(f).ToLower().Contains("disabled"));
+            
+            if (!allBackupsExist)
+            {
+                LogStatic("Nie wszystkie pliki .ini mają odpowiadające im pliki .msk", "WARNING");
+                return false;
+            }
+            
+            LogStatic($"Backup kompletny: {mskFiles.Length} plików .msk dla {iniFiles.Length} plików .ini");
+            return true;
         }
 
         private static bool SearchForBackups(string dir)
@@ -486,8 +806,19 @@ namespace ZZZ_Mod_Manager_X.Pages
                     }
                     else if (File.Exists(item) && item.ToLower().EndsWith(".msk"))
                     {
-                        LogStatic($"Found backup file: {item}");
-                        return true;
+                        var fileName = Path.GetFileName(item).ToLower();
+                        // Ignoruj pliki z "disabled", "_lod1.ini.msk" i "_lod2.ini.msk" w nazwie
+                        if (!fileName.Contains("disabled") && 
+                            !fileName.Contains("_lod1.ini.msk") && 
+                            !fileName.Contains("_lod2.ini.msk"))
+                        {
+                            LogStatic($"Found valid backup file: {item}");
+                            return true;
+                        }
+                        else
+                        {
+                            LogStatic($"Ignoring backup file (disabled or LOD): {item}", "INFO");
+                        }
                     }
                 }
             }
@@ -856,7 +1187,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                     continue;
                 }
 
-                var isLodFile = Path.GetFileName(actualPath).ToLower().Contains("_lod");
+                var fileName = Path.GetFileName(actualPath).ToLower();
+                var isLodFile = fileName.Contains("_lod") || fileName.Contains("_lod1.ini") || fileName.Contains("_lod2.ini");
                 if (isLodFile)
                 {
                     LogStatic($"Skipping LOD file {Path.GetFileName(actualPath)} - will be updated via [Constants] sync from main file");
@@ -899,7 +1231,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                     var lodFiles = dirItems.Where(item =>
                     {
                         var fileName = Path.GetFileName(item).ToLower();
-                        return fileName.EndsWith(".ini") && fileName.Contains("_lod");
+                        return fileName.EndsWith(".ini") && 
+                              (fileName.Contains("_lod") || fileName.Contains("_lod1.ini") || fileName.Contains("_lod2.ini"));
                     }).ToArray();
 
                     if (lodFiles.Length == 0)
@@ -1004,7 +1337,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
         }
 
-        private static void StopWatcher()
+        public static void StopWatcherStatic()
         {
             if (_fileWatcher != null)
             {
@@ -1013,6 +1346,11 @@ namespace ZZZ_Mod_Manager_X.Pages
                 _fileWatcher = null;
                 LogStatic("✅ File watcher stopped");
             }
+        }
+        
+        private static void StopWatcher()
+        {
+            StopWatcherStatic();
         }
 
         public static void StartPeriodicSyncStatic()
@@ -1052,7 +1390,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             LogStatic("✅ Periodic sync timer started successfully");
         }
 
-        private static void StopPeriodicSync()
+        public static void StopPeriodicSyncStatic()
         {
             if (_periodicSyncTimer != null)
             {
@@ -1060,6 +1398,11 @@ namespace ZZZ_Mod_Manager_X.Pages
                 _periodicSyncTimer = null;
                 LogStatic("✅ Periodic sync timer stopped");
             }
+        }
+        
+        private static void StopPeriodicSync()
+        {
+            StopPeriodicSyncStatic();
         }
 
         // Helper methods to call static watcher/sync methods from instance context

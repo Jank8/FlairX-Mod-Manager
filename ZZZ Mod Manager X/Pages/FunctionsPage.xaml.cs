@@ -152,7 +152,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             var modInfoBackupFunction = new FunctionInfo
             {
                 FileName = "ModInfoBackup",
-                Name = "ModInfo Backup",
+                Name = GetModInfoBackupFunctionName(),
                 Enabled = true
             };
             string mibJsonPath = Path.Combine(settingsDir, modInfoBackupFunction.FileName + ".json");
@@ -292,6 +292,32 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             // Fallback to default
             return "Status Keeper";
+        }
+        
+        private string GetModInfoBackupFunctionName()
+        {
+            // Get translation from ModInfoBackup language file
+            var langFile = ZZZ_Mod_Manager_X.SettingsManager.Current.LanguageFile ?? "en.json";
+            var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "ModInfoBackup", langFile);
+            if (!File.Exists(langPath))
+                langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "ModInfoBackup", "en.json");
+            
+            if (File.Exists(langPath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(langPath);
+                    var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                    if (dict != null && dict.TryGetValue("Title", out var mibName))
+                    {
+                        return mibName;
+                    }
+                }
+                catch { /* Language file parsing failed - use fallback */ }
+            }
+            
+            // Fallback to default
+            return "ModInfo Backup";
         }
     }
 }

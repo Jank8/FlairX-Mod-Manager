@@ -25,12 +25,15 @@
             <TextBlock x:Name="Title" Text="ModInfo Backup" FontSize="24" FontWeight="Bold" Margin="16,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
         <StackPanel Grid.Row="1" Spacing="16">
-            <Button x:Name="CreateBackupsButton" Height="36" Width="220" Click="CreateBackupsButton_Click" Padding="0">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <TextBlock x:Name="CreateBackupsText" Text="Backup all mod.json"/>
-                    <FontIcon Glyph="&#xEA35;" FontSize="16"/>
-                </StackPanel>
-            </Button>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="CreateBackupsButton" Height="36" Width="220" Click="CreateBackupsButton_Click" Padding="0">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock x:Name="CreateBackupsText" Text="Backup all mod.json"/>
+                        <FontIcon Glyph="&#xEA35;" FontSize="16"/>
+                    </StackPanel>
+                </Button>
+                <ProgressBar x:Name="CreateBackupsProgressBar" Width="130" Height="32" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="10,0,0,0" />
+            </StackPanel>
             <StackPanel Orientation="Vertical" Spacing="8">
                 <Grid Height="40">
                     <Grid.ColumnDefinitions>
