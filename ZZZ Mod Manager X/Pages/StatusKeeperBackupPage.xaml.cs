@@ -60,6 +60,14 @@ namespace ZZZ_Mod_Manager_X.Pages
             DeleteBackupsLabel.Text = T("StatusKeeper_DeleteBackups_Label");
             DeleteBackupsButton.Content = T("StatusKeeper_DeleteBackups_Button");
             CheckBackupButton.Content = T("StatusKeeper_CheckBackups_Button");
+            // Ustaw tytuł okna na tłumaczenie
+            if (Window.Current is not null)
+            {
+                if (Window.Current is Microsoft.UI.Xaml.Window win)
+                {
+                    win.Title = T("Title");
+                }
+            }
         }
 
         private void LoadSettingsToUI()
@@ -108,7 +116,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
                                    Path.Combine(AppContext.BaseDirectory, "ModLibrary");
 
-                // Policz istniej�ce backupy przed operacj�
+                // Policz istniej5ce backupy przed operacj5
                 int beforeBackup = 0;
                 if (Directory.Exists(modLibraryPath))
                 {
@@ -127,12 +135,13 @@ namespace ZZZ_Mod_Manager_X.Pages
                 int newBackups = afterBackup - beforeBackup;
                 int existingBackups = afterBackup - newBackups;
 
-                var message = $"Zako�czono!\nNowych backup�w: {newBackups}\nWszystkich backup�w: {afterBackup}";
+                // Komunikat w 3 liniach
+                var message = string.Format(T("StatusKeeper_CreateBackup_Dialog_Message"), newBackups, afterBackup).Replace("\\n", "\n");
                 var dialog = new ContentDialog
                 {
-                    Title = "Kopia zapasowa",
+                    Title = T("StatusKeeper_CreateBackup_Dialog_Title"),
                     Content = message,
-                    CloseButtonText = "OK",
+                    CloseButtonText = T("OK"),
                     XamlRoot = this.XamlRoot
                 };
                 await dialog.ShowAsync();

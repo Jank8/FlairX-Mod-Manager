@@ -1,6 +1,6 @@
 {
   "Title": "Status Keeper",
-  "StatusKeeper_Function": "Status Monitor",
+  "StatusKeeper_Function": "Status Keeper",
   "StatusKeeper_D3dxFilePath_Label": "d3dx_user.ini file path:",
   "StatusKeeper_DynamicSync_Label": "Dynamic synchronization",
   "StatusKeeper_ManualSync_Label": "Manual synchronization",
@@ -39,7 +39,7 @@
   "BackupOverride_Warning_Title": "Warning",
   "BackupOverride_Warning_Content": "You are about to disable backup protection. This action is not recommended!",
   "StatusKeeper_CreateBackup_Dialog_Title": "Backup",
-  "StatusKeeper_CreateBackup_Dialog_Message": "Completed! New backups: {0}\nAll backups: {1}",
+  "StatusKeeper_CreateBackup_Dialog_Message": "Completed!\nNew backups: {0}\nAll backups: {1}",
   "StatusKeeper_CheckBackup_Dialog_Title": "Backup check",
   "StatusKeeper_CheckBackup_Dialog_Message": "Checked. INI files: {0}\nBackups: {1}\nMissing backups: {2}",
   "StatusKeeper_RestoreBackup_Dialog_Title": "Restore backup",

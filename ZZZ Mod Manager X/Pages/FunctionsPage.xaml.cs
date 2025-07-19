@@ -203,9 +203,9 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     var json = File.ReadAllText(langPath);
                     var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                    if (dict != null && dict.TryGetValue("GameBananaAuthorUpdate_Function", out var gbName))
+                    if (dict != null && dict.TryGetValue("Title", out var gbTitle))
                     {
-                        return gbName;
+                        return gbTitle;
                     }
                 }
                 catch { /* Language file parsing failed - use fallback */ }
