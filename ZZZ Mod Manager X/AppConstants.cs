@@ -41,7 +41,7 @@ namespace ZZZ_Mod_Manager_X
         public const int MAX_RAM_IMAGE_CACHE_SIZE = 50;
         
         // Timing Constants
-        public const int LOG_REFRESH_INTERVAL_MS = 500;
+        public const int LOG_REFRESH_INTERVAL_MS = 3000;
         public const int PERIODIC_SYNC_INTERVAL_SECONDS = 10;
         public const int FILE_WATCHER_DELAY_MS = 100;
         

@@ -17,7 +17,6 @@ namespace ZZZ_Mod_Manager_X.Pages
         private StatusKeeperSettings _settings = new();
         private Microsoft.UI.Xaml.DispatcherTimer? _logRefreshTimer;
         private const int LogRefreshIntervalSeconds = 0; // zmieniamy na 0 sekund
-        private const int LogRefreshIntervalMilliseconds = 500; // 500 ms
 
         public StatusKeeperLogsPage()
         {
@@ -30,7 +29,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         private void InitLogRefreshTimer()
         {
             _logRefreshTimer = new Microsoft.UI.Xaml.DispatcherTimer();
-            _logRefreshTimer.Interval = TimeSpan.FromMilliseconds(LogRefreshIntervalMilliseconds);
+            _logRefreshTimer.Interval = TimeSpan.FromMilliseconds(AppConstants.LOG_REFRESH_INTERVAL_MS);
             _logRefreshTimer.Tick += (s, e) => RefreshLogContent();
         }
 
