@@ -1,5 +1,6 @@
 # ZZZ Mod Manager X
 
+
 <img align="center" width="256" height="256" alt="appicon" src="https://github.com/user-attachments/assets/69b40b1f-0b89-417b-81a7-70f9507b3c42" />
 
 
@@ -178,16 +179,24 @@ Settings are stored in `Settings/Settings.json`:
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
+## Credits
 
-- **Fonts**: Noto Sans font family for multi-language support
-- **UI Framework**: Microsoft WinUI 3 and Windows App SDK
-- **Community**: Thanks to the ZZZ modding community for feedback and testing
+### Author
+- **[Jank8](https://github.com/Jank8)** - Main developer
+
+### AI Assistance
+- **[Kiro](https://kiro.dev/)** with **[GitHub Copilot](https://github.com/features/copilot)** - Development assistance
+
+### Fonts
+- **[Noto Fonts](https://notofonts.github.io/)** - Multi-language font support
+
+### Special Thanks
+- **[XLXZ](https://github.com/XiaoLinXiaoZhu)** for [source code](https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager/blob/main/plugins/recognizeModInfoPlugin.js) contributions
+
+### Additional Acknowledgments
+- **Microsoft WinUI 3 and Windows App SDK** - UI framework
+- **ZZZ modding community** - Feedback and testing support
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
-
----
-
-**Note**: This application requires administrator privileges and NTFS file system support for full functionality. Always backup your game saves before using mod management features.
