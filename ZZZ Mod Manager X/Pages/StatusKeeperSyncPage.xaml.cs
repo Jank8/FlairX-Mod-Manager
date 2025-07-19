@@ -68,7 +68,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             D3dxFilePathLabel.Text = T("StatusKeeper_D3dxFilePath_Label");
             DynamicSyncLabel.Text = T("StatusKeeper_DynamicSync_Label");
             ManualSyncLabel.Text = T("StatusKeeper_ManualSync_Label");
-            ManualSyncButton.Content = T("StatusKeeper_ManualSync_Button");
+            ManualSyncButtonText.Text = T("StatusKeeper_ManualSync_Button");
             BackupOverrideLabel.Text = T("StatusKeeper_BackupOverride_Label");
             
             // Ustawianie tooltipsów z plików językowych
@@ -300,7 +300,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             try
             {
                 ManualSyncButton.IsEnabled = false;
-                ManualSyncButton.Content = T("StatusKeeper_Syncing");
+                ManualSyncButtonText.Text = T("StatusKeeper_Syncing");
 
                 if (backupOverrideEnabled)
                 {
@@ -328,7 +328,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             finally
             {
                 ManualSyncButton.IsEnabled = true;
-                ManualSyncButton.Content = T("StatusKeeper_ManualSync_Button");
+                ManualSyncButtonText.Text = T("StatusKeeper_ManualSync_Button");
             }
         }
 

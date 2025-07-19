@@ -28,9 +28,21 @@
             <TextBlock x:Name="Title" Text="" FontSize="24" FontWeight="Bold" Margin="16,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
         <SelectorBar x:Name="SelectorBar1" Grid.Row="1" SelectionChanged="SelectorBar2_SelectionChanged" Margin="0,0,0,16">
-            <SelectorBarItem x:Name="SelectorBarItemSynchronizacja" Text="" Icon="Clock" IsSelected="True" />
-            <SelectorBarItem x:Name="SelectorBarItemKopiaZapasowa" Text="" Icon="Share" />
-            <SelectorBarItem x:Name="SelectorBarItemLogi" Text="" Icon="Favorite" />
+            <SelectorBarItem x:Name="SelectorBarItemSynchronizacja" Text="" IsSelected="True">
+                <SelectorBarItem.Icon>
+                    <FontIcon Glyph="&#xE895;" />
+                </SelectorBarItem.Icon>
+            </SelectorBarItem>
+            <SelectorBarItem x:Name="SelectorBarItemKopiaZapasowa" Text="">
+                <SelectorBarItem.Icon>
+                    <FontIcon Glyph="&#xEA35;" />
+                </SelectorBarItem.Icon>
+            </SelectorBarItem>
+            <SelectorBarItem x:Name="SelectorBarItemLogi" Text="">
+                <SelectorBarItem.Icon>
+                    <FontIcon Glyph="&#xF000;" />
+                </SelectorBarItem.Icon>
+            </SelectorBarItem>
         </SelectorBar>
         <Frame x:Name="ContentFrame" Grid.Row="2" IsNavigationStackEnabled="False" />
     </Grid>

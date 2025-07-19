@@ -53,13 +53,13 @@ namespace ZZZ_Mod_Manager_X.Pages
         private void UpdateTexts()
         {
             CreateBackupLabel.Text = T("StatusKeeper_CreateBackup_Label");
-            CreateBackupButton.Content = T("StatusKeeper_CreateBackup_Button");
+            CreateBackupButtonText.Text = T("StatusKeeper_CreateBackup_Button");
             SafetyOverrideLabel.Text = T("StatusKeeper_SafetyOverride_Label");
             RestoreBackupLabel.Text = T("StatusKeeper_RestoreBackup_Label");
-            RestoreBackupButton.Content = T("StatusKeeper_RestoreBackup_Button");
+            RestoreBackupButtonText.Text = T("StatusKeeper_RestoreBackup_Button");
             DeleteBackupsLabel.Text = T("StatusKeeper_DeleteBackups_Label");
-            DeleteBackupsButton.Content = T("StatusKeeper_DeleteBackups_Button");
-            CheckBackupButton.Content = T("StatusKeeper_CheckBackups_Button");
+            DeleteBackupsButtonText.Text = T("StatusKeeper_DeleteBackups_Button");
+            CheckBackupButtonText.Text = T("StatusKeeper_CheckBackups_Button");
             // Ustaw tytuł okna na tłumaczenie
             if (Window.Current is not null)
             {
@@ -108,7 +108,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             try
             {
                 CreateBackupButton.IsEnabled = false;
-                CreateBackupButton.Content = T("StatusKeeper_Creating_Backup");
+                CreateBackupButtonText.Text = T("StatusKeeper_Creating_Backup");
 
                 int backupCount = 0;
                 int skipCount = 0;
@@ -155,7 +155,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             finally
             {
                 CreateBackupButton.IsEnabled = true;
-                CreateBackupButton.Content = T("StatusKeeper_CreateBackup_Button");
+                CreateBackupButtonText.Text = T("StatusKeeper_CreateBackup_Button");
             }
         }
 
@@ -170,7 +170,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             try
             {
                 RestoreBackupButton.IsEnabled = false;
-                RestoreBackupButton.Content = T("StatusKeeper_Restoring");
+                RestoreBackupButtonText.Text = T("StatusKeeper_Restoring");
 
                 int restoreCount = 0;
                 int skipCount = 0;
@@ -203,7 +203,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             finally
             {
                 RestoreBackupButton.IsEnabled = true;
-                RestoreBackupButton.Content = T("StatusKeeper_RestoreBackup_Button");
+                RestoreBackupButtonText.Text = T("StatusKeeper_RestoreBackup_Button");
             }
         }
 
@@ -218,7 +218,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             try
             {
                 DeleteBackupsButton.IsEnabled = false;
-                DeleteBackupsButton.Content = T("StatusKeeper_Deleting");
+                DeleteBackupsButtonText.Text = T("StatusKeeper_Deleting");
 
                 int deleteCount = 0;
 
@@ -250,7 +250,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             finally
             {
                 DeleteBackupsButton.IsEnabled = true;
-                DeleteBackupsButton.Content = T("StatusKeeper_DeleteBackups_Button");
+                DeleteBackupsButtonText.Text = T("StatusKeeper_DeleteBackups_Button");
             }
         }
 

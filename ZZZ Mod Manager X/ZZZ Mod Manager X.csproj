@@ -104,11 +104,15 @@
     <PRIResource Remove="ZZZ Mod Manager X Launcher\**" />
   </ItemGroup>
   <ItemGroup>
+    <Page Remove="Pages\ModInfoBackupPage.xaml" />
     <Page Remove="Pages\StatusKeeperBackupPage.xaml" />
     <Page Remove="Pages\StatusKeeperLogsPage.xaml" />
     <Page Remove="Pages\StatusKeeperSyncPage.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="Pages\ModInfoBackupPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
     <None Update="Pages\StatusKeeperBackupPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </None>
@@ -123,5 +127,8 @@
     <Page Include="Pages\StatusKeeperBackupPage.xaml" />
     <Page Include="Pages\StatusKeeperLogsPage.xaml" />
     <Page Include="Pages\StatusKeeperSyncPage.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Pages\ModInfoBackupPage.xaml" />
   </ItemGroup>
 </Project>

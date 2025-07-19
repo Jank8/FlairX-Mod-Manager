@@ -12,8 +12,18 @@
             <!-- 1. Tworzenie backupu -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock x:Name="CreateBackupLabel" Text="Utwórz kopię zapasową" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                <Button x:Name="CreateBackupButton" Content="" Height="32" MinWidth="120" Click="CreateBackupButton_Click" Margin="-40,0,0,0"/>
-                <Button x:Name="CheckBackupButton" Content="Sprawdź" Height="32" MinWidth="120" Click="CheckBackupButton_Click" Margin="8,0,0,0"/>
+                <Button x:Name="CreateBackupButton" Height="32" MinWidth="120" Click="CreateBackupButton_Click" Margin="-40,0,0,0">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock x:Name="CreateBackupButtonText" Text=""/>
+                        <FontIcon Glyph="&#xEA35;" FontSize="16"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="CheckBackupButton" Height="32" MinWidth="120" Click="CheckBackupButton_Click" Margin="8,0,0,0">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock x:Name="CheckBackupButtonText" Text="Sprawdź"/>
+                        <FontIcon Glyph="&#xF0B5;" FontSize="16"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
             
             <!-- 2. Zabezpieczenie (3-step safety) -->
@@ -36,13 +46,23 @@
             <!-- 3. Przywracanie -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock x:Name="RestoreBackupLabel" Text="Przywróć kopię zapasową" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                <Button x:Name="RestoreBackupButton" Content="" Height="32" MinWidth="120" Click="RestoreBackupButton_Click" Margin="-40,0,0,0" IsEnabled="False"/>
+                <Button x:Name="RestoreBackupButton" Height="32" MinWidth="120" Click="RestoreBackupButton_Click" Margin="-40,0,0,0" IsEnabled="False">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock x:Name="RestoreBackupButtonText" Text=""/>
+                        <FontIcon Glyph="&#xE8EB;" FontSize="16"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
             
             <!-- 4. Usuwanie -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock x:Name="DeleteBackupsLabel" Text="Usuń kopie zapasowe" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                <Button x:Name="DeleteBackupsButton" Content="" Height="32" MinWidth="120" Click="DeleteBackupsButton_Click" Margin="-40,0,0,0" IsEnabled="False"/>
+                <Button x:Name="DeleteBackupsButton" Height="32" MinWidth="120" Click="DeleteBackupsButton_Click" Margin="-40,0,0,0" IsEnabled="False">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock x:Name="DeleteBackupsButtonText" Text=""/>
+                        <FontIcon Glyph="&#xE74D;" FontSize="16"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

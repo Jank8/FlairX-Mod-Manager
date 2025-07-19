@@ -148,6 +148,30 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             _functionInfos.Add(statusKeeperFunction);
 
+            // Add ModInfoBackup function
+            var modInfoBackupFunction = new FunctionInfo
+            {
+                FileName = "ModInfoBackup",
+                Name = "ModInfo Backup",
+                Enabled = true
+            };
+            string mibJsonPath = Path.Combine(settingsDir, modInfoBackupFunction.FileName + ".json");
+            if (File.Exists(mibJsonPath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(mibJsonPath);
+                    var loaded = JsonSerializer.Deserialize<FunctionInfo>(json);
+                    if (loaded != null)
+                    {
+                        modInfoBackupFunction.Enabled = loaded.Enabled;
+                        modInfoBackupFunction.Name = loaded.Name;
+                    }
+                }
+                catch { }
+            }
+            _functionInfos.Add(modInfoBackupFunction);
+
             FunctionsList.ItemsSource = _functionInfos;
         }
 
@@ -158,6 +182,11 @@ namespace ZZZ_Mod_Manager_X.Pages
                 if (function.FileName == "StatusKeeperPage")
                 {
                     Frame.Navigate(typeof(StatusKeeperPage));
+                    return;
+                }
+                if (function.FileName == "ModInfoBackup")
+                {
+                    Frame.Navigate(typeof(ModInfoBackupPage));
                     return;
                 }
                 var pageTypeName = $"ZZZ_Mod_Manager_X.Pages.{function.FileName.First().ToString().ToUpper() + function.FileName.Substring(1)}Page";

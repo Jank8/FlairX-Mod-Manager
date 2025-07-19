@@ -36,7 +36,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             SmartUpdateLabel.Text = T("SmartUpdateLabel");
             SafetyLockLabel.Text = T("SafetyLockLabel");
             // Set constant button width to prevent resizing when text changes
-            UpdateButton.Content = _isUpdatingAuthors ? T("CancelButton") : T("UpdateButton");
+            UpdateButtonText.Text = _isUpdatingAuthors ? T("CancelButton") : T("UpdateButton");
             UpdateButton.MinWidth = 160;
         }
 
@@ -135,7 +135,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 _cts?.Cancel();
                 _isUpdatingAuthors = false;
                 NotifyProgressChanged();
-                UpdateButton.Content = T("UpdateButton");
+                UpdateButtonText.Text = T("UpdateButton");
                 // Add immediate dialog after clicking Cancel
                 var cancelDialog = new ContentDialog
                 {
@@ -161,7 +161,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             SafetyLockSwitch.IsOn = false;
             _cts = new CancellationTokenSource();
-            UpdateButton.Content = T("CancelButton");
+            UpdateButtonText.Text = T("CancelButton");
             UpdateButton.IsEnabled = true;
             UpdateProgressBar.Visibility = Visibility.Visible;
             _isUpdatingAuthors = true;
@@ -172,7 +172,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             _totalMods = 0;
             NotifyProgressChanged();
             await UpdateAuthorsAsync(_cts.Token);
-            UpdateButton.Content = T("UpdateButton");
+            UpdateButtonText.Text = T("UpdateButton");
             UpdateButton.IsEnabled = true;
         }
 
@@ -192,7 +192,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                     {
                         _isUpdatingAuthors = false;
                         NotifyProgressChanged();
-                        UpdateButton.Content = T("UpdateButton");
+                        UpdateButtonText.Text = T("UpdateButton");
                         UpdateButton.IsEnabled = true;
                         UpdateProgressBar.Visibility = Visibility.Collapsed;
                         var cancelDialog = new ContentDialog
@@ -309,7 +309,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             {
                 _isUpdatingAuthors = false;
                 NotifyProgressChanged();
-                UpdateButton.Content = T("UpdateButton");
+                UpdateButtonText.Text = T("UpdateButton");
                 UpdateButton.IsEnabled = true;
                 UpdateProgressBar.Visibility = Visibility.Collapsed;
                 var dialog = new ContentDialog
