@@ -456,6 +456,10 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             try
             {
+                // Normalize paths to handle spaces and special characters properly
+                linkPath = Path.GetFullPath(linkPath);
+                targetPath = Path.GetFullPath(targetPath);
+                
                 // Ensure target directory exists
                 if (!Directory.Exists(targetPath))
                 {
