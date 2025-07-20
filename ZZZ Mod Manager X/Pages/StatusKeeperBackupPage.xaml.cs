@@ -204,7 +204,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             finally
             {
-                RestoreBackupButton.IsEnabled = true;
+                // Don't re-enable button here - UpdateButtonStates() handles this based on safety toggles
                 RestoreBackupButtonText.Text = T("StatusKeeper_RestoreBackup_Button");
             }
         }
@@ -251,7 +251,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             finally
             {
-                DeleteBackupsButton.IsEnabled = true;
+                // Don't re-enable button here - UpdateButtonStates() handles this based on safety toggles
                 DeleteBackupsButtonText.Text = T("StatusKeeper_DeleteBackups_Button");
             }
         }
@@ -334,8 +334,12 @@ namespace ZZZ_Mod_Manager_X.Pages
                     {
                         var fileName = Path.GetFileName(item);
 
-                        // Skip files with "disabled" in the name (case-insensitive)
-                        if (fileName.ToLower().Contains("disabled"))
+                        // Skip files with "disabled", "_lod1.ini", or "_lod2.ini" in the name (case-insensitive)
+                        var lowerFileName = fileName.ToLower();
+                        if (lowerFileName.Contains("disabled") || 
+                            lowerFileName.Contains("_lod1.ini") || 
+                            lowerFileName.Contains("_lod2.ini") ||
+                            lowerFileName.Contains("_lod"))
                         {
                             skipCount++;
                             continue;
