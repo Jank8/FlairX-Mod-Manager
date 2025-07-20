@@ -540,6 +540,9 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
 
                 LogStatic(message);
+                
+                // Show completion dialog to user
+                await ShowInfoDialog(T("StatusKeeper_ManualSync_Complete_Title"), message);
             }
             catch (Exception error)
             {

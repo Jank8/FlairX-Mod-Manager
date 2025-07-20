@@ -5,6 +5,7 @@
   "StatusKeeper_DynamicSync_Label": "DUMMY",
   "StatusKeeper_ManualSync_Label": "DUMMY",
   "StatusKeeper_ManualSync_Button": "DUMMY",
+  "StatusKeeper_ManualSync_Complete_Title": "DUMMY",
   "StatusKeeper_Syncing": "DUMMY",
   "StatusKeeper_BackupOverride_Label": "DUMMY",
   "StatusKeeper_Tab_Synchronizacja": "DUMMY",
