@@ -114,8 +114,19 @@ namespace ZZZ_Mod_Manager_X
             SetFooterMenuTranslations();
             _ = GenerateModCharacterMenuAsync();
 
-            // Set main page to All Mods
-            contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), null);
+            // Update All Mods button state based on settings
+            UpdateAllModsButtonState();
+
+            // Set main page to All Mods (only if not disabled)
+            if (!ZZZ_Mod_Manager_X.SettingsManager.Current.DisableAllModsView)
+            {
+                contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), null);
+            }
+            else
+            {
+                // Navigate to Active mods instead if All Mods is disabled
+                contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), "Active");
+            }
 
             appWindow.Resize(new Windows.Graphics.SizeInt32(1650, 820));
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
@@ -301,19 +312,30 @@ namespace ZZZ_Mod_Manager_X
                         nvSample.FooterMenuItems.Add(item);
                 }
             }
-            // Dynamic mod filtering only if enabled in settings
+            // Dynamic mod filtering only if enabled in settings and query has at least 3 characters
             if (ZZZ_Mod_Manager_X.SettingsManager.Current.DynamicModSearchEnabled)
             {
-                if (!string.IsNullOrEmpty(query))
+                if (!string.IsNullOrEmpty(query) && query.Length >= 3)
                 {
+                    // Always navigate with slide animation when starting search
                     contentFrame.Navigate(
                         typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage),
                         null,
                         new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
+                    
+                    // Apply filter after navigation
+                    if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+                    {
+                        modGridPage.FilterMods(query);
+                    }
                 }
-                if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+                else if (string.IsNullOrEmpty(query))
                 {
-                    modGridPage.FilterMods(query);
+                    // Clear search - only filter if we're already on ModGridPage
+                    if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+                    {
+                        modGridPage.FilterMods(query);
+                    }
                 }
             }
         }
@@ -321,16 +343,29 @@ namespace ZZZ_Mod_Manager_X
         private void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
             string query = sender.Text.Trim().ToLower();
-            if (!string.IsNullOrEmpty(query))
+            
+            // Static search requires at least 2 characters
+            if (!string.IsNullOrEmpty(query) && query.Length >= 2)
             {
+                // Always navigate with slide animation when starting search
                 contentFrame.Navigate(
                     typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage),
                     null,
                     new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
+                
+                // Apply filter after navigation
+                if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+                {
+                    modGridPage.FilterMods(query);
+                }
             }
-            if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+            else if (string.IsNullOrEmpty(query))
             {
-                modGridPage.FilterMods(query);
+                // Clear search - only if we're already on ModGridPage
+                if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+                {
+                    modGridPage.FilterMods(query);
+                }
             }
         }
 
@@ -388,19 +423,47 @@ namespace ZZZ_Mod_Manager_X
             ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
             Logger.LogInfo("Symlinks recreated during manager reload");
             
+            // Update All Mods button state after reload
+            UpdateAllModsButtonState();
+            
             nvSample.SelectedItem = null; // Unselect active button
-            contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
+            
+            // Navigate based on DisableAllModsView setting
+            if (!ZZZ_Mod_Manager_X.SettingsManager.Current.DisableAllModsView)
+            {
+                contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
+            }
+            else
+            {
+                // Navigate to Active mods instead if All Mods is disabled
+                contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), "Active", new DrillInNavigationTransitionInfo());
+            }
+            
             UpdateShowActiveModsButtonIcon();
         }
 
         private void AllModsButton_Click(object sender, RoutedEventArgs e)
         {
+            // Check if All Mods view is disabled
+            if (ZZZ_Mod_Manager_X.SettingsManager.Current.DisableAllModsView)
+            {
+                return; // Do nothing if disabled
+            }
+            
             // Unselect selected menu item
             nvSample.SelectedItem = null;
             // Navigate to ModGridPage without parameter to show all mods
             contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
             // Update heart button after a short delay to ensure page has loaded
             DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => UpdateShowActiveModsButtonIcon());
+        }
+
+        public void UpdateAllModsButtonState()
+        {
+            if (AllModsButton != null)
+            {
+                AllModsButton.IsEnabled = !ZZZ_Mod_Manager_X.SettingsManager.Current.DisableAllModsView;
+            }
         }
 
         private void ShowActiveModsButton_PointerEntered(object sender, PointerRoutedEventArgs e)
@@ -511,6 +574,7 @@ namespace ZZZ_Mod_Manager_X
             SetFooterMenuTranslations();
             SetPaneButtonTooltips();
             SetCategoryTitles();
+            UpdateAllModsButtonState();
             _ = GenerateModCharacterMenuAsync();
             // Refresh page if it's ModGridPage or PresetsPage
             if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)

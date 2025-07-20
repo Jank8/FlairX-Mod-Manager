@@ -167,34 +167,34 @@ namespace ZZZ_Mod_Manager_X
                 };
             }
 
-            // Sprawdź status synchronizacji po sekundzie od uruchomienia
+            // Check synchronization status after one second from startup
             _window?.DispatcherQueue.TryEnqueue(async () =>
             {
-                // Daj czas na załadowanie UI
+                // Give time for UI to load
                 await Task.Delay(1000);
                 
                 try
                 {
-                    // Sprawdź kompletność backupu w tle
+                    // Check backup completeness in background
                     bool hasBackup = ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.HasBackupFilesStatic();
                     bool isBackupComplete = ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.IsFullBackupPresentStatic();
                     
-                    // Sprawdź, czy backup jest niepełny lub go brak
+                    // Check if backup is incomplete or missing
                     if (!hasBackup || !isBackupComplete)
                     {
-                        // Jeśli synchronizacja jest włączona, wyłącz ją
+                        // If synchronization is enabled, disable it
                         if (SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
                         {
-                            // Wyłącz synchronizację
+                            // Disable synchronization
                             SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
                             SettingsManager.Save();
                             
-                            // Zatrzymaj watcher i timer
+                            // Stop watcher and timer
                             ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StopWatcherStatic();
                             ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StopPeriodicSyncStatic();
                         }
                         
-                        // Wyświetl komunikat o wyłączeniu synchronizacji
+                        // Display synchronization disabled message
                         var dialog = new ContentDialog
                         {
                             Title = ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.TStatic("StatusKeeper_SyncDisabled_Title"),
@@ -212,7 +212,7 @@ namespace ZZZ_Mod_Manager_X
                 }
             });
             
-            // Start StatusKeeperSync (watcher + timer) jeśli dynamiczna synchronizacja jest włączona
+            // Start StatusKeeperSync (watcher + timer) if dynamic synchronization is enabled
             if (SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
             {
                 ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StartWatcherStatic();
@@ -328,7 +328,7 @@ namespace ZZZ_Mod_Manager_X
             if (!System.IO.Directory.Exists(modLibraryPath)) return;
             string placeholderJson = "{\n    \"author\": \"unknown\",\n    \"character\": \"!unknown!\",\n    \"url\": \"https://\",\n    \"hotkeys\": []\n}";
             
-            // Lista nowo utworzonych plików mod.json
+            // List of newly created mod.json files
             var newlyCreatedModPaths = new List<string>();
             
             // Create mod.json only in level 1 directories
@@ -342,12 +342,12 @@ namespace ZZZ_Mod_Manager_X
                 }
             }
             
-            // Automatycznie wykryj hotkeys dla nowo utworzonych plików mod.json
+            // Automatically detect hotkeys for newly created mod.json files
             if (newlyCreatedModPaths.Count > 0)
             {
                 foreach (var modPath in newlyCreatedModPaths)
                 {
-                    // Użyj statycznej metody, która nie wymaga instancji HotkeyFinderPage
+                    // Use static method that doesn't require HotkeyFinderPage instance
                     await ZZZ_Mod_Manager_X.Pages.HotkeyFinderPage.AutoDetectHotkeysForModStaticAsync(modPath);
                 }
             }

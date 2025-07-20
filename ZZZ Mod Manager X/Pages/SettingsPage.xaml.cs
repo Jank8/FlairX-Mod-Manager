@@ -30,7 +30,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         private void SetBreadcrumbBar(BreadcrumbBar bar, string path)
         {
             var items = new List<object>();
-            // Domy�lna �cie�ka: tylko kropka lub pusty string
+            // Default path: only dot or empty string
             if (path == "." || string.IsNullOrWhiteSpace(path))
             {
                 items.Add(new FontIcon { Glyph = "\uE80F" });
@@ -45,12 +45,12 @@ namespace ZZZ_Mod_Manager_X.Pages
             bar.ItemsSource = items;
         }
 
-        // Poprawa agregacji �cie�ki z BreadcrumbBar
+        // Improved breadcrumb path aggregation
         private string GetBreadcrumbPath(BreadcrumbBar bar)
         {
             var items = bar.ItemsSource as IEnumerable<object>;
             if (items == null) return string.Empty;
-            var segments = items.Skip(1).OfType<string>(); // pomi� ikon�
+            var segments = items.Skip(1).OfType<string>(); // skip icon
             return string.Join(Path.DirectorySeparatorChar.ToString(), segments);
         }
 
@@ -96,7 +96,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            // Od�wie� stan paska i przycisku je�li trwa optymalizacja
+            // Refresh the state of the bar and button if optimization is in progress
             if (_isOptimizingPreviews)
             {
                 if (OptimizePreviewsProgressBar != null)
@@ -111,8 +111,9 @@ namespace ZZZ_Mod_Manager_X.Pages
                 if (OptimizePreviewsButton != null)
                     OptimizePreviewsButton.IsEnabled = true;
             }
-            // Przywr�� stan toggle'�w z ustawie�
+            // Restore toggle states from settings
             DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
+            DisableAllModsViewToggle.IsOn = SettingsManager.Current.DisableAllModsView;
             ShowOrangeAnimationToggle.IsOn = SettingsManager.Current.ShowOrangeAnimation;
         }
 
@@ -157,7 +158,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     SettingsManager.Current.LanguageFile = "auto";
                     SettingsManager.Save();
-                    // Wymu� restart aplikacji, aby wykrywanie j�zyka zadzia�a�o
+                    // Force app restart so language detection works
                     if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                     {
                         mainWindow.RestartAppButton_Click(null, null);
@@ -169,7 +170,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 SettingsManager.Current.LanguageFile = fileName;
                 SettingsManager.Save();
                 UpdateTexts();
-                // Od�wie� ca�y interfejs w MainWindow
+                // Refresh the entire UI in MainWindow
                 if (App.Current is App app2 && app2.MainWindow is MainWindow mainWindow2)
                 {
                     mainWindow2.RefreshUIAfterLanguageChange();
@@ -222,7 +223,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void ModLibraryDirectoryDefaultButton_Click(object sender, RoutedEventArgs e)
         {
-            // Je�li ju� jest domy�lna, nie r�b nic
+            // If already default, do nothing
             var defaultPath = AppConstants.DEFAULT_MOD_LIBRARY_PATH;
             var currentPath = SettingsManager.Current.ModLibraryDirectory;
             
@@ -254,7 +255,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 return;
             }
 
-            // Dezaktywuj wszystkie mody i usu� symlinki
+            // Deactivate all mods and remove symlinks
             var activeModsPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Settings", "ActiveMods.json");
             if (System.IO.File.Exists(activeModsPath))
             {
@@ -272,7 +273,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             SettingsManager.RestoreDefaults();
             SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, SettingsManager.Current.ModLibraryDirectory ?? string.Empty);
 
-            // Od�wie� mened�er
+            // Refresh manager
             if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
             {
                 mainWindow.RefreshUIAfterLanguageChange();
@@ -284,6 +285,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             SettingsTitle.Text = LanguageManager.Instance.T("SettingsPage_Title");
             LanguageLabel.Text = LanguageManager.Instance.T("SettingsPage_Language");
             DynamicModSearchLabel.Text = LanguageManager.Instance.T("SettingsPage_DynamicModSearch_Label");
+            DisableAllModsViewLabel.Text = LanguageManager.Instance.T("SettingsPage_DisableAllModsView_Label");
             ShowOrangeAnimationLabel.Text = LanguageManager.Instance.T("SettingsPage_ShowOrangeAnimation_Label");
             // Update SelectorBar texts
             ThemeSelectorAutoText.Text = LanguageManager.Instance.T("SettingsPage_Theme_Auto");
@@ -293,12 +295,12 @@ namespace ZZZ_Mod_Manager_X.Pages
             ModLibraryDirectoryLabel.Text = LanguageManager.Instance.T("SettingsPage_ModLibraryDirectory");
             ToolTipService.SetToolTip(XXMIModsDirectoryDefaultButton, LanguageManager.Instance.T("SettingsPage_RestoreDefault_Tooltip"));
             ToolTipService.SetToolTip(ModLibraryDirectoryDefaultButton, LanguageManager.Instance.T("SettingsPage_RestoreDefault_Tooltip"));
-            ToolTipService.SetToolTip(OptimizePreviewsButton, null); // Usu� dymek z przycisku konwersji miniatur
+            ToolTipService.SetToolTip(OptimizePreviewsButton, null); // Remove tooltip from optimize previews button
             OptimizePreviewsLabel.Text = LanguageManager.Instance.T("SettingsPage_OptimizePreviews_Label");
             ToolTipService.SetToolTip(XXMIModsDirectoryPickButton, LanguageManager.Instance.T("PickFolderDialog_Title"));
             ToolTipService.SetToolTip(ModLibraryDirectoryPickButton, LanguageManager.Instance.T("PickFolderDialog_Title"));
             ToolTipService.SetToolTip(DynamicModSearchToggle, LanguageManager.Instance.T("SettingsPage_DynamicModSearch_Tooltip"));
-            // Usuni�to XXMIModsDirectoryDefaultButton.ToolTip i ModLibraryDirectoryDefaultButton.ToolTip, bo nie istnieje taka w�a�ciwo�� w WinUI 3
+            // Removed XXMIModsDirectoryDefaultButton.ToolTip and ModLibraryDirectoryDefaultButton.ToolTip, as WinUI 3 doesn't have this property
         }
 
         private async Task OptimizePreviewsAsync(CancellationToken token)
@@ -312,7 +314,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                     if (token.IsCancellationRequested)
                         break;
                     var jpgPath = Path.Combine(dir, "preview.jpg");
-                    // Je�li istnieje preview.jpg o rozmiarze 1000x1000, pomi� optymalizacj�
+                    // If preview.jpg exists with size 1000x1000, skip optimization
                     if (File.Exists(jpgPath))
                     {
                         try
@@ -325,7 +327,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                         }
                         catch { }
                     }
-                    // Szukaj plik�w preview.*.png/jpg niezale�nie od wielko�ci liter
+                    // Search for preview.*.png/jpg regardless of case
                     var files = Directory.GetFiles(dir)
                         .Where(f => Path.GetFileName(f).StartsWith("preview", StringComparison.OrdinalIgnoreCase) &&
                                     (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)))
@@ -378,7 +380,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                             if (needsCrop && cropSource != src)
                                 cropSource.Dispose();
                         }
-                        // Usu� wszystkie pliki preview.* (PNG/JPG/JPEG) o innych nazwach
+                        // Remove all preview.* (PNG/JPG/JPEG) files with other names
                         foreach (var f in files)
                         {
                             if (!string.Equals(f, jpgPath, StringComparison.OrdinalIgnoreCase))
@@ -590,7 +592,6 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     if (!IsNtfs(folderPath))
                         ShowNtfsWarning(folderPath, "XXMI");
-                    // Usu� stare symlinki i utw�rz nowe po zmianie katalogu
                     // Clean up symlinks from current directory before switching to new one
                     var currentPath = SettingsManager.Current.XXMIModsDirectory;
                     if (!string.IsNullOrWhiteSpace(currentPath))
@@ -660,7 +661,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                     if (!IsNtfs(folderPath))
                         ShowNtfsWarning(folderPath, "ModLibrary");
 
-                    // Dezaktywuj wszystkie mody i usu� symlinki
+                    // Deactivate all mods and remove symlinks
                     var activeModsPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Settings", "ActiveMods.json");
                     if (System.IO.File.Exists(activeModsPath))
                     {
@@ -679,10 +680,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                     SettingsManager.Save();
                     SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, folderPath);
 
-                    // Utw�rz domy�lne mod.json w podkatalogach
+                    // Create default mod.json in subdirectories
                     (App.Current as ZZZ_Mod_Manager_X.App)?.EnsureModJsonInModLibrary();
 
-                    // Od�wie� mened�er
+                    // Refresh manager
                     if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                     {
                         mainWindow.RefreshUIAfterLanguageChange();
@@ -808,11 +809,22 @@ namespace ZZZ_Mod_Manager_X.Pages
             SettingsManager.Save();
         }
 
+        private void DisableAllModsViewToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.DisableAllModsView = DisableAllModsViewToggle.IsOn;
+            SettingsManager.Save();
+            // Update the All Mods button state in MainWindow
+            if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow.UpdateAllModsButtonState();
+            }
+        }
+
         private void ShowOrangeAnimationToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.ShowOrangeAnimation = ShowOrangeAnimationToggle.IsOn;
             SettingsManager.Save();
-            // Od�wie� animacj� w MainWindow
+            // Refresh animation in MainWindow
             if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
             {
                 var progressBar = mainWindow.GetOrangeAnimationProgressBar();

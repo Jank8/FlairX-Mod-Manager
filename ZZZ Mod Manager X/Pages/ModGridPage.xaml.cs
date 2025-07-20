@@ -76,6 +76,8 @@ namespace ZZZ_Mod_Manager_X.Pages
         private string? _lastSymlinkTarget;
         private ObservableCollection<ModTile> _allMods = new();
         private string? _currentCategory; // Track current category for back navigation
+        private string? _previousCategory; // Track category before search for restoration
+        private bool _isSearchActive = false; // Track if we're currently in search mode
         // Removed static image caches - now using ImageCacheManager
 
         public ICommand ModImageIsInViewportChangedCommand { get; }
@@ -333,19 +335,81 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         public void FilterMods(string query)
         {
-            LoadAllMods(); // Always refresh full mod list from disk
-            ObservableCollection<ModTile> filtered;
             if (string.IsNullOrEmpty(query))
             {
-                filtered = new ObservableCollection<ModTile>(_allMods);
+                // Clear search - return to appropriate view based on settings and previous state
+                _isSearchActive = false;
+                
+                if (ZZZ_Mod_Manager_X.SettingsManager.Current.DisableAllModsView)
+                {
+                    // If All Mods is disabled, go to Active Mods
+                    _currentCategory = "Active";
+                    CategoryTitle.Text = LanguageManager.Instance.T("Category_Active_Mods");
+                    LoadActiveModsOnly();
+                }
+                else if (_previousCategory != null)
+                {
+                    // Return to previous category if it exists
+                    _currentCategory = _previousCategory;
+                    if (string.Equals(_previousCategory, "Active", StringComparison.OrdinalIgnoreCase))
+                    {
+                        CategoryTitle.Text = LanguageManager.Instance.T("Category_Active_Mods");
+                        LoadActiveModsOnly();
+                    }
+                    else if (string.Equals(_previousCategory, "other", StringComparison.OrdinalIgnoreCase))
+                    {
+                        CategoryTitle.Text = LanguageManager.Instance.T("Category_Other_Mods");
+                        LoadMods(_previousCategory);
+                    }
+                    else
+                    {
+                        CategoryTitle.Text = _previousCategory;
+                        LoadMods(_previousCategory);
+                    }
+                }
+                else
+                {
+                    // Default to All Mods if available
+                    _currentCategory = null;
+                    CategoryTitle.Text = LanguageManager.Instance.T("Category_All_Mods");
+                    LoadAllMods();
+                }
+                _previousCategory = null; // Clear previous category after restoration
+                // Scroll view to top after clearing search
+                ModsScrollViewer?.ChangeView(0, 0, 1);
             }
             else
             {
-                filtered = new ObservableCollection<ModTile>(_allMods.Where(mod => mod.Name.Contains(query, StringComparison.OrdinalIgnoreCase)));
+                // Start search - save current category if not already searching
+                if (!_isSearchActive)
+                {
+                    _previousCategory = _currentCategory;
+                    _isSearchActive = true;
+                }
+                
+                // Set search title
+                CategoryTitle.Text = LanguageManager.Instance.T("Search_Results");
+                
+                // Load all mods for searching
+                LoadAllMods();
+                var filtered = new ObservableCollection<ModTile>(_allMods.Where(mod => mod.Name.Contains(query, StringComparison.OrdinalIgnoreCase)));
+                ModsGrid.ItemsSource = filtered;
+
+                // Scroll horizontally to first visible mod (with animation)
+                if (filtered.Count > 0 && ModsGrid.ContainerFromIndex(0) is GridViewItem firstItem)
+                {
+                    firstItem.UpdateLayout();
+                    var transform = firstItem.TransformToVisual(ModsScrollViewer);
+                    var point = transform.TransformPoint(new Windows.Foundation.Point(0, 0));
+                    // Scroll so that the first item is visible at the left
+                    ModsScrollViewer.ChangeView(point.X, 0, 1, false);
+                }
+                else
+                {
+                    // Fallback: scroll to start
+                    ModsScrollViewer?.ChangeView(0, 0, 1, false);
+                }
             }
-            ModsGrid.ItemsSource = filtered;
-            // Scroll view to top after filtering
-            ModsScrollViewer?.ChangeView(0, 0, 1);
         }
 
         private void ModActiveButton_Click(object sender, RoutedEventArgs e)

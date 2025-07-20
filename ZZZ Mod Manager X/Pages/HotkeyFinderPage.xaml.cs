@@ -95,7 +95,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var settings = new HotkeyFinderSettings
                 {
                     AutoDetectEnabled = AutoDetectToggle.IsOn,
-                    // RefreshAllEnabled nie jest zapisywane, ponieważ wyłącza się po rozpoczęciu aktualizacji
+                    // RefreshAllEnabled is not saved because it turns off after update starts
                 };
 
                 var settingsDir = Path.Combine(System.AppContext.BaseDirectory, "Settings");
@@ -255,7 +255,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
         }
 
-        // Refaktoryzacja metody automatycznej (instancyjna)
+        // Refactoring of the automatic method (instance)
         public async Task AutoDetectHotkeysForModAsync(string modPath)
         {
             if (!AutoDetectToggle.IsOn)
@@ -270,7 +270,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
         }
 
-        // Refaktoryzacja metody automatycznej (statyczna)
+        // Refactoring of the automatic method (static)
         public static async Task AutoDetectHotkeysForModStaticAsync(string modPath)
         {
             try
@@ -315,14 +315,14 @@ namespace ZZZ_Mod_Manager_X.Pages
             _ = dialog.ShowAsync();
         }
 
-        // Mapowanie klawiszy
+        // Key mapping
         private static readonly Dictionary<string, string> KeyMapping = new()
         {
-            // Klawisze strzałek
+            // Arrow keys
             ["VK_UP"] = "↑", ["VK_DOWN"] = "↓", ["VK_LEFT"] = "←", ["VK_RIGHT"] = "→",
             ["UP"] = "↑", ["DOWN"] = "↓", ["LEFT"] = "←", ["RIGHT"] = "→",
             
-            // Klawisze numeryczne
+            // Numeric keys
             ["VK_NUMPAD0"] = "NUM 0", ["VK_NUMPAD1"] = "NUM 1", ["VK_NUMPAD2"] = "NUM 2",
             ["VK_NUMPAD3"] = "NUM 3", ["VK_NUMPAD4"] = "NUM 4", ["VK_NUMPAD5"] = "NUM 5",
             ["VK_NUMPAD6"] = "NUM 6", ["VK_NUMPAD7"] = "NUM 7", ["VK_NUMPAD8"] = "NUM 8",
@@ -333,11 +333,11 @@ namespace ZZZ_Mod_Manager_X.Pages
             ["VK_MULTIPLY"] = "NUM *", ["VK_ADD"] = "NUM +", ["VK_SUBTRACT"] = "NUM -",
             ["VK_DECIMAL"] = "NUM .", ["VK_DIVIDE"] = "NUM /",
             
-            // Przyciski myszy
+            // Mouse buttons
             ["VK_LBUTTON"] = "LMB", ["VK_RBUTTON"] = "RMB", ["VK_MBUTTON"] = "MMB",
             ["VK_XBUTTON1"] = "X1", ["VK_XBUTTON2"] = "X2",
             
-            // Klawisze modyfikujące
+            // Modifier keys
             ["VK_ALT"] = "ALT", ["VK_CTRL"] = "CTRL", ["CONTROL"] = "CTRL", ["VK_CONTROL"] = "CTRL",
             ["VK_LCONTROL"] = "L-CTRL", ["VK_RCONTROL"] = "R-CTRL", ["LCTRL"] = "L-CTRL", ["RCTRL"] = "R-CTRL",
             ["VK_SHIFT"] = "SHIFT", ["VK_LSHIFT"] = "L-SHIFT", ["VK_RSHIFT"] = "R-SHIFT",
@@ -345,18 +345,18 @@ namespace ZZZ_Mod_Manager_X.Pages
             ["VK_MENU"] = "ALT", ["VK_LMENU"] = "L-ALT", ["VK_RMENU"] = "R-ALT",
             ["LALT"] = "L-ALT", ["RALT"] = "R-ALT",
             
-            // Klawisze specjalne
+            // Special keys
             ["VK_OEM_MINUS"] = "-", ["VK_OEM_PLUS"] = "+", ["VK_BACKSPACE"] = "BACKSPACE",
             ["DELETE"] = "DEL", ["VK_DELETE"] = "DEL", ["VK_ESCAPE"] = "ESC",
             ["VK_RETURN"] = "ENTER", ["VK_TAB"] = "TAB", ["VK_SPACE"] = "SPACE",
             
-            // Znaki specjalne
+            // Special characters
             ["VK_OEM_1"] = ";", ["VK_OEM_2"] = "/", ["VK_OEM_3"] = "`",
             ["VK_OEM_4"] = "[", ["VK_OEM_5"] = "\\", ["VK_OEM_6"] = "]",
             ["VK_OEM_7"] = "'", ["VK_OEM_8"] = "§", ["VK_OEM_COMMA"] = ",",
             ["VK_OEM_PERIOD"] = ".",
             
-            // Przyciski kontrolera Xbox
+            // Xbox controller buttons
             ["XB_A"] = "XB A", ["XB_B"] = "XB B", ["XB_X"] = "XB X", ["XB_Y"] = "XB Y",
             ["XB_LEFT_SHOULDER"] = "XB LB", ["XB_RIGHT_SHOULDER"] = "XB RB",
             ["XB_LEFT_TRIGGER"] = "XB LT", ["XB_RIGHT_TRIGGER"] = "XB RT",
@@ -365,7 +365,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             ["XB_DPAD_UP"] = "XB ↑", ["XB_DPAD_DOWN"] = "XB ↓",
             ["XB_DPAD_LEFT"] = "XB ←", ["XB_DPAD_RIGHT"] = "XB →",
             
-            // Przyciski kontrolera PlayStation
+            // PlayStation controller buttons
             ["PS_SQUARE"] = "□", ["PS_CROSS"] = "×", ["PS_CIRCLE"] = "○", ["PS_TRIANGLE"] = "△",
             ["PS_L1"] = "L1", ["PS_R1"] = "R1", ["PS_L2"] = "L2", ["PS_R2"] = "R2",
             ["PS_L3"] = "L3", ["PS_R3"] = "R3", ["PS_SHARE"] = "Share",
@@ -373,23 +373,23 @@ namespace ZZZ_Mod_Manager_X.Pages
             ["PS_DPAD_UP"] = "PS ↑", ["PS_DPAD_DOWN"] = "PS ↓",
             ["PS_DPAD_LEFT"] = "PS ←", ["PS_DPAD_RIGHT"] = "PS →",
             
-            // Klawisze funkcyjne
+            // Function keys
             ["VK_F1"] = "F1", ["VK_F2"] = "F2", ["VK_F3"] = "F3", ["VK_F4"] = "F4",
             ["VK_F5"] = "F5", ["VK_F6"] = "F6", ["VK_F7"] = "F7", ["VK_F8"] = "F8",
             ["VK_F9"] = "F9", ["VK_F10"] = "F10", ["VK_F11"] = "F11", ["VK_F12"] = "F12",
             
-            // Klawisze nawigacyjne
+            // Navigation keys
             ["VK_HOME"] = "HOME", ["VK_END"] = "END", ["VK_PRIOR"] = "PAGE UP",
             ["VK_NEXT"] = "PAGE DOWN", ["VK_INSERT"] = "INS",
             
-            // Klawisze blokujące
+            // Lock keys
             ["VK_CAPITAL"] = "CAPS", ["VK_NUMLOCK"] = "NUM LOCK", ["VK_SCROLL"] = "SCROLL LOCK",
             
-            // Klawisze Windows
+            // Windows keys
             ["VK_LWIN"] = "WIN", ["VK_RWIN"] = "WIN", ["VK_APPS"] = "MENU"
         };
 
-        // Klasy pomocnicze
+        // Helper classes
         public class HotkeyInfo
         {
             public string Key { get; set; } = "";
@@ -432,25 +432,25 @@ namespace ZZZ_Mod_Manager_X.Pages
             catch { /* Directory access failed - skip */ }
         }
         
-        // Statyczna wersja metody ParseIniFileAsync
+        // Static version of ParseIniFileAsync method
         private static async Task<List<HotkeyInfo>> ParseIniFileStaticAsync(string iniFilePath)
         {
             return await ParseIniFileCommonAsync(iniFilePath);
         }
         
-        // Statyczna wersja metody ParseKeyValue
+        // Static version of ParseKeyValue method
         private static HotkeyInfo? ParseKeyValueStatic(string keyValue, string keyType, bool isBack = false)
         {
             return ParseKeyValueCommon(keyValue, keyType, isBack);
         }
         
-        // Statyczna wersja metody UpdateModJsonWithHotkeysAsync
+        // Static version of UpdateModJsonWithHotkeysAsync method
         private static async Task UpdateModJsonWithHotkeysStaticAsync(string modPath, List<HotkeyInfo> hotkeys)
         {
             await UpdateModJsonWithHotkeysCommonAsync(modPath, hotkeys);
         }
         
-        // Wspólna metoda do parsowania plików INI
+        // Common method for parsing INI files
         private static async Task<List<HotkeyInfo>> ParseIniFileCommonAsync(string iniFilePath, CancellationToken token = default)
         {
             var hotkeys = new List<HotkeyInfo>();
@@ -487,14 +487,14 @@ namespace ZZZ_Mod_Manager_X.Pages
                                 isKeySection = true;
                                 keyType = currentSection.Substring(3).Trim();
                                 
-                                // Filtrowanie opisu klucza podobnie jak w oryginalnym pluginie JS
-                                // Rekurencyjne usuwanie prefiksów
+                                // Filter key description similar to the original JS plugin
+                                // Recursively remove prefixes
                                 bool changed;
                                 do {
                                     changed = false;
                                     string keyTypeLower = keyType.ToLowerInvariant();
                                     
-                                    // Sprawdzamy i usuwamy prefiksy w kolejności od najdłuższego do najkrótszego
+                                    // Check and remove prefixes in order from longest to shortest
                                     if (keyTypeLower.StartsWith("swapswapvar")) {
                                         keyType = keyType.Substring(11).Trim();
                                         changed = true;
@@ -517,7 +517,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                                     }
                                 } while (changed && !string.IsNullOrWhiteSpace(keyType));
                                 
-                                // Jeśli opis jest pusty po usunięciu prefiksów, ustaw go na "Toggle"
+                                // If description is empty after removing prefixes, set it to "Toggle"
                                 if (string.IsNullOrWhiteSpace(keyType))
                                     keyType = "Toggle";
                             }
@@ -558,14 +558,14 @@ namespace ZZZ_Mod_Manager_X.Pages
             return hotkeys;
         }
 
-        // Wspólna metoda do przetwarzania wartości klawiszy
+        // Common method for processing key values
         private static HotkeyInfo? ParseKeyValueCommon(string keyValue, string keyType, bool isBack = false)
         {
             var parts = keyValue.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length == 0)
                 return null;
 
-            // Znajdź główny klawisz (ostatni element, który nie zaczyna się od "no_")
+            // Find the main key (last element that does not start with "no_")
             var mainKey = "";
             var mainKeyIndex = -1;
             
@@ -579,32 +579,32 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
             }
             
-            // Jeśli nie znaleziono głównego klawisza, użyj ostatniego elementu
+            // If main key not found, use last element
             if (string.IsNullOrEmpty(mainKey))
             {
                 mainKey = parts[parts.Length - 1].ToUpperInvariant();
                 mainKeyIndex = parts.Length - 1;
             }
             
-            // Sprawdź czy klucz jest w mapowaniu
+            // Check if key is in mapping
             if (!KeyMapping.TryGetValue(mainKey, out var mappedMainKey))
                 mappedMainKey = mainKey;
 
             var modifiers = new List<string>();
             
-            // Zbiór wykluczonych modyfikatorów (dla NO_XXX)
+            // Set of excluded modifiers (for NO_XXX)
             var excludedModifiers = new HashSet<string>();
             
-            // Najpierw identyfikujemy wykluczone modyfikatory
+            // First, identify excluded modifiers
             for (int i = 0; i < parts.Length - 1; i++)
             {
                 var part = parts[i].ToLowerInvariant();
                 if (part.StartsWith("no_"))
                 {
-                    // Wyodrębnij nazwę modyfikatora bez prefiksu 'no_'
+                    // Extract modifier name without 'no_' prefix
                     var excludedMod = part.Substring(3).ToUpperInvariant();
                     excludedModifiers.Add(excludedMod);
-                    // Dodaj również zmapowaną wersję, jeśli istnieje
+                    // Also add mapped version if it exists
                     if (KeyMapping.TryGetValue(excludedMod, out var mappedExcluded))
                     {
                         excludedModifiers.Add(mappedExcluded);
@@ -612,7 +612,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
             }
             
-            // Następnie dodajemy niewykluczone modyfikatory
+            // Then add non-excluded modifiers
             for (int i = 0; i < parts.Length - 1; i++)
             {
                 var part = parts[i].ToUpperInvariant();
@@ -630,7 +630,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 ? $"{string.Join("+", modifiers)}+{mappedMainKey}"
                 : mappedMainKey;
 
-            // Dodaj sufiks "(Back)" jeśli to klawisz typu "back"
+            // Add "(Back)" suffix if it's a back-type key
             var backSuffix = isBack ? " (Back)" : "";
             
             return new HotkeyInfo
@@ -640,7 +640,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             };
         }
 
-        // Wspólna metoda do aktualizacji pliku mod.json
+        // Common method for updating mod.json file
         private static async Task UpdateModJsonWithHotkeysCommonAsync(string modPath, List<HotkeyInfo> hotkeys, CancellationToken token = default)
         {
             var modJsonPath = Path.Combine(modPath, "mod.json");

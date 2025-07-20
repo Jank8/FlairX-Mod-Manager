@@ -60,7 +60,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             DeleteBackupsLabel.Text = T("StatusKeeper_DeleteBackups_Label");
             DeleteBackupsButtonText.Text = T("StatusKeeper_DeleteBackups_Button");
             CheckBackupButtonText.Text = T("StatusKeeper_CheckBackups_Button");
-            // Ustaw tytuł okna na tłumaczenie
+            // Set window title to translation
             if (Window.Current is not null)
             {
                 if (Window.Current is Microsoft.UI.Xaml.Window win)
@@ -117,7 +117,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
                                    Path.Combine(AppContext.BaseDirectory, "ModLibrary");
 
-                // Policz istniej5ce backupy przed operacj5
+                // Count existing backups before operation
                 int beforeBackup = 0;
                 if (Directory.Exists(modLibraryPath))
                 {
@@ -126,7 +126,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
                 await Task.Run(() => BackupIniFiles(modLibraryPath, ref backupCount, ref skipCount));
 
-                // Policz backupy po operacji
+                // Count backups after operation
                 int afterBackup = 0;
                 if (Directory.Exists(modLibraryPath))
                 {
@@ -136,7 +136,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 int newBackups = afterBackup - beforeBackup;
                 int existingBackups = afterBackup - newBackups;
 
-                // Komunikat w 3 liniach
+                // Message in 3 lines
                 var message = string.Format(T("StatusKeeper_CreateBackup_Dialog_Message"), newBackups, afterBackup).Replace("\\n", "\n");
                 var dialog = new ContentDialog
                 {
@@ -271,7 +271,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     if (Directory.Exists(modLibraryPath))
                     {
-                        // Pobierz wszystkie pliki .ini (z wyłączeniem tych z "disabled", "_lod1.ini" i "_lod2.ini" w nazwie)
+                        // Get all .ini files (excluding those with "disabled", "_lod1.ini" and "_lod2.ini" in name)
                         var iniFiles = Directory.GetFiles(modLibraryPath, "*.ini", SearchOption.AllDirectories)
                             .Where(f => {
                                 var fileName = Path.GetFileName(f).ToLower();
@@ -294,7 +294,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                     }
                 });
 
-                // Użyj kluczy językowych dla tytułu i treści dialogu
+                // Use language keys for dialog title and content
                 string message = string.Format(T("StatusKeeper_CheckBackup_Dialog_Message"), 
                     iniCount, iniCount - incompleteCount, incompleteCount);
 

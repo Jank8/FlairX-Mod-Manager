@@ -25,13 +25,13 @@
                             <SelectorBarItem x:Name="ThemeSelectorLight" Tag="Light" Margin="4,0,4,0">
                                 <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
                                     <FontIcon Glyph="&#xE706;" FontSize="16"/>
-                                    <TextBlock x:Name="ThemeSelectorLightText" Text="Jasny" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="ThemeSelectorLightText" Text="Light" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </SelectorBarItem>
                             <SelectorBarItem x:Name="ThemeSelectorDark" Tag="Dark" Margin="8,0,0,0">
                                 <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
                                     <FontIcon Glyph="&#xE708;" FontSize="16"/>
-                                    <TextBlock x:Name="ThemeSelectorDarkText" Text="Ciemny" VerticalAlignment="Center"/>
+                                    <TextBlock x:Name="ThemeSelectorDarkText" Text="Dark" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </SelectorBarItem>
                     </SelectorBar>
@@ -53,14 +53,18 @@
                     <ToggleSwitch x:Name="DynamicModSearchToggle" Toggled="DynamicModSearchToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="ShowOrangeAnimationLabel" Text="Animacja" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                    <TextBlock x:Name="DisableAllModsViewLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                    <ToggleSwitch x:Name="DisableAllModsViewToggle" Toggled="DisableAllModsViewToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0" ToolTipService.ToolTip="Disable for better performance if there is alot of mods in collection"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="ShowOrangeAnimationLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
                     <ToggleSwitch x:Name="ShowOrangeAnimationToggle" Toggled="ShowOrangeAnimationToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0"/>
                 </StackPanel>
-                <!-- Przeniesione linie wyboru ścieżek na sam dół -->
+                <!-- Path selection lines moved to the bottom -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock x:Name="XXMIModsDirectoryLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
                     <BreadcrumbBar x:Name="XXMIModsDirectoryBreadcrumb" Width="410" Margin="-40,0,8,0" IsHitTestVisible="False" IsTabStop="False"/>
-                    <Button x:Name="XXMIModsDirectoryPickButton" Click="XXMIModsDirectoryPickButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Wybierz katalog">
+                    <Button x:Name="XXMIModsDirectoryPickButton" Click="XXMIModsDirectoryPickButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Select directory">
                         <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
                     </Button>
                     <Button x:Name="XXMIModsDirectoryDefaultButton" Click="XXMIModsDirectoryDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0" ToolTipService.ToolTip="">
@@ -70,7 +74,7 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock x:Name="ModLibraryDirectoryLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
                     <BreadcrumbBar x:Name="ModLibraryDirectoryBreadcrumb" Width="410" Margin="-40,0,8,0" IsHitTestVisible="False" IsTabStop="False"/>
-                    <Button x:Name="ModLibraryDirectoryPickButton" Click="ModLibraryDirectoryPickButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Wybierz katalog">
+                    <Button x:Name="ModLibraryDirectoryPickButton" Click="ModLibraryDirectoryPickButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Select directory">
                         <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
                     </Button>
                     <Button x:Name="ModLibraryDirectoryDefaultButton" Click="ModLibraryDirectoryDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0" ToolTipService.ToolTip="">
@@ -90,7 +94,7 @@
                 MaxWidth="800"
                 Click="AboutButton_Click">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                <TextBlock x:Name="AboutButtonText" Text="O programie" VerticalAlignment="Center"/>
+                <TextBlock x:Name="AboutButtonText" Text="" VerticalAlignment="Center"/>
                 <FontIcon x:Name="AboutButtonIcon" Glyph="&#xE946;" FontSize="18" Margin="4,0,0,0" VerticalAlignment="Center"/>
             </StackPanel>
         </Button>
