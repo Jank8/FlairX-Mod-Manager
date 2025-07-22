@@ -107,34 +107,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             ToolTipService.SetToolTip(ManualSyncButton, T("StatusKeeper_Tooltip_ManualSync"));
         }
 
-        private async Task LoadSettingsToUIAsync()
-        {
-            // Set toggles based on settings
-            DynamicSyncToggle.IsOn = SettingsManager.Current.StatusKeeperDynamicSyncEnabled;
-            BackupConfirmationToggle.IsOn = SettingsManager.Current.StatusKeeperBackupConfirmed;
-            
-            // Update button states based on backup confirmation
-            UpdateSyncButtonStates();
-            
-            // Check if the d3dx_user.ini file exists
-            var d3dxUserPath = GetD3dxUserPathStatic();
-            if (string.IsNullOrEmpty(d3dxUserPath) && DynamicSyncToggle.IsOn)
-            {
-                // Disable auto-sync
-                DynamicSyncToggle.IsOn = false;
-                SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
-                SettingsManager.Save();
-                
-                // Show message to the user
-                await ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
-            }
-        }
-        
-        // Keep the old method for compatibility
-        private void LoadSettingsToUI()
-        {
-            _ = LoadSettingsToUIAsync();
-        }
+
 
         // Method for saving the logging setting, call it where you want to change StatusKeeperLoggingEnabled
         private void SetLoggingEnabled(bool enabled)
@@ -216,7 +189,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                     // Check backup status in the background (only if sync is enabled)
                     if (DynamicSyncToggle.IsOn)
                     {
-                        await ValidateAndHandleSyncStateAsync();
+                        ValidateAndHandleSyncState();
                     }
                 }
                 catch (Exception ex)
@@ -226,7 +199,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             });
         }
         
-        private Task ValidateAndHandleSyncStateAsync()
+        private void ValidateAndHandleSyncState()
         {
             // Check d3dx_user.ini
             var d3dxUserPath = GetD3dxUserPathStatic();
@@ -245,7 +218,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     await ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
                 });
-                return Task.CompletedTask;
+                return;
             }
             
             // Perform automatic synchronization in the background
@@ -253,8 +226,6 @@ namespace ZZZ_Mod_Manager_X.Pages
             {
                 _ = SyncPersistentVariables();
             }
-            
-            return Task.CompletedTask;
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
