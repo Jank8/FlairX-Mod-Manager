@@ -46,6 +46,8 @@ A comprehensive mod management application for Zenless Zone Zero (ZZZ) game, bui
 - **Microsoft Visual C++ Redistributable** (latest)
 - **Windows App SDK** 1.8 experimental 4 or later
 
+- USE XXMI [PORTABLE VERSION!](https://github.com/SpectrumQT/XXMI-Launcher)
+
 ### File System
 - **NTFS partition** required for mod activation (symbolic link support)
 - Administrator privileges required for symbolic link creation
