@@ -23,16 +23,6 @@ namespace ZZZ_Mod_Manager_X
 {
     public sealed partial class MainWindow : Window
     {
-        // Windows API constants for SetWindowPos
-        private const int HWND_TOPMOST = -1;
-        private const int SWP_NOMOVE = 0x0002;
-        private const int SWP_NOSIZE = 0x0001;
-        private const int SWP_SHOWWINDOW = 0x0040;
-
-        // Windows API declaration
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern bool SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int x, int y, int cx, int cy, uint uFlags);
-
         private const int MIN_WIDTH = 1280;
         private const int MIN_HEIGHT = 720;
         private const int MAX_WIDTH = 20000;
@@ -61,8 +51,7 @@ namespace ZZZ_Mod_Manager_X
             // Set window icon on taskbar
             appWindow.SetIcon("Assets\\appicon.png");
             
-            // Set window to appear above all other windows
-            SetWindowTopmost(hwnd);
+
 
             // Force theme on startup according to user settings
             var theme = ZZZ_Mod_Manager_X.SettingsManager.Current.Theme;
@@ -707,20 +696,6 @@ namespace ZZZ_Mod_Manager_X
         public Frame? GetContentFrame() => contentFrame;
         public ProgressBar? GetOrangeAnimationProgressBar() => PaneStackPanel.FindName("OrangeAnimationProgressBar") as ProgressBar;
 
-        /// <summary>
-        /// Sets the window to appear above all other windows (topmost)
-        /// </summary>
-        /// <param name="hwnd">Window handle</param>
-        private void SetWindowTopmost(IntPtr hwnd)
-        {
-            try
-            {
-                SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Failed to set window topmost: {ex.Message}");
-            }
-        }
+
     }
 }

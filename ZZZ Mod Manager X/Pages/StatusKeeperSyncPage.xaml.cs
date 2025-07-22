@@ -161,7 +161,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             ManualSyncButton.IsEnabled = BackupConfirmationToggle.IsOn;
             
             // Check d3dx_user.ini in background
-            _ = Task.Run(async () =>
+            _ = Task.Run(() =>
             {
                 var d3dxUserPath = GetD3dxUserPathStatic();
                 if (string.IsNullOrEmpty(d3dxUserPath) && DynamicSyncToggle.IsOn)
@@ -181,7 +181,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             });
             
             // Move heavy operations to the background to avoid blocking the UI
-            _ = Task.Run(async () =>
+            _ = Task.Run(() =>
             {
                 try
                 {
