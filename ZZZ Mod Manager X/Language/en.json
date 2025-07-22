@@ -21,7 +21,7 @@
   "SettingsPage_ModLibraryDirectory": "Mod library directory:",
   "SettingsPage_RestoreDefault": "Restore default",
   "SettingsPage_RestoreDefault_Tooltip": "Restore the default value",
-  "SettingsPage_OptimizePreviews_Tooltip": "Optimize mod thumbnails",
+  "SettingsPage_OptimizePreviews_Tooltip": "Resizes preview images to 1000x1000 pixels, crops non-square images to square (middle), saves as high-quality JPG",
   "SettingsPage_OptimizePreviews_Label": "Optimize mod thumbnails",
   "SettingsPage_DynamicModSearch_Label": "Dynamic filtering",
   "SettingsPage_DynamicModSearch_Tooltip": "Disable if it works slowly",
@@ -61,6 +61,10 @@
   "Preset_Deleted": "Preset deleted.",
   "OptimizePreviews_Completed": "Optimization completed.",
   "OptimizePreviews_Cancelled": "Optimization cancelled.",
+  "OptimizePreviews_Confirm_Title": "Optimize Thumbnails",
+  "OptimizePreviews_Confirm_Message": "This will optimize all mod preview images to 1000x1000 pixels. This process may take some time. Do you want to continue?",
+  "Continue": "Continue",
+  "Cancel": "Cancel",
   "Ntfs_Warning_Title": "Warning: File system",
   "Ntfs_Warning_Content": "The selected folder for {0} ({1}) is not on an NTFS partition. This will prevent mod activation (symlinks).",
   "Ntfs_Startup_Warning_Content": "Mod management works on all file systems supported by Windows. However, the current disk or partition is not formatted as NTFS, which prevents the creation of symbolic links (symlinks) and thus mod activation. You can still select a mod library and XXMI target folder on an NTFS disk to enable mod activation.",
@@ -79,5 +83,6 @@
   "Error_Generic": "Error",
   "OK": "OK",
   "SourceCode": "Source code",
-  "Auto_Language": "Detect language"
+  "Auto_Language": "Detect language",
+  "OptimizePreviews_Description": "Preview image optimization means the image will be cropped to a 1:1 ratio from the center and resized to 1000x1000 px."
 }

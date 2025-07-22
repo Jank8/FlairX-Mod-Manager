@@ -95,9 +95,10 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             D3dxFilePathLabel.Text = T("StatusKeeper_D3dxFilePath_Label");
             DynamicSyncLabel.Text = T("StatusKeeper_DynamicSync_Label");
+            BackupConfirmationLabel.Text = T("StatusKeeper_BackupConfirmation_Label");
             ManualSyncLabel.Text = T("StatusKeeper_ManualSync_Label");
             ManualSyncButtonText.Text = T("StatusKeeper_ManualSync_Button");
-            BackupOverrideLabel.Text = T("StatusKeeper_BackupOverride_Label");
+
             
             // Setting tooltips from language files
             ToolTipService.SetToolTip(D3dxFilePathPickButton, T("StatusKeeper_Tooltip_D3dxFilePath"));
@@ -109,75 +110,23 @@ namespace ZZZ_Mod_Manager_X.Pages
         private async Task LoadSettingsToUIAsync()
         {
             // Set toggles based on settings
-            bool wasSyncEnabled = SettingsManager.Current.StatusKeeperDynamicSyncEnabled;
-            
             DynamicSyncToggle.IsOn = SettingsManager.Current.StatusKeeperDynamicSyncEnabled;
-            BackupOverride1Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride1Enabled;
-            BackupOverride2Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride2Enabled;
-            BackupOverride3Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
-
-            // Check backup only if auto-sync would be enabled and is not in override mode
-            bool backupOverrideEnabled = SettingsManager.Current.StatusKeeperBackupOverride1Enabled &&
-                                         SettingsManager.Current.StatusKeeperBackupOverride2Enabled &&
-                                         SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
+            BackupConfirmationToggle.IsOn = SettingsManager.Current.StatusKeeperBackupConfirmed;
             
-            // Check backup status regardless of whether synchronization is enabled
-            bool hasBackup = HasBackupFilesStatic();
-            bool isBackupComplete = IsFullBackupPresentStatic();
-            
-            // If synchronization is enabled but backup is incomplete or missing, disable synchronization
-            if (DynamicSyncToggle.IsOn && !backupOverrideEnabled && (!hasBackup || !isBackupComplete))
-            {
-                // Disable auto-sync and override setting
-                DynamicSyncToggle.IsOn = false;
-                SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
-                
-                // Set the flag that synchronization was disabled due to incomplete backup
-                SettingsManager.Current.StatusKeeperSyncWasDisabled = true;
-                SettingsManager.Save();
-                
-                // Show message to the user
-                if (!hasBackup)
-                {
-                    await ShowInfoDialog(T("StatusKeeper_BackupMissing_Title"), T("StatusKeeper_BackupMissing_Message"));
-                }
-                else if (!isBackupComplete)
-                {
-                    await ShowInfoDialog(T("StatusKeeper_BackupIncomplete_Title"), T("StatusKeeper_BackupIncomplete_Message"));
-                }
-                
-                // Show additional message about disabling synchronization
-                await ShowInfoDialog(T("StatusKeeper_SyncDisabled_Title"), T("StatusKeeper_SyncDisabled_Message"));
-            }
-            // If synchronization is disabled and StatusKeeperSyncWasDisabled flag is set,
-            // show synchronization disabled message
-            else if (!DynamicSyncToggle.IsOn && SettingsManager.Current.StatusKeeperSyncWasDisabled && !backupOverrideEnabled)
-            {
-                // Show message about disabling synchronization
-                await ShowInfoDialog(T("StatusKeeper_SyncDisabled_Title"), T("StatusKeeper_SyncDisabled_Message"));
-                
-                // Reset the flag so the message doesn't appear on every startup
-                SettingsManager.Current.StatusKeeperSyncWasDisabled = false;
-                SettingsManager.Save();
-            }
+            // Update button states based on backup confirmation
+            UpdateSyncButtonStates();
             
             // Check if the d3dx_user.ini file exists
             var d3dxUserPath = GetD3dxUserPathStatic();
             if (string.IsNullOrEmpty(d3dxUserPath) && DynamicSyncToggle.IsOn)
             {
-                // Disable auto-sync and set the flag
+                // Disable auto-sync
                 DynamicSyncToggle.IsOn = false;
                 SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
                 SettingsManager.Save();
                 
                 // Show message to the user
                 await ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
-                
-                // If synchronization was previously enabled, show additional message about disabling it
-                if (wasSyncEnabled)
-                {
-                    await ShowInfoDialog(T("StatusKeeper_SyncDisabled_Title"), T("StatusKeeper_SyncDisabled_Message"));
-                }
             }
         }
         
@@ -229,37 +178,40 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             base.OnNavigatedTo(e);
             
-            LogStatic("OnNavigatedTo called", "DEBUG");
-            
             // Fast UI initialization - only read from settings (no I/O operations)
+            BackupConfirmationToggle.IsOn = SettingsManager.Current.StatusKeeperBackupConfirmed;
             DynamicSyncToggle.IsOn = SettingsManager.Current.StatusKeeperDynamicSyncEnabled;
-            BackupOverride1Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride1Enabled;
-            BackupOverride2Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride2Enabled;
-            BackupOverride3Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
-            
             InitializeBreadcrumbBar();
             
-            // Check the sync disabled message flag (fast operation)
-            bool showSyncDisabledMessage = SettingsManager.Current.StatusKeeperSyncWasDisabled;
-            if (showSyncDisabledMessage)
+            // Update button states
+            DynamicSyncToggle.IsEnabled = BackupConfirmationToggle.IsOn;
+            ManualSyncButton.IsEnabled = BackupConfirmationToggle.IsOn;
+            
+            // Check d3dx_user.ini in background
+            _ = Task.Run(async () =>
             {
-                SettingsManager.Current.StatusKeeperSyncWasDisabled = false;
-                SettingsManager.Save();
-            }
+                var d3dxUserPath = GetD3dxUserPathStatic();
+                if (string.IsNullOrEmpty(d3dxUserPath) && DynamicSyncToggle.IsOn)
+                {
+                    this.DispatcherQueue.TryEnqueue(() =>
+                    {
+                        DynamicSyncToggle.IsOn = false;
+                        SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
+                        SettingsManager.Save();
+                    });
+                    
+                    this.DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        await ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
+                    });
+                }
+            });
             
             // Move heavy operations to the background to avoid blocking the UI
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    // Show the sync disabled message in the background
-                    if (showSyncDisabledMessage)
-                    {
-                        this.DispatcherQueue.TryEnqueue(async () =>
-                        {
-                            await ShowInfoDialog(T("StatusKeeper_SyncDisabled_Title"), T("StatusKeeper_SyncDisabled_Message"));
-                        });
-                    }
                     
                     // Check backup status in the background (only if sync is enabled)
                     if (DynamicSyncToggle.IsOn)
@@ -276,42 +228,6 @@ namespace ZZZ_Mod_Manager_X.Pages
         
         private Task ValidateAndHandleSyncStateAsync()
         {
-            bool backupOverrideEnabled = SettingsManager.Current.StatusKeeperBackupOverride1Enabled &&
-                                         SettingsManager.Current.StatusKeeperBackupOverride2Enabled &&
-                                         SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
-            
-            // Check backup only if override is not enabled
-            if (!backupOverrideEnabled)
-            {
-                bool hasBackup = HasBackupFilesStatic();
-                bool isBackupComplete = IsFullBackupPresentStatic();
-                
-                if (!hasBackup || !isBackupComplete)
-                {
-                    // Disable sync on UI thread
-                    this.DispatcherQueue.TryEnqueue(() =>
-                    {
-                        DynamicSyncToggle.IsOn = false;
-                        SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
-                        SettingsManager.Save();
-                    });
-                    
-                    // Show message
-                    this.DispatcherQueue.TryEnqueue(async () =>
-                    {
-                        if (!hasBackup)
-                        {
-                            await ShowInfoDialog(T("StatusKeeper_BackupMissing_Title"), T("StatusKeeper_BackupMissing_Message"));
-                        }
-                        else if (!isBackupComplete)
-                        {
-                            await ShowInfoDialog(T("StatusKeeper_BackupIncomplete_Title"), T("StatusKeeper_BackupIncomplete_Message"));
-                        }
-                    });
-                    return Task.CompletedTask;
-                }
-            }
-            
             // Check d3dx_user.ini
             var d3dxUserPath = GetD3dxUserPathStatic();
             if (string.IsNullOrEmpty(d3dxUserPath))
@@ -415,43 +331,50 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
         }
 
+        private void BackupConfirmationToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.StatusKeeperBackupConfirmed = BackupConfirmationToggle.IsOn;
+            SettingsManager.Save();
+            
+            // Update button states based on backup confirmation
+            UpdateSyncButtonStates();
+            
+            // If backup is not confirmed and sync is enabled, disable it
+            if (!BackupConfirmationToggle.IsOn && DynamicSyncToggle.IsOn)
+            {
+                DynamicSyncToggle.IsOn = false;
+                SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
+                SettingsManager.Save();
+                StopWatcher();
+                StopPeriodicSync();
+                LogStatic("Dynamic sync disabled because backup confirmation was turned off");
+            }
+        }
+
+        private void UpdateSyncButtonStates()
+        {
+            bool backupConfirmed = BackupConfirmationToggle.IsOn;
+            
+            // Disable sync functionality if backup is not confirmed
+            DynamicSyncToggle.IsEnabled = backupConfirmed;
+            ManualSyncButton.IsEnabled = backupConfirmed;
+        }
+
         private void DynamicSyncToggle_Toggled(object sender, RoutedEventArgs e)
         {
+            // Check if backup is confirmed before allowing sync
+            if (DynamicSyncToggle.IsOn && !BackupConfirmationToggle.IsOn)
+            {
+                DynamicSyncToggle.IsOn = false;
+                LogStatic("Cannot enable dynamic sync: Backup not confirmed", "WARNING");
+                return;
+            }
+            
             SettingsManager.Current.StatusKeeperDynamicSyncEnabled = DynamicSyncToggle.IsOn;
             SettingsManager.Save();
 
             if (DynamicSyncToggle.IsOn)
             {
-                var backupOverrideEnabled = SettingsManager.Current.StatusKeeperBackupOverride1Enabled && 
-                                          SettingsManager.Current.StatusKeeperBackupOverride2Enabled && 
-                                          SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
-                
-                if (!backupOverrideEnabled)
-                {
-                    if (!HasBackupFilesStatic())
-                    {
-                        DynamicSyncToggle.IsOn = false;
-                        SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
-                        // Set the flag that synchronization was disabled due to lack of backup
-                        SettingsManager.Current.StatusKeeperSyncWasDisabled = true;
-                        SettingsManager.Save();
-                        LogStatic("Cannot enable auto-sync: No backup files (.msk) found", "WARNING");
-                        _ = ShowInfoDialog(T("StatusKeeper_BackupMissing_Title"), T("StatusKeeper_BackupMissing_Message"));
-                        return;
-                    }
-                    if (!IsFullBackupPresentStatic())
-                    {
-                        DynamicSyncToggle.IsOn = false;
-                        SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
-                        // Set the flag that synchronization was disabled due to incomplete backup
-                        SettingsManager.Current.StatusKeeperSyncWasDisabled = true;
-                        SettingsManager.Save();
-                        LogStatic("Cannot enable auto-sync: Backup is incomplete", "WARNING");
-                        _ = ShowInfoDialog(T("StatusKeeper_BackupIncomplete_Title"), T("StatusKeeper_BackupIncomplete_Message"));
-                        return;
-                    }
-                }
-
                 var d3dxUserPath = GetD3dxUserPathStatic();
                 if (string.IsNullOrEmpty(d3dxUserPath))
                 {
@@ -479,34 +402,13 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private async void ManualSyncButton_Click(object sender, RoutedEventArgs e)
         {
-            var backupOverrideEnabled = SettingsManager.Current.StatusKeeperBackupOverride1Enabled && 
-                                      SettingsManager.Current.StatusKeeperBackupOverride2Enabled && 
-                                      SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
-            
-            if (!backupOverrideEnabled)
+            // Check if backup is confirmed before allowing manual sync
+            if (!BackupConfirmationToggle.IsOn)
             {
-                if (!HasBackupFilesStatic())
-                {
-                    // Set the flag that synchronization was disabled due to lack of backup
-                    SettingsManager.Current.StatusKeeperSyncWasDisabled = true;
-                    SettingsManager.Save();
-                    
-                    LogStatic("Cannot sync: No backup files (.msk) found", "WARNING");
-                    await ShowInfoDialog(T("StatusKeeper_BackupMissing_Title"), T("StatusKeeper_BackupMissing_Message"));
-                    return;
-                }
-                if (!IsFullBackupPresentStatic())
-                {
-                    // Set the flag that synchronization was disabled due to incomplete backup
-                    SettingsManager.Current.StatusKeeperSyncWasDisabled = true;
-                    SettingsManager.Save();
-                    
-                    LogStatic("Cannot sync: Backup is incomplete", "WARNING");
-                    await ShowInfoDialog(T("StatusKeeper_BackupIncomplete_Title"), T("StatusKeeper_BackupIncomplete_Message"));
-                    return;
-                }
+                LogStatic("Cannot sync: Backup not confirmed", "WARNING");
+                return;
             }
-
+            
             // Check if the d3dx_user.ini file exists
             var d3dxUserPath = GetD3dxUserPathStatic();
             if (string.IsNullOrEmpty(d3dxUserPath))
@@ -522,14 +424,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 ManualSyncProgressBar.Visibility = Visibility.Visible;
                 ManualSyncButtonText.Text = T("StatusKeeper_Syncing");
 
-                if (backupOverrideEnabled)
-                {
-                    LogStatic("⚠️ Syncing persistent variables WITHOUT backup protection...", "WARNING");
-                }
-                else
-                {
-                    LogStatic("Syncing persistent variables...");
-                }
+                LogStatic("Syncing persistent variables...");
 
                 var result = await SyncPersistentVariables();
 
@@ -556,47 +451,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
         }
 
-        private async void BackupOverride1Toggle_Toggled(object sender, RoutedEventArgs e)
-        {
-            if (BackupOverride1Toggle.IsOn)
-            {
-                await ShowBackupOverrideWarning();
-            }
-            SettingsManager.Current.StatusKeeperBackupOverride1Enabled = BackupOverride1Toggle.IsOn;
-            SettingsManager.Save();
-        }
 
-        private async void BackupOverride2Toggle_Toggled(object sender, RoutedEventArgs e)
-        {
-            if (BackupOverride2Toggle.IsOn)
-            {
-                await ShowBackupOverrideWarning();
-            }
-            SettingsManager.Current.StatusKeeperBackupOverride2Enabled = BackupOverride2Toggle.IsOn;
-            SettingsManager.Save();
-        }
-
-        private async void BackupOverride3Toggle_Toggled(object sender, RoutedEventArgs e)
-        {
-            if (BackupOverride3Toggle.IsOn)
-            {
-                await ShowBackupOverrideWarning();
-            }
-            SettingsManager.Current.StatusKeeperBackupOverride3Enabled = BackupOverride3Toggle.IsOn;
-            SettingsManager.Save();
-        }
-
-        private async Task ShowBackupOverrideWarning()
-        {
-            var dialog = new ContentDialog
-            {
-                Title = T("BackupOverride_Warning_Title"),
-                Content = T("BackupOverride_Warning_Content"),
-                CloseButtonText = T("OK"),
-                XamlRoot = this.XamlRoot
-            };
-            await dialog.ShowAsync();
-        }
 
         // Simple info dialog (must be before use in code)
         private async Task ShowInfoDialog(string title, string message)
@@ -670,168 +525,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
         }
 
-        // ==================== BACKUP SYSTEM ====================
-        
-        public static bool HasBackupFilesStatic()
-        {
-            var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
-                                Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-            
-            LogStatic($"Checking for backup files in: {modLibraryPath}");
-            
-            bool backupExists = SearchForBackups(modLibraryPath);
-            LogStatic($"Backup files exist: {backupExists}");
-            return backupExists;
-        }
 
-        // Checks if the backup is complete: the number of .msk files must equal the number of .ini files
-        public static bool IsFullBackupPresentStatic()
-        {
-            var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
-                                Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-            
-            LogStatic($"Sprawdzanie kompletności backupu w katalogu: {modLibraryPath}");
-            
-            if (!Directory.Exists(modLibraryPath))
-            {
-                LogStatic($"Katalog {modLibraryPath} nie istnieje", "ERROR");
-                return false;
-            }
-                
-            // Get all .ini files (excluding those with "disabled", "_lod1.ini" and "_lod2.ini" in the name)
-            var allIniFiles = Directory.GetFiles(modLibraryPath, "*.ini", SearchOption.AllDirectories);
-            LogStatic($"Znaleziono łącznie {allIniFiles.Length} plików .ini przed filtrowaniem");
-            
-            var iniFiles = allIniFiles
-                .Where(f => {
-                    var fileName = Path.GetFileName(f).ToLower();
-                    var isValid = !fileName.Contains("disabled") && 
-                                 !fileName.Contains("_lod1.ini") && 
-                                 !fileName.Contains("_lod2.ini") &&
-                                 !fileName.Contains("_lod");
-                    if (!isValid)
-                    {
-                        LogStatic($"Ignorowanie pliku .ini: {f}", "INFO");
-                    }
-                    return isValid;
-                })
-                .ToArray();
-            
-            LogStatic($"Po filtrowaniu zostało {iniFiles.Length} plików .ini");
-                
-            // Get all .msk files (excluding those with "disabled", "_lod1.ini.msk" and "_lod2.ini.msk" in the name)
-            var allMskFiles = Directory.GetFiles(modLibraryPath, "*.msk", SearchOption.AllDirectories);
-            LogStatic($"Znaleziono łącznie {allMskFiles.Length} plików .msk przed filtrowaniem");
-            
-            var mskFiles = allMskFiles
-                .Where(f => {
-                    var fileName = Path.GetFileName(f).ToLower();
-                    var isValid = !fileName.Contains("disabled") && 
-                                 !fileName.Contains("_lod1.ini.msk") && 
-                                 !fileName.Contains("_lod2.ini.msk") &&
-                                 !fileName.Contains("_lod");
-                    if (!isValid)
-                    {
-                        LogStatic($"Ignorowanie pliku .msk: {f}", "INFO");
-                    }
-                    return isValid;
-                })
-                .ToArray();
-            
-            LogStatic($"Po filtrowaniu zostało {mskFiles.Length} plików .msk");
-            
-            // If there are no .ini or .msk files, return false
-            if (iniFiles.Length == 0)
-            {
-                LogStatic("Nie znaleziono plików .ini po filtrowaniu", "WARNING");
-                return false;
-            }
-            
-            if (mskFiles.Length == 0)
-            {
-                LogStatic("Nie znaleziono plików .msk po filtrowaniu - brak backupu", "WARNING");
-                return false;
-            }
-            
-            // Check if the number of .msk files is equal to the number of .ini files
-            if (mskFiles.Length != iniFiles.Length)
-            {
-                LogStatic($"Backup niekompletny: znaleziono {iniFiles.Length} plików .ini, ale tylko {mskFiles.Length} plików .msk", "WARNING");
-                
-                // List .ini files without corresponding .msk files
-                foreach (var ini in iniFiles)
-                {
-                    var backup = ini + ".msk";
-                    if (!File.Exists(backup))
-                    {
-                        LogStatic($"Brak backupu dla pliku: {ini}", "WARNING");
-                    }
-                }
-                
-                return false;
-            }
-            
-            // Check if each .ini file has a corresponding .msk file
-            bool allBackupsExist = true;
-            foreach (var ini in iniFiles)
-            {
-                var backup = ini + ".msk";
-                if (!File.Exists(backup))
-                {
-                    LogStatic($"Brak backupu dla pliku: {ini}", "WARNING");
-                    allBackupsExist = false;
-                }
-            }
-            
-            if (!allBackupsExist)
-            {
-                LogStatic("Nie wszystkie pliki .ini mają odpowiadające im pliki .msk", "WARNING");
-                return false;
-            }
-            
-            LogStatic($"Backup kompletny: {mskFiles.Length} plików .msk dla {iniFiles.Length} plików .ini");
-            return true;
-        }
-
-        private static bool SearchForBackups(string dir)
-        {
-            if (!Directory.Exists(dir)) return false;
-
-            try
-            {
-                var items = Directory.GetFileSystemEntries(dir);
-                
-                foreach (var item in items)
-                {
-                    if (Directory.Exists(item))
-                    {
-                        if (SearchForBackups(item)) return true;
-                    }
-                    else if (File.Exists(item) && item.ToLower().EndsWith(".msk"))
-                    {
-                        var fileName = Path.GetFileName(item).ToLower();
-                        // Ignore files with "disabled", "_lod1.ini.msk" and "_lod2.ini.msk" in the name
-                        if (!fileName.Contains("disabled") && 
-                            !fileName.Contains("_lod1.ini.msk") && 
-                            !fileName.Contains("_lod2.ini.msk"))
-                        {
-                            LogStatic($"Found valid backup file: {item}");
-                            return true;
-                        }
-                        else
-                        {
-                            LogStatic($"Ignoring backup file (disabled or LOD): {item}", "INFO");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogStatic($"Error searching for backups in {dir}: {ex.Message}", "ERROR");
-            }
-
-            return false;
-        }
 
         // ==================== D3DX USER INI PATH MANAGEMENT ====================
         

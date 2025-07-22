@@ -20,11 +20,17 @@
                     <FontIcon Glyph="&#xE72C;" FontSize="14"/>
                 </Button>
             </StackPanel>
+            <!-- Backup Confirmation Toggle -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock x:Name="BackupConfirmationLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                <ToggleSwitch x:Name="BackupConfirmationToggle" Toggled="BackupConfirmationToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0"/>
+            </StackPanel>
             <!-- Dynamic Sync Toggle -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock x:Name="DynamicSyncLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
                 <ToggleSwitch x:Name="DynamicSyncToggle" Toggled="DynamicSyncToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0"/>
             </StackPanel>
+            
             <!-- Manual Sync Button -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock x:Name="ManualSyncLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
@@ -36,22 +42,7 @@
                 </Button>
                 <ProgressBar x:Name="ManualSyncProgressBar" Width="130" Height="32" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="10,0,0,0" />
             </StackPanel>
-            <!-- Backup Override Toggles (3-step safety) -->
-            <Grid VerticalAlignment="Center">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="255"/>
-                    <ColumnDefinition Width="1"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="4"/>
-                    <ColumnDefinition Width="50"/>
-                    <ColumnDefinition Width="4"/>
-                    <ColumnDefinition Width="50"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock x:Name="BackupOverrideLabel" Text="" Grid.Column="0" VerticalAlignment="Center" Foreground="Red" FontWeight="SemiBold"/>
-                <ToggleSwitch x:Name="BackupOverride1Toggle" Grid.Column="2" Toggled="BackupOverride1Toggle_Toggled" OnContent="" OffContent="" Margin="-33,0,0,0"/>
-                <ToggleSwitch x:Name="BackupOverride2Toggle" Grid.Column="4" Toggled="BackupOverride2Toggle_Toggled" OnContent="" OffContent="" Margin="-12,0,0,0"/>
-                <ToggleSwitch x:Name="BackupOverride3Toggle" Grid.Column="6" Toggled="BackupOverride3Toggle_Toggled" OnContent="" OffContent="" Margin="-8,0,0,0"/>
-            </Grid>
+
         </StackPanel>
     </ScrollViewer>
 </Page>

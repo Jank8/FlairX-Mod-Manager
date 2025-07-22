@@ -3,11 +3,12 @@
   "StatusKeeper_Function": "Status Keeper",
   "StatusKeeper_D3dxFilePath_Label": "d3dx_user.ini file path:",
   "StatusKeeper_DynamicSync_Label": "Dynamic synchronization",
+  "StatusKeeper_BackupConfirmation_Label": "I made backups",
   "StatusKeeper_ManualSync_Label": "Manual synchronization",
   "StatusKeeper_ManualSync_Button": "Start",
   "StatusKeeper_ManualSync_Complete_Title": "Synchronization Complete",
   "StatusKeeper_Syncing": "Syncing...",
-  "StatusKeeper_BackupOverride_Label": "I DON'T CARE ABOUT BACKUPS",
+
   "StatusKeeper_Tab_Synchronizacja": "Synchronization",
   "StatusKeeper_Tab_KopiaZapasowa": "Backup",
   "StatusKeeper_Tab_Logi": "Logs",

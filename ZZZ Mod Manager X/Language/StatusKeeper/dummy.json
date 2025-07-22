@@ -3,6 +3,7 @@
   "StatusKeeper_Function": "DUMMY",
   "StatusKeeper_D3dxFilePath_Label": "DUMMY",
   "StatusKeeper_DynamicSync_Label": "DUMMY",
+  "StatusKeeper_BackupConfirmation_Label": "DUMMY",
   "StatusKeeper_ManualSync_Label": "DUMMY",
   "StatusKeeper_ManualSync_Button": "DUMMY",
   "StatusKeeper_ManualSync_Complete_Title": "DUMMY",

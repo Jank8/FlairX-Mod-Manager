@@ -19,10 +19,10 @@ namespace ZZZ_Mod_Manager_X
         public string StatusKeeperD3dxUserIniPath { get; set; } = AppConstants.DEFAULT_D3DX_USER_INI_PATH;
         public bool StatusKeeperDynamicSyncEnabled { get; set; } = false;
         public bool StatusKeeperLoggingEnabled { get; set; } = false;
+        public bool StatusKeeperBackupConfirmed { get; set; } = false; // User confirms they made backups
         public bool StatusKeeperBackupOverride1Enabled { get; set; } = false;
         public bool StatusKeeperBackupOverride2Enabled { get; set; } = false;
         public bool StatusKeeperBackupOverride3Enabled { get; set; } = false;
-        public bool StatusKeeperSyncWasDisabled { get; set; } = false; // Whether to show sync disabled message on next startup
     }
 
     public static class SettingsManager

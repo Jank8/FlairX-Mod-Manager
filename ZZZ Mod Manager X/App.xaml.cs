@@ -167,50 +167,7 @@ namespace ZZZ_Mod_Manager_X
                 };
             }
 
-            // Check synchronization status after one second from startup
-            _window?.DispatcherQueue.TryEnqueue(async () =>
-            {
-                // Give time for UI to load
-                await Task.Delay(1000);
-                
-                try
-                {
-                    // Check backup completeness in background
-                    bool hasBackup = ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.HasBackupFilesStatic();
-                    bool isBackupComplete = ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.IsFullBackupPresentStatic();
-                    
-                    // Check if backup is incomplete or missing
-                    if (!hasBackup || !isBackupComplete)
-                    {
-                        // If synchronization is enabled, disable it
-                        if (SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
-                        {
-                            // Disable synchronization
-                            SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
-                            SettingsManager.Save();
-                            
-                            // Stop watcher and timer
-                            ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StopWatcherStatic();
-                            ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StopPeriodicSyncStatic();
-                        }
-                        
-                        // Display synchronization disabled message
-                        var dialog = new ContentDialog
-                        {
-                            Title = ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.TStatic("StatusKeeper_SyncDisabled_Title"),
-                            Content = ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.TStatic("StatusKeeper_SyncDisabled_Message"),
-                            CloseButtonText = "OK",
-                            XamlRoot = _window?.Content?.XamlRoot
-                        };
-                        
-                        await dialog.ShowAsync();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error checking sync status: {ex.Message}");
-                }
-            });
+
             
             // Start StatusKeeperSync (watcher + timer) if dynamic synchronization is enabled
             if (SettingsManager.Current.StatusKeeperDynamicSyncEnabled)

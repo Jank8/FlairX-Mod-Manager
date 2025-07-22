@@ -295,7 +295,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             ModLibraryDirectoryLabel.Text = LanguageManager.Instance.T("SettingsPage_ModLibraryDirectory");
             ToolTipService.SetToolTip(XXMIModsDirectoryDefaultButton, LanguageManager.Instance.T("SettingsPage_RestoreDefault_Tooltip"));
             ToolTipService.SetToolTip(ModLibraryDirectoryDefaultButton, LanguageManager.Instance.T("SettingsPage_RestoreDefault_Tooltip"));
-            ToolTipService.SetToolTip(OptimizePreviewsButton, null); // Remove tooltip from optimize previews button
+            ToolTipService.SetToolTip(OptimizePreviewsButton, LanguageManager.Instance.T("SettingsPage_OptimizePreviews_Tooltip"));
             OptimizePreviewsLabel.Text = LanguageManager.Instance.T("SettingsPage_OptimizePreviews_Label");
             ToolTipService.SetToolTip(XXMIModsDirectoryPickButton, LanguageManager.Instance.T("PickFolderDialog_Title"));
             ToolTipService.SetToolTip(ModLibraryDirectoryPickButton, LanguageManager.Instance.T("PickFolderDialog_Title"));
@@ -406,6 +406,23 @@ namespace ZZZ_Mod_Manager_X.Pages
                     _previewCts.Cancel();
                 }
                 return;
+            }
+
+            // Show confirmation dialog before starting optimization
+            var confirmDialog = new ContentDialog
+            {
+                Title = LanguageManager.Instance.T("OptimizePreviews_Confirm_Title"),
+                Content = LanguageManager.Instance.T("OptimizePreviews_Confirm_Message"),
+                PrimaryButtonText = LanguageManager.Instance.T("Continue"),
+                CloseButtonText = LanguageManager.Instance.T("Cancel"),
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.XamlRoot
+            };
+
+            var result = await confirmDialog.ShowAsync();
+            if (result != ContentDialogResult.Primary)
+            {
+                return; // User cancelled
             }
             _isOptimizingPreviews = true;
             _wasPreviewCancelled = false;
