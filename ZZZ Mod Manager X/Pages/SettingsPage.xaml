@@ -53,8 +53,8 @@
                     <ToggleSwitch x:Name="DynamicModSearchToggle" Toggled="DynamicModSearchToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="DisableAllModsViewLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                    <ToggleSwitch x:Name="DisableAllModsViewToggle" Toggled="DisableAllModsViewToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0" ToolTipService.ToolTip="Disable for better performance if there is alot of mods in collection"/>
+                    <TextBlock x:Name="GridLoggingLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                    <ToggleSwitch x:Name="GridLoggingToggle" Toggled="GridLoggingToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0" ToolTipService.ToolTip="Enable detailed logging for grid performance debugging"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock x:Name="ShowOrangeAnimationLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>

@@ -113,7 +113,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             // Restore toggle states from settings
             DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
-            DisableAllModsViewToggle.IsOn = SettingsManager.Current.DisableAllModsView;
+            GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
             ShowOrangeAnimationToggle.IsOn = SettingsManager.Current.ShowOrangeAnimation;
         }
 
@@ -285,7 +285,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             SettingsTitle.Text = LanguageManager.Instance.T("SettingsPage_Title");
             LanguageLabel.Text = LanguageManager.Instance.T("SettingsPage_Language");
             DynamicModSearchLabel.Text = LanguageManager.Instance.T("SettingsPage_DynamicModSearch_Label");
-            DisableAllModsViewLabel.Text = LanguageManager.Instance.T("SettingsPage_DisableAllModsView_Label");
+            GridLoggingLabel.Text = LanguageManager.Instance.T("SettingsPage_GridLogging_Label");
             ShowOrangeAnimationLabel.Text = LanguageManager.Instance.T("SettingsPage_ShowOrangeAnimation_Label");
             // Update SelectorBar texts
             ThemeSelectorAutoText.Text = LanguageManager.Instance.T("SettingsPage_Theme_Auto");
@@ -314,7 +314,11 @@ namespace ZZZ_Mod_Manager_X.Pages
                     if (token.IsCancellationRequested)
                         break;
                     var jpgPath = Path.Combine(dir, "preview.jpg");
-                    // If preview.jpg exists with size 1000x1000, skip optimization
+                    // Check if we need to create WebP minitile even if preview.jpg exists
+                    var webpPath = Path.Combine(dir, "minitile.webp");
+                    bool needsWebP = !File.Exists(webpPath);
+                    
+                    // If preview.jpg exists with size 1000x1000, check if we need WebP
                     if (File.Exists(jpgPath))
                     {
                         try
@@ -322,7 +326,45 @@ namespace ZZZ_Mod_Manager_X.Pages
                             using (var img = System.Drawing.Image.FromFile(jpgPath))
                             {
                                 if (img.Width == 1000 && img.Height == 1000)
-                                    continue;
+                                {
+                                    // preview.jpg is already optimized, but create WebP if missing
+                                    if (!needsWebP)
+                                        continue; // Both files exist and are correct
+                                    
+                                    // Create minitile from existing preview.jpg (600x600 for high DPI displays)
+                                    using (var thumbBmp = new System.Drawing.Bitmap(600, 600))
+                                    using (var g3 = System.Drawing.Graphics.FromImage(thumbBmp))
+                                    {
+                                        g3.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                        g3.CompositingQuality = CompositingQuality.HighQuality;
+                                        g3.SmoothingMode = SmoothingMode.HighQuality;
+                                        g3.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                                        var thumbRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                                        g3.DrawImage(img, thumbRect);
+                                        
+                                        // Save as WebP (if WebP encoder is available, otherwise save as JPEG)
+                                        var webpEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.MimeType == "image/webp");
+                                        if (webpEncoder != null)
+                                        {
+                                            var webpParams = new EncoderParameters(1);
+                                            webpParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                                            thumbBmp.Save(webpPath, webpEncoder, webpParams);
+                                        }
+                                        else
+                                        {
+                                            // Fallback to JPEG if WebP not available
+                                            var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                                            if (jpegEncoder != null)
+                                            {
+                                                var jpegParams = new EncoderParameters(1);
+                                                jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                                                var fallbackPath = Path.Combine(dir, "minitile.jpg");
+                                                thumbBmp.Save(fallbackPath, jpegEncoder, jpegParams);
+                                            }
+                                        }
+                                    }
+                                    continue; // Done processing this directory
+                                }
                             }
                         }
                         catch { }
@@ -360,6 +402,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                                 }
                                 cropSource = cropped;
                             }
+                            // Create 1000x1000 JPEG (original functionality)
                             using (var bmp = new System.Drawing.Bitmap(1000, 1000))
                             using (var g2 = System.Drawing.Graphics.FromImage(bmp))
                             {
@@ -375,6 +418,40 @@ namespace ZZZ_Mod_Manager_X.Pages
                                     var encParams = new EncoderParameters(1);
                                     encParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100L);
                                     bmp.Save(jpgPath, encoder, encParams);
+                                }
+                            }
+                            
+                            // Now create 300x300 WebP minitile from the newly created preview.jpg
+                            using (var previewImg = System.Drawing.Image.FromFile(jpgPath))
+                            using (var thumbBmp = new System.Drawing.Bitmap(300, 300))
+                            using (var g3 = System.Drawing.Graphics.FromImage(thumbBmp))
+                            {
+                                g3.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                g3.CompositingQuality = CompositingQuality.HighQuality;
+                                g3.SmoothingMode = SmoothingMode.HighQuality;
+                                g3.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                                var thumbRect = new System.Drawing.Rectangle(0, 0, 300, 300);
+                                g3.DrawImage(previewImg, thumbRect);
+                                
+                                // Save as WebP (if WebP encoder is available, otherwise save as high-quality JPEG)
+                                var webpEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.MimeType == "image/webp");
+                                if (webpEncoder != null)
+                                {
+                                    var webpParams = new EncoderParameters(1);
+                                    webpParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 90L);
+                                    thumbBmp.Save(webpPath, webpEncoder, webpParams);
+                                }
+                                else
+                                {
+                                    // Fallback to high-quality JPEG if WebP not available
+                                    var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                                    if (jpegEncoder != null)
+                                    {
+                                        var jpegParams = new EncoderParameters(1);
+                                        jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 90L);
+                                        var fallbackPath = Path.Combine(dir, "minitile.jpg");
+                                        thumbBmp.Save(fallbackPath, jpegEncoder, jpegParams);
+                                    }
                                 }
                             }
                             if (needsCrop && cropSource != src)
@@ -826,15 +903,11 @@ namespace ZZZ_Mod_Manager_X.Pages
             SettingsManager.Save();
         }
 
-        private void DisableAllModsViewToggle_Toggled(object sender, RoutedEventArgs e)
+        private void GridLoggingToggle_Toggled(object sender, RoutedEventArgs e)
         {
-            SettingsManager.Current.DisableAllModsView = DisableAllModsViewToggle.IsOn;
+            SettingsManager.Current.GridLoggingEnabled = GridLoggingToggle.IsOn;
             SettingsManager.Save();
-            // Update the All Mods button state in MainWindow
-            if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
-            {
-                mainWindow.UpdateAllModsButtonState();
-            }
+            // No additional UI updates needed for grid logging
         }
 
         private void ShowOrangeAnimationToggle_Toggled(object sender, RoutedEventArgs e)

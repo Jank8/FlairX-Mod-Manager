@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -143,29 +143,8 @@ namespace ZZZ_Mod_Manager_X
             Logger.LogInfo("Symlink validation and recreation completed on startup");
             // Removed: ZIP thumbnail cache generation on startup
 
-            _window = new MainWindow();
-            _window.Activate();
-            // Add window close handling - remove symlinks
-            if (_window != null)
-            {
-                _window.Closed += (s, e) =>
-                {
-                    ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
-                    var modsDir = ZZZ_Mod_Manager_X.SettingsManager.Current.XXMIModsDirectory;
-                    if (string.IsNullOrWhiteSpace(modsDir))
-                        modsDir = System.IO.Path.Combine(System.AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
-                    if (System.IO.Directory.Exists(modsDir))
-                    {
-                        foreach (var dir in System.IO.Directory.GetDirectories(modsDir))
-                        {
-                            if (ZZZ_Mod_Manager_X.Pages.ModGridPage.IsSymlinkStatic(dir))
-                            {
-                                System.IO.Directory.Delete(dir, true);
-                            }
-                        }
-                    }
-                };
-            }
+            // Show loading window first
+            _ = ShowLoadingWindowAndInitialize();
 
 
             
@@ -307,6 +286,83 @@ namespace ZZZ_Mod_Manager_X
                     // Use static method that doesn't require HotkeyFinderPage instance
                     await ZZZ_Mod_Manager_X.Pages.HotkeyFinderPage.AutoDetectHotkeysForModStaticAsync(modPath);
                 }
+            }
+        }
+
+        private async Task ShowLoadingWindowAndInitialize()
+        {
+            var loadingWindow = new LoadingWindow();
+            loadingWindow.Activate();
+            
+            try
+            {
+                loadingWindow.UpdateStatus("Loading mod library...");
+                await Task.Delay(100);
+                
+                // No need for startup image loading - ModGridPage will load images when first accessed
+                loadingWindow.UpdateStatus("Preparing application...");
+                
+                loadingWindow.UpdateStatus("Initializing main window...");
+                await Task.Delay(100);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error during preloading: {ex.Message}");
+                LogToGridLog($"STARTUP: Error during preloading: {ex.Message}");
+            }
+            
+            // Create and show main window on UI thread
+            Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread().TryEnqueue(() =>
+            {
+                _window = new MainWindow();
+                
+                // Add window close handling - remove symlinks
+                _window.Closed += (s, e) =>
+                {
+                    ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    var modsDir = ZZZ_Mod_Manager_X.SettingsManager.Current.XXMIModsDirectory;
+                    if (string.IsNullOrWhiteSpace(modsDir))
+                        modsDir = System.IO.Path.Combine(System.AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
+                    if (System.IO.Directory.Exists(modsDir))
+                    {
+                        foreach (var dir in System.IO.Directory.GetDirectories(modsDir))
+                        {
+                            if (ZZZ_Mod_Manager_X.Pages.ModGridPage.IsSymlinkStatic(dir))
+                            {
+                                System.IO.Directory.Delete(dir, true);
+                            }
+                        }
+                    }
+                };
+                
+                _window.Activate();
+                loadingWindow.Close();
+            });
+        }
+        
+        // Removed PreloadModImages - no longer needed since ModGridPage stays in memory
+
+
+
+        private static void LogToGridLog(string message)
+        {
+            try
+            {
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                var logPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Settings", "GridLog.log");
+                var settingsDir = System.IO.Path.GetDirectoryName(logPath);
+                
+                if (!string.IsNullOrEmpty(settingsDir) && !Directory.Exists(settingsDir))
+                {
+                    Directory.CreateDirectory(settingsDir);
+                }
+                
+                var logEntry = $"[{timestamp}] {message}\n";
+                File.AppendAllText(logPath, logEntry, System.Text.Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to write to GridLog: {ex.Message}");
             }
         }
 

@@ -11,7 +11,7 @@ namespace ZZZ_Mod_Manager_X
         public string? ModLibraryDirectory { get; set; } = AppConstants.DEFAULT_MOD_LIBRARY_PATH;
         public string? Theme { get; set; } = "Auto";
         public bool DynamicModSearchEnabled { get; set; } = true;
-        public bool DisableAllModsView { get; set; } = false;
+        public bool GridLoggingEnabled { get; set; } = false;
         public bool ShowOrangeAnimation { get; set; } = true;
         public int SelectedPresetIndex { get; set; } = 0; // 0 = default
         

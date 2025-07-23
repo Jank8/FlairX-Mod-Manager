@@ -106,16 +106,8 @@ namespace ZZZ_Mod_Manager_X
             // Update All Mods button state based on settings
             UpdateAllModsButtonState();
 
-            // Set main page to All Mods (only if not disabled)
-            if (!ZZZ_Mod_Manager_X.SettingsManager.Current.DisableAllModsView)
-            {
-                contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), null);
-            }
-            else
-            {
-                // Navigate to Active mods instead if All Mods is disabled
-                contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), "Active");
-            }
+            // Set main page to All Mods
+            contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), null);
 
             appWindow.Resize(new Windows.Graphics.SizeInt32(1650, 820));
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
@@ -148,6 +140,104 @@ namespace ZZZ_Mod_Manager_X
             appWindow.Move(new Windows.Graphics.PointInt32(
                 (area.Value.Width - appWindow.Size.Width) / 2,
                 (area.Value.Height - appWindow.Size.Height) / 2));
+        }
+
+        private string GetXXMILauncherPath()
+        {
+            // Try to derive launcher path from XXMI Mods Directory setting
+            var xxmiModsDir = ZZZ_Mod_Manager_X.SettingsManager.Current.XXMIModsDirectory;
+            
+            if (!string.IsNullOrEmpty(xxmiModsDir))
+            {
+                // XXMI Mods Directory is typically: XXMI\ZZMI\Mods
+                // Launcher is at: XXMI\Resources\Bin\XXMI Launcher.exe
+                // So we need to go up from Mods -> ZZMI -> XXMI, then down to Resources\Bin
+                
+                var xxmiModsPath = Path.IsPathRooted(xxmiModsDir) ? xxmiModsDir : Path.Combine(AppContext.BaseDirectory, xxmiModsDir);
+                
+                // Navigate up to find XXMI root directory
+                var currentDir = new DirectoryInfo(xxmiModsPath);
+                while (currentDir != null && currentDir.Name != "XXMI")
+                {
+                    currentDir = currentDir.Parent;
+                }
+                
+                if (currentDir != null && currentDir.Name == "XXMI")
+                {
+                    var launcherPath = Path.Combine(currentDir.FullName, "Resources", "Bin", "XXMI Launcher.exe");
+                    if (File.Exists(launcherPath))
+                    {
+                        return launcherPath;
+                    }
+                }
+            }
+            
+            // Fallback to default hardcoded path
+            return Path.Combine(AppContext.BaseDirectory, "XXMI", "Resources", "Bin", "XXMI Launcher.exe");
+        }
+
+        private StackPanel CreateXXMIDownloadContent(string exePath)
+        {
+            var stackPanel = new StackPanel { Spacing = 12 };
+            
+            var fileNotFoundText = new TextBlock
+            {
+                Text = string.Format(LanguageManager.Instance.T("FileNotFound"), exePath),
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+            
+            var downloadText = new TextBlock
+            {
+                Text = LanguageManager.Instance.T("XXMI_Download_Required"),
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 4)
+            };
+            
+            var urlText = new TextBlock
+            {
+                Text = "https://github.com/SpectrumQT/XXMI-Launcher/releases",
+                FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas"),
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.CornflowerBlue),
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+            
+            var instructionText = new TextBlock
+            {
+                Text = LanguageManager.Instance.T("XXMI_Download_Instructions"),
+                TextWrapping = TextWrapping.Wrap,
+                FontStyle = Windows.UI.Text.FontStyle.Italic
+            };
+            
+            stackPanel.Children.Add(fileNotFoundText);
+            stackPanel.Children.Add(downloadText);
+            stackPanel.Children.Add(urlText);
+            stackPanel.Children.Add(instructionText);
+            
+            return stackPanel;
+        }
+
+        private static void LogToGridLog(string message)
+        {
+            try
+            {
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                var logPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Settings", "GridLog.log");
+                var settingsDir = System.IO.Path.GetDirectoryName(logPath);
+                
+                if (!string.IsNullOrEmpty(settingsDir) && !Directory.Exists(settingsDir))
+                {
+                    Directory.CreateDirectory(settingsDir);
+                }
+                
+                var logEntry = $"[{timestamp}] {message}\n";
+                File.AppendAllText(logPath, logEntry, System.Text.Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to write to GridLog: {ex.Message}");
+            }
         }
 
         private void NvSample_Loaded(object sender, RoutedEventArgs e)
@@ -404,41 +494,63 @@ namespace ZZZ_Mod_Manager_X
 
         private async void ReloadModsButton_Click(object sender, RoutedEventArgs e)
         {
-            SetSearchBoxPlaceholder();
-            SetFooterMenuTranslations();
-            await GenerateModCharacterMenuAsync();
+            // Show loading window during refresh
+            var loadingWindow = new LoadingWindow();
+            loadingWindow.Activate();
             
-            // Recreate symlinks to ensure they match current active mods state
-            ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
-            Logger.LogInfo("Symlinks recreated during manager reload");
-            
-            // Update All Mods button state after reload
-            UpdateAllModsButtonState();
-            
-            nvSample.SelectedItem = null; // Unselect active button
-            
-            // Navigate based on DisableAllModsView setting
-            if (!ZZZ_Mod_Manager_X.SettingsManager.Current.DisableAllModsView)
+            await Task.Run(async () =>
             {
+                try
+                {
+                    loadingWindow.UpdateStatus("Refreshing manager...");
+                    await Task.Delay(100);
+                    
+                    // Clear JSON cache to force reload of all mod data
+                    loadingWindow.UpdateStatus("Clearing JSON cache...");
+                    LogToGridLog("REFRESH: Clearing JSON cache");
+                    ZZZ_Mod_Manager_X.Pages.ModGridPage.ClearJsonCache();
+                    LogToGridLog("REFRESH: JSON cache cleared");
+                    await Task.Delay(200);
+                    
+                    // Preload images again
+                    loadingWindow.UpdateStatus("Reloading images...");
+                    await PreloadModImages(loadingWindow);
+                    
+                    loadingWindow.UpdateStatus("Finalizing refresh...");
+                    await Task.Delay(200);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error during refresh: {ex.Message}");
+                }
+            });
+            
+            // Update UI on main thread
+            this.DispatcherQueue.TryEnqueue(() =>
+            {
+                SetSearchBoxPlaceholder();
+                SetFooterMenuTranslations();
+                _ = GenerateModCharacterMenuAsync();
+                
+                // Recreate symlinks to ensure they match current active mods state
+                ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                Logger.LogInfo("Symlinks recreated during manager reload");
+                
+                // Update All Mods button state after reload
+                UpdateAllModsButtonState();
+                
+                nvSample.SelectedItem = null; // Unselect active button
+                
+                // Navigate to All Mods
                 contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
-            }
-            else
-            {
-                // Navigate to Active mods instead if All Mods is disabled
-                contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), "Active", new DrillInNavigationTransitionInfo());
-            }
-            
-            UpdateShowActiveModsButtonIcon();
+                
+                UpdateShowActiveModsButtonIcon();
+                loadingWindow.Close();
+            });
         }
 
         private void AllModsButton_Click(object sender, RoutedEventArgs e)
         {
-            // Check if All Mods view is disabled
-            if (ZZZ_Mod_Manager_X.SettingsManager.Current.DisableAllModsView)
-            {
-                return; // Do nothing if disabled
-            }
-            
             // Unselect selected menu item
             nvSample.SelectedItem = null;
             // Navigate to ModGridPage without parameter to show all mods
@@ -449,9 +561,10 @@ namespace ZZZ_Mod_Manager_X
 
         public void UpdateAllModsButtonState()
         {
+            // All Mods button is now always enabled since we removed the disable functionality
             if (AllModsButton != null)
             {
-                AllModsButton.IsEnabled = !ZZZ_Mod_Manager_X.SettingsManager.Current.DisableAllModsView;
+                AllModsButton.IsEnabled = true;
             }
         }
 
@@ -557,6 +670,59 @@ namespace ZZZ_Mod_Manager_X
             // Placeholder: UI-dependent implementation if needed
         }
 
+        private async Task PreloadModImages(LoadingWindow loadingWindow)
+        {
+            var modLibraryPath = SettingsManager.Current.ModLibraryDirectory ?? System.IO.Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            if (!Directory.Exists(modLibraryPath)) return;
+            
+            var directories = Directory.GetDirectories(modLibraryPath);
+            var totalMods = directories.Length;
+            var processedMods = 0;
+            
+            foreach (var dir in directories)
+            {
+                try
+                {
+                    var modJsonPath = System.IO.Path.Combine(dir, "mod.json");
+                    if (!File.Exists(modJsonPath)) continue;
+                    
+                    var previewPath = System.IO.Path.Combine(dir, "preview.jpg");
+                    if (File.Exists(previewPath))
+                    {
+                        var dirName = System.IO.Path.GetFileName(dir);
+                        
+                        // Load image into cache
+                        var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+                        using (var stream = File.OpenRead(previewPath))
+                        {
+                            bitmap.SetSource(stream.AsRandomAccessStream());
+                        }
+                        
+                        // Cache the image
+                        ImageCacheManager.CacheImage(previewPath, bitmap);
+                        ImageCacheManager.CacheRamImage(dirName, bitmap);
+                    }
+                    
+                    processedMods++;
+                    var progress = (double)processedMods / totalMods * 100;
+                    
+                    loadingWindow.SetIndeterminate(false);
+                    loadingWindow.SetProgress(progress);
+                    loadingWindow.UpdateStatus($"Loading images... {processedMods}/{totalMods}");
+                    
+                    // Small delay to prevent overwhelming the system
+                    await Task.Delay(10);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error preloading image for {dir}: {ex.Message}");
+                }
+            }
+            
+            loadingWindow.UpdateStatus("Images loaded successfully!");
+            await Task.Delay(500); // Brief pause to show completion
+        }
+
         public void RefreshUIAfterLanguageChange()
         {
             SetSearchBoxPlaceholder();
@@ -594,7 +760,7 @@ namespace ZZZ_Mod_Manager_X
         {
             try
             {
-                var exePath = Path.Combine(AppContext.BaseDirectory, "XXMI", "Resources", "Bin", "XXMI Launcher.exe");
+                var exePath = GetXXMILauncherPath();
                 if (File.Exists(exePath))
                 {
                     var psi = new System.Diagnostics.ProcessStartInfo
@@ -609,11 +775,27 @@ namespace ZZZ_Mod_Manager_X
                 {
                     var dialog = new ContentDialog
                     {
-                        Title = "Launcher not found",
-                        Content = $"File not found: {exePath}",
-                        CloseButtonText = "OK",
+                        Title = LanguageManager.Instance.T("LauncherNotFound"),
+                        Content = CreateXXMIDownloadContent(exePath),
+                        PrimaryButtonText = LanguageManager.Instance.T("Download_XXMI"),
+                        CloseButtonText = LanguageManager.Instance.T("OK"),
                         XamlRoot = this.Content.XamlRoot
                     };
+                    
+                    dialog.PrimaryButtonClick += (s, e) =>
+                    {
+                        try
+                        {
+                            var psi = new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = "https://github.com/SpectrumQT/XXMI-Launcher/releases",
+                                UseShellExecute = true
+                            };
+                            System.Diagnostics.Process.Start(psi);
+                        }
+                        catch { }
+                    };
+                    
                     _ = dialog.ShowAsync();
                 }
             }

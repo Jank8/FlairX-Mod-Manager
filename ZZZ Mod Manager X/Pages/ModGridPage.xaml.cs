@@ -7,9 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
@@ -60,12 +57,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 get => _isVisible;
                 set { if (_isVisible != value) { _isVisible = value; OnPropertyChanged(nameof(IsVisible)); } }
             }
-            private bool _isInViewport;
-            public bool IsInViewport
-            {
-                get => _isInViewport;
-                set { if (_isInViewport != value) { _isInViewport = value; OnPropertyChanged(nameof(IsInViewport)); } }
-            }
+            // Removed IsInViewport - using new scroll-based lazy loading instead
             public event PropertyChangedEventHandler? PropertyChanged;
             protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -78,18 +70,462 @@ namespace ZZZ_Mod_Manager_X.Pages
         private string? _currentCategory; // Track current category for back navigation
         private string? _previousCategory; // Track category before search for restoration
         private bool _isSearchActive = false; // Track if we're currently in search mode
-        // Removed static image caches - now using ImageCacheManager
-
-        public ICommand ModImageIsInViewportChangedCommand { get; }
+        
+        // Virtualized loading - store all mod data but only create visible ModTiles
+        private List<ModData> _allModData = new();
+        
+        // JSON Caching System
+        private static Dictionary<string, ModData> _modJsonCache = new();
+        private static Dictionary<string, DateTime> _modFileTimestamps = new();
+        private static readonly object _cacheLock = new object();
+        
+        // Background Loading
+        private static bool _isBackgroundLoading = false;
+        private static Task? _backgroundLoadTask = null;
 
         public ModGridPage()
         {
             this.InitializeComponent();
             LoadActiveMods();
             LoadSymlinkState();
-            ModImageIsInViewportChangedCommand = new RelayCommand<object>(OnModImageIsInViewportChanged);
             // Check mod directories and create mod.json in level 1 directories
             (App.Current as ZZZ_Mod_Manager_X.App)?.EnsureModJsonInModLibrary();
+            
+            // Set up scroll viewer monitoring for lazy loading
+            this.Loaded += ModGridPage_Loaded;
+            
+            // Start background loading if not already running
+            StartBackgroundLoadingIfNeeded();
+        }
+
+        private static void StartBackgroundLoadingIfNeeded()
+        {
+            lock (_cacheLock)
+            {
+                if (!_isBackgroundLoading && _backgroundLoadTask == null)
+                {
+                    _isBackgroundLoading = true;
+                    _backgroundLoadTask = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await BackgroundLoadModDataAsync();
+                        }
+                        finally
+                        {
+                            lock (_cacheLock)
+                            {
+                                _isBackgroundLoading = false;
+                                _backgroundLoadTask = null;
+                            }
+                        }
+                    });
+                }
+            }
+        }
+
+        private static async Task BackgroundLoadModDataAsync()
+        {
+            try
+            {
+                LogToGridLog("BACKGROUND: Starting background mod data loading");
+                
+                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                if (!Directory.Exists(modLibraryPath)) return;
+                
+                var directories = Directory.GetDirectories(modLibraryPath);
+                var totalDirs = directories.Length;
+                var processed = 0;
+                
+                foreach (var dir in directories)
+                {
+                    var modJsonPath = Path.Combine(dir, "mod.json");
+                    if (!File.Exists(modJsonPath)) continue;
+                    
+                    var dirName = Path.GetFileName(dir);
+                    
+                    // Check if we need to load/update this mod's data
+                    lock (_cacheLock)
+                    {
+                        var lastWriteTime = File.GetLastWriteTime(modJsonPath);
+                        
+                        if (_modJsonCache.TryGetValue(dirName, out var cachedData) &&
+                            _modFileTimestamps.TryGetValue(dirName, out var cachedTime) &&
+                            cachedTime >= lastWriteTime)
+                        {
+                            // Already cached and up to date
+                            continue;
+                        }
+                        
+                        // Load and cache the data
+                        try
+                        {
+                            var json = File.ReadAllText(modJsonPath);
+                            using var doc = JsonDocument.Parse(json);
+                            var root = doc.RootElement;
+                            var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
+                            
+                            var name = Path.GetFileName(dir);
+                            string previewPath = GetOptimalImagePathStatic(dir);
+                            
+                            var modData = new ModData
+                            { 
+                                Name = name, 
+                                ImagePath = previewPath, 
+                                Directory = dirName, 
+                                IsActive = false, // Will be updated when actually used
+                                Character = modCharacter
+                            };
+                            
+                            // Cache the data
+                            _modJsonCache[dirName] = modData;
+                            _modFileTimestamps[dirName] = lastWriteTime;
+                        }
+                        catch
+                        {
+                            // Skip problematic files
+                        }
+                    }
+                    
+                    processed++;
+                    
+                    // Small delay to prevent overwhelming the system
+                    if (processed % 10 == 0)
+                    {
+                        await Task.Delay(1);
+                    }
+                }
+                
+                LogToGridLog($"BACKGROUND: Completed background loading - processed {processed}/{totalDirs} directories");
+            }
+            catch (Exception ex)
+            {
+                LogToGridLog($"BACKGROUND: Error during background loading: {ex.Message}");
+            }
+        }
+
+        private static string GetOptimalImagePathStatic(string modDirectory)
+        {
+            // Static version for background loading
+            string webpPath = Path.Combine(modDirectory, "minitile.webp");
+            if (File.Exists(webpPath))
+            {
+                return webpPath;
+            }
+            
+            // Check for JPEG minitile (fallback when WebP encoder not available)
+            string minitileJpegPath = Path.Combine(modDirectory, "minitile.jpg");
+            if (File.Exists(minitileJpegPath))
+            {
+                return minitileJpegPath;
+            }
+            
+            string jpegPath = Path.Combine(modDirectory, "preview.jpg");
+            return jpegPath;
+        }
+
+        private void ModGridPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Monitor scroll changes to trigger lazy loading
+            if (ModsScrollViewer != null)
+            {
+                ModsScrollViewer.ViewChanged += ModsScrollViewer_ViewChanged;
+                // Initial load of visible images
+                LoadVisibleImages();
+            }
+            
+            // Monitor window size changes to reload visible images
+            this.SizeChanged += ModGridPage_SizeChanged;
+        }
+
+        private void ModGridPage_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            // When window is resized, the viewport changes so we need to reload visible images
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100); // Small delay to let the layout update
+                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+            });
+        }
+
+        private void ModsScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
+        {
+            // Load images when user scrolls
+            LoadVisibleImages();
+            
+            // Load more ModTiles if user is scrolling near the end
+            LoadMoreModTilesIfNeeded();
+            
+            // If scrolling has stopped, trigger more aggressive disposal
+            if (!e.IsIntermediate)
+            {
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(500); // Wait 500ms after scroll stops
+                    DispatcherQueue.TryEnqueue(() => PerformAggressiveDisposal());
+                });
+            }
+        }
+
+        private void LoadMoreModTilesIfNeeded()
+        {
+            if (ModsScrollViewer == null || _allModData.Count == 0) return;
+            
+            // Check if we're near the bottom and need to load more items
+            var scrollableHeight = ModsScrollViewer.ScrollableHeight;
+            var currentVerticalOffset = ModsScrollViewer.VerticalOffset;
+            var viewportHeight = ModsScrollViewer.ViewportHeight;
+            
+            // Load more when we're within 2 viewport heights of the bottom
+            var loadMoreThreshold = scrollableHeight - (viewportHeight * 2);
+            
+            if (currentVerticalOffset >= loadMoreThreshold && _allMods.Count < _allModData.Count)
+            {
+                LoadMoreModTiles();
+            }
+        }
+
+        private void LoadMoreModTiles()
+        {
+            var currentCount = _allMods.Count;
+            var batchSize = CalculateInitialLoadCount(); // Load same batch size as initial
+            var endIndex = Math.Min(currentCount + batchSize, _allModData.Count);
+            
+            LogToGridLog($"Loading more ModTiles: {currentCount} to {endIndex} out of {_allModData.Count}");
+            
+            for (int i = currentCount; i < endIndex; i++)
+            {
+                var modData = _allModData[i];
+                var modTile = new ModTile 
+                { 
+                    Name = modData.Name, 
+                    ImagePath = modData.ImagePath, 
+                    Directory = modData.Directory, 
+                    IsActive = modData.IsActive, 
+                    IsVisible = true,
+                    ImageSource = null // Start with no image - lazy load when visible
+                };
+                _allMods.Add(modTile);
+            }
+            
+            LogToGridLog($"Added {endIndex - currentCount} more ModTiles, total now: {_allMods.Count}");
+        }
+
+        private void LoadVisibleImages()
+        {
+            if (ModsGrid?.ItemsSource is not IEnumerable<ModTile> items) return;
+
+            var visibleItems = new HashSet<ModTile>();
+            var itemsToLoad = new List<ModTile>();
+            var itemsToDispose = new List<ModTile>();
+
+            foreach (var mod in items)
+            {
+                // Get the container for this item
+                var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
+                bool isVisible = container != null && IsItemVisible(container);
+                
+                if (isVisible)
+                {
+                    visibleItems.Add(mod);
+                    
+                    // Only load if image is not already loaded
+                    if (mod.ImageSource == null)
+                    {
+                        itemsToLoad.Add(mod);
+                    }
+                }
+                else if (mod.ImageSource != null && !IsItemInPreloadBuffer(container))
+                {
+                    // Item is not visible and not in preload buffer - candidate for disposal
+                    itemsToDispose.Add(mod);
+                }
+            }
+
+            // Load new images
+            foreach (var mod in itemsToLoad)
+            {
+                LogToGridLog($"LAZY LOAD: Loading image for {mod.Directory}");
+                mod.ImageSource = CreateBitmapImage(mod.ImagePath);
+            }
+
+            // Dispose images that are far from viewport (memory management)
+            DisposeDistantImages(itemsToDispose);
+            
+            // Trigger garbage collection if we disposed many images
+            if (itemsToDispose.Count > 20)
+            {
+                TriggerGarbageCollection();
+            }
+        }
+
+        private bool IsItemInPreloadBuffer(GridViewItem? container)
+        {
+            if (ModsScrollViewer == null || container == null) return false;
+
+            try
+            {
+                var transform = container.TransformToVisual(ModsScrollViewer);
+                var containerBounds = transform.TransformBounds(new Windows.Foundation.Rect(0, 0, container.ActualWidth, container.ActualHeight));
+                var scrollViewerBounds = new Windows.Foundation.Rect(0, 0, ModsScrollViewer.ActualWidth, ModsScrollViewer.ActualHeight);
+
+                // Reduced buffer - keep images loaded within 2 rows of viewport for better memory management
+                var extendedBuffer = (container.ActualHeight + 24) * 2;
+                var extendedTop = scrollViewerBounds.Top - extendedBuffer;
+                var extendedBottom = scrollViewerBounds.Bottom + extendedBuffer;
+
+                return containerBounds.Top < extendedBottom && containerBounds.Bottom > extendedTop;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void DisposeDistantImages(List<ModTile> itemsToDispose)
+        {
+            if (itemsToDispose.Count == 0) return;
+
+            var disposedCount = 0;
+            foreach (var mod in itemsToDispose)
+            {
+                if (mod.ImageSource != null)
+                {
+                    try
+                    {
+                        // Clear the BitmapImage reference to free memory
+                        mod.ImageSource = null;
+                        disposedCount++;
+                    }
+                    catch (Exception ex)
+                    {
+                        LogToGridLog($"DISPOSAL: Error disposing image for {mod.Directory}: {ex.Message}");
+                    }
+                }
+            }
+
+            if (disposedCount > 0)
+            {
+                LogToGridLog($"DISPOSAL: Disposed {disposedCount} images to free memory");
+                
+                // Force immediate garbage collection after disposing many images
+                if (disposedCount > 10)
+                {
+                    TriggerGarbageCollection();
+                }
+            }
+        }
+
+        private static DateTime _lastGcTime = DateTime.MinValue;
+        private static readonly TimeSpan GC_COOLDOWN = TimeSpan.FromSeconds(5);
+
+        private void TriggerGarbageCollection()
+        {
+            // Only trigger GC if enough time has passed since last GC
+            if (DateTime.Now - _lastGcTime < GC_COOLDOWN) return;
+
+            try
+            {
+                var memoryBefore = GC.GetTotalMemory(false) / 1024 / 1024;
+                
+                // Force garbage collection
+                GC.Collect(2, GCCollectionMode.Optimized);
+                GC.WaitForPendingFinalizers();
+                GC.Collect(2, GCCollectionMode.Optimized);
+                
+                var memoryAfter = GC.GetTotalMemory(true) / 1024 / 1024;
+                var memoryFreed = memoryBefore - memoryAfter;
+                
+                _lastGcTime = DateTime.Now;
+                LogToGridLog($"GC: Freed {memoryFreed}MB (Before: {memoryBefore}MB, After: {memoryAfter}MB)");
+            }
+            catch (Exception ex)
+            {
+                LogToGridLog($"GC: Error during garbage collection: {ex.Message}");
+            }
+        }
+
+        private void PerformAggressiveDisposal()
+        {
+            if (ModsGrid?.ItemsSource is not IEnumerable<ModTile> items) return;
+
+            var itemsToDispose = new List<ModTile>();
+            var totalLoaded = 0;
+
+            foreach (var mod in items)
+            {
+                if (mod.ImageSource != null)
+                {
+                    totalLoaded++;
+                    
+                    // Get the container for this item
+                    var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
+                    
+                    // Dispose if not in the 2-row buffer
+                    if (!IsItemInPreloadBuffer(container))
+                    {
+                        itemsToDispose.Add(mod);
+                    }
+                }
+            }
+
+            if (itemsToDispose.Count > 0)
+            {
+                LogToGridLog($"AGGRESSIVE: Disposing {itemsToDispose.Count} images out of {totalLoaded} loaded");
+                DisposeDistantImages(itemsToDispose);
+            }
+        }
+
+        private bool IsItemVisible(GridViewItem container)
+        {
+            if (ModsScrollViewer == null || container == null) return false;
+
+            try
+            {
+                var transform = container.TransformToVisual(ModsScrollViewer);
+                var containerBounds = transform.TransformBounds(new Windows.Foundation.Rect(0, 0, container.ActualWidth, container.ActualHeight));
+                var scrollViewerBounds = new Windows.Foundation.Rect(0, 0, ModsScrollViewer.ActualWidth, ModsScrollViewer.ActualHeight);
+
+                // Extend both top and bottom boundaries by 2 row heights for smooth scrolling in both directions
+                var preloadBuffer = (container.ActualHeight + 24) * 2; // 2 rows with typical margins
+                var extendedTop = scrollViewerBounds.Top - preloadBuffer;
+                var extendedBottom = scrollViewerBounds.Bottom + preloadBuffer;
+
+                // Check if container intersects with extended viewport (includes 2 rows above and below)
+                return containerBounds.Left < scrollViewerBounds.Right &&
+                       containerBounds.Right > scrollViewerBounds.Left &&
+                       containerBounds.Top < extendedBottom &&
+                       containerBounds.Bottom > extendedTop;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static void LogToGridLog(string message)
+        {
+            // Only log if grid logging is enabled in settings
+            if (!SettingsManager.Current.GridLoggingEnabled) return;
+            
+            try
+            {
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+                var logPath = Path.Combine(AppContext.BaseDirectory, "Settings", "GridLog.log");
+                var settingsDir = Path.GetDirectoryName(logPath);
+                
+                if (!string.IsNullOrEmpty(settingsDir) && !Directory.Exists(settingsDir))
+                {
+                    Directory.CreateDirectory(settingsDir);
+                }
+                
+                var logEntry = $"[{timestamp}] {message}\n";
+                File.AppendAllText(logPath, logEntry, System.Text.Encoding.UTF8);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to write to GridLog: {ex.Message}");
+            }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -145,28 +581,10 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             base.OnNavigatedFrom(e);
             
-            // Clear the grid to reduce memory usage and improve navigation performance
-            if (ModsGrid?.ItemsSource is IEnumerable<ModTile> currentMods)
-            {
-                // Clear image sources to free up memory
-                foreach (var mod in currentMods)
-                {
-                    if (mod.ImageSource != null)
-                    {
-                        // Don't dispose cached images, just clear the reference
-                        mod.ImageSource = null;
-                    }
-                }
-            }
-            
-            // Clear the grid ItemsSource
-            if (ModsGrid != null)
-            {
-                ModsGrid.ItemsSource = null;
-            }
-            
-            // Clear the observable collection
-            _allMods.Clear();
+            // KEEP EVERYTHING IN MEMORY - don't clear grid or collections
+            // This prevents memory spikes when navigating back to the page
+            // The cached collection and images stay loaded for instant access
+            LogToGridLog("NAVIGATION: Keeping ModGridPage data in memory for fast return");
         }
 
         private void LoadActiveMods()
@@ -229,43 +647,25 @@ namespace ZZZ_Mod_Manager_X.Pages
             public string? TargetPath { get; set; }
         }
 
-        private BitmapImage GetOrCreateBitmapImage(string imagePath, string? modDirectory = null)
+        // Lightweight mod data for virtualized loading
+        private class ModData
         {
-            // Check RAM cache first if modDirectory is provided
-            if (modDirectory != null)
-            {
-                var ramCached = ImageCacheManager.GetCachedRamImage(modDirectory);
-                if (ramCached != null)
-                    return ramCached;
-            }
-            
-            // Check disk cache
-            var diskCached = ImageCacheManager.GetCachedImage(imagePath);
-            if (diskCached != null)
-                return diskCached;
-            
-            // Create new bitmap
-            var bitmap = new BitmapImage();
-            try
-            {
-                using (var stream = File.OpenRead(imagePath))
-                {
-                    bitmap.SetSource(stream.AsRandomAccessStream());
-                }
-                ImageCacheManager.CacheImage(imagePath, bitmap);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Failed to load image {imagePath}: {ex.Message}");
-            }
-            
-            return bitmap;
+            public string Name { get; set; } = "";
+            public string ImagePath { get; set; } = "";
+            public string Directory { get; set; } = "";
+            public bool IsActive { get; set; }
+            public string Character { get; set; } = "";
         }
+
+
 
         private void LoadMods(string character)
         {
+            LogToGridLog($"LoadMods() called for character: {character}");
+            
             var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             if (!Directory.Exists(modLibraryPath)) return;
+            
             var mods = new List<ModTile>();
             foreach (var dir in Directory.GetDirectories(modLibraryPath))
             {
@@ -279,75 +679,250 @@ namespace ZZZ_Mod_Manager_X.Pages
                     var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
                     if (!string.Equals(modCharacter, character, StringComparison.OrdinalIgnoreCase))
                         continue;
+                    
                     var name = Path.GetFileName(dir);
-                    string previewPath = Path.Combine(dir, "preview.jpg");
-                    string imagePath = File.Exists(previewPath) ? previewPath : "Assets/placeholder.png";
+                    string previewPath = GetOptimalImagePath(dir);
                     var dirName = Path.GetFileName(dir);
                     var isActive = _activeMods.TryGetValue(dirName, out var active) && active;
-                    var modTile = new ModTile { Name = name, ImagePath = imagePath, Directory = dirName, IsActive = isActive };
-                    modTile.ImageSource = GetOrCreateBitmapImage(imagePath, dirName);
+                    
+                    var modTile = new ModTile 
+                    { 
+                        Name = name, 
+                        ImagePath = previewPath, 
+                        Directory = dirName, 
+                        IsActive = isActive, 
+                        IsVisible = true,
+                        ImageSource = null // Start with no image - lazy load when visible
+                    };
+                    
                     mods.Add(modTile);
                 }
                 catch { }
             }
-            mods = mods
-                .OrderByDescending(m => m.IsActive) // Active on top
+            
+            var sorted = mods
+                .OrderByDescending(m => m.IsActive)
                 .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
                 .ToList();
-            ModsGrid.ItemsSource = mods;
+                
+            LogToGridLog($"Loaded {sorted.Count} mods for character: {character}");
+            ModsGrid.ItemsSource = sorted;
+            
+            // Load visible images after setting new data source
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100); // Small delay to let the grid update
+                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+            });
         }
 
         private void LoadAllMods()
         {
+            LogToGridLog("LoadAllMods() called - using virtualized loading");
+            
+            // First, load all mod data (lightweight)
+            LoadAllModData();
+            
+            // Then create only the initial visible ModTiles
+            LoadVirtualizedModTiles();
+        }
+
+        private void LoadAllModData()
+        {
             var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             if (!Directory.Exists(modLibraryPath)) return;
-            var mods = new ObservableCollection<ModTile>();
+            
+            _allModData.Clear();
+            var cacheHits = 0;
+            var cacheMisses = 0;
+            
             foreach (var dir in Directory.GetDirectories(modLibraryPath))
             {
                 var modJsonPath = Path.Combine(dir, "mod.json");
                 if (!File.Exists(modJsonPath)) continue;
+                
+                var dirName = Path.GetFileName(dir);
+                var modData = GetCachedModData(dir, modJsonPath);
+                
+                if (modData != null)
+                {
+                    // Update active state (this can change without file modification)
+                    modData.IsActive = _activeMods.TryGetValue(dirName, out var active) && active;
+                    _allModData.Add(modData);
+                    cacheHits++;
+                }
+                else
+                {
+                    cacheMisses++;
+                }
+            }
+            
+            // Sort the lightweight data
+            _allModData = _allModData
+                .OrderByDescending(m => m.IsActive)
+                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+                
+            LogToGridLog($"Loaded {_allModData.Count} mod data entries (Cache hits: {cacheHits}, Cache misses: {cacheMisses})");
+        }
+
+        private ModData? GetCachedModData(string dir, string modJsonPath)
+        {
+            var dirName = Path.GetFileName(dir);
+            
+            lock (_cacheLock)
+            {
+                // Check if file has been modified since last cache
+                var lastWriteTime = File.GetLastWriteTime(modJsonPath);
+                
+                if (_modJsonCache.TryGetValue(dirName, out var cachedData) &&
+                    _modFileTimestamps.TryGetValue(dirName, out var cachedTime) &&
+                    cachedTime >= lastWriteTime)
+                {
+                    // Cache hit - return cached data
+                    return cachedData;
+                }
+                
+                // Cache miss - load and cache the data
                 try
                 {
                     var json = File.ReadAllText(modJsonPath);
                     using var doc = JsonDocument.Parse(json);
                     var root = doc.RootElement;
                     var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
-                    if (string.Equals(modCharacter, "other", StringComparison.OrdinalIgnoreCase))
-                        continue;
+                    
                     var name = Path.GetFileName(dir);
-                    string previewPath = Path.Combine(dir, "preview.jpg");
-                    string imagePath = File.Exists(previewPath) ? previewPath : "Assets/placeholder.png";
-                    var dirName = Path.GetFileName(dir);
+                    string previewPath = GetOptimalImagePath(dir);
                     var isActive = _activeMods.TryGetValue(dirName, out var active) && active;
-                    var modTile = new ModTile { Name = name, ImagePath = imagePath, Directory = dirName, IsActive = isActive, IsVisible = true };
-                    modTile.ImageSource = GetOrCreateBitmapImage(imagePath, dirName);
-                    mods.Add(modTile);
+                    
+                    var modData = new ModData
+                    { 
+                        Name = name, 
+                        ImagePath = previewPath, 
+                        Directory = dirName, 
+                        IsActive = isActive,
+                        Character = modCharacter
+                    };
+                    
+                    // Cache the data
+                    _modJsonCache[dirName] = modData;
+                    _modFileTimestamps[dirName] = lastWriteTime;
+                    
+                    return modData;
                 }
-                catch { }
+                catch
+                {
+                    return null;
+                }
             }
-            var sorted = new ObservableCollection<ModTile>(
-                mods.OrderByDescending(m => m.IsActive) // Active on top
-                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
-            );
-            _allMods = sorted;
-            ModsGrid.ItemsSource = _allMods;
         }
+
+        private void LoadVirtualizedModTiles()
+        {
+            // Calculate how many items we need to show initially
+            var initialLoadCount = CalculateInitialLoadCount();
+            
+            var initialMods = new List<ModTile>();
+            for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
+            {
+                var modData = _allModData[i];
+                var modTile = new ModTile 
+                { 
+                    Name = modData.Name, 
+                    ImagePath = modData.ImagePath, 
+                    Directory = modData.Directory, 
+                    IsActive = modData.IsActive, 
+                    IsVisible = true,
+                    ImageSource = null // Start with no image - lazy load when visible
+                };
+                initialMods.Add(modTile);
+            }
+            
+            _allMods = new ObservableCollection<ModTile>(initialMods);
+            ModsGrid.ItemsSource = _allMods;
+            LogToGridLog($"Created {initialMods.Count} initial ModTiles out of {_allModData.Count} total");
+            
+            // Load visible images after setting new data source
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100); // Small delay to let the grid update
+                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+            });
+        }
+
+        private int CalculateInitialLoadCount()
+        {
+            // Estimate based on typical grid layout
+            // Assume ~4-6 items per row, and load 3-4 rows initially
+            var estimatedItemsPerRow = 5;
+            var initialRows = 4;
+            var bufferRows = 2; // Extra buffer for smooth scrolling
+            
+            return estimatedItemsPerRow * (initialRows + bufferRows);
+        }
+        
+        private string GetOptimalImagePath(string modDirectory)
+        {
+            // Prefer WebP minitile for grid display (much smaller file size)
+            string webpPath = Path.Combine(modDirectory, "minitile.webp");
+            if (File.Exists(webpPath))
+            {
+                LogToGridLog($"Using WebP minitile for {Path.GetFileName(modDirectory)}");
+                return webpPath;
+            }
+            
+            // Check for JPEG minitile (fallback when WebP encoder not available)
+            string minitileJpegPath = Path.Combine(modDirectory, "minitile.jpg");
+            if (File.Exists(minitileJpegPath))
+            {
+                LogToGridLog($"Using JPEG minitile for {Path.GetFileName(modDirectory)}");
+                return minitileJpegPath;
+            }
+            
+            // Fallback to original JPEG
+            string jpegPath = Path.Combine(modDirectory, "preview.jpg");
+            if (File.Exists(jpegPath))
+            {
+                LogToGridLog($"Using original JPEG for {Path.GetFileName(modDirectory)}");
+                return jpegPath;
+            }
+            
+            // No image found
+            return jpegPath; // Return path anyway for consistency
+        }
+
+        private BitmapImage CreateBitmapImage(string imagePath)
+        {
+            var bitmap = new BitmapImage();
+            try
+            {
+                if (File.Exists(imagePath))
+                {
+                    // Read file into memory stream to avoid file locking issues
+                    byte[] imageData = File.ReadAllBytes(imagePath);
+                    using (var memStream = new MemoryStream(imageData))
+                    {
+                        bitmap.SetSource(memStream.AsRandomAccessStream());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to load image {imagePath}: {ex.Message}");
+            }
+            return bitmap;
+        }
+        
+
 
         public void FilterMods(string query)
         {
             if (string.IsNullOrEmpty(query))
             {
-                // Clear search - return to appropriate view based on settings and previous state
+                // Clear search - return to appropriate view based on previous state
                 _isSearchActive = false;
                 
-                if (ZZZ_Mod_Manager_X.SettingsManager.Current.DisableAllModsView)
-                {
-                    // If All Mods is disabled, go to Active Mods
-                    _currentCategory = "Active";
-                    CategoryTitle.Text = LanguageManager.Instance.T("Category_Active_Mods");
-                    LoadActiveModsOnly();
-                }
-                else if (_previousCategory != null)
+                if (_previousCategory != null)
                 {
                     // Return to previous category if it exists
                     _currentCategory = _previousCategory;
@@ -390,10 +965,39 @@ namespace ZZZ_Mod_Manager_X.Pages
                 // Set search title
                 CategoryTitle.Text = LanguageManager.Instance.T("Search_Results");
                 
-                // Load all mods for searching
-                LoadAllMods();
-                var filtered = new ObservableCollection<ModTile>(_allMods.Where(mod => mod.Name.Contains(query, StringComparison.OrdinalIgnoreCase)));
+                // Load all mod data for searching if not already loaded
+                if (_allModData.Count == 0)
+                {
+                    LoadAllModData();
+                }
+                
+                // Search through the lightweight ModData and create ModTiles for matches
+                var filteredData = _allModData.Where(modData => modData.Name.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
+                var filteredMods = new List<ModTile>();
+                
+                foreach (var modData in filteredData)
+                {
+                    var modTile = new ModTile 
+                    { 
+                        Name = modData.Name, 
+                        ImagePath = modData.ImagePath, 
+                        Directory = modData.Directory, 
+                        IsActive = modData.IsActive, 
+                        IsVisible = true,
+                        ImageSource = null // Start with no image - lazy load when visible
+                    };
+                    filteredMods.Add(modTile);
+                }
+                
+                var filtered = new ObservableCollection<ModTile>(filteredMods);
                 ModsGrid.ItemsSource = filtered;
+
+                // Load visible images after filtering
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(100); // Small delay to let the grid update
+                    DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+                });
 
                 // Scroll horizontally to first visible mod (with animation)
                 if (filtered.Count > 0 && ModsGrid.ContainerFromIndex(0) is GridViewItem firstItem)
@@ -737,120 +1341,132 @@ namespace ZZZ_Mod_Manager_X.Pages
             catch { }
         }
 
-        private void LoadAllImagesToRamCache()
+        // Cache management methods
+        public static void ClearJsonCache()
         {
-            // Clear RAM cache using ImageCacheManager
-            ImageCacheManager.ClearAllCaches();
+            lock (_cacheLock)
+            {
+                _modJsonCache.Clear();
+                _modFileTimestamps.Clear();
+                LogToGridLog("CACHE: JSON cache cleared");
+            }
+        }
+
+        public static void InvalidateModCache(string modDirectory)
+        {
+            lock (_cacheLock)
+            {
+                var dirName = Path.GetFileName(modDirectory);
+                if (_modJsonCache.Remove(dirName))
+                {
+                    _modFileTimestamps.Remove(dirName);
+                    LogToGridLog($"CACHE: Invalidated cache for {dirName}");
+                }
+            }
+        }
+
+        // Incremental update - only reload specific mods that have changed
+        public void RefreshChangedMods()
+        {
+            LogToGridLog("INCREMENTAL: Starting incremental mod refresh");
             
             var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             if (!Directory.Exists(modLibraryPath)) return;
             
+            var changedMods = new List<string>();
+            var newMods = new List<string>();
+            var removedMods = new List<string>();
+            
+            // Check for changed and new mods
             foreach (var dir in Directory.GetDirectories(modLibraryPath))
             {
+                var modJsonPath = Path.Combine(dir, "mod.json");
+                if (!File.Exists(modJsonPath)) continue;
+                
                 var dirName = Path.GetFileName(dir);
-                var previewPath = Path.Combine(dir, "preview.jpg");
-                if (File.Exists(previewPath))
+                var lastWriteTime = File.GetLastWriteTime(modJsonPath);
+                
+                lock (_cacheLock)
                 {
-                    try
+                    if (_modFileTimestamps.TryGetValue(dirName, out var cachedTime))
                     {
-                        var bitmap = new BitmapImage();
-                        using (var stream = File.OpenRead(previewPath))
+                        if (lastWriteTime > cachedTime)
                         {
-                            bitmap.SetSource(stream.AsRandomAccessStream());
+                            changedMods.Add(dirName);
                         }
-                        ImageCacheManager.CacheRamImage(dirName, bitmap);
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        System.Diagnostics.Debug.WriteLine($"Failed to load preview image for {dirName}: {ex.Message}");
+                        newMods.Add(dirName);
                     }
                 }
             }
-        }
-
-        private void RefreshModImagesInternal()
-        {
-            LoadAllImagesToRamCache();
-            foreach (var mod in _allMods)
+            
+            // Check for removed mods
+            lock (_cacheLock)
             {
-                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-                string previewPath = Path.Combine(modLibraryPath, mod.Directory, "preview.jpg");
-                string imagePath = File.Exists(previewPath) ? previewPath : "Assets/placeholder.png";
-                mod.ImagePath = imagePath;
-                mod.ImageSource = GetOrCreateBitmapImage(imagePath, mod.Directory);
+                var existingDirs = Directory.GetDirectories(modLibraryPath).Select(Path.GetFileName).ToHashSet();
+                removedMods = _modJsonCache.Keys.Where(cached => !existingDirs.Contains(cached)).ToList();
             }
-            ModsGrid.ItemsSource = null;
-            ModsGrid.ItemsSource = _allMods;
-        }
-
-        private void ModImage_IsInViewportChanged(object sender, Microsoft.UI.Xaml.DependencyPropertyChangedEventArgs e)
-        {
-            if (sender is Microsoft.UI.Xaml.Controls.Image img && img.DataContext is ModTile mod)
+            
+            // Process changes
+            if (changedMods.Count > 0 || newMods.Count > 0 || removedMods.Count > 0)
             {
-                bool isInViewport = (bool)e.NewValue;
-                mod.IsInViewport = isInViewport;
-                if (isInViewport)
+                LogToGridLog($"INCREMENTAL: Found {changedMods.Count} changed, {newMods.Count} new, {removedMods.Count} removed mods");
+                
+                // Remove deleted mods from cache
+                foreach (var removed in removedMods)
                 {
-                    // Load image
-                    if (File.Exists(mod.ImagePath))
-                        mod.ImageSource = GetOrCreateBitmapImage(mod.ImagePath, mod.Directory);
-                    else
-                        mod.ImageSource = GetOrCreateBitmapImage("Assets/placeholder.png");
+                    InvalidateModCache(removed);
                 }
-                else
+                
+                // Invalidate changed mods (they'll be reloaded on next access)
+                foreach (var changed in changedMods)
                 {
-                    // Set placeholder
-                    mod.ImageSource = GetOrCreateBitmapImage("Assets/placeholder.png");
+                    InvalidateModCache(changed);
+                }
+                
+                // New mods will be loaded automatically when accessed
+                
+                // Refresh the current view if we're showing all mods
+                if (_currentCategory == null && _allModData.Count > 0)
+                {
+                    LoadAllMods();
                 }
             }
-        }
-
-        private void OnModImageIsInViewportChanged(object parameter)
-        {
-            if (parameter is ModTile mod)
+            else
             {
-                // Check current IsInViewport state
-                if (mod.IsInViewport)
-                {
-                    if (File.Exists(mod.ImagePath))
-                        mod.ImageSource = GetOrCreateBitmapImage(mod.ImagePath, mod.Directory);
-                    else
-                        mod.ImageSource = GetOrCreateBitmapImage("Assets/placeholder.png");
-                }
-                else
-                {
-                    mod.ImageSource = GetOrCreateBitmapImage("Assets/placeholder.png");
-                }
+                LogToGridLog("INCREMENTAL: No changes detected");
             }
         }
 
         private void LoadActiveModsOnly()
         {
-            var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-            if (!Directory.Exists(modLibraryPath)) return;
-            var mods = new List<ModTile>();
-            foreach (var dir in Directory.GetDirectories(modLibraryPath))
+            LogToGridLog("LoadActiveModsOnly() called");
+            
+            // Load all mods first if not already loaded
+            if (_allMods.Count == 0)
             {
-                var modJsonPath = Path.Combine(dir, "mod.json");
-                if (!File.Exists(modJsonPath)) continue;
-                var dirName = Path.GetFileName(dir);
-                if (!_activeMods.TryGetValue(dirName, out var isActive) || !isActive)
-                    continue;
-                try
-                {
-                    var json = File.ReadAllText(modJsonPath);
-                    using var doc = JsonDocument.Parse(json);
-                    var root = doc.RootElement;
-                    var name = Path.GetFileName(dir);
-                    string previewPath = Path.Combine(dir, "preview.jpg");
-                    string imagePath = File.Exists(previewPath) ? previewPath : "Assets/placeholder.png";
-                    var modTile = new ModTile { Name = name, ImagePath = imagePath, Directory = dirName, IsActive = true };
-                    modTile.ImageSource = GetOrCreateBitmapImage(imagePath, dirName);
-                    mods.Add(modTile);
-                }
-                catch { }
+                LoadAllMods();
             }
-            ModsGrid.ItemsSource = mods;
+            
+            // Filter to show only active mods
+            var activeMods = _allMods.Where(mod => 
+            {
+                // Update active state first
+                mod.IsActive = _activeMods.TryGetValue(mod.Directory, out var active) && active;
+                return mod.IsActive;
+            }).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+            
+            LogToGridLog($"Found {activeMods.Count} active mods");
+            ModsGrid.ItemsSource = activeMods;
+            
+            // Load visible images after setting new data source
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100); // Small delay to let the grid update
+                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+            });
         }
 
         public string GetCategoryTitleText()

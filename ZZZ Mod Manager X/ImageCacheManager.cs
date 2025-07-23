@@ -12,9 +12,9 @@ namespace ZZZ_Mod_Manager_X
     /// </summary>
     public static class ImageCacheManager
     {
-        private const long MAX_CACHE_SIZE_MB = 2048; // 2048 MB
-        private const long MAX_CACHE_SIZE_BYTES = MAX_CACHE_SIZE_MB * 1024 * 1024;
-        private const long CLEANUP_THRESHOLD_BYTES = (long)(MAX_CACHE_SIZE_BYTES * 1.1); // 10% over
+        private const long MAX_CACHE_SIZE_MB = -1; // Unlimited cache size
+        private const long MAX_CACHE_SIZE_BYTES = long.MaxValue; // No limit
+        private const long CLEANUP_THRESHOLD_BYTES = long.MaxValue; // Never cleanup
 
         private static readonly ConcurrentDictionary<string, CacheEntry> _imageCache = new();
         private static readonly ConcurrentDictionary<string, CacheEntry> _ramImageCache = new();
@@ -94,8 +94,10 @@ namespace ZZZ_Mod_Manager_X
             if (_ramImageCache.TryGetValue(key, out var entry))
             {
                 entry.LastAccessed = DateTime.Now;
+                System.Diagnostics.Debug.WriteLine($"🎯 RAM Cache HIT for key: {key}");
                 return entry.Image;
             }
+            System.Diagnostics.Debug.WriteLine($"❌ RAM Cache MISS for key: {key}");
             return null;
         }
 
