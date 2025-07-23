@@ -69,8 +69,8 @@
                                             </interactivity:Interaction.Behaviors>
                                         </Image>
                                         <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="8,8,8,0" Spacing="4">
-                                            <Grid Width="48" Height="84" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                <Border Width="48" Height="84" CornerRadius="12" Background="{ThemeResource IconAcrylicBrush}" />
+                                            <Grid Width="48" Height="124" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <Border Width="48" Height="124" CornerRadius="12" Background="{ThemeResource IconAcrylicBrush}" />
                                                 <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="0">
                                                     <Button Width="40" Height="40" Click="ModActiveButton_Click" Tag="{Binding}" Style="{StaticResource TransparentButtonStyle}"
                                                             PointerEntered="ModActiveButton_PointerEntered" PointerExited="ModActiveButton_PointerExited">
@@ -90,6 +90,15 @@
                                                                       Visibility="{Binding IsFolderHovered, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
                                                             <FontIcon x:Name="OpenFolderIconHover" FontSize="24" Glyph="&#xE8D5;" Foreground="White"
                                                                       Visibility="{Binding IsFolderHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                        </Grid>
+                                                    </Button>
+                                                    <Button Width="40" Height="40" Click="DeleteModButton_Click" Tag="{Binding}" Style="{StaticResource TransparentButtonStyle}"
+                                                            PointerEntered="DeleteModButton_PointerEntered" PointerExited="DeleteModButton_PointerExited">
+                                                        <Grid>
+                                                            <FontIcon x:Name="DeleteIcon" FontSize="24" Glyph="&#xE74D;" Foreground="White"
+                                                                      Visibility="{Binding IsDeleteHovered, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
+                                                            <FontIcon x:Name="DeleteIconHover" FontSize="24" Glyph="&#xE74D;" Foreground="Red"
+                                                                      Visibility="{Binding IsDeleteHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                         </Grid>
                                                     </Button>
                                                 </StackPanel>

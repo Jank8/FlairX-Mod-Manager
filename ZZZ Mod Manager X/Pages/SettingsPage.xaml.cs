@@ -314,21 +314,22 @@ namespace ZZZ_Mod_Manager_X.Pages
                     if (token.IsCancellationRequested)
                         break;
                     var jpgPath = Path.Combine(dir, "preview.jpg");
-                    // Check if we need to create WebP minitile even if preview.jpg exists
-                    var webpPath = Path.Combine(dir, "minitile.webp");
-                    bool needsWebP = !File.Exists(webpPath);
+                    // Check if we need to create JPEG minitile
+                    var minitileJpgPath = Path.Combine(dir, "minitile.jpg");
+                    bool needsMinitile = !File.Exists(minitileJpgPath);
                     
-                    // If preview.jpg exists with size 1000x1000, check if we need WebP
+                    // If preview.jpg exists with size 1000x1000, check if we need minitile
                     if (File.Exists(jpgPath))
                     {
                         try
                         {
                             using (var img = System.Drawing.Image.FromFile(jpgPath))
                             {
-                                if (img.Width == 1000 && img.Height == 1000)
+                                // Only skip if image is already square (1:1 ratio) and not larger than 1000x1000
+                                if (img.Width == img.Height && img.Width <= 1000)
                                 {
-                                    // preview.jpg is already optimized, but create WebP if missing
-                                    if (!needsWebP)
+                                    // preview.jpg is already optimized (1000x1000 square), but create minitile if missing
+                                    if (!needsMinitile)
                                         continue; // Both files exist and are correct
                                     
                                     // Create minitile from existing preview.jpg (600x600 for high DPI displays)
@@ -342,25 +343,13 @@ namespace ZZZ_Mod_Manager_X.Pages
                                         var thumbRect = new System.Drawing.Rectangle(0, 0, 600, 600);
                                         g3.DrawImage(img, thumbRect);
                                         
-                                        // Save as WebP (if WebP encoder is available, otherwise save as JPEG)
-                                        var webpEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.MimeType == "image/webp");
-                                        if (webpEncoder != null)
+                                        // Save as JPEG minitile
+                                        var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                                        if (jpegEncoder != null)
                                         {
-                                            var webpParams = new EncoderParameters(1);
-                                            webpParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
-                                            thumbBmp.Save(webpPath, webpEncoder, webpParams);
-                                        }
-                                        else
-                                        {
-                                            // Fallback to JPEG if WebP not available
-                                            var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                                            if (jpegEncoder != null)
-                                            {
-                                                var jpegParams = new EncoderParameters(1);
-                                                jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
-                                                var fallbackPath = Path.Combine(dir, "minitile.jpg");
-                                                thumbBmp.Save(fallbackPath, jpegEncoder, jpegParams);
-                                            }
+                                            var jpegParams = new EncoderParameters(1);
+                                            jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                                            thumbBmp.Save(minitileJpgPath, jpegEncoder, jpegParams);
                                         }
                                     }
                                     continue; // Done processing this directory
@@ -382,80 +371,79 @@ namespace ZZZ_Mod_Manager_X.Pages
                     {
                         using (var src = System.Drawing.Image.FromFile(sourcePath))
                         {
-                            int size = Math.Min(src.Width, src.Height);
-                            int x = (src.Width - size) / 2;
-                            int y = (src.Height - size) / 2;
+                            // Step 1: Crop to square (1:1 ratio) if needed
+                            int originalSize = Math.Min(src.Width, src.Height);
+                            int x = (src.Width - originalSize) / 2;
+                            int y = (src.Height - originalSize) / 2;
                             bool needsCrop = src.Width != src.Height;
-                            System.Drawing.Image cropSource = src;
+                            
+                            System.Drawing.Image squareImage = src;
                             if (needsCrop)
                             {
-                                var cropped = new System.Drawing.Bitmap(size, size);
+                                var cropped = new System.Drawing.Bitmap(originalSize, originalSize);
                                 using (var g = System.Drawing.Graphics.FromImage(cropped))
                                 {
                                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                                     g.CompositingQuality = CompositingQuality.HighQuality;
                                     g.SmoothingMode = SmoothingMode.HighQuality;
                                     g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                    var srcRect = new System.Drawing.Rectangle(x, y, size, size);
-                                    var destRect = new System.Drawing.Rectangle(0, 0, size, size);
+                                    var srcRect = new System.Drawing.Rectangle(x, y, originalSize, originalSize);
+                                    var destRect = new System.Drawing.Rectangle(0, 0, originalSize, originalSize);
                                     g.DrawImage(src, destRect, srcRect, GraphicsUnit.Pixel);
                                 }
-                                cropSource = cropped;
+                                squareImage = cropped;
                             }
-                            // Create 1000x1000 JPEG (original functionality)
-                            using (var bmp = new System.Drawing.Bitmap(1000, 1000))
-                            using (var g2 = System.Drawing.Graphics.FromImage(bmp))
+                            
+                            // Step 2: Scale down only if larger than 1000x1000 (no upscaling)
+                            int finalSize = Math.Min(originalSize, 1000);
+                            
+                            using (var finalBmp = new System.Drawing.Bitmap(finalSize, finalSize))
+                            using (var g2 = System.Drawing.Graphics.FromImage(finalBmp))
                             {
                                 g2.InterpolationMode = InterpolationMode.HighQualityBicubic;
                                 g2.CompositingQuality = CompositingQuality.HighQuality;
                                 g2.SmoothingMode = SmoothingMode.HighQuality;
                                 g2.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                var rect = new System.Drawing.Rectangle(0, 0, 1000, 1000);
-                                g2.DrawImage(cropSource, rect);
+                                var rect = new System.Drawing.Rectangle(0, 0, finalSize, finalSize);
+                                g2.DrawImage(squareImage, rect);
+                                
                                 var encoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
                                 if (encoder != null)
                                 {
                                     var encParams = new EncoderParameters(1);
                                     encParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100L);
-                                    bmp.Save(jpgPath, encoder, encParams);
+                                    finalBmp.Save(jpgPath, encoder, encParams);
                                 }
                             }
                             
-                            // Now create 300x300 WebP minitile from the newly created preview.jpg
+                            // Dispose cropped image if we created one
+                            if (needsCrop && squareImage != src)
+                            {
+                                squareImage.Dispose();
+                            }
+                            
+                            // Now create 600x600 JPEG minitile from the newly created preview.jpg
                             using (var previewImg = System.Drawing.Image.FromFile(jpgPath))
-                            using (var thumbBmp = new System.Drawing.Bitmap(300, 300))
+                            using (var thumbBmp = new System.Drawing.Bitmap(600, 600))
                             using (var g3 = System.Drawing.Graphics.FromImage(thumbBmp))
                             {
                                 g3.InterpolationMode = InterpolationMode.HighQualityBicubic;
                                 g3.CompositingQuality = CompositingQuality.HighQuality;
                                 g3.SmoothingMode = SmoothingMode.HighQuality;
                                 g3.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                var thumbRect = new System.Drawing.Rectangle(0, 0, 300, 300);
+                                var thumbRect = new System.Drawing.Rectangle(0, 0, 600, 600);
                                 g3.DrawImage(previewImg, thumbRect);
                                 
-                                // Save as WebP (if WebP encoder is available, otherwise save as high-quality JPEG)
-                                var webpEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.MimeType == "image/webp");
-                                if (webpEncoder != null)
+                                // Save as JPEG minitile
+                                var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                                if (jpegEncoder != null)
                                 {
-                                    var webpParams = new EncoderParameters(1);
-                                    webpParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 90L);
-                                    thumbBmp.Save(webpPath, webpEncoder, webpParams);
-                                }
-                                else
-                                {
-                                    // Fallback to high-quality JPEG if WebP not available
-                                    var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                                    if (jpegEncoder != null)
-                                    {
-                                        var jpegParams = new EncoderParameters(1);
-                                        jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 90L);
-                                        var fallbackPath = Path.Combine(dir, "minitile.jpg");
-                                        thumbBmp.Save(fallbackPath, jpegEncoder, jpegParams);
-                                    }
+                                    var jpegParams = new EncoderParameters(1);
+                                    jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                                    thumbBmp.Save(minitileJpgPath, jpegEncoder, jpegParams);
                                 }
                             }
-                            if (needsCrop && cropSource != src)
-                                cropSource.Dispose();
+                            // Dispose is handled in the using block above
                         }
                         // Remove all preview.* (PNG/JPG/JPEG) files with other names
                         foreach (var f in files)

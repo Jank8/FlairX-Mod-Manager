@@ -51,6 +51,12 @@ namespace ZZZ_Mod_Manager_X.Pages
                 get => _isFolderHovered;
                 set { if (_isFolderHovered != value) { _isFolderHovered = value; OnPropertyChanged(nameof(IsFolderHovered)); } }
             }
+            private bool _isDeleteHovered;
+            public bool IsDeleteHovered
+            {
+                get => _isDeleteHovered;
+                set { if (_isDeleteHovered != value) { _isDeleteHovered = value; OnPropertyChanged(nameof(IsDeleteHovered)); } }
+            }
             private bool _isVisible = true;
             public bool IsVisible
             {
@@ -748,7 +754,12 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     // Update active state (this can change without file modification)
                     modData.IsActive = _activeMods.TryGetValue(dirName, out var active) && active;
-                    _allModData.Add(modData);
+                    
+                    // Skip "other" mods in All Mods view - they have their own category
+                    if (!string.Equals(modData.Character, "other", StringComparison.OrdinalIgnoreCase))
+                    {
+                        _allModData.Add(modData);
+                    }
                     cacheHits++;
                 }
                 else
@@ -1121,8 +1132,165 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
         }
 
+        private void DeleteModButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is ModTile mod)
+            {
+                _ = DeleteModWithConfirmation(mod);
+            }
+        }
+
+        private void DeleteModButton_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is ModTile mod)
+            {
+                mod.IsDeleteHovered = true;
+            }
+        }
+
+        private void DeleteModButton_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is ModTile mod)
+            {
+                mod.IsDeleteHovered = false;
+            }
+        }
+
+        private async Task DeleteModWithConfirmation(ModTile mod)
+        {
+            try
+            {
+                // Show confirmation dialog
+                var dialog = new ContentDialog
+                {
+                    Title = LanguageManager.Instance.T("Delete_Mod_Confirm_Title"),
+                    Content = string.Format(LanguageManager.Instance.T("Delete_Mod_Confirm_Message"), mod.Name),
+                    PrimaryButtonText = LanguageManager.Instance.T("Delete"),
+                    CloseButtonText = LanguageManager.Instance.T("Cancel"),
+                    XamlRoot = this.Content.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                    return; // User cancelled
+
+                // Save current scroll position
+                var currentScrollPosition = ModsScrollViewer?.VerticalOffset ?? 0;
+
+                // Validate mod directory name for security
+                if (!IsValidModDirectoryName(mod.Directory))
+                    return;
+
+                // Get mod folder path
+                var modLibraryDir = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory;
+                if (string.IsNullOrWhiteSpace(modLibraryDir))
+                    modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                
+                var modFolderPath = Path.GetFullPath(Path.Combine(modLibraryDir, mod.Directory));
+                
+                if (!Directory.Exists(modFolderPath))
+                    return; // Folder doesn't exist
+
+                // Move folder to recycle bin using Windows Shell API
+                MoveToRecycleBin(modFolderPath);
+
+                // Remove from active mods if it was active
+                if (mod.IsActive && _activeMods.ContainsKey(mod.Directory))
+                {
+                    _activeMods.Remove(mod.Directory);
+                    SaveActiveMods();
+                }
+
+                // Remove from cache
+                lock (_cacheLock)
+                {
+                    _modJsonCache.Remove(mod.Directory);
+                    _modFileTimestamps.Remove(mod.Directory);
+                }
+
+                // Refresh the grid while preserving scroll position
+                await RefreshGridWithScrollPosition(currentScrollPosition);
+
+                LogToGridLog($"DELETED: Mod '{mod.Name}' moved to recycle bin");
+            }
+            catch (Exception ex)
+            {
+                LogToGridLog($"DELETE ERROR: Failed to delete mod '{mod.Name}': {ex.Message}");
+                
+                // Show error dialog
+                var errorDialog = new ContentDialog
+                {
+                    Title = LanguageManager.Instance.T("Error_Title"),
+                    Content = ex.Message,
+                    CloseButtonText = LanguageManager.Instance.T("OK"),
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
+        }
+
+        private async Task RefreshGridWithScrollPosition(double scrollPosition)
+        {
+            // Reload the current view
+            if (_currentCategory == null)
+            {
+                LoadAllMods();
+            }
+            else if (string.Equals(_currentCategory, "Active", StringComparison.OrdinalIgnoreCase))
+            {
+                LoadActiveModsOnly();
+            }
+            else
+            {
+                LoadMods(_currentCategory);
+            }
+
+            // Wait for UI to update, then restore scroll position
+            await Task.Delay(100);
+            if (ModsScrollViewer != null)
+            {
+                ModsScrollViewer.ScrollToVerticalOffset(scrollPosition);
+            }
+        }
+
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         private static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, int dwFlags);
+
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+        private static extern int SHFileOperation(ref SHFILEOPSTRUCT lpFileOp);
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        private struct SHFILEOPSTRUCT
+        {
+            public IntPtr hwnd;
+            public uint wFunc;
+            public string pFrom;
+            public string pTo;
+            public ushort fFlags;
+            public bool fAnyOperationsAborted;
+            public IntPtr hNameMappings;
+            public string lpszProgressTitle;
+        }
+
+        private const uint FO_DELETE = 0x0003;
+        private const ushort FOF_ALLOWUNDO = 0x0040;
+        private const ushort FOF_NOCONFIRMATION = 0x0010;
+
+        private void MoveToRecycleBin(string path)
+        {
+            var shf = new SHFILEOPSTRUCT
+            {
+                wFunc = FO_DELETE,
+                pFrom = path + '\0', // Must be null-terminated
+                fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION
+            };
+            
+            int result = SHFileOperation(ref shf);
+            if (result != 0)
+            {
+                throw new Exception($"Failed to move folder to recycle bin. Error code: {result}");
+            }
+        }
         private void CreateSymlink(string linkPath, string targetPath)
         {
             try
