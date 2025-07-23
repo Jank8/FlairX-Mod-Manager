@@ -262,19 +262,132 @@ namespace ZZZ_Mod_Manager_X
             // Use current path from settings
             string modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? System.IO.Path.Combine(System.AppContext.BaseDirectory, "ModLibrary");
             if (!System.IO.Directory.Exists(modLibraryPath)) return;
-            string placeholderJson = "{\n    \"author\": \"unknown\",\n    \"character\": \"!unknown!\",\n    \"url\": \"https://\",\n    \"hotkeys\": []\n}";
             
-            // List of newly created mod.json files
+            // List of newly created/updated mod.json files
             var newlyCreatedModPaths = new List<string>();
+            var updatedModPaths = new List<string>();
             
-            // Create mod.json only in level 1 directories
+            // Process each mod directory
             foreach (var dir in System.IO.Directory.GetDirectories(modLibraryPath, "*", SearchOption.TopDirectoryOnly))
             {
                 var modJsonPath = System.IO.Path.Combine(dir, "mod.json");
-                if (!System.IO.File.Exists(modJsonPath))
+                bool isNewFile = !System.IO.File.Exists(modJsonPath);
+                bool needsUpdate = false;
+                
+                // Scan for namespace info
+                var (hasNamespace, namespaceMap) = ScanModForNamespace(dir);
+                
+                Dictionary<string, object> modData;
+                
+                if (isNewFile)
                 {
-                    System.IO.File.WriteAllText(modJsonPath, placeholderJson);
+                    // Create new mod.json with complete info
+                    modData = new Dictionary<string, object>
+                    {
+                        ["author"] = "unknown",
+                        ["character"] = "!unknown!",
+                        ["url"] = "https://",
+                        ["hotkeys"] = new List<object>()
+                    };
+                    
+                    // Add sync method info
+                    if (hasNamespace && namespaceMap.Count > 0)
+                    {
+                        modData["syncMethod"] = "namespace";
+                        var namespaceList = new List<object>();
+                        
+                        foreach (var kvp in namespaceMap)
+                        {
+                            namespaceList.Add(new Dictionary<string, object>
+                            {
+                                ["namespace"] = kvp.Key,
+                                ["iniFiles"] = kvp.Value.ToArray()
+                            });
+                        }
+                        
+                        modData["namespaces"] = namespaceList;
+                    }
+                    else
+                    {
+                        modData["syncMethod"] = "classic";
+                    }
+                    
                     newlyCreatedModPaths.Add(dir);
+                }
+                else
+                {
+                    // Read existing mod.json
+                    try
+                    {
+                        var jsonContent = System.IO.File.ReadAllText(modJsonPath);
+                        modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonContent) ?? new();
+                        
+                        // Check if sync method info is missing or outdated
+                        if (!modData.ContainsKey("syncMethod"))
+                        {
+                            if (hasNamespace && namespaceMap.Count > 0)
+                            {
+                                modData["syncMethod"] = "namespace";
+                                var namespaceList = new List<object>();
+                                
+                                foreach (var kvp in namespaceMap)
+                                {
+                                    namespaceList.Add(new Dictionary<string, object>
+                                    {
+                                        ["namespace"] = kvp.Key,
+                                        ["iniFiles"] = kvp.Value.ToArray()
+                                    });
+                                }
+                                
+                                modData["namespaces"] = namespaceList;
+                            }
+                            else
+                            {
+                                modData["syncMethod"] = "classic";
+                            }
+                            needsUpdate = true;
+                            updatedModPaths.Add(dir);
+                        }
+                    }
+                    catch
+                    {
+                        // If JSON is corrupted, recreate it
+                        modData = new Dictionary<string, object>
+                        {
+                            ["author"] = "unknown",
+                            ["character"] = "!unknown!",
+                            ["url"] = "https://",
+                            ["hotkeys"] = new List<object>(),
+                            ["syncMethod"] = hasNamespace ? "namespace" : "classic"
+                        };
+                        
+                        if (hasNamespace && namespaceMap.Count > 0)
+                        {
+                            var namespaceList = new List<object>();
+                            
+                            foreach (var kvp in namespaceMap)
+                            {
+                                namespaceList.Add(new Dictionary<string, object>
+                                {
+                                    ["namespace"] = kvp.Key,
+                                    ["iniFiles"] = kvp.Value.ToArray()
+                                });
+                            }
+                            
+                            modData["namespaces"] = namespaceList;
+                        }
+                        
+                        needsUpdate = true;
+                        updatedModPaths.Add(dir);
+                    }
+                }
+                
+                // Save mod.json (for new files or updated files)
+                if (isNewFile || needsUpdate)
+                {
+                    var jsonOptions = new System.Text.Json.JsonSerializerOptions { WriteIndented = true };
+                    var jsonContent = System.Text.Json.JsonSerializer.Serialize(modData, jsonOptions);
+                    System.IO.File.WriteAllText(modJsonPath, jsonContent);
                 }
             }
             
@@ -287,6 +400,59 @@ namespace ZZZ_Mod_Manager_X
                     await ZZZ_Mod_Manager_X.Pages.HotkeyFinderPage.AutoDetectHotkeysForModStaticAsync(modPath);
                 }
             }
+            
+            // Log results
+            if (newlyCreatedModPaths.Count > 0 || updatedModPaths.Count > 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"Mod.json processing complete: {newlyCreatedModPaths.Count} created, {updatedModPaths.Count} updated");
+            }
+        }
+
+
+
+        private (bool hasNamespace, Dictionary<string, List<string>> namespaceMap) ScanModForNamespace(string modDir)
+        {
+            var namespaceMap = new Dictionary<string, List<string>>();
+            
+            try
+            {
+                // Look for .ini files in the mod directory and subdirectories
+                var iniFiles = System.IO.Directory.GetFiles(modDir, "*.ini", SearchOption.AllDirectories);
+
+                foreach (var iniFile in iniFiles)
+                {
+                    var content = System.IO.File.ReadAllText(iniFile, System.Text.Encoding.UTF8);
+                    var lines = content.Split('\n');
+
+                    foreach (var line in lines)
+                    {
+                        var trimmedLine = line.Trim();
+
+                        // Look for namespace declaration: namespace = AnbyDangerousBeast
+                        var match = System.Text.RegularExpressions.Regex.Match(trimmedLine, @"^namespace\s*=\s*(.+)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        if (match.Success)
+                        {
+                            var namespacePath = match.Groups[1].Value.Trim();
+                            var relativeIniPath = System.IO.Path.GetRelativePath(modDir, iniFile);
+
+                            // Add to namespace map
+                            if (!namespaceMap.ContainsKey(namespacePath))
+                            {
+                                namespaceMap[namespacePath] = new List<string>();
+                            }
+                            namespaceMap[namespacePath].Add(relativeIniPath);
+                            
+                            break; // Only need first namespace declaration per file
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error scanning mod {modDir} for namespace: {ex.Message}");
+            }
+
+            return (namespaceMap.Count > 0, namespaceMap);
         }
 
         private async Task ShowLoadingWindowAndInitialize()

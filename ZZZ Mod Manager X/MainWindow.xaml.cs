@@ -505,12 +505,19 @@ namespace ZZZ_Mod_Manager_X
                     loadingWindow.UpdateStatus("Refreshing manager...");
                     await Task.Delay(100);
                     
-                    // Clear JSON cache to force reload of all mod data
+                    // Clear JSON cache first to ensure fresh data loading
                     loadingWindow.UpdateStatus("Clearing JSON cache...");
                     LogToGridLog("REFRESH: Clearing JSON cache");
                     ZZZ_Mod_Manager_X.Pages.ModGridPage.ClearJsonCache();
                     LogToGridLog("REFRESH: JSON cache cleared");
-                    await Task.Delay(200);
+                    await Task.Delay(100);
+                    
+                    // Update mod.json files with namespace info (for new/updated mods)
+                    loadingWindow.UpdateStatus("Scanning mod configurations...");
+                    LogToGridLog("REFRESH: Updating mod.json files with namespace info");
+                    await (App.Current as App)?.EnsureModJsonInModLibrary()!;
+                    LogToGridLog("REFRESH: Mod.json files updated");
+                    await Task.Delay(100);
                     
                     // Preload images again
                     loadingWindow.UpdateStatus("Reloading images...");

@@ -23,6 +23,8 @@ namespace ZZZ_Mod_Manager_X.Pages
         private static FileSystemWatcher? _fileWatcher;
         private static Timer? _periodicSyncTimer;
         private static string? _logFile;
+        
+
 
         public StatusKeeperSyncPage()
         {
@@ -563,37 +565,180 @@ namespace ZZZ_Mod_Manager_X.Pages
             var lines = content.Split('\n');
             LogStatic($"Parsing {lines.Length} lines from d3dx_user.ini");
 
+            // Build namespace to files mapping for new format
+            var namespaceToFiles = BuildNamespaceMapping();
+
             foreach (var line in lines)
             {
                 var trimmedLine = line.Trim();
                 if (string.IsNullOrEmpty(trimmedLine) || trimmedLine.StartsWith(";")) continue;
 
-                // Universal pattern: $\mods\<path>\<file>.ini\<variable> = <value>
-                var match = Regex.Match(trimmedLine, @"^\$\\mods\\(.+\.ini)\\([^=]+?)\s*=\s*(.+)$");
-                if (match.Success)
+                // OLD FORMAT: $\mods\<path>\<file>.ini\<variable> = <value>
+                var oldMatch = Regex.Match(trimmedLine, @"^\$\\mods\\(.+\.ini)\\([^=]+?)\s*=\s*(.+)$");
+                if (oldMatch.Success)
                 {
-                    var fullIniPath = match.Groups[1].Value;
-                    var varName = match.Groups[2].Value.Trim();
-                    var value = match.Groups[3].Value.Trim();
+                    var fullIniPath = oldMatch.Groups[1].Value;
+                    var varName = oldMatch.Groups[2].Value.Trim();
+                    var value = oldMatch.Groups[3].Value.Trim();
 
-                    LogStatic($"✅ Parsed: {fullIniPath} -> {varName} = {value}");
-                    LogStatic($"  Relative path from d3dx_user.ini: {fullIniPath}");
-                    LogStatic($"  (Will resolve case-insensitively during sync)");
+                    LogStatic($"✅ OLD FORMAT: {fullIniPath} -> {varName} = {value}");
 
                     if (!allEntries.ContainsKey(fullIniPath))
                     {
                         allEntries[fullIniPath] = new Dictionary<string, string>();
                     }
                     allEntries[fullIniPath][varName] = value;
+                    continue;
                 }
-                else if (trimmedLine.Contains("$\\mods\\") && trimmedLine.Contains("="))
+
+                // NEW FORMAT: $\<namespace>\<variable> = <value>
+                var newMatch = Regex.Match(trimmedLine, @"^\$\\([^\\]+(?:\\[^\\]+)*)\\([^=]+?)\s*=\s*(.+)$");
+                if (newMatch.Success)
                 {
-                    LogStatic($"⚠️ Line didn't match pattern: {trimmedLine}", "WARN");
+                    var namespacePath = newMatch.Groups[1].Value;
+                    var varName = newMatch.Groups[2].Value.Trim();
+                    var value = newMatch.Groups[3].Value.Trim();
+
+                    LogStatic($"✅ NEW FORMAT: namespace={namespacePath} -> {varName} = {value}");
+
+                    // Find the .ini files that have this namespace
+                    if (namespaceToFiles.TryGetValue(namespacePath, out var iniFilePaths))
+                    {
+                        LogStatic($"  Mapped to files: {string.Join(", ", iniFilePaths)}");
+                        
+                        // Add variable to ALL files with this namespace
+                        foreach (var iniFilePath in iniFilePaths)
+                        {
+                            if (!allEntries.ContainsKey(iniFilePath))
+                            {
+                                allEntries[iniFilePath] = new Dictionary<string, string>();
+                            }
+                            allEntries[iniFilePath][varName] = value;
+                        }
+                    }
+                    else
+                    {
+                        LogStatic($"⚠️ No .ini files found with namespace: {namespacePath}", "WARN");
+                        
+                        // Try case-insensitive search
+                        var foundKey = namespaceToFiles.Keys.FirstOrDefault(k => 
+                            string.Equals(k, namespacePath, StringComparison.OrdinalIgnoreCase));
+                        
+                        if (foundKey != null)
+                        {
+                            LogStatic($"  ✅ Found case-insensitive match: '{foundKey}' -> {string.Join(", ", namespaceToFiles[foundKey])}");
+                            
+                            // Add variable to ALL files with this namespace
+                            foreach (var iniFilePath in namespaceToFiles[foundKey])
+                            {
+                                if (!allEntries.ContainsKey(iniFilePath))
+                                {
+                                    allEntries[iniFilePath] = new Dictionary<string, string>();
+                                }
+                                allEntries[iniFilePath][varName] = value;
+                            }
+                        }
+                        else
+                        {
+                            LogStatic($"  ❌ No case-insensitive match found either", "ERROR");
+                        }
+                    }
+                    continue;
+                }
+
+                // Log unmatched lines that look like they should be variables
+                if (trimmedLine.StartsWith("$\\") && trimmedLine.Contains("="))
+                {
+                    LogStatic($"⚠️ Line didn't match any pattern: {trimmedLine}", "WARN");
                 }
             }
 
             LogStatic($"Parsing complete: Found {allEntries.Count} files with persistent variables");
             return allEntries;
+        }
+
+        private static Dictionary<string, List<string>> BuildNamespaceMapping()
+        {
+            var namespaceToFiles = new Dictionary<string, List<string>>();
+            
+            try
+            {
+                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
+                                   Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                
+                if (!Directory.Exists(modLibraryPath))
+                {
+                    LogStatic($"ModLibrary directory not found: {modLibraryPath}", "WARN");
+                    return namespaceToFiles;
+                }
+
+                LogStatic($"Building namespace mapping from mod.json files in: {modLibraryPath}");
+
+                // Read namespace info from mod.json files (much faster than scanning .ini files)
+                foreach (var modDir in Directory.GetDirectories(modLibraryPath))
+                {
+                    try
+                    {
+                        var modJsonPath = Path.Combine(modDir, "mod.json");
+                        if (!File.Exists(modJsonPath)) continue;
+
+                        var jsonContent = File.ReadAllText(modJsonPath);
+                        using var doc = JsonDocument.Parse(jsonContent);
+                        var root = doc.RootElement;
+
+                        // Check if this mod uses namespace sync method
+                        if (root.TryGetProperty("syncMethod", out var syncMethodProp) && 
+                            syncMethodProp.GetString() == "namespace")
+                        {
+                            if (root.TryGetProperty("namespaces", out var namespacesProp) && 
+                                namespacesProp.ValueKind == JsonValueKind.Array)
+                            {
+                                var modFolderName = Path.GetFileName(modDir);
+                                
+                                foreach (var namespaceItem in namespacesProp.EnumerateArray())
+                                {
+                                    if (namespaceItem.TryGetProperty("namespace", out var namespaceProp) &&
+                                        namespaceItem.TryGetProperty("iniFiles", out var iniFilesProp) &&
+                                        iniFilesProp.ValueKind == JsonValueKind.Array)
+                                    {
+                                        var namespacePath = namespaceProp.GetString();
+                                        if (string.IsNullOrEmpty(namespacePath)) continue;
+
+                                        var iniFiles = new List<string>();
+                                        foreach (var iniFileElement in iniFilesProp.EnumerateArray())
+                                        {
+                                            var iniFile = iniFileElement.GetString();
+                                            if (!string.IsNullOrEmpty(iniFile))
+                                            {
+                                                var fullIniPath = Path.Combine(modFolderName, iniFile).Replace('\\', '/');
+                                                iniFiles.Add(fullIniPath);
+                                            }
+                                        }
+
+                                        if (iniFiles.Count > 0)
+                                        {
+                                            namespaceToFiles[namespacePath] = iniFiles;
+                                            LogStatic($"  Found namespace: {namespacePath} -> {string.Join(", ", iniFiles)}");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogStatic($"Error reading mod.json in {Path.GetFileName(modDir)}: {ex.Message}", "WARN");
+                    }
+                }
+
+                LogStatic($"Namespace mapping complete: {namespaceToFiles.Count} namespaces found from mod.json files");
+            }
+            catch (Exception ex)
+            {
+                LogStatic($"Error building namespace mapping: {ex.Message}", "ERROR");
+            }
+
+            return namespaceToFiles;
         }
 
         // ==================== FILE SYNC OPERATIONS ====================
@@ -604,8 +749,20 @@ namespace ZZZ_Mod_Manager_X.Pages
             {
                 var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
                                    Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                
+                // For new format (namespace), path is already relative from ModLibrary: "ModFolder/KeySwaps.ini"
+                // For old format, path needs case-insensitive resolution: "folder\file.ini"
+                
+                // Try direct path first (new format)
+                var directPath = Path.Combine(modLibraryPath, d3dxPath.Replace('/', '\\'));
+                if (File.Exists(directPath))
+                {
+                    return directPath;
+                }
+                
+                // Fall back to case-insensitive resolution (old format)
                 var currentPath = Path.GetFullPath(modLibraryPath);
-                var pathParts = d3dxPath.Split('\\').Where(part => !string.IsNullOrEmpty(part)).ToArray();
+                var pathParts = d3dxPath.Split('\\', '/').Where(part => !string.IsNullOrEmpty(part)).ToArray();
 
                 foreach (var part in pathParts)
                 {
