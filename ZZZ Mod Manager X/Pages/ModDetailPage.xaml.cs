@@ -347,6 +347,74 @@ namespace ZZZ_Mod_Manager_X.Pages
             storyboard.Begin();
         }
 
+        private void OpenFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(_modJsonPath))
+            {
+                var modDirectory = Path.GetDirectoryName(_modJsonPath);
+                if (!string.IsNullOrEmpty(modDirectory) && Directory.Exists(modDirectory))
+                {
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = modDirectory,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        private void OpenFolderButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            var scaleAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.2,
+                Duration = TimeSpan.FromMilliseconds(150),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+            };
+            var scaleAnimationY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.2,
+                Duration = TimeSpan.FromMilliseconds(150),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimation, OpenFolderIconScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimation, "ScaleX");
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimationY, OpenFolderIconScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimationY, "ScaleY");
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            storyboard.Children.Add(scaleAnimation);
+            storyboard.Children.Add(scaleAnimationY);
+            storyboard.Begin();
+        }
+
+        private void OpenFolderButton_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            var scaleAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.0,
+                Duration = TimeSpan.FromMilliseconds(150),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+            };
+            var scaleAnimationY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.0,
+                Duration = TimeSpan.FromMilliseconds(150),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimation, OpenFolderIconScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimation, "ScaleX");
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimationY, OpenFolderIconScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimationY, "ScaleY");
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            storyboard.Children.Add(scaleAnimation);
+            storyboard.Children.Add(scaleAnimationY);
+            storyboard.Begin();
+        }
+
         public class ModDetailNav
         {
             public string ModDirectory { get; set; } = string.Empty;
