@@ -37,6 +37,8 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             base.OnNavigatedTo(e);
             // Set translations for labels
+            ModDateCheckedLabel.Text = LanguageManager.Instance.T("ModDetailPage_DateChecked");
+            ModDateUpdatedLabel.Text = LanguageManager.Instance.T("ModDetailPage_DateUpdated");
             ModAuthorLabel.Text = LanguageManager.Instance.T("ModDetailPage_Author");
             ModCharacterLabel.Text = LanguageManager.Instance.T("ModDetailPage_Character");
             ModHotkeysLabel.Text = LanguageManager.Instance.T("ModDetailPage_Hotkeys");
@@ -80,6 +82,30 @@ namespace ZZZ_Mod_Manager_X.Pages
                         string author = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
                         string character = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "" : "";
                         string url = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
+                        
+                        // Load date fields
+                        if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && 
+                            !string.IsNullOrEmpty(dateCheckedProp.GetString()) && 
+                            DateTime.TryParse(dateCheckedProp.GetString(), out var dateChecked))
+                        {
+                            ModDateCheckedPicker.Date = new DateTimeOffset(dateChecked);
+                        }
+                        else
+                        {
+                            ModDateCheckedPicker.Date = null;
+                        }
+                        
+                        if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && 
+                            !string.IsNullOrEmpty(dateUpdatedProp.GetString()) && 
+                            DateTime.TryParse(dateUpdatedProp.GetString(), out var dateUpdated))
+                        {
+                            ModDateUpdatedPicker.Date = new DateTimeOffset(dateUpdated);
+                        }
+                        else
+                        {
+                            ModDateUpdatedPicker.Date = null;
+                        }
+                        
                         ModAuthorTextBox.Text = author;
                         ModCharacterTextBox.Text = character;
                         ModUrlTextBox.Text = url;
@@ -181,6 +207,18 @@ namespace ZZZ_Mod_Manager_X.Pages
             UpdateModJsonField("url", ModUrlTextBox.Text);
         }
 
+        private void ModDateCheckedPicker_DateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
+        {
+            var dateValue = args.NewDate?.ToString("yyyy-MM-dd") ?? "";
+            UpdateModJsonField("dateChecked", dateValue);
+        }
+
+        private void ModDateUpdatedPicker_DateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
+        {
+            var dateValue = args.NewDate?.ToString("yyyy-MM-dd") ?? "";
+            UpdateModJsonField("dateUpdated", dateValue);
+        }
+
         private void OpenUrlButton_Click(object sender, RoutedEventArgs e)
         {
             var url = ModUrlTextBox.Text;
@@ -205,6 +243,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                     {"author", ""},
                     {"character", ""},
                     {"url", ""},
+                    {"dateChecked", ""},
+                    {"dateUpdated", ""},
                     {"hotkeys", new List<object>()}
                 };
                 dict[field] = value;
@@ -222,7 +262,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     if (prop.Name == field)
                         dict[field] = value;
-                    else if (prop.Name == "author" || prop.Name == "character" || prop.Name == "url")
+                    else if (prop.Name == "author" || prop.Name == "character" || prop.Name == "url" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
                         dict[prop.Name] = prop.Value.GetString();
                     else
                         dict[prop.Name] = prop.Value.Deserialize<object>();
