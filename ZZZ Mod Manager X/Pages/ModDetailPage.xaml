@@ -53,7 +53,7 @@
             <Grid Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid x:Name="DetailsGrid" Grid.Row="0">
                     <Grid.RowDefinitions>
@@ -102,39 +102,45 @@
                         </Button>
                     </Grid>
                 </Grid>
-                <StackPanel Grid.Row="1" VerticalAlignment="Top" Spacing="2" Margin="0,16,0,0">
-                    <TextBlock x:Name="ModHotkeysLabel" Text="Hotkeys: " FontWeight="Bold"/>
-                    <Grid Margin="0,8,0,0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="16"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="125"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <!-- Empty header row for spacing -->
-                        <TextBlock Text="" Grid.Row="0" Grid.Column="0"/>
-                        <TextBlock Text="" Grid.Row="0" Grid.Column="2"/>
-                        <ItemsControl x:Name="ModHotkeysList" Grid.Row="1" Grid.ColumnSpan="3">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="0,0,0,4">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="125"/>
-                                            <ColumnDefinition Width="10"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="{Binding Key}" FontFamily="{StaticResource AppFontFamily}" FontWeight="Bold" FontSize="16" Grid.Column="0" TextAlignment="Left"/>
-                                        <TextBlock Grid.Column="1"/>
-                                        <TextBlock Text="{Binding Description}" FontFamily="{StaticResource AppFontFamily}" FontSize="16" Grid.Column="2" TextAlignment="Left"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </Grid>
-                </StackPanel>
+                <Grid Grid.Row="1" VerticalAlignment="Stretch" Margin="0,16,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock x:Name="ModHotkeysLabel" Text="Hotkeys: " FontWeight="Bold" Grid.Row="0" Margin="0,0,0,8"/>
+                    <ScrollViewer Grid.Row="1" Width="300" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="16"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="125"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- Empty header row for spacing -->
+                            <TextBlock Text="" Grid.Row="0" Grid.Column="0"/>
+                            <TextBlock Text="" Grid.Row="0" Grid.Column="2"/>
+                            <ItemsControl x:Name="ModHotkeysList" Grid.Row="1" Grid.ColumnSpan="3">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,0,0,4">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="125"/>
+                                                <ColumnDefinition Width="10"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Key}" FontFamily="{StaticResource AppFontFamily}" FontWeight="Bold" FontSize="16" Grid.Column="0" TextAlignment="Left"/>
+                                            <TextBlock Grid.Column="1"/>
+                                            <TextBlock Text="{Binding Description}" FontFamily="{StaticResource AppFontFamily}" FontSize="16" Grid.Column="2" TextAlignment="Left"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+                    </ScrollViewer>
+                </Grid>
             </Grid>
         </Grid>
     </Grid>
