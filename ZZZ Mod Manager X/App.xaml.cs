@@ -287,6 +287,7 @@ namespace ZZZ_Mod_Manager_X
                         ["author"] = "unknown",
                         ["character"] = "!unknown!",
                         ["url"] = "https://",
+                        ["version"] = "",
                         ["dateChecked"] = "0000-00-00",
                         ["dateUpdated"] = "0000-00-00",
                         ["hotkeys"] = new List<object>()

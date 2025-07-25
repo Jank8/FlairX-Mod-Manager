@@ -82,6 +82,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                         string author = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
                         string character = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "" : "";
                         string url = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
+                        string version = root.TryGetProperty("version", out var versionProp) ? versionProp.GetString() ?? "" : "";
                         
                         // Load date fields
                         if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && 
@@ -109,6 +110,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                         ModAuthorTextBox.Text = author;
                         ModCharacterTextBox.Text = character;
                         ModUrlTextBox.Text = url;
+                        ModVersionTextBox.Text = version;
                         if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
                         {
                             var hotkeyList = new List<HotkeyDisplay>();
@@ -146,7 +148,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             if (string.IsNullOrWhiteSpace(modName))
                 ModDetailTitle.Text = LanguageManager.Instance.T("ModDetailPage_Title");
             else
-                ModDetailTitle.Text = string.Format(LanguageManager.Instance.T("ModDetailPage_Title_Format"), modName);
+                ModDetailTitle.Text = modName;
             UpdateNavButtons();
         }
 
@@ -207,6 +209,11 @@ namespace ZZZ_Mod_Manager_X.Pages
             UpdateModJsonField("url", ModUrlTextBox.Text);
         }
 
+        private void ModVersionTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateModJsonField("version", ModVersionTextBox.Text);
+        }
+
         private void ModDateCheckedPicker_DateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
         {
             var dateValue = args.NewDate?.ToString("yyyy-MM-dd") ?? "";
@@ -243,6 +250,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                     {"author", ""},
                     {"character", ""},
                     {"url", ""},
+                    {"version", ""},
                     {"dateChecked", ""},
                     {"dateUpdated", ""},
                     {"hotkeys", new List<object>()}
@@ -262,7 +270,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     if (prop.Name == field)
                         dict[field] = value;
-                    else if (prop.Name == "author" || prop.Name == "character" || prop.Name == "url" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
+                    else if (prop.Name == "author" || prop.Name == "character" || prop.Name == "url" || prop.Name == "version" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
                         dict[prop.Name] = prop.Value.GetString();
                     else
                         dict[prop.Name] = prop.Value.Deserialize<object>();
