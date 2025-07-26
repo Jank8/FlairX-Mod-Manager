@@ -90,6 +90,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         private static Task? _backgroundLoadTask = null;
 
         private double _zoomFactor = 1.0;
+        private DateTime _lastScrollTime = DateTime.MinValue;
         public double ZoomFactor
         {
             get => _zoomFactor;
@@ -100,7 +101,23 @@ namespace ZZZ_Mod_Manager_X.Pages
                 if (_zoomFactor != clamped)
                 {
                     _zoomFactor = clamped;
-                    UpdateGridItemSizes();
+                    
+                    // Update grid sizes asynchronously to avoid blocking mouse wheel
+                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () =>
+                    {
+                        UpdateGridItemSizes();
+                    });
+                    
+                    // Save zoom level to settings
+                    ZZZ_Mod_Manager_X.SettingsManager.Current.ZoomLevel = clamped;
+                    ZZZ_Mod_Manager_X.SettingsManager.Save();
+                    
+                    // Update zoom indicator in main window
+                    var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
+                    if (mainWindow != null)
+                    {
+                        mainWindow.UpdateZoomIndicator(clamped);
+                    }
                 }
             }
         }
@@ -108,6 +125,34 @@ namespace ZZZ_Mod_Manager_X.Pages
         public void ResetZoom()
         {
             ZoomFactor = 1.0;
+        }
+
+        private void ApplyScalingToContainer(GridViewItem container, FrameworkElement root)
+        {
+            if (Math.Abs(ZoomFactor - 1.0) < 0.001) // At 100% zoom
+            {
+                // Remove transform completely at 100% to match original state
+                root.RenderTransform = null;
+                
+                // Clear container size to let it auto-size naturally
+                container.ClearValue(FrameworkElement.WidthProperty);
+                container.ClearValue(FrameworkElement.HeightProperty);
+            }
+            else
+            {
+                // Apply ScaleTransform for other zoom levels
+                var scaleTransform = new ScaleTransform
+                {
+                    ScaleX = ZoomFactor,
+                    ScaleY = ZoomFactor,
+                    CenterX = _baseTileSize / 2,
+                    CenterY = (_baseTileSize + _baseDescHeight) / 2
+                };
+                
+                root.RenderTransform = scaleTransform;
+                container.Width = _baseTileSize * ZoomFactor + (24 * ZoomFactor);
+                container.Height = (_baseTileSize + _baseDescHeight) * ZoomFactor + (24 * ZoomFactor);
+            }
         }
 
         private double _baseTileSize = 277;
@@ -140,37 +185,20 @@ namespace ZZZ_Mod_Manager_X.Pages
                     var container = ModsGrid.ContainerFromItem(item) as GridViewItem;
                     if (container?.ContentTemplateRoot is FrameworkElement root)
                     {
-                        if (Math.Abs(ZoomFactor - 1.0) < 0.001) // At 100% zoom
-                        {
-                            // Remove transform completely at 100% to match original state
-                            root.RenderTransform = null;
-                            
-                            // Clear container size to let it auto-size naturally
-                            container.ClearValue(FrameworkElement.WidthProperty);
-                            container.ClearValue(FrameworkElement.HeightProperty);
-                        }
-                        else
-                        {
-                            // Apply ScaleTransform for other zoom levels
-                            var scaleTransform = new ScaleTransform
-                            {
-                                ScaleX = ZoomFactor,
-                                ScaleY = ZoomFactor,
-                                CenterX = _baseTileSize / 2,
-                                CenterY = (_baseTileSize + _baseDescHeight) / 2
-                            };
-                            
-                            root.RenderTransform = scaleTransform;
-                            
-                            // Update the container size to match the scaled content
-                            container.Width = _baseTileSize * ZoomFactor + (24 * ZoomFactor);
-                            container.Height = (_baseTileSize + _baseDescHeight) * ZoomFactor + (24 * ZoomFactor);
-                        }
+                        ApplyScalingToContainer(container, root);
                     }
                 }
 
                 ModsGrid.InvalidateArrange();
                 ModsGrid.UpdateLayout();
+                
+                // Force extents recalculation for zoom - fixes wheel event routing
+                ModsGrid.InvalidateMeasure();
+                if (ModsScrollViewer != null)
+                {
+                    ModsScrollViewer.InvalidateScrollInfo();
+                    ModsScrollViewer.UpdateLayout();
+                }
             }
         }
 
@@ -188,6 +216,9 @@ namespace ZZZ_Mod_Manager_X.Pages
             (App.Current as ZZZ_Mod_Manager_X.App)?.EnsureModJsonInModLibrary();
             this.Loaded += ModGridPage_Loaded;
             
+            // Load saved zoom level from settings
+            _zoomFactor = ZZZ_Mod_Manager_X.SettingsManager.Current.ZoomLevel;
+            
             // Handle container generation to apply scaling to new items
             ModsGrid.ContainerContentChanging += ModsGrid_ContainerContentChanging;
             
@@ -198,24 +229,14 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             if (args.InRecycleQueue) return;
             
-            // Apply scaling to newly generated containers using transform
-            if (args.ItemContainer is GridViewItem container && _zoomFactor != 1.0)
+            // Apply scaling to ALL newly generated containers, not just when zoom != 1.0
+            if (args.ItemContainer is GridViewItem container)
             {
                 container.Loaded += (s, e) => 
                 {
                     if (container.ContentTemplateRoot is FrameworkElement root)
                     {
-                        var scaleTransform = new ScaleTransform
-                        {
-                            ScaleX = ZoomFactor,
-                            ScaleY = ZoomFactor,
-                            CenterX = _baseTileSize / 2,
-                            CenterY = (_baseTileSize + _baseDescHeight) / 2
-                        };
-                        
-                        root.RenderTransform = scaleTransform;
-                        container.Width = _baseTileSize * ZoomFactor + (24 * ZoomFactor);
-                        container.Height = (_baseTileSize + _baseDescHeight) * ZoomFactor + (24 * ZoomFactor);
+                        ApplyScalingToContainer(container, root);
                     }
                 };
             }
@@ -353,12 +374,35 @@ namespace ZZZ_Mod_Manager_X.Pages
             if (ModsScrollViewer != null)
             {
                 ModsScrollViewer.ViewChanged += ModsScrollViewer_ViewChanged;
-                ModsScrollViewer.PointerWheelChanged += ModsScrollViewer_PointerWheelChanged;
+                // Remove ScrollViewer wheel handler - use page level instead
                 // Initial load of visible images
                 LoadVisibleImages();
             }
             // Monitor window size changes to reload visible images
             this.SizeChanged += ModGridPage_SizeChanged;
+            
+            // Apply saved zoom level when page loads
+            if (Math.Abs(_zoomFactor - 1.0) > 0.001)
+            {
+                UpdateGridItemSizes();
+            }
+            
+            // Update zoom indicator on startup
+            var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
+            if (mainWindow != null)
+            {
+                mainWindow.UpdateZoomIndicator(_zoomFactor);
+            }
+            
+            // Force focus for WinUI 3 wheel event handling
+            if (ModsScrollViewer != null)
+            {
+                ModsScrollViewer.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
+                ModsScrollViewer.PointerWheelChanged += ModsScrollViewer_PointerWheelChanged;
+            }
+            
+            // Add global pointer handler to refocus on click
+            this.PointerPressed += (s, e) => ModsScrollViewer?.Focus(Microsoft.UI.Xaml.FocusState.Pointer);
         }
 
         private void ModGridPage_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -367,17 +411,40 @@ namespace ZZZ_Mod_Manager_X.Pages
             _ = Task.Run(async () =>
             {
                 await Task.Delay(100); // Small delay to let the layout update
-                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+                DispatcherQueue.TryEnqueue(() => 
+                {
+                    LoadVisibleImages();
+                    
+                    // Force ScrollViewer reset for WinUI 3 wheel issues
+                    if (ModsScrollViewer != null)
+                    {
+                        ModsScrollViewer.UpdateLayout();
+                    }
+                });
             });
         }
 
         private void ModsScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
         {
-            // Load images when user scrolls
-            LoadVisibleImages();
+            var now = DateTime.Now;
             
-            // Load more ModTiles if user is scrolling near the end
-            LoadMoreModTilesIfNeeded();
+            // Throttle during rapid scrolling - only process every 100ms
+            if ((now - _lastScrollTime).TotalMilliseconds < 100)
+            {
+                return; // Skip this scroll event
+            }
+            
+            _lastScrollTime = now;
+            
+            // Use low priority dispatcher to prevent blocking mouse wheel
+            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+            {
+                // Load images when user scrolls
+                LoadVisibleImages();
+                
+                // Load more ModTiles if user is scrolling near the end
+                LoadMoreModTilesIfNeeded();
+            });
             
             // If scrolling has stopped, trigger more aggressive disposal
             if (!e.IsIntermediate)
@@ -390,13 +457,18 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
         }
 
+        // Removed - using page-level wheel handler instead
+
         private void ModsScrollViewer_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
-            // Check if Ctrl is pressed using KeyModifiers (WinUI 3 compatible)
-            if ((e.KeyModifiers & Windows.System.VirtualKeyModifiers.Control) == Windows.System.VirtualKeyModifiers.Control)
+            LogToGridLog($"Wheel event reached ScrollViewer at zoom {_zoomFactor}");
+            
+            // Only handle zoom if enabled in settings
+            if ((e.KeyModifiers & Windows.System.VirtualKeyModifiers.Control) == Windows.System.VirtualKeyModifiers.Control &&
+                ZZZ_Mod_Manager_X.SettingsManager.Current.ModGridZoomEnabled)
             {
-                var properties = e.GetCurrentPoint(null).Properties;
-                int delta = properties.MouseWheelDelta;
+                var properties = e.GetCurrentPoint(ModsScrollViewer).Properties;
+                var delta = properties.MouseWheelDelta;
                 
                 var oldZoom = _zoomFactor;
                 if (delta > 0)
@@ -408,19 +480,26 @@ namespace ZZZ_Mod_Manager_X.Pages
                     ZoomFactor -= 0.05; // 5% step
                 }
                 
-                // Only handle if zoom actually changed
                 if (oldZoom != _zoomFactor)
                 {
                     e.Handled = true;
+                    LogToGridLog("Zoom wheel event handled");
                 }
+            }
+            else
+            {
+                LogToGridLog("Normal scroll wheel event - letting ScrollViewer handle");
             }
         }
 
+        // Removed - didn't fix the scroll issue
+
         protected override void OnKeyDown(KeyRoutedEventArgs e)
         {
-            // Handle Ctrl+0 for zoom reset
+            // Handle Ctrl+0 for zoom reset if zoom is enabled
             if (e.Key == Windows.System.VirtualKey.Number0 && 
-                (Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control) & Windows.UI.Core.CoreVirtualKeyStates.Down) == Windows.UI.Core.CoreVirtualKeyStates.Down)
+                (Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control) & Windows.UI.Core.CoreVirtualKeyStates.Down) == Windows.UI.Core.CoreVirtualKeyStates.Down &&
+                ZZZ_Mod_Manager_X.SettingsManager.Current.ModGridZoomEnabled)
             {
                 ResetZoom();
                 e.Handled = true;
@@ -505,11 +584,29 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
             }
 
-            // Load new images
+            // Load new images and apply scaling with error handling
             foreach (var mod in itemsToLoad)
             {
-                LogToGridLog($"LAZY LOAD: Loading image for {mod.Directory}");
-                mod.ImageSource = CreateBitmapImage(mod.ImagePath);
+                try
+                {
+                    LogToGridLog($"LAZY LOAD: Loading image for {mod.Directory}");
+                    mod.ImageSource = CreateBitmapImage(mod.ImagePath);
+                    
+                    // Apply scaling only if not at 100% zoom to reduce work
+                    if (Math.Abs(ZoomFactor - 1.0) > 0.001)
+                    {
+                        var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
+                        if (container?.ContentTemplateRoot is FrameworkElement root)
+                        {
+                            ApplyScalingToContainer(container, root);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogToGridLog($"ERROR: Failed to load image for {mod.Directory}: {ex.Message}");
+                    // Skip this problematic mod and continue
+                }
             }
 
             // Dispose images that are far from viewport (memory management)

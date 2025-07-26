@@ -45,7 +45,8 @@
         <ScrollViewer x:Name="ModsScrollViewer" Grid.Row="1">
             <GridView x:Name="ModsGrid"
                       IsItemClickEnabled="False"
-                      SelectionMode="None">
+                      SelectionMode="None"
+                      Background="Transparent">
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapGrid Orientation="Horizontal" />

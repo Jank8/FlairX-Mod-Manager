@@ -32,6 +32,7 @@ namespace ZZZ_Mod_Manager_X
     public partial class App : Application
     {
         private Window? _window;
+        public Window? MainWindow => _window;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -255,7 +256,7 @@ namespace ZZZ_Mod_Manager_X
             }
         }
 
-        public Window? MainWindow => _window;
+        // Removed duplicate MainWindow property
 
         public async Task EnsureModJsonInModLibrary()
         {

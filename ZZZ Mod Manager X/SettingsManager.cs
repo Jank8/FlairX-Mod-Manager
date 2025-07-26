@@ -23,6 +23,10 @@ namespace ZZZ_Mod_Manager_X
         public bool StatusKeeperBackupOverride1Enabled { get; set; } = false;
         public bool StatusKeeperBackupOverride2Enabled { get; set; } = false;
         public bool StatusKeeperBackupOverride3Enabled { get; set; } = false;
+        
+        // Zoom settings
+        public double ZoomLevel { get; set; } = 1.0;
+        public bool ModGridZoomEnabled { get; set; } = false;
     }
 
     public static class SettingsManager

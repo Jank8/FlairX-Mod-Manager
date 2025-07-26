@@ -60,6 +60,10 @@
                     <TextBlock x:Name="ShowOrangeAnimationLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
                     <ToggleSwitch x:Name="ShowOrangeAnimationToggle" Toggled="ShowOrangeAnimationToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0"/>
                 </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="ModGridZoomLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                    <ToggleSwitch x:Name="ModGridZoomToggle" Toggled="ModGridZoomToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0"/>
+                </StackPanel>
                 <!-- Path selection lines moved to the bottom -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock x:Name="XXMIModsDirectoryLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>

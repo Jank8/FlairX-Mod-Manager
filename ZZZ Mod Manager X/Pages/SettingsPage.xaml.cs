@@ -115,6 +115,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
             GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
             ShowOrangeAnimationToggle.IsOn = SettingsManager.Current.ShowOrangeAnimation;
+            ModGridZoomToggle.IsOn = SettingsManager.Current.ModGridZoomEnabled;
         }
 
         private void LoadLanguages()
@@ -287,6 +288,8 @@ namespace ZZZ_Mod_Manager_X.Pages
             DynamicModSearchLabel.Text = LanguageManager.Instance.T("SettingsPage_DynamicModSearch_Label");
             GridLoggingLabel.Text = LanguageManager.Instance.T("SettingsPage_GridLogging_Label");
             ShowOrangeAnimationLabel.Text = LanguageManager.Instance.T("SettingsPage_ShowOrangeAnimation_Label");
+            ModGridZoomLabel.Text = LanguageManager.Instance.T("SettingsPage_ModGridZoom_Label");
+            ToolTipService.SetToolTip(ModGridZoomToggle, LanguageManager.Instance.T("SettingsPage_ModGridZoom_Tooltip"));
             // Update SelectorBar texts
             ThemeSelectorAutoText.Text = LanguageManager.Instance.T("SettingsPage_Theme_Auto");
             ThemeSelectorLightText.Text = LanguageManager.Instance.T("SettingsPage_Theme_Light");
@@ -911,6 +914,12 @@ namespace ZZZ_Mod_Manager_X.Pages
                     progressBar.Opacity = ShowOrangeAnimationToggle.IsOn ? 1 : 0;
                 }
             }
+        }
+
+        private void ModGridZoomToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.ModGridZoomEnabled = ModGridZoomToggle.IsOn;
+            SettingsManager.Save();
         }
     }
 }

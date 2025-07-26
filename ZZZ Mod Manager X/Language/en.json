@@ -27,6 +27,8 @@
   "SettingsPage_DynamicModSearch_Tooltip": "Disable if it works slowly",
   "SettingsPage_GridLogging_Label": "Grid logging",
   "SettingsPage_ShowOrangeAnimation_Label": "Animation",
+  "SettingsPage_ModGridZoom_Label": "Mod Grid Zoom",
+  "SettingsPage_ModGridZoom_Tooltip": "Feature is half-bugged. Mouse scroll wheel may stop working, dragging scroll bar or using mouse wheel on scroll bar still works. That's WinUI 3 problem, couldn't fix this.",
   "SettingsPage_RestartApp_Tooltip": "Restart the application",
   "PresetsPage_Title": "Presets",
   "PresetsPage_ComboBox_Placeholder": "Select preset",

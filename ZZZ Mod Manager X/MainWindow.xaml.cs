@@ -829,6 +829,31 @@ namespace ZZZ_Mod_Manager_X
             LauncherFabIcon.Glyph = "\uE768";
         }
 
+        private void LauncherFabBorder_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        {
+            // Don't handle wheel events - let them bubble through to the page content below
+            e.Handled = false;
+        }
+
+        private void ZoomIndicatorBorder_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        {
+            // Don't handle wheel events - let them bubble through to the page content below
+            e.Handled = false;
+        }
+
+        public void UpdateZoomIndicator(double zoomLevel)
+        {
+            if (ZoomIndicatorText != null && ZoomIndicatorBorder != null)
+            {
+                ZoomIndicatorText.Text = $"{(int)(zoomLevel * 100)}%";
+                
+                // Hide indicator at 100% zoom, show at other levels
+                ZoomIndicatorBorder.Visibility = Math.Abs(zoomLevel - 1.0) < 0.001 ? 
+                    Microsoft.UI.Xaml.Visibility.Collapsed : 
+                    Microsoft.UI.Xaml.Visibility.Visible;
+            }
+        }
+
         public void RestartAppButton_Click(object? sender, RoutedEventArgs? e)
         {
             var exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;

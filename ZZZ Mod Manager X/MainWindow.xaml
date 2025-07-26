@@ -159,6 +159,24 @@
             <Frame x:Name="contentFrame" />
         </NavigationView>
 
+        <!-- Zoom Indicator in top right corner -->
+        <Border x:Name="ZoomIndicatorBorder"
+                Width="64" Height="32"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="40"
+                CornerRadius="16"
+                PointerWheelChanged="ZoomIndicatorBorder_PointerWheelChanged"
+                Background="{ThemeResource LauncherAcrylicBrush}">
+            <TextBlock x:Name="ZoomIndicatorText" 
+                       Text="100%" 
+                       FontSize="12" 
+                       FontWeight="Bold"
+                       Foreground="{ThemeResource ButtonForeground}" 
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center"/>
+        </Border>
+
         <!-- Floating Action Button in bottom right corner -->
         <Border x:Name="LauncherFabBorder"
                 Width="64" Height="64"
@@ -169,6 +187,7 @@
                 PointerPressed="LauncherFabBorder_PointerPressed"
                 PointerEntered="LauncherFabBorder_PointerEntered"
                 PointerExited="LauncherFabBorder_PointerExited"
+                PointerWheelChanged="LauncherFabBorder_PointerWheelChanged"
                 Background="{ThemeResource LauncherAcrylicBrush}">
             <FontIcon x:Name="LauncherFabIcon" Glyph="&#xE768;" FontSize="28" Foreground="{ThemeResource ButtonForeground}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
