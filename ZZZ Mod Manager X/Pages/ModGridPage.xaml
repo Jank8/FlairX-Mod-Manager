@@ -7,7 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity">
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    IsTabStop="True">
     <Page.Resources>
         <local:ModActiveGlyphConverter x:Key="ModActiveGlyphConverter" />
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
@@ -52,15 +53,34 @@
                 </GridView.ItemsPanel>
                 <GridView.ItemTemplate>
                     <DataTemplate>
-                        <Border CornerRadius="8" BorderThickness="1" BorderBrush="{ThemeResource TileBorderBrush}" Margin="12"
+                        <Border x:Name="TileBorder" 
+                                CornerRadius="8" 
+                                BorderThickness="1" 
+                                BorderBrush="{ThemeResource TileBorderBrush}" 
+                                Margin="12"
                                 Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                             <Border.Shadow>
                                 <ThemeShadow/>
                             </Border.Shadow>
-                            <StackPanel Spacing="0">
-                                <Border Background="#1AFFFFFF" Height="277" Width="277" CornerRadius="8,8,0,0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <!-- Image Section -->
+                                <Border x:Name="ImageBorder" 
+                                        Grid.Row="0"
+                                        Background="#1AFFFFFF" 
+                                        Height="277" 
+                                        Width="277" 
+                                        CornerRadius="8,8,0,0">
                                     <Grid>
-                                        <Image x:Name="ModImage" Source="{Binding ImageSource}" Stretch="UniformToFill" Height="277" Width="277">
+                                        <Image x:Name="ModImage" 
+                                               Source="{Binding ImageSource}" 
+                                               Stretch="UniformToFill" 
+                                               Height="277" 
+                                               Width="277">
                                             <interactivity:Interaction.Behaviors>
                                                 <behaviors:ViewportBehavior x:Name="ViewportBehavior" IsAlwaysOn="True" />
                                                 <interactivity:EventTriggerBehavior EventName="IsInViewportChanged">
@@ -68,36 +88,88 @@
                                                 </interactivity:EventTriggerBehavior>
                                             </interactivity:Interaction.Behaviors>
                                         </Image>
-                                        <StackPanel Orientation="Vertical" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="8,8,8,0" Spacing="4">
-                                            <Grid Width="48" Height="124" VerticalAlignment="Center" HorizontalAlignment="Center">
-                                                <Border Width="48" Height="124" CornerRadius="12" Background="{ThemeResource IconAcrylicBrush}" />
-                                                <StackPanel Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="0">
-                                                    <Button Width="40" Height="40" Click="ModActiveButton_Click" Tag="{Binding}" Style="{StaticResource TransparentButtonStyle}"
-                                                            PointerEntered="ModActiveButton_PointerEntered" PointerExited="ModActiveButton_PointerExited">
+                                        
+                                        <!-- Action Buttons Panel -->
+                                        <StackPanel Orientation="Vertical" 
+                                                   VerticalAlignment="Top" 
+                                                   HorizontalAlignment="Right" 
+                                                   Margin="8,8,8,0" 
+                                                   Spacing="4">
+                                            <Grid Width="48" Height="124" 
+                                                  VerticalAlignment="Center" 
+                                                  HorizontalAlignment="Center">
+                                                <Border Width="48" 
+                                                        Height="124" 
+                                                        CornerRadius="12" 
+                                                        Background="{ThemeResource IconAcrylicBrush}" />
+                                                <StackPanel Orientation="Vertical" 
+                                                           VerticalAlignment="Center" 
+                                                           HorizontalAlignment="Center" 
+                                                           Spacing="0">
+                                                    <!-- Heart/Active Button -->
+                                                    <Button Width="40" Height="40" 
+                                                            Click="ModActiveButton_Click" 
+                                                            Tag="{Binding}" 
+                                                            Style="{StaticResource TransparentButtonStyle}"
+                                                            PointerEntered="ModActiveButton_PointerEntered" 
+                                                            PointerExited="ModActiveButton_PointerExited">
                                                         <Grid>
-                                                            <FontIcon x:Name="HeartEmpty" FontSize="24" Glyph="&#xEB51;" Foreground="White"
+                                                            <FontIcon x:Name="HeartEmpty" 
+                                                                      FontSize="24" 
+                                                                      Glyph="&#xEB51;" 
+                                                                      Foreground="White"
                                                                       Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
-                                                            <FontIcon x:Name="HeartFull" FontSize="24" Glyph="&#xEB52;" Foreground="White"
+                                                            <FontIcon x:Name="HeartFull" 
+                                                                      FontSize="24" 
+                                                                      Glyph="&#xEB52;" 
+                                                                      Foreground="White"
                                                                       Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                            <FontIcon x:Name="HeartHover" FontSize="24" Glyph="&#xEB52;" Foreground="White"
+                                                            <FontIcon x:Name="HeartHover" 
+                                                                      FontSize="24" 
+                                                                      Glyph="&#xEB52;" 
+                                                                      Foreground="White"
                                                                       Visibility="{Binding IsHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                         </Grid>
                                                     </Button>
-                                                    <Button Width="40" Height="40" Click="OpenModFolderButton_Click" Tag="{Binding}" Style="{StaticResource TransparentButtonStyle}"
-                                                            PointerEntered="OpenModFolderButton_PointerEntered" PointerExited="OpenModFolderButton_PointerExited">
+                                                    
+                                                    <!-- Folder Button -->
+                                                    <Button Width="40" Height="40" 
+                                                            Click="OpenModFolderButton_Click" 
+                                                            Tag="{Binding}" 
+                                                            Style="{StaticResource TransparentButtonStyle}"
+                                                            PointerEntered="OpenModFolderButton_PointerEntered" 
+                                                            PointerExited="OpenModFolderButton_PointerExited">
                                                         <Grid>
-                                                            <FontIcon x:Name="OpenFolderIcon" FontSize="24" Glyph="&#xE8B7;" Foreground="White"
+                                                            <FontIcon x:Name="OpenFolderIcon" 
+                                                                      FontSize="24" 
+                                                                      Glyph="&#xE8B7;" 
+                                                                      Foreground="White"
                                                                       Visibility="{Binding IsFolderHovered, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
-                                                            <FontIcon x:Name="OpenFolderIconHover" FontSize="24" Glyph="&#xE8D5;" Foreground="White"
+                                                            <FontIcon x:Name="OpenFolderIconHover" 
+                                                                      FontSize="24" 
+                                                                      Glyph="&#xE8D5;" 
+                                                                      Foreground="White"
                                                                       Visibility="{Binding IsFolderHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                         </Grid>
                                                     </Button>
-                                                    <Button Width="40" Height="40" Click="DeleteModButton_Click" Tag="{Binding}" Style="{StaticResource TransparentButtonStyle}"
-                                                            PointerEntered="DeleteModButton_PointerEntered" PointerExited="DeleteModButton_PointerExited">
+                                                    
+                                                    <!-- Delete Button -->
+                                                    <Button Width="40" Height="40" 
+                                                            Click="DeleteModButton_Click" 
+                                                            Tag="{Binding}" 
+                                                            Style="{StaticResource TransparentButtonStyle}"
+                                                            PointerEntered="DeleteModButton_PointerEntered" 
+                                                            PointerExited="DeleteModButton_PointerExited">
                                                         <Grid>
-                                                            <FontIcon x:Name="DeleteIcon" FontSize="24" Glyph="&#xE74D;" Foreground="White"
+                                                            <FontIcon x:Name="DeleteIcon" 
+                                                                      FontSize="24" 
+                                                                      Glyph="&#xE74D;" 
+                                                                      Foreground="White"
                                                                       Visibility="{Binding IsDeleteHovered, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
-                                                            <FontIcon x:Name="DeleteIconHover" FontSize="24" Glyph="&#xE74D;" Foreground="Red"
+                                                            <FontIcon x:Name="DeleteIconHover" 
+                                                                      FontSize="24" 
+                                                                      Glyph="&#xE74D;" 
+                                                                      Foreground="Red"
                                                                       Visibility="{Binding IsDeleteHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                         </Grid>
                                                     </Button>
@@ -106,13 +178,40 @@
                                         </StackPanel>
                                     </Grid>
                                 </Border>
-                                <Grid Height="56" Width="277" CornerRadius="0,0,8,8">
-                                    <Border Background="{ThemeResource TileDescriptionBackground}" CornerRadius="0,0,8,8" Opacity="1" />
-                                    <Button Click="ModName_Click" Tag="{Binding}" Background="Transparent" BorderThickness="0" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="0" Width="277" Height="56" CornerRadius="0,0,8,8">
-                                        <TextBlock Text="{Binding Name}" FontWeight="Bold" FontSize="16" Padding="8,4" Foreground="{ThemeResource SystemBaseHighColor}" TextTrimming="CharacterEllipsis" TextAlignment="Center" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="1"/>
+                                
+                                <!-- Description Section -->
+                                <Grid x:Name="DescGrid" 
+                                      Grid.Row="1"
+                                      Height="56" 
+                                      Width="277" 
+                                      CornerRadius="0,0,8,8">
+                                    <Border Background="{ThemeResource TileDescriptionBackground}" 
+                                            CornerRadius="0,0,8,8" 
+                                            Opacity="1" />
+                                    <Button x:Name="ModNameBtn" 
+                                            Click="ModName_Click" 
+                                            Tag="{Binding}" 
+                                            Background="Transparent" 
+                                            BorderThickness="0" 
+                                            HorizontalAlignment="Stretch" 
+                                            VerticalAlignment="Stretch" 
+                                            Padding="0" 
+                                            Width="277" 
+                                            Height="56" 
+                                            CornerRadius="0,0,8,8">
+                                        <TextBlock Text="{Binding Name}" 
+                                                   FontWeight="Bold" 
+                                                   FontSize="16" 
+                                                   Padding="8,4" 
+                                                   Foreground="{ThemeResource SystemBaseHighColor}" 
+                                                   TextTrimming="CharacterEllipsis" 
+                                                   TextAlignment="Center" 
+                                                   VerticalAlignment="Center" 
+                                                   HorizontalAlignment="Center" 
+                                                   TextWrapping="NoWrap"/>
                                     </Button>
                                 </Grid>
-                            </StackPanel>
+                            </Grid>
                         </Border>
                     </DataTemplate>
                 </GridView.ItemTemplate>

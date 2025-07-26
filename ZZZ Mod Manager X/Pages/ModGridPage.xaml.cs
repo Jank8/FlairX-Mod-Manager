@@ -89,19 +89,136 @@ namespace ZZZ_Mod_Manager_X.Pages
         private static bool _isBackgroundLoading = false;
         private static Task? _backgroundLoadTask = null;
 
+        private double _zoomFactor = 1.0;
+        public double ZoomFactor
+        {
+            get => _zoomFactor;
+            set
+            {
+                // Only allow enlarging, minimum is 1.0 (100%)
+                double clamped = Math.Max(1.0, Math.Min(2.5, value));
+                if (_zoomFactor != clamped)
+                {
+                    _zoomFactor = clamped;
+                    UpdateGridItemSizes();
+                }
+            }
+        }
+
+        public void ResetZoom()
+        {
+            ZoomFactor = 1.0;
+        }
+
+        private double _baseTileSize = 277;
+        private double _baseDescHeight = 56;
+
+        private void UpdateGridItemSizes()
+        {
+            // Use ScaleTransform approach instead of manual resizing
+            if (ModsGrid != null)
+            {
+                // Update WrapGrid ItemWidth/ItemHeight for proportional layout
+                if (ModsGrid.ItemsPanelRoot is WrapGrid wrapGrid)
+                {
+                    if (Math.Abs(ZoomFactor - 1.0) < 0.001) // At 100% zoom
+                    {
+                        // Reset to original auto-sizing at 100%
+                        wrapGrid.ClearValue(WrapGrid.ItemWidthProperty);
+                        wrapGrid.ClearValue(WrapGrid.ItemHeightProperty);
+                    }
+                    else
+                    {
+                        var scaledMargin = 24 * ZoomFactor;
+                        wrapGrid.ItemWidth = _baseTileSize * ZoomFactor + scaledMargin;
+                        wrapGrid.ItemHeight = (_baseTileSize + _baseDescHeight) * ZoomFactor + scaledMargin;
+                    }
+                }
+
+                foreach (var item in ModsGrid.Items)
+                {
+                    var container = ModsGrid.ContainerFromItem(item) as GridViewItem;
+                    if (container?.ContentTemplateRoot is FrameworkElement root)
+                    {
+                        if (Math.Abs(ZoomFactor - 1.0) < 0.001) // At 100% zoom
+                        {
+                            // Remove transform completely at 100% to match original state
+                            root.RenderTransform = null;
+                            
+                            // Clear container size to let it auto-size naturally
+                            container.ClearValue(FrameworkElement.WidthProperty);
+                            container.ClearValue(FrameworkElement.HeightProperty);
+                        }
+                        else
+                        {
+                            // Apply ScaleTransform for other zoom levels
+                            var scaleTransform = new ScaleTransform
+                            {
+                                ScaleX = ZoomFactor,
+                                ScaleY = ZoomFactor,
+                                CenterX = _baseTileSize / 2,
+                                CenterY = (_baseTileSize + _baseDescHeight) / 2
+                            };
+                            
+                            root.RenderTransform = scaleTransform;
+                            
+                            // Update the container size to match the scaled content
+                            container.Width = _baseTileSize * ZoomFactor + (24 * ZoomFactor);
+                            container.Height = (_baseTileSize + _baseDescHeight) * ZoomFactor + (24 * ZoomFactor);
+                        }
+                    }
+                }
+
+                ModsGrid.InvalidateArrange();
+                ModsGrid.UpdateLayout();
+            }
+        }
+
+        // No longer needed - using ScaleTransform approach
+
+        // No longer needed - using ScaleTransform approach
+
+        // No longer needed - using ScaleTransform approach
+
         public ModGridPage()
         {
             this.InitializeComponent();
             LoadActiveMods();
             LoadSymlinkState();
-            // Check mod directories and create mod.json in level 1 directories
             (App.Current as ZZZ_Mod_Manager_X.App)?.EnsureModJsonInModLibrary();
-            
-            // Set up scroll viewer monitoring for lazy loading
             this.Loaded += ModGridPage_Loaded;
             
-            // Start background loading if not already running
+            // Handle container generation to apply scaling to new items
+            ModsGrid.ContainerContentChanging += ModsGrid_ContainerContentChanging;
+            
             StartBackgroundLoadingIfNeeded();
+        }
+
+        private void ModsGrid_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
+        {
+            if (args.InRecycleQueue) return;
+            
+            // Apply scaling to newly generated containers using transform
+            if (args.ItemContainer is GridViewItem container && _zoomFactor != 1.0)
+            {
+                container.Loaded += (s, e) => 
+                {
+                    if (container.ContentTemplateRoot is FrameworkElement root)
+                    {
+                        var scaleTransform = new ScaleTransform
+                        {
+                            ScaleX = ZoomFactor,
+                            ScaleY = ZoomFactor,
+                            CenterX = _baseTileSize / 2,
+                            CenterY = (_baseTileSize + _baseDescHeight) / 2
+                        };
+                        
+                        root.RenderTransform = scaleTransform;
+                        container.Width = _baseTileSize * ZoomFactor + (24 * ZoomFactor);
+                        container.Height = (_baseTileSize + _baseDescHeight) * ZoomFactor + (24 * ZoomFactor);
+                    }
+                };
+            }
         }
 
         private static void StartBackgroundLoadingIfNeeded()
@@ -236,10 +353,10 @@ namespace ZZZ_Mod_Manager_X.Pages
             if (ModsScrollViewer != null)
             {
                 ModsScrollViewer.ViewChanged += ModsScrollViewer_ViewChanged;
+                ModsScrollViewer.PointerWheelChanged += ModsScrollViewer_PointerWheelChanged;
                 // Initial load of visible images
                 LoadVisibleImages();
             }
-            
             // Monitor window size changes to reload visible images
             this.SizeChanged += ModGridPage_SizeChanged;
         }
@@ -271,6 +388,46 @@ namespace ZZZ_Mod_Manager_X.Pages
                     DispatcherQueue.TryEnqueue(() => PerformAggressiveDisposal());
                 });
             }
+        }
+
+        private void ModsScrollViewer_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
+        {
+            // Check if Ctrl is pressed using KeyModifiers (WinUI 3 compatible)
+            if ((e.KeyModifiers & Windows.System.VirtualKeyModifiers.Control) == Windows.System.VirtualKeyModifiers.Control)
+            {
+                var properties = e.GetCurrentPoint(null).Properties;
+                int delta = properties.MouseWheelDelta;
+                
+                var oldZoom = _zoomFactor;
+                if (delta > 0)
+                {
+                    ZoomFactor += 0.05; // 5% step
+                }
+                else if (delta < 0)
+                {
+                    ZoomFactor -= 0.05; // 5% step
+                }
+                
+                // Only handle if zoom actually changed
+                if (oldZoom != _zoomFactor)
+                {
+                    e.Handled = true;
+                }
+            }
+        }
+
+        protected override void OnKeyDown(KeyRoutedEventArgs e)
+        {
+            // Handle Ctrl+0 for zoom reset
+            if (e.Key == Windows.System.VirtualKey.Number0 && 
+                (Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control) & Windows.UI.Core.CoreVirtualKeyStates.Down) == Windows.UI.Core.CoreVirtualKeyStates.Down)
+            {
+                ResetZoom();
+                e.Handled = true;
+                return;
+            }
+            
+            base.OnKeyDown(e);
         }
 
         private void LoadMoreModTilesIfNeeded()
@@ -1186,7 +1343,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 if (string.IsNullOrWhiteSpace(modLibraryDir))
                     modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 
-                var modFolderPath = Path.GetFullPath(Path.Combine(modLibraryDir, mod.Directory));
+                var modFolderPath = Path.Combine(modLibraryDir, mod.Directory);
                 
                 if (!Directory.Exists(modFolderPath))
                     return; // Folder doesn't exist
@@ -1595,7 +1752,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
                 
                 // New mods will be loaded automatically when accessed
-                
+                 
                 // Refresh the current view if we're showing all mods
                 if (_currentCategory == null && _allModData.Count > 0)
                 {
@@ -1681,7 +1838,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         private static void CreateSymlinkStatic(string linkPath, string targetPath)
         {
             // targetPath powinien by� zawsze pe�n� �cie�k� do katalogu moda w bibliotece mod�w
-            // Je�li targetPath jest nazw� katalogu, zbuduj pe�n� �cie�k�
+            // Je�li targetPath jest nazw� katalogu, zbuduj pe�n� �cie�k� 
             var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             if (!Directory.Exists(targetPath))
             {
