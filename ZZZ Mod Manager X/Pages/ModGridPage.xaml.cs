@@ -308,6 +308,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                             using var doc = JsonDocument.Parse(json);
                             var root = doc.RootElement;
                             var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
+                            var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
+                            var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
                             
                             var name = Path.GetFileName(dir);
                             string previewPath = GetOptimalImagePathStatic(dir);
@@ -318,7 +320,9 @@ namespace ZZZ_Mod_Manager_X.Pages
                                 ImagePath = previewPath, 
                                 Directory = dirName, 
                                 IsActive = false, // Will be updated when actually used
-                                Character = modCharacter
+                                Character = modCharacter,
+                                Author = modAuthor,
+                                Url = modUrl
                             };
                             
                             // Cache the data
@@ -915,6 +919,8 @@ namespace ZZZ_Mod_Manager_X.Pages
             public string Directory { get; set; } = "";
             public bool IsActive { get; set; }
             public string Character { get; set; } = "";
+            public string Author { get; set; } = "";
+            public string Url { get; set; } = "";
         }
 
 
@@ -1055,6 +1061,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                     using var doc = JsonDocument.Parse(json);
                     var root = doc.RootElement;
                     var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
+                    var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
+                    var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
                     
                     var name = Path.GetFileName(dir);
                     string previewPath = GetOptimalImagePath(dir);
@@ -1066,7 +1074,9 @@ namespace ZZZ_Mod_Manager_X.Pages
                         ImagePath = previewPath, 
                         Directory = dirName, 
                         IsActive = isActive,
-                        Character = modCharacter
+                        Character = modCharacter,
+                        Author = modAuthor,
+                        Url = modUrl
                     };
                     
                     // Cache the data
@@ -1237,7 +1247,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
                 
                 // Search through the lightweight ModData and create ModTiles for matches
-                var filteredData = _allModData.Where(modData => modData.Name.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
+                var filteredData = _allModData.Where(modData => 
+                    modData.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                    modData.Author.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                    modData.Url.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
                 var filteredMods = new List<ModTile>();
                 
                 foreach (var modData in filteredData)
