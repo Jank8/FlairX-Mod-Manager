@@ -93,5 +93,7 @@
   "OK": "OK",
   "SourceCode": "Source code",
   "Auto_Language": "Detect language",
-  "OptimizePreviews_Description": "Preview image optimization means the image will be cropped to a 1:1 ratio from the center and resized to 1000x1000 px."
+  "OptimizePreviews_Description": "Preview image optimization means the image will be cropped to a 1:1 ratio from the center and resized to 1000x1000 px.",
+  "Welcome_Title": "WELCOME !",
+  "Welcome_SelectGame": "Please select a game from the dropdown above to get started."
 }

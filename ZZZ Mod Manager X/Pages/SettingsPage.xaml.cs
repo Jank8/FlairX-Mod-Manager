@@ -310,8 +310,8 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             await Task.Run(() =>
             {
-                var modLibraryPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "ModLibrary");
-                if (!Directory.Exists(modLibraryPath)) return;
+                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory;
+                if (string.IsNullOrEmpty(modLibraryPath) || !Directory.Exists(modLibraryPath)) return;
                 foreach (var dir in Directory.GetDirectories(modLibraryPath))
                 {
                     if (token.IsCancellationRequested)

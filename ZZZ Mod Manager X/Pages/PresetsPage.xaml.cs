@@ -10,7 +10,19 @@ namespace ZZZ_Mod_Manager_X.Pages
 {
     public sealed partial class PresetsPage : Page
     {
-        private static string PresetsDir => Path.Combine(System.AppContext.BaseDirectory, "Settings", "Presets");
+        private static string PresetsDir 
+        {
+            get
+            {
+                string gameSpecificPath = AppConstants.GameConfig.GetPresetsPath(SettingsManager.Current.SelectedGame ?? "");
+                if (string.IsNullOrEmpty(gameSpecificPath))
+                {
+                    // Fallback to root presets directory when no game selected
+                    return Path.Combine(System.AppContext.BaseDirectory, "Settings", "Presets");
+                }
+                return Path.Combine(System.AppContext.BaseDirectory, gameSpecificPath);
+            }
+        }
         private const string SelectedPresetKey = "SelectedPreset";
 
         private List<string> _presetNames = new();
@@ -51,7 +63,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 PresetComboBox.Items.Add(preset);
                 _presetNames.Add(preset);
             }
-            // Przywróæ wybrany preset z ustawieñ
+            // Przywrï¿½ï¿½ wybrany preset z ustawieï¿½
             int selectedIndex = ZZZ_Mod_Manager_X.SettingsManager.Current.SelectedPresetIndex;
             if (selectedIndex >= 0 && selectedIndex < PresetComboBox.Items.Count)
                 PresetComboBox.SelectedIndex = selectedIndex;

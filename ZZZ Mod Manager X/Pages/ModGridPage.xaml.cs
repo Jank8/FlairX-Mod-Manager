@@ -1765,7 +1765,20 @@ namespace ZZZ_Mod_Manager_X.Pages
                     }
                 }
             }
-            var presetPath = Path.Combine(AppContext.BaseDirectory, "Settings", "Presets", "Default Preset.json");
+            // Use game-specific preset directory
+            string gameSpecificPresetsPath = AppConstants.GameConfig.GetPresetsPath(ZZZ_Mod_Manager_X.SettingsManager.Current.SelectedGame ?? "");
+            string presetPath;
+            
+            if (string.IsNullOrEmpty(gameSpecificPresetsPath))
+            {
+                // Fallback to root presets directory when no game selected
+                presetPath = Path.Combine(AppContext.BaseDirectory, "Settings", "Presets", "Default Preset.json");
+            }
+            else
+            {
+                presetPath = Path.Combine(AppContext.BaseDirectory, gameSpecificPresetsPath, "Default Preset.json");
+            }
+            
             var presetDir = Path.GetDirectoryName(presetPath) ?? string.Empty;
             Directory.CreateDirectory(presetDir);
             try

@@ -75,52 +75,31 @@ namespace ZZZ_Mod_Manager_X.Pages
             UpdateBackupInfo();
         }
 
-        private string GetBackupDirectory()
-        {
-            var backupDir = Path.Combine(AppContext.BaseDirectory, "ModBackups");
-            if (!Directory.Exists(backupDir))
-            {
-                Directory.CreateDirectory(backupDir);
-            }
-            return backupDir;
-        }
-
         private int CreateAllBackups()
         {
             int count = 0;
             if (!Directory.Exists(ModLibraryPath)) return count;
             
-            var backupDir = GetBackupDirectory();
             var modDirs = Directory.GetDirectories(ModLibraryPath);
             
             foreach (var dir in modDirs)
             {
-                var modName = new DirectoryInfo(dir).Name;
                 var modJson = Path.Combine(dir, "mod.json");
                 var previewJpg = Path.Combine(dir, "preview.jpg");
+                var minitilePng = Path.Combine(dir, "minitile.png");
                 
                 if (!File.Exists(modJson)) continue;
                 
-                // Create backup file names
-                var bak1 = Path.Combine(backupDir, $"{modName}.bak1.zip");
-                var bak2 = Path.Combine(backupDir, $"{modName}.bak2.zip");
-                var bak3 = Path.Combine(backupDir, $"{modName}.bak3.zip");
+                // Create inline ZIP backup alongside mod files
+                var modName = new DirectoryInfo(dir).Name;
+                var backupZip = Path.Combine(dir, $"{modName}.mib.zip");
                 
-                // Shift backups
-                if (File.Exists(bak2))
-                {
-                    if (File.Exists(bak3)) File.Delete(bak3);
-                    File.Move(bak2, bak3, true);
-                }
-                if (File.Exists(bak1))
-                {
-                    File.Move(bak1, bak2, true);
-                }
+                // Skip if backup already exists (prevent duplicates)
+                if (File.Exists(backupZip)) continue;
                 
-                // Create new backup zip
                 try
                 {
-                    using (var zipArchive = ZipFile.Open(bak1, ZipArchiveMode.Create))
+                    using (var zipArchive = ZipFile.Open(backupZip, ZipArchiveMode.Create))
                     {
                         // Always add mod.json
                         zipArchive.CreateEntryFromFile(modJson, "mod.json");
@@ -130,13 +109,19 @@ namespace ZZZ_Mod_Manager_X.Pages
                         {
                             zipArchive.CreateEntryFromFile(previewJpg, "preview.jpg");
                         }
+                        
+                        // Add minitile.png if it exists
+                        if (File.Exists(minitilePng))
+                        {
+                            zipArchive.CreateEntryFromFile(minitilePng, "minitile.png");
+                        }
                     }
                     count++;
                 }
                 catch (Exception)
                 {
                     // Skip this mod if there's an error creating the zip
-                    if (File.Exists(bak1)) File.Delete(bak1);
+                    if (File.Exists(backupZip)) File.Delete(backupZip);
                 }
             }
             return count;
@@ -215,53 +200,46 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private int RestoreAllBackups(int backupNum)
         {
+            // Note: backupNum parameter is ignored in new inline system
+            // We only have one backup level (.mib.zip files)
+            
             int count = 0;
             if (!Directory.Exists(ModLibraryPath)) return count;
-            
-            var backupDir = GetBackupDirectory();
-            if (!Directory.Exists(backupDir)) return count;
             
             var modDirs = Directory.GetDirectories(ModLibraryPath);
             foreach (var dir in modDirs)
             {
                 var modName = new DirectoryInfo(dir).Name;
-                var modJson = Path.Combine(dir, "mod.json");
-                var previewJpg = Path.Combine(dir, "preview.jpg");
+                var backupZip = Path.Combine(dir, $"{modName}.mib.zip");
                 
-                var bakZip = Path.Combine(backupDir, $"{modName}.bak{backupNum}.zip");
-                
-                if (!File.Exists(bakZip)) continue;
+                if (!File.Exists(backupZip)) continue;
                 
                 try
                 {
-                    using (var archive = ZipFile.OpenRead(bakZip))
+                    using (var archive = ZipFile.OpenRead(backupZip))
                     {
                         // Extract mod.json
                         var modJsonEntry = archive.GetEntry("mod.json");
                         if (modJsonEntry != null)
                         {
-                            // Create backup of current file if it exists
-                            if (File.Exists(modJson))
-                            {
-                                File.Copy(modJson, modJson + ".current", true);
-                            }
-                            
-                            // Extract the file
-                            modJsonEntry.ExtractToFile(modJson, true);
+                            var modJsonPath = Path.Combine(dir, "mod.json");
+                            modJsonEntry.ExtractToFile(modJsonPath, true);
                         }
                         
                         // Extract preview.jpg if it exists in the archive
                         var previewEntry = archive.GetEntry("preview.jpg");
                         if (previewEntry != null)
                         {
-                            // Create backup of current file if it exists
-                            if (File.Exists(previewJpg))
-                            {
-                                File.Copy(previewJpg, previewJpg + ".current", true);
-                            }
-                            
-                            // Extract the file
-                            previewEntry.ExtractToFile(previewJpg, true);
+                            var previewPath = Path.Combine(dir, "preview.jpg");
+                            previewEntry.ExtractToFile(previewPath, true);
+                        }
+                        
+                        // Extract minitile.png if it exists in the archive
+                        var minitileEntry = archive.GetEntry("minitile.png");
+                        if (minitileEntry != null)
+                        {
+                            var minitilePath = Path.Combine(dir, "minitile.png");
+                            minitileEntry.ExtractToFile(minitilePath, true);
                         }
                     }
                     count++;
@@ -269,6 +247,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 catch (Exception)
                 {
                     // Skip this mod if there's an error extracting the zip
+                    continue;
                 }
             }
             return count;
@@ -316,22 +295,29 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private int DeleteAllBackups(int backupNum)
         {
-            int count = 0;
-            var backupDir = GetBackupDirectory();
-            if (!Directory.Exists(backupDir)) return count;
+            // Note: backupNum parameter is ignored in new inline system
+            // We delete all .mib.zip files
             
-            // Look for all zip backup files with the specified backup number
-            var backupFiles = Directory.GetFiles(backupDir, $"*.bak{backupNum}.zip");
-            foreach (var bakFile in backupFiles)
+            int count = 0;
+            if (!Directory.Exists(ModLibraryPath)) return count;
+            
+            var modDirs = Directory.GetDirectories(ModLibraryPath);
+            foreach (var dir in modDirs)
             {
+                var modName = new DirectoryInfo(dir).Name;
+                var backupZip = Path.Combine(dir, $"{modName}.mib.zip");
+                
+                if (!File.Exists(backupZip)) continue;
+                
                 try
                 {
-                    File.Delete(bakFile);
+                    File.Delete(backupZip);
                     count++;
                 }
-                catch
+                catch (Exception)
                 {
                     // Skip if we can't delete the file
+                    continue;
                 }
             }
             return count;
@@ -357,6 +343,8 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void UpdateBackupInfo()
         {
+            // In the new inline system, we only have one backup level
+            // Update all three buttons to show the same info (for UI consistency)
             UpdateBackupInfoFor(1, Backup1Info, RestoreBackup1Button, DeleteBackup1Button);
             UpdateBackupInfoFor(2, Backup2Info, RestoreBackup2Button, DeleteBackup2Button);
             UpdateBackupInfoFor(3, Backup3Info, RestoreBackup3Button, DeleteBackup3Button);
@@ -364,8 +352,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void UpdateBackupInfoFor(int backupNum, TextBlock infoBlock, Button restoreButton, Button deleteButton)
         {
-            var backupDir = GetBackupDirectory();
-            if (!Directory.Exists(backupDir))
+            if (!Directory.Exists(ModLibraryPath))
             {
                 infoBlock.Text = "-";
                 restoreButton.IsEnabled = false;
@@ -373,16 +360,23 @@ namespace ZZZ_Mod_Manager_X.Pages
                 return;
             }
             
-            // Look for all zip backup files with the specified backup number
-            var backupFiles = Directory.GetFiles(backupDir, $"*.bak{backupNum}.zip");
-            int count = backupFiles.Length;
+            // Count all .mib.zip backup files across all mod directories
+            int count = 0;
             DateTime? newest = null;
             
-            foreach (var bakFile in backupFiles)
+            var modDirs = Directory.GetDirectories(ModLibraryPath);
+            foreach (var dir in modDirs)
             {
-                var dt = File.GetCreationTime(bakFile);
-                if (newest == null || dt > newest)
-                    newest = dt;
+                var modName = new DirectoryInfo(dir).Name;
+                var backupZip = Path.Combine(dir, $"{modName}.mib.zip");
+                
+                if (File.Exists(backupZip))
+                {
+                    count++;
+                    var dt = File.GetCreationTime(backupZip);
+                    if (newest == null || dt > newest)
+                        newest = dt;
+                }
             }
             
             if (count > 0 && newest != null)

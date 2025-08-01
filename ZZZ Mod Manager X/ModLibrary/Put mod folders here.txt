@@ -1,0 +1,9 @@
+Put your mod folders in the appropriate game subdirectory:
+
+- ZZ/ for Zenless Zone Zero mods
+- WW/ for Wuthering Waves mods  
+- SR/ for Star Rail mods
+- GI/ for Genshin Impact mods
+- HI/ for Honkai Impact mods
+
+Each mod should be in its own folder with mod.json and preview.jpg files.

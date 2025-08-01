@@ -23,10 +23,60 @@ namespace ZZZ_Mod_Manager_X
         public const string APPLICATION_LOG_FILE = "Application.log";
         public const string D3DX_USER_INI_FILE = "d3dx_user.ini";
         
-        // Default Paths
+        // Default Paths (ZZZ as default)
         public const string DEFAULT_XXMI_MODS_PATH = @".\XXMI\ZZMI\Mods";
         public const string DEFAULT_MOD_LIBRARY_PATH = @".\ModLibrary";
         public const string DEFAULT_D3DX_USER_INI_PATH = @".\XXMI\ZZMI\d3dx_user.ini";
+        
+        // Game Configuration
+        public static class GameConfig
+        {
+            public static string GetModsPath(string gameTag)
+            {
+                if (string.IsNullOrEmpty(gameTag)) return string.Empty;
+                return $@".\XXMI\{gameTag}\Mods";
+            }
+            
+            public static string GetD3dxUserIniPath(string gameTag)
+            {
+                if (string.IsNullOrEmpty(gameTag)) return string.Empty;
+                return $@".\XXMI\{gameTag}\d3dx_user.ini";
+            }
+            
+            public static string GetModLibraryPath(string gameTag)
+            {
+                if (string.IsNullOrEmpty(gameTag)) return string.Empty;
+                
+                string subDir = gameTag switch
+                {
+                    "ZZMI" => "ZZ",
+                    "WWMI" => "WW", 
+                    "SRMI" => "SR",
+                    "GIMI" => "GI",
+                    "HIMI" => "HI",
+                    _ => "ZZ"
+                };
+                
+                return $@".\ModLibrary\{subDir}";
+            }
+            
+            public static string GetPresetsPath(string gameTag)
+            {
+                if (string.IsNullOrEmpty(gameTag)) return string.Empty;
+                
+                string subDir = gameTag switch
+                {
+                    "ZZMI" => "ZZ",
+                    "WWMI" => "WW", 
+                    "SRMI" => "SR",
+                    "GIMI" => "GI",
+                    "HIMI" => "HI",
+                    _ => "ZZ"
+                };
+                
+                return $@".\Settings\Presets\{subDir}";
+            }
+        }
         
         // UI Constants
         public const int MIN_WINDOW_WIDTH = 1280;

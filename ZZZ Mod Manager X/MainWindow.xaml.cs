@@ -99,6 +99,11 @@ namespace ZZZ_Mod_Manager_X
                 }
             };
             MainRoot.Loaded += MainRoot_Loaded;
+            MainRoot.Loaded += (s, e) =>
+            {
+                // Initialize game selection after the window is fully loaded
+                InitializeGameSelection();
+            };
             SetSearchBoxPlaceholder();
             SetFooterMenuTranslations();
             _ = GenerateModCharacterMenuAsync();
@@ -757,7 +762,14 @@ namespace ZZZ_Mod_Manager_X
 
         private void OpenModLibraryButton_Click(object sender, RoutedEventArgs e)
         {
-            var modLibraryPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "ModLibrary");
+            var modLibraryPath = SettingsManager.Current.ModLibraryDirectory;
+            
+            // If no game selected or path is empty, fall back to root ModLibrary
+            if (string.IsNullOrEmpty(modLibraryPath))
+            {
+                modLibraryPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "ModLibrary");
+            }
+            
             if (!Directory.Exists(modLibraryPath))
                 Directory.CreateDirectory(modLibraryPath);
             System.Diagnostics.Process.Start("explorer.exe", modLibraryPath);
@@ -909,7 +921,168 @@ namespace ZZZ_Mod_Manager_X
 
         public Frame? GetContentFrame() => contentFrame;
         public ProgressBar? GetOrangeAnimationProgressBar() => PaneStackPanel.FindName("OrangeAnimationProgressBar") as ProgressBar;
+        
+        private void InitializeGameSelection()
+        {
+            try
+            {
+                // Set ComboBox to current selected game from settings
+                string currentGame = SettingsManager.Current.SelectedGame ?? "";
+                
+                // If no game is selected or it's empty, default to "- SELECT GAME -"
+                if (string.IsNullOrEmpty(currentGame))
+                {
+                    GameSelectionComboBox.SelectedIndex = 0; // First item is "- SELECT GAME -"
+                    UpdateUIForGameSelection(false); // Disable UI when no game selected
+                    return;
+                }
+                
+                // Try to find the matching game
+                bool found = false;
+                foreach (ComboBoxItem item in GameSelectionComboBox.Items)
+                {
+                    if (item.Tag?.ToString() == currentGame)
+                    {
+                        GameSelectionComboBox.SelectedItem = item;
+                        found = true;
+                        break;
+                    }
+                }
+                
+                // If no match found, default to "- SELECT GAME -"
+                if (!found)
+                {
+                    GameSelectionComboBox.SelectedIndex = 0; // First item is "- SELECT GAME -"
+                    UpdateUIForGameSelection(false); // Disable UI when no game selected
+                }
+                else
+                {
+                    UpdateUIForGameSelection(true); // Enable UI when game is selected
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error initializing game selection: {ex.Message}");
+                // Fallback to first item if there's any error
+                try
+                {
+                    GameSelectionComboBox.SelectedIndex = 0;
+                    UpdateUIForGameSelection(false); // Disable UI on error
+                }
+                catch
+                {
+                    // If even this fails, just continue - the ComboBox will be unselected
+                }
+            }
+        }
+        
+        private void UpdateUIForGameSelection(bool gameSelected)
+        {
+            try
+            {
+                // Always keep the game selection ComboBox enabled FIRST
+                if (GameSelectionComboBox != null) GameSelectionComboBox.IsEnabled = true;
+                
+                // Enable/disable navigation menu items (but not the entire navigation view)
+                if (nvSample != null)
+                {
+                    // Disable menu items instead of the entire navigation view
+                    foreach (var item in nvSample.MenuItems.OfType<NavigationViewItem>())
+                    {
+                        item.IsEnabled = gameSelected;
+                    }
+                    foreach (var item in nvSample.FooterMenuItems.OfType<NavigationViewItem>())
+                    {
+                        item.IsEnabled = gameSelected;
+                    }
+                }
+                
+                // Enable/disable search and buttons
+                if (SearchBox != null) SearchBox.IsEnabled = gameSelected;
+                if (ReloadModsButton != null) ReloadModsButton.IsEnabled = gameSelected;
+                if (RestartAppButton != null) RestartAppButton.IsEnabled = gameSelected;
+                if (AllModsButton != null) AllModsButton.IsEnabled = gameSelected;
+                if (OpenModLibraryButton != null) OpenModLibraryButton.IsEnabled = gameSelected;
+                if (ShowActiveModsButton != null) ShowActiveModsButton.IsEnabled = gameSelected;
+                
+                // Enable/disable launcher FAB
+                if (LauncherFabBorder != null) LauncherFabBorder.IsHitTestVisible = gameSelected;
+                
+                // Enable/disable zoom indicator
+                if (ZoomIndicatorBorder != null) ZoomIndicatorBorder.IsHitTestVisible = gameSelected;
+                
+                // Ensure the game selection ComboBox stays enabled (double-check)
+                if (GameSelectionComboBox != null) GameSelectionComboBox.IsEnabled = true;
+                
+                // If no game selected, show welcome page
+                if (!gameSelected && contentFrame != null)
+                {
+                    contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.WelcomePage));
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error updating UI for game selection: {ex.Message}");
+            }
+        }
 
+        private void GameSelectionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem selectedItem)
+            {
+                string selectedGame = selectedItem.Tag?.ToString() ?? "";
+                
+                // Skip if same game (including both being empty)
+                if (selectedGame == SettingsManager.Current.SelectedGame)
+                    return;
+                
+                bool gameSelected = !string.IsNullOrEmpty(selectedGame);
+                
+                if (!gameSelected)
+                {
+                    System.Diagnostics.Debug.WriteLine("Switching to no game selected - clearing paths and disabling UI");
+                    UpdateUIForGameSelection(false); // Disable UI first
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Switching to game: {selectedGame}");
+                    UpdateUIForGameSelection(true); // Enable UI
+                }
+                
+                // Switch game paths (handles empty game tag)
+                SettingsManager.SwitchGame(selectedGame);
+                
+                // Only restart StatusKeeper watcher if a game is selected
+                if (gameSelected && SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
+                {
+                    System.Diagnostics.Debug.WriteLine("Restarting StatusKeeper watcher for new game...");
+                    ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StopWatcherStatic();
+                    ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StartWatcherStatic();
+                }
+                else if (!gameSelected)
+                {
+                    // Stop StatusKeeper watcher when no game is selected
+                    ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StopWatcherStatic();
+                }
+                
+                // Only refresh pages if a game is selected
+                if (gameSelected)
+                {
+                    // Ensure mod.json files exist in the new game's directory
+                    _ = (App.Current as App)?.EnsureModJsonInModLibrary();
+                    
+                    // Always navigate to All Mods when a game is selected
+                    // This handles all cases including ModDetailPage (since the current mod might not exist in new game)
+                    System.Diagnostics.Debug.WriteLine("Game selected - navigating to All Mods view");
+                    AllModsButton_Click(AllModsButton, new RoutedEventArgs());
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"Game switched successfully. New paths:");
+                System.Diagnostics.Debug.WriteLine($"  Mods: '{SettingsManager.Current.XXMIModsDirectory}'");
+                System.Diagnostics.Debug.WriteLine($"  ModLibrary: '{SettingsManager.Current.ModLibraryDirectory}'");
+                System.Diagnostics.Debug.WriteLine($"  D3DX INI: '{SettingsManager.Current.StatusKeeperD3dxUserIniPath}'");
+            }
+        }
 
     }
 }

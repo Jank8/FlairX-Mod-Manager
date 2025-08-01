@@ -58,23 +58,44 @@ namespace ZZZ_Mod_Manager_X.Pages
                 modDir = modDirStr;
                 _categoryParam = null;
             }
-            string modLibraryPath = Path.Combine(System.AppContext.BaseDirectory, "ModLibrary");
+            string modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? string.Empty;
+            if (string.IsNullOrEmpty(modLibraryPath))
+            {
+                modLibraryPath = Path.Combine(System.AppContext.BaseDirectory, "ModLibrary");
+            }
+            
             if (Directory.Exists(modLibraryPath))
             {
-                _allModDirs = Directory.GetDirectories(modLibraryPath).Select(Path.GetFileName).Where(x => x != null).Select(x => x!).OrderBy(x => x).ToList();
-                if (modDir != null)
+                try
                 {
-                    _currentModIndex = _allModDirs.FindIndex(x => x == modDir);
+                    _allModDirs = Directory.GetDirectories(modLibraryPath).Select(Path.GetFileName).Where(x => x != null).Select(x => x!).OrderBy(x => x).ToList();
+                    if (modDir != null)
+                    {
+                        _currentModIndex = _allModDirs.FindIndex(x => x == modDir);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error loading mod directories: {ex.Message}");
+                    _allModDirs = new List<string>();
+                    _currentModIndex = -1;
                 }
             }
-            if (modDir != null)
+            else
             {
-                string fullModDir = Path.IsPathRooted(modDir) ? modDir : Path.Combine(modLibraryPath, modDir);
-                if (Directory.Exists(fullModDir))
+                _allModDirs = new List<string>();
+                _currentModIndex = -1;
+            }
+            if (modDir != null && !string.IsNullOrEmpty(modLibraryPath))
+            {
+                try
                 {
-                    modName = Path.GetFileName(fullModDir);
-                    _modJsonPath = Path.Combine(fullModDir, "mod.json");
-                    if (File.Exists(_modJsonPath))
+                    string fullModDir = Path.IsPathRooted(modDir) ? modDir : Path.Combine(modLibraryPath, modDir);
+                    if (Directory.Exists(fullModDir))
+                    {
+                        modName = Path.GetFileName(fullModDir);
+                        _modJsonPath = Path.Combine(fullModDir, "mod.json");
+                        if (File.Exists(_modJsonPath))
                     {
                         var json = File.ReadAllText(_modJsonPath);
                         using var doc = JsonDocument.Parse(json);
@@ -140,9 +161,25 @@ namespace ZZZ_Mod_Manager_X.Pages
                     }
                     var previewPathJpg = Path.Combine(fullModDir, "preview.jpg");
                     if (File.Exists(previewPathJpg))
-                        ModImage.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new System.Uri(previewPathJpg));
+                    {
+                        var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+                        byte[] imageData = File.ReadAllBytes(previewPathJpg);
+                        using (var memStream = new MemoryStream(imageData))
+                        {
+                            bitmap.SetSource(memStream.AsRandomAccessStream());
+                        }
+                        ModImage.Source = bitmap;
+                    }
                     else
                         ModImage.Source = null;
+                }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error loading mod details: {ex.Message}");
+                    // Set default values on error
+                    ModImage.Source = null;
+                    ModHotkeysList.ItemsSource = null;
                 }
             }
             if (string.IsNullOrWhiteSpace(modName))

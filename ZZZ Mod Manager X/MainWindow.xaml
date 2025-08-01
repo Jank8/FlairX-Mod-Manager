@@ -60,6 +60,18 @@
 
             <NavigationView.PaneCustomContent>
                 <StackPanel x:Name="PaneStackPanel" HorizontalAlignment="Stretch" Padding="16,20,16,0">
+                    <ComboBox x:Name="GameSelectionComboBox" 
+                              HorizontalAlignment="Stretch" 
+                              Margin="0,0,0,12"
+                              HorizontalContentAlignment="Center"
+                              SelectionChanged="GameSelectionComboBox_SelectionChanged">
+                        <ComboBoxItem Content="- SELECT GAME -" Tag="" IsSelected="True" HorizontalContentAlignment="Center"/>
+                        <ComboBoxItem Content="Genshin Impact" Tag="GIMI" HorizontalContentAlignment="Center"/>
+                        <ComboBoxItem Content="Honkai Impact" Tag="HIMI" HorizontalContentAlignment="Center"/>
+                        <ComboBoxItem Content="Star Rail" Tag="SRMI" HorizontalContentAlignment="Center"/>
+                        <ComboBoxItem Content="Wuthering Waves" Tag="WWMI" HorizontalContentAlignment="Center"/>
+                        <ComboBoxItem Content="Zenless Zone Zero" Tag="ZZMI" HorizontalContentAlignment="Center"/>
+                    </ComboBox>
                     <TextBlock Text="ZZZ Mod Manager X" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="25" Margin="0,0,0,8"/>
                     <ProgressBar x:Name="OrangeAnimationProgressBar" Width="200" IsIndeterminate="True" Margin="0,0,0,8" Visibility="Visible" Opacity="1" />
                     <Grid Margin="0,16,0,8">
