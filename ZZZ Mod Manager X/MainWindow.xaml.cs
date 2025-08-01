@@ -922,6 +922,41 @@ namespace ZZZ_Mod_Manager_X
         public Frame? GetContentFrame() => contentFrame;
         public ProgressBar? GetOrangeAnimationProgressBar() => PaneStackPanel.FindName("OrangeAnimationProgressBar") as ProgressBar;
         
+        private void CleanupSymlinksForGameSwitch()
+        {
+            try
+            {
+                // Get current XXMI mods directory (before switching)
+                var currentModsDir = SettingsManager.Current.XXMIModsDirectory;
+                if (string.IsNullOrWhiteSpace(currentModsDir))
+                    return;
+                
+                if (!Directory.Exists(currentModsDir))
+                    return;
+                
+                // Remove all symlinks from current game's directory
+                foreach (var dir in Directory.GetDirectories(currentModsDir))
+                {
+                    if (ZZZ_Mod_Manager_X.Pages.ModGridPage.IsSymlinkStatic(dir))
+                    {
+                        try
+                        {
+                            Directory.Delete(dir, true);
+                            System.Diagnostics.Debug.WriteLine($"Removed symlink: {dir}");
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Failed to remove symlink {dir}: {ex.Message}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error during symlink cleanup: {ex.Message}");
+            }
+        }
+        
         private void InitializeGameSelection()
         {
             try
@@ -1049,6 +1084,10 @@ namespace ZZZ_Mod_Manager_X
                     UpdateUIForGameSelection(true); // Enable UI
                 }
                 
+                // Clean up symlinks from previous game before switching
+                System.Diagnostics.Debug.WriteLine("Cleaning up symlinks from previous game...");
+                CleanupSymlinksForGameSwitch();
+                
                 // Switch game paths (handles empty game tag)
                 SettingsManager.SwitchGame(selectedGame);
                 
@@ -1070,6 +1109,14 @@ namespace ZZZ_Mod_Manager_X
                 {
                     // Ensure mod.json files exist in the new game's directory
                     _ = (App.Current as App)?.EnsureModJsonInModLibrary();
+                    
+                    // Create default preset for the new game if it doesn't exist
+                    var gridPage = new ZZZ_Mod_Manager_X.Pages.ModGridPage();
+                    gridPage.SaveDefaultPresetAllInactive();
+                    
+                    // Regenerate character menu for the new game
+                    System.Diagnostics.Debug.WriteLine("Regenerating character menu for new game...");
+                    _ = GenerateModCharacterMenuAsync();
                     
                     // Always navigate to All Mods when a game is selected
                     // This handles all cases including ModDetailPage (since the current mod might not exist in new game)

@@ -26,12 +26,13 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             this.InitializeComponent();
             UpdateTexts();
+            LoadFunctionsList();
+            PopulateSelectorBar();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            LoadFunctionsList();
             UpdateTexts();
         }
 
@@ -58,8 +59,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                     }
                 }
             }
-            FunctionsList.ItemsSource = null;
-            FunctionsList.ItemsSource = _functionInfos;
+            PopulateSelectorBar();
         }
 
         private void SaveFunctionSettings(FunctionInfo function)
@@ -172,51 +172,71 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             _functionInfos.Add(modInfoBackupFunction);
 
-            FunctionsList.ItemsSource = _functionInfos;
+            PopulateSelectorBar();
         }
 
-        private void FunctionButton_Click(object sender, RoutedEventArgs e)
+        private void PopulateSelectorBar()
         {
-            if (sender is Button btn && btn.DataContext is FunctionInfo function)
+            FunctionSelectorBar.Items.Clear();
+            
+            foreach (var function in _functionInfos)
             {
-                if (function.FileName == "StatusKeeperPage")
+                if (function.Enabled)
                 {
-                    Frame.Navigate(typeof(StatusKeeperPage));
-                    return;
-                }
-                if (function.FileName == "ModInfoBackup")
-                {
-                    Frame.Navigate(typeof(ModInfoBackupPage));
-                    return;
-                }
-                var pageTypeName = $"ZZZ_Mod_Manager_X.Pages.{function.FileName.First().ToString().ToUpper() + function.FileName.Substring(1)}Page";
-                var pageType = Type.GetType(pageTypeName);
-                if (pageType != null)
-                {
-                    Frame.Navigate(pageType); // Navigate to page
-                }
-                else
-                {
-                    var dialog = new ContentDialog
+                    var selectorItem = new SelectorBarItem
                     {
-                        Title = "No Interface",
-                        Content = $"No XAML interface for function: {function.Name}",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
+                        Text = function.Name,
+                        Tag = function,
+                        FontSize = 22
                     };
-                    _ = dialog.ShowAsync();
+                    FunctionSelectorBar.Items.Add(selectorItem);
+                }
+            }
+            
+            // Select the first item by default
+            if (FunctionSelectorBar.Items.Count > 0)
+            {
+                FunctionSelectorBar.SelectedItem = FunctionSelectorBar.Items[0];
+                var firstFunction = (FunctionSelectorBar.Items[0] as SelectorBarItem)?.Tag as FunctionInfo;
+                if (firstFunction != null)
+                {
+                    NavigateToFunction(firstFunction);
                 }
             }
         }
 
-        private void FunctionToggle_Toggled(object sender, RoutedEventArgs e)
+        private void FunctionSelectorBar_SelectionChanged(object sender, SelectorBarSelectionChangedEventArgs e)
         {
-            if (sender is ToggleSwitch toggle && toggle.DataContext is FunctionInfo function)
+            if (sender is SelectorBar selectorBar && selectorBar.SelectedItem is SelectorBarItem selectedItem && selectedItem.Tag is FunctionInfo function)
             {
-                function.Enabled = toggle.IsOn;
-                SaveFunctionSettings(function);
+                NavigateToFunction(function);
             }
         }
+        
+        private void NavigateToFunction(FunctionInfo function)
+        {
+            switch (function.FileName)
+            {
+                case "GBAuthorUpdate":
+                    FunctionContentFrame.Navigate(typeof(GBAuthorUpdatePage));
+                    break;
+                case "HotkeyFinder":
+                    FunctionContentFrame.Navigate(typeof(HotkeyFinderPage));
+                    break;
+                case "StatusKeeperPage":
+                    FunctionContentFrame.Navigate(typeof(StatusKeeperPage));
+                    break;
+                case "ModInfoBackup":
+                    FunctionContentFrame.Navigate(typeof(ModInfoBackupPage));
+                    break;
+                default:
+                    // Fallback to the generic settings page
+                    FunctionContentFrame.Navigate(typeof(SettingsFunctionPage), function.FileName);
+                    break;
+            }
+        }
+
+
 
         private string GetGameBananaFunctionName()
         {

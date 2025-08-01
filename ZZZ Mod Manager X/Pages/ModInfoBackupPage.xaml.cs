@@ -51,7 +51,6 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void UpdateTexts()
         {
-            Title.Text = T("Title");
             CreateBackupsText.Text = T("ModInfoBackup_BackupAll");
             RestoreBackup1Text.Text = T("ModInfoBackup_Restore1");
             RestoreBackup2Text.Text = T("ModInfoBackup_Restore2");
@@ -335,11 +334,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             await dialog.ShowAsync();
         }
 
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (Frame.CanGoBack)
-                Frame.GoBack();
-        }
+
 
         private void UpdateBackupInfo()
         {
@@ -393,52 +388,6 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
         }
 
-        private void BackButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            var scaleAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                To = 1.2,
-                Duration = TimeSpan.FromMilliseconds(150),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
-            };
-            var scaleAnimationY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                To = 1.2,
-                Duration = TimeSpan.FromMilliseconds(150),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
-            };
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimation, BackIconScale);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimation, "ScaleX");
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimationY, BackIconScale);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimationY, "ScaleY");
-            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-            storyboard.Children.Add(scaleAnimation);
-            storyboard.Children.Add(scaleAnimationY);
-            storyboard.Begin();
-        }
 
-        private void BackButton_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            var scaleAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                To = 1.0,
-                Duration = TimeSpan.FromMilliseconds(150),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
-            };
-            var scaleAnimationY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                To = 1.0,
-                Duration = TimeSpan.FromMilliseconds(150),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
-            };
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimation, BackIconScale);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimation, "ScaleX");
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimationY, BackIconScale);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimationY, "ScaleY");
-            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-            storyboard.Children.Add(scaleAnimation);
-            storyboard.Children.Add(scaleAnimationY);
-            storyboard.Begin();
-        }
     }
 }

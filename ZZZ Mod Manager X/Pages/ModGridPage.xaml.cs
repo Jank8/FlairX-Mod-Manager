@@ -68,7 +68,30 @@ namespace ZZZ_Mod_Manager_X.Pages
             protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        private static string ActiveModsStatePath => Path.Combine(AppContext.BaseDirectory, "Settings", "ActiveMods.json");
+        private static string ActiveModsStatePath 
+        {
+            get
+            {
+                string gameTag = ZZZ_Mod_Manager_X.SettingsManager.Current.SelectedGame ?? "ZZMI";
+                if (string.IsNullOrEmpty(gameTag))
+                {
+                    // Fallback to default if no game selected
+                    return Path.Combine(AppContext.BaseDirectory, "Settings", "ActiveMods.json");
+                }
+                
+                string gameSubDir = gameTag switch
+                {
+                    "ZZMI" => "ZZ",
+                    "WWMI" => "WW", 
+                    "SRMI" => "SR",
+                    "GIMI" => "GI",
+                    "HIMI" => "HI",
+                    _ => "ZZ"
+                };
+                
+                return Path.Combine(AppContext.BaseDirectory, "Settings", $"{gameSubDir}-ActiveMods.json");
+            }
+        }
         private static string SymlinkStatePath => Path.Combine(AppContext.BaseDirectory, "Settings", "SymlinkState.json");
         private Dictionary<string, bool> _activeMods = new();
         private string? _lastSymlinkTarget;
@@ -1693,7 +1716,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
             }
 
-            var activeModsPath = Path.Combine(AppContext.BaseDirectory, "Settings", "ActiveMods.json");
+            var activeModsPath = ActiveModsStatePath;
             if (!File.Exists(activeModsPath)) return;
             try
             {
@@ -1729,7 +1752,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var preset = JsonSerializer.Deserialize<Dictionary<string, bool>>(json);
                 if (preset != null)
                 {
-                    var activeModsPath = Path.Combine(AppContext.BaseDirectory, "Settings", "ActiveMods.json");
+                    var activeModsPath = ActiveModsStatePath;
                     var presetJson = JsonSerializer.Serialize(preset, new JsonSerializerOptions { WriteIndented = true });
                     File.WriteAllText(activeModsPath, presetJson);
                     RecreateSymlinksFromActiveMods();
@@ -2008,7 +2031,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var modLibraryPath = SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 
                 // Load active mods
-                var activeModsPath = Path.Combine(AppContext.BaseDirectory, "Settings", "ActiveMods.json");
+                var activeModsPath = ActiveModsStatePath;
                 var activeMods = new Dictionary<string, bool>();
                 
                 if (File.Exists(activeModsPath))

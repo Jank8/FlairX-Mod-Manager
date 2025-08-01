@@ -1,7 +1,6 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Input;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -28,14 +27,6 @@ namespace ZZZ_Mod_Manager_X.Pages
             if (e.Parameter is string functionFolderName)
             {
                 ShowFunctionUI(functionFolderName);
-                var functionFolder = Path.Combine(AppContext.BaseDirectory, "Functions", functionFolderName);
-                var csFiles = Directory.GetFiles(functionFolder, "*.cs");
-                string functionDisplayName = functionFolderName;
-                if (csFiles.Length > 0)
-                {
-                    functionDisplayName = ExtractFunctionName(csFiles[0]) ?? functionFolderName;
-                }
-                FunctionSettingsTitle.Text = string.Format(LanguageManager.Instance.T("FunctionSettingsPage_Title"), functionDisplayName);
             }
         }
 
@@ -91,20 +82,6 @@ namespace ZZZ_Mod_Manager_X.Pages
             // ...rest of UI generation logic, update all FunctionLangPanel references, etc.
         }
 
-        private void Button_PointerEntered(object sender, PointerRoutedEventArgs e)
-        {
-            AnimatedIcon.SetState(BackAnimatedIcon, "PointerOver");
-        }
 
-        private void Button_PointerExited(object sender, PointerRoutedEventArgs e)
-        {
-            AnimatedIcon.SetState(BackAnimatedIcon, "Normal");
-        }
-
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (Frame.CanGoBack)
-                Frame.GoBack();
-        }
     }
 }

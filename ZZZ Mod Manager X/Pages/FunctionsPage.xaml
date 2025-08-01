@@ -5,41 +5,22 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ZZZ_Mod_Manager_X.Pages">
     <Grid Padding="24">
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="16">
-                <TextBlock x:Name="FunctionsTitle" Text="" FontSize="24" FontWeight="Bold" Margin="0,0,0,16" />
-                <!-- Functions List -->
-                <ItemsControl x:Name="FunctionsList">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Spacing="8"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="300"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="44"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{Binding Name}"
-                                           Grid.Column="0"
-                                           VerticalAlignment="Center"
-                                           TextWrapping="WrapWholeWords"/>
-                                <Button x:Name="FunctionButton" 
-                                       Grid.Column="2"
-                                       Width="44"
-                                       Click="FunctionButton_Click"
-                                       Padding="8">
-                                    <FontIcon Glyph="&#xE713;" FontSize="16"/>
-                                </Button>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-        </ScrollViewer>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock x:Name="FunctionsTitle" Text="" FontSize="24" FontWeight="Bold" Margin="0,0,0,16" Grid.Row="0"/>
+        
+        <SelectorBar x:Name="FunctionSelectorBar" 
+                     Grid.Row="1" 
+                     Margin="0,0,0,24"
+                     FontSize="16"
+                     SelectionChanged="FunctionSelectorBar_SelectionChanged">
+            <!-- Function tabs will be added dynamically -->
+        </SelectorBar>
+        
+        <Frame x:Name="FunctionContentFrame" Grid.Row="2"/>
     </Grid>
 </Page>

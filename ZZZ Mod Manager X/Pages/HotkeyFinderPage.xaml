@@ -11,22 +11,7 @@
     d:DesignHeight="400"
     d:DesignWidth="600">
     <Grid Margin="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-            <Button x:Name="BackButton" Width="48" Height="48" Click="BackButton_Click" VerticalAlignment="Center"
-                    PointerEntered="BackButton_PointerEntered" PointerExited="BackButton_PointerExited">
-                <FontIcon x:Name="BackIcon" Glyph="&#xE72B;" FontSize="20">
-                    <FontIcon.RenderTransform>
-                        <ScaleTransform x:Name="BackIconScale" ScaleX="1" ScaleY="1"/>
-                    </FontIcon.RenderTransform>
-                </FontIcon>
-            </Button>
-            <TextBlock x:Name="Title" Text="" FontSize="24" FontWeight="Bold" Margin="16,0,0,0" VerticalAlignment="Center"/>
-        </StackPanel>
-        <StackPanel Grid.Row="1" Spacing="16">
+        <StackPanel Spacing="16">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
