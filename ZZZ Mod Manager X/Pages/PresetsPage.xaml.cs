@@ -14,7 +14,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             get
             {
-                string gameSpecificPath = AppConstants.GameConfig.GetPresetsPath(SettingsManager.Current.SelectedGame ?? "");
+                string gameSpecificPath = AppConstants.GameConfig.GetPresetsPath(SettingsManager.CurrentSelectedGame);
                 if (string.IsNullOrEmpty(gameSpecificPath))
                 {
                     // Fallback to root presets directory when no game selected

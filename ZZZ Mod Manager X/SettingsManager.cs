@@ -10,13 +10,14 @@ namespace ZZZ_Mod_Manager_X
         public string? XXMIModsDirectory { get; set; } = AppConstants.DEFAULT_XXMI_MODS_PATH;
         public string? ModLibraryDirectory { get; set; } = AppConstants.DEFAULT_MOD_LIBRARY_PATH;
         public string? Theme { get; set; } = "Auto";
+        public string? BackdropEffect { get; set; } = "AcrylicThin";
         public bool DynamicModSearchEnabled { get; set; } = true;
         public bool GridLoggingEnabled { get; set; } = false;
         public bool ShowOrangeAnimation { get; set; } = true;
         public int SelectedPresetIndex { get; set; } = 0; // 0 = default
         
         // Game Selection
-        public string? SelectedGame { get; set; } = "ZZMI"; // Default to ZZZ
+        public int SelectedGameIndex { get; set; } = 0; // 0 = no game selected, 1-5 = game indices
         
         // StatusKeeper settings
         public string StatusKeeperD3dxUserIniPath { get; set; } = AppConstants.DEFAULT_D3DX_USER_INI_PATH;
@@ -39,18 +40,26 @@ namespace ZZZ_Mod_Manager_X
 
         public static void Load()
         {
+            System.Diagnostics.Debug.WriteLine($"SettingsManager.Load() called. Settings file path: {SettingsPath}");
             if (File.Exists(SettingsPath))
             {
                 try
                 {
                     var json = File.ReadAllText(SettingsPath);
+                    System.Diagnostics.Debug.WriteLine($"Settings JSON content: {json}");
                     Current = JsonSerializer.Deserialize<Settings>(json) ?? new Settings();
+                    System.Diagnostics.Debug.WriteLine($"Settings loaded: SelectedGameIndex = {Current.SelectedGameIndex}");
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine($"Failed to load settings: {ex.Message}");
                     Current = new Settings();
                 }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Settings file does not exist, using defaults");
+                Current = new Settings();
             }
         }
 
@@ -78,19 +87,48 @@ namespace ZZZ_Mod_Manager_X
             Current.Theme = "Auto";
             Current.ShowOrangeAnimation = true;
             Current.SelectedPresetIndex = 0;
-            Current.SelectedGame = "ZZMI";
+            Current.SelectedGameIndex = 5; // Default to ZZZ (index 5)
             Save();
         }
         
-        public static void SwitchGame(string gameTag)
+        public static string GetGameTagFromIndex(int index)
         {
-            Current.SelectedGame = gameTag;
+            return index switch
+            {
+                0 => "", // No game selected
+                1 => "GIMI", // Genshin Impact
+                2 => "HIMI", // Honkai Impact
+                3 => "SRMI", // Star Rail
+                4 => "WWMI", // Wuthering Waves
+                5 => "ZZMI", // Zenless Zone Zero
+                _ => ""
+            };
+        }
+
+        public static int GetIndexFromGameTag(string gameTag)
+        {
+            return gameTag switch
+            {
+                "GIMI" => 1,
+                "HIMI" => 2,
+                "SRMI" => 3,
+                "WWMI" => 4,
+                "ZZMI" => 5,
+                _ => 0
+            };
+        }
+
+        public static void SwitchGame(int gameIndex)
+        {
+            string gameTag = GetGameTagFromIndex(gameIndex);
+            System.Diagnostics.Debug.WriteLine($"SwitchGame: Setting SelectedGameIndex to {gameIndex} (tag: '{gameTag}')");
+            Current.SelectedGameIndex = gameIndex;
             Current.XXMIModsDirectory = AppConstants.GameConfig.GetModsPath(gameTag);
             Current.ModLibraryDirectory = AppConstants.GameConfig.GetModLibraryPath(gameTag);
             Current.StatusKeeperD3dxUserIniPath = AppConstants.GameConfig.GetD3dxUserIniPath(gameTag);
             
-            // Only create directories if a game is selected (not empty)
-            if (!string.IsNullOrEmpty(gameTag))
+            // Only create directories if a game is selected (index > 0)
+            if (gameIndex > 0)
             {
                 try
                 {
@@ -114,10 +152,12 @@ namespace ZZZ_Mod_Manager_X
             }
             
             Save();
+            System.Diagnostics.Debug.WriteLine($"SwitchGame: Saved settings with SelectedGameIndex = {Current.SelectedGameIndex}");
         }
 
         public static string XXMIModsDirectorySafe => Current.XXMIModsDirectory ?? string.Empty;
         public static string ModLibraryDirectorySafe => Current.ModLibraryDirectory ?? string.Empty;
+        public static string CurrentSelectedGame => GetGameTagFromIndex(Current.SelectedGameIndex);
         public static bool ShowOrangeAnimation
         {
             get => Current?.ShowOrangeAnimation ?? true;

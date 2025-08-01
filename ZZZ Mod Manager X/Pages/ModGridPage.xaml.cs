@@ -72,7 +72,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             get
             {
-                string gameTag = ZZZ_Mod_Manager_X.SettingsManager.Current.SelectedGame ?? "ZZMI";
+                string gameTag = ZZZ_Mod_Manager_X.SettingsManager.CurrentSelectedGame;
                 if (string.IsNullOrEmpty(gameTag))
                 {
                     // Fallback to default if no game selected
@@ -1789,7 +1789,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
             }
             // Use game-specific preset directory
-            string gameSpecificPresetsPath = AppConstants.GameConfig.GetPresetsPath(ZZZ_Mod_Manager_X.SettingsManager.Current.SelectedGame ?? "");
+            string gameSpecificPresetsPath = AppConstants.GameConfig.GetPresetsPath(ZZZ_Mod_Manager_X.SettingsManager.CurrentSelectedGame);
             string presetPath;
             
             if (string.IsNullOrEmpty(gameSpecificPresetsPath))

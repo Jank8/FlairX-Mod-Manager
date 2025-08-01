@@ -12,7 +12,7 @@
             <!-- File Path Selection -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock x:Name="D3dxFilePathLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                <BreadcrumbBar x:Name="D3dxFilePathBreadcrumb" Width="410" Margin="-40,0,8,0" IsHitTestVisible="False" IsTabStop="False"/>
+                <BreadcrumbBar x:Name="D3dxFilePathBreadcrumb" Width="330" Margin="-40,0,8,0" IsHitTestVisible="False" IsTabStop="False"/>
                 <Button x:Name="D3dxFilePathPickButton" Click="D3dxFilePathPickButton_Click" Width="32" Height="32" Padding="0">
                     <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
                 </Button>

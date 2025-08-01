@@ -4,23 +4,43 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ZZZ_Mod_Manager_X.Pages">
-    <Grid Padding="24">
+    <Grid Padding="24,24,0,24">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
-        <TextBlock x:Name="FunctionsTitle" Text="" FontSize="24" FontWeight="Bold" Margin="0,0,0,16" Grid.Row="0"/>
-        
-        <SelectorBar x:Name="FunctionSelectorBar" 
-                     Grid.Row="1" 
-                     Margin="0,0,0,24"
-                     FontSize="16"
-                     SelectionChanged="FunctionSelectorBar_SelectionChanged">
-            <!-- Function tabs will be added dynamically -->
-        </SelectorBar>
-        
-        <Frame x:Name="FunctionContentFrame" Grid.Row="2"/>
+        <StackPanel Spacing="15">
+            <TextBlock x:Name="FunctionsTitle" Text="" FontSize="24" FontWeight="Bold" Margin="0,0,0,16"/>
+            
+            <SelectorBar x:Name="FunctionSelectorBar" 
+                         FontSize="20"
+                         SelectionChanged="FunctionSelectorBar_SelectionChanged">
+            <SelectorBarItem x:Name="GBAuthorUpdateItem" Tag="GBAuthorUpdate" Margin="4,0,4,0">
+                <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                    <FontIcon Glyph="&#xF49A;" FontSize="16"/>
+                    <TextBlock x:Name="GBAuthorUpdateText" Text="GameBanana Update" VerticalAlignment="Center"/>
+                </StackPanel>
+            </SelectorBarItem>
+            <SelectorBarItem x:Name="HotkeyFinderItem" Tag="HotkeyFinder" Margin="4,0,4,0">
+                <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                    <FontIcon Glyph="&#xE765;" FontSize="16"/>
+                    <TextBlock x:Name="HotkeyFinderText" Text="Hotkey Finder" VerticalAlignment="Center"/>
+                </StackPanel>
+            </SelectorBarItem>
+            <SelectorBarItem x:Name="StatusKeeperItem" Tag="StatusKeeperPage" Margin="4,0,4,0">
+                <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                    <FontIcon Glyph="&#xE792;" FontSize="16"/>
+                    <TextBlock x:Name="StatusKeeperText" Text="Status Keeper" VerticalAlignment="Center"/>
+                </StackPanel>
+            </SelectorBarItem>
+            <SelectorBarItem x:Name="ModInfoBackupItem" Tag="ModInfoBackup" Margin="4,0,4,0">
+                <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                    <FontIcon Glyph="&#xE8C8;" FontSize="16"/>
+                    <TextBlock x:Name="ModInfoBackupText" Text="ModInfo Backup" VerticalAlignment="Center"/>
+                </StackPanel>
+            </SelectorBarItem>
+            </SelectorBar>
+            
+            <Frame x:Name="FunctionContentFrame"/>
+        </StackPanel>
     </Grid>
 </Page>

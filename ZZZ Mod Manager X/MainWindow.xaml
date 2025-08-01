@@ -9,9 +9,7 @@
     mc:Ignorable="d"
     Title="ZZZ Mod Manager X">
 
-    <Window.SystemBackdrop>
-        <MicaBackdrop />
-    </Window.SystemBackdrop>
+
 
     <Grid x:Name="MainRoot" Loaded="MainRoot_Loaded">
         <NavigationView x:Name="nvSample"
@@ -194,7 +192,7 @@
                 Width="64" Height="64"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
-                Margin="40"
+                Margin="27"
                 CornerRadius="16"
                 PointerPressed="LauncherFabBorder_PointerPressed"
                 PointerEntered="LauncherFabBorder_PointerEntered"

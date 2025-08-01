@@ -88,6 +88,16 @@ namespace ZZZ_Mod_Manager_X.Pages
                     break;
                 }
             }
+            // Set backdrop SelectorBar to selected from settings
+            string backdrop = SettingsManager.Current.BackdropEffect ?? "AcrylicThin";
+            foreach (SelectorBarItem item in BackdropSelectorBar.Items)
+            {
+                if ((string)item.Tag == backdrop)
+                {
+                    BackdropSelectorBar.SelectedItem = item;
+                    break;
+                }
+            }
             // Set BreadcrumbBar in constructor
             SetBreadcrumbBar(XXMIModsDirectoryBreadcrumb, SettingsManager.XXMIModsDirectorySafe);
             SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, SettingsManager.Current.ModLibraryDirectory ?? string.Empty);
@@ -116,6 +126,9 @@ namespace ZZZ_Mod_Manager_X.Pages
             GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
             ShowOrangeAnimationToggle.IsOn = SettingsManager.Current.ShowOrangeAnimation;
             ModGridZoomToggle.IsOn = SettingsManager.Current.ModGridZoomEnabled;
+            
+            // Ensure texts are updated (especially for backdrop selector)
+            UpdateTexts();
         }
 
         private void LoadLanguages()
@@ -284,6 +297,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         private void UpdateTexts()
         {
             SettingsTitle.Text = LanguageManager.Instance.T("SettingsPage_Title");
+            BackdropLabel.Text = LanguageManager.Instance.T("SettingsPage_Backdrop");
             LanguageLabel.Text = LanguageManager.Instance.T("SettingsPage_Language");
             DynamicModSearchLabel.Text = LanguageManager.Instance.T("SettingsPage_DynamicModSearch_Label");
             GridLoggingLabel.Text = LanguageManager.Instance.T("SettingsPage_GridLogging_Label");
@@ -294,6 +308,24 @@ namespace ZZZ_Mod_Manager_X.Pages
             ThemeSelectorAutoText.Text = LanguageManager.Instance.T("SettingsPage_Theme_Auto");
             ThemeSelectorLightText.Text = LanguageManager.Instance.T("SettingsPage_Theme_Light");
             ThemeSelectorDarkText.Text = LanguageManager.Instance.T("SettingsPage_Theme_Dark");
+            // Update Backdrop SelectorBar texts
+            if (BackdropSelectorMicaText != null)
+                BackdropSelectorMicaText.Text = LanguageManager.Instance.T("SettingsPage_Backdrop_Mica");
+            if (BackdropSelectorMicaAltText != null)
+                BackdropSelectorMicaAltText.Text = LanguageManager.Instance.T("SettingsPage_Backdrop_MicaAlt");
+            if (BackdropSelectorAcrylicText != null)
+                BackdropSelectorAcrylicText.Text = LanguageManager.Instance.T("SettingsPage_Backdrop_Acrylic");
+            if (BackdropSelectorAcrylicThinText != null)
+                BackdropSelectorAcrylicThinText.Text = LanguageManager.Instance.T("SettingsPage_Backdrop_AcrylicThin");
+            if (BackdropSelectorNoneText != null)
+            {
+                BackdropSelectorNoneText.Text = "None";
+                System.Diagnostics.Debug.WriteLine($"Set BackdropSelectorNoneText to: {BackdropSelectorNoneText.Text}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("BackdropSelectorNoneText is null!");
+            }
             XXMIModsDirectoryLabel.Text = LanguageManager.Instance.T("SettingsPage_XXMIModsDirectory");
             ModLibraryDirectoryLabel.Text = LanguageManager.Instance.T("SettingsPage_ModLibraryDirectory");
             ToolTipService.SetToolTip(XXMIModsDirectoryDefaultButton, LanguageManager.Instance.T("SettingsPage_RestoreDefault_Tooltip"));
@@ -884,6 +916,28 @@ namespace ZZZ_Mod_Manager_X.Pages
                         else
                             root.RequestedTheme = ElementTheme.Default;
                     }
+                    
+                    // Refresh backdrop effect if using "None" to update background color
+                    string currentBackdrop = SettingsManager.Current.BackdropEffect ?? "AcrylicThin";
+                    if (currentBackdrop == "None")
+                    {
+                        mainWindow.ApplyBackdropEffect("None");
+                    }
+                }
+            }
+        }
+
+        private void BackdropSelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
+        {
+            if (sender.SelectedItem is SelectorBarItem item && item.Tag is string backdrop)
+            {
+                SettingsManager.Current.BackdropEffect = backdrop;
+                SettingsManager.Save();
+                
+                // Apply backdrop effect
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.ApplyBackdropEffect(backdrop);
                 }
             }
         }

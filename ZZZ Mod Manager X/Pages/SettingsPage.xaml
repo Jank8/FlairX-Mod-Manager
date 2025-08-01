@@ -10,7 +10,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="15">
+            <StackPanel Spacing="20">
                 <Grid Height="40" Margin="0,0,0,16">
                     <TextBlock x:Name="SettingsTitle" Text="" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" />
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0">
@@ -38,6 +38,41 @@
                 </StackPanel>
                 </Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="BackdropLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                    <SelectorBar x:Name="BackdropSelectorBar" Width="500" SelectionChanged="BackdropSelectorBar_SelectionChanged" Margin="-40,0,8,0">
+                        <SelectorBarItem x:Name="BackdropSelectorMica" Tag="Mica" Margin="0,0,4,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
+                                <TextBlock x:Name="BackdropSelectorMicaText" Text="" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                        <SelectorBarItem x:Name="BackdropSelectorMicaAlt" Tag="MicaAlt" Margin="4,0,4,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
+                                <TextBlock x:Name="BackdropSelectorMicaAltText" Text="" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                        <SelectorBarItem x:Name="BackdropSelectorAcrylic" Tag="Acrylic" Margin="4,0,4,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
+                                <TextBlock x:Name="BackdropSelectorAcrylicText" Text="" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                        <SelectorBarItem x:Name="BackdropSelectorAcrylicThin" Tag="AcrylicThin" Margin="4,0,4,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
+                                <TextBlock x:Name="BackdropSelectorAcrylicThinText" Text="" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                        <SelectorBarItem x:Name="BackdropSelectorNone" Tag="None" Margin="4,0,0,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
+                                <TextBlock x:Name="BackdropSelectorNoneText" Text="None" VerticalAlignment="Center" MinWidth="40"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                    </SelectorBar>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock x:Name="LanguageLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
                     <ComboBox x:Name="LanguageComboBox" Width="200" SelectionChanged="LanguageComboBox_SelectionChanged" Margin="-40,0,0,0"/>
                 </StackPanel>
@@ -48,23 +83,7 @@
                     </Button>
                     <ProgressBar x:Name="OptimizePreviewsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="20,0,0,0" />
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="DynamicModSearchLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                    <ToggleSwitch x:Name="DynamicModSearchToggle" Toggled="DynamicModSearchToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="GridLoggingLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                    <ToggleSwitch x:Name="GridLoggingToggle" Toggled="GridLoggingToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0" ToolTipService.ToolTip="Enable detailed logging for grid performance debugging"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="ShowOrangeAnimationLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                    <ToggleSwitch x:Name="ShowOrangeAnimationToggle" Toggled="ShowOrangeAnimationToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="ModGridZoomLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                    <ToggleSwitch x:Name="ModGridZoomToggle" Toggled="ModGridZoomToggle_Toggled" Width="120" OnContent="" OffContent="" Margin="-40,0,0,0"/>
-                </StackPanel>
-                <!-- Path selection lines moved to the bottom -->
+                <!-- Path selection lines -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock x:Name="XXMIModsDirectoryLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
                     <BreadcrumbBar x:Name="XXMIModsDirectoryBreadcrumb" Width="410" Margin="-40,0,8,0" IsHitTestVisible="False" IsTabStop="False"/>
@@ -85,6 +104,40 @@
                         <FontIcon Glyph="&#xE72C;" FontSize="14"/>
                     </Button>
                 </StackPanel>
+
+                <!-- 4-column Grid layout for toggle settings -->
+                <Grid Width="770" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Column 1: Dynamic filtering -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <TextBlock x:Name="DynamicModSearchLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <ToggleSwitch x:Name="DynamicModSearchToggle" Toggled="DynamicModSearchToggle_Toggled" OnContent="" OffContent=""/>
+                    </StackPanel>
+                    
+                    <!-- Column 2: Animation -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <TextBlock x:Name="ShowOrangeAnimationLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <ToggleSwitch x:Name="ShowOrangeAnimationToggle" Toggled="ShowOrangeAnimationToggle_Toggled" OnContent="" OffContent=""/>
+                    </StackPanel>
+                    
+                    <!-- Column 3: Grid Zoom -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <TextBlock x:Name="ModGridZoomLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <ToggleSwitch x:Name="ModGridZoomToggle" Toggled="ModGridZoomToggle_Toggled" OnContent="" OffContent=""/>
+                    </StackPanel>
+                    
+                    <!-- Column 4: Grid logging -->
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                        <TextBlock x:Name="GridLoggingLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <ToggleSwitch x:Name="GridLoggingToggle" Toggled="GridLoggingToggle_Toggled" OnContent="" OffContent="" ToolTipService.ToolTip="Enable detailed logging for grid performance debugging"/>
+                    </StackPanel>
+                </Grid>
 
             </StackPanel>
         </ScrollViewer>

@@ -177,32 +177,69 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void PopulateSelectorBar()
         {
-            FunctionSelectorBar.Items.Clear();
-            
+            // Update text for each function item and set visibility based on enabled state
             foreach (var function in _functionInfos)
             {
-                if (function.Enabled)
+                switch (function.FileName)
                 {
-                    var selectorItem = new SelectorBarItem
-                    {
-                        Text = function.Name,
-                        Tag = function,
-                        FontSize = 22
-                    };
-                    FunctionSelectorBar.Items.Add(selectorItem);
+                    case "GBAuthorUpdate":
+                        GBAuthorUpdateText.Text = function.Name;
+                        GBAuthorUpdateItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        GBAuthorUpdateItem.Tag = function;
+                        break;
+                    case "HotkeyFinder":
+                        HotkeyFinderText.Text = function.Name;
+                        HotkeyFinderItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        HotkeyFinderItem.Tag = function;
+                        break;
+                    case "StatusKeeperPage":
+                        StatusKeeperText.Text = function.Name;
+                        StatusKeeperItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        StatusKeeperItem.Tag = function;
+                        break;
+                    case "ModInfoBackup":
+                        ModInfoBackupText.Text = function.Name;
+                        ModInfoBackupItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        ModInfoBackupItem.Tag = function;
+                        break;
                 }
             }
             
-            // Select the first item by default
-            if (FunctionSelectorBar.Items.Count > 0)
+            // Select the first visible item by default
+            var firstVisibleItem = FunctionSelectorBar.Items.OfType<SelectorBarItem>().FirstOrDefault(item => item.Visibility == Visibility.Visible);
+            if (firstVisibleItem != null)
             {
-                FunctionSelectorBar.SelectedItem = FunctionSelectorBar.Items[0];
-                var firstFunction = (FunctionSelectorBar.Items[0] as SelectorBarItem)?.Tag as FunctionInfo;
+                FunctionSelectorBar.SelectedItem = firstVisibleItem;
+                var firstFunction = firstVisibleItem.Tag as FunctionInfo;
                 if (firstFunction != null)
                 {
                     NavigateToFunction(firstFunction);
                 }
             }
+        }
+
+        private string GetFunctionIcon(string functionFileName)
+        {
+            return functionFileName switch
+            {
+                "GBAuthorUpdate" => "&#xE895;", // Update/Refresh icon
+                "HotkeyFinder" => "&#xE765;", // Keyboard icon
+                "StatusKeeperPage" => "&#xE713;", // Settings icon
+                "ModInfoBackup" => "&#xE8C8;", // Save icon
+                _ => "&#xE8B7;" // Default settings icon
+            };
+        }
+
+        private string GetFunctionIconUnicode(string functionFileName)
+        {
+            return functionFileName switch
+            {
+                "GBAuthorUpdate" => "\uE895", // Update/Refresh icon (commonly available)
+                "HotkeyFinder" => "\uE765", // Keyboard icon (commonly available)
+                "StatusKeeperPage" => "\uE713", // Settings icon (commonly available)
+                "ModInfoBackup" => "\uE8C8", // Save icon (commonly available)
+                _ => "\uE8B7" // Default settings icon
+            };
         }
 
         private void FunctionSelectorBar_SelectionChanged(object sender, SelectorBarSelectionChangedEventArgs e)

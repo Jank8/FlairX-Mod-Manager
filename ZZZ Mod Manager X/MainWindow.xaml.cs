@@ -18,6 +18,9 @@ using Windows.Foundation.Collections;
 using Microsoft.UI.Windowing;
 using Microsoft.UI;
 using Microsoft.UI.Xaml.Media.Animation;
+using WinRT;
+using Microsoft.UI.Composition;
+using Microsoft.UI.Composition.SystemBackdrops;
 
 namespace ZZZ_Mod_Manager_X
 {
@@ -32,6 +35,13 @@ namespace ZZZ_Mod_Manager_X
         private List<NavigationViewItem> _allFooterItems = new();
 
         private bool _isShowActiveModsHovered = false;
+        private bool _isInitializationComplete = false;
+
+        // Backdrop fields
+        WindowsSystemDispatcherQueueHelper? wsdqHelper;
+        DesktopAcrylicController? acrylicController;
+        MicaController? micaController;
+        SystemBackdropConfiguration? configurationSource;
 
         public MainWindow()
         {
@@ -51,9 +61,7 @@ namespace ZZZ_Mod_Manager_X
             // Set window icon on taskbar
             appWindow.SetIcon("Assets\\appicon.png");
             
-
-
-            // Force theme on startup according to user settings
+            // Force theme on startup according to user settings FIRST
             var theme = ZZZ_Mod_Manager_X.SettingsManager.Current.Theme;
             if (this.Content is FrameworkElement root)
             {
@@ -89,6 +97,10 @@ namespace ZZZ_Mod_Manager_X
                 }
             }
 
+            // Initialize backdrop from settings AFTER theme is applied
+            string backdropEffect = SettingsManager.Current.BackdropEffect ?? "AcrylicThin";
+            ApplyBackdropEffect(backdropEffect);
+
             nvSample.Loaded += NvSample_Loaded;
             nvSample.Loaded += (s, e) =>
             {
@@ -101,8 +113,8 @@ namespace ZZZ_Mod_Manager_X
             MainRoot.Loaded += MainRoot_Loaded;
             MainRoot.Loaded += (s, e) =>
             {
-                // Initialize game selection after the window is fully loaded
-                InitializeGameSelection();
+                // Ensure settings are loaded before initializing game selection
+                SettingsManager.Load();
             };
             SetSearchBoxPlaceholder();
             SetFooterMenuTranslations();
@@ -258,6 +270,81 @@ namespace ZZZ_Mod_Manager_X
             {
                 app.ShowStartupNtfsWarningIfNeeded();
             }
+            
+            // Restore saved game selection
+            RestoreGameSelection();
+        }
+
+        private void RestoreGameSelection()
+        {
+            // Check if settings file exists to determine if this is first launch
+            string settingsPath = Path.Combine(AppContext.BaseDirectory, AppConstants.SETTINGS_FOLDER, AppConstants.SETTINGS_FILE);
+            bool isFirstLaunch = !File.Exists(settingsPath);
+            
+            int savedIndex = SettingsManager.Current.SelectedGameIndex;
+            System.Diagnostics.Debug.WriteLine($"RestoreGameSelection: isFirstLaunch = {isFirstLaunch}, savedIndex = {savedIndex}");
+            
+            if (GameSelectionComboBox == null)
+            {
+                System.Diagnostics.Debug.WriteLine("RestoreGameSelection: ERROR - GameSelectionComboBox is null!");
+                return;
+            }
+            
+            // For first launch, keep the default XAML selection (index 0 - "SELECT GAME")
+            // For returning users, restore their saved selection
+            if (isFirstLaunch)
+            {
+                System.Diagnostics.Debug.WriteLine("RestoreGameSelection: First launch - keeping default selection (SELECT GAME)");
+                // ComboBox already has default selection from XAML, just update UI state
+                UpdateUIForGameSelection(false); // No game selected
+                return;
+            }
+            
+            // Returning user - restore saved game selection
+            System.Diagnostics.Debug.WriteLine($"RestoreGameSelection: Returning user - restoring savedIndex = {savedIndex}");
+            
+            // Set ComboBox selection without triggering the event
+            GameSelectionComboBox.SelectionChanged -= GameSelectionComboBox_SelectionChanged;
+            GameSelectionComboBox.SelectedIndex = savedIndex;
+            GameSelectionComboBox.SelectionChanged += GameSelectionComboBox_SelectionChanged;
+            
+            // Update UI state based on whether a game is selected
+            bool gameSelected = savedIndex > 0;
+            UpdateUIForGameSelection(gameSelected);
+            
+            // If a game is selected, perform full game initialization
+            if (gameSelected)
+            {
+                string gameTag = SettingsManager.GetGameTagFromIndex(savedIndex);
+                System.Diagnostics.Debug.WriteLine($"Initializing restored game: index {savedIndex} (tag: {gameTag})");
+                
+                // Ensure mod.json files exist in the selected game's directory
+                _ = (App.Current as App)?.EnsureModJsonInModLibrary();
+                
+                // Create default preset for the game if it doesn't exist
+                var gridPage = new ZZZ_Mod_Manager_X.Pages.ModGridPage();
+                gridPage.SaveDefaultPresetAllInactive();
+                
+                // Regenerate character menu for the selected game
+                System.Diagnostics.Debug.WriteLine("Regenerating character menu for restored game...");
+                _ = GenerateModCharacterMenuAsync();
+                
+                // Start StatusKeeper watcher if enabled
+                if (SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
+                {
+                    System.Diagnostics.Debug.WriteLine("Starting StatusKeeper watcher for restored game...");
+                    ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StartWatcherStatic();
+                }
+                
+                System.Diagnostics.Debug.WriteLine($"Game restored successfully. Current paths:");
+                System.Diagnostics.Debug.WriteLine($"  Mods: '{SettingsManager.Current.XXMIModsDirectory}'");
+                System.Diagnostics.Debug.WriteLine($"  ModLibrary: '{SettingsManager.Current.ModLibraryDirectory}'");
+            }
+            
+            System.Diagnostics.Debug.WriteLine("RestoreGameSelection: Completed");
+            
+            // Mark initialization as complete to allow SelectionChanged events
+            _isInitializationComplete = true;
         }
 
         private void SetSearchBoxPlaceholder()
@@ -673,6 +760,38 @@ namespace ZZZ_Mod_Manager_X
             }
         }
 
+        private void EnsurePresetsMenuItemExists()
+        {
+            // Ensure Presets menu item exists in FooterMenuItems
+            if (nvSample?.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "PresetsPage") == null)
+            {
+                var presets = new NavigationViewItem
+                {
+                    Content = LanguageManager.Instance.T("Presets"),
+                    Tag = "PresetsPage",
+                    Icon = new FontIcon { Glyph = "\uE728" } // Presets icon
+                };
+                
+                // Find OtherModsPageItem and insert after it, or add to end
+                if (nvSample?.FooterMenuItems != null)
+                {
+                    var otherModsItem = nvSample.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x?.Tag?.ToString() == "OtherModsPage");
+                    if (otherModsItem != null)
+                    {
+                        int otherModsIndex = nvSample.FooterMenuItems.IndexOf(otherModsItem);
+                        if (otherModsIndex >= 0)
+                            nvSample.FooterMenuItems.Insert(otherModsIndex + 1, presets);
+                        else
+                            nvSample.FooterMenuItems.Add(presets);
+                    }
+                    else
+                    {
+                        nvSample.FooterMenuItems.Add(presets);
+                    }
+                }
+            }
+        }
+
         private void SetPaneButtonTooltips()
         {
             // Placeholder: UI-dependent implementation if needed
@@ -919,6 +1038,85 @@ namespace ZZZ_Mod_Manager_X
             }
         }
 
+        public void ApplyBackdropEffect(string backdropEffect)
+        {
+            // Dispose current backdrop controllers
+            acrylicController?.Dispose();
+            acrylicController = null;
+            micaController?.Dispose();
+            micaController = null;
+
+            // Clear any background when using backdrop effects (except None)
+            if (backdropEffect != "None" && MainRoot != null)
+            {
+                MainRoot.Background = null;
+            }
+
+            // Apply new backdrop effect
+            switch (backdropEffect)
+            {
+                case "Mica":
+                    if (MicaController.IsSupported())
+                    {
+                        if (wsdqHelper == null)
+                        {
+                            wsdqHelper = new WindowsSystemDispatcherQueueHelper();
+                            wsdqHelper.EnsureWindowsSystemDispatcherQueueController();
+                        }
+                        if (configurationSource == null)
+                        {
+                            configurationSource = new SystemBackdropConfiguration();
+                            Activated += Window_Activated;
+                            Closed += Window_Closed;
+                            ((FrameworkElement)Content).ActualThemeChanged += Window_ThemeChanged;
+                            configurationSource.IsInputActive = true;
+                            SetConfigurationSourceTheme();
+                        }
+                        micaController = new MicaController();
+                        micaController.Kind = MicaKind.Base;
+                        micaController.AddSystemBackdropTarget(this.As<ICompositionSupportsSystemBackdrop>());
+                        micaController.SetSystemBackdropConfiguration(configurationSource);
+                    }
+                    break;
+                case "MicaAlt":
+                    if (MicaController.IsSupported())
+                    {
+                        if (wsdqHelper == null)
+                        {
+                            wsdqHelper = new WindowsSystemDispatcherQueueHelper();
+                            wsdqHelper.EnsureWindowsSystemDispatcherQueueController();
+                        }
+                        if (configurationSource == null)
+                        {
+                            configurationSource = new SystemBackdropConfiguration();
+                            Activated += Window_Activated;
+                            Closed += Window_Closed;
+                            ((FrameworkElement)Content).ActualThemeChanged += Window_ThemeChanged;
+                            configurationSource.IsInputActive = true;
+                            SetConfigurationSourceTheme();
+                        }
+                        micaController = new MicaController();
+                        micaController.Kind = MicaKind.BaseAlt;
+                        micaController.AddSystemBackdropTarget(this.As<ICompositionSupportsSystemBackdrop>());
+                        micaController.SetSystemBackdropConfiguration(configurationSource);
+                    }
+                    break;
+                case "Acrylic":
+                    TrySetAcrylicBackdrop(false); // Base acrylic
+                    break;
+                case "AcrylicThin":
+                    TrySetAcrylicBackdrop(true); // Thin acrylic
+                    break;
+                case "None":
+                    // No backdrop effect - set appropriate background based on theme
+                    SetNoneBackgroundForTheme();
+                    break;
+                default:
+                    TrySetAcrylicBackdrop(true); // Default to thin acrylic
+                    break;
+            }
+        }
+
         public Frame? GetContentFrame() => contentFrame;
         public ProgressBar? GetOrangeAnimationProgressBar() => PaneStackPanel.FindName("OrangeAnimationProgressBar") as ProgressBar;
         
@@ -957,59 +1155,7 @@ namespace ZZZ_Mod_Manager_X
             }
         }
         
-        private void InitializeGameSelection()
-        {
-            try
-            {
-                // Set ComboBox to current selected game from settings
-                string currentGame = SettingsManager.Current.SelectedGame ?? "";
-                
-                // If no game is selected or it's empty, default to "- SELECT GAME -"
-                if (string.IsNullOrEmpty(currentGame))
-                {
-                    GameSelectionComboBox.SelectedIndex = 0; // First item is "- SELECT GAME -"
-                    UpdateUIForGameSelection(false); // Disable UI when no game selected
-                    return;
-                }
-                
-                // Try to find the matching game
-                bool found = false;
-                foreach (ComboBoxItem item in GameSelectionComboBox.Items)
-                {
-                    if (item.Tag?.ToString() == currentGame)
-                    {
-                        GameSelectionComboBox.SelectedItem = item;
-                        found = true;
-                        break;
-                    }
-                }
-                
-                // If no match found, default to "- SELECT GAME -"
-                if (!found)
-                {
-                    GameSelectionComboBox.SelectedIndex = 0; // First item is "- SELECT GAME -"
-                    UpdateUIForGameSelection(false); // Disable UI when no game selected
-                }
-                else
-                {
-                    UpdateUIForGameSelection(true); // Enable UI when game is selected
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error initializing game selection: {ex.Message}");
-                // Fallback to first item if there's any error
-                try
-                {
-                    GameSelectionComboBox.SelectedIndex = 0;
-                    UpdateUIForGameSelection(false); // Disable UI on error
-                }
-                catch
-                {
-                    // If even this fails, just continue - the ComboBox will be unselected
-                }
-            }
-        }
+
         
         private void UpdateUIForGameSelection(bool gameSelected)
         {
@@ -1017,6 +1163,9 @@ namespace ZZZ_Mod_Manager_X
             {
                 // Always keep the game selection ComboBox enabled FIRST
                 if (GameSelectionComboBox != null) GameSelectionComboBox.IsEnabled = true;
+                
+                // Ensure Presets menu item exists before updating UI state
+                EnsurePresetsMenuItemExists();
                 
                 // Enable/disable navigation menu items (but not the entire navigation view)
                 if (nvSample != null)
@@ -1063,15 +1212,23 @@ namespace ZZZ_Mod_Manager_X
 
         private void GameSelectionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is ComboBox comboBox && comboBox.SelectedItem is ComboBoxItem selectedItem)
+            // Ignore selection changes during initialization
+            if (!_isInitializationComplete)
             {
-                string selectedGame = selectedItem.Tag?.ToString() ?? "";
+                System.Diagnostics.Debug.WriteLine("GameSelectionComboBox_SelectionChanged: Ignoring event during initialization");
+                return;
+            }
+            
+            if (sender is ComboBox comboBox)
+            {
+                int selectedIndex = comboBox.SelectedIndex;
                 
-                // Skip if same game (including both being empty)
-                if (selectedGame == SettingsManager.Current.SelectedGame)
+                // Skip if same game index
+                if (selectedIndex == SettingsManager.Current.SelectedGameIndex)
                     return;
                 
-                bool gameSelected = !string.IsNullOrEmpty(selectedGame);
+                bool gameSelected = selectedIndex > 0;
+                string gameTag = SettingsManager.GetGameTagFromIndex(selectedIndex);
                 
                 if (!gameSelected)
                 {
@@ -1080,7 +1237,7 @@ namespace ZZZ_Mod_Manager_X
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine($"Switching to game: {selectedGame}");
+                    System.Diagnostics.Debug.WriteLine($"Switching to game index {selectedIndex} (tag: {gameTag})");
                     UpdateUIForGameSelection(true); // Enable UI
                 }
                 
@@ -1088,8 +1245,8 @@ namespace ZZZ_Mod_Manager_X
                 System.Diagnostics.Debug.WriteLine("Cleaning up symlinks from previous game...");
                 CleanupSymlinksForGameSwitch();
                 
-                // Switch game paths (handles empty game tag)
-                SettingsManager.SwitchGame(selectedGame);
+                // Switch game paths using index
+                SettingsManager.SwitchGame(selectedIndex);
                 
                 // Only restart StatusKeeper watcher if a game is selected
                 if (gameSelected && SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
@@ -1131,5 +1288,138 @@ namespace ZZZ_Mod_Manager_X
             }
         }
 
+        // Backdrop methods
+        bool TrySetAcrylicBackdrop(bool useAcrylicThin)
+        {
+            if (DesktopAcrylicController.IsSupported())
+            {
+                wsdqHelper = new WindowsSystemDispatcherQueueHelper();
+                wsdqHelper.EnsureWindowsSystemDispatcherQueueController();
+
+                // Hooking up the policy object
+                configurationSource = new SystemBackdropConfiguration();
+                Activated += Window_Activated;
+                Closed += Window_Closed;
+                ((FrameworkElement)Content).ActualThemeChanged += Window_ThemeChanged;
+
+                // Initial configuration state.
+                configurationSource.IsInputActive = true;
+                SetConfigurationSourceTheme();
+
+                acrylicController = new DesktopAcrylicController();
+                acrylicController.Kind = useAcrylicThin ? DesktopAcrylicKind.Thin : DesktopAcrylicKind.Base;
+
+                // Enable the system backdrop.
+                acrylicController.AddSystemBackdropTarget(this.As<ICompositionSupportsSystemBackdrop>());
+                acrylicController.SetSystemBackdropConfiguration(configurationSource);
+                return true; // Succeeded.
+            }
+
+            return false; // Acrylic is not supported on this system.
+        }
+
+        private void Window_Activated(object sender, WindowActivatedEventArgs args)
+        {
+            if (configurationSource != null)
+                configurationSource.IsInputActive = args.WindowActivationState != WindowActivationState.Deactivated;
+        }
+
+        private void Window_Closed(object sender, WindowEventArgs args)
+        {
+            // Make sure any Mica/Acrylic controller is disposed
+            acrylicController?.Dispose();
+            acrylicController = null;
+            micaController?.Dispose();
+            micaController = null;
+            Activated -= Window_Activated;
+            configurationSource = null;
+        }
+
+        private void Window_ThemeChanged(FrameworkElement sender, object args)
+        {
+            if (configurationSource != null)
+            {
+                SetConfigurationSourceTheme();
+            }
+            
+            // Update background if using "None" effect
+            string currentBackdrop = SettingsManager.Current.BackdropEffect ?? "AcrylicThin";
+            if (currentBackdrop == "None")
+            {
+                SetNoneBackgroundForTheme();
+            }
+        }
+
+        private void SetConfigurationSourceTheme()
+        {
+            if (configurationSource != null)
+            {
+                switch (((FrameworkElement)this.Content).ActualTheme)
+                {
+                    case ElementTheme.Dark: configurationSource.Theme = SystemBackdropTheme.Dark; break;
+                    case ElementTheme.Light: configurationSource.Theme = SystemBackdropTheme.Light; break;
+                    case ElementTheme.Default: configurationSource.Theme = SystemBackdropTheme.Default; break;
+                }
+            }
+        }
+
+        private void SetNoneBackgroundForTheme()
+        {
+            if (this.Content is FrameworkElement root && MainRoot != null)
+            {
+                var currentTheme = root.ActualTheme;
+                if (currentTheme == ElementTheme.Light)
+                {
+                    // Light theme - use a clean white/light gray background
+                    MainRoot.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 248, 248, 248));
+                }
+                else if (currentTheme == ElementTheme.Dark)
+                {
+                    // Dark theme - use a proper dark background that matches WinUI 3 dark theme
+                    MainRoot.Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(255, 23, 23, 23));
+                }
+                else
+                {
+                    // Auto theme - use system resource
+                    MainRoot.Background = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["ApplicationPageBackgroundThemeBrush"];
+                }
+            }
+        }
+
+    }
+
+    // Helper class for system dispatcher queue
+    class WindowsSystemDispatcherQueueHelper
+    {
+        [StructLayout(LayoutKind.Sequential)]
+        struct DispatcherQueueOptions
+        {
+            internal int dwSize;
+            internal int threadType;
+            internal int apartmentType;
+        }
+
+        [DllImport("CoreMessaging.dll")]
+        private static extern int CreateDispatcherQueueController([In] DispatcherQueueOptions options, [In, Out, MarshalAs(UnmanagedType.IUnknown)] ref object dispatcherQueueController);
+
+        object? m_dispatcherQueueController = null;
+        public void EnsureWindowsSystemDispatcherQueueController()
+        {
+            if (Windows.System.DispatcherQueue.GetForCurrentThread() != null)
+            {
+                // one already exists, so we'll just use it.
+                return;
+            }
+
+            if (m_dispatcherQueueController == null)
+            {
+                DispatcherQueueOptions options;
+                options.dwSize = Marshal.SizeOf(typeof(DispatcherQueueOptions));
+                options.threadType = 2;    // DQTYPE_THREAD_CURRENT
+                options.apartmentType = 2; // DQTAT_COM_STA
+
+                CreateDispatcherQueueController(options, ref m_dispatcherQueueController!);
+            }
+        }
     }
 }
