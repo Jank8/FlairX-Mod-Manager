@@ -12,5 +12,10 @@
   "Errors": "Lỗi",
   "Error": "Lỗi",
   "FatalErrorMessage": "Đã xảy ra lỗi nghiêm trọng trong quá trình làm mới.",
-  "OK": "OK"
+  "OK": "OK",
+  "Warning": "Cảnh báo",
+  "EnableConfirmFirst": "Vui lòng bật nút xác nhận trước.",
+  "Info": "Thông tin",
+  "ModLibraryNotFound": "Không tìm thấy thư mục thư viện mod.",
+  "FatalError": "Lỗi Nghiêm Trọng"
 }

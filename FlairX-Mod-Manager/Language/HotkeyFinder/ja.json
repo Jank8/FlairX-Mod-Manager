@@ -12,5 +12,10 @@
   "Errors": "エラー",
   "Error": "エラー",
   "FatalErrorMessage": "更新プロセス中に致命的なエラーが発生しました。",
-  "OK": "OK"
+  "OK": "OK",
+  "Warning": "警告",
+  "EnableConfirmFirst": "最初に確認トグルを有効にしてください。",
+  "Info": "情報",
+  "ModLibraryNotFound": "Modライブラリディレクトリが見つかりません。",
+  "FatalError": "致命的エラー"
 }

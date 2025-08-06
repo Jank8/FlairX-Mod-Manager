@@ -12,5 +12,10 @@
   "Errors": "Erros",
   "Error": "Erro",
   "FatalErrorMessage": "Ocorreu um erro fatal durante o processo de atualização.",
-  "OK": "OK"
+  "OK": "OK",
+  "Warning": "Aviso",
+  "EnableConfirmFirst": "Por favor ative o botão de confirmação primeiro.",
+  "Info": "Informação",
+  "ModLibraryNotFound": "Diretório da biblioteca de mods não encontrado.",
+  "FatalError": "Erro Fatal"
 }

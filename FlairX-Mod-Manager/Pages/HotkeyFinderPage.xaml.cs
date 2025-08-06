@@ -208,7 +208,8 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    ShowInfoBar("Info", $"{SharedUtilities.GetTranslation(lang, "RefreshCompleteMessage")}\n{SharedUtilities.GetTranslation(lang, "Processed")}: {processedCount}\n{SharedUtilities.GetTranslation(lang, "Success")}: {successCount}\n{SharedUtilities.GetTranslation(lang, "Errors")}: {errorCount}");
+                    var completeMessage = $"{SharedUtilities.GetTranslation(lang, "RefreshCompleteMessage")}\n{SharedUtilities.GetTranslation(lang, "Processed")}: {processedCount}\n{SharedUtilities.GetTranslation(lang, "Success")}: {successCount}\n{SharedUtilities.GetTranslation(lang, "Errors")}: {errorCount}";
+                    ShowInfoBar("Info", completeMessage);
                 }
                 else
                 {
@@ -279,14 +280,24 @@ namespace FlairX_Mod_Manager.Pages
 
         private void ShowInfoBar(string title, string message)
         {
-            // Try to translate both title and message, fallback to original if not found
             var lang = SharedUtilities.LoadLanguageDictionary("HotkeyFinder");
             string translatedTitle = SharedUtilities.GetTranslation(lang, title);
-            string translatedMessage = SharedUtilities.GetTranslation(lang, message);
+            
+            // If message contains newlines and colons, it's likely already translated/formatted
+            string displayMessage;
+            if (message.Contains('\n') && message.Contains(':'))
+            {
+                displayMessage = message; // Use as-is, already formatted
+            }
+            else
+            {
+                displayMessage = SharedUtilities.GetTranslation(lang, message); // Try to translate
+            }
+            
             var dialog = new ContentDialog
             {
                 Title = translatedTitle,
-                Content = translatedMessage,
+                Content = displayMessage,
                 CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
                 XamlRoot = (App.Current as App)?.MainWindow is MainWindow mainWindow && mainWindow.Content is FrameworkElement fe ? fe.XamlRoot : this.XamlRoot
             };

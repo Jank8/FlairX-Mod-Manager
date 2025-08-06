@@ -482,36 +482,68 @@ namespace FlairX_Mod_Manager
 
         private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            if (_allMenuItems == null || _allFooterItems == null)
-                return;
-
             string query = sender.Text.Trim().ToLower();
 
-            nvSample.MenuItems.Clear();
-            nvSample.FooterMenuItems.Clear();
+            // If search is empty, restore all menu items by refreshing the character categories
+            // and also clear any existing filter on ModGridPage
+            if (string.IsNullOrEmpty(query))
+            {
+                // First clear the mod filter if we're on ModGridPage
+                if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+                {
+                    modGridPage.FilterMods("");
+                }
+                
+                // Then regenerate the menu on the UI thread (not in Task.Run)
+                _ = GenerateModCharacterMenuAsync();
+                return;
+            }
 
-            foreach (var item in _allMenuItems)
+            // For any non-empty search, we need to regenerate the full menu first
+            // then filter it, to ensure we're always filtering from the complete menu
+            Task.Run(async () =>
             {
-                var tag = item.Tag?.ToString();
-                if (tag == "OtherModsPage" || tag == "FunctionsPage" || tag == "PresetsPage" || tag == "SettingsPage")
+                // First regenerate the complete menu
+                await GenerateModCharacterMenuAsync();
+                
+                // Then apply the filter on the UI thread
+                DispatcherQueue.TryEnqueue(() =>
                 {
-                    nvSample.FooterMenuItems.Add(item);
-                    continue;
-                }
-                if (string.IsNullOrEmpty(query) || (item.Content?.ToString()?.ToLower().Contains(query) ?? false))
-                {
-                    nvSample.MenuItems.Add(item);
-                }
-            }
-            foreach (var item in _allFooterItems)
-            {
-                var tag = item.Tag?.ToString();
-                if (tag == "OtherModsPage" || tag == "FunctionsPage" || tag == "PresetsPage" || tag == "SettingsPage")
-                {
-                    if (!nvSample.FooterMenuItems.Contains(item))
-                        nvSample.FooterMenuItems.Add(item);
-                }
-            }
+                    // Get current menu items (now the complete character categories)
+                    var currentMenuItems = nvSample.MenuItems.OfType<NavigationViewItem>().ToList();
+                    var currentFooterItems = nvSample.FooterMenuItems.OfType<NavigationViewItem>().ToList();
+
+                    nvSample.MenuItems.Clear();
+                    nvSample.FooterMenuItems.Clear();
+
+                    // Filter menu items based on search query
+                    foreach (var item in currentMenuItems)
+                    {
+                        var tag = item.Tag?.ToString();
+                        if (tag == "OtherModsPage" || tag == "FunctionsPage" || tag == "PresetsPage" || tag == "SettingsPage")
+                        {
+                            nvSample.FooterMenuItems.Add(item);
+                            continue;
+                        }
+                        if (item.Content?.ToString()?.ToLower().Contains(query) ?? false)
+                        {
+                            nvSample.MenuItems.Add(item);
+                        }
+                    }
+                    
+                    // Always add footer items
+                    foreach (var item in currentFooterItems)
+                    {
+                        var tag = item.Tag?.ToString();
+                        if (tag == "OtherModsPage" || tag == "FunctionsPage" || tag == "PresetsPage" || tag == "SettingsPage")
+                        {
+                            if (!nvSample.FooterMenuItems.Contains(item))
+                                nvSample.FooterMenuItems.Add(item);
+                        }
+                    }
+                });
+            });
+
             // Dynamic mod filtering only if enabled in settings and query has at least 3 characters
             if (FlairX_Mod_Manager.SettingsManager.Current.DynamicModSearchEnabled)
             {
@@ -792,6 +824,7 @@ namespace FlairX_Mod_Manager
             var modFolders = System.IO.Directory.GetDirectories(modLibraryPath);
             var modCharacterMap = new Dictionary<string, List<string>>(); // character -> list of mod folders
             
+            // Run the file system scanning in background
             await Task.Run(() =>
             {
                 foreach (var dir in modFolders)
@@ -804,6 +837,15 @@ namespace FlairX_Mod_Manager
                         using var doc = JsonDocument.Parse(json);
                         var root = doc.RootElement;
                         var character = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
+                        
+                        // Filter out invalid/placeholder character names
+                        if (string.IsNullOrWhiteSpace(character) || 
+                            character.Equals("!unknown!", StringComparison.OrdinalIgnoreCase) ||
+                            character.Equals("unknown", StringComparison.OrdinalIgnoreCase))
+                        {
+                            character = "other";
+                        }
+                        
                         var folderName = System.IO.Path.GetFileName(dir);
                         if (!modCharacterMap.ContainsKey(character))
                             modCharacterMap[character] = new List<string>();
@@ -817,48 +859,53 @@ namespace FlairX_Mod_Manager
                     }
                 }
             });
-            // Remove old dynamic menu items
-            var staticTags = new HashSet<string> { "OtherModsPage", "FunctionsPage", "PresetsPage" };
-            var toRemove = nvSample.MenuItems.OfType<NavigationViewItem>().Where(i => i.Tag is string tag && !staticTags.Contains(tag)).ToList();
-            foreach (var item in toRemove)
-                nvSample.MenuItems.Remove(item);
-            // Add new items
-            foreach (var character in characterSet)
+            
+            // Execute UI updates on the UI thread
+            DispatcherQueue.TryEnqueue(() =>
             {
-                var item = new NavigationViewItem
+                // Remove old dynamic menu items
+                var staticTags = new HashSet<string> { "OtherModsPage", "FunctionsPage", "PresetsPage" };
+                var toRemove = nvSample.MenuItems.OfType<NavigationViewItem>().Where(i => i.Tag is string tag && !staticTags.Contains(tag)).ToList();
+                foreach (var item in toRemove)
+                    nvSample.MenuItems.Remove(item);
+                // Add new items
+                foreach (var character in characterSet)
                 {
-                    Content = character,
-                    Tag = $"Character_{character}",
-                    Icon = new FontIcon { Glyph = "\uE8D4" } // Moving list icon
-                };
-                nvSample.MenuItems.Add(item);
-            }
-            // Set icon (FontIcon) for Other Mods
-            if (OtherModsPageItem is NavigationViewItem otherMods)
-                otherMods.Icon = new FontIcon { Glyph = "\uF4A5" }; // SpecialEffectSize
-            // Set icon (FontIcon) for Functions
-            var functionsMenuItem = nvSample.MenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "FunctionsPage");
-            if (functionsMenuItem != null)
-                functionsMenuItem.Icon = new FontIcon { Glyph = "\uE95F" };
-            // Set icon (FontIcon) for Other Mods (duplicate)
-            var otherModsMenuItem = nvSample.MenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "OtherModsPage");
-            if (otherModsMenuItem != null)
-                otherModsMenuItem.Icon = new FontIcon { Glyph = "\uF4A5" };
-            // Add Presets button under Other Mods
-            if (nvSample.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "PresetsPage") == null)
-            {
-                var presets = new NavigationViewItem
+                    var item = new NavigationViewItem
+                    {
+                        Content = character,
+                        Tag = $"Character_{character}",
+                        Icon = new FontIcon { Glyph = "\uE8D4" } // Moving list icon
+                    };
+                    nvSample.MenuItems.Add(item);
+                }
+                // Set icon (FontIcon) for Other Mods
+                if (OtherModsPageItem is NavigationViewItem otherMods)
+                    otherMods.Icon = new FontIcon { Glyph = "\uF4A5" }; // SpecialEffectSize
+                // Set icon (FontIcon) for Functions
+                var functionsMenuItem = nvSample.MenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "FunctionsPage");
+                if (functionsMenuItem != null)
+                    functionsMenuItem.Icon = new FontIcon { Glyph = "\uE95F" };
+                // Set icon (FontIcon) for Other Mods (duplicate)
+                var otherModsMenuItem = nvSample.MenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "OtherModsPage");
+                if (otherModsMenuItem != null)
+                    otherModsMenuItem.Icon = new FontIcon { Glyph = "\uF4A5" };
+                // Add Presets button under Other Mods
+                if (nvSample.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "PresetsPage") == null)
                 {
-                    Content = SharedUtilities.GetTranslation(_lang, "Presets"),
-                    Tag = "PresetsPage",
-                    Icon = new FontIcon { Glyph = "\uE728" } // Presets icon
-                };
-                int otherModsIndex = nvSample.FooterMenuItems.IndexOf(OtherModsPageItem);
-                if (otherModsIndex >= 0)
-                    nvSample.FooterMenuItems.Insert(otherModsIndex + 1, presets);
-                else
-                    nvSample.FooterMenuItems.Add(presets);
-            }
+                    var presets = new NavigationViewItem
+                    {
+                        Content = SharedUtilities.GetTranslation(_lang, "Presets"),
+                        Tag = "PresetsPage",
+                        Icon = new FontIcon { Glyph = "\uE728" } // Presets icon
+                    };
+                    int otherModsIndex = nvSample.FooterMenuItems.IndexOf(OtherModsPageItem);
+                    if (otherModsIndex >= 0)
+                        nvSample.FooterMenuItems.Insert(otherModsIndex + 1, presets);
+                    else
+                        nvSample.FooterMenuItems.Add(presets);
+                }
+            });
         }
 
         private void EnsurePresetsMenuItemExists()

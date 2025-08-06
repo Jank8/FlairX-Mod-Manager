@@ -12,5 +12,10 @@
   "Errors": "오류",
   "Error": "오류",
   "FatalErrorMessage": "새로고침 과정에서 치명적인 오류가 발생했습니다.",
-  "OK": "확인"
+  "OK": "확인",
+  "Warning": "경고",
+  "EnableConfirmFirst": "먼저 확인 토글을 활성화해주세요.",
+  "Info": "정보",
+  "ModLibraryNotFound": "모드 라이브러리 디렉토리를 찾을 수 없습니다.",
+  "FatalError": "치명적 오류"
 }

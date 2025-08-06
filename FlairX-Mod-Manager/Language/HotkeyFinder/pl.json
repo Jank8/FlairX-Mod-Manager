@@ -12,5 +12,10 @@
   "Errors": "Błędy",
   "Error": "Błąd",
   "FatalErrorMessage": "Wystąpił krytyczny błąd podczas procesu odświeżania.",
-  "OK": "OK"
+  "OK": "OK",
+  "Warning": "Ostrzeżenie",
+  "EnableConfirmFirst": "Proszę najpierw włączyć przełącznik potwierdzenia.",
+  "Info": "Informacja",
+  "ModLibraryNotFound": "Nie znaleziono katalogu biblioteki modów.",
+  "FatalError": "Błąd Krytyczny"
 }

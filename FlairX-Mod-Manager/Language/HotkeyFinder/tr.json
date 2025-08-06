@@ -12,5 +12,10 @@
   "Errors": "Hatalar",
   "Error": "Hata",
   "FatalErrorMessage": "Yenileme işlemi sırasında ölümcül bir hata oluştu.",
-  "OK": "Tamam"
+  "OK": "Tamam",
+  "Warning": "Uyarı",
+  "EnableConfirmFirst": "Lütfen önce onay düğmesini etkinleştirin.",
+  "Info": "Bilgi",
+  "ModLibraryNotFound": "Mod kütüphanesi dizini bulunamadı.",
+  "FatalError": "Ölümcül Hata"
 }

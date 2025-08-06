@@ -12,5 +12,10 @@
   "Errors": "錯誤",
   "Error": "錯誤",
   "FatalErrorMessage": "重新整理過程中發生致命錯誤。",
-  "OK": "確定"
+  "OK": "確定",
+  "Warning": "警告",
+  "EnableConfirmFirst": "請先啟用確認開關。",
+  "Info": "資訊",
+  "ModLibraryNotFound": "未找到模組庫目錄。",
+  "FatalError": "致命錯誤"
 }

@@ -12,5 +12,10 @@
   "Errors": "Error",
   "Error": "Error",
   "FatalErrorMessage": "Terjadi error fatal selama proses refresh.",
-  "OK": "OK"
+  "OK": "OK",
+  "Warning": "Peringatan",
+  "EnableConfirmFirst": "Harap aktifkan toggle konfirmasi terlebih dahulu.",
+  "Info": "Info",
+  "ModLibraryNotFound": "Direktori perpustakaan mod tidak ditemukan.",
+  "FatalError": "Error Fatal"
 }

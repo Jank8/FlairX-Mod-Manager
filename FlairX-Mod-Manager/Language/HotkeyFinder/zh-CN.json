@@ -12,5 +12,10 @@
   "Errors": "错误",
   "Error": "错误",
   "FatalErrorMessage": "刷新过程中发生致命错误。",
-  "OK": "确定"
+  "OK": "确定",
+  "Warning": "警告",
+  "EnableConfirmFirst": "请先启用确认开关。",
+  "Info": "信息",
+  "ModLibraryNotFound": "未找到模组库目录。",
+  "FatalError": "致命错误"
 }

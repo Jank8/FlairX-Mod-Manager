@@ -12,5 +12,10 @@
   "Errors": "Mga error",
   "Error": "Error",
   "FatalErrorMessage": "Naganap ang malubhang error sa proseso ng refresh.",
-  "OK": "OK"
+  "OK": "OK",
+  "Warning": "Babala",
+  "EnableConfirmFirst": "Pakiusap na i-enable muna ang confirmation toggle.",
+  "Info": "Impormasyon",
+  "ModLibraryNotFound": "Hindi nahanap ang mod library directory.",
+  "FatalError": "Malubhang Error"
 }

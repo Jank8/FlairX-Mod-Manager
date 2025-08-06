@@ -12,5 +12,10 @@
   "Errors": "Errors",
   "Error": "Error",
   "FatalErrorMessage": "A fatal error occurred during the refresh process.",
-  "OK": "OK"
+  "OK": "OK",
+  "Warning": "Warning",
+  "EnableConfirmFirst": "Please enable the confirmation toggle first.",
+  "Info": "Info",
+  "ModLibraryNotFound": "Mod library directory not found.",
+  "FatalError": "Fatal Error"
 }

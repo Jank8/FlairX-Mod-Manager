@@ -12,5 +12,10 @@
   "Errors": "Fehler",
   "Error": "Fehler",
   "FatalErrorMessage": "Ein schwerwiegender Fehler ist während des Aktualisierungsprozesses aufgetreten.",
-  "OK": "OK"
+  "OK": "OK",
+  "Warning": "Warnung",
+  "EnableConfirmFirst": "Bitte aktivieren Sie zuerst den Bestätigungs-Schalter.",
+  "Info": "Info",
+  "ModLibraryNotFound": "Mod-Bibliothek-Verzeichnis nicht gefunden.",
+  "FatalError": "Schwerwiegender Fehler"
 }

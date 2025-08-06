@@ -12,5 +12,10 @@
   "Errors": "أخطاء",
   "Error": "خطأ",
   "FatalErrorMessage": "حدث خطأ فادح أثناء عملية التحديث.",
-  "OK": "موافق"
+  "OK": "موافق",
+  "Warning": "تحذير",
+  "EnableConfirmFirst": "يرجى تمكين مفتاح التأكيد أولاً.",
+  "Info": "معلومات",
+  "ModLibraryNotFound": "دليل مكتبة التعديلات غير موجود.",
+  "FatalError": "خطأ فادح"
 }
