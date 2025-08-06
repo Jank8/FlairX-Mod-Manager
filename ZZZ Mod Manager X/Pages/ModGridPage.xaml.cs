@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
@@ -82,6 +82,13 @@ namespace ZZZ_Mod_Manager_X.Pages
         private string? _currentCategory; // Track current category for back navigation
         private string? _previousCategory; // Track category before search for restoration
         private bool _isSearchActive = false; // Track if we're currently in search mode
+        
+        // Helper method for translations
+        private string T(string key)
+        {
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            return SharedUtilities.GetTranslation(langDict, key);
+        }
         
         // Virtualized loading - store all mod data but only create visible ModTiles
         private List<ModData> _allModData = new();
@@ -823,12 +830,12 @@ namespace ZZZ_Mod_Manager_X.Pages
                 _currentCategory = character; // Store current category
                 if (string.Equals(character, "other", StringComparison.OrdinalIgnoreCase))
                 {
-                    CategoryTitle.Text = LanguageManager.Instance.T("Category_Other_Mods");
+                    CategoryTitle.Text = T("Category_Other_Mods");
                     LoadMods(character);
                 }
                 else if (string.Equals(character, "Active", StringComparison.OrdinalIgnoreCase))
                 {
-                    CategoryTitle.Text = LanguageManager.Instance.T("Category_Active_Mods");
+                    CategoryTitle.Text = T("Category_Active_Mods");
                     LoadActiveModsOnly();
                 }
                 else
@@ -840,7 +847,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             else
             {
                 _currentCategory = null; // All mods view
-                CategoryTitle.Text = LanguageManager.Instance.T("Category_All_Mods");
+                CategoryTitle.Text = T("Category_All_Mods");
                 LoadAllMods();
             }
             
@@ -1220,12 +1227,12 @@ namespace ZZZ_Mod_Manager_X.Pages
                     _currentCategory = _previousCategory;
                     if (string.Equals(_previousCategory, "Active", StringComparison.OrdinalIgnoreCase))
                     {
-                        CategoryTitle.Text = LanguageManager.Instance.T("Category_Active_Mods");
+                        CategoryTitle.Text = T("Category_Active_Mods");
                         LoadActiveModsOnly();
                     }
                     else if (string.Equals(_previousCategory, "other", StringComparison.OrdinalIgnoreCase))
                     {
-                        CategoryTitle.Text = LanguageManager.Instance.T("Category_Other_Mods");
+                        CategoryTitle.Text = T("Category_Other_Mods");
                         LoadMods(_previousCategory);
                     }
                     else
@@ -1238,7 +1245,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     // Default to All Mods if available
                     _currentCategory = null;
-                    CategoryTitle.Text = LanguageManager.Instance.T("Category_All_Mods");
+                    CategoryTitle.Text = T("Category_All_Mods");
                     LoadAllMods();
                 }
                 _previousCategory = null; // Clear previous category after restoration
@@ -1255,7 +1262,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
                 
                 // Set search title
-                CategoryTitle.Text = LanguageManager.Instance.T("Search_Results");
+                CategoryTitle.Text = T("Search_Results");
                 
                 // Load all mod data for searching if not already loaded
                 if (_allModData.Count == 0)
@@ -1447,10 +1454,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                 // Show confirmation dialog
                 var dialog = new ContentDialog
                 {
-                    Title = LanguageManager.Instance.T("Delete_Mod_Confirm_Title"),
-                    Content = string.Format(LanguageManager.Instance.T("Delete_Mod_Confirm_Message"), mod.Name),
-                    PrimaryButtonText = LanguageManager.Instance.T("Delete"),
-                    CloseButtonText = LanguageManager.Instance.T("Cancel"),
+                    Title = T("Delete_Mod_Confirm_Title"),
+                    Content = string.Format(T("Delete_Mod_Confirm_Message"), mod.Name),
+                    PrimaryButtonText = T("Delete"),
+                    CloseButtonText = T("Cancel"),
                     XamlRoot = this.Content.XamlRoot
                 };
 
@@ -1504,9 +1511,9 @@ namespace ZZZ_Mod_Manager_X.Pages
                 // Show error dialog
                 var errorDialog = new ContentDialog
                 {
-                    Title = LanguageManager.Instance.T("Error_Title"),
+                    Title = T("Error_Title"),
                     Content = ex.Message,
-                    CloseButtonText = LanguageManager.Instance.T("OK"),
+                    CloseButtonText = T("OK"),
                     XamlRoot = this.Content.XamlRoot
                 };
                 await errorDialog.ShowAsync();

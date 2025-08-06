@@ -290,8 +290,8 @@ namespace ZZZ_Mod_Manager_X.Pages
         private void ShowInfoBar(string title, string message)
         {
             // Try to translate both title and message, fallback to original if not found
-            string translatedTitle = _lang.TryGetValue(title, out var tTitle) ? tTitle : title;
-            string translatedMessage = _lang.TryGetValue(message, out var tMsg) ? tMsg : message;
+            string translatedTitle = SharedUtilities.GetTranslation(_lang, title);
+            string translatedMessage = SharedUtilities.GetTranslation(_lang, message);
             var dialog = new ContentDialog
             {
                 Title = translatedTitle,

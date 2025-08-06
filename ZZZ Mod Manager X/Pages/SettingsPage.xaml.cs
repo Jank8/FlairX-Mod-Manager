@@ -25,6 +25,17 @@ namespace ZZZ_Mod_Manager_X.Pages
         private static bool _isOptimizingPreviews = false;
         private CancellationTokenSource? _previewCts;
         private FontIcon? _optimizePreviewsButtonIcon;
+        private Dictionary<string, string> _lang = new();
+
+        private void LoadLanguage()
+        {
+            _lang = SharedUtilities.LoadLanguageDictionary();
+        }
+
+        private string T(string key)
+        {
+            return SharedUtilities.GetTranslation(_lang, key);
+        }
 
         // Set BreadcrumbBar to path segments with icon at the beginning
         private void SetBreadcrumbBar(BreadcrumbBar bar, string path)
@@ -43,6 +54,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             this.InitializeComponent();
             _optimizePreviewsButtonIcon = OptimizePreviewsButton.Content as FontIcon;
             SettingsManager.Load();
+            LoadLanguage();
             LoadLanguages();
             InitializeUIState();
         }
@@ -54,7 +66,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             string displayName = string.Empty;
             if (selectedFile == "auto")
             {
-                displayName = LanguageManager.Instance.T("Auto_Language");
+                displayName = T("Auto_Language");
             }
             else
             {
@@ -101,7 +113,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             
             // Update all texts and icons once at the end
             UpdateTexts();
-            AboutButtonText.Text = LanguageManager.Instance.T("AboutButton_Label");
+            AboutButtonText.Text = T("AboutButton_Label");
             AboutButtonIcon.Glyph = "\uE946";
         }
 
@@ -135,7 +147,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 _fileNameByDisplayName.Clear();
                 
                 // Add AUTO option at the beginning of the list
-                string autoDisplayName = LanguageManager.Instance.T("Auto_Language");
+                string autoDisplayName = T("Auto_Language");
                 LanguageComboBox.Items.Add(autoDisplayName);
                 _languages[autoDisplayName] = "auto";
                 _fileNameByDisplayName[autoDisplayName] = "auto";
@@ -197,11 +209,13 @@ namespace ZZZ_Mod_Manager_X.Pages
                     return;
                 }
                 var fileName = Path.GetFileName(filePath);
-                LanguageManager.Instance.LoadLanguage(fileName);
+                
+                // IMPORTANT: Save to SettingsManager FIRST before loading language
                 SettingsManager.Current.LanguageFile = fileName;
                 SettingsManager.Save();
                 
                 // Update texts locally first to avoid flicker
+                LoadLanguage(); // Reload our local language dictionary
                 UpdateTexts();
                 
                 // Refresh the entire UI in MainWindow without re-navigating to settings
@@ -321,45 +335,46 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void UpdateTexts()
         {
-            SettingsTitle.Text = LanguageManager.Instance.T("SettingsPage_Title");
-            BackdropLabel.Text = LanguageManager.Instance.T("SettingsPage_Backdrop");
-            LanguageLabel.Text = LanguageManager.Instance.T("SettingsPage_Language");
-            DynamicModSearchLabel.Text = LanguageManager.Instance.T("SettingsPage_DynamicModSearch_Label");
-            GridLoggingLabel.Text = LanguageManager.Instance.T("SettingsPage_GridLogging_Label");
-            ShowOrangeAnimationLabel.Text = LanguageManager.Instance.T("SettingsPage_ShowOrangeAnimation_Label");
-            ModGridZoomLabel.Text = LanguageManager.Instance.T("SettingsPage_ModGridZoom_Label");
-            ToolTipService.SetToolTip(ModGridZoomToggle, LanguageManager.Instance.T("SettingsPage_ModGridZoom_Tooltip"));
+            SettingsTitle.Text = T("SettingsPage_Title");
+            BackdropLabel.Text = T("SettingsPage_Backdrop");
+            LanguageLabel.Text = T("SettingsPage_Language");
+            DynamicModSearchLabel.Text = T("SettingsPage_DynamicModSearch_Label");
+            GridLoggingLabel.Text = T("SettingsPage_GridLogging_Label");
+            ShowOrangeAnimationLabel.Text = T("SettingsPage_ShowOrangeAnimation_Label");
+            ModGridZoomLabel.Text = T("SettingsPage_ModGridZoom_Label");
+            ToolTipService.SetToolTip(ModGridZoomToggle, T("SettingsPage_ModGridZoom_Tooltip"));
+            ToolTipService.SetToolTip(GridLoggingToggle, T("SettingsPage_GridLogging_Tooltip"));
             // Update SelectorBar texts
-            ThemeSelectorAutoText.Text = LanguageManager.Instance.T("SettingsPage_Theme_Auto");
-            ThemeSelectorLightText.Text = LanguageManager.Instance.T("SettingsPage_Theme_Light");
-            ThemeSelectorDarkText.Text = LanguageManager.Instance.T("SettingsPage_Theme_Dark");
+            ThemeSelectorAutoText.Text = T("SettingsPage_Theme_Auto");
+            ThemeSelectorLightText.Text = T("SettingsPage_Theme_Light");
+            ThemeSelectorDarkText.Text = T("SettingsPage_Theme_Dark");
             // Update Backdrop SelectorBar texts
             if (BackdropSelectorMicaText != null)
-                BackdropSelectorMicaText.Text = LanguageManager.Instance.T("SettingsPage_Backdrop_Mica");
+                BackdropSelectorMicaText.Text = T("SettingsPage_Backdrop_Mica");
             if (BackdropSelectorMicaAltText != null)
-                BackdropSelectorMicaAltText.Text = LanguageManager.Instance.T("SettingsPage_Backdrop_MicaAlt");
+                BackdropSelectorMicaAltText.Text = T("SettingsPage_Backdrop_MicaAlt");
             if (BackdropSelectorAcrylicText != null)
-                BackdropSelectorAcrylicText.Text = LanguageManager.Instance.T("SettingsPage_Backdrop_Acrylic");
+                BackdropSelectorAcrylicText.Text = T("SettingsPage_Backdrop_Acrylic");
             if (BackdropSelectorAcrylicThinText != null)
-                BackdropSelectorAcrylicThinText.Text = LanguageManager.Instance.T("SettingsPage_Backdrop_AcrylicThin");
+                BackdropSelectorAcrylicThinText.Text = T("SettingsPage_Backdrop_AcrylicThin");
             if (BackdropSelectorNoneText != null)
             {
-                BackdropSelectorNoneText.Text = "None";
+                BackdropSelectorNoneText.Text = T("None");
                 System.Diagnostics.Debug.WriteLine($"Set BackdropSelectorNoneText to: {BackdropSelectorNoneText.Text}");
             }
             else
             {
                 System.Diagnostics.Debug.WriteLine("BackdropSelectorNoneText is null!");
             }
-            XXMIModsDirectoryLabel.Text = LanguageManager.Instance.T("SettingsPage_XXMIModsDirectory");
-            ModLibraryDirectoryLabel.Text = LanguageManager.Instance.T("SettingsPage_ModLibraryDirectory");
-            ToolTipService.SetToolTip(XXMIModsDirectoryDefaultButton, LanguageManager.Instance.T("SettingsPage_RestoreDefault_Tooltip"));
-            ToolTipService.SetToolTip(ModLibraryDirectoryDefaultButton, LanguageManager.Instance.T("SettingsPage_RestoreDefault_Tooltip"));
-            ToolTipService.SetToolTip(OptimizePreviewsButton, LanguageManager.Instance.T("SettingsPage_OptimizePreviews_Tooltip"));
-            OptimizePreviewsLabel.Text = LanguageManager.Instance.T("SettingsPage_OptimizePreviews_Label");
-            ToolTipService.SetToolTip(XXMIModsDirectoryPickButton, LanguageManager.Instance.T("PickFolderDialog_Title"));
-            ToolTipService.SetToolTip(ModLibraryDirectoryPickButton, LanguageManager.Instance.T("PickFolderDialog_Title"));
-            ToolTipService.SetToolTip(DynamicModSearchToggle, LanguageManager.Instance.T("SettingsPage_DynamicModSearch_Tooltip"));
+            XXMIModsDirectoryLabel.Text = T("SettingsPage_XXMIModsDirectory");
+            ModLibraryDirectoryLabel.Text = T("SettingsPage_ModLibraryDirectory");
+            ToolTipService.SetToolTip(XXMIModsDirectoryDefaultButton, T("SettingsPage_RestoreDefault_Tooltip"));
+            ToolTipService.SetToolTip(ModLibraryDirectoryDefaultButton, T("SettingsPage_RestoreDefault_Tooltip"));
+            ToolTipService.SetToolTip(OptimizePreviewsButton, T("SettingsPage_OptimizePreviews_Tooltip"));
+            OptimizePreviewsLabel.Text = T("SettingsPage_OptimizePreviews_Label");
+            ToolTipService.SetToolTip(XXMIModsDirectoryPickButton, T("PickFolderDialog_Title"));
+            ToolTipService.SetToolTip(ModLibraryDirectoryPickButton, T("PickFolderDialog_Title"));
+            ToolTipService.SetToolTip(DynamicModSearchToggle, T("SettingsPage_DynamicModSearch_Tooltip"));
             // Removed XXMIModsDirectoryDefaultButton.ToolTip and ModLibraryDirectoryDefaultButton.ToolTip, as WinUI 3 doesn't have this property
         }
 
@@ -542,10 +557,10 @@ namespace ZZZ_Mod_Manager_X.Pages
             // Show confirmation dialog before starting optimization
             var confirmDialog = new ContentDialog
             {
-                Title = LanguageManager.Instance.T("OptimizePreviews_Confirm_Title"),
-                Content = LanguageManager.Instance.T("OptimizePreviews_Confirm_Message"),
-                PrimaryButtonText = LanguageManager.Instance.T("Continue"),
-                CloseButtonText = LanguageManager.Instance.T("Cancel"),
+                Title = T("OptimizePreviews_Confirm_Title"),
+                Content = T("OptimizePreviews_Confirm_Message"),
+                PrimaryButtonText = T("Continue"),
+                CloseButtonText = T("Cancel"),
                 DefaultButton = ContentDialogButton.Primary,
                 XamlRoot = this.XamlRoot
             };
@@ -582,9 +597,9 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     var dialog = new ContentDialog
                     {
-                        Title = LanguageManager.Instance.T("Error_Generic"),
-                        Content = LanguageManager.Instance.T("OptimizePreviews_Cancelled"),
-                        CloseButtonText = LanguageManager.Instance.T("OK"),
+                        Title = T("Error_Generic"),
+                        Content = T("OptimizePreviews_Cancelled"),
+                        CloseButtonText = T("OK"),
                         XamlRoot = mainWindow.Content.XamlRoot
                     };
                     _ = dialog.ShowAsync();
@@ -596,9 +611,9 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     var dialog = new ContentDialog
                     {
-                        Title = LanguageManager.Instance.T("Success_Title"),
-                        Content = LanguageManager.Instance.T("OptimizePreviews_Completed"),
-                        CloseButtonText = LanguageManager.Instance.T("OK"),
+                        Title = T("Success_Title"),
+                        Content = T("OptimizePreviews_Completed"),
+                        CloseButtonText = T("OK"),
                         XamlRoot = mainWindow.Content.XamlRoot
                     };
                     _ = dialog.ShowAsync();
@@ -611,7 +626,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             var bi = new BROWSEINFO
             {
                 hwndOwner = hwnd,
-                lpszTitle = LanguageManager.Instance.T("PickFolderDialog_Title"),
+                lpszTitle = T("PickFolderDialog_Title"),
                 ulFlags = 0x00000040 // BIF_NEWDIALOGSTYLE
             };
             IntPtr pidl = SHBrowseForFolder(ref bi);
@@ -652,8 +667,8 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             var dialog = new ContentDialog
             {
-                Title = LanguageManager.Instance.T("Ntfs_Warning_Title"),
-                Content = string.Format(LanguageManager.Instance.T("Ntfs_Warning_Content"), label, path),
+                Title = T("Ntfs_Warning_Title"),
+                Content = string.Format(T("Ntfs_Warning_Content"), label, path),
                 CloseButtonText = "OK",
                 XamlRoot = this.XamlRoot
             };
@@ -721,7 +736,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             try
             {
                 var hwnd = SharedUtilities.GetMainWindowHandle();
-                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, LanguageManager.Instance.T("PickFolderDialog_Title"));
+                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, T("PickFolderDialog_Title"));
                 if (!string.IsNullOrEmpty(folderPath))
                 {
                     if (!IsNtfs(folderPath))
@@ -786,7 +801,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             try
             {
                 var hwnd = SharedUtilities.GetMainWindowHandle();
-                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, LanguageManager.Instance.T("PickFolderDialog_Title"));
+                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, T("PickFolderDialog_Title"));
                 if (!string.IsNullOrEmpty(folderPath))
                 {
                     if (!IsNtfs(folderPath))
@@ -876,19 +891,19 @@ namespace ZZZ_Mod_Manager_X.Pages
                 Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,12)
             };
             stackPanel.Children.Add(titleBlock);
-            stackPanel.Children.Add(new TextBlock { Text = LanguageManager.Instance.T("AboutDialog_Author"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
+            stackPanel.Children.Add(new TextBlock { Text = T("AboutDialog_Author"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
             stackPanel.Children.Add(new HyperlinkButton { Content = "Jank8", NavigateUri = new Uri("https://github.com/Jank8"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) });
-            stackPanel.Children.Add(new TextBlock { Text = LanguageManager.Instance.T("AboutDialog_AI"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
+            stackPanel.Children.Add(new TextBlock { Text = T("AboutDialog_AI"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
             
             // Create AI section with Kiro and GitHub Copilot
             var aiPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) };
             aiPanel.Children.Add(new HyperlinkButton { Content = "Kiro", NavigateUri = new Uri("https://kiro.dev/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
-            aiPanel.Children.Add(new TextBlock { Text = " " + LanguageManager.Instance.T("AboutDialog_With") + " ", VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
+            aiPanel.Children.Add(new TextBlock { Text = " " + T("AboutDialog_With") + " ", VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
             aiPanel.Children.Add(new HyperlinkButton { Content = "GitHub Copilot", NavigateUri = new Uri("https://github.com/features/copilot"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
             stackPanel.Children.Add(aiPanel);
-            stackPanel.Children.Add(new TextBlock { Text = LanguageManager.Instance.T("AboutDialog_Fonts"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
+            stackPanel.Children.Add(new TextBlock { Text = T("AboutDialog_Fonts"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
             stackPanel.Children.Add(new HyperlinkButton { Content = "Noto Fonts", NavigateUri = new Uri("https://notofonts.github.io/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) });
-            stackPanel.Children.Add(new TextBlock { Text = LanguageManager.Instance.T("AboutDialog_Thanks"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
+            stackPanel.Children.Add(new TextBlock { Text = T("AboutDialog_Thanks"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
             var thanksPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
             thanksPanel.Children.Add(new StackPanel {
                 Orientation = Orientation.Vertical,
@@ -896,7 +911,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                     new HyperlinkButton { Content = "XLXZ", NavigateUri = new Uri("https://github.com/XiaoLinXiaoZhu"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0), HorizontalAlignment = HorizontalAlignment.Left },
                 }
             });
-            thanksPanel.Children.Add(new TextBlock { Text = LanguageManager.Instance.T("AboutDialog_For"), VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(8,0,8,0) });
+            thanksPanel.Children.Add(new TextBlock { Text = T("AboutDialog_For"), VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(8,0,8,0) });
             thanksPanel.Children.Add(new StackPanel {
                 Orientation = Orientation.Vertical,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -906,7 +921,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             });
             stackPanel.Children.Add(thanksPanel);
             var gplPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,16,0,0) };
-            gplPanel.Children.Add(new HyperlinkButton { Content = LanguageManager.Instance.T("AboutDialog_License"), NavigateUri = new Uri("https://www.gnu.org/licenses/gpl-3.0.html#license-text") });
+            gplPanel.Children.Add(new HyperlinkButton { Content = T("AboutDialog_License"), NavigateUri = new Uri("https://www.gnu.org/licenses/gpl-3.0.html#license-text") });
             stackPanel.Children.Add(gplPanel);
             dialog.Content = stackPanel;
             await dialog.ShowAsync();
@@ -943,7 +958,6 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
             }
         }
-
         private void BackdropSelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
         {
             if (sender.SelectedItem is SelectorBarItem item && item.Tag is string backdrop)

@@ -38,12 +38,13 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void UpdateTexts()
         {
-            PresetsTitle.Text = LanguageManager.Instance.T("Presets");
-            PresetComboBox.PlaceholderText = LanguageManager.Instance.T("PresetsPage_ComboBox_Placeholder");
-            PresetNameTextBox.PlaceholderText = LanguageManager.Instance.T("PresetsPage_NewPreset_Placeholder");
-            SavePresetButtonText.Text = LanguageManager.Instance.T("PresetsPage_SavePresetButton");
-            LoadPresetButtonText.Text = LanguageManager.Instance.T("PresetsPage_LoadPresetButton");
-            DeletePresetButtonText.Text = LanguageManager.Instance.T("PresetsPage_DeletePresetButton");
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            PresetsTitle.Text = SharedUtilities.GetTranslation(langDict, "Presets");
+            PresetComboBox.PlaceholderText = SharedUtilities.GetTranslation(langDict, "PresetsPage_ComboBox_Placeholder");
+            PresetNameTextBox.PlaceholderText = SharedUtilities.GetTranslation(langDict, "PresetsPage_NewPreset_Placeholder");
+            SavePresetButtonText.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_SavePresetButton");
+            LoadPresetButtonText.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_LoadPresetButton");
+            DeletePresetButtonText.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_DeletePresetButton");
         }
 
         private void LoadPresetsToComboBox()
@@ -51,7 +52,8 @@ namespace ZZZ_Mod_Manager_X.Pages
             PresetComboBox.Items.Clear();
             EnsurePresetsDir();
             _presetNames.Clear();
-            PresetComboBox.Items.Add(LanguageManager.Instance.T("Default_Preset"));
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            PresetComboBox.Items.Add(SharedUtilities.GetTranslation(langDict, "Default_Preset"));
             _presetNames.Add("Default Preset");
             var presets = Directory.GetFiles(PresetsDir, "*.json")
                 .Select(f => Path.GetFileNameWithoutExtension(f))
@@ -105,7 +107,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                     }
                     catch (Exception ex)
                     {
-                        await ShowDialog(LanguageManager.Instance.T("Error_Title"), ex.Message);
+                        var saveLangDict = SharedUtilities.LoadLanguageDictionary();
+                        await ShowDialog(SharedUtilities.GetTranslation(saveLangDict, "Error_Title"), ex.Message);
                         return;
                     }
                 }
@@ -118,11 +121,13 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
                 catch (Exception ex)
                 {
-                    await ShowDialog(LanguageManager.Instance.T("Error_Title"), ex.Message);
+                    var errorLangDict = SharedUtilities.LoadLanguageDictionary();
+                    await ShowDialog(SharedUtilities.GetTranslation(errorLangDict, "Error_Title"), ex.Message);
                     return;
                 }
                 LoadPresetsToComboBox();
-                await ShowDialog(LanguageManager.Instance.T("Success_Title"), LanguageManager.Instance.T("Preset_Saved"));
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                await ShowDialog(SharedUtilities.GetTranslation(langDict, "Success_Title"), SharedUtilities.GetTranslation(langDict, "Preset_Saved"));
             }
         }
 
@@ -134,11 +139,13 @@ namespace ZZZ_Mod_Manager_X.Pages
                 try
                 {
                     ZZZ_Mod_Manager_X.Pages.ModGridPage.ApplyPreset(fileName);
-                    await ShowDialog(LanguageManager.Instance.T("Success_Title"), LanguageManager.Instance.T("Preset_Loaded"));
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    await ShowDialog(SharedUtilities.GetTranslation(langDict, "Success_Title"), SharedUtilities.GetTranslation(langDict, "Preset_Loaded"));
                 }
                 catch (Exception ex)
                 {
-                    await ShowDialog(LanguageManager.Instance.T("Error_Title"), ex.Message);
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    await ShowDialog(SharedUtilities.GetTranslation(langDict, "Error_Title"), ex.Message);
                 }
             }
         }
@@ -156,18 +163,21 @@ namespace ZZZ_Mod_Manager_X.Pages
                         File.Delete(path);
                     }
                     LoadPresetsToComboBox();
-                    await ShowDialog(LanguageManager.Instance.T("Success_Title"), LanguageManager.Instance.T("Preset_Deleted"));
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    await ShowDialog(SharedUtilities.GetTranslation(langDict, "Success_Title"), SharedUtilities.GetTranslation(langDict, "Preset_Deleted"));
                 }
                 catch (Exception ex)
                 {
-                    await ShowDialog(LanguageManager.Instance.T("Error_Title"), ex.Message);
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    await ShowDialog(SharedUtilities.GetTranslation(langDict, "Error_Title"), ex.Message);
                 }
             }
         }
 
         private string GetPresetFileNameFromComboBox(object? item)
         {
-            if (item is string str && str == LanguageManager.Instance.T("Default_Preset"))
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            if (item is string str && str == SharedUtilities.GetTranslation(langDict, "Default_Preset"))
                 return "Default Preset";
             return item?.ToString() ?? string.Empty;
         }

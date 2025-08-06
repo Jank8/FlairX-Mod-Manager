@@ -36,8 +36,8 @@
                 <TextBlock x:Name="ManualSyncLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
                 <Button x:Name="ManualSyncButton" Height="32" MinWidth="120" Click="ManualSyncButton_Click" Margin="-40,0,0,0">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock x:Name="ManualSyncButtonText" Text=""/>
                         <FontIcon Glyph="&#xE895;" FontSize="16"/>
+                        <TextBlock x:Name="ManualSyncButtonText" Text=""/>
                     </StackPanel>
                 </Button>
                 <ProgressBar x:Name="ManualSyncProgressBar" Width="130" Height="32" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="10,0,0,0" />

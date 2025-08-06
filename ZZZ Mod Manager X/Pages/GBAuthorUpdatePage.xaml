@@ -32,9 +32,9 @@
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,24,0,0">
                 <Button x:Name="UpdateButton" Height="32" MinWidth="160" HorizontalAlignment="Stretch" VerticalAlignment="Center" Click="UpdateButton_Click">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock x:Name="UpdateButtonText" Text=""/>
                         <FontIcon x:Name="UpdateIcon" Glyph="&#xE753;" FontSize="16" Visibility="Visible"/>
                         <FontIcon x:Name="CancelIcon" Glyph="&#xE711;" FontSize="16" Visibility="Collapsed"/>
+                        <TextBlock x:Name="UpdateButtonText" Text=""/>
                     </StackPanel>
                 </Button>
                 <ProgressBar x:Name="UpdateProgressBar" Width="130" Height="32" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="20,0,0,0" />

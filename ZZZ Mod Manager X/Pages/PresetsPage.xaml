@@ -21,8 +21,8 @@
                 </StackPanel>
                 <Button x:Name="LoadPresetButton" Click="LoadPresetButton_Click" Width="240" Margin="0,0,0,24">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE898;" FontSize="16" Margin="0,0,8,0"/>
                         <TextBlock x:Name="LoadPresetButtonText" Text="Załaduj wybrany preset" VerticalAlignment="Center"/>
-                        <FontIcon Glyph="&#xE898;" FontSize="16" Margin="4,0,0,0"/>
                     </StackPanel>
                 </Button>
                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="0,0,0,0">
@@ -30,14 +30,14 @@
                 </StackPanel>
                 <Button x:Name="SavePresetButton" Click="SavePresetButton_Click" Width="240" Margin="0,0,0,32">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE896;" FontSize="16" Margin="0,0,8,0"/>
                         <TextBlock x:Name="SavePresetButtonText" Text="Zapisz jako preset" VerticalAlignment="Center"/>
-                        <FontIcon Glyph="&#xE896;" FontSize="16" Margin="4,0,0,0"/>
                     </StackPanel>
                 </Button>
                 <Button x:Name="DeletePresetButton" Click="DeletePresetButton_Click" Width="240" Margin="0,0,0,0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <FontIcon Glyph="&#xE74D;" FontSize="16" Margin="0,0,8,0"/>
                         <TextBlock x:Name="DeletePresetButtonText" Text="Usuń wybrany preset" VerticalAlignment="Center"/>
-                        <FontIcon Glyph="&#xE74D;" FontSize="16" Margin="4,0,0,0"/>
                     </StackPanel>
                 </Button>
             </StackPanel>

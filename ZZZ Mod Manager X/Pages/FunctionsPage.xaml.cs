@@ -38,7 +38,8 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void UpdateTexts()
         {
-            FunctionsTitle.Text = LanguageManager.Instance.T("FunctionsPage_Title");
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            FunctionsTitle.Text = SharedUtilities.GetTranslation(langDict, "FunctionsPage_Title");
             foreach (var func in _functionInfos)
             {
                 if (func.FileName == "GBAuthorUpdate")
@@ -312,8 +313,9 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
             }
             
-            // Fallback to main language manager
-            return LanguageManager.Instance.T("GameBananaAuthorUpdate_Function");
+            // Fallback to main language dictionary
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            return SharedUtilities.GetTranslation(langDict, "GameBananaAuthorUpdate_Function");
         }
 
         private string GetHotkeyFinderFunctionName()

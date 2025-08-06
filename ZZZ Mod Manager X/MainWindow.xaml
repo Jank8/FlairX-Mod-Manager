@@ -63,12 +63,42 @@
                               Margin="0,0,0,12"
                               HorizontalContentAlignment="Center"
                               SelectionChanged="GameSelectionComboBox_SelectionChanged">
-                        <ComboBoxItem Content="- SELECT GAME -" Tag="" IsSelected="True" HorizontalContentAlignment="Center"/>
-                        <ComboBoxItem Content="Genshin Impact" Tag="GIMI" HorizontalContentAlignment="Center"/>
-                        <ComboBoxItem Content="Honkai Impact" Tag="HIMI" HorizontalContentAlignment="Center"/>
-                        <ComboBoxItem Content="Star Rail" Tag="SRMI" HorizontalContentAlignment="Center"/>
-                        <ComboBoxItem Content="Wuthering Waves" Tag="WWMI" HorizontalContentAlignment="Center"/>
-                        <ComboBoxItem Content="Zenless Zone Zero" Tag="ZZMI" HorizontalContentAlignment="Center"/>
+                        <ComboBoxItem Tag="" IsSelected="True" HorizontalContentAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xE8B0;" FontSize="16"/>
+                                <TextBlock x:Name="SelectGameText" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ComboBoxItem>
+                        <ComboBoxItem Tag="GIMI" HorizontalContentAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
+                                <TextBlock Text="Genshin Impact" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ComboBoxItem>
+                        <ComboBoxItem Tag="HIMI" HorizontalContentAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
+                                <TextBlock Text="Honkai Impact" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ComboBoxItem>
+                        <ComboBoxItem Tag="SRMI" HorizontalContentAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
+                                <TextBlock Text="Star Rail" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ComboBoxItem>
+                        <ComboBoxItem Tag="WWMI" HorizontalContentAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
+                                <TextBlock Text="Wuthering Waves" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ComboBoxItem>
+                        <ComboBoxItem Tag="ZZMI" HorizontalContentAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
+                                <TextBlock Text="Zenless Zone Zero" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </ComboBoxItem>
                     </ComboBox>
                     <TextBlock Text="ZZZ Mod Manager X" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="25" Margin="0,0,0,8"/>
                     <ProgressBar x:Name="OrangeAnimationProgressBar" Width="200" IsIndeterminate="True" Margin="0,0,0,8" Visibility="Visible" Opacity="1" />

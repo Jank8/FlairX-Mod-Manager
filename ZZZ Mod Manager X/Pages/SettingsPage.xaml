@@ -151,8 +151,8 @@
                 MaxWidth="800"
                 Click="AboutButton_Click">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <FontIcon x:Name="AboutButtonIcon" Glyph="&#xE946;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
                 <TextBlock x:Name="AboutButtonText" Text="" VerticalAlignment="Center"/>
-                <FontIcon x:Name="AboutButtonIcon" Glyph="&#xE946;" FontSize="18" Margin="4,0,0,0" VerticalAlignment="Center"/>
             </StackPanel>
         </Button>
     </Grid>

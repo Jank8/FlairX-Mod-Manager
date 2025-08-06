@@ -28,7 +28,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private string T(string key)
         {
-            return _lang.TryGetValue(key, out var value) ? value : key;
+            return SharedUtilities.GetTranslation(_lang, key);
         }
 
         private void UpdateTexts()

@@ -28,6 +28,17 @@ namespace ZZZ_Mod_Manager_X
     {
         private const int MIN_WIDTH = 1280;
         private const int MIN_HEIGHT = 720;
+        private Dictionary<string, string> _lang = new();
+
+        private void LoadLanguage()
+        {
+            _lang = SharedUtilities.LoadLanguageDictionary();
+        }
+
+        private string T(string key)
+        {
+            return SharedUtilities.GetTranslation(_lang, key);
+        }
         private const int MAX_WIDTH = 20000;
         private const int MAX_HEIGHT = 15000;
 
@@ -46,14 +57,18 @@ namespace ZZZ_Mod_Manager_X
         public MainWindow()
         {
             InitializeComponent();
+            LoadLanguage();
 
             // Set AllModsButton translation
-            AllModsButton.Content = LanguageManager.Instance.T("All_Mods");
+            AllModsButton.Content = T("All_Mods");
             // Set button tooltip translations
-            ToolTipService.SetToolTip(ReloadModsButton, LanguageManager.Instance.T("Reload_Mods_Tooltip"));
-            ToolTipService.SetToolTip(OpenModLibraryButton, LanguageManager.Instance.T("Open_ModLibrary_Tooltip"));
-            ToolTipService.SetToolTip(LauncherFabBorder, LanguageManager.Instance.T("Launcher_Tooltip"));
-            ToolTipService.SetToolTip(ShowActiveModsButton, LanguageManager.Instance.T("ShowActiveModsButton_Tooltip"));
+            ToolTipService.SetToolTip(ReloadModsButton, T("Reload_Mods_Tooltip"));
+            ToolTipService.SetToolTip(OpenModLibraryButton, T("Open_ModLibrary_Tooltip"));
+            ToolTipService.SetToolTip(LauncherFabBorder, T("Launcher_Tooltip"));
+            ToolTipService.SetToolTip(ShowActiveModsButton, T("ShowActiveModsButton_Tooltip"));
+
+            // Update game selection ComboBox text
+            UpdateGameSelectionComboBoxTexts();
 
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
@@ -150,6 +165,25 @@ namespace ZZZ_Mod_Manager_X
             }
         }
 
+        private void UpdateGameSelectionComboBoxTexts()
+        {
+            if (GameSelectionComboBox?.Items != null && GameSelectionComboBox.Items.Count > 0)
+            {
+                // Update the first item (SELECT GAME) with translation
+                if (GameSelectionComboBox.Items[0] is ComboBoxItem selectGameItem)
+                {
+                    if (selectGameItem.Content is StackPanel stackPanel)
+                    {
+                        var textBlock = stackPanel.Children.OfType<TextBlock>().FirstOrDefault();
+                        if (textBlock != null)
+                        {
+                            textBlock.Text = T("SelectGame_Placeholder");
+                        }
+                    }
+                }
+            }
+        }
+
         private void CenterWindow(AppWindow appWindow)
         {
             var area = DisplayArea.GetFromWindowId(appWindow.Id, DisplayAreaFallback.Nearest)?.WorkArea;
@@ -199,14 +233,14 @@ namespace ZZZ_Mod_Manager_X
             
             var fileNotFoundText = new TextBlock
             {
-                Text = string.Format(LanguageManager.Instance.T("FileNotFound"), exePath),
+                Text = string.Format(T("FileNotFound"), exePath),
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             };
             
             var downloadText = new TextBlock
             {
-                Text = LanguageManager.Instance.T("XXMI_Download_Required"),
+                Text = T("XXMI_Download_Required"),
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 4)
             };
@@ -222,7 +256,7 @@ namespace ZZZ_Mod_Manager_X
             
             var instructionText = new TextBlock
             {
-                Text = LanguageManager.Instance.T("XXMI_Download_Instructions"),
+                Text = T("XXMI_Download_Instructions"),
                 TextWrapping = TextWrapping.Wrap,
                 FontStyle = Windows.UI.Text.FontStyle.Italic
             };
@@ -350,33 +384,33 @@ namespace ZZZ_Mod_Manager_X
         private void SetSearchBoxPlaceholder()
         {
             if (SearchBox != null)
-                SearchBox.PlaceholderText = LanguageManager.Instance.T("Search_Placeholder");
+                SearchBox.PlaceholderText = T("Search_Placeholder");
         }
 
         private void SetFooterMenuTranslations()
         {
             if (OtherModsPageItem is NavigationViewItem otherMods)
-                otherMods.Content = LanguageManager.Instance.T("Other_Mods");
+                otherMods.Content = T("Other_Mods");
             if (FunctionsPageItem is NavigationViewItem functions)
-                functions.Content = LanguageManager.Instance.T("Functions");
+                functions.Content = T("Functions");
             if (SettingsPageItem is NavigationViewItem settings)
-                settings.Content = LanguageManager.Instance.T("SettingsPage_Title");
+                settings.Content = T("SettingsPage_Title");
             
             var presetsItem = nvSample.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "PresetsPage");
             if (presetsItem != null)
-                presetsItem.Content = LanguageManager.Instance.T("Presets");
+                presetsItem.Content = T("Presets");
             if (AllModsButton != null)
-                AllModsButton.Content = LanguageManager.Instance.T("All_Mods");
+                AllModsButton.Content = T("All_Mods");
             if (ReloadModsButton != null)
-                ToolTipService.SetToolTip(ReloadModsButton, LanguageManager.Instance.T("Reload_Mods_Tooltip"));
+                ToolTipService.SetToolTip(ReloadModsButton, T("Reload_Mods_Tooltip"));
             if (OpenModLibraryButton != null)
-                ToolTipService.SetToolTip(OpenModLibraryButton, LanguageManager.Instance.T("Open_ModLibrary_Tooltip"));
+                ToolTipService.SetToolTip(OpenModLibraryButton, T("Open_ModLibrary_Tooltip"));
             if (LauncherFabBorder != null)
-                ToolTipService.SetToolTip(LauncherFabBorder, LanguageManager.Instance.T("Launcher_Tooltip"));
+                ToolTipService.SetToolTip(LauncherFabBorder, T("Launcher_Tooltip"));
             if (RestartAppButton != null)
-                ToolTipService.SetToolTip(RestartAppButton, LanguageManager.Instance.T("SettingsPage_RestartApp_Tooltip"));
+                ToolTipService.SetToolTip(RestartAppButton, T("SettingsPage_RestartApp_Tooltip"));
             if (ShowActiveModsButton != null)
-                ToolTipService.SetToolTip(ShowActiveModsButton, LanguageManager.Instance.T("ShowActiveModsButton_Tooltip"));
+                ToolTipService.SetToolTip(ShowActiveModsButton, T("ShowActiveModsButton_Tooltip"));
         }
 
         public void UpdateShowActiveModsButtonIcon()
@@ -388,7 +422,7 @@ namespace ZZZ_Mod_Manager_X
             bool isActivePage = false;
             if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
             {
-                isActivePage = modGridPage.GetCategoryTitleText() == LanguageManager.Instance.T("Category_Active_Mods");
+                isActivePage = modGridPage.GetCategoryTitleText() == T("Category_Active_Mods");
             }
             if (_isShowActiveModsHovered)
             {
@@ -697,6 +731,7 @@ namespace ZZZ_Mod_Manager_X
             {
                 SetSearchBoxPlaceholder();
                 SetFooterMenuTranslations();
+                UpdateGameSelectionComboBoxTexts();
                 _ = GenerateModCharacterMenuAsync();
                 
                 // Recreate symlinks to ensure they match current active mods state
@@ -819,7 +854,7 @@ namespace ZZZ_Mod_Manager_X
             {
                 var presets = new NavigationViewItem
                 {
-                    Content = LanguageManager.Instance.T("Presets"),
+                    Content = T("Presets"),
                     Tag = "PresetsPage",
                     Icon = new FontIcon { Glyph = "\uE728" } // Presets icon
                 };
@@ -838,7 +873,7 @@ namespace ZZZ_Mod_Manager_X
             {
                 var presets = new NavigationViewItem
                 {
-                    Content = LanguageManager.Instance.T("Presets"),
+                    Content = T("Presets"),
                     Tag = "PresetsPage",
                     Icon = new FontIcon { Glyph = "\uE728" } // Presets icon
                 };
@@ -927,8 +962,12 @@ namespace ZZZ_Mod_Manager_X
 
         public void RefreshUIAfterLanguageChange()
         {
+            // First reload our own language dictionary
+            LoadLanguage();
+            
             SetSearchBoxPlaceholder();
             SetFooterMenuTranslations();
+            UpdateGameSelectionComboBoxTexts();
             SetPaneButtonTooltips();
             SetCategoryTitles();
             UpdateAllModsButtonState();
@@ -945,8 +984,57 @@ namespace ZZZ_Mod_Manager_X
             }
             else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.SettingsPage settingsPage)
             {
-                var updateTexts = settingsPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                updateTexts?.Invoke(settingsPage, null);
+                var loadLanguageMethod = settingsPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var updateTextsMethod = settingsPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                loadLanguageMethod?.Invoke(settingsPage, null);
+                updateTextsMethod?.Invoke(settingsPage, null);
+            }
+            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage statusKeeperSyncPage)
+            {
+                var loadLanguageMethod = statusKeeperSyncPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var updateTextsMethod = statusKeeperSyncPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                loadLanguageMethod?.Invoke(statusKeeperSyncPage, null);
+                updateTextsMethod?.Invoke(statusKeeperSyncPage, null);
+            }
+            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.StatusKeeperBackupPage statusKeeperBackupPage)
+            {
+                var loadLanguageMethod = statusKeeperBackupPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var updateTextsMethod = statusKeeperBackupPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                loadLanguageMethod?.Invoke(statusKeeperBackupPage, null);
+                updateTextsMethod?.Invoke(statusKeeperBackupPage, null);
+            }
+            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.StatusKeeperLogsPage statusKeeperLogsPage)
+            {
+                var loadLanguageMethod = statusKeeperLogsPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var updateTextsMethod = statusKeeperLogsPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                loadLanguageMethod?.Invoke(statusKeeperLogsPage, null);
+                updateTextsMethod?.Invoke(statusKeeperLogsPage, null);
+            }
+            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.HotkeyFinderPage hotkeyFinderPage)
+            {
+                var loadLanguageMethod = hotkeyFinderPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var updateTextsMethod = hotkeyFinderPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                loadLanguageMethod?.Invoke(hotkeyFinderPage, null);
+                updateTextsMethod?.Invoke(hotkeyFinderPage, null);
+            }
+            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.GBAuthorUpdatePage gbAuthorUpdatePage)
+            {
+                var loadLanguageMethod = gbAuthorUpdatePage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var updateTextsMethod = gbAuthorUpdatePage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                loadLanguageMethod?.Invoke(gbAuthorUpdatePage, null);
+                updateTextsMethod?.Invoke(gbAuthorUpdatePage, null);
+            }
+            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModInfoBackupPage modInfoBackupPage)
+            {
+                var loadLanguageMethod = modInfoBackupPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var updateTextsMethod = modInfoBackupPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                loadLanguageMethod?.Invoke(modInfoBackupPage, null);
+                updateTextsMethod?.Invoke(modInfoBackupPage, null);
+            }
+            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.WelcomePage welcomePage)
+            {
+                var updateTextsMethod = welcomePage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                updateTextsMethod?.Invoke(welcomePage, null);
             }
         }
 
@@ -984,10 +1072,10 @@ namespace ZZZ_Mod_Manager_X
                 {
                     var dialog = new ContentDialog
                     {
-                        Title = LanguageManager.Instance.T("LauncherNotFound"),
+                        Title = T("LauncherNotFound"),
                         Content = CreateXXMIDownloadContent(exePath),
-                        PrimaryButtonText = LanguageManager.Instance.T("Download_XXMI"),
-                        CloseButtonText = LanguageManager.Instance.T("OK"),
+                        PrimaryButtonText = T("Download_XXMI"),
+                        CloseButtonText = T("OK"),
                         XamlRoot = this.Content.XamlRoot
                     };
                     

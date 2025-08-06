@@ -33,6 +33,17 @@ namespace ZZZ_Mod_Manager_X
     {
         private Window? _window;
         public Window? MainWindow => _window;
+        private Dictionary<string, string> _lang = new();
+
+        private void LoadLanguage()
+        {
+            _lang = SharedUtilities.LoadLanguageDictionary();
+        }
+
+        private string T(string key)
+        {
+            return SharedUtilities.GetTranslation(_lang, key);
+        }
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -127,10 +138,7 @@ namespace ZZZ_Mod_Manager_X
                 var silesianFont = new Microsoft.UI.Xaml.Media.FontFamily("ms-appx:///Assets/Fonts/NotoSans.ttf#Noto Sans");
                 Application.Current.Resources["AppFontFamily"] = silesianFont;
             }
-            // Default language loading from settings or en.json
-            var langPath = PathManager.GetLanguagePath(langFile);
-            if (System.IO.File.Exists(langPath))
-                ZZZ_Mod_Manager_X.LanguageManager.Instance.LoadLanguage(langFile);
+            // Language loading is now handled by SharedUtilities in each component
             _ = EnsureModJsonInModLibrary();
             EnsureDefaultDirectories();
             // Always generate default preset on app startup
@@ -214,10 +222,11 @@ namespace ZZZ_Mod_Manager_X
 
         private void ShowNtfsWarning(string path, string label)
         {
+            LoadLanguage();
             var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
             {
-                Title = LanguageManager.Instance.T("Ntfs_Warning_Title"),
-                Content = string.Format(LanguageManager.Instance.T("Ntfs_Warning_Content"), label, path),
+                Title = T("Ntfs_Warning_Title"),
+                Content = string.Format(T("Ntfs_Warning_Content"), label, path),
                 CloseButtonText = "OK",
                 XamlRoot = _window?.Content?.XamlRoot
             };
@@ -238,10 +247,11 @@ namespace ZZZ_Mod_Manager_X
                         var drive = new DriveInfo(root!);
                         if (!string.Equals(drive.DriveFormat, "NTFS", StringComparison.OrdinalIgnoreCase))
                         {
+                            LoadLanguage();
                             var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
                             {
-                                Title = LanguageManager.Instance.T("Ntfs_Warning_Title"),
-                                Content = LanguageManager.Instance.T("Ntfs_Startup_Warning_Content"),
+                                Title = T("Ntfs_Warning_Title"),
+                                Content = T("Ntfs_Startup_Warning_Content"),
                                 CloseButtonText = "OK",
                                 XamlRoot = _window?.Content?.XamlRoot
                             };

@@ -427,7 +427,8 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             else
             {
-                infoBlock.Text = $"- (No backup {backupNum} in {Path.GetFileName(currentModLibPath)})";
+                // Use translation instead of hardcoded string
+                infoBlock.Text = $"- ({string.Format(T("ModInfoBackup_NoBackup"), backupNum, Path.GetFileName(currentModLibPath))})";
                 restoreButton.IsEnabled = false;
                 deleteButton.IsEnabled = false;
             }

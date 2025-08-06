@@ -20,11 +20,20 @@ namespace ZZZ_Mod_Manager_X.Pages
         }
 
         private string? _modJsonPath;
-
         private List<string> _allModDirs = new List<string>();
         private int _currentModIndex = -1;
-
         private string? _categoryParam;
+        private Dictionary<string, string> _lang = new();
+
+        private void LoadLanguage()
+        {
+            _lang = SharedUtilities.LoadLanguageDictionary();
+        }
+
+        private string T(string key)
+        {
+            return SharedUtilities.GetTranslation(_lang, key);
+        }
 
         public ModDetailPage()
         {
@@ -36,16 +45,21 @@ namespace ZZZ_Mod_Manager_X.Pages
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            
+            // Load language translations
+            LoadLanguage();
+            
             // Set translations for labels
-            ModDateCheckedLabel.Text = LanguageManager.Instance.T("ModDetailPage_DateChecked");
-            ModDateUpdatedLabel.Text = LanguageManager.Instance.T("ModDetailPage_DateUpdated");
-            ModAuthorLabel.Text = LanguageManager.Instance.T("ModDetailPage_Author");
-            ModCharacterLabel.Text = LanguageManager.Instance.T("ModDetailPage_Character");
-            ModHotkeysLabel.Text = LanguageManager.Instance.T("ModDetailPage_Hotkeys");
-            ModUrlLabel.Text = LanguageManager.Instance.T("ModDetailPage_URL");
+            ModDateCheckedLabel.Text = T("ModDetailPage_DateChecked");
+            ModDateUpdatedLabel.Text = T("ModDetailPage_DateUpdated");
+            ModAuthorLabel.Text = T("ModDetailPage_Author");
+            ModCharacterLabel.Text = T("ModDetailPage_Character");
+            ModHotkeysLabel.Text = T("ModDetailPage_Hotkeys");
+            ModUrlLabel.Text = T("ModDetailPage_URL");
             
             // Set tooltip for OpenUrlButton
-            ToolTipService.SetToolTip(OpenUrlButton, LanguageManager.Instance.T("ModDetailPage_OpenURL_Tooltip"));
+            ToolTipService.SetToolTip(OpenUrlButton, T("ModDetailPage_OpenURL_Tooltip"));
+            
             string modName = "";
             string? modDir = null;
             if (e.Parameter is ModDetailNav nav)
@@ -183,7 +197,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
             }
             if (string.IsNullOrWhiteSpace(modName))
-                ModDetailTitle.Text = LanguageManager.Instance.T("ModDetailPage_Title");
+                ModDetailTitle.Text = T("ModDetailPage_Title");
             else
                 ModDetailTitle.Text = modName;
             UpdateNavButtons();

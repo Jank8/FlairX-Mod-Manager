@@ -218,35 +218,60 @@ namespace ZZZ_Mod_Manager_X
         // ==================== LANGUAGE UTILITIES ====================
         
         /// <summary>
-        /// Loads language dictionary from specified subfolder
+        /// Loads language dictionary from specified subfolder WITHOUT any fallbacks
         /// </summary>
         public static Dictionary<string, string> LoadLanguageDictionary(string? subfolder = null)
         {
             try
             {
                 var langFile = SettingsManager.Current?.LanguageFile ?? "en.json";
-                var langPath = PathManager.GetLanguagePath(langFile, subfolder);
+                var dictionary = new Dictionary<string, string>();
                 
-                if (!File.Exists(langPath))
+                // Determine the exact language file path
+                string langPath;
+                if (!string.IsNullOrEmpty(subfolder))
                 {
-                    // Fallback to English
-                    langPath = PathManager.GetLanguagePath("en.json", subfolder);
+                    // Module-specific language file
+                    langPath = PathManager.GetLanguagePath(langFile, subfolder);
+                }
+                else
+                {
+                    // Main language file
+                    langPath = PathManager.GetLanguagePath(langFile);
                 }
                 
+                // Load ONLY the exact file specified - NO FALLBACKS
                 if (File.Exists(langPath))
                 {
-                    var json = File.ReadAllText(langPath, System.Text.Encoding.UTF8);
-                    var dictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                    
-                    if (dictionary != null)
+                    try
                     {
-                        Logger.LogInfo($"Loaded language file: {PathManager.GetRelativePath(langPath)}");
-                        return dictionary;
+                        var json = File.ReadAllText(langPath, System.Text.Encoding.UTF8);
+                        var loadedDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                        
+                        if (loadedDictionary != null)
+                        {
+                            // Add all keys except Language_DisplayName
+                            foreach (var kvp in loadedDictionary)
+                            {
+                                if (kvp.Key != "Language_DisplayName")
+                                {
+                                    dictionary[kvp.Key] = kvp.Value;
+                                }
+                            }
+                            Logger.LogInfo($"Loaded language file: {PathManager.GetRelativePath(langPath)}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to parse language file: {langPath}", ex);
                     }
                 }
+                else
+                {
+                    Logger.LogWarning($"Language file not found: {PathManager.GetRelativePath(langPath)}");
+                }
                 
-                Logger.LogWarning($"Language file not found: {PathManager.GetRelativePath(langPath)}");
-                return new Dictionary<string, string>();
+                return dictionary;
             }
             catch (Exception ex)
             {

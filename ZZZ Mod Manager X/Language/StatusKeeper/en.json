@@ -8,7 +8,6 @@
   "StatusKeeper_ManualSync_Button": "Start",
   "StatusKeeper_ManualSync_Complete_Title": "Synchronization Complete",
   "StatusKeeper_Syncing": "Syncing...",
-
   "StatusKeeper_Tab_Synchronizacja": "Synchronization",
   "StatusKeeper_Tab_KopiaZapasowa": "Backup",
   "StatusKeeper_Tab_Logi": "Logs",
@@ -74,9 +73,5 @@
   "StatusKeeper_Tooltip_DeleteBackups": "Delete all backups (requires enabling safety switches)",
   "StatusKeeper_Tooltip_OpenLog": "Open log file in default text editor",
   "StatusKeeper_Tooltip_ClearLog": "Clear all log entries",
-  "StatusKeeper_Tooltip_Logging": "Enable or disable logging operations to file",
-  "Error_Generic": "Error",
-  "OK": "OK",
-  "Yes": "Yes",
-  "Cancel": "Cancel"
+  "StatusKeeper_Tooltip_Logging": "Enable or disable logging operations to file"
 }

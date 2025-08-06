@@ -24,14 +24,14 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
             <Button x:Name="OpenLogButton" Height="32" MinWidth="120" Click="OpenLogButton_Click">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock x:Name="OpenLogButtonText" Text="Otwórz Log" VerticalAlignment="Center"/>
                     <FontIcon Glyph="&#xE8A7;" FontSize="16"/>
+                    <TextBlock x:Name="OpenLogButtonText" Text="Otwórz Log" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
             <Button x:Name="ClearLogButton" Height="32" MinWidth="120" Click="ClearLogButton_Click">
                 <StackPanel Orientation="Horizontal" Spacing="6">
-                    <TextBlock x:Name="ClearLogButtonText" Text="Wyczyść log" VerticalAlignment="Center"/>
                     <FontIcon Glyph="&#xE74D;" FontSize="16"/>
+                    <TextBlock x:Name="ClearLogButtonText" Text="Wyczyść log" VerticalAlignment="Center"/>
                 </StackPanel>
             </Button>
         </StackPanel>

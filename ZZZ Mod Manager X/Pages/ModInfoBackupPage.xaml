@@ -13,8 +13,8 @@
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Button x:Name="CreateBackupsButton" Height="36" Width="220" Click="CreateBackupsButton_Click" Padding="0">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock x:Name="CreateBackupsText" Text="Backup all mod.json"/>
                         <FontIcon Glyph="&#xEA35;" FontSize="16"/>
+                        <TextBlock x:Name="CreateBackupsText" Text="Backup all mod.json"/>
                     </StackPanel>
                 </Button>
                 <ProgressBar x:Name="CreateBackupsProgressBar" Width="130" Height="32" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="10,0,0,0" />
@@ -30,8 +30,8 @@
                     </Grid.ColumnDefinitions>
                     <Button x:Name="RestoreBackup1Button" Height="32" Width="220" Tag="1" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock x:Name="RestoreBackup1Text" Text="Restore backup 1 (newest)"/>
                             <FontIcon Glyph="&#xE8EB;" FontSize="16"/>
+                            <TextBlock x:Name="RestoreBackup1Text" Text="Restore backup 1 (newest)"/>
                         </StackPanel>
                     </Button>
                     <!-- Spacer -->
@@ -52,8 +52,8 @@
                     </Grid.ColumnDefinitions>
                     <Button x:Name="RestoreBackup2Button" Height="32" Width="220" Tag="2" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock x:Name="RestoreBackup2Text" Text="Restore backup 2 (middle)"/>
                             <FontIcon Glyph="&#xE8EB;" FontSize="16"/>
+                            <TextBlock x:Name="RestoreBackup2Text" Text="Restore backup 2 (middle)"/>
                         </StackPanel>
                     </Button>
                     <Border Grid.Column="1"/>
@@ -73,8 +73,8 @@
                     </Grid.ColumnDefinitions>
                     <Button x:Name="RestoreBackup3Button" Height="32" Width="220" Tag="3" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <TextBlock x:Name="RestoreBackup3Text" Text="Restore backup 3 (oldest)"/>
                             <FontIcon Glyph="&#xE8EB;" FontSize="16"/>
+                            <TextBlock x:Name="RestoreBackup3Text" Text="Restore backup 3 (oldest)"/>
                         </StackPanel>
                     </Button>
                     <Border Grid.Column="1"/>
