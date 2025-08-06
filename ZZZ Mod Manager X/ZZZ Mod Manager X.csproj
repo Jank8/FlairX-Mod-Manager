@@ -11,7 +11,7 @@
     <Nullable>enable</Nullable>
     
     <!-- Application Identity -->
-    <RootNamespace>ZZZ_Mod_Manager_X</RootNamespace>
+    <RootNamespace>FlairX_Mod_Manager</RootNamespace>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     

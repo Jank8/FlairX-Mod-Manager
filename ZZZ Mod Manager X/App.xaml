@@ -1,8 +1,8 @@
 <Application
-    x:Class="ZZZ_Mod_Manager_X.App"
+    x:Class="FlairX_Mod_Manager.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:ZZZ_Mod_Manager_X">
+    xmlns:local="using:FlairX_Mod_Manager">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

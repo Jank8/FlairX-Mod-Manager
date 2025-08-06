@@ -15,7 +15,7 @@ using WinRT.Interop;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace ZZZ_Mod_Manager_X.Pages
+namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class SettingsPage : Page
     {
@@ -244,7 +244,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 Logger.LogInfo($"Cleaning up symlinks from current directory: {currentFullPath}");
                 foreach (var dir in Directory.GetDirectories(currentFullPath))
                 {
-                    if (ZZZ_Mod_Manager_X.Pages.ModGridPage.IsSymlinkStatic(dir))
+                    if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
                     {
                         try
                         {
@@ -265,7 +265,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             SettingsManager.Current.XXMIModsDirectory = newDefaultPath;
             SettingsManager.Save();
             SetBreadcrumbBar(XXMIModsDirectoryBreadcrumb, newDefaultPath);
-            ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+            FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
             
             Logger.LogInfo($"Restored XXMI directory to game-specific default: {newDefaultPath}");
         }
@@ -317,7 +317,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var json = System.Text.Json.JsonSerializer.Serialize(allMods, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(activeModsPath, json);
             }
-            ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+            FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
 
             // Restore only mod library directory to game-specific default
             string gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
@@ -382,7 +382,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             await Task.Run(() =>
             {
-                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory;
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory;
                 if (string.IsNullOrEmpty(modLibraryPath) || !Directory.Exists(modLibraryPath)) return;
                 foreach (var dir in Directory.GetDirectories(modLibraryPath))
                 {
@@ -708,7 +708,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var removedCount = 0;
                 foreach (var dir in Directory.GetDirectories(xxmiDir))
                 {
-                    if (ZZZ_Mod_Manager_X.Pages.ModGridPage.IsSymlinkStatic(dir))
+                    if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
                     {
                         try
                         {
@@ -726,7 +726,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             
             // Recreate symlinks (should be none since all mods are deactivated)
-            ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+            FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
             Logger.LogInfo("Safety cleanup completed");
         }
 
@@ -756,7 +756,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                                 Logger.LogInfo($"Cleaning up symlinks from current XXMI directory: {currentFullPath}");
                                 foreach (var dir in Directory.GetDirectories(currentFullPath))
                                 {
-                                    if (ZZZ_Mod_Manager_X.Pages.ModGridPage.IsSymlinkStatic(dir))
+                                    if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
                                     {
                                         try
                                         {
@@ -777,7 +777,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                     SettingsManager.Current.XXMIModsDirectory = folderPath;
                     SettingsManager.Save();
                     SetBreadcrumbBar(XXMIModsDirectoryBreadcrumb, folderPath);
-                    ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
                     
                     Logger.LogInfo($"Changed XXMI directory to: {folderPath}");
                 }
@@ -820,14 +820,14 @@ namespace ZZZ_Mod_Manager_X.Pages
                         var json = System.Text.Json.JsonSerializer.Serialize(allMods, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
                         File.WriteAllText(activeModsPath, json);
                     }
-                    ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
 
                     SettingsManager.Current.ModLibraryDirectory = folderPath;
                     SettingsManager.Save();
                     SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, folderPath);
 
                     // Create default mod.json in subdirectories
-                    (App.Current as ZZZ_Mod_Manager_X.App)?.EnsureModJsonInModLibrary();
+                    (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary();
 
                     // Refresh manager
                     if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
@@ -883,7 +883,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             var stackPanel = new StackPanel();
             var titleBlock = new TextBlock
             {
-                Text = "ZZZ Mod Manager X",
+                Text = "FlairX Mod Manager",
                 FontWeight = Microsoft.UI.Text.FontWeights.Bold,
                 TextAlignment = TextAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,

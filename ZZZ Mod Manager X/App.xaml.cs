@@ -24,7 +24,7 @@ using Windows.Foundation.Collections;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
-namespace ZZZ_Mod_Manager_X
+namespace FlairX_Mod_Manager
 {
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
@@ -142,13 +142,13 @@ namespace ZZZ_Mod_Manager_X
             _ = EnsureModJsonInModLibrary();
             EnsureDefaultDirectories();
             // Always generate default preset on app startup
-            ZZZ_Mod_Manager_X.Pages.ModGridPage gridPage = new();
+            FlairX_Mod_Manager.Pages.ModGridPage gridPage = new();
             gridPage.SaveDefaultPresetAllInactive();
             
             // Ensure symlinks are properly validated and recreated for active mods on startup
             Logger.LogInfo("Validating and recreating symlinks for active mods on application startup");
-            ZZZ_Mod_Manager_X.Pages.ModGridPage.ValidateAndFixSymlinks();
-            ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+            FlairX_Mod_Manager.Pages.ModGridPage.ValidateAndFixSymlinks();
+            FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
             Logger.LogInfo("Symlink validation and recreation completed on startup");
             // Removed: ZIP thumbnail cache generation on startup
 
@@ -160,14 +160,14 @@ namespace ZZZ_Mod_Manager_X
             // Start StatusKeeperSync (watcher + timer) if dynamic synchronization is enabled
             if (SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
             {
-                ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StartWatcherStatic();
-                ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StartPeriodicSyncStatic();
+                FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.StartWatcherStatic();
+                FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.StartPeriodicSyncStatic();
             }
         }
 
         private void EnsureDefaultDirectories()
         {
-            var xxmiDir = ZZZ_Mod_Manager_X.SettingsManager.Current.XXMIModsDirectory;
+            var xxmiDir = FlairX_Mod_Manager.SettingsManager.Current.XXMIModsDirectory;
             if (!string.IsNullOrWhiteSpace(xxmiDir))
             {
                 try
@@ -184,7 +184,7 @@ namespace ZZZ_Mod_Manager_X
                     // Directory creation failed - not critical for app startup
                 }
             }
-            var modLibDir = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory;
+            var modLibDir = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory;
             if (!string.IsNullOrWhiteSpace(modLibDir))
             {
                 try
@@ -413,7 +413,7 @@ namespace ZZZ_Mod_Manager_X
                 foreach (var modPath in newlyCreatedModPaths)
                 {
                     // Use static method that doesn't require HotkeyFinderPage instance
-                    await ZZZ_Mod_Manager_X.Pages.HotkeyFinderPage.AutoDetectHotkeysForModStaticAsync(modPath);
+                    await FlairX_Mod_Manager.Pages.HotkeyFinderPage.AutoDetectHotkeysForModStaticAsync(modPath);
                 }
             }
             
@@ -502,15 +502,15 @@ namespace ZZZ_Mod_Manager_X
                 // Add window close handling - remove symlinks
                 _window.Closed += (s, e) =>
                 {
-                    ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
-                    var modsDir = ZZZ_Mod_Manager_X.SettingsManager.Current.XXMIModsDirectory;
+                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    var modsDir = FlairX_Mod_Manager.SettingsManager.Current.XXMIModsDirectory;
                     if (string.IsNullOrWhiteSpace(modsDir))
                         modsDir = SharedUtilities.GetSafeXXMIModsPath();
                     if (System.IO.Directory.Exists(modsDir))
                     {
                         foreach (var dir in System.IO.Directory.GetDirectories(modsDir))
                         {
-                            if (ZZZ_Mod_Manager_X.Pages.ModGridPage.IsSymlinkStatic(dir))
+                            if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
                             {
                                 System.IO.Directory.Delete(dir, true);
                             }

@@ -22,7 +22,7 @@ using WinRT;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Composition.SystemBackdrops;
 
-namespace ZZZ_Mod_Manager_X
+namespace FlairX_Mod_Manager
 {
     public sealed partial class MainWindow : Window
     {
@@ -77,7 +77,7 @@ namespace ZZZ_Mod_Manager_X
             appWindow.SetIcon("Assets\\appicon.png");
             
             // Force theme on startup according to user settings FIRST
-            var theme = ZZZ_Mod_Manager_X.SettingsManager.Current.Theme;
+            var theme = FlairX_Mod_Manager.SettingsManager.Current.Theme;
             if (this.Content is FrameworkElement root)
             {
                 if (theme == "Light")
@@ -122,7 +122,7 @@ namespace ZZZ_Mod_Manager_X
                 var progressBar = GetOrangeAnimationProgressBar();
                 if (progressBar != null)
                 {
-                    progressBar.Opacity = ZZZ_Mod_Manager_X.SettingsManager.Current.ShowOrangeAnimation ? 1 : 0;
+                    progressBar.Opacity = FlairX_Mod_Manager.SettingsManager.Current.ShowOrangeAnimation ? 1 : 0;
                 }
             };
             MainRoot.Loaded += MainRoot_Loaded;
@@ -139,7 +139,7 @@ namespace ZZZ_Mod_Manager_X
             UpdateAllModsButtonState();
 
             // Set main page to All Mods
-            contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), null);
+            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null);
 
             appWindow.Resize(new Windows.Graphics.SizeInt32(1650, 820));
             appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
@@ -161,7 +161,7 @@ namespace ZZZ_Mod_Manager_X
             var progressBar = GetOrangeAnimationProgressBar();
             if (progressBar != null)
             {
-                progressBar.Opacity = ZZZ_Mod_Manager_X.SettingsManager.Current.ShowOrangeAnimation ? 1 : 0;
+                progressBar.Opacity = FlairX_Mod_Manager.SettingsManager.Current.ShowOrangeAnimation ? 1 : 0;
             }
         }
 
@@ -196,7 +196,7 @@ namespace ZZZ_Mod_Manager_X
         private string GetXXMILauncherPath()
         {
             // Try to derive launcher path from XXMI Mods Directory setting
-            var xxmiModsDir = ZZZ_Mod_Manager_X.SettingsManager.Current.XXMIModsDirectory;
+            var xxmiModsDir = FlairX_Mod_Manager.SettingsManager.Current.XXMIModsDirectory;
             
             if (!string.IsNullOrEmpty(xxmiModsDir))
             {
@@ -356,7 +356,7 @@ namespace ZZZ_Mod_Manager_X
                 _ = (App.Current as App)?.EnsureModJsonInModLibrary();
                 
                 // Create default preset for the game if it doesn't exist
-                var gridPage = new ZZZ_Mod_Manager_X.Pages.ModGridPage();
+                var gridPage = new FlairX_Mod_Manager.Pages.ModGridPage();
                 gridPage.SaveDefaultPresetAllInactive();
                 
                 // Regenerate character menu for the selected game
@@ -367,7 +367,7 @@ namespace ZZZ_Mod_Manager_X
                 if (SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
                 {
                     System.Diagnostics.Debug.WriteLine("Starting StatusKeeper watcher for restored game...");
-                    ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StartWatcherStatic();
+                    FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.StartWatcherStatic();
                 }
                 
                 System.Diagnostics.Debug.WriteLine($"Game restored successfully. Current paths:");
@@ -420,7 +420,7 @@ namespace ZZZ_Mod_Manager_X
             var heartFull = ShowActiveModsButton.FindName("HeartFullIcon") as FontIcon;
             var heartHover = ShowActiveModsButton.FindName("HeartHoverIcon") as FontIcon;
             bool isActivePage = false;
-            if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+            if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
             {
                 isActivePage = modGridPage.GetCategoryTitleText() == T("Category_Active_Mods");
             }
@@ -454,23 +454,23 @@ namespace ZZZ_Mod_Manager_X
                     if (selectedTag.StartsWith("Character_"))
                     {
                         var character = selectedTag.Substring("Character_".Length);
-                        contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), character, new DrillInNavigationTransitionInfo());
+                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), character, new DrillInNavigationTransitionInfo());
                     }
                     else if (selectedTag == "OtherModsPage")
                     {
-                        contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), "Other", new DrillInNavigationTransitionInfo());
+                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Other", new DrillInNavigationTransitionInfo());
                     }
                     else if (selectedTag == "FunctionsPage")
                     {
-                        contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.FunctionsPage), null, new DrillInNavigationTransitionInfo());
+                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.FunctionsPage), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (selectedTag == "SettingsPage")
                     {
-                        contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.SettingsPage), null, new DrillInNavigationTransitionInfo());
+                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.SettingsPage), null, new DrillInNavigationTransitionInfo());
                     }
                     else
                     {
-                        var pageType = Type.GetType($"ZZZ_Mod_Manager_X.Pages.{selectedTag}");
+                        var pageType = Type.GetType($"FlairX_Mod_Manager.Pages.{selectedTag}");
                         if (pageType != null)
                         {
                             contentFrame.Navigate(pageType, null, new DrillInNavigationTransitionInfo());
@@ -518,12 +518,12 @@ namespace ZZZ_Mod_Manager_X
                 }
             }
             // Dynamic mod filtering only if enabled in settings and query has at least 3 characters
-            if (ZZZ_Mod_Manager_X.SettingsManager.Current.DynamicModSearchEnabled)
+            if (FlairX_Mod_Manager.SettingsManager.Current.DynamicModSearchEnabled)
             {
                 if (!string.IsNullOrEmpty(query) && query.Length >= 3)
                 {
                     // Check if we're already on ModGridPage to avoid unnecessary navigation
-                    if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+                    if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                     {
                         // Just apply filter without navigation to preserve focus
                         modGridPage.FilterMods(query);
@@ -532,14 +532,14 @@ namespace ZZZ_Mod_Manager_X
                     {
                         // Navigate to ModGridPage only if we're not already there
                         contentFrame.Navigate(
-                            typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage),
+                            typeof(FlairX_Mod_Manager.Pages.ModGridPage),
                             null,
                             new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
                         
                         // Apply filter after navigation and restore focus to SearchBox
                         DispatcherQueue.TryEnqueue(() =>
                         {
-                            if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage newModGridPage)
+                            if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage newModGridPage)
                             {
                                 newModGridPage.FilterMods(query);
                                 // Restore focus to search box after navigation
@@ -551,7 +551,7 @@ namespace ZZZ_Mod_Manager_X
                 else if (string.IsNullOrEmpty(query))
                 {
                     // Clear search - only filter if we're already on ModGridPage
-                    if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+                    if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                     {
                         modGridPage.FilterMods(query);
                     }
@@ -567,7 +567,7 @@ namespace ZZZ_Mod_Manager_X
             if (!string.IsNullOrEmpty(query) && query.Length >= 2)
             {
                 // Check if we're already on ModGridPage to avoid unnecessary navigation
-                if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+                if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                 {
                     // Just apply filter without navigation to preserve focus
                     modGridPage.FilterMods(query);
@@ -576,14 +576,14 @@ namespace ZZZ_Mod_Manager_X
                 {
                     // Navigate to ModGridPage only if we're not already there
                     contentFrame.Navigate(
-                        typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage),
+                        typeof(FlairX_Mod_Manager.Pages.ModGridPage),
                         null,
                         new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
                     
                     // Apply filter after navigation and restore focus
                     DispatcherQueue.TryEnqueue(() =>
                     {
-                        if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage newModGridPage)
+                        if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage newModGridPage)
                         {
                             newModGridPage.FilterMods(query);
                             // Restore focus to search box after navigation
@@ -595,7 +595,7 @@ namespace ZZZ_Mod_Manager_X
             else if (string.IsNullOrEmpty(query))
             {
                 // Clear search - only if we're already on ModGridPage
-                if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+                if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                 {
                     modGridPage.FilterMods(query);
                 }
@@ -698,7 +698,7 @@ namespace ZZZ_Mod_Manager_X
                     // Clear JSON cache first to ensure fresh data loading
                     loadingWindow.UpdateStatus("Clearing JSON cache...");
                     LogToGridLog("REFRESH: Clearing JSON cache");
-                    ZZZ_Mod_Manager_X.Pages.ModGridPage.ClearJsonCache();
+                    FlairX_Mod_Manager.Pages.ModGridPage.ClearJsonCache();
                     LogToGridLog("REFRESH: JSON cache cleared");
                     await Task.Delay(100);
                     
@@ -735,7 +735,7 @@ namespace ZZZ_Mod_Manager_X
                 _ = GenerateModCharacterMenuAsync();
                 
                 // Recreate symlinks to ensure they match current active mods state
-                ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
                 Logger.LogInfo("Symlinks recreated during manager reload");
                 
                 // Update All Mods button state after reload
@@ -744,7 +744,7 @@ namespace ZZZ_Mod_Manager_X
                 nvSample.SelectedItem = null; // Unselect active button
                 
                 // Navigate to All Mods
-                contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
+                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
                 
                 UpdateShowActiveModsButtonIcon();
                 loadingWindow.Close();
@@ -756,7 +756,7 @@ namespace ZZZ_Mod_Manager_X
             // Unselect selected menu item
             nvSample.SelectedItem = null;
             // Navigate to ModGridPage without parameter to show all mods
-            contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
+            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
             // Update heart button after a short delay to ensure page has loaded
             DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => UpdateShowActiveModsButtonIcon());
         }
@@ -785,7 +785,7 @@ namespace ZZZ_Mod_Manager_X
         private void ShowActiveModsButton_Click(object sender, RoutedEventArgs e)
         {
             nvSample.SelectedItem = null; // Unselect active button in menu
-            contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage), "Active", new DrillInNavigationTransitionInfo());
+            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Active", new DrillInNavigationTransitionInfo());
             UpdateShowActiveModsButtonIcon();
         }
 
@@ -973,65 +973,65 @@ namespace ZZZ_Mod_Manager_X
             UpdateAllModsButtonState();
             _ = GenerateModCharacterMenuAsync();
             // Refresh page if it's ModGridPage or PresetsPage
-            if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
+            if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
             {
                 modGridPage.RefreshUIAfterLanguageChange();
             }
-            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.PresetsPage presetsPage)
+            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.PresetsPage presetsPage)
             {
                 var updateTexts = presetsPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 updateTexts?.Invoke(presetsPage, null);
             }
-            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.SettingsPage settingsPage)
+            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.SettingsPage settingsPage)
             {
                 var loadLanguageMethod = settingsPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var updateTextsMethod = settingsPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 loadLanguageMethod?.Invoke(settingsPage, null);
                 updateTextsMethod?.Invoke(settingsPage, null);
             }
-            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage statusKeeperSyncPage)
+            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.StatusKeeperSyncPage statusKeeperSyncPage)
             {
                 var loadLanguageMethod = statusKeeperSyncPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var updateTextsMethod = statusKeeperSyncPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 loadLanguageMethod?.Invoke(statusKeeperSyncPage, null);
                 updateTextsMethod?.Invoke(statusKeeperSyncPage, null);
             }
-            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.StatusKeeperBackupPage statusKeeperBackupPage)
+            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.StatusKeeperBackupPage statusKeeperBackupPage)
             {
                 var loadLanguageMethod = statusKeeperBackupPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var updateTextsMethod = statusKeeperBackupPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 loadLanguageMethod?.Invoke(statusKeeperBackupPage, null);
                 updateTextsMethod?.Invoke(statusKeeperBackupPage, null);
             }
-            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.StatusKeeperLogsPage statusKeeperLogsPage)
+            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.StatusKeeperLogsPage statusKeeperLogsPage)
             {
                 var loadLanguageMethod = statusKeeperLogsPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var updateTextsMethod = statusKeeperLogsPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 loadLanguageMethod?.Invoke(statusKeeperLogsPage, null);
                 updateTextsMethod?.Invoke(statusKeeperLogsPage, null);
             }
-            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.HotkeyFinderPage hotkeyFinderPage)
+            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.HotkeyFinderPage hotkeyFinderPage)
             {
                 var loadLanguageMethod = hotkeyFinderPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var updateTextsMethod = hotkeyFinderPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 loadLanguageMethod?.Invoke(hotkeyFinderPage, null);
                 updateTextsMethod?.Invoke(hotkeyFinderPage, null);
             }
-            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.GBAuthorUpdatePage gbAuthorUpdatePage)
+            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.GBAuthorUpdatePage gbAuthorUpdatePage)
             {
                 var loadLanguageMethod = gbAuthorUpdatePage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var updateTextsMethod = gbAuthorUpdatePage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 loadLanguageMethod?.Invoke(gbAuthorUpdatePage, null);
                 updateTextsMethod?.Invoke(gbAuthorUpdatePage, null);
             }
-            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModInfoBackupPage modInfoBackupPage)
+            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModInfoBackupPage modInfoBackupPage)
             {
                 var loadLanguageMethod = modInfoBackupPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var updateTextsMethod = modInfoBackupPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 loadLanguageMethod?.Invoke(modInfoBackupPage, null);
                 updateTextsMethod?.Invoke(modInfoBackupPage, null);
             }
-            else if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.WelcomePage welcomePage)
+            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.WelcomePage welcomePage)
             {
                 var updateTextsMethod = welcomePage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 updateTextsMethod?.Invoke(welcomePage, null);
@@ -1297,7 +1297,7 @@ namespace ZZZ_Mod_Manager_X
                 // Remove all symlinks from current game's directory
                 foreach (var dir in Directory.GetDirectories(currentModsDir))
                 {
-                    if (ZZZ_Mod_Manager_X.Pages.ModGridPage.IsSymlinkStatic(dir))
+                    if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
                     {
                         try
                         {
@@ -1363,7 +1363,7 @@ namespace ZZZ_Mod_Manager_X
                 // If no game selected, show welcome page
                 if (!gameSelected && contentFrame != null)
                 {
-                    contentFrame.Navigate(typeof(ZZZ_Mod_Manager_X.Pages.WelcomePage));
+                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.WelcomePage));
                 }
             }
             catch (Exception ex)
@@ -1414,13 +1414,13 @@ namespace ZZZ_Mod_Manager_X
                 if (gameSelected && SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
                 {
                     System.Diagnostics.Debug.WriteLine("Restarting StatusKeeper watcher for new game...");
-                    ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StopWatcherStatic();
-                    ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StartWatcherStatic();
+                    FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.StopWatcherStatic();
+                    FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.StartWatcherStatic();
                 }
                 else if (!gameSelected)
                 {
                     // Stop StatusKeeper watcher when no game is selected
-                    ZZZ_Mod_Manager_X.Pages.StatusKeeperSyncPage.StopWatcherStatic();
+                    FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.StopWatcherStatic();
                 }
                 
                 // Only refresh pages if a game is selected
@@ -1430,7 +1430,7 @@ namespace ZZZ_Mod_Manager_X
                     _ = (App.Current as App)?.EnsureModJsonInModLibrary();
                     
                     // Create default preset for the new game if it doesn't exist
-                    var gridPage = new ZZZ_Mod_Manager_X.Pages.ModGridPage();
+                    var gridPage = new FlairX_Mod_Manager.Pages.ModGridPage();
                     gridPage.SaveDefaultPresetAllInactive();
                     
                     // Regenerate character menu for the new game
