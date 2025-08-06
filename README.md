@@ -1,4 +1,4 @@
-# ZZZ Mod Manager X
+# FlairX Mod Manager
 
 <img align="right" width="256" height="256" alt="appicon" src="https://github.com/user-attachments/assets/69b40b1f-0b89-417b-81a7-70f9507b3c42" />
 
@@ -77,7 +77,7 @@ A comprehensive mod management application for multiple miHoYo games, built with
 ### Installation Steps
 1. Download the latest release from the [Releases](../../releases) page
 2. Extract the archive to your desired location (preferably on an NTFS drive)
-3. Run `ZZZ Mod Manager X.exe` as Administrator
+3. Run `FlairX Mod Manager.exe` as Administrator
 4. The application will automatically request administrator privileges if needed
 
 ### First Run Setup
@@ -121,7 +121,7 @@ A comprehensive mod management application for multiple miHoYo games, built with
 
 ### Directory Structure
 ```
-ZZZ Mod Manager X/
+FlairX Mod Manager/
 ├── ModLibrary/
 │   ├── ZZ/              # Zenless Zone Zero mods
 │   ├── GI/              # Genshin Impact mods
@@ -160,7 +160,7 @@ Settings are stored in `Settings directory`:
 2. **Clone and Build**:
    ```bash
    git clone [repository-url]
-   cd "ZZZ Mod Manager X"
+   cd "FlairX Mod Manager"
    dotnet restore
    dotnet build --configuration Release
    ```
@@ -228,5 +228,6 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
 
 ---
+
 
 *This application is not affiliated with miHoYo/HoYoverse or any of the supported games. It is a community-developed tool for managing game modifications.*
