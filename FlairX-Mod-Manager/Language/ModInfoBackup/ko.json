@@ -1,0 +1,22 @@
+{
+  "Title": "ModInfo 백업",
+  "ModInfoBackup_Function": "ModInfo 백업",
+  "ModInfoBackup_BackupAll": "모든 모드 정보 백업",
+  "ModInfoBackup_Restore1": "백업 1 복원 (최신)",
+  "ModInfoBackup_Restore2": "백업 2 복원 (중간)",
+  "ModInfoBackup_Restore3": "백업 3 복원 (가장 오래된)",
+  "ModInfoBackup_Delete": "백업 삭제",
+  "ModInfoBackup_BackupComplete": "백업 완료! {0}개의 mod.json 백업을 생성했습니다.",
+  "ModInfoBackup_RestoreComplete": "복원 완료! 세트 {1}에서 {0}개의 백업을 복원했습니다.",
+  "ModInfoBackup_DeleteComplete": "삭제 완료! 세트 {0}에서 {1}개의 백업을 제거했습니다.",
+  "ModInfoBackup_BackupInfo": "생성됨: {0}, 파일: {1}",
+  "ModInfoBackup_NoBackup": "{1}에 백업 {0}이 없습니다",
+  "OK": "확인",
+  "ModInfoBackup_RestoreConfirm_Title": "복원 확인",
+  "ModInfoBackup_RestoreConfirm_Message": "백업 세트 {0}을 복원하시겠습니까? 현재 mod.json 파일을 덮어씁니다.",
+  "ModInfoBackup_DeleteConfirm_Title": "삭제 확인",
+  "ModInfoBackup_DeleteConfirm_Message": "백업 세트 {0}을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+  "Yes": "예",
+  "No": "아니오",
+  "Error": "오류"
+}

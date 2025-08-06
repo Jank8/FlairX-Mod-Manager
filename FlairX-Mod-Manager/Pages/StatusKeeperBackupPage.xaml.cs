@@ -13,42 +13,31 @@ namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class StatusKeeperBackupPage : Page
     {
-        private Dictionary<string, string> _lang = new();
         private StatusKeeperSettings _settings = new();
 
         public StatusKeeperBackupPage()
         {
             this.InitializeComponent();
-            LoadLanguage();
             UpdateTexts();
-        }
-
-        private void LoadLanguage()
-        {
-            _lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-        }
-
-        private string T(string key)
-        {
-            return SharedUtilities.GetTranslation(_lang, key);
         }
 
         private void UpdateTexts()
         {
-            CreateBackupLabel.Text = T("StatusKeeper_CreateBackup_Label");
-            CreateBackupButtonText.Text = T("StatusKeeper_CreateBackup_Button");
-            SafetyOverrideLabel.Text = T("StatusKeeper_SafetyOverride_Label");
-            RestoreBackupLabel.Text = T("StatusKeeper_RestoreBackup_Label");
-            RestoreBackupButtonText.Text = T("StatusKeeper_RestoreBackup_Button");
-            DeleteBackupsLabel.Text = T("StatusKeeper_DeleteBackups_Label");
-            DeleteBackupsButtonText.Text = T("StatusKeeper_DeleteBackups_Button");
-            CheckBackupButtonText.Text = T("StatusKeeper_CheckBackups_Button");
+            var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+            CreateBackupLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Label");
+            CreateBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Button");
+            SafetyOverrideLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_SafetyOverride_Label");
+            RestoreBackupLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Label");
+            RestoreBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Button");
+            DeleteBackupsLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Label");
+            DeleteBackupsButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Button");
+            CheckBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackups_Button");
             // Set window title to translation
             if (Window.Current is not null)
             {
                 if (Window.Current is Microsoft.UI.Xaml.Window win)
                 {
-                    win.Title = T("Title");
+                    win.Title = SharedUtilities.GetTranslation(lang, "Title");
                 }
             }
         }
@@ -90,9 +79,10 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 CreateBackupButton.IsEnabled = false;
                 CreateBackupProgressBar.Visibility = Visibility.Visible;
-                CreateBackupButtonText.Text = T("StatusKeeper_Creating_Backup");
+                CreateBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Creating_Backup");
 
                 int backupCount = 0;
                 int skipCount = 0;
@@ -120,12 +110,12 @@ namespace FlairX_Mod_Manager.Pages
                 int existingBackups = afterBackup - newBackups;
 
                 // Message in 3 lines
-                var message = string.Format(T("StatusKeeper_CreateBackup_Dialog_Message"), newBackups, afterBackup).Replace("\\n", "\n");
+                var message = string.Format(SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Dialog_Message"), newBackups, afterBackup).Replace("\\n", "\n");
                 var dialog = new ContentDialog
                 {
-                    Title = T("StatusKeeper_CreateBackup_Dialog_Title"),
+                    Title = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Dialog_Title"),
                     Content = message,
-                    CloseButtonText = T("OK"),
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
                     XamlRoot = this.XamlRoot
                 };
                 await dialog.ShowAsync();
@@ -138,9 +128,10 @@ namespace FlairX_Mod_Manager.Pages
             }
             finally
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 CreateBackupProgressBar.Visibility = Visibility.Collapsed;
                 CreateBackupButton.IsEnabled = true;
-                CreateBackupButtonText.Text = T("StatusKeeper_CreateBackup_Button");
+                CreateBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Button");
             }
         }
 
@@ -154,8 +145,9 @@ namespace FlairX_Mod_Manager.Pages
 
             try
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 RestoreBackupButton.IsEnabled = false;
-                RestoreBackupButtonText.Text = T("StatusKeeper_Restoring");
+                RestoreBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Restoring");
 
                 int restoreCount = 0;
                 int skipCount = 0;
@@ -187,8 +179,9 @@ namespace FlairX_Mod_Manager.Pages
             }
             finally
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 // Don't re-enable button here - UpdateButtonStates() handles this based on safety toggles
-                RestoreBackupButtonText.Text = T("StatusKeeper_RestoreBackup_Button");
+                RestoreBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Button");
             }
         }
 
@@ -202,8 +195,9 @@ namespace FlairX_Mod_Manager.Pages
 
             try
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 DeleteBackupsButton.IsEnabled = false;
-                DeleteBackupsButtonText.Text = T("StatusKeeper_Deleting");
+                DeleteBackupsButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Deleting");
 
                 int deleteCount = 0;
 
@@ -234,8 +228,9 @@ namespace FlairX_Mod_Manager.Pages
             }
             finally
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 // Don't re-enable button here - UpdateButtonStates() handles this based on safety toggles
-                DeleteBackupsButtonText.Text = T("StatusKeeper_DeleteBackups_Button");
+                DeleteBackupsButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Button");
             }
         }
 
@@ -243,6 +238,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 CheckBackupButton.IsEnabled = false;
                 CheckBackupProgressBar.Visibility = Visibility.Visible;
                 
@@ -278,14 +274,14 @@ namespace FlairX_Mod_Manager.Pages
                 });
 
                 // Use language keys for dialog title and content
-                string message = string.Format(T("StatusKeeper_CheckBackup_Dialog_Message"), 
+                string message = string.Format(SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackup_Dialog_Message"), 
                     iniCount, iniCount - incompleteCount, incompleteCount);
 
                 var dialog = new ContentDialog
                 {
-                    Title = T("StatusKeeper_CheckBackup_Dialog_Title"),
+                    Title = SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackup_Dialog_Title"),
                     Content = message,
-                    CloseButtonText = T("OK"),
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
                     XamlRoot = this.XamlRoot
                 };
                 await dialog.ShowAsync();

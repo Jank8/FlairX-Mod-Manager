@@ -1,0 +1,22 @@
+{
+  "Title": "Backup ModInfo",
+  "ModInfoBackup_Function": "Backup ModInfo",
+  "ModInfoBackup_BackupAll": "Fazer backup de todas as informações de mod",
+  "ModInfoBackup_Restore1": "Restaurar backup 1 (mais recente)",
+  "ModInfoBackup_Restore2": "Restaurar backup 2 (meio)",
+  "ModInfoBackup_Restore3": "Restaurar backup 3 (mais antigo)",
+  "ModInfoBackup_Delete": "Excluir backup",
+  "ModInfoBackup_BackupComplete": "Backup concluído! Criados {0} backups de mod.json.",
+  "ModInfoBackup_RestoreComplete": "Restauração concluída! Restaurados {0} backups do conjunto {1}.",
+  "ModInfoBackup_DeleteComplete": "Exclusão concluída! Removidos {1} backups do conjunto {0}.",
+  "ModInfoBackup_BackupInfo": "Criado: {0}, Arquivos: {1}",
+  "ModInfoBackup_NoBackup": "Nenhum backup {0} em {1}",
+  "OK": "OK",
+  "ModInfoBackup_RestoreConfirm_Title": "Confirmar Restauração",
+  "ModInfoBackup_RestoreConfirm_Message": "Tem certeza de que deseja restaurar o conjunto de backup {0}? Isso substituirá os arquivos mod.json atuais.",
+  "ModInfoBackup_DeleteConfirm_Title": "Confirmar Exclusão",
+  "ModInfoBackup_DeleteConfirm_Message": "Tem certeza de que deseja excluir o conjunto de backup {0}? Esta ação não pode ser desfeita.",
+  "Yes": "Sim",
+  "No": "Não",
+  "Error": "Erro"
+}

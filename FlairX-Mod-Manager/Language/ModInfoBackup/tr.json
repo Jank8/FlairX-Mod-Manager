@@ -1,0 +1,22 @@
+{
+  "Title": "Mod Bilgi Yedekleme",
+  "ModInfoBackup_Function": "Mod Bilgi Yedekleme",
+  "ModInfoBackup_BackupAll": "Tüm mod bilgilerini yedekle",
+  "ModInfoBackup_Restore1": "Yedek 1'i geri yükle (en yeni)",
+  "ModInfoBackup_Restore2": "Yedek 2'yi geri yükle (orta)",
+  "ModInfoBackup_Restore3": "Yedek 3'ü geri yükle (en eski)",
+  "ModInfoBackup_Delete": "Yedeği sil",
+  "ModInfoBackup_BackupComplete": "Yedekleme tamamlandı! {0} mod.json yedeği oluşturuldu.",
+  "ModInfoBackup_RestoreComplete": "Geri yükleme tamamlandı! Set {1}'den {0} yedek geri yüklendi.",
+  "ModInfoBackup_DeleteComplete": "Silme tamamlandı! Set {0}'dan {1} yedek kaldırıldı.",
+  "ModInfoBackup_BackupInfo": "Oluşturuldu: {0}, Dosyalar: {1}",
+  "ModInfoBackup_NoBackup": "{1} içinde {0} yedeği yok",
+  "OK": "Tamam",
+  "ModInfoBackup_RestoreConfirm_Title": "Geri Yüklemeyi Onayla",
+  "ModInfoBackup_RestoreConfirm_Message": "Yedek seti {0}'ı geri yüklemek istediğinizden emin misiniz? Bu, mevcut mod.json dosyalarının üzerine yazacaktır.",
+  "ModInfoBackup_DeleteConfirm_Title": "Silmeyi Onayla",
+  "ModInfoBackup_DeleteConfirm_Message": "Yedek seti {0}'ı silmek istediğinizden emin misiniz? Bu eylem geri alınamaz.",
+  "Yes": "Evet",
+  "No": "Hayır",
+  "Error": "Hata"
+}

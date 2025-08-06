@@ -218,14 +218,15 @@ namespace FlairX_Mod_Manager
         // ==================== LANGUAGE UTILITIES ====================
         
         /// <summary>
-        /// Loads language dictionary from specified subfolder WITHOUT any fallbacks
+        /// Loads language dictionary from specified subfolder
         /// </summary>
         public static Dictionary<string, string> LoadLanguageDictionary(string? subfolder = null)
         {
+            var dictionary = new Dictionary<string, string>();
+            
             try
             {
                 var langFile = SettingsManager.Current?.LanguageFile ?? "en.json";
-                var dictionary = new Dictionary<string, string>();
                 
                 // Determine the exact language file path
                 string langPath;
@@ -240,55 +241,56 @@ namespace FlairX_Mod_Manager
                     langPath = PathManager.GetLanguagePath(langFile);
                 }
                 
-                // Load ONLY the exact file specified - NO FALLBACKS
+                // Load the specified file
                 if (File.Exists(langPath))
                 {
-                    try
+                    var json = File.ReadAllText(langPath, System.Text.Encoding.UTF8);
+                    var loadedDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                    
+                    if (loadedDictionary != null)
                     {
-                        var json = File.ReadAllText(langPath, System.Text.Encoding.UTF8);
-                        var loadedDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                        
-                        if (loadedDictionary != null)
+                        // Add all keys except Language_DisplayName
+                        foreach (var kvp in loadedDictionary)
                         {
-                            // Add all keys except Language_DisplayName
-                            foreach (var kvp in loadedDictionary)
+                            if (kvp.Key != "Language_DisplayName")
                             {
-                                if (kvp.Key != "Language_DisplayName")
-                                {
-                                    dictionary[kvp.Key] = kvp.Value;
-                                }
+                                dictionary[kvp.Key] = kvp.Value;
                             }
-                            Logger.LogInfo($"Loaded language file: {PathManager.GetRelativePath(langPath)}");
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Failed to parse language file: {langPath}", ex);
+                        Logger.LogInfo($"Loaded language file: {PathManager.GetRelativePath(langPath)}");
                     }
                 }
                 else
                 {
-                    Logger.LogWarning($"Language file not found: {PathManager.GetRelativePath(langPath)}");
+                    Logger.LogError($"Required language file not found: {PathManager.GetRelativePath(langPath)}");
+                    throw new FileNotFoundException($"Language file not found: {langPath}");
                 }
-                
-                return dictionary;
             }
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to load language from subfolder: {subfolder}", ex);
-                return new Dictionary<string, string>();
+                throw;
             }
+            
+            return dictionary;
         }
         
         /// <summary>
-        /// Gets translated string with fallback to key
+        /// Gets translated string, returns key if not found (for debugging missing translations)
         /// </summary>
         public static string GetTranslation(Dictionary<string, string> dictionary, string key)
         {
-            if (dictionary == null || string.IsNullOrEmpty(key))
-                return key ?? string.Empty;
+            if (dictionary == null)
+                return $"[NULL_DICT:{key}]";
+            
+            if (string.IsNullOrEmpty(key))
+                return "[EMPTY_KEY]";
                 
-            return dictionary.TryGetValue(key, out var value) ? value : key;
+            if (dictionary.TryGetValue(key, out var value))
+                return value;
+            
+            // Show missing key instead of throwing exception
+            return $"[MISSING:{key}]";
         }
 
         // ==================== DIALOG UTILITIES ====================

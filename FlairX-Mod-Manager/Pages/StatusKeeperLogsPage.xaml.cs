@@ -2,9 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
@@ -13,7 +11,6 @@ namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class StatusKeeperLogsPage : Page
     {
-        private Dictionary<string, string> _lang = new();
         private StatusKeeperSettings _settings = new();
         private Microsoft.UI.Xaml.DispatcherTimer? _logRefreshTimer;
         private const int LogRefreshIntervalSeconds = 0; // zmieniamy na 0 sekund
@@ -21,7 +18,6 @@ namespace FlairX_Mod_Manager.Pages
         public StatusKeeperLogsPage()
         {
             this.InitializeComponent();
-            LoadLanguage();
             UpdateTexts();
             InitLogRefreshTimer();
         }
@@ -33,21 +29,12 @@ namespace FlairX_Mod_Manager.Pages
             _logRefreshTimer.Tick += (s, e) => RefreshLogContent();
         }
 
-        private void LoadLanguage()
-        {
-            _lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-        }
-
-        private string T(string key)
-        {
-            return SharedUtilities.GetTranslation(_lang, key);
-        }
-
         private void UpdateTexts()
         {
-            LoggingLabel.Text = T("StatusKeeper_Logging_Label");
-            OpenLogButtonText.Text = T("StatusKeeper_OpenLog_Button");
-            ClearLogButtonText.Text = T("StatusKeeper_ClearLog_Button");
+            var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+            LoggingLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Logging_Label");
+            OpenLogButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_OpenLog_Button");
+            ClearLogButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ClearLog_Button");
         }
 
         private void LoadSettingsToUI()
@@ -93,7 +80,8 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     else
                     {
-                        LogsTextBlock.Text = T("StatusKeeper_Log_Empty");
+                        var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                        LogsTextBlock.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Log_Empty");
                     }
                 }
                 catch (Exception ex)
@@ -103,7 +91,8 @@ namespace FlairX_Mod_Manager.Pages
             }
             else
             {
-                LogsTextBlock.Text = T("StatusKeeper_Log_NotFound");
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                LogsTextBlock.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Log_NotFound");
             }
         }
 
@@ -150,11 +139,12 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     else
                     {
+                        var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                         var dialog = new ContentDialog
                         {
-                            Title = T("Error_Generic"),
+                            Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
                             Content = "Failed to open log file with default application",
-                            CloseButtonText = T("OK"),
+                            CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
                             XamlRoot = this.XamlRoot
                         };
                         await dialog.ShowAsync();
@@ -162,17 +152,19 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 else
                 {
-                    await SharedUtilities.ShowInfoDialog(T("StatusKeeper_Info"), T("StatusKeeper_LogNotFound_Message"), this.XamlRoot);
+                    var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                    await SharedUtilities.ShowInfoDialog(SharedUtilities.GetTranslation(lang, "StatusKeeper_Info"), SharedUtilities.GetTranslation(lang, "StatusKeeper_LogNotFound_Message"), this.XamlRoot);
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Failed to open log file: {ex.Message}");
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 var dialog = new ContentDialog
                 {
-                    Title = T("Error_Generic"),
+                    Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
                     Content = $"Failed to open log file: {ex.Message}",
-                    CloseButtonText = T("OK"),
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
                     XamlRoot = this.XamlRoot
                 };
                 await dialog.ShowAsync();
@@ -199,17 +191,20 @@ namespace FlairX_Mod_Manager.Pages
                     
                     RefreshLogContent();
                     
-                    await SharedUtilities.ShowInfoDialog(T("StatusKeeper_Success"), T("StatusKeeper_LogCleared_Success"), this.XamlRoot);
+                    var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                    await SharedUtilities.ShowInfoDialog(SharedUtilities.GetTranslation(lang, "StatusKeeper_Success"), SharedUtilities.GetTranslation(lang, "StatusKeeper_LogCleared_Success"), this.XamlRoot);
                 }
                 else
                 {
-                    await SharedUtilities.ShowInfoDialog(T("StatusKeeper_Info"), T("StatusKeeper_LogNotFound_Clear"), this.XamlRoot);
+                    var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                    await SharedUtilities.ShowInfoDialog(SharedUtilities.GetTranslation(lang, "StatusKeeper_Info"), SharedUtilities.GetTranslation(lang, "StatusKeeper_LogNotFound_Clear"), this.XamlRoot);
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Failed to clear log file: {ex.Message}");
-                await SharedUtilities.ShowErrorDialog(T("Error_Generic"), $"Failed to clear log file: {ex.Message}", this.XamlRoot);
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                await SharedUtilities.ShowErrorDialog(SharedUtilities.GetTranslation(lang, "Error_Generic"), $"Failed to clear log file: {ex.Message}", this.XamlRoot);
             }
         }
     }

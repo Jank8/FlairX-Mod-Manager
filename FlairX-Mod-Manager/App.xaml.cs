@@ -33,17 +33,6 @@ namespace FlairX_Mod_Manager
     {
         private Window? _window;
         public Window? MainWindow => _window;
-        private Dictionary<string, string> _lang = new();
-
-        private void LoadLanguage()
-        {
-            _lang = SharedUtilities.LoadLanguageDictionary();
-        }
-
-        private string T(string key)
-        {
-            return SharedUtilities.GetTranslation(_lang, key);
-        }
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -61,7 +50,7 @@ namespace FlairX_Mod_Manager
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
             SettingsManager.Load(); // Load settings before creating window
-            // AUTOMATIC LANGUAGE DETECTION
+            // AUTOMATIC LANGUAGE DETECTION on first start
             var langFile = SettingsManager.Current.LanguageFile;
             if (string.IsNullOrEmpty(langFile) || langFile == "auto")
             {
@@ -222,11 +211,11 @@ namespace FlairX_Mod_Manager
 
         private void ShowNtfsWarning(string path, string label)
         {
-            LoadLanguage();
+            var langDict = SharedUtilities.LoadLanguageDictionary();
             var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
             {
-                Title = T("Ntfs_Warning_Title"),
-                Content = string.Format(T("Ntfs_Warning_Content"), label, path),
+                Title = SharedUtilities.GetTranslation(langDict, "Ntfs_Warning_Title"),
+                Content = string.Format(SharedUtilities.GetTranslation(langDict, "Ntfs_Warning_Content"), label, path),
                 CloseButtonText = "OK",
                 XamlRoot = _window?.Content?.XamlRoot
             };
@@ -247,11 +236,11 @@ namespace FlairX_Mod_Manager
                         var drive = new DriveInfo(root!);
                         if (!string.Equals(drive.DriveFormat, "NTFS", StringComparison.OrdinalIgnoreCase))
                         {
-                            LoadLanguage();
+                            var langDict = SharedUtilities.LoadLanguageDictionary();
                             var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
                             {
-                                Title = T("Ntfs_Warning_Title"),
-                                Content = T("Ntfs_Startup_Warning_Content"),
+                                Title = SharedUtilities.GetTranslation(langDict, "Ntfs_Warning_Title"),
+                                Content = SharedUtilities.GetTranslation(langDict, "Ntfs_Startup_Warning_Content"),
                                 CloseButtonText = "OK",
                                 XamlRoot = _window?.Content?.XamlRoot
                             };

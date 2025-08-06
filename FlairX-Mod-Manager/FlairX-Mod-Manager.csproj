@@ -11,6 +11,7 @@
     <Nullable>enable</Nullable>
     
     <!-- Application Identity -->
+    <AssemblyName>FlairX Mod Manager</AssemblyName>
     <RootNamespace>FlairX_Mod_Manager</RootNamespace>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>

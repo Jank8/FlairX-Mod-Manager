@@ -83,12 +83,7 @@ namespace FlairX_Mod_Manager.Pages
         private string? _previousCategory; // Track category before search for restoration
         private bool _isSearchActive = false; // Track if we're currently in search mode
         
-        // Helper method for translations
-        private string T(string key)
-        {
-            var langDict = SharedUtilities.LoadLanguageDictionary();
-            return SharedUtilities.GetTranslation(langDict, key);
-        }
+
         
         // Virtualized loading - store all mod data but only create visible ModTiles
         private List<ModData> _allModData = new();
@@ -830,12 +825,14 @@ namespace FlairX_Mod_Manager.Pages
                 _currentCategory = character; // Store current category
                 if (string.Equals(character, "other", StringComparison.OrdinalIgnoreCase))
                 {
-                    CategoryTitle.Text = T("Category_Other_Mods");
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Other_Mods");
                     LoadMods(character);
                 }
                 else if (string.Equals(character, "Active", StringComparison.OrdinalIgnoreCase))
                 {
-                    CategoryTitle.Text = T("Category_Active_Mods");
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
                     LoadActiveModsOnly();
                 }
                 else
@@ -847,7 +844,8 @@ namespace FlairX_Mod_Manager.Pages
             else
             {
                 _currentCategory = null; // All mods view
-                CategoryTitle.Text = T("Category_All_Mods");
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
                 LoadAllMods();
             }
             
@@ -1227,12 +1225,14 @@ namespace FlairX_Mod_Manager.Pages
                     _currentCategory = _previousCategory;
                     if (string.Equals(_previousCategory, "Active", StringComparison.OrdinalIgnoreCase))
                     {
-                        CategoryTitle.Text = T("Category_Active_Mods");
+                        var langDict = SharedUtilities.LoadLanguageDictionary();
+                        CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
                         LoadActiveModsOnly();
                     }
                     else if (string.Equals(_previousCategory, "other", StringComparison.OrdinalIgnoreCase))
                     {
-                        CategoryTitle.Text = T("Category_Other_Mods");
+                        var langDict = SharedUtilities.LoadLanguageDictionary();
+                        CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Other_Mods");
                         LoadMods(_previousCategory);
                     }
                     else
@@ -1245,7 +1245,8 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     // Default to All Mods if available
                     _currentCategory = null;
-                    CategoryTitle.Text = T("Category_All_Mods");
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
                     LoadAllMods();
                 }
                 _previousCategory = null; // Clear previous category after restoration
@@ -1262,7 +1263,8 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 
                 // Set search title
-                CategoryTitle.Text = T("Search_Results");
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Search_Results");
                 
                 // Load all mod data for searching if not already loaded
                 if (_allModData.Count == 0)
@@ -1452,12 +1454,13 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 // Show confirmation dialog
+                var langDict = SharedUtilities.LoadLanguageDictionary();
                 var dialog = new ContentDialog
                 {
-                    Title = T("Delete_Mod_Confirm_Title"),
-                    Content = string.Format(T("Delete_Mod_Confirm_Message"), mod.Name),
-                    PrimaryButtonText = T("Delete"),
-                    CloseButtonText = T("Cancel"),
+                    Title = SharedUtilities.GetTranslation(langDict, "Delete_Mod_Confirm_Title"),
+                    Content = string.Format(SharedUtilities.GetTranslation(langDict, "Delete_Mod_Confirm_Message"), mod.Name),
+                    PrimaryButtonText = SharedUtilities.GetTranslation(langDict, "Delete"),
+                    CloseButtonText = SharedUtilities.GetTranslation(langDict, "Cancel"),
                     XamlRoot = this.Content.XamlRoot
                 };
 
@@ -1509,11 +1512,12 @@ namespace FlairX_Mod_Manager.Pages
                 LogToGridLog($"DELETE ERROR: Failed to delete mod '{mod.Name}': {ex.Message}");
                 
                 // Show error dialog
+                var langDict = SharedUtilities.LoadLanguageDictionary();
                 var errorDialog = new ContentDialog
                 {
-                    Title = T("Error_Title"),
+                    Title = SharedUtilities.GetTranslation(langDict, "Error_Title"),
                     Content = ex.Message,
-                    CloseButtonText = T("OK"),
+                    CloseButtonText = SharedUtilities.GetTranslation(langDict, "OK"),
                     XamlRoot = this.Content.XamlRoot
                 };
                 await errorDialog.ShowAsync();

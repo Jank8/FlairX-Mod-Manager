@@ -13,7 +13,6 @@ namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class HotkeyFinderPage : Page
     {
-        private Dictionary<string, string> _lang = new();
         private CancellationTokenSource? _cancellationTokenSource;
         private bool _isProcessing = false;
         
@@ -25,31 +24,21 @@ namespace FlairX_Mod_Manager.Pages
         {
             this.InitializeComponent();
             _instance = this;
-            LoadLanguage();
             UpdateTexts();
             LoadSettings();
         }
 
-        private void LoadLanguage()
-        {
-            _lang = SharedUtilities.LoadLanguageDictionary("HotkeyFinder");
-        }
-
-        private string T(string key)
-        {
-            return SharedUtilities.GetTranslation(_lang, key);
-        }
-
         private void UpdateTexts()
         {
-            AutoDetectLabel.Text = T("AutoDetectLabel");
-            RefreshAllLabel.Text = T("RefreshAllLabel");
-            RefreshButtonText.Text = _isProcessing ? T("CancelButton") : T("RefreshButton");
+            var lang = SharedUtilities.LoadLanguageDictionary("HotkeyFinder");
+            AutoDetectLabel.Text = SharedUtilities.GetTranslation(lang, "AutoDetectLabel");
+            RefreshAllLabel.Text = SharedUtilities.GetTranslation(lang, "RefreshAllLabel");
+            RefreshButtonText.Text = _isProcessing ? SharedUtilities.GetTranslation(lang, "CancelButton") : SharedUtilities.GetTranslation(lang, "RefreshButton");
             RefreshIcon.Visibility = _isProcessing ? Visibility.Collapsed : Visibility.Visible;
             CancelIcon.Visibility = _isProcessing ? Visibility.Visible : Visibility.Collapsed;
-            ToolTipService.SetToolTip(AutoDetectToggle, T("AutoDetectLabel"));
-            ToolTipService.SetToolTip(RefreshAllToggle, T("RefreshAllLabel"));
-            ToolTipService.SetToolTip(RefreshButton, T("RefreshButton"));
+            ToolTipService.SetToolTip(AutoDetectToggle, SharedUtilities.GetTranslation(lang, "AutoDetectLabel"));
+            ToolTipService.SetToolTip(RefreshAllToggle, SharedUtilities.GetTranslation(lang, "RefreshAllLabel"));
+            ToolTipService.SetToolTip(RefreshButton, SharedUtilities.GetTranslation(lang, "RefreshButton"));
         }
 
         private void LoadSettings()
@@ -186,7 +175,8 @@ namespace FlairX_Mod_Manager.Pages
         {
             _isProcessing = true;
             _cancellationTokenSource = new CancellationTokenSource(); // Ensure it's always initialized
-            RefreshButtonText.Text = T("CancelButton");
+            var lang = SharedUtilities.LoadLanguageDictionary("HotkeyFinder");
+            RefreshButtonText.Text = SharedUtilities.GetTranslation(lang, "CancelButton");
             RefreshIcon.Visibility = Visibility.Collapsed;
             CancelIcon.Visibility = Visibility.Visible;
             RefreshProgressBar.Visibility = Visibility.Visible;
@@ -218,21 +208,21 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    ShowInfoBar("Info", $"{T("RefreshCompleteMessage")}\n{T("Processed")}: {processedCount}\n{T("Success")}: {successCount}\n{T("Errors")}: {errorCount}");
+                    ShowInfoBar("Info", $"{SharedUtilities.GetTranslation(lang, "RefreshCompleteMessage")}\n{SharedUtilities.GetTranslation(lang, "Processed")}: {processedCount}\n{SharedUtilities.GetTranslation(lang, "Success")}: {successCount}\n{SharedUtilities.GetTranslation(lang, "Errors")}: {errorCount}");
                 }
                 else
                 {
-                    ShowInfoBar("Info", T("RefreshCancelledMessage"));
+                    ShowInfoBar("Info", SharedUtilities.GetTranslation(lang, "RefreshCancelledMessage"));
                 }
             }
             catch (Exception ex)
             {
-                ShowInfoBar("FatalError", T("FatalErrorMessage") + "\n" + ex.Message);
+                ShowInfoBar("FatalError", SharedUtilities.GetTranslation(lang, "FatalErrorMessage") + "\n" + ex.Message);
             }
             finally
             {
                 _isProcessing = false;
-                RefreshButtonText.Text = T("RefreshButton");
+                RefreshButtonText.Text = SharedUtilities.GetTranslation(lang, "RefreshButton");
                 RefreshIcon.Visibility = Visibility.Visible;
                 CancelIcon.Visibility = Visibility.Collapsed;
                 RefreshProgressBar.Visibility = Visibility.Collapsed;
@@ -290,13 +280,14 @@ namespace FlairX_Mod_Manager.Pages
         private void ShowInfoBar(string title, string message)
         {
             // Try to translate both title and message, fallback to original if not found
-            string translatedTitle = SharedUtilities.GetTranslation(_lang, title);
-            string translatedMessage = SharedUtilities.GetTranslation(_lang, message);
+            var lang = SharedUtilities.LoadLanguageDictionary("HotkeyFinder");
+            string translatedTitle = SharedUtilities.GetTranslation(lang, title);
+            string translatedMessage = SharedUtilities.GetTranslation(lang, message);
             var dialog = new ContentDialog
             {
                 Title = translatedTitle,
                 Content = translatedMessage,
-                CloseButtonText = T("OK"),
+                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
                 XamlRoot = (App.Current as App)?.MainWindow is MainWindow mainWindow && mainWindow.Content is FrameworkElement fe ? fe.XamlRoot : this.XamlRoot
             };
             _ = dialog.ShowAsync();

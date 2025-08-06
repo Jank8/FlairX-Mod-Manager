@@ -12,37 +12,26 @@ namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class ModInfoBackupPage : Page
     {
-        private Dictionary<string, string> _lang = new();
         private string ModLibraryPath => SharedUtilities.GetSafeModLibraryPath();
         private const int MaxBackups = 3;
 
         public ModInfoBackupPage()
         {
             this.InitializeComponent();
-            LoadLanguage();
             UpdateTexts();
             UpdateBackupInfo();
         }
 
-        private void LoadLanguage()
-        {
-            _lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
-        }
-
-        private string T(string key)
-        {
-            return SharedUtilities.GetTranslation(_lang, key);
-        }
-
         private void UpdateTexts()
         {
-            CreateBackupsText.Text = T("ModInfoBackup_BackupAll");
-            RestoreBackup1Text.Text = T("ModInfoBackup_Restore1");
-            RestoreBackup2Text.Text = T("ModInfoBackup_Restore2");
-            RestoreBackup3Text.Text = T("ModInfoBackup_Restore3");
-            ToolTipService.SetToolTip(DeleteBackup1Button, T("ModInfoBackup_Delete"));
-            ToolTipService.SetToolTip(DeleteBackup2Button, T("ModInfoBackup_Delete"));
-            ToolTipService.SetToolTip(DeleteBackup3Button, T("ModInfoBackup_Delete"));
+            var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
+            CreateBackupsText.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_BackupAll");
+            RestoreBackup1Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore1");
+            RestoreBackup2Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore2");
+            RestoreBackup3Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore3");
+            ToolTipService.SetToolTip(DeleteBackup1Button, SharedUtilities.GetTranslation(lang, "ModInfoBackup_Delete"));
+            ToolTipService.SetToolTip(DeleteBackup2Button, SharedUtilities.GetTranslation(lang, "ModInfoBackup_Delete"));
+            ToolTipService.SetToolTip(DeleteBackup3Button, SharedUtilities.GetTranslation(lang, "ModInfoBackup_Delete"));
         }
 
         private async void CreateBackupsButton_Click(object sender, RoutedEventArgs e)
@@ -56,7 +45,8 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogError("Error in CreateBackupsButton_Click", ex);
                 CreateBackupsProgressBar.Visibility = Visibility.Collapsed;
                 CreateBackupsButton.IsEnabled = true;
-                await ShowDialog(T("Error"), ex.Message, T("OK"));
+                var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
+                await ShowDialog(SharedUtilities.GetTranslation(lang, "Error"), ex.Message, SharedUtilities.GetTranslation(lang, "OK"));
             }
         }
         
@@ -70,7 +60,8 @@ namespace FlairX_Mod_Manager.Pages
             CreateBackupsProgressBar.Visibility = Visibility.Collapsed;
             CreateBackupsButton.IsEnabled = true;
             
-            await ShowDialog(T("Title"), string.Format(T("ModInfoBackup_BackupComplete"), count), T("OK"));
+            var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
+            await ShowDialog(SharedUtilities.GetTranslation(lang, "Title"), string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_BackupComplete"), count), SharedUtilities.GetTranslation(lang, "OK"));
             UpdateBackupInfo();
         }
 
@@ -160,7 +151,8 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     btn.IsEnabled = true;
                 }
-                await ShowDialog(T("Error"), ex.Message, T("OK"));
+                var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
+                await ShowDialog(SharedUtilities.GetTranslation(lang, "Error"), ex.Message, SharedUtilities.GetTranslation(lang, "OK"));
             }
         }
         
@@ -169,12 +161,13 @@ namespace FlairX_Mod_Manager.Pages
             if (sender is Button btn && btn.Tag is string tag && int.TryParse(tag, out int backupNum) && backupNum >= 1 && backupNum <= MaxBackups)
             {
                 // Show confirmation dialog before restoring
+                var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
                 ContentDialog confirmDialog = new ContentDialog
                 {
-                    Title = T("ModInfoBackup_RestoreConfirm_Title"),
-                    Content = string.Format(T("ModInfoBackup_RestoreConfirm_Message"), backupNum),
-                    PrimaryButtonText = T("Yes"),
-                    CloseButtonText = T("No"),
+                    Title = SharedUtilities.GetTranslation(lang, "ModInfoBackup_RestoreConfirm_Title"),
+                    Content = string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_RestoreConfirm_Message"), backupNum),
+                    PrimaryButtonText = SharedUtilities.GetTranslation(lang, "Yes"),
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "No"),
                     XamlRoot = this.XamlRoot
                 };
 
@@ -199,7 +192,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (progressBar != null) progressBar.Visibility = Visibility.Collapsed;
                 btn.IsEnabled = true;
                 
-                await ShowDialog(T("Title"), string.Format(T("ModInfoBackup_RestoreComplete"), backupNum, count), T("OK"));
+                await ShowDialog(SharedUtilities.GetTranslation(lang, "Title"), string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_RestoreComplete"), backupNum, count), SharedUtilities.GetTranslation(lang, "OK"));
                 UpdateBackupInfo();
             }
         }
@@ -293,12 +286,13 @@ namespace FlairX_Mod_Manager.Pages
             if (sender is Button btn && btn.Tag is string tag && int.TryParse(tag, out int backupNum) && backupNum >= 1 && backupNum <= MaxBackups)
             {
                 // Show confirmation dialog before deleting
+                var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
                 ContentDialog confirmDialog = new ContentDialog
                 {
-                    Title = T("ModInfoBackup_DeleteConfirm_Title"),
-                    Content = string.Format(T("ModInfoBackup_DeleteConfirm_Message"), backupNum),
-                    PrimaryButtonText = T("Yes"),
-                    CloseButtonText = T("No"),
+                    Title = SharedUtilities.GetTranslation(lang, "ModInfoBackup_DeleteConfirm_Title"),
+                    Content = string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_DeleteConfirm_Message"), backupNum),
+                    PrimaryButtonText = SharedUtilities.GetTranslation(lang, "Yes"),
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "No"),
                     XamlRoot = this.XamlRoot
                 };
 
@@ -323,7 +317,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (progressBar != null) progressBar.Visibility = Visibility.Collapsed;
                 btn.IsEnabled = true;
                 
-                await ShowDialog(T("Title"), string.Format(T("ModInfoBackup_DeleteComplete"), backupNum, count), T("OK"));
+                await ShowDialog(SharedUtilities.GetTranslation(lang, "Title"), string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_DeleteComplete"), backupNum, count), SharedUtilities.GetTranslation(lang, "OK"));
                 UpdateBackupInfo();
             }
         }
@@ -421,14 +415,16 @@ namespace FlairX_Mod_Manager.Pages
             
             if (count > 0 && newest != null)
             {
-                infoBlock.Text = string.Format(T("ModInfoBackup_BackupInfo"), $"{newest:yyyy-MM-dd HH:mm}", count);
+                var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
+                infoBlock.Text = string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_BackupInfo"), $"{newest:yyyy-MM-dd HH:mm}", count);
                 restoreButton.IsEnabled = true;
                 deleteButton.IsEnabled = true;
             }
             else
             {
                 // Use translation instead of hardcoded string
-                infoBlock.Text = $"- ({string.Format(T("ModInfoBackup_NoBackup"), backupNum, Path.GetFileName(currentModLibPath))})";
+                var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
+                infoBlock.Text = $"- ({string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_NoBackup"), backupNum, Path.GetFileName(currentModLibPath))})";
                 restoreButton.IsEnabled = false;
                 deleteButton.IsEnabled = false;
             }

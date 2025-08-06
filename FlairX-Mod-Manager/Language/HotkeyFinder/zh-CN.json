@@ -1,0 +1,16 @@
+{
+  "Title": "热键查找器",
+  "HotkeyFinder_Function": "热键查找器",
+  "AutoDetectLabel": "导入模组时自动检测热键",
+  "RefreshAllLabel": "刷新所有模组热键",
+  "RefreshButton": "刷新",
+  "CancelButton": "取消",
+  "RefreshCompleteMessage": "热键刷新成功完成！",
+  "RefreshCancelledMessage": "热键刷新已取消。",
+  "Processed": "已处理",
+  "Success": "成功",
+  "Errors": "错误",
+  "Error": "错误",
+  "FatalErrorMessage": "刷新过程中发生致命错误。",
+  "OK": "确定"
+}

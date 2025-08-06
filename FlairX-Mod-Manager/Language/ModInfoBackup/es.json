@@ -1,0 +1,22 @@
+{
+  "Title": "Copia de Seguridad de Información de Mod",
+  "ModInfoBackup_Function": "Copia de Seguridad de Información de Mod",
+  "ModInfoBackup_BackupAll": "Hacer copia de seguridad de toda la información de mods",
+  "ModInfoBackup_Restore1": "Restaurar copia de seguridad 1 (más reciente)",
+  "ModInfoBackup_Restore2": "Restaurar copia de seguridad 2 (intermedia)",
+  "ModInfoBackup_Restore3": "Restaurar copia de seguridad 3 (más antigua)",
+  "ModInfoBackup_Delete": "Eliminar copia de seguridad",
+  "ModInfoBackup_BackupComplete": "¡Copia de seguridad completa! Se crearon {0} copias de seguridad mod.json.",
+  "ModInfoBackup_RestoreComplete": "¡Restauración completa! Se restauraron {0} copias de seguridad del conjunto {1}.",
+  "ModInfoBackup_DeleteComplete": "¡Eliminación completa! Se eliminaron {1} copias de seguridad del conjunto {0}.",
+  "ModInfoBackup_BackupInfo": "Creado: {0}, Archivos: {1}",
+  "ModInfoBackup_NoBackup": "No hay copia de seguridad {0} en {1}",
+  "OK": "Aceptar",
+  "ModInfoBackup_RestoreConfirm_Title": "Confirmar Restauración",
+  "ModInfoBackup_RestoreConfirm_Message": "¿Estás seguro de que quieres restaurar el conjunto de copia de seguridad {0}? Esto sobrescribirá los archivos mod.json actuales.",
+  "ModInfoBackup_DeleteConfirm_Title": "Confirmar Eliminación",
+  "ModInfoBackup_DeleteConfirm_Message": "¿Estás seguro de que quieres eliminar el conjunto de copia de seguridad {0}? Esta acción no se puede deshacer.",
+  "Yes": "Sí",
+  "No": "No",
+  "Error": "Error"
+}

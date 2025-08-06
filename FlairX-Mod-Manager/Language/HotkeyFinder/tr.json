@@ -1,0 +1,16 @@
+{
+  "Title": "Kısayol Tuşu Bulucu",
+  "HotkeyFinder_Function": "Kısayol Tuşu Bulucu",
+  "AutoDetectLabel": "Modları içe aktarırken kısayol tuşlarını otomatik algıla",
+  "RefreshAllLabel": "Tüm mod kısayol tuşlarını yenile",
+  "RefreshButton": "Yenile",
+  "CancelButton": "İptal",
+  "RefreshCompleteMessage": "Kısayol tuşu yenileme başarıyla tamamlandı!",
+  "RefreshCancelledMessage": "Kısayol tuşu yenileme iptal edildi.",
+  "Processed": "İşlendi",
+  "Success": "Başarı",
+  "Errors": "Hatalar",
+  "Error": "Hata",
+  "FatalErrorMessage": "Yenileme işlemi sırasında ölümcül bir hata oluştu.",
+  "OK": "Tamam"
+}

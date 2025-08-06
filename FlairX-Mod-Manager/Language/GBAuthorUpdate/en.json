@@ -1,5 +1,6 @@
 {
   "Title": "Update Author from GameBanana",
+  "GameBananaAuthorUpdate_Function": "GameBanana Author Update",
   "UpdateAuthorsLabel": "Update GameBanana authors",
   "SmartUpdateLabel": "Only unknown values (Smart Update)",
   "SafetyLockLabel": "Safety lock",

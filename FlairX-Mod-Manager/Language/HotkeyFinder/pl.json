@@ -1,0 +1,16 @@
+{
+  "Title": "Wyszukiwarka skrótów klawiszowych",
+  "HotkeyFinder_Function": "Wyszukiwarka skrótów klawiszowych",
+  "AutoDetectLabel": "Automatyczne wykrywanie skrótów przy importowaniu modów",
+  "RefreshAllLabel": "Odśwież skróty wszystkich modów",
+  "RefreshButton": "Odśwież",
+  "CancelButton": "Anuluj",
+  "RefreshCompleteMessage": "Odświeżanie skrótów zakończone pomyślnie!",
+  "RefreshCancelledMessage": "Odświeżanie skrótów zostało anulowane.",
+  "Processed": "Przetworzono",
+  "Success": "Sukces",
+  "Errors": "Błędy",
+  "Error": "Błąd",
+  "FatalErrorMessage": "Wystąpił krytyczny błąd podczas procesu odświeżania.",
+  "OK": "OK"
+}

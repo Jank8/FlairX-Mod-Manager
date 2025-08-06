@@ -1,0 +1,16 @@
+{
+  "Title": "ホットキーファインダー",
+  "HotkeyFinder_Function": "ホットキーファインダー",
+  "AutoDetectLabel": "Modインポート時にホットキーを自動検出",
+  "RefreshAllLabel": "すべてのModホットキーを更新",
+  "RefreshButton": "更新",
+  "CancelButton": "キャンセル",
+  "RefreshCompleteMessage": "ホットキーの更新が正常に完了しました！",
+  "RefreshCancelledMessage": "ホットキーの更新がキャンセルされました。",
+  "Processed": "処理済み",
+  "Success": "成功",
+  "Errors": "エラー",
+  "Error": "エラー",
+  "FatalErrorMessage": "更新プロセス中に致命的なエラーが発生しました。",
+  "OK": "OK"
+}

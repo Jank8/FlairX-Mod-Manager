@@ -1,0 +1,16 @@
+{
+  "Title": "ตัวค้นหาปุ่มลัด",
+  "HotkeyFinder_Function": "ตัวค้นหาปุ่มลัด",
+  "AutoDetectLabel": "ตรวจจับปุ่มลัดอัตโนมัติเมื่อนำเข้า mod",
+  "RefreshAllLabel": "รีเฟรชปุ่มลัด mod ทั้งหมด",
+  "RefreshButton": "รีเฟรช",
+  "CancelButton": "ยกเลิก",
+  "RefreshCompleteMessage": "การรีเฟรชปุ่มลัดเสร็จสิ้นเรียบร้อยแล้ว!",
+  "RefreshCancelledMessage": "การรีเฟรชปุ่มลัดถูกยกเลิก",
+  "Processed": "ประมวลผลแล้ว",
+  "Success": "สำเร็จ",
+  "Errors": "ข้อผิดพลาด",
+  "Error": "ข้อผิดพลาด",
+  "FatalErrorMessage": "เกิดข้อผิดพลาดร้ายแรงระหว่างกระบวนการรีเฟรช",
+  "OK": "ตกลง"
+}

@@ -1,0 +1,22 @@
+{
+  "Title": "মড তথ্য ব্যাকআপ",
+  "ModInfoBackup_Function": "মড তথ্য ব্যাকআপ",
+  "ModInfoBackup_BackupAll": "সব মড তথ্য ব্যাকআপ করুন",
+  "ModInfoBackup_Restore1": "ব্যাকআপ ১ পুনরুদ্ধার করুন (নতুনতম)",
+  "ModInfoBackup_Restore2": "ব্যাকআপ ২ পুনরুদ্ধার করুন (মাঝামাঝি)",
+  "ModInfoBackup_Restore3": "ব্যাকআপ ৩ পুনরুদ্ধার করুন (পুরাতনতম)",
+  "ModInfoBackup_Delete": "ব্যাকআপ মুছুন",
+  "ModInfoBackup_BackupComplete": "ব্যাকআপ সম্পন্ন! {0}টি mod.json ব্যাকআপ তৈরি হয়েছে।",
+  "ModInfoBackup_RestoreComplete": "পুনরুদ্ধার সম্পন্ন! সেট {1} থেকে {0}টি ব্যাকআপ পুনরুদ্ধার হয়েছে।",
+  "ModInfoBackup_DeleteComplete": "মুছে ফেলা সম্পন্ন! সেট {0} থেকে {1}টি ব্যাকআপ সরানো হয়েছে।",
+  "ModInfoBackup_BackupInfo": "তৈরি: {0}, ফাইল: {1}",
+  "ModInfoBackup_NoBackup": "{1} এ কোন ব্যাকআপ {0} নেই",
+  "OK": "ঠিক আছে",
+  "ModInfoBackup_RestoreConfirm_Title": "পুনরুদ্ধার নিশ্চিত করুন",
+  "ModInfoBackup_RestoreConfirm_Message": "আপনি কি নিশ্চিত যে আপনি ব্যাকআপ সেট {0} পুনরুদ্ধার করতে চান? এটি বর্তমান mod.json ফাইলগুলি প্রতিস্থাপন করবে।",
+  "ModInfoBackup_DeleteConfirm_Title": "মুছে ফেলা নিশ্চিত করুন",
+  "ModInfoBackup_DeleteConfirm_Message": "আপনি কি নিশ্চিত যে আপনি ব্যাকআপ সেট {0} মুছে ফেলতে চান? এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।",
+  "Yes": "হ্যাঁ",
+  "No": "না",
+  "Error": "ত্রুটি"
+}

@@ -1,0 +1,16 @@
+{
+  "Title": "باحث المفاتيح السريعة",
+  "HotkeyFinder_Function": "باحث المفاتيح السريعة",
+  "AutoDetectLabel": "الكشف التلقائي عن المفاتيح السريعة عند استيراد التعديلات",
+  "RefreshAllLabel": "تحديث جميع مفاتيح التعديلات السريعة",
+  "RefreshButton": "تحديث",
+  "CancelButton": "إلغاء",
+  "RefreshCompleteMessage": "تم إكمال تحديث المفاتيح السريعة بنجاح!",
+  "RefreshCancelledMessage": "تم إلغاء تحديث المفاتيح السريعة.",
+  "Processed": "معالج",
+  "Success": "نجح",
+  "Errors": "أخطاء",
+  "Error": "خطأ",
+  "FatalErrorMessage": "حدث خطأ فادح أثناء عملية التحديث.",
+  "OK": "موافق"
+}

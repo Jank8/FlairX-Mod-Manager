@@ -1,0 +1,22 @@
+{
+  "Title": "สำรองข้อมูล ModInfo",
+  "ModInfoBackup_Function": "สำรองข้อมูล ModInfo",
+  "ModInfoBackup_BackupAll": "สำรองข้อมูล mod ทั้งหมด",
+  "ModInfoBackup_Restore1": "คืนค่าสำรอง 1 (ใหม่ที่สุด)",
+  "ModInfoBackup_Restore2": "คืนค่าสำรอง 2 (กลาง)",
+  "ModInfoBackup_Restore3": "คืนค่าสำรอง 3 (เก่าที่สุด)",
+  "ModInfoBackup_Delete": "ลบข้อมูลสำรอง",
+  "ModInfoBackup_BackupComplete": "การสำรองข้อมูลเสร็จสิ้น! สร้างข้อมูลสำรอง mod.json จำนวน {0} ไฟล์",
+  "ModInfoBackup_RestoreComplete": "การคืนค่าเสร็จสิ้น! คืนค่าข้อมูลสำรอง {0} ไฟล์จากชุด {1}",
+  "ModInfoBackup_DeleteComplete": "การลบเสร็จสิ้น! ลบข้อมูลสำรอง {1} ไฟล์จากชุด {0}",
+  "ModInfoBackup_BackupInfo": "สร้างเมื่อ: {0}, ไฟล์: {1}",
+  "ModInfoBackup_NoBackup": "ไม่มีข้อมูลสำรอง {0} ใน {1}",
+  "OK": "ตกลง",
+  "ModInfoBackup_RestoreConfirm_Title": "ยืนยันการคืนค่า",
+  "ModInfoBackup_RestoreConfirm_Message": "คุณแน่ใจหรือไม่ว่าต้องการคืนค่าชุดข้อมูลสำรอง {0}? การดำเนินการนี้จะเขียนทับไฟล์ mod.json ปัจจุบัน",
+  "ModInfoBackup_DeleteConfirm_Title": "ยืนยันการลบ",
+  "ModInfoBackup_DeleteConfirm_Message": "คุณแน่ใจหรือไม่ว่าต้องการลบชุดข้อมูลสำรอง {0}? การดำเนินการนี้ไม่สามารถยกเลิกได้",
+  "Yes": "ใช่",
+  "No": "ไม่",
+  "Error": "ข้อผิดพลาด"
+}

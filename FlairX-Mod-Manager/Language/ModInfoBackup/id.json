@@ -1,0 +1,22 @@
+{
+  "Title": "Backup ModInfo",
+  "ModInfoBackup_Function": "Backup ModInfo",
+  "ModInfoBackup_BackupAll": "Backup semua info mod",
+  "ModInfoBackup_Restore1": "Restore backup 1 (terbaru)",
+  "ModInfoBackup_Restore2": "Restore backup 2 (tengah)",
+  "ModInfoBackup_Restore3": "Restore backup 3 (terlama)",
+  "ModInfoBackup_Delete": "Hapus backup",
+  "ModInfoBackup_BackupComplete": "Backup selesai! Membuat {0} backup mod.json.",
+  "ModInfoBackup_RestoreComplete": "Restore selesai! Mengembalikan {0} backup dari set {1}.",
+  "ModInfoBackup_DeleteComplete": "Hapus selesai! Menghapus {1} backup dari set {0}.",
+  "ModInfoBackup_BackupInfo": "Dibuat: {0}, File: {1}",
+  "ModInfoBackup_NoBackup": "Tidak ada backup {0} di {1}",
+  "OK": "OK",
+  "ModInfoBackup_RestoreConfirm_Title": "Konfirmasi Restore",
+  "ModInfoBackup_RestoreConfirm_Message": "Apakah Anda yakin ingin mengembalikan backup set {0}? Ini akan menimpa file mod.json saat ini.",
+  "ModInfoBackup_DeleteConfirm_Title": "Konfirmasi Hapus",
+  "ModInfoBackup_DeleteConfirm_Message": "Apakah Anda yakin ingin menghapus backup set {0}? Tindakan ini tidak dapat dibatalkan.",
+  "Yes": "Ya",
+  "No": "Tidak",
+  "Error": "Error"
+}

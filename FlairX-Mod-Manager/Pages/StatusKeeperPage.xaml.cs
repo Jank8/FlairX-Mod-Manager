@@ -1,7 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
@@ -9,33 +8,22 @@ namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class StatusKeeperPage : Page
     {
-        private Dictionary<string, string> _lang = new();
         private StatusKeeperSettings _settings = new();
 
         public StatusKeeperPage()
         {
             this.InitializeComponent();
-            LoadLanguage();
             UpdateTexts();
             LoadSettings();
             SelectorBar1.SelectedItem = SelectorBarItemSynchronizacja;
         }
 
-        private void LoadLanguage()
-        {
-            _lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-        }
-
-        private string T(string key)
-        {
-            return SharedUtilities.GetTranslation(_lang, key);
-        }
-
         private void UpdateTexts()
         {
-            SelectorBarItemSynchronizacja.Text = T("StatusKeeper_Tab_Synchronizacja");
-            SelectorBarItemKopiaZapasowa.Text = T("StatusKeeper_Tab_KopiaZapasowa");
-            SelectorBarItemLogi.Text = T("StatusKeeper_Tab_Logi");
+            var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+            SelectorBarItemSynchronizacja.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Tab_Synchronizacja");
+            SelectorBarItemKopiaZapasowa.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Tab_KopiaZapasowa");
+            SelectorBarItemLogi.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Tab_Logi");
         }
 
         private void LoadSettings()
@@ -60,8 +48,6 @@ namespace FlairX_Mod_Manager.Pages
                 _settings = new StatusKeeperSettings();
             }
         }
-
-
 
         private void SelectorBar2_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
         {

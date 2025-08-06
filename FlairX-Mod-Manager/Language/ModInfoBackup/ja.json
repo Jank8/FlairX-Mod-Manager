@@ -1,0 +1,22 @@
+{
+  "Title": "ModInfoバックアップ",
+  "ModInfoBackup_Function": "ModInfoバックアップ",
+  "ModInfoBackup_BackupAll": "すべてのMod情報をバックアップ",
+  "ModInfoBackup_Restore1": "バックアップ1を復元（最新）",
+  "ModInfoBackup_Restore2": "バックアップ2を復元（中間）",
+  "ModInfoBackup_Restore3": "バックアップ3を復元（最古）",
+  "ModInfoBackup_Delete": "バックアップを削除",
+  "ModInfoBackup_BackupComplete": "バックアップ完了！{0}個のmod.jsonバックアップを作成しました。",
+  "ModInfoBackup_RestoreComplete": "復元完了！セット{1}から{0}個のバックアップを復元しました。",
+  "ModInfoBackup_DeleteComplete": "削除完了！セット{0}から{1}個のバックアップを削除しました。",
+  "ModInfoBackup_BackupInfo": "作成日時：{0}、ファイル：{1}",
+  "ModInfoBackup_NoBackup": "{1}にバックアップ{0}がありません",
+  "OK": "OK",
+  "ModInfoBackup_RestoreConfirm_Title": "復元の確認",
+  "ModInfoBackup_RestoreConfirm_Message": "バックアップセット{0}を復元してもよろしいですか？これにより現在のmod.jsonファイルが上書きされます。",
+  "ModInfoBackup_DeleteConfirm_Title": "削除の確認",
+  "ModInfoBackup_DeleteConfirm_Message": "バックアップセット{0}を削除してもよろしいですか？この操作は元に戻せません。",
+  "Yes": "はい",
+  "No": "いいえ",
+  "Error": "エラー"
+}

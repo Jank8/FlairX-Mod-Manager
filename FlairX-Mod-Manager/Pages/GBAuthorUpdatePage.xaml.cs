@@ -14,7 +14,6 @@ namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class GBAuthorUpdatePage : Page
     {
-        private Dictionary<string, string> _lang = new();
         private static readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
         
         // Compiled regex patterns for better performance
@@ -31,11 +30,12 @@ namespace FlairX_Mod_Manager.Pages
 
         private void UpdateTexts()
         {
-            UpdateAuthorsLabel.Text = T("UpdateAuthorsLabel");
-            SmartUpdateLabel.Text = T("SmartUpdateLabel");
-            SafetyLockLabel.Text = T("SafetyLockLabel");
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            UpdateAuthorsLabel.Text = SharedUtilities.GetTranslation(lang, "UpdateAuthorsLabel");
+            SmartUpdateLabel.Text = SharedUtilities.GetTranslation(lang, "SmartUpdateLabel");
+            SafetyLockLabel.Text = SharedUtilities.GetTranslation(lang, "SafetyLockLabel");
             // Set constant button width to prevent resizing when text changes
-            UpdateButtonText.Text = _isUpdatingAuthors ? T("CancelButton") : T("UpdateButton");
+            UpdateButtonText.Text = _isUpdatingAuthors ? SharedUtilities.GetTranslation(lang, "CancelButton") : SharedUtilities.GetTranslation(lang, "UpdateButton");
             UpdateButton.MinWidth = 160;
         }
 
@@ -54,7 +54,6 @@ namespace FlairX_Mod_Manager.Pages
         public GBAuthorUpdatePage()
         {
             this.InitializeComponent();
-            LoadLanguage();
             UpdateTexts();
             ProgressChanged += OnProgressChanged;
             UpdateAuthorsSwitch.Toggled += UpdateAuthorsSwitch_Toggled;
@@ -73,18 +72,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             DispatcherQueue.TryEnqueue(UpdateProgressBarUI);
         }
-
-        private void LoadLanguage()
-        {
-            _lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-        }
-
-        private string T(string key)
-        {
-            return SharedUtilities.GetTranslation(_lang, key);
-        }
-
-
 
         // Thread-safe static fields with proper locking
         private static volatile bool _isUpdatingAuthors = false;
@@ -148,6 +135,8 @@ namespace FlairX_Mod_Manager.Pages
         
         private async Task UpdateButtonClickAsync()
         {
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            
             if (_isUpdatingAuthors)
             {
                 _cts?.Cancel();
@@ -157,8 +146,8 @@ namespace FlairX_Mod_Manager.Pages
                 // Add immediate dialog after clicking Cancel
                 var cancelDialog = new ContentDialog
                 {
-                    Title = T("CancelledTitle"),
-                    Content = T("CancelledContent"),
+                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };
@@ -169,8 +158,8 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var dialog = new ContentDialog
                 {
-                    Title = T("SafetyLockTitle"),
-                    Content = T("SafetyLockContent"),
+                    Title = SharedUtilities.GetTranslation(lang, "SafetyLockTitle"),
+                    Content = SharedUtilities.GetTranslation(lang, "SafetyLockContent"),
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };
@@ -197,7 +186,8 @@ namespace FlairX_Mod_Manager.Pages
 
         private void SetButtonToCancelState()
         {
-            UpdateButtonText.Text = T("CancelButton");
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            UpdateButtonText.Text = SharedUtilities.GetTranslation(lang, "CancelButton");
             UpdateIcon.Visibility = Visibility.Collapsed;
             CancelIcon.Visibility = Visibility.Visible;
             UpdateButton.IsEnabled = true;
@@ -207,7 +197,8 @@ namespace FlairX_Mod_Manager.Pages
         private void ResetButtonToUpdateState()
         {
             _isUpdatingAuthors = false;
-            UpdateButtonText.Text = T("UpdateButton");
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            UpdateButtonText.Text = SharedUtilities.GetTranslation(lang, "UpdateButton");
             UpdateIcon.Visibility = Visibility.Visible;
             CancelIcon.Visibility = Visibility.Collapsed;
             UpdateButton.IsEnabled = true;
@@ -218,6 +209,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
                 string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
                 var modDirs = Directory.GetDirectories(modLibraryPath);
                 _totalMods = modDirs.Length;
@@ -229,8 +221,8 @@ namespace FlairX_Mod_Manager.Pages
                         ResetButtonToUpdateState();
                         var cancelDialog = new ContentDialog
                         {
-                            Title = T("CancelledTitle"),
-                            Content = T("CancelledContent"),
+                            Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                            Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
                             CloseButtonText = "OK",
                             XamlRoot = this.XamlRoot
                         };
@@ -239,15 +231,15 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     var modJsonPath = Path.Combine(dir, "mod.json");
                     var modName = Path.GetFileName(dir);
-                    if (!File.Exists(modJsonPath)) { SafeIncrementSkip(); SafeAddSkippedMod($"{modName}: {T("NoModJson")}"); processed++; lock (_lockObject) { _progressValue = (double)processed / _totalMods; } NotifyProgressChanged(); continue; }
+                    if (!File.Exists(modJsonPath)) { SafeIncrementSkip(); SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "NoModJson")}"); processed++; lock (_lockObject) { _progressValue = (double)processed / _totalMods; } NotifyProgressChanged(); continue; }
                     var json = File.ReadAllText(modJsonPath);
                     using var doc = JsonDocument.Parse(json);
                     var root = doc.RootElement;
-                    if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) { SafeIncrementSkip(); SafeAddSkippedMod($"{modName}: {T("InvalidUrl")}"); processed++; lock (_lockObject) { _progressValue = (double)processed / _totalMods; } NotifyProgressChanged(); continue; }
+                    if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) { SafeIncrementSkip(); SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); processed++; lock (_lockObject) { _progressValue = (double)processed / _totalMods; } NotifyProgressChanged(); continue; }
                     string currentAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? string.Empty : string.Empty;
                     bool shouldUpdate = string.IsNullOrWhiteSpace(currentAuthor) || currentAuthor.Equals("unknown", StringComparison.OrdinalIgnoreCase);
                     string url = urlProp.GetString()!;
-                    if (string.IsNullOrWhiteSpace(url) || !url.Contains("gamebanana.com")) { _skip++; _skippedMods.Add($"{modName}: {T("InvalidUrl")}"); processed++; _progressValue = (double)processed / _totalMods; NotifyProgressChanged(); continue; }
+                    if (string.IsNullOrWhiteSpace(url) || !url.Contains("gamebanana.com")) { _skip++; _skippedMods.Add($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); processed++; _progressValue = (double)processed / _totalMods; NotifyProgressChanged(); continue; }
                     bool urlWorks = false;
                     try
                     {
@@ -260,7 +252,7 @@ namespace FlairX_Mod_Manager.Pages
                         Logger.LogError($"Failed to check URL availability: {url}", ex);
                         urlWorks = false;
                     }
-                    if (!urlWorks) { _fail++; _failedMods.Add($"{modName}: {T("UrlUnavailable")}"); processed++; _progressValue = (double)processed / _totalMods; NotifyProgressChanged(); continue; }
+                    if (!urlWorks) { _fail++; _failedMods.Add($"{modName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}"); processed++; _progressValue = (double)processed / _totalMods; NotifyProgressChanged(); continue; }
                     try
                     {
                         var html = await FetchHtml(url, token);
@@ -325,7 +317,7 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         Logger.LogError($"Failed to fetch author for {modName}", ex);
                         SafeIncrementFail();
-                        SafeAddFailedMod($"{modName}: {T("AuthorFetchError")}");
+                        SafeAddFailedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "AuthorFetchError")}");
                     }
                     processed++;
                     _progressValue = (double)processed / _totalMods;
@@ -334,13 +326,13 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Successful completion - reset button state and show summary
                 ResetButtonToUpdateState();
-                string summary = string.Format(T("SuccessCount"), _success) + "\n\n" +
-                                 T("SkippedMods") + "\n" + (_skippedMods.Count > 0 ? string.Join("\n", _skippedMods) : T("None")) +
-                                 "\n\n" + T("Errors") + "\n" + (_failedMods.Count > 0 ? string.Join("\n", _failedMods) : T("None")) +
-                                 "\n\n" + string.Format(T("TotalChecked"), _totalMods);
+                string summary = string.Format(SharedUtilities.GetTranslation(lang, "SuccessCount"), _success) + "\n\n" +
+                                SharedUtilities.GetTranslation(lang, "SkippedMods") + "\n" + (_skippedMods.Count > 0 ? string.Join("\n", _skippedMods) : SharedUtilities.GetTranslation(lang, "None")) +
+                                "\n\n" + SharedUtilities.GetTranslation(lang, "Errors") + "\n" + (_failedMods.Count > 0 ? string.Join("\n", _failedMods) : SharedUtilities.GetTranslation(lang, "None")) +
+                                "\n\n" + string.Format(SharedUtilities.GetTranslation(lang, "TotalChecked"), _totalMods);
                 var dialog = new ContentDialog
                 {
-                    Title = T("SummaryTitle"),
+                    Title = SharedUtilities.GetTranslation(lang, "SummaryTitle"),
                     Content = summary,
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
@@ -350,10 +342,11 @@ namespace FlairX_Mod_Manager.Pages
             catch (OperationCanceledException)
             {
                 ResetButtonToUpdateState();
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
                 var dialog = new ContentDialog
                 {
-                    Title = T("CancelledTitle"),
-                    Content = T("CancelledContent"),
+                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };
@@ -362,9 +355,10 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 ResetButtonToUpdateState();
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
                 var dialog = new ContentDialog
                 {
-                    Title = T("ErrorTitle"),
+                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
                     Content = ex.Message,
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot

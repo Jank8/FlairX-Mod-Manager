@@ -23,17 +23,6 @@ namespace FlairX_Mod_Manager.Pages
         private List<string> _allModDirs = new List<string>();
         private int _currentModIndex = -1;
         private string? _categoryParam;
-        private Dictionary<string, string> _lang = new();
-
-        private void LoadLanguage()
-        {
-            _lang = SharedUtilities.LoadLanguageDictionary();
-        }
-
-        private string T(string key)
-        {
-            return SharedUtilities.GetTranslation(_lang, key);
-        }
 
         public ModDetailPage()
         {
@@ -46,19 +35,17 @@ namespace FlairX_Mod_Manager.Pages
         {
             base.OnNavigatedTo(e);
             
-            // Load language translations
-            LoadLanguage();
-            
-            // Set translations for labels
-            ModDateCheckedLabel.Text = T("ModDetailPage_DateChecked");
-            ModDateUpdatedLabel.Text = T("ModDetailPage_DateUpdated");
-            ModAuthorLabel.Text = T("ModDetailPage_Author");
-            ModCharacterLabel.Text = T("ModDetailPage_Character");
-            ModHotkeysLabel.Text = T("ModDetailPage_Hotkeys");
-            ModUrlLabel.Text = T("ModDetailPage_URL");
+            // Load language translations and set labels
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            ModDateCheckedLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_DateChecked");
+            ModDateUpdatedLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_DateUpdated");
+            ModAuthorLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Author");
+            ModCharacterLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Character");
+            ModHotkeysLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Hotkeys");
+            ModUrlLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_URL");
             
             // Set tooltip for OpenUrlButton
-            ToolTipService.SetToolTip(OpenUrlButton, T("ModDetailPage_OpenURL_Tooltip"));
+            ToolTipService.SetToolTip(OpenUrlButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_OpenURL_Tooltip"));
             
             string modName = "";
             string? modDir = null;
@@ -197,7 +184,10 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             if (string.IsNullOrWhiteSpace(modName))
-                ModDetailTitle.Text = T("ModDetailPage_Title");
+            {
+                var lang2 = SharedUtilities.LoadLanguageDictionary();
+                ModDetailTitle.Text = SharedUtilities.GetTranslation(lang2, "ModDetailPage_Title");
+            }
             else
                 ModDetailTitle.Text = modName;
             UpdateNavButtons();

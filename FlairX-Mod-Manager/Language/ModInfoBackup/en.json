@@ -1,5 +1,6 @@
 {
   "Title": "ModInfo Backup",
+  "ModInfoBackup_Function": "ModInfo Backup",
   "ModInfoBackup_BackupAll": "Backup all mod info",
   "ModInfoBackup_Restore1": "Restore backup 1 (newest)",
   "ModInfoBackup_Restore2": "Restore backup 2 (middle)",

@@ -19,7 +19,6 @@ namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class StatusKeeperSyncPage : Page
     {
-        private Dictionary<string, string> _lang = new();
         private static readonly object _syncLock = new object();
         private static FileSystemWatcher? _fileWatcher;
         private static Timer? _periodicSyncTimer;
@@ -30,7 +29,6 @@ namespace FlairX_Mod_Manager.Pages
         public StatusKeeperSyncPage()
         {
             this.InitializeComponent();
-            LoadLanguage();
             UpdateTexts();
             
             // Initialize logging if enabled
@@ -42,39 +40,28 @@ namespace FlairX_Mod_Manager.Pages
             // Sync disabled message is now displayed in App.xaml.cs
         }
 
-        private void LoadLanguage()
-        {
-            _lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-        }
-
-        private string T(string key)
-        {
-            return SharedUtilities.GetTranslation(_lang, key);
-        }
-        
-        // Public static version of T() function for use from other classes
+        // Public static version for use from other classes
         public static string TStatic(string key)
         {
-            // Load language dictionary if not already loaded
-            var langFile = FlairX_Mod_Manager.SettingsManager.Current?.LanguageFile ?? "en.json";
             var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
             return SharedUtilities.GetTranslation(lang, key);
         }
 
         private void UpdateTexts()
         {
-            D3dxFilePathLabel.Text = T("StatusKeeper_D3dxFilePath_Label");
-            DynamicSyncLabel.Text = T("StatusKeeper_DynamicSync_Label");
-            BackupConfirmationLabel.Text = T("StatusKeeper_BackupConfirmation_Label");
-            ManualSyncLabel.Text = T("StatusKeeper_ManualSync_Label");
-            ManualSyncButtonText.Text = T("StatusKeeper_ManualSync_Button");
+            var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+            D3dxFilePathLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxFilePath_Label");
+            DynamicSyncLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DynamicSync_Label");
+            BackupConfirmationLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_BackupConfirmation_Label");
+            ManualSyncLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ManualSync_Label");
+            ManualSyncButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ManualSync_Button");
 
             
             // Setting tooltips from language files
-            ToolTipService.SetToolTip(D3dxFilePathPickButton, T("StatusKeeper_Tooltip_D3dxFilePath"));
-            ToolTipService.SetToolTip(D3dxFilePathDefaultButton, T("StatusKeeper_Tooltip_RestoreDefault"));
-            ToolTipService.SetToolTip(DynamicSyncToggle, T("StatusKeeper_Tooltip_DynamicSync"));
-            ToolTipService.SetToolTip(ManualSyncButton, T("StatusKeeper_Tooltip_ManualSync"));
+            ToolTipService.SetToolTip(D3dxFilePathPickButton, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_D3dxFilePath"));
+            ToolTipService.SetToolTip(D3dxFilePathDefaultButton, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_RestoreDefault"));
+            ToolTipService.SetToolTip(DynamicSyncToggle, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_DynamicSync"));
+            ToolTipService.SetToolTip(ManualSyncButton, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_ManualSync"));
         }
 
 
@@ -133,7 +120,8 @@ namespace FlairX_Mod_Manager.Pages
                     
                     this.DispatcherQueue.TryEnqueue(async () =>
                     {
-                        await ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
+                        var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                        await ShowInfoDialog(SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxMissing_Title"), SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxMissing_Message"));
                     });
                 }
             });
@@ -174,7 +162,8 @@ namespace FlairX_Mod_Manager.Pages
                 // Show message
                 this.DispatcherQueue.TryEnqueue(async () =>
                 {
-                    await ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
+                    var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                    await ShowInfoDialog(SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxMissing_Title"), SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxMissing_Message"));
                 });
                 return;
             }
@@ -201,8 +190,9 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 var hwnd = SharedUtilities.GetMainWindowHandle();
-                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, T("PickFolderDialog_Title"));
+                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
                 if (!string.IsNullOrEmpty(folderPath))
                 {
                     var iniPath = Path.Combine(folderPath, "d3dx_user.ini");
@@ -225,15 +215,16 @@ namespace FlairX_Mod_Manager.Pages
                     else
                     {
                         LogStatic($"d3dx_user.ini not found in {folderPath}", "ERROR");
-                        await SharedUtilities.ShowErrorDialog(T("Error_Generic"), 
+                        await SharedUtilities.ShowErrorDialog(SharedUtilities.GetTranslation(lang, "Error_Generic"), 
                             "d3dx_user.ini not found in the selected directory.", this.XamlRoot);
                     }
                 }
             }
             catch (Exception ex)
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 LogStatic($"Error picking directory: {ex.Message}", "ERROR");
-                await SharedUtilities.ShowErrorDialog(T("Error_Generic"), ex.Message, this.XamlRoot);
+                await SharedUtilities.ShowErrorDialog(SharedUtilities.GetTranslation(lang, "Error_Generic"), ex.Message, this.XamlRoot);
             }
         }
 
@@ -306,7 +297,8 @@ namespace FlairX_Mod_Manager.Pages
                     SettingsManager.Current.StatusKeeperDynamicSyncEnabled = false;
                     SettingsManager.Save();
                     LogStatic("Cannot enable auto-sync: d3dx_user.ini path not set or file not found", "ERROR");
-                    _ = ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
+                    var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                    _ = ShowInfoDialog(SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxMissing_Title"), SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxMissing_Message"));
                     return;
                 }
 
@@ -338,15 +330,17 @@ namespace FlairX_Mod_Manager.Pages
             if (string.IsNullOrEmpty(d3dxUserPath))
             {
                 LogStatic("Cannot sync: d3dx_user.ini path not set or file not found", "ERROR");
-                await ShowInfoDialog(T("StatusKeeper_D3dxMissing_Title"), T("StatusKeeper_D3dxMissing_Message"));
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                await ShowInfoDialog(SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxMissing_Title"), SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxMissing_Message"));
                 return;
             }
             
             try
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 ManualSyncButton.IsEnabled = false;
                 ManualSyncProgressBar.Visibility = Visibility.Visible;
-                ManualSyncButtonText.Text = T("StatusKeeper_Syncing");
+                ManualSyncButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Syncing");
 
                 LogStatic("Syncing persistent variables...");
 
@@ -361,7 +355,7 @@ namespace FlairX_Mod_Manager.Pages
                 LogStatic(message);
                 
                 // Show completion dialog to user
-                await ShowInfoDialog(T("StatusKeeper_ManualSync_Complete_Title"), message);
+                await ShowInfoDialog(SharedUtilities.GetTranslation(lang, "StatusKeeper_ManualSync_Complete_Title"), message);
             }
             catch (Exception error)
             {
@@ -369,9 +363,10 @@ namespace FlairX_Mod_Manager.Pages
             }
             finally
             {
+                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 ManualSyncProgressBar.Visibility = Visibility.Collapsed;
                 ManualSyncButton.IsEnabled = true;
-                ManualSyncButtonText.Text = T("StatusKeeper_ManualSync_Button");
+                ManualSyncButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ManualSync_Button");
             }
         }
 

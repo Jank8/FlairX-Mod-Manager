@@ -1,0 +1,22 @@
+{
+  "Title": "Sauvegarde d'Informations de Mod",
+  "ModInfoBackup_Function": "Sauvegarde d'Informations de Mod",
+  "ModInfoBackup_BackupAll": "Sauvegarder toutes les informations de mods",
+  "ModInfoBackup_Restore1": "Restaurer la sauvegarde 1 (la plus récente)",
+  "ModInfoBackup_Restore2": "Restaurer la sauvegarde 2 (intermédiaire)",
+  "ModInfoBackup_Restore3": "Restaurer la sauvegarde 3 (la plus ancienne)",
+  "ModInfoBackup_Delete": "Supprimer la sauvegarde",
+  "ModInfoBackup_BackupComplete": "Sauvegarde terminée ! {0} sauvegardes mod.json créées.",
+  "ModInfoBackup_RestoreComplete": "Restauration terminée ! {0} sauvegardes restaurées de l'ensemble {1}.",
+  "ModInfoBackup_DeleteComplete": "Suppression terminée ! {1} sauvegardes supprimées de l'ensemble {0}.",
+  "ModInfoBackup_BackupInfo": "Créé : {0}, Fichiers : {1}",
+  "ModInfoBackup_NoBackup": "Aucune sauvegarde {0} dans {1}",
+  "OK": "OK",
+  "ModInfoBackup_RestoreConfirm_Title": "Confirmer la Restauration",
+  "ModInfoBackup_RestoreConfirm_Message": "Êtes-vous sûr de vouloir restaurer l'ensemble de sauvegarde {0} ? Cela écrasera les fichiers mod.json actuels.",
+  "ModInfoBackup_DeleteConfirm_Title": "Confirmer la Suppression",
+  "ModInfoBackup_DeleteConfirm_Message": "Êtes-vous sûr de vouloir supprimer l'ensemble de sauvegarde {0} ? Cette action ne peut pas être annulée.",
+  "Yes": "Oui",
+  "No": "Non",
+  "Error": "Erreur"
+}

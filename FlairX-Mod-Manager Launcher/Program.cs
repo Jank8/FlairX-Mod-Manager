@@ -16,7 +16,7 @@ internal class Program
         ShowWindow(GetConsoleWindow(), SW_HIDE);
         try
         {
-            var exePath = Path.GetFullPath(@"app\ZZZ Mod Manager X.exe");
+            var exePath = Path.GetFullPath(@"app\FlairX Mod Manager.exe");
             var workingDir = Path.GetDirectoryName(exePath);
             Process.Start(new ProcessStartInfo
             {

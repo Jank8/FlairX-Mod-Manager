@@ -1,0 +1,22 @@
+{
+  "Title": "نسخ احتياطي لمعلومات التعديل",
+  "ModInfoBackup_Function": "نسخ احتياطي لمعلومات التعديل",
+  "ModInfoBackup_BackupAll": "نسخ احتياطي لجميع معلومات التعديلات",
+  "ModInfoBackup_Restore1": "استعادة النسخة الاحتياطية 1 (الأحدث)",
+  "ModInfoBackup_Restore2": "استعادة النسخة الاحتياطية 2 (الوسطى)",
+  "ModInfoBackup_Restore3": "استعادة النسخة الاحتياطية 3 (الأقدم)",
+  "ModInfoBackup_Delete": "حذف النسخة الاحتياطية",
+  "ModInfoBackup_BackupComplete": "اكتمل النسخ الاحتياطي! تم إنشاء {0} نسخة احتياطية mod.json.",
+  "ModInfoBackup_RestoreComplete": "اكتملت الاستعادة! تم استعادة {0} نسخة احتياطية من المجموعة {1}.",
+  "ModInfoBackup_DeleteComplete": "اكتمل الحذف! تم إزالة {1} نسخة احتياطية من المجموعة {0}.",
+  "ModInfoBackup_BackupInfo": "تم الإنشاء: {0}، الملفات: {1}",
+  "ModInfoBackup_NoBackup": "لا توجد نسخة احتياطية {0} في {1}",
+  "OK": "موافق",
+  "ModInfoBackup_RestoreConfirm_Title": "تأكيد الاستعادة",
+  "ModInfoBackup_RestoreConfirm_Message": "هل أنت متأكد من أنك تريد استعادة مجموعة النسخ الاحتياطية {0}؟ سيؤدي هذا إلى الكتابة فوق ملفات mod.json الحالية.",
+  "ModInfoBackup_DeleteConfirm_Title": "تأكيد الحذف",
+  "ModInfoBackup_DeleteConfirm_Message": "هل أنت متأكد من أنك تريد حذف مجموعة النسخ الاحتياطية {0}؟ لا يمكن التراجع عن هذا الإجراء.",
+  "Yes": "نعم",
+  "No": "لا",
+  "Error": "خطأ"
+}

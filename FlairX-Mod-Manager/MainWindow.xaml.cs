@@ -34,11 +34,6 @@ namespace FlairX_Mod_Manager
         {
             _lang = SharedUtilities.LoadLanguageDictionary();
         }
-
-        private string T(string key)
-        {
-            return SharedUtilities.GetTranslation(_lang, key);
-        }
         private const int MAX_WIDTH = 20000;
         private const int MAX_HEIGHT = 15000;
 
@@ -60,12 +55,12 @@ namespace FlairX_Mod_Manager
             LoadLanguage();
 
             // Set AllModsButton translation
-            AllModsButton.Content = T("All_Mods");
+            AllModsButton.Content = SharedUtilities.GetTranslation(_lang, "All_Mods");
             // Set button tooltip translations
-            ToolTipService.SetToolTip(ReloadModsButton, T("Reload_Mods_Tooltip"));
-            ToolTipService.SetToolTip(OpenModLibraryButton, T("Open_ModLibrary_Tooltip"));
-            ToolTipService.SetToolTip(LauncherFabBorder, T("Launcher_Tooltip"));
-            ToolTipService.SetToolTip(ShowActiveModsButton, T("ShowActiveModsButton_Tooltip"));
+            ToolTipService.SetToolTip(ReloadModsButton, SharedUtilities.GetTranslation(_lang, "Reload_Mods_Tooltip"));
+            ToolTipService.SetToolTip(OpenModLibraryButton, SharedUtilities.GetTranslation(_lang, "Open_ModLibrary_Tooltip"));
+            ToolTipService.SetToolTip(LauncherFabBorder, SharedUtilities.GetTranslation(_lang, "Launcher_Tooltip"));
+            ToolTipService.SetToolTip(ShowActiveModsButton, SharedUtilities.GetTranslation(_lang, "ShowActiveModsButton_Tooltip"));
 
             // Update game selection ComboBox text
             UpdateGameSelectionComboBoxTexts();
@@ -177,7 +172,7 @@ namespace FlairX_Mod_Manager
                         var textBlock = stackPanel.Children.OfType<TextBlock>().FirstOrDefault();
                         if (textBlock != null)
                         {
-                            textBlock.Text = T("SelectGame_Placeholder");
+                            textBlock.Text = SharedUtilities.GetTranslation(_lang, "SelectGame_Placeholder");
                         }
                     }
                 }
@@ -233,14 +228,14 @@ namespace FlairX_Mod_Manager
             
             var fileNotFoundText = new TextBlock
             {
-                Text = string.Format(T("FileNotFound"), exePath),
+                Text = string.Format(SharedUtilities.GetTranslation(_lang, "FileNotFound"), exePath),
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             };
             
             var downloadText = new TextBlock
             {
-                Text = T("XXMI_Download_Required"),
+                Text = SharedUtilities.GetTranslation(_lang, "XXMI_Download_Required"),
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 4)
             };
@@ -256,7 +251,7 @@ namespace FlairX_Mod_Manager
             
             var instructionText = new TextBlock
             {
-                Text = T("XXMI_Download_Instructions"),
+                Text = SharedUtilities.GetTranslation(_lang, "XXMI_Download_Instructions"),
                 TextWrapping = TextWrapping.Wrap,
                 FontStyle = Windows.UI.Text.FontStyle.Italic
             };
@@ -384,33 +379,33 @@ namespace FlairX_Mod_Manager
         private void SetSearchBoxPlaceholder()
         {
             if (SearchBox != null)
-                SearchBox.PlaceholderText = T("Search_Placeholder");
+                SearchBox.PlaceholderText = SharedUtilities.GetTranslation(_lang, "Search_Placeholder");
         }
 
         private void SetFooterMenuTranslations()
         {
             if (OtherModsPageItem is NavigationViewItem otherMods)
-                otherMods.Content = T("Other_Mods");
+                otherMods.Content = SharedUtilities.GetTranslation(_lang, "Other_Mods");
             if (FunctionsPageItem is NavigationViewItem functions)
-                functions.Content = T("Functions");
+                functions.Content = SharedUtilities.GetTranslation(_lang, "Functions");
             if (SettingsPageItem is NavigationViewItem settings)
-                settings.Content = T("SettingsPage_Title");
+                settings.Content = SharedUtilities.GetTranslation(_lang, "SettingsPage_Title");
             
             var presetsItem = nvSample.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "PresetsPage");
             if (presetsItem != null)
-                presetsItem.Content = T("Presets");
+                presetsItem.Content = SharedUtilities.GetTranslation(_lang, "Presets");
             if (AllModsButton != null)
-                AllModsButton.Content = T("All_Mods");
+                AllModsButton.Content = SharedUtilities.GetTranslation(_lang, "All_Mods");
             if (ReloadModsButton != null)
-                ToolTipService.SetToolTip(ReloadModsButton, T("Reload_Mods_Tooltip"));
+                ToolTipService.SetToolTip(ReloadModsButton, SharedUtilities.GetTranslation(_lang, "Reload_Mods_Tooltip"));
             if (OpenModLibraryButton != null)
-                ToolTipService.SetToolTip(OpenModLibraryButton, T("Open_ModLibrary_Tooltip"));
+                ToolTipService.SetToolTip(OpenModLibraryButton, SharedUtilities.GetTranslation(_lang, "Open_ModLibrary_Tooltip"));
             if (LauncherFabBorder != null)
-                ToolTipService.SetToolTip(LauncherFabBorder, T("Launcher_Tooltip"));
+                ToolTipService.SetToolTip(LauncherFabBorder, SharedUtilities.GetTranslation(_lang, "Launcher_Tooltip"));
             if (RestartAppButton != null)
-                ToolTipService.SetToolTip(RestartAppButton, T("SettingsPage_RestartApp_Tooltip"));
+                ToolTipService.SetToolTip(RestartAppButton, SharedUtilities.GetTranslation(_lang, "SettingsPage_RestartApp_Tooltip"));
             if (ShowActiveModsButton != null)
-                ToolTipService.SetToolTip(ShowActiveModsButton, T("ShowActiveModsButton_Tooltip"));
+                ToolTipService.SetToolTip(ShowActiveModsButton, SharedUtilities.GetTranslation(_lang, "ShowActiveModsButton_Tooltip"));
         }
 
         public void UpdateShowActiveModsButtonIcon()
@@ -422,7 +417,7 @@ namespace FlairX_Mod_Manager
             bool isActivePage = false;
             if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
             {
-                isActivePage = modGridPage.GetCategoryTitleText() == T("Category_Active_Mods");
+                isActivePage = modGridPage.GetCategoryTitleText() == SharedUtilities.GetTranslation(_lang, "Category_Active_Mods");
             }
             if (_isShowActiveModsHovered)
             {
@@ -854,7 +849,7 @@ namespace FlairX_Mod_Manager
             {
                 var presets = new NavigationViewItem
                 {
-                    Content = T("Presets"),
+                    Content = SharedUtilities.GetTranslation(_lang, "Presets"),
                     Tag = "PresetsPage",
                     Icon = new FontIcon { Glyph = "\uE728" } // Presets icon
                 };
@@ -873,7 +868,7 @@ namespace FlairX_Mod_Manager
             {
                 var presets = new NavigationViewItem
                 {
-                    Content = T("Presets"),
+                    Content = SharedUtilities.GetTranslation(_lang, "Presets"),
                     Tag = "PresetsPage",
                     Icon = new FontIcon { Glyph = "\uE728" } // Presets icon
                 };
@@ -1072,10 +1067,10 @@ namespace FlairX_Mod_Manager
                 {
                     var dialog = new ContentDialog
                     {
-                        Title = T("LauncherNotFound"),
+                        Title = SharedUtilities.GetTranslation(_lang, "LauncherNotFound"),
                         Content = CreateXXMIDownloadContent(exePath),
-                        PrimaryButtonText = T("Download_XXMI"),
-                        CloseButtonText = T("OK"),
+                        PrimaryButtonText = SharedUtilities.GetTranslation(_lang, "Download_XXMI"),
+                        CloseButtonText = SharedUtilities.GetTranslation(_lang, "OK"),
                         XamlRoot = this.Content.XamlRoot
                     };
                     

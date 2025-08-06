@@ -1,0 +1,16 @@
+{
+  "Title": "Buscador de Teclas de Acceso Rápido",
+  "HotkeyFinder_Function": "Buscador de Teclas de Acceso Rápido",
+  "AutoDetectLabel": "Auto-detectar teclas de acceso rápido al importar mods",
+  "RefreshAllLabel": "Actualizar todas las teclas de acceso rápido de mods",
+  "RefreshButton": "Actualizar",
+  "CancelButton": "Cancelar",
+  "RefreshCompleteMessage": "¡Actualización de teclas de acceso rápido completada exitosamente!",
+  "RefreshCancelledMessage": "Actualización de teclas de acceso rápido cancelada.",
+  "Processed": "Procesado",
+  "Success": "Éxito",
+  "Errors": "Errores",
+  "Error": "Error",
+  "FatalErrorMessage": "Ocurrió un error fatal durante el proceso de actualización.",
+  "OK": "Aceptar"
+}

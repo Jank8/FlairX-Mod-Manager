@@ -1,0 +1,16 @@
+{
+  "Title": "Hotkey Finder",
+  "HotkeyFinder_Function": "Hotkey Finder",
+  "AutoDetectLabel": "Auto-detect ng mga hotkey kapag nag-import ng mga mod",
+  "RefreshAllLabel": "I-refresh ang lahat ng mod hotkeys",
+  "RefreshButton": "I-refresh",
+  "CancelButton": "Kanselahin",
+  "RefreshCompleteMessage": "Matagumpay na natapos ang hotkey refresh!",
+  "RefreshCancelledMessage": "Nakansela ang hotkey refresh.",
+  "Processed": "Na-process",
+  "Success": "Tagumpay",
+  "Errors": "Mga error",
+  "Error": "Error",
+  "FatalErrorMessage": "Naganap ang malubhang error sa proseso ng refresh.",
+  "OK": "OK"
+}

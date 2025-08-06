@@ -25,17 +25,6 @@ namespace FlairX_Mod_Manager.Pages
         private static bool _isOptimizingPreviews = false;
         private CancellationTokenSource? _previewCts;
         private FontIcon? _optimizePreviewsButtonIcon;
-        private Dictionary<string, string> _lang = new();
-
-        private void LoadLanguage()
-        {
-            _lang = SharedUtilities.LoadLanguageDictionary();
-        }
-
-        private string T(string key)
-        {
-            return SharedUtilities.GetTranslation(_lang, key);
-        }
 
         // Set BreadcrumbBar to path segments with icon at the beginning
         private void SetBreadcrumbBar(BreadcrumbBar bar, string path)
@@ -54,24 +43,22 @@ namespace FlairX_Mod_Manager.Pages
             this.InitializeComponent();
             _optimizePreviewsButtonIcon = OptimizePreviewsButton.Content as FontIcon;
             SettingsManager.Load();
-            LoadLanguage();
             LoadLanguages();
             InitializeUIState();
         }
         
         private void InitializeUIState()
         {
-            // Set ComboBox to selected language from settings or default (English)
-            string? selectedFile = SettingsManager.Current.LanguageFile ?? "auto";
+            // Set ComboBox to selected language from settings
+            string? selectedFile = SettingsManager.Current.LanguageFile;
             string displayName = string.Empty;
-            if (selectedFile == "auto")
-            {
-                displayName = T("Auto_Language");
-            }
-            else
+            
+            // Find the display name for the current language file
+            if (!string.IsNullOrEmpty(selectedFile) && selectedFile != "auto")
             {
                 displayName = _fileNameByDisplayName.FirstOrDefault(x => System.IO.Path.GetFileName(x.Value) == selectedFile).Key ?? string.Empty;
             }
+            
             if (!string.IsNullOrEmpty(displayName))
                 LanguageComboBox.SelectedItem = displayName;
             else if (LanguageComboBox.Items.Count > 0)
@@ -113,7 +100,8 @@ namespace FlairX_Mod_Manager.Pages
             
             // Update all texts and icons once at the end
             UpdateTexts();
-            AboutButtonText.Text = T("AboutButton_Label");
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            AboutButtonText.Text = SharedUtilities.GetTranslation(lang, "AboutButton_Label");
             AboutButtonIcon.Glyph = "\uE946";
         }
 
@@ -146,11 +134,7 @@ namespace FlairX_Mod_Manager.Pages
                 _languages.Clear();
                 _fileNameByDisplayName.Clear();
                 
-                // Add AUTO option at the beginning of the list
-                string autoDisplayName = T("Auto_Language");
-                LanguageComboBox.Items.Add(autoDisplayName);
-                _languages[autoDisplayName] = "auto";
-                _fileNameByDisplayName[autoDisplayName] = "auto";
+                // Remove AUTO option - auto-detection happens automatically on first app start
                 
                 if (Directory.Exists(LanguageFolderPath))
                 {
@@ -183,12 +167,12 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 Logger.LogError("Failed to load languages", ex);
-                // Ensure at least auto option is available
+                // Ensure at least one language is available
                 if (LanguageComboBox.Items.Count == 0)
                 {
-                    LanguageComboBox.Items.Add("Auto");
-                    _languages["Auto"] = "auto";
-                    _fileNameByDisplayName["Auto"] = "auto";
+                    LanguageComboBox.Items.Add("English");
+                    _languages["English"] = "en.json";
+                    _fileNameByDisplayName["English"] = "en.json";
                 }
             }
         }
@@ -197,17 +181,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (LanguageComboBox.SelectedItem is string displayName && _fileNameByDisplayName.TryGetValue(displayName, out var filePath))
             {
-                if (filePath == "auto")
-                {
-                    SettingsManager.Current.LanguageFile = "auto";
-                    SettingsManager.Save();
-                    // Force app restart so language detection works
-                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
-                    {
-                        mainWindow.RestartAppButton_Click(null, null);
-                    }
-                    return;
-                }
                 var fileName = Path.GetFileName(filePath);
                 
                 // IMPORTANT: Save to SettingsManager FIRST before loading language
@@ -215,13 +188,12 @@ namespace FlairX_Mod_Manager.Pages
                 SettingsManager.Save();
                 
                 // Update texts locally first to avoid flicker
-                LoadLanguage(); // Reload our local language dictionary
                 UpdateTexts();
                 
                 // Refresh the entire UI in MainWindow without re-navigating to settings
-                if (App.Current is App app2 && app2.MainWindow is MainWindow mainWindow2)
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                 {
-                    mainWindow2.RefreshUIAfterLanguageChange();
+                    mainWindow.RefreshUIAfterLanguageChange();
                     // No need to navigate back to SettingsPage - we're already here and updated
                 }
             }
@@ -335,46 +307,49 @@ namespace FlairX_Mod_Manager.Pages
 
         private void UpdateTexts()
         {
-            SettingsTitle.Text = T("SettingsPage_Title");
-            BackdropLabel.Text = T("SettingsPage_Backdrop");
-            LanguageLabel.Text = T("SettingsPage_Language");
-            DynamicModSearchLabel.Text = T("SettingsPage_DynamicModSearch_Label");
-            GridLoggingLabel.Text = T("SettingsPage_GridLogging_Label");
-            ShowOrangeAnimationLabel.Text = T("SettingsPage_ShowOrangeAnimation_Label");
-            ModGridZoomLabel.Text = T("SettingsPage_ModGridZoom_Label");
-            ToolTipService.SetToolTip(ModGridZoomToggle, T("SettingsPage_ModGridZoom_Tooltip"));
-            ToolTipService.SetToolTip(GridLoggingToggle, T("SettingsPage_GridLogging_Tooltip"));
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            SettingsTitle.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Title");
+            BackdropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop");
+            LanguageLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language");
+            DynamicModSearchLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Label");
+            GridLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Label");
+            ShowOrangeAnimationLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Label");
+            ModGridZoomLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Label");
+            ToolTipService.SetToolTip(ModGridZoomToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Tooltip"));
+            ToolTipService.SetToolTip(GridLoggingToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Tooltip"));
             // Update SelectorBar texts
-            ThemeSelectorAutoText.Text = T("SettingsPage_Theme_Auto");
-            ThemeSelectorLightText.Text = T("SettingsPage_Theme_Light");
-            ThemeSelectorDarkText.Text = T("SettingsPage_Theme_Dark");
+            ThemeSelectorAutoText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Auto");
+            ThemeSelectorLightText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Light");
+            ThemeSelectorDarkText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Dark");
             // Update Backdrop SelectorBar texts
             if (BackdropSelectorMicaText != null)
-                BackdropSelectorMicaText.Text = T("SettingsPage_Backdrop_Mica");
+                BackdropSelectorMicaText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_Mica");
             if (BackdropSelectorMicaAltText != null)
-                BackdropSelectorMicaAltText.Text = T("SettingsPage_Backdrop_MicaAlt");
+                BackdropSelectorMicaAltText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_MicaAlt");
             if (BackdropSelectorAcrylicText != null)
-                BackdropSelectorAcrylicText.Text = T("SettingsPage_Backdrop_Acrylic");
+                BackdropSelectorAcrylicText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_Acrylic");
             if (BackdropSelectorAcrylicThinText != null)
-                BackdropSelectorAcrylicThinText.Text = T("SettingsPage_Backdrop_AcrylicThin");
+                BackdropSelectorAcrylicThinText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_AcrylicThin");
             if (BackdropSelectorNoneText != null)
             {
-                BackdropSelectorNoneText.Text = T("None");
+                BackdropSelectorNoneText.Text = SharedUtilities.GetTranslation(lang, "None");
                 System.Diagnostics.Debug.WriteLine($"Set BackdropSelectorNoneText to: {BackdropSelectorNoneText.Text}");
             }
             else
             {
                 System.Diagnostics.Debug.WriteLine("BackdropSelectorNoneText is null!");
             }
-            XXMIModsDirectoryLabel.Text = T("SettingsPage_XXMIModsDirectory");
-            ModLibraryDirectoryLabel.Text = T("SettingsPage_ModLibraryDirectory");
-            ToolTipService.SetToolTip(XXMIModsDirectoryDefaultButton, T("SettingsPage_RestoreDefault_Tooltip"));
-            ToolTipService.SetToolTip(ModLibraryDirectoryDefaultButton, T("SettingsPage_RestoreDefault_Tooltip"));
-            ToolTipService.SetToolTip(OptimizePreviewsButton, T("SettingsPage_OptimizePreviews_Tooltip"));
-            OptimizePreviewsLabel.Text = T("SettingsPage_OptimizePreviews_Label");
-            ToolTipService.SetToolTip(XXMIModsDirectoryPickButton, T("PickFolderDialog_Title"));
-            ToolTipService.SetToolTip(ModLibraryDirectoryPickButton, T("PickFolderDialog_Title"));
-            ToolTipService.SetToolTip(DynamicModSearchToggle, T("SettingsPage_DynamicModSearch_Tooltip"));
+            XXMIModsDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIModsDirectory");
+            ModLibraryDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModLibraryDirectory");
+            ToolTipService.SetToolTip(XXMIModsDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
+            ToolTipService.SetToolTip(ModLibraryDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
+            ToolTipService.SetToolTip(OptimizePreviewsButton, SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Tooltip"));
+            OptimizePreviewsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
+            ToolTipService.SetToolTip(XXMIModsDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
+            ToolTipService.SetToolTip(ModLibraryDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
+            ToolTipService.SetToolTip(DynamicModSearchToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Tooltip"));
+            // Update About button text
+            AboutButtonText.Text = SharedUtilities.GetTranslation(lang, "AboutButton_Label");
             // Removed XXMIModsDirectoryDefaultButton.ToolTip and ModLibraryDirectoryDefaultButton.ToolTip, as WinUI 3 doesn't have this property
         }
 
@@ -555,12 +530,13 @@ namespace FlairX_Mod_Manager.Pages
             }
 
             // Show confirmation dialog before starting optimization
+            var lang = SharedUtilities.LoadLanguageDictionary();
             var confirmDialog = new ContentDialog
             {
-                Title = T("OptimizePreviews_Confirm_Title"),
-                Content = T("OptimizePreviews_Confirm_Message"),
-                PrimaryButtonText = T("Continue"),
-                CloseButtonText = T("Cancel"),
+                Title = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Confirm_Title"),
+                Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Confirm_Message"),
+                PrimaryButtonText = SharedUtilities.GetTranslation(lang, "Continue"),
+                CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel"),
                 DefaultButton = ContentDialogButton.Primary,
                 XamlRoot = this.XamlRoot
             };
@@ -597,9 +573,9 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     var dialog = new ContentDialog
                     {
-                        Title = T("Error_Generic"),
-                        Content = T("OptimizePreviews_Cancelled"),
-                        CloseButtonText = T("OK"),
+                        Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
+                        Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Cancelled"),
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
                         XamlRoot = mainWindow.Content.XamlRoot
                     };
                     _ = dialog.ShowAsync();
@@ -611,9 +587,9 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     var dialog = new ContentDialog
                     {
-                        Title = T("Success_Title"),
-                        Content = T("OptimizePreviews_Completed"),
-                        CloseButtonText = T("OK"),
+                        Title = SharedUtilities.GetTranslation(lang, "Success_Title"),
+                        Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"),
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
                         XamlRoot = mainWindow.Content.XamlRoot
                     };
                     _ = dialog.ShowAsync();
@@ -623,10 +599,11 @@ namespace FlairX_Mod_Manager.Pages
 
         private string? PickFolderWin32Dialog(nint hwnd)
         {
+            var lang = SharedUtilities.LoadLanguageDictionary();
             var bi = new BROWSEINFO
             {
                 hwndOwner = hwnd,
-                lpszTitle = T("PickFolderDialog_Title"),
+                lpszTitle = SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"),
                 ulFlags = 0x00000040 // BIF_NEWDIALOGSTYLE
             };
             IntPtr pidl = SHBrowseForFolder(ref bi);
@@ -665,10 +642,11 @@ namespace FlairX_Mod_Manager.Pages
 
         private void ShowNtfsWarning(string path, string label)
         {
+            var lang = SharedUtilities.LoadLanguageDictionary();
             var dialog = new ContentDialog
             {
-                Title = T("Ntfs_Warning_Title"),
-                Content = string.Format(T("Ntfs_Warning_Content"), label, path),
+                Title = SharedUtilities.GetTranslation(lang, "Ntfs_Warning_Title"),
+                Content = string.Format(SharedUtilities.GetTranslation(lang, "Ntfs_Warning_Content"), label, path),
                 CloseButtonText = "OK",
                 XamlRoot = this.XamlRoot
             };
@@ -735,8 +713,9 @@ namespace FlairX_Mod_Manager.Pages
             senderButton.IsEnabled = false;
             try
             {
+                var lang = SharedUtilities.LoadLanguageDictionary();
                 var hwnd = SharedUtilities.GetMainWindowHandle();
-                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, T("PickFolderDialog_Title"));
+                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
                 if (!string.IsNullOrEmpty(folderPath))
                 {
                     if (!IsNtfs(folderPath))
@@ -800,8 +779,9 @@ namespace FlairX_Mod_Manager.Pages
             senderButton.IsEnabled = false;
             try
             {
+                var lang = SharedUtilities.LoadLanguageDictionary();
                 var hwnd = SharedUtilities.GetMainWindowHandle();
-                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, T("PickFolderDialog_Title"));
+                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
                 if (!string.IsNullOrEmpty(folderPath))
                 {
                     if (!IsNtfs(folderPath))
@@ -873,6 +853,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private async void AboutButton_Click(object sender, RoutedEventArgs e)
         {
+            var lang = SharedUtilities.LoadLanguageDictionary();
             var mainWindow = (App.Current as App)?.MainWindow;
             var xamlRoot = mainWindow is not null ? (mainWindow.Content as FrameworkElement)?.XamlRoot : this.XamlRoot;
             var dialog = new ContentDialog
@@ -891,19 +872,19 @@ namespace FlairX_Mod_Manager.Pages
                 Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,12)
             };
             stackPanel.Children.Add(titleBlock);
-            stackPanel.Children.Add(new TextBlock { Text = T("AboutDialog_Author"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
+            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Author"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
             stackPanel.Children.Add(new HyperlinkButton { Content = "Jank8", NavigateUri = new Uri("https://github.com/Jank8"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) });
-            stackPanel.Children.Add(new TextBlock { Text = T("AboutDialog_AI"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
+            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_AI"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
             
             // Create AI section with Kiro and GitHub Copilot
             var aiPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) };
             aiPanel.Children.Add(new HyperlinkButton { Content = "Kiro", NavigateUri = new Uri("https://kiro.dev/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
-            aiPanel.Children.Add(new TextBlock { Text = " " + T("AboutDialog_With") + " ", VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
+            aiPanel.Children.Add(new TextBlock { Text = " " + SharedUtilities.GetTranslation(lang, "AboutDialog_With") + " ", VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
             aiPanel.Children.Add(new HyperlinkButton { Content = "GitHub Copilot", NavigateUri = new Uri("https://github.com/features/copilot"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
             stackPanel.Children.Add(aiPanel);
-            stackPanel.Children.Add(new TextBlock { Text = T("AboutDialog_Fonts"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
+            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Fonts"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
             stackPanel.Children.Add(new HyperlinkButton { Content = "Noto Fonts", NavigateUri = new Uri("https://notofonts.github.io/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) });
-            stackPanel.Children.Add(new TextBlock { Text = T("AboutDialog_Thanks"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
+            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Thanks"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
             var thanksPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
             thanksPanel.Children.Add(new StackPanel {
                 Orientation = Orientation.Vertical,
@@ -911,7 +892,7 @@ namespace FlairX_Mod_Manager.Pages
                     new HyperlinkButton { Content = "XLXZ", NavigateUri = new Uri("https://github.com/XiaoLinXiaoZhu"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0), HorizontalAlignment = HorizontalAlignment.Left },
                 }
             });
-            thanksPanel.Children.Add(new TextBlock { Text = T("AboutDialog_For"), VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(8,0,8,0) });
+            thanksPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_For"), VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(8,0,8,0) });
             thanksPanel.Children.Add(new StackPanel {
                 Orientation = Orientation.Vertical,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -921,7 +902,7 @@ namespace FlairX_Mod_Manager.Pages
             });
             stackPanel.Children.Add(thanksPanel);
             var gplPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,16,0,0) };
-            gplPanel.Children.Add(new HyperlinkButton { Content = T("AboutDialog_License"), NavigateUri = new Uri("https://www.gnu.org/licenses/gpl-3.0.html#license-text") });
+            gplPanel.Children.Add(new HyperlinkButton { Content = SharedUtilities.GetTranslation(lang, "AboutDialog_License"), NavigateUri = new Uri("https://www.gnu.org/licenses/gpl-3.0.html#license-text") });
             stackPanel.Children.Add(gplPanel);
             dialog.Content = stackPanel;
             await dialog.ShowAsync();

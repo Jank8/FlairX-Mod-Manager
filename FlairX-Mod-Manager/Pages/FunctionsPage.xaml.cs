@@ -44,20 +44,8 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (func.FileName == "GBAuthorUpdate")
                 {
-                    // Get translation from GBAuthorUpdate language file
-                    var langFile = FlairX_Mod_Manager.SettingsManager.Current.LanguageFile ?? "en.json";
-                    var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "GBAuthorUpdate", langFile);
-                    if (!File.Exists(langPath))
-                        langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "GBAuthorUpdate", "en.json");
-                    if (File.Exists(langPath))
-                    {
-                        var json = File.ReadAllText(langPath);
-                        var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                        if (dict != null && dict.TryGetValue("GameBananaAuthorUpdate_Function", out var gbName))
-                        {
-                            func.Name = gbName;
-                        }
-                    }
+                    var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+                    func.Name = SharedUtilities.GetTranslation(lang, "GameBananaAuthorUpdate_Function");
                 }
             }
             PopulateSelectorBar();
@@ -290,117 +278,26 @@ namespace FlairX_Mod_Manager.Pages
 
         private string GetGameBananaFunctionName()
         {
-            // Get translation from GBAuthorUpdate language file
-            var langFile = FlairX_Mod_Manager.SettingsManager.Current.LanguageFile ?? "en.json";
-            var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "GBAuthorUpdate", langFile);
-            if (!File.Exists(langPath))
-                langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "GBAuthorUpdate", "en.json");
-            
-            if (File.Exists(langPath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(langPath);
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                    if (dict != null && dict.TryGetValue("Title", out var gbTitle))
-                    {
-                        return gbTitle;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to parse GBAuthorUpdate language file", ex);
-                }
-            }
-            
-            // Fallback to main language dictionary
-            var langDict = SharedUtilities.LoadLanguageDictionary();
-            return SharedUtilities.GetTranslation(langDict, "GameBananaAuthorUpdate_Function");
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            return SharedUtilities.GetTranslation(lang, "GameBananaAuthorUpdate_Function");
         }
 
         private string GetHotkeyFinderFunctionName()
         {
-            // Get translation from HotkeyFinder language file
-            var langFile = FlairX_Mod_Manager.SettingsManager.Current.LanguageFile ?? "en.json";
-            var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "HotkeyFinder", langFile);
-            if (!File.Exists(langPath))
-                langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "HotkeyFinder", "en.json");
-            
-            if (File.Exists(langPath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(langPath);
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                    if (dict != null && dict.TryGetValue("Title", out var hkName))
-                    {
-                        return hkName;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to parse HotkeyFinder language file", ex);
-                }
-            }
-            
-            // Fallback to default
-            return "Hotkey Finder";
+            var lang = SharedUtilities.LoadLanguageDictionary("HotkeyFinder");
+            return SharedUtilities.GetTranslation(lang, "HotkeyFinder_Function");
         }
 
         private string GetStatusKeeperFunctionName()
         {
-            // Get translation from StatusKeeper language file
-            var langFile = FlairX_Mod_Manager.SettingsManager.Current.LanguageFile ?? "en.json";
-            var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", langFile);
-            if (!File.Exists(langPath))
-                langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", "en.json");
-            if (File.Exists(langPath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(langPath);
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                    if (dict != null && dict.TryGetValue("Title", out var skName))
-                    {
-                        return skName;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to parse StatusKeeper language file", ex);
-                }
-            }
-            // Fallback to default
-            return "Status Keeper";
+            var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+            return SharedUtilities.GetTranslation(lang, "StatusKeeper_Function");
         }
         
         private string GetModInfoBackupFunctionName()
         {
-            // Get translation from ModInfoBackup language file
-            var langFile = FlairX_Mod_Manager.SettingsManager.Current.LanguageFile ?? "en.json";
-            var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "ModInfoBackup", langFile);
-            if (!File.Exists(langPath))
-                langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "ModInfoBackup", "en.json");
-            
-            if (File.Exists(langPath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(langPath);
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                    if (dict != null && dict.TryGetValue("Title", out var mibName))
-                    {
-                        return mibName;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to parse ModInfoBackup language file", ex);
-                }
-            }
-            
-            // Fallback to default
-            return "ModInfo Backup";
+            var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
+            return SharedUtilities.GetTranslation(lang, "ModInfoBackup_Function");
         }
     }
 }

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36301.6
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZZZ Mod Manager X Launcher", "ZZZ Mod Manager X Launcher.csproj", "{30027E50-6B9B-48B3-B6E9-870B76B6D364}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlairX Mod Manager Launcher", "FlairX Mod Manager Launcher.csproj", "{30027E50-6B9B-48B3-B6E9-870B76B6D364}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
