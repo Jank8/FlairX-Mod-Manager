@@ -1,0 +1,9 @@
+<Page
+    x:Class="FlairX_Mod_Manager.Pages.SettingsFunctionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FlairX_Mod_Manager.Pages">
+    <Grid>
+        <StackPanel x:Name="FunctionLangPanel" Margin="32"/>
+    </Grid>
+</Page>

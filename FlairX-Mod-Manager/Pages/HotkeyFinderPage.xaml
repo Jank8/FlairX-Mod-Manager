@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="FlairX_Mod_Manager.Pages.HotkeyFinderPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FlairX_Mod_Manager.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    mc:Ignorable="d"
+    d:DesignHeight="400"
+    d:DesignWidth="600">
+    <Grid Margin="24">
+        <StackPanel Spacing="16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300"/>
+                    <ColumnDefinition Width="32"/>
+                    <ColumnDefinition Width="44"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="AutoDetectLabel" Text="" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" TextWrapping="WrapWholeWords" FontSize="14"/>
+                <ToggleSwitch x:Name="AutoDetectToggle" Grid.Row="0" Grid.Column="2" Width="44" MinWidth="0" VerticalAlignment="Center" IsOn="False" OffContent="" OnContent="" Toggled="AutoDetectToggle_Toggled" 
+                              ToolTipService.ToolTip="Automatyczne uzupełnianie hotkey po dodaniu moda"/>
+                <TextBlock x:Name="RefreshAllLabel" Text="" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" TextWrapping="WrapWholeWords" FontSize="14"/>
+                <ToggleSwitch x:Name="RefreshAllToggle" Grid.Row="1" Grid.Column="2" Width="44" MinWidth="0" VerticalAlignment="Center" IsOn="False" OffContent="" OnContent="" Toggled="RefreshAllToggle_Toggled"
+                              ToolTipService.ToolTip="Wyszukuje i aktualizuje hotkey dla wszystkich obecnych modów"/>
+            </Grid>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,24,0,0">
+                <Button x:Name="RefreshButton" Height="32" MinWidth="160" HorizontalAlignment="Stretch" VerticalAlignment="Center" Click="RefreshButton_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon x:Name="RefreshIcon" Glyph="&#xE72C;" FontSize="16" Visibility="Visible"/>
+                        <FontIcon x:Name="CancelIcon" Glyph="&#xE711;" FontSize="16" Visibility="Collapsed"/>
+                        <TextBlock x:Name="RefreshButtonText" Text=""/>
+                    </StackPanel>
+                </Button>
+                <ProgressBar x:Name="RefreshProgressBar" Width="130" Height="32" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="20,0,0,0" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>

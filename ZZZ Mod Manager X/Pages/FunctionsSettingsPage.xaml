@@ -1,9 +1,0 @@
-<Page
-    x:Class="ZZZ_Mod_Manager_X.Pages.SettingsFunctionPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:ZZZ_Mod_Manager_X.Pages">
-    <Grid>
-        <StackPanel x:Name="FunctionLangPanel" Margin="32"/>
-    </Grid>
-</Page>

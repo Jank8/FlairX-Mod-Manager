@@ -1,0 +1,90 @@
+<Page
+    x:Class="FlairX_Mod_Manager.Pages.ModInfoBackupPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FlairX_Mod_Manager.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="400"
+    d:DesignWidth="600">
+    <Grid Margin="24">
+        <StackPanel Spacing="16">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="CreateBackupsButton" Height="36" Width="220" Click="CreateBackupsButton_Click" Padding="0">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xEA35;" FontSize="16"/>
+                        <TextBlock x:Name="CreateBackupsText" Text="Backup all mod.json"/>
+                    </StackPanel>
+                </Button>
+                <ProgressBar x:Name="CreateBackupsProgressBar" Width="130" Height="32" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="10,0,0,0" />
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Spacing="8">
+                <Grid Height="40">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="48"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="RestoreBackup1Button" Height="32" Width="220" Tag="1" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE8EB;" FontSize="16"/>
+                            <TextBlock x:Name="RestoreBackup1Text" Text="Restore backup 1 (newest)"/>
+                        </StackPanel>
+                    </Button>
+                    <!-- Spacer -->
+                    <Border Grid.Column="1"/>
+                    <Button x:Name="DeleteBackup1Button" Height="32" Width="40" Grid.Column="2" Click="DeleteBackupButton_Click" Tag="1" Padding="0">
+                        <FontIcon Glyph="&#xE74D;" FontSize="18"/>
+                    </Button>
+                    <Border Grid.Column="3"/>
+                    <TextBlock x:Name="Backup1Info" Grid.Column="4" VerticalAlignment="Center" FontSize="14"/>
+                </Grid>
+                <Grid Height="40">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="48"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="RestoreBackup2Button" Height="32" Width="220" Tag="2" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE8EB;" FontSize="16"/>
+                            <TextBlock x:Name="RestoreBackup2Text" Text="Restore backup 2 (middle)"/>
+                        </StackPanel>
+                    </Button>
+                    <Border Grid.Column="1"/>
+                    <Button x:Name="DeleteBackup2Button" Height="32" Width="40" Grid.Column="2" Click="DeleteBackupButton_Click" Tag="2" Padding="0">
+                        <FontIcon Glyph="&#xE74D;" FontSize="18"/>
+                    </Button>
+                    <Border Grid.Column="3"/>
+                    <TextBlock x:Name="Backup2Info" Grid.Column="4" VerticalAlignment="Center" FontSize="14"/>
+                </Grid>
+                <Grid Height="40">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="48"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="RestoreBackup3Button" Height="32" Width="220" Tag="3" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE8EB;" FontSize="16"/>
+                            <TextBlock x:Name="RestoreBackup3Text" Text="Restore backup 3 (oldest)"/>
+                        </StackPanel>
+                    </Button>
+                    <Border Grid.Column="1"/>
+                    <Button x:Name="DeleteBackup3Button" Height="32" Width="40" Grid.Column="2" Click="DeleteBackupButton_Click" Tag="3" Padding="0">
+                        <FontIcon Glyph="&#xE74D;" FontSize="18"/>
+                    </Button>
+                    <Border Grid.Column="3"/>
+                    <TextBlock x:Name="Backup3Info" Grid.Column="4" VerticalAlignment="Center" FontSize="14"/>
+                </Grid>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Page>

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "FlairX-Mod-Manager (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "FlairX-Mod-Manager (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
