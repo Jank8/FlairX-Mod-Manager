@@ -1,6 +1,6 @@
 # FlairX Mod Manager
 
-<img align="right" width="256" height="256" alt="appicon" src="https://github.com/user-attachments/assets/69b40b1f-0b89-417b-81a7-70f9507b3c42" />
+<img align="right" width="256" height="256" alt="appicon" src="https://github.com/user-attachments/assets/f020d49b-1c4c-46a3-a97c-352e4735180f" />
 
 A comprehensive mod management application for multiple miHoYo games, built with WinUI 3 and .NET 8. This application provides an intuitive interface for managing, organizing, and activating game modifications across Zenless Zone Zero, Genshin Impact, Honkai Impact 3rd, Honkai: Star Rail, and Wuthering Waves.
 
@@ -231,3 +231,4 @@ Contributions are welcome! Please feel free to submit pull requests or open issu
 
 
 *This application is not affiliated with miHoYo/HoYoverse or any of the supported games. It is a community-developed tool for managing game modifications.*
+
