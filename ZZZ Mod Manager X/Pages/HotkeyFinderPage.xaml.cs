@@ -32,28 +32,12 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void LoadLanguage()
         {
-            try
-            {
-                var langFile = ZZZ_Mod_Manager_X.SettingsManager.Current?.LanguageFile ?? "en.json";
-                var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "HotkeyFinder", langFile);
-                if (!File.Exists(langPath))
-                    langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "HotkeyFinder", "en.json");
-                
-                if (File.Exists(langPath))
-                {
-                    var json = File.ReadAllText(langPath);
-                    _lang = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
-                }
-            }
-            catch
-            {
-                _lang = new Dictionary<string, string>();
-            }
+            _lang = SharedUtilities.LoadLanguageDictionary("HotkeyFinder");
         }
 
         private string T(string key)
         {
-            return _lang.TryGetValue(key, out var value) ? value : key;
+            return SharedUtilities.GetTranslation(_lang, key);
         }
 
         private void UpdateTexts()
@@ -70,40 +54,23 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void LoadSettings()
         {
-            try
+            var settings = SharedUtilities.LoadJsonSettings<HotkeyFinderSettings>("HotkeyFinder.json");
+            if (settings != null)
             {
-                var settingsPath = Path.Combine(System.AppContext.BaseDirectory, "Settings", "HotkeyFinder.json");
-                if (File.Exists(settingsPath))
-                {
-                    var json = File.ReadAllText(settingsPath);
-                    var settings = JsonSerializer.Deserialize<HotkeyFinderSettings>(json);
-                    if (settings != null)
-                    {
-                        AutoDetectToggle.IsOn = settings.AutoDetectEnabled;
-                        RefreshAllToggle.IsOn = settings.RefreshAllEnabled;
-                    }
-                }
+                AutoDetectToggle.IsOn = settings.AutoDetectEnabled;
+                RefreshAllToggle.IsOn = settings.RefreshAllEnabled;
             }
-            catch { /* Settings loading failed - use defaults */ }
         }
 
         private void SaveSettings()
         {
-            try
+            var settings = new HotkeyFinderSettings
             {
-                var settings = new HotkeyFinderSettings
-                {
-                    AutoDetectEnabled = AutoDetectToggle.IsOn,
-                    // RefreshAllEnabled is not saved because it turns off after update starts
-                };
+                AutoDetectEnabled = AutoDetectToggle.IsOn,
+                // RefreshAllEnabled is not saved because it turns off after update starts
+            };
 
-                var settingsDir = Path.Combine(System.AppContext.BaseDirectory, "Settings");
-                Directory.CreateDirectory(settingsDir);
-                var settingsPath = Path.Combine(settingsDir, "HotkeyFinder.json");
-                var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(settingsPath, json);
-            }
-            catch { /* Settings save failed - not critical */ }
+            SharedUtilities.SaveJsonSettings("HotkeyFinder.json", settings);
         }
 
 
@@ -119,6 +86,19 @@ namespace ZZZ_Mod_Manager_X.Pages
         }
 
         private async void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await RefreshButtonClickAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in RefreshButton_Click", ex);
+                ShowInfoBar("Error", ex.Message);
+            }
+        }
+        
+        private async Task RefreshButtonClickAsync()
         {
             if (_isProcessing)
             {
@@ -167,7 +147,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                             }
                         }
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to find INI files in {modDir}", ex);
+                    }
                 }
 
                 // Parse INI files and collect hotkeys
@@ -181,7 +164,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                         var fileHotkeys = await ParseIniFileCommonAsync(iniFile, token);
                         hotkeys.AddRange(fileHotkeys);
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to parse INI file {iniFile}", ex);
+                    }
                 }
 
                 // Remove duplicates
@@ -211,8 +197,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
             try
             {
-                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ??
-                    Path.Combine(System.AppContext.BaseDirectory, "ModLibrary");
+                var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
                 if (!Directory.Exists(modLibraryPath))
                 {
                     ShowInfoBar("Error", "ModLibraryNotFound");
@@ -225,7 +210,11 @@ namespace ZZZ_Mod_Manager_X.Pages
                     await DetectAndUpdateHotkeysAsync(modDirectories, true, _cancellationTokenSource.Token);
                     successCount = processedCount;
                 }
-                catch { errorCount = processedCount; }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to detect and update hotkeys", ex);
+                    errorCount = processedCount;
+                }
 
                 if (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
@@ -271,7 +260,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             try
             {
                 bool autoDetectEnabled = false;
-                var settingsPath = Path.Combine(System.AppContext.BaseDirectory, "Settings", "HotkeyFinder.json");
+                var settingsPath = PathManager.GetSettingsPath("HotkeyFinder.json");
                 if (File.Exists(settingsPath))
                 {
                     try
@@ -283,7 +272,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                             autoDetectEnabled = settings.AutoDetectEnabled;
                         }
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Failed to load HotkeyFinder settings for static method", ex);
+                    }
                 }
                 if (!autoDetectEnabled)
                     return;
@@ -424,7 +416,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                     }
                 }
             }
-            catch { /* Directory access failed - skip */ }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Directory access failed for {folderPath}", ex);
+            }
         }
         
         // Static version of ParseIniFileAsync method
@@ -548,7 +543,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                     }
                 }
             }
-            catch { /* File parsing failed - return empty list */ }
+            catch (Exception ex)
+            {
+                Logger.LogError($"File parsing failed for {iniFilePath}", ex);
+            }
 
             return hotkeys;
         }
@@ -670,7 +668,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var json = JsonSerializer.Serialize(modData, new JsonSerializerOptions { WriteIndented = true });
                 await File.WriteAllTextAsync(modJsonPath, json, token);
             }
-            catch { /* File update failed - skip */ }
+            catch (Exception ex)
+            {
+                Logger.LogError($"File update failed for {modJsonPath}", ex);
+            }
         }
 
 

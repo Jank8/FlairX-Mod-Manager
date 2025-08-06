@@ -72,24 +72,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             get
             {
-                string gameTag = ZZZ_Mod_Manager_X.SettingsManager.CurrentSelectedGame;
-                if (string.IsNullOrEmpty(gameTag))
-                {
-                    // Fallback to default if no game selected
-                    return Path.Combine(AppContext.BaseDirectory, "Settings", "ActiveMods.json");
-                }
-                
-                string gameSubDir = gameTag switch
-                {
-                    "ZZMI" => "ZZ",
-                    "WWMI" => "WW", 
-                    "SRMI" => "SR",
-                    "GIMI" => "GI",
-                    "HIMI" => "HI",
-                    _ => "ZZ"
-                };
-                
-                return Path.Combine(AppContext.BaseDirectory, "Settings", $"{gameSubDir}-ActiveMods.json");
+                return PathManager.GetActiveModsPath();
             }
         }
         private static string SymlinkStatePath => Path.Combine(AppContext.BaseDirectory, "Settings", "SymlinkState.json");
@@ -103,14 +86,15 @@ namespace ZZZ_Mod_Manager_X.Pages
         // Virtualized loading - store all mod data but only create visible ModTiles
         private List<ModData> _allModData = new();
         
-        // JSON Caching System
-        private static Dictionary<string, ModData> _modJsonCache = new();
-        private static Dictionary<string, DateTime> _modFileTimestamps = new();
+        // Thread-safe JSON Caching System
+        private static readonly Dictionary<string, ModData> _modJsonCache = new();
+        private static readonly Dictionary<string, DateTime> _modFileTimestamps = new();
         private static readonly object _cacheLock = new object();
         
-        // Background Loading
-        private static bool _isBackgroundLoading = false;
+        // Thread-safe Background Loading
+        private static volatile bool _isBackgroundLoading = false;
         private static Task? _backgroundLoadTask = null;
+        private static readonly object _backgroundLoadLock = new object();
 
         private double _zoomFactor = 1.0;
         private DateTime _lastScrollTime = DateTime.MinValue;
@@ -267,7 +251,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private static void StartBackgroundLoadingIfNeeded()
         {
-            lock (_cacheLock)
+            lock (_backgroundLoadLock)
             {
                 if (!_isBackgroundLoading && _backgroundLoadTask == null)
                 {
@@ -280,7 +264,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                         }
                         finally
                         {
-                            lock (_cacheLock)
+                            lock (_backgroundLoadLock)
                             {
                                 _isBackgroundLoading = false;
                                 _backgroundLoadTask = null;
@@ -883,7 +867,11 @@ namespace ZZZ_Mod_Manager_X.Pages
                     var json = File.ReadAllText(ActiveModsStatePath);
                     _activeMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
                 }
-                catch { _activeMods = new(); }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to load active mods", ex);
+                    _activeMods = new();
+                }
             }
         }
 
@@ -894,7 +882,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var json = JsonSerializer.Serialize(_activeMods, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(ActiveModsStatePath, json);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to save active mods", ex);
+            }
         }
 
         private void LoadSymlinkState()
@@ -986,7 +977,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                     
                     mods.Add(modTile);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to parse mod.json for {dir}", ex);
+                }
             }
             
             var sorted = mods
@@ -1196,7 +1190,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             {
                 if (File.Exists(imagePath))
                 {
-                    // Read file into memory stream to avoid file locking issues
+                    // Read file into memory steam to avoid file locking issues
                     byte[] imageData = File.ReadAllBytes(imagePath);
                     using (var memStream = new MemoryStream(imageData))
                     {
@@ -1322,7 +1316,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             if (sender is Button btn && btn.Tag is ModTile mod)
             {
                 // Validate mod directory name for security
-                if (!IsValidModDirectoryName(mod.Directory))
+                if (!SecurityValidator.IsValidModDirectoryName(mod.Directory))
                     return;
 
                 // Always use current path from settings
@@ -1385,7 +1379,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             if (sender is Button btn && btn.Tag is ModTile mod)
             {
                 // Validate mod directory name for security
-                if (!IsValidModDirectoryName(mod.Directory))
+                if (!SecurityValidator.IsValidModDirectoryName(mod.Directory))
                     return;
 
                 // Always use the current ModLibraryDirectory setting
@@ -1468,7 +1462,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var currentScrollPosition = ModsScrollViewer?.VerticalOffset ?? 0;
 
                 // Validate mod directory name for security
-                if (!IsValidModDirectoryName(mod.Directory))
+                if (!SecurityValidator.IsValidModDirectoryName(mod.Directory))
                     return;
 
                 // Get mod folder path
@@ -1640,7 +1634,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             if (sender is Button btn && btn.Tag is ModTile mod)
             {
                 // Validate mod directory name for security
-                if (!IsValidModDirectoryName(mod.Directory))
+                if (!SecurityValidator.IsValidModDirectoryName(mod.Directory))
                     return;
 
                 // Navigate to mod details page, pass both directory and current category
@@ -1716,7 +1710,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
             }
 
-            var activeModsPath = ActiveModsStatePath;
+            // Use game-specific ActiveMods path
+            var activeModsPath = PathManager.GetActiveModsPath();
             if (!File.Exists(activeModsPath)) return;
             try
             {
@@ -1743,7 +1738,20 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         public static void ApplyPreset(string presetName)
         {
-            var presetPath = Path.Combine(AppContext.BaseDirectory, "Settings", "Presets", presetName + ".json");
+            // Use game-specific presets path
+            string gameSpecificPresetsPath = AppConstants.GameConfig.GetPresetsPath(SettingsManager.CurrentSelectedGame);
+            string presetPath;
+            
+            if (string.IsNullOrEmpty(gameSpecificPresetsPath))
+            {
+                // Fallback to root presets directory when no game selected
+                presetPath = Path.Combine(AppContext.BaseDirectory, "Settings", "Presets", presetName + ".json");
+            }
+            else
+            {
+                presetPath = Path.Combine(AppContext.BaseDirectory, gameSpecificPresetsPath, presetName + ".json");
+            }
+            
             if (!File.Exists(presetPath)) return;
             try
             {
@@ -1752,13 +1760,17 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var preset = JsonSerializer.Deserialize<Dictionary<string, bool>>(json);
                 if (preset != null)
                 {
-                    var activeModsPath = ActiveModsStatePath;
+                    // Use game-specific ActiveMods path
+                    var activeModsPath = PathManager.GetActiveModsPath();
                     var presetJson = JsonSerializer.Serialize(preset, new JsonSerializerOptions { WriteIndented = true });
                     File.WriteAllText(activeModsPath, presetJson);
                     RecreateSymlinksFromActiveMods();
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to apply preset", ex);
+            }
         }
 
         public void SaveDefaultPresetAllInactive()
@@ -1782,7 +1794,11 @@ namespace ZZZ_Mod_Manager_X.Pages
                             if (string.Equals(modCharacter, "other", StringComparison.OrdinalIgnoreCase))
                                 continue;
                         }
-                        catch { continue; }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to parse mod.json for preset: {dir}", ex);
+                            continue;
+                        }
                         string modName = Path.GetFileName(dir);
                         allMods[modName] = false;
                     }
@@ -1809,7 +1825,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var json = JsonSerializer.Serialize(allMods, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(presetPath, json);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to save default preset", ex);
+            }
         }
 
         // Cache management methods
@@ -1953,32 +1972,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             return path;
         }
 
-        // Validate mod directory name for security
-        private static bool IsValidModDirectoryName(string? directoryName)
-        {
-            if (string.IsNullOrWhiteSpace(directoryName))
-                return false;
 
-            // Check for path traversal attempts
-            if (directoryName.Contains("..") || directoryName.Contains("/") || directoryName.Contains("\\"))
-                return false;
-
-            // Check for absolute path attempts
-            if (Path.IsPathRooted(directoryName))
-                return false;
-
-            // Check for invalid filename characters
-            var invalidChars = Path.GetInvalidFileNameChars();
-            if (directoryName.IndexOfAny(invalidChars) >= 0)
-                return false;
-
-            // Check for reserved names (Windows)
-            var reservedNames = new[] { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
-            if (reservedNames.Contains(directoryName.ToUpperInvariant()))
-                return false;
-
-            return true;
-        }
 
         // Static helper for symlink creation
         private static void CreateSymlinkStatic(string linkPath, string targetPath)
@@ -2030,8 +2024,8 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var modsDirFull = Path.GetFullPath(modsDir);
                 var modLibraryPath = SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 
-                // Load active mods
-                var activeModsPath = ActiveModsStatePath;
+                // Load active mods using game-specific path
+                var activeModsPath = PathManager.GetActiveModsPath();
                 var activeMods = new Dictionary<string, bool>();
                 
                 if (File.Exists(activeModsPath))

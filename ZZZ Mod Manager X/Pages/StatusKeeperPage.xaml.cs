@@ -23,22 +23,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void LoadLanguage()
         {
-            try
-            {
-                var langFile = ZZZ_Mod_Manager_X.SettingsManager.Current?.LanguageFile ?? "en.json";
-                var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", langFile);
-                if (!File.Exists(langPath))
-                    langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", "en.json");
-                if (File.Exists(langPath))
-                {
-                    var json = File.ReadAllText(langPath);
-                    _lang = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
-                }
-            }
-            catch
-            {
-                _lang = new Dictionary<string, string>();
-            }
+            _lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
         }
 
         private string T(string key)

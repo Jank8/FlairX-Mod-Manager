@@ -97,7 +97,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                         gbAuthorUpdateFunction.Name = loaded.Name;
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to load GBAuthorUpdate function settings", ex);
+                }
             }
             _functionInfos.Add(gbAuthorUpdateFunction);
 
@@ -120,7 +123,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                         hotkeyFinderFunction.Enabled = loaded.Enabled;
                     }
                 }
-                catch { /* Settings loading failed - use defaults */ }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to load HotkeyFinder function settings", ex);
+                }
             }
             _functionInfos.Add(hotkeyFinderFunction);
 
@@ -144,7 +150,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                         statusKeeperFunction.Name = loaded.Name;
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to load StatusKeeper function settings", ex);
+                }
             }
             _functionInfos.Add(statusKeeperFunction);
 
@@ -168,7 +177,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                         modInfoBackupFunction.Name = loaded.Name;
                     }
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to load ModInfoBackup function settings", ex);
+                }
             }
             _functionInfos.Add(modInfoBackupFunction);
 
@@ -294,7 +306,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                         return gbTitle;
                     }
                 }
-                catch { /* Language file parsing failed - use fallback */ }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to parse GBAuthorUpdate language file", ex);
+                }
             }
             
             // Fallback to main language manager
@@ -320,7 +335,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                         return hkName;
                     }
                 }
-                catch { /* Language file parsing failed - use fallback */ }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to parse HotkeyFinder language file", ex);
+                }
             }
             
             // Fallback to default
@@ -345,7 +363,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                         return skName;
                     }
                 }
-                catch { /* Language file parsing failed - use fallback */ }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to parse StatusKeeper language file", ex);
+                }
             }
             // Fallback to default
             return "Status Keeper";
@@ -370,7 +391,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                         return mibName;
                     }
                 }
-                catch { /* Language file parsing failed - use fallback */ }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to parse ModInfoBackup language file", ex);
+                }
             }
             
             // Fallback to default

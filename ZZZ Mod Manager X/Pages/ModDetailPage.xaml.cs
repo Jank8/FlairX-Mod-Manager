@@ -61,7 +61,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             string modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? string.Empty;
             if (string.IsNullOrEmpty(modLibraryPath))
             {
-                modLibraryPath = Path.Combine(System.AppContext.BaseDirectory, "ModLibrary");
+                modLibraryPath = PathManager.GetModLibraryPath();
             }
             
             if (Directory.Exists(modLibraryPath))
@@ -223,7 +223,11 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(_categoryParam))
+            if (Frame.CanGoBack)
+            {
+                Frame.GoBack();
+            }
+            else if (!string.IsNullOrEmpty(_categoryParam))
             {
                 Frame.Navigate(typeof(ModGridPage), _categoryParam);
             }
@@ -273,7 +277,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                     var uri = new System.Uri(url);
                     var ignored = Windows.System.Launcher.LaunchUriAsync(uri);
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to launch URL: {url}", ex);
+                }
             }
         }
 
@@ -317,7 +324,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                 var newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(_modJsonPath, newJson);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to save mod details", ex);
+            }
         }
 
         private void PrevModButton_Click(object sender, RoutedEventArgs e)
@@ -399,7 +409,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                             UseShellExecute = true
                         });
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Failed to update mod image", ex);
+                    }
                 }
             }
         }

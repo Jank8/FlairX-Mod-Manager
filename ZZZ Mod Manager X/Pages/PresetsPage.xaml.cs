@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +18,9 @@ namespace ZZZ_Mod_Manager_X.Pages
                 if (string.IsNullOrEmpty(gameSpecificPath))
                 {
                     // Fallback to root presets directory when no game selected
-                    return Path.Combine(System.AppContext.BaseDirectory, "Settings", "Presets");
+                    return PathManager.GetSettingsPath("Presets");
                 }
-                return Path.Combine(System.AppContext.BaseDirectory, gameSpecificPath);
+                return PathManager.GetAbsolutePath(gameSpecificPath);
             }
         }
         private const string SelectedPresetKey = "SelectedPreset";
@@ -84,18 +84,23 @@ namespace ZZZ_Mod_Manager_X.Pages
                 EnsurePresetsDir();
                 var presetName = PresetNameTextBox.Text.Trim();
                 var presetPath = Path.Combine(PresetsDir, presetName + ".json");
-                var activeModsPath = Path.Combine(System.AppContext.BaseDirectory, "Settings", "ActiveMods.json");
-                Dictionary<string, bool> activeMods = new();
+                
+                // Use game-specific ActiveMods file name
+                var activeModsFileName = AppConstants.GameConfig.GetActiveModsFilename(SettingsManager.CurrentSelectedGame);
+                var activeModsPath = PathManager.GetSettingsPath(activeModsFileName);
+                
+                // Get current active mods state
+                var activeMods = new Dictionary<string, bool>();
                 if (File.Exists(activeModsPath))
                 {
                     try
                     {
                         var json = File.ReadAllText(activeModsPath);
-                        var absMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
-                        foreach (var kv in absMods)
+                        var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new Dictionary<string, bool>();
+                        foreach (var kv in currentMods)
                         {
                             string modName = Path.GetFileName(kv.Key);
-                            activeMods[modName] = kv.Value;
+                            activeMods[modName] = kv.Value; // Save CURRENT state (true for active, false for inactive)
                         }
                     }
                     catch (Exception ex)
@@ -104,8 +109,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                         return;
                     }
                 }
+                
                 try
                 {
+                    // Save the current state to preset (includes both active=true and inactive=false mods)
                     var json = System.Text.Json.JsonSerializer.Serialize(activeMods, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
                     File.WriteAllText(presetPath, json);
                 }
@@ -216,7 +223,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                             }
                         }
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to parse preset file: {path}", ex);
+                    }
                 }
             }
         }

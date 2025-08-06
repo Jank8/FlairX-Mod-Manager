@@ -19,7 +19,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 {
     public sealed partial class SettingsPage : Page
     {
-        private readonly string LanguageFolderPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Language");
+        private readonly string LanguageFolderPath = PathManager.GetAbsolutePath("Language");
         private Dictionary<string, string> _languages = new(); // displayName, filePath
         private Dictionary<string, string> _fileNameByDisplayName = new();
         private static bool _isOptimizingPreviews = false;
@@ -29,29 +29,13 @@ namespace ZZZ_Mod_Manager_X.Pages
         // Set BreadcrumbBar to path segments with icon at the beginning
         private void SetBreadcrumbBar(BreadcrumbBar bar, string path)
         {
-            var items = new List<object>();
-            // Default path: only dot or empty string
-            if (path == "." || string.IsNullOrWhiteSpace(path))
-            {
-                items.Add(new FontIcon { Glyph = "\uE80F" });
-            }
-            else
-            {
-                items.Add(new FontIcon { Glyph = "\uE80F" });
-                var segments = path.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var seg in segments)
-                    items.Add(seg);
-            }
-            bar.ItemsSource = items;
+            SharedUtilities.SetBreadcrumbBarPath(bar, path);
         }
 
         // Improved breadcrumb path aggregation
         private string GetBreadcrumbPath(BreadcrumbBar bar)
         {
-            var items = bar.ItemsSource as IEnumerable<object>;
-            if (items == null) return string.Empty;
-            var segments = items.Skip(1).OfType<string>(); // skip icon
-            return string.Join(Path.DirectorySeparatorChar.ToString(), segments);
+            return SharedUtilities.GetBreadcrumbBarPath(bar);
         }
 
         public SettingsPage()
@@ -60,9 +44,11 @@ namespace ZZZ_Mod_Manager_X.Pages
             _optimizePreviewsButtonIcon = OptimizePreviewsButton.Content as FontIcon;
             SettingsManager.Load();
             LoadLanguages();
-            UpdateTexts();
-            AboutButtonText.Text = LanguageManager.Instance.T("AboutButton_Label");
-            AboutButtonIcon.Glyph = "\uE946";
+            InitializeUIState();
+        }
+        
+        private void InitializeUIState()
+        {
             // Set ComboBox to selected language from settings or default (English)
             string? selectedFile = SettingsManager.Current.LanguageFile ?? "auto";
             string displayName = string.Empty;
@@ -78,6 +64,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 LanguageComboBox.SelectedItem = displayName;
             else if (LanguageComboBox.Items.Count > 0)
                 LanguageComboBox.SelectedIndex = 0;
+                
             // Set theme SelectorBar to selected from settings
             string theme = SettingsManager.Current.Theme ?? "Auto";
             foreach (SelectorBarItem item in ThemeSelectorBar.Items)
@@ -88,8 +75,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                     break;
                 }
             }
-            // Set backdrop SelectorBar to selected from settings
+            
+            // Set backdrop SelectorBar to selected from settings without triggering event
             string backdrop = SettingsManager.Current.BackdropEffect ?? "AcrylicThin";
+            BackdropSelectorBar.SelectionChanged -= BackdropSelectorBar_SelectionChanged;
             foreach (SelectorBarItem item in BackdropSelectorBar.Items)
             {
                 if ((string)item.Tag == backdrop)
@@ -98,15 +87,29 @@ namespace ZZZ_Mod_Manager_X.Pages
                     break;
                 }
             }
-            // Set BreadcrumbBar in constructor
+            BackdropSelectorBar.SelectionChanged += BackdropSelectorBar_SelectionChanged;
+            
+            // Set toggle states from settings
+            DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
+            GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
+            ShowOrangeAnimationToggle.IsOn = SettingsManager.Current.ShowOrangeAnimation;
+            ModGridZoomToggle.IsOn = SettingsManager.Current.ModGridZoomEnabled;
+            
+            // Set BreadcrumbBar paths
             SetBreadcrumbBar(XXMIModsDirectoryBreadcrumb, SettingsManager.XXMIModsDirectorySafe);
             SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, SettingsManager.Current.ModLibraryDirectory ?? string.Empty);
+            
+            // Update all texts and icons once at the end
+            UpdateTexts();
+            AboutButtonText.Text = LanguageManager.Instance.T("AboutButton_Label");
+            AboutButtonIcon.Glyph = "\uE946";
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            // Refresh the state of the bar and button if optimization is in progress
+            
+            // Only refresh optimization progress state on navigation
             if (_isOptimizingPreviews)
             {
                 if (OptimizePreviewsProgressBar != null)
@@ -121,45 +124,59 @@ namespace ZZZ_Mod_Manager_X.Pages
                 if (OptimizePreviewsButton != null)
                     OptimizePreviewsButton.IsEnabled = true;
             }
-            // Restore toggle states from settings
-            DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
-            GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
-            ShowOrangeAnimationToggle.IsOn = SettingsManager.Current.ShowOrangeAnimation;
-            ModGridZoomToggle.IsOn = SettingsManager.Current.ModGridZoomEnabled;
-            
-            // Ensure texts are updated (especially for backdrop selector)
-            UpdateTexts();
         }
 
         private void LoadLanguages()
         {
-            LanguageComboBox.Items.Clear();
-            _languages.Clear();
-            _fileNameByDisplayName.Clear();
-            // Add AUTO option at the beginning of the list
-            string autoDisplayName = LanguageManager.Instance.T("Auto_Language");
-            LanguageComboBox.Items.Add(autoDisplayName);
-            _languages[autoDisplayName] = "auto";
-            _fileNameByDisplayName[autoDisplayName] = "auto";
-            if (Directory.Exists(LanguageFolderPath))
+            try
             {
-                var files = Directory.GetFiles(LanguageFolderPath, "*.json");
-                foreach (var file in files)
+                LanguageComboBox.Items.Clear();
+                _languages.Clear();
+                _fileNameByDisplayName.Clear();
+                
+                // Add AUTO option at the beginning of the list
+                string autoDisplayName = LanguageManager.Instance.T("Auto_Language");
+                LanguageComboBox.Items.Add(autoDisplayName);
+                _languages[autoDisplayName] = "auto";
+                _fileNameByDisplayName[autoDisplayName] = "auto";
+                
+                if (Directory.Exists(LanguageFolderPath))
                 {
-                    string displayName = System.IO.Path.GetFileNameWithoutExtension(file);
-                    try
+                    var files = Directory.GetFiles(LanguageFolderPath, "*.json");
+                    foreach (var file in files)
                     {
-                        var json = File.ReadAllText(file, System.Text.Encoding.UTF8);
-                        var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                        if (dict != null && dict.TryGetValue("Language_DisplayName", out var langName) && !string.IsNullOrWhiteSpace(langName))
+                        string displayName = System.IO.Path.GetFileNameWithoutExtension(file);
+                        try
                         {
-                            displayName = langName;
+                            // Use faster file reading with smaller buffer for language files
+                            var json = File.ReadAllText(file, System.Text.Encoding.UTF8);
+                            var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                            if (dict != null && dict.TryGetValue("Language_DisplayName", out var langName) && !string.IsNullOrWhiteSpace(langName))
+                            {
+                                displayName = langName;
+                            }
                         }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to parse language file: {file}", ex);
+                            // Continue with filename as display name
+                        }
+                        
+                        LanguageComboBox.Items.Add(displayName);
+                        _languages[displayName] = file;
+                        _fileNameByDisplayName[displayName] = file;
                     }
-                    catch { }
-                    LanguageComboBox.Items.Add(displayName);
-                    _languages[displayName] = file;
-                    _fileNameByDisplayName[displayName] = file;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to load languages", ex);
+                // Ensure at least auto option is available
+                if (LanguageComboBox.Items.Count == 0)
+                {
+                    LanguageComboBox.Items.Add("Auto");
+                    _languages["Auto"] = "auto";
+                    _fileNameByDisplayName["Auto"] = "auto";
                 }
             }
         }
@@ -183,14 +200,15 @@ namespace ZZZ_Mod_Manager_X.Pages
                 LanguageManager.Instance.LoadLanguage(fileName);
                 SettingsManager.Current.LanguageFile = fileName;
                 SettingsManager.Save();
+                
+                // Update texts locally first to avoid flicker
                 UpdateTexts();
-                // Refresh the entire UI in MainWindow
+                
+                // Refresh the entire UI in MainWindow without re-navigating to settings
                 if (App.Current is App app2 && app2.MainWindow is MainWindow mainWindow2)
                 {
                     mainWindow2.RefreshUIAfterLanguageChange();
-                    var frame = mainWindow2.GetContentFrame();
-                    if (frame != null)
-                        frame.Navigate(typeof(SettingsPage), null);
+                    // No need to navigate back to SettingsPage - we're already here and updated
                 }
             }
         }
@@ -227,12 +245,15 @@ namespace ZZZ_Mod_Manager_X.Pages
                 }
             }
 
-            // Restore to default and recreate symlinks in default location
-            SettingsManager.RestoreDefaults();
-            SetBreadcrumbBar(XXMIModsDirectoryBreadcrumb, SettingsManager.XXMIModsDirectorySafe);
+            // Restore only XXMI mods directory to game-specific default
+            string gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+            var newDefaultPath = AppConstants.GameConfig.GetModsPath(gameTag);
+            SettingsManager.Current.XXMIModsDirectory = newDefaultPath;
+            SettingsManager.Save();
+            SetBreadcrumbBar(XXMIModsDirectoryBreadcrumb, newDefaultPath);
             ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
             
-            Logger.LogInfo($"Restored XXMI directory to default: {defaultPath}");
+            Logger.LogInfo($"Restored XXMI directory to game-specific default: {newDefaultPath}");
         }
 
         private void ModLibraryDirectoryDefaultButton_Click(object sender, RoutedEventArgs e)
@@ -270,22 +291,26 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
 
             // Deactivate all mods and remove symlinks
-            var activeModsPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Settings", "ActiveMods.json");
-            if (System.IO.File.Exists(activeModsPath))
+            var activeModsPath = PathManager.GetSettingsPath("ActiveMods.json");
+            if (File.Exists(activeModsPath))
             {
                 var allMods = new Dictionary<string, bool>();
-                var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(System.IO.File.ReadAllText(activeModsPath)) ?? new Dictionary<string, bool>();
+                var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(File.ReadAllText(activeModsPath)) ?? new Dictionary<string, bool>();
                 foreach (var key in currentMods.Keys)
                 {
                     allMods[key] = false;
                 }
                 var json = System.Text.Json.JsonSerializer.Serialize(allMods, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                System.IO.File.WriteAllText(activeModsPath, json);
+                File.WriteAllText(activeModsPath, json);
             }
             ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
 
-            SettingsManager.RestoreDefaults();
-            SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, SettingsManager.Current.ModLibraryDirectory ?? string.Empty);
+            // Restore only mod library directory to game-specific default
+            string gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+            var newDefaultPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
+            SettingsManager.Current.ModLibraryDirectory = newDefaultPath;
+            SettingsManager.Save();
+            SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, newDefaultPath);
 
             // Refresh manager
             if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
@@ -391,7 +416,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                                 }
                             }
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError("Failed to process image during optimization", ex);
+                        }
                     }
                     // Search for preview.*.png/jpg regardless of case
                     var files = Directory.GetFiles(dir)
@@ -485,11 +513,14 @@ namespace ZZZ_Mod_Manager_X.Pages
                         {
                             if (!string.Equals(f, jpgPath, StringComparison.OrdinalIgnoreCase))
                             {
-                                try { File.Delete(f); } catch { }
+                                try { File.Delete(f); } catch (Exception ex) { Logger.LogWarning($"Failed to delete file {f}: {ex.Message}"); }
                             }
                         }
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Failed to optimize image", ex);
+                    }
                 }
             }, token);
         }
@@ -614,15 +645,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private bool IsNtfs(string path)
         {
-            try
-            {
-                var fullPath = System.IO.Path.GetFullPath(path);
-                var root = System.IO.Path.GetPathRoot(fullPath);
-                if (string.IsNullOrEmpty(root)) return false;
-                var drive = new DriveInfo(root);
-                return string.Equals(drive.DriveFormat, "NTFS", StringComparison.OrdinalIgnoreCase);
-            }
-            catch { return false; }
+            return SharedUtilities.IsNtfsFileSystem(path);
         }
 
         private void ShowNtfsWarning(string path, string label)
@@ -646,17 +669,17 @@ namespace ZZZ_Mod_Manager_X.Pages
             Logger.LogInfo("Deactivating all mods and cleaning up symlinks for safety");
             
             // Deactivate all mods
-            var activeModsPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Settings", "ActiveMods.json");
-            if (System.IO.File.Exists(activeModsPath))
+            var activeModsPath = PathManager.GetSettingsPath("ActiveMods.json");
+            if (File.Exists(activeModsPath))
             {
                 var allMods = new Dictionary<string, bool>();
-                var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(System.IO.File.ReadAllText(activeModsPath)) ?? new Dictionary<string, bool>();
+                var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(File.ReadAllText(activeModsPath)) ?? new Dictionary<string, bool>();
                 foreach (var key in currentMods.Keys)
                 {
                     allMods[key] = false;
                 }
                 var json = System.Text.Json.JsonSerializer.Serialize(allMods, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                System.IO.File.WriteAllText(activeModsPath, json);
+                File.WriteAllText(activeModsPath, json);
                 Logger.LogInfo($"Deactivated {currentMods.Count} mods");
             }
             
@@ -697,14 +720,8 @@ namespace ZZZ_Mod_Manager_X.Pages
             senderButton.IsEnabled = false;
             try
             {
-                var appWindow = (App.Current as ZZZ_Mod_Manager_X.App)?.MainWindow;
-                if (appWindow == null)
-                {
-                    senderButton.IsEnabled = true;
-                    return;
-                }
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(appWindow);
-                var folderPath = await PickFolderWin32DialogSTA(hwnd);
+                var hwnd = SharedUtilities.GetMainWindowHandle();
+                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, LanguageManager.Instance.T("PickFolderDialog_Title"));
                 if (!string.IsNullOrEmpty(folderPath))
                 {
                     if (!IsNtfs(folderPath))
@@ -750,7 +767,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                     Logger.LogInfo($"Changed XXMI directory to: {folderPath}");
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to change XXMI directory", ex);
+            }
             senderButton.IsEnabled = true;
         }
 
@@ -765,31 +785,25 @@ namespace ZZZ_Mod_Manager_X.Pages
             senderButton.IsEnabled = false;
             try
             {
-                var appWindow = (App.Current as ZZZ_Mod_Manager_X.App)?.MainWindow;
-                if (appWindow == null)
-                {
-                    senderButton.IsEnabled = true;
-                    return;
-                }
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(appWindow);
-                var folderPath = await PickFolderWin32DialogSTA(hwnd);
+                var hwnd = SharedUtilities.GetMainWindowHandle();
+                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, LanguageManager.Instance.T("PickFolderDialog_Title"));
                 if (!string.IsNullOrEmpty(folderPath))
                 {
                     if (!IsNtfs(folderPath))
                         ShowNtfsWarning(folderPath, "ModLibrary");
 
                     // Deactivate all mods and remove symlinks
-                    var activeModsPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Settings", "ActiveMods.json");
-                    if (System.IO.File.Exists(activeModsPath))
+                    var activeModsPath = PathManager.GetSettingsPath("ActiveMods.json");
+                    if (File.Exists(activeModsPath))
                     {
                         var allMods = new Dictionary<string, bool>();
-                        var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(System.IO.File.ReadAllText(activeModsPath)) ?? new Dictionary<string, bool>();
+                        var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(File.ReadAllText(activeModsPath)) ?? new Dictionary<string, bool>();
                         foreach (var key in currentMods.Keys)
                         {
                             allMods[key] = false;
                         }
                         var json = System.Text.Json.JsonSerializer.Serialize(allMods, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                        System.IO.File.WriteAllText(activeModsPath, json);
+                        File.WriteAllText(activeModsPath, json);
                     }
                     ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
 
@@ -807,7 +821,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to change ModLibrary directory", ex);
+            }
             senderButton.IsEnabled = true;
         }
 

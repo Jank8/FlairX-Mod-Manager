@@ -76,6 +76,27 @@ namespace ZZZ_Mod_Manager_X
                 
                 return $@".\Settings\Presets\{subDir}";
             }
+            
+            public static string GetActiveModsFilename(string gameTag)
+            {
+                if (string.IsNullOrEmpty(gameTag))
+                {
+                    // Fallback to default if no game selected
+                    return "ActiveMods.json";
+                }
+                
+                string subDir = gameTag switch
+                {
+                    "ZZMI" => "ZZ",
+                    "WWMI" => "WW", 
+                    "SRMI" => "SR",
+                    "GIMI" => "GI",
+                    "HIMI" => "HI",
+                    _ => "ZZ"
+                };
+                
+                return $"{subDir}-ActiveMods.json";
+            }
         }
         
         // UI Constants

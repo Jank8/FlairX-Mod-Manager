@@ -35,7 +35,7 @@ namespace ZZZ_Mod_Manager_X
 
     public static class SettingsManager
     {
-        private static readonly string SettingsPath = Path.Combine(AppContext.BaseDirectory, AppConstants.SETTINGS_FOLDER, AppConstants.SETTINGS_FILE);
+        private static readonly string SettingsPath = PathManager.GetSettingsPath();
         public static Settings Current { get; private set; } = new Settings();
 
         public static void Load()
@@ -81,13 +81,16 @@ namespace ZZZ_Mod_Manager_X
 
         public static void RestoreDefaults()
         {
-            Current.XXMIModsDirectory = AppConstants.DEFAULT_XXMI_MODS_PATH;
-            Current.ModLibraryDirectory = AppConstants.DEFAULT_MOD_LIBRARY_PATH;
-            Current.StatusKeeperD3dxUserIniPath = AppConstants.DEFAULT_D3DX_USER_INI_PATH;
+            // Get current game tag to restore game-specific defaults
+            string gameTag = GetGameTagFromIndex(Current.SelectedGameIndex);
+            
+            Current.XXMIModsDirectory = AppConstants.GameConfig.GetModsPath(gameTag);
+            Current.ModLibraryDirectory = AppConstants.GameConfig.GetModLibraryPath(gameTag);
+            Current.StatusKeeperD3dxUserIniPath = AppConstants.GameConfig.GetD3dxUserIniPath(gameTag);
             Current.Theme = "Auto";
             Current.ShowOrangeAnimation = true;
             Current.SelectedPresetIndex = 0;
-            Current.SelectedGameIndex = 5; // Default to ZZZ (index 5)
+            // Don't change SelectedGameIndex when restoring defaults - keep current game
             Save();
         }
         
@@ -141,7 +144,7 @@ namespace ZZZ_Mod_Manager_X
                     string presetsPath = AppConstants.GameConfig.GetPresetsPath(gameTag);
                     if (!string.IsNullOrEmpty(presetsPath))
                     {
-                        string fullPresetsPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, presetsPath);
+                        string fullPresetsPath = PathManager.GetAbsolutePath(presetsPath);
                         System.IO.Directory.CreateDirectory(fullPresetsPath);
                     }
                 }

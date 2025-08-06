@@ -20,6 +20,7 @@ namespace ZZZ_Mod_Manager_X.Pages
     public sealed partial class StatusKeeperSyncPage : Page
     {
         private Dictionary<string, string> _lang = new();
+        private static readonly object _syncLock = new object();
         private static FileSystemWatcher? _fileWatcher;
         private static Timer? _periodicSyncTimer;
         private static string? _logFile;
@@ -43,28 +44,12 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void LoadLanguage()
         {
-            try
-            {
-                var langFile = ZZZ_Mod_Manager_X.SettingsManager.Current?.LanguageFile ?? "en.json";
-                var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", langFile);
-                if (!File.Exists(langPath))
-                    langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", "en.json");
-                
-                if (File.Exists(langPath))
-                {
-                    var json = File.ReadAllText(langPath);
-                    _lang = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
-                }
-            }
-            catch
-            {
-                _lang = new Dictionary<string, string>();
-            }
+            _lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
         }
 
         private string T(string key)
         {
-            return _lang.TryGetValue(key, out var value) ? value : key;
+            return SharedUtilities.GetTranslation(_lang, key);
         }
         
         // Public static version of T() function for use from other classes
@@ -72,25 +57,8 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             // Load language dictionary if not already loaded
             var langFile = ZZZ_Mod_Manager_X.SettingsManager.Current?.LanguageFile ?? "en.json";
-            var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", langFile);
-            if (!File.Exists(langPath))
-                langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", "en.json");
-            
-            Dictionary<string, string> lang = new();
-            if (File.Exists(langPath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(langPath);
-                    lang = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
-                }
-                catch
-                {
-                    // Ignore errors
-                }
-            }
-            
-            return lang.TryGetValue(key, out var value) ? value : key;
+            var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+            return SharedUtilities.GetTranslation(lang, key);
         }
 
         private void UpdateTexts()
@@ -134,19 +102,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void SetBreadcrumbBar(BreadcrumbBar bar, string path)
         {
-            var items = new List<object>();
-            if (path == "." || string.IsNullOrWhiteSpace(path))
-            {
-                items.Add(new FontIcon { Glyph = "\uE80F" });
-            }
-            else
-            {
-                items.Add(new FontIcon { Glyph = "\uE80F" });
-                var segments = path.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var seg in segments)
-                    items.Add(seg);
-            }
-            bar.ItemsSource = items;
+            SharedUtilities.SetBreadcrumbBarPath(bar, path);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -245,8 +201,8 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             try
             {
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle((App.Current as App)?.MainWindow);
-                var folderPath = await PickFolderWin32DialogSTA(hwnd);
+                var hwnd = SharedUtilities.GetMainWindowHandle();
+                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, T("PickFolderDialog_Title"));
                 if (!string.IsNullOrEmpty(folderPath))
                 {
                     var iniPath = Path.Combine(folderPath, "d3dx_user.ini");
@@ -269,20 +225,15 @@ namespace ZZZ_Mod_Manager_X.Pages
                     else
                     {
                         LogStatic($"d3dx_user.ini not found in {folderPath}", "ERROR");
-                        var dialog = new ContentDialog
-                        {
-                            Title = "Error",
-                            Content = "d3dx_user.ini not found in the selected directory.",
-                            CloseButtonText = "OK",
-                            XamlRoot = this.XamlRoot
-                        };
-                        await dialog.ShowAsync();
+                        await SharedUtilities.ShowErrorDialog(T("Error_Generic"), 
+                            "d3dx_user.ini not found in the selected directory.", this.XamlRoot);
                     }
                 }
             }
             catch (Exception ex)
             {
                 LogStatic($"Error picking directory: {ex.Message}", "ERROR");
+                await SharedUtilities.ShowErrorDialog(T("Error_Generic"), ex.Message, this.XamlRoot);
             }
         }
 
@@ -426,25 +377,15 @@ namespace ZZZ_Mod_Manager_X.Pages
 
 
 
-        // Simple info dialog (must be before use in code)
+        // Simple info dialog using SharedUtilities
         private async Task ShowInfoDialog(string title, string message)
         {
             // Add logging before showing the dialog
             LogStatic($"Showing dialog: {title} - {message}", "DEBUG");
             
-            var dialog = new ContentDialog
-            {
-                Title = title,
-                Content = message,
-                CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot,
-                // Set dialog priority to high so it appears on top
-                DefaultButton = ContentDialogButton.Close
-            };
-            
             try
             {
-                await dialog.ShowAsync();
+                await SharedUtilities.ShowInfoDialog(title, message, this.XamlRoot);
                 // Add logging after closing the dialog
                 LogStatic($"Dialog closed: {title}", "DEBUG");
             }
@@ -473,7 +414,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private string GetLogPath()
         {
-            return Path.Combine(AppContext.BaseDirectory, "Settings", "StatusKeeper.log");
+            return PathManager.GetSettingsPath("StatusKeeper.log");
         }
 
         private static void LogStatic(string message, string level = "INFO")
@@ -663,8 +604,8 @@ namespace ZZZ_Mod_Manager_X.Pages
             
             try
             {
-                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
-                                   Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                // Use SharedUtilities to get mod library path
+                var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
                 
                 if (!Directory.Exists(modLibraryPath))
                 {
@@ -747,8 +688,8 @@ namespace ZZZ_Mod_Manager_X.Pages
         {
             try
             {
-                var modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? 
-                                   Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                // Use SharedUtilities to get mod library path
+                var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
                 
                 // For new format (namespace), path is already relative from ModLibrary: "ModFolder/KeySwaps.ini"
                 // For old format, path needs case-insensitive resolution: "folder\file.ini"
@@ -1239,65 +1180,6 @@ namespace ZZZ_Mod_Manager_X.Pages
         private void StartPeriodicSync()
         {
             StartPeriodicSyncStatic();
-        }
-
-        // Win32 API Folder Picker using SHBrowseForFolder
-        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-        private static extern IntPtr SHBrowseForFolder(ref BROWSEINFO bi);
-
-        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-        private static extern bool SHGetPathFromIDList(IntPtr pidl, System.Text.StringBuilder pszPath);
-
-        private const int MAX_PATH = 260;
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        private struct BROWSEINFO
-        {
-            public nint hwndOwner;
-            public nint pidlRoot;
-            public IntPtr pszDisplayName;
-            public string lpszTitle;
-            public uint ulFlags;
-            public nint lpfn;
-            public nint lParam;
-            public int iImage;
-        }
-
-        private string? PickFolderWin32Dialog(nint hwnd)
-        {
-            var bi = new BROWSEINFO
-            {
-                hwndOwner = hwnd,
-                lpszTitle = T("PickFolderDialog_Title"),
-                ulFlags = 0x00000040 // BIF_NEWDIALOGSTYLE
-            };
-            IntPtr pidl = SHBrowseForFolder(ref bi);
-            if (pidl == IntPtr.Zero)
-                return null;
-            var sb = new System.Text.StringBuilder(MAX_PATH);
-            if (SHGetPathFromIDList(pidl, sb))
-                return sb.ToString();
-            return null;
-        }
-
-        private Task<string?> PickFolderWin32DialogSTA(nint hwnd)
-        {
-            var tcs = new TaskCompletionSource<string?>();
-            var thread = new Thread(() =>
-            {
-                try
-                {
-                    var result = PickFolderWin32Dialog(hwnd);
-                    tcs.SetResult(result);
-                }
-                catch (Exception ex)
-                {
-                    tcs.SetException(ex);
-                }
-            });
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            return tcs.Task;
         }
 
         private static Dictionary<string, string>? ExtractConstantsSection(string iniPath)

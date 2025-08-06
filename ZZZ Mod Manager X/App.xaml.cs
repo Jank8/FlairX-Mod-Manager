@@ -55,7 +55,7 @@ namespace ZZZ_Mod_Manager_X
             if (string.IsNullOrEmpty(langFile) || langFile == "auto")
             {
                 var systemCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-                var languageFolder = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Language");
+                var languageFolder = PathManager.GetAbsolutePath("Language");
                 var available = System.IO.Directory.Exists(languageFolder)
                     ? System.IO.Directory.GetFiles(languageFolder, "*.json").Select(f => System.IO.Path.GetFileName(f)).ToList()
                     : new List<string>();
@@ -128,7 +128,7 @@ namespace ZZZ_Mod_Manager_X
                 Application.Current.Resources["AppFontFamily"] = silesianFont;
             }
             // Default language loading from settings or en.json
-            var langPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "Language", langFile);
+            var langPath = PathManager.GetLanguagePath(langFile);
             if (System.IO.File.Exists(langPath))
                 ZZZ_Mod_Manager_X.LanguageManager.Instance.LoadLanguage(langFile);
             _ = EnsureModJsonInModLibrary();
@@ -260,9 +260,11 @@ namespace ZZZ_Mod_Manager_X
 
         public async Task EnsureModJsonInModLibrary()
         {
-            // Use current path from settings
-            string modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? System.IO.Path.Combine(System.AppContext.BaseDirectory, "ModLibrary");
-            if (!System.IO.Directory.Exists(modLibraryPath)) return;
+            await Task.Run(async () =>
+            {
+                // Use current path from settings with validation
+                string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
+                if (!System.IO.Directory.Exists(modLibraryPath)) return;
             
             // List of newly created/updated mod.json files
             var newlyCreatedModPaths = new List<string>();
@@ -405,11 +407,12 @@ namespace ZZZ_Mod_Manager_X
                 }
             }
             
-            // Log results
-            if (newlyCreatedModPaths.Count > 0 || updatedModPaths.Count > 0)
-            {
-                System.Diagnostics.Debug.WriteLine($"Mod.json processing complete: {newlyCreatedModPaths.Count} created, {updatedModPaths.Count} updated");
-            }
+                // Log results
+                if (newlyCreatedModPaths.Count > 0 || updatedModPaths.Count > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Mod.json processing complete: {newlyCreatedModPaths.Count} created, {updatedModPaths.Count} updated");
+                }
+            });
         }
 
 
@@ -492,7 +495,7 @@ namespace ZZZ_Mod_Manager_X
                     ZZZ_Mod_Manager_X.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
                     var modsDir = ZZZ_Mod_Manager_X.SettingsManager.Current.XXMIModsDirectory;
                     if (string.IsNullOrWhiteSpace(modsDir))
-                        modsDir = System.IO.Path.Combine(System.AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
+                        modsDir = SharedUtilities.GetSafeXXMIModsPath();
                     if (System.IO.Directory.Exists(modsDir))
                     {
                         foreach (var dir in System.IO.Directory.GetDirectories(modsDir))
@@ -519,7 +522,7 @@ namespace ZZZ_Mod_Manager_X
             try
             {
                 var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-                var logPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Settings", "GridLog.log");
+                var logPath = PathManager.GetSettingsPath("GridLog.log");
                 var settingsDir = System.IO.Path.GetDirectoryName(logPath);
                 
                 if (!string.IsNullOrEmpty(settingsDir) && !Directory.Exists(settingsDir))

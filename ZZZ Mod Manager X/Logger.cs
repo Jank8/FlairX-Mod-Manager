@@ -6,7 +6,7 @@ namespace ZZZ_Mod_Manager_X
 {
     public static class Logger
     {
-        private static readonly string LogPath = Path.Combine(AppContext.BaseDirectory, "Settings", "Application.log");
+        private static readonly string LogPath = PathManager.GetSettingsPath("Application.log");
         private static readonly object LogLock = new object();
 
         public static void LogInfo(string message)

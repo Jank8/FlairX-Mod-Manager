@@ -152,7 +152,10 @@ namespace ZZZ_Mod_Manager_X
                         {
                             removedEntry.Image?.ClearValue(BitmapImage.UriSourceProperty);
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Failed to clear image value: {ex.Message}");
+                        }
                     }
                 }
                 System.Threading.Interlocked.Add(ref currentCacheSizeBytes, -removed);

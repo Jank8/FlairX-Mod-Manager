@@ -35,28 +35,12 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void LoadLanguage()
         {
-            try
-            {
-                var langFile = ZZZ_Mod_Manager_X.SettingsManager.Current?.LanguageFile ?? "en.json";
-                var langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", langFile);
-                if (!File.Exists(langPath))
-                    langPath = Path.Combine(System.AppContext.BaseDirectory, "Language", "StatusKeeper", "en.json");
-                
-                if (File.Exists(langPath))
-                {
-                    var json = File.ReadAllText(langPath);
-                    _lang = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
-                }
-            }
-            catch
-            {
-                _lang = new Dictionary<string, string>();
-            }
+            _lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
         }
 
         private string T(string key)
         {
-            return _lang.TryGetValue(key, out var value) ? value : key;
+            return SharedUtilities.GetTranslation(_lang, key);
         }
 
         private void UpdateTexts()
@@ -99,12 +83,12 @@ namespace ZZZ_Mod_Manager_X.Pages
                     string logContent = File.ReadAllText(logPath, System.Text.Encoding.UTF8);
                     if (!string.IsNullOrWhiteSpace(logContent))
                     {
-                        // Najnowsze wpisy na gÃ³rze
+                        // Najnowsze wpisy na górze
                         var lines = logContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
                         Array.Reverse(lines);
                         LogsTextBlock.Text = string.Join("\n", lines);
                         
-                        // PrzewiÅ„ na gÃ³rÄ™, aby pokazaÄ‡ najnowsze wpisy
+                        // Przewiñ na górê, aby pokazaæ najnowsze wpisy
                         LogsScrollViewer.ScrollToVerticalOffset(0);
                     }
                     else
@@ -125,7 +109,7 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private string GetLogPath()
         {
-            return Path.Combine(AppContext.BaseDirectory, "Settings", "StatusKeeper.log");
+            return PathManager.GetSettingsPath("StatusKeeper.log");
         }
 
         private void InitFileLogging(string logPath)
@@ -159,26 +143,26 @@ namespace ZZZ_Mod_Manager_X.Pages
                 
                 if (File.Exists(logPath))
                 {
-                    // Use Process.Start to open the file with the default application
-                    var psi = new ProcessStartInfo
+                    // Use SharedUtilities to open the file with default application
+                    if (SharedUtilities.OpenWithDefaultApp(logPath))
                     {
-                        FileName = logPath,
-                        UseShellExecute = true
-                    };
-                    Process.Start(psi);
-                    
-                    Debug.WriteLine("Log file opened in default text editor");
+                        Debug.WriteLine("Log file opened in default text editor");
+                    }
+                    else
+                    {
+                        var dialog = new ContentDialog
+                        {
+                            Title = T("Error_Generic"),
+                            Content = "Failed to open log file with default application",
+                            CloseButtonText = T("OK"),
+                            XamlRoot = this.XamlRoot
+                        };
+                        await dialog.ShowAsync();
+                    }
                 }
                 else
                 {
-                    var dialog = new ContentDialog
-                    {
-                        Title = T("StatusKeeper_Info"),
-                        Content = T("StatusKeeper_LogNotFound_Message"),
-                        CloseButtonText = T("OK"),
-                        XamlRoot = this.XamlRoot
-                    };
-                    await dialog.ShowAsync();
+                    await SharedUtilities.ShowInfoDialog(T("StatusKeeper_Info"), T("StatusKeeper_LogNotFound_Message"), this.XamlRoot);
                 }
             }
             catch (Exception ex)
@@ -215,38 +199,17 @@ namespace ZZZ_Mod_Manager_X.Pages
                     
                     RefreshLogContent();
                     
-                    var dialog = new ContentDialog
-                    {
-                        Title = T("StatusKeeper_Success"),
-                        Content = T("StatusKeeper_LogCleared_Success"),
-                        CloseButtonText = T("OK"),
-                        XamlRoot = this.XamlRoot
-                    };
-                    await dialog.ShowAsync();
+                    await SharedUtilities.ShowInfoDialog(T("StatusKeeper_Success"), T("StatusKeeper_LogCleared_Success"), this.XamlRoot);
                 }
                 else
                 {
-                    var dialog = new ContentDialog
-                    {
-                        Title = T("StatusKeeper_Info"),
-                        Content = T("StatusKeeper_LogNotFound_Clear"),
-                        CloseButtonText = T("OK"),
-                        XamlRoot = this.XamlRoot
-                    };
-                    await dialog.ShowAsync();
+                    await SharedUtilities.ShowInfoDialog(T("StatusKeeper_Info"), T("StatusKeeper_LogNotFound_Clear"), this.XamlRoot);
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Failed to clear log file: {ex.Message}");
-                var dialog = new ContentDialog
-                {
-                    Title = T("Error_Generic"),
-                    Content = $"Failed to clear log file: {ex.Message}",
-                    CloseButtonText = T("OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
+                await SharedUtilities.ShowErrorDialog(T("Error_Generic"), $"Failed to clear log file: {ex.Message}", this.XamlRoot);
             }
         }
     }

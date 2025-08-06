@@ -71,9 +71,9 @@ namespace ZZZ_Mod_Manager_X
                     appWindow.TitleBar.ButtonForegroundColor = Colors.Black;
                     appWindow.TitleBar.ButtonHoverForegroundColor = Colors.Black;
                     appWindow.TitleBar.ButtonPressedForegroundColor = Colors.Black;
-                    appWindow.TitleBar.ButtonBackgroundColor = Colors.White;
-                    appWindow.TitleBar.ButtonHoverBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 230, 230, 230); // Light gray
-                    appWindow.TitleBar.ButtonPressedBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 210, 210, 210); // Lighter gray
+                    appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                    appWindow.TitleBar.ButtonHoverBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(100, 230, 230, 230); // Semi-transparent light gray
+                    appWindow.TitleBar.ButtonPressedBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(150, 210, 210, 210); // Semi-transparent lighter gray
                 }
                 else if (theme == "Dark")
                 {
@@ -83,7 +83,7 @@ namespace ZZZ_Mod_Manager_X
                     appWindow.TitleBar.ButtonPressedForegroundColor = Colors.White;
                     appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                     appWindow.TitleBar.ButtonHoverBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 50, 50, 50); // Dark gray
-                    appWindow.TitleBar.ButtonPressedBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 30, 30, 30); // Darker gray
+                    appWindow.TitleBar.ButtonPressedForegroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 30, 30, 30); // Darker gray
                 }
                 else
                 {
@@ -170,7 +170,7 @@ namespace ZZZ_Mod_Manager_X
                 // Launcher is at: XXMI\Resources\Bin\XXMI Launcher.exe
                 // So we need to go up from Mods -> ZZMI -> XXMI, then down to Resources\Bin
                 
-                var xxmiModsPath = Path.IsPathRooted(xxmiModsDir) ? xxmiModsDir : Path.Combine(AppContext.BaseDirectory, xxmiModsDir);
+                var xxmiModsPath = Path.IsPathRooted(xxmiModsDir) ? xxmiModsDir : PathManager.GetAbsolutePath(xxmiModsDir);
                 
                 // Navigate up to find XXMI root directory
                 var currentDir = new DirectoryInfo(xxmiModsPath);
@@ -190,7 +190,7 @@ namespace ZZZ_Mod_Manager_X
             }
             
             // Fallback to default hardcoded path
-            return Path.Combine(AppContext.BaseDirectory, "XXMI", "Resources", "Bin", "XXMI Launcher.exe");
+            return PathManager.GetAbsolutePath(PathManager.CombinePath("XXMI", "Resources", "Bin", "XXMI Launcher.exe"));
         }
 
         private StackPanel CreateXXMIDownloadContent(string exePath)
@@ -240,7 +240,7 @@ namespace ZZZ_Mod_Manager_X
             try
             {
                 var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-                var logPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Settings", "GridLog.log");
+                var logPath = PathManager.GetSettingsPath("GridLog.log");
                 var settingsDir = System.IO.Path.GetDirectoryName(logPath);
                 
                 if (!string.IsNullOrEmpty(settingsDir) && !Directory.Exists(settingsDir))
@@ -278,7 +278,7 @@ namespace ZZZ_Mod_Manager_X
         private void RestoreGameSelection()
         {
             // Check if settings file exists to determine if this is first launch
-            string settingsPath = Path.Combine(AppContext.BaseDirectory, AppConstants.SETTINGS_FOLDER, AppConstants.SETTINGS_FILE);
+            string settingsPath = PathManager.GetSettingsPath();
             bool isFirstLaunch = !File.Exists(settingsPath);
             
             int savedIndex = SettingsManager.Current.SelectedGameIndex;
@@ -488,16 +488,30 @@ namespace ZZZ_Mod_Manager_X
             {
                 if (!string.IsNullOrEmpty(query) && query.Length >= 3)
                 {
-                    // Always navigate with slide animation when starting search
-                    contentFrame.Navigate(
-                        typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage),
-                        null,
-                        new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
-                    
-                    // Apply filter after navigation
+                    // Check if we're already on ModGridPage to avoid unnecessary navigation
                     if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
                     {
+                        // Just apply filter without navigation to preserve focus
                         modGridPage.FilterMods(query);
+                    }
+                    else
+                    {
+                        // Navigate to ModGridPage only if we're not already there
+                        contentFrame.Navigate(
+                            typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage),
+                            null,
+                            new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
+                        
+                        // Apply filter after navigation and restore focus to SearchBox
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage newModGridPage)
+                            {
+                                newModGridPage.FilterMods(query);
+                                // Restore focus to search box after navigation
+                                RestoreSearchBoxFocus();
+                            }
+                        });
                     }
                 }
                 else if (string.IsNullOrEmpty(query))
@@ -518,16 +532,30 @@ namespace ZZZ_Mod_Manager_X
             // Static search requires at least 2 characters
             if (!string.IsNullOrEmpty(query) && query.Length >= 2)
             {
-                // Always navigate with slide animation when starting search
-                contentFrame.Navigate(
-                    typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage),
-                    null,
-                    new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
-                
-                // Apply filter after navigation
+                // Check if we're already on ModGridPage to avoid unnecessary navigation
                 if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage modGridPage)
                 {
+                    // Just apply filter without navigation to preserve focus
                     modGridPage.FilterMods(query);
+                }
+                else
+                {
+                    // Navigate to ModGridPage only if we're not already there
+                    contentFrame.Navigate(
+                        typeof(ZZZ_Mod_Manager_X.Pages.ModGridPage),
+                        null,
+                        new SlideNavigationTransitionInfo { Effect = SlideNavigationTransitionEffect.FromRight });
+                    
+                    // Apply filter after navigation and restore focus
+                    DispatcherQueue.TryEnqueue(() =>
+                    {
+                        if (contentFrame.Content is ZZZ_Mod_Manager_X.Pages.ModGridPage newModGridPage)
+                        {
+                            newModGridPage.FilterMods(query);
+                            // Restore focus to search box after navigation
+                            RestoreSearchBoxFocus();
+                        }
+                    });
                 }
             }
             else if (string.IsNullOrEmpty(query))
@@ -550,6 +578,18 @@ namespace ZZZ_Mod_Manager_X
             // Add logic here if needed
         }
 
+        private void RestoreSearchBoxFocus()
+        {
+            // Restore focus to search box with a small delay to ensure navigation is complete
+            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+            {
+                if (SearchBox != null)
+                {
+                    SearchBox.Focus(FocusState.Programmatic);
+                }
+            });
+        }
+
         private void MaximizeBtn_Click(object sender, RoutedEventArgs e)
         {
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
@@ -570,6 +610,18 @@ namespace ZZZ_Mod_Manager_X
 
         private async void RestoreBtn_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                await RestoreButtonAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in RestoreBtn_Click", ex);
+            }
+        }
+        
+        private async Task RestoreButtonAsync()
+        {
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
             var appWindow = AppWindow.GetFromWindowId(windowId);
@@ -585,6 +637,18 @@ namespace ZZZ_Mod_Manager_X
         }
 
         private async void ReloadModsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await ReloadModsAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in ReloadModsButton_Click", ex);
+            }
+        }
+        
+        private async Task ReloadModsAsync()
         {
             // Show loading window during refresh
             var loadingWindow = new LoadingWindow();
@@ -607,7 +671,11 @@ namespace ZZZ_Mod_Manager_X
                     // Update mod.json files with namespace info (for new/updated mods)
                     loadingWindow.UpdateStatus("Scanning mod configurations...");
                     LogToGridLog("REFRESH: Updating mod.json files with namespace info");
-                    await (App.Current as App)?.EnsureModJsonInModLibrary()!;
+                    var app = App.Current as App;
+                    if (app != null)
+                    {
+                        await app.EnsureModJsonInModLibrary();
+                    }
                     LogToGridLog("REFRESH: Mod.json files updated");
                     await Task.Delay(100);
                     
@@ -620,7 +688,7 @@ namespace ZZZ_Mod_Manager_X
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Error during refresh: {ex.Message}");
+                    Logger.LogError("Error during refresh", ex);
                 }
             });
             
@@ -688,7 +756,7 @@ namespace ZZZ_Mod_Manager_X
 
         public async Task GenerateModCharacterMenuAsync()
         {
-            string modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory ?? System.IO.Path.Combine(System.AppContext.BaseDirectory, "ModLibrary");
+            string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
             if (!System.IO.Directory.Exists(modLibraryPath)) return;
             var characterSet = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
             var modFolders = System.IO.Directory.GetDirectories(modLibraryPath);
@@ -713,7 +781,10 @@ namespace ZZZ_Mod_Manager_X
                         if (!string.Equals(character, "other", StringComparison.OrdinalIgnoreCase))
                             characterSet.Add(character);
                     }
-                    catch { /* JSON parsing failed for mod - skip this mod */ }
+                    catch (Exception ex)
+                    {
+                        Logger.LogWarning($"JSON parsing failed for mod in {dir}: {ex.Message}");
+                    }
                 }
             });
             // Remove old dynamic menu items
@@ -803,7 +874,7 @@ namespace ZZZ_Mod_Manager_X
 
         private async Task PreloadModImages(LoadingWindow loadingWindow)
         {
-            var modLibraryPath = SettingsManager.Current.ModLibraryDirectory ?? System.IO.Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
             if (!Directory.Exists(modLibraryPath)) return;
             
             var directories = Directory.GetDirectories(modLibraryPath);
@@ -886,7 +957,7 @@ namespace ZZZ_Mod_Manager_X
             // If no game selected or path is empty, fall back to root ModLibrary
             if (string.IsNullOrEmpty(modLibraryPath))
             {
-                modLibraryPath = System.IO.Path.Combine(System.AppContext.BaseDirectory, "ModLibrary");
+                modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
             }
             
             if (!Directory.Exists(modLibraryPath))
@@ -905,7 +976,7 @@ namespace ZZZ_Mod_Manager_X
                     {
                         FileName = exePath,
                         UseShellExecute = true,
-                        WorkingDirectory = Path.GetDirectoryName(exePath) ?? AppContext.BaseDirectory
+                        WorkingDirectory = Path.GetDirectoryName(exePath) ?? PathManager.GetAbsolutePath(".")
                     };
                     using var process = System.Diagnostics.Process.Start(psi);
                 }
@@ -931,7 +1002,10 @@ namespace ZZZ_Mod_Manager_X
                             };
                             System.Diagnostics.Process.Start(psi);
                         }
-                        catch { }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError("Failed to start process", ex);
+                        }
                     };
                     
                     _ = dialog.ShowAsync();
@@ -994,7 +1068,7 @@ namespace ZZZ_Mod_Manager_X
                 {
                     FileName = exePath,
                     UseShellExecute = true,
-                    WorkingDirectory = Path.GetDirectoryName(exePath) ?? AppContext.BaseDirectory
+                    WorkingDirectory = Path.GetDirectoryName(exePath) ?? PathManager.GetAbsolutePath(".")
                 };
                 System.Diagnostics.Process.Start(psi);
             }
@@ -1013,9 +1087,9 @@ namespace ZZZ_Mod_Manager_X
                     appWindow.TitleBar.ButtonForegroundColor = Colors.Black;
                     appWindow.TitleBar.ButtonHoverForegroundColor = Colors.Black;
                     appWindow.TitleBar.ButtonPressedForegroundColor = Colors.Black;
-                    appWindow.TitleBar.ButtonBackgroundColor = Colors.White;
-                    appWindow.TitleBar.ButtonHoverBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 230, 230, 230);
-                    appWindow.TitleBar.ButtonPressedBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 210, 210, 210);
+                    appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                    appWindow.TitleBar.ButtonHoverBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(100, 230, 230, 230);
+                    appWindow.TitleBar.ButtonPressedBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(150, 210, 210, 210);
                 }
                 else if (theme == "Dark")
                 {

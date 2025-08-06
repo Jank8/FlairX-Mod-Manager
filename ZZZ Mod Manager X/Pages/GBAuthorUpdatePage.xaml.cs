@@ -76,34 +76,18 @@ namespace ZZZ_Mod_Manager_X.Pages
 
         private void LoadLanguage()
         {
-            // Get selected language from manager
-            var langFile = ZZZ_Mod_Manager_X.SettingsManager.Current.LanguageFile ?? "en.json";
-            var langPath = Path.Combine(AppContext.BaseDirectory, "Language", "GBAuthorUpdate", langFile);
-            if (!File.Exists(langPath)) langPath = Path.Combine(AppContext.BaseDirectory, "Language", "GBAuthorUpdate", "en.json");
-            if (File.Exists(langPath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(langPath);
-                    _lang = JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
-                }
-                catch
-                {
-                    // If language file is corrupted, use empty dictionary (keys will be returned as-is)
-                    _lang = new Dictionary<string, string>();
-                }
-            }
+            _lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
         }
 
         private string T(string key)
         {
-            return _lang.TryGetValue(key, out var value) ? value : key;
+            return SharedUtilities.GetTranslation(_lang, key);
         }
 
 
 
-        // Thread-safe static fields
-        private static bool _isUpdatingAuthors = false;
+        // Thread-safe static fields with proper locking
+        private static volatile bool _isUpdatingAuthors = false;
         private static int _success = 0, _fail = 0, _skip = 0;
         private static List<string> _skippedMods = new();
         private static List<string> _failedMods = new();
@@ -121,18 +105,55 @@ namespace ZZZ_Mod_Manager_X.Pages
             get { lock (_lockObject) { return _progressValue; } }
             private set { lock (_lockObject) { _progressValue = value; } }
         }
+        
+        private static void SafeIncrementSuccess()
+        {
+            lock (_lockObject) { _success++; }
+        }
+        
+        private static void SafeIncrementFail()
+        {
+            lock (_lockObject) { _fail++; }
+        }
+        
+        private static void SafeIncrementSkip()
+        {
+            lock (_lockObject) { _skip++; }
+        }
+        
+        private static void SafeAddSkippedMod(string mod)
+        {
+            lock (_lockObject) { _skippedMods.Add(mod); }
+        }
+        
+        private static void SafeAddFailedMod(string mod)
+        {
+            lock (_lockObject) { _failedMods.Add(mod); }
+        }
         private CancellationTokenSource? _cts;
 
         private async void UpdateButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await UpdateButtonClickAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in UpdateButton_Click", ex);
+                // Ensure proper cleanup on error
+                ResetButtonToUpdateState();
+            }
+        }
+        
+        private async Task UpdateButtonClickAsync()
         {
             if (_isUpdatingAuthors)
             {
                 _cts?.Cancel();
                 _isUpdatingAuthors = false;
                 NotifyProgressChanged();
-                UpdateButtonText.Text = T("UpdateButton");
-                UpdateIcon.Visibility = Visibility.Visible;
-                CancelIcon.Visibility = Visibility.Collapsed;
+                ResetButtonToUpdateState();
                 // Add immediate dialog after clicking Cancel
                 var cancelDialog = new ContentDialog
                 {
@@ -158,30 +179,46 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             SafetyLockSwitch.IsOn = false;
             _cts = new CancellationTokenSource();
+            SetButtonToCancelState();
+            _isUpdatingAuthors = true;
+            lock (_lockObject)
+            {
+                _success = 0; _fail = 0; _skip = 0;
+                _skippedMods.Clear();
+                _failedMods.Clear();
+                _progressValue = 0;
+                _totalMods = 0;
+            }
+            NotifyProgressChanged();
+            await UpdateAuthorsAsync(_cts.Token);
+            // Final cleanup - ensure button is reset to update state
+            ResetButtonToUpdateState();
+        }
+
+        private void SetButtonToCancelState()
+        {
             UpdateButtonText.Text = T("CancelButton");
             UpdateIcon.Visibility = Visibility.Collapsed;
             CancelIcon.Visibility = Visibility.Visible;
             UpdateButton.IsEnabled = true;
             UpdateProgressBar.Visibility = Visibility.Visible;
-            _isUpdatingAuthors = true;
-            _success = 0; _fail = 0; _skip = 0;
-            _skippedMods.Clear();
-            _failedMods.Clear();
-            _progressValue = 0;
-            _totalMods = 0;
-            NotifyProgressChanged();
-            await UpdateAuthorsAsync(_cts.Token);
+        }
+
+        private void ResetButtonToUpdateState()
+        {
+            _isUpdatingAuthors = false;
             UpdateButtonText.Text = T("UpdateButton");
+            UpdateIcon.Visibility = Visibility.Visible;
+            CancelIcon.Visibility = Visibility.Collapsed;
             UpdateButton.IsEnabled = true;
+            UpdateProgressBar.Visibility = Visibility.Collapsed;
         }
 
         private async Task UpdateAuthorsAsync(CancellationToken token)
         {
             try
             {
-                string? modLibraryPath = ZZZ_Mod_Manager_X.SettingsManager.Current.ModLibraryDirectory;
-                if (string.IsNullOrWhiteSpace(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
                 var modDirs = Directory.GetDirectories(modLibraryPath);
                 _totalMods = modDirs.Length;
                 int processed = 0;
@@ -189,11 +226,7 @@ namespace ZZZ_Mod_Manager_X.Pages
                 {
                     if (token.IsCancellationRequested)
                     {
-                        _isUpdatingAuthors = false;
-                        NotifyProgressChanged();
-                        UpdateButtonText.Text = T("UpdateButton");
-                        UpdateButton.IsEnabled = true;
-                        UpdateProgressBar.Visibility = Visibility.Collapsed;
+                        ResetButtonToUpdateState();
                         var cancelDialog = new ContentDialog
                         {
                             Title = T("CancelledTitle"),
@@ -206,11 +239,11 @@ namespace ZZZ_Mod_Manager_X.Pages
                     }
                     var modJsonPath = Path.Combine(dir, "mod.json");
                     var modName = Path.GetFileName(dir);
-                    if (!File.Exists(modJsonPath)) { _skip++; _skippedMods.Add($"{modName}: {T("NoModJson")}"); processed++; _progressValue = (double)processed / _totalMods; NotifyProgressChanged(); continue; }
+                    if (!File.Exists(modJsonPath)) { SafeIncrementSkip(); SafeAddSkippedMod($"{modName}: {T("NoModJson")}"); processed++; lock (_lockObject) { _progressValue = (double)processed / _totalMods; } NotifyProgressChanged(); continue; }
                     var json = File.ReadAllText(modJsonPath);
                     using var doc = JsonDocument.Parse(json);
                     var root = doc.RootElement;
-                    if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) { _skip++; _skippedMods.Add($"{modName}: {T("InvalidUrl")}"); processed++; _progressValue = (double)processed / _totalMods; NotifyProgressChanged(); continue; }
+                    if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) { SafeIncrementSkip(); SafeAddSkippedMod($"{modName}: {T("InvalidUrl")}"); processed++; lock (_lockObject) { _progressValue = (double)processed / _totalMods; } NotifyProgressChanged(); continue; }
                     string currentAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? string.Empty : string.Empty;
                     bool shouldUpdate = string.IsNullOrWhiteSpace(currentAuthor) || currentAuthor.Equals("unknown", StringComparison.OrdinalIgnoreCase);
                     string url = urlProp.GetString()!;
@@ -222,7 +255,11 @@ namespace ZZZ_Mod_Manager_X.Pages
                         urlWorks = response.IsSuccessStatusCode;
                     }
                     catch (OperationCanceledException) { return; }
-                    catch { urlWorks = false; }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to check URL availability: {url}", ex);
+                        urlWorks = false;
+                    }
                     if (!urlWorks) { _fail++; _failedMods.Add($"{modName}: {T("UrlUnavailable")}"); processed++; _progressValue = (double)processed / _totalMods; NotifyProgressChanged(); continue; }
                     try
                     {
@@ -238,10 +275,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                                 {
                                     // Add path validation for security
                                     var modDirName = Path.GetFileName(dir);
-                                    if (!IsValidModDirectoryName(modDirName))
+                                    if (!SecurityValidator.IsValidModDirectoryName(modDirName))
                                     {
-                                        _skip++;
-                                        _skippedMods.Add($"{modName}: Invalid directory name");
+                                        SafeIncrementSkip();
+                                        SafeAddSkippedMod($"{modName}: Invalid directory name");
                                         continue;
                                     }
                                     
@@ -261,10 +298,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                                     {
                                         // Add path validation for security
                                         var modDirName = Path.GetFileName(dir);
-                                        if (!IsValidModDirectoryName(modDirName))
+                                        if (!SecurityValidator.IsValidModDirectoryName(modDirName))
                                         {
-                                            _skip++;
-                                            _skippedMods.Add($"{modName}: Invalid directory name");
+                                            SafeIncrementSkip();
+                                            SafeAddSkippedMod($"{modName}: Invalid directory name");
                                             continue;
                                         }
                                         
@@ -284,13 +321,19 @@ namespace ZZZ_Mod_Manager_X.Pages
                         }
                     }
                     catch (OperationCanceledException) { return; }
-                    catch { _fail++; _failedMods.Add($"{modName}: {T("AuthorFetchError")}"); }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to fetch author for {modName}", ex);
+                        SafeIncrementFail();
+                        SafeAddFailedMod($"{modName}: {T("AuthorFetchError")}");
+                    }
                     processed++;
                     _progressValue = (double)processed / _totalMods;
                     NotifyProgressChanged();
                 }
-                _isUpdatingAuthors = false;
-                NotifyProgressChanged();
+                
+                // Successful completion - reset button state and show summary
+                ResetButtonToUpdateState();
                 string summary = string.Format(T("SuccessCount"), _success) + "\n\n" +
                                  T("SkippedMods") + "\n" + (_skippedMods.Count > 0 ? string.Join("\n", _skippedMods) : T("None")) +
                                  "\n\n" + T("Errors") + "\n" + (_failedMods.Count > 0 ? string.Join("\n", _failedMods) : T("None")) +
@@ -306,11 +349,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             catch (OperationCanceledException)
             {
-                _isUpdatingAuthors = false;
-                NotifyProgressChanged();
-                UpdateButtonText.Text = T("UpdateButton");
-                UpdateButton.IsEnabled = true;
-                UpdateProgressBar.Visibility = Visibility.Collapsed;
+                ResetButtonToUpdateState();
                 var dialog = new ContentDialog
                 {
                     Title = T("CancelledTitle"),
@@ -322,8 +361,7 @@ namespace ZZZ_Mod_Manager_X.Pages
             }
             catch (Exception ex)
             {
-                _isUpdatingAuthors = false;
-                NotifyProgressChanged();
+                ResetButtonToUpdateState();
                 var dialog = new ContentDialog
                 {
                     Title = T("ErrorTitle"),
@@ -367,7 +405,10 @@ namespace ZZZ_Mod_Manager_X.Pages
                             return authorProp.GetString();
                     }
                 }
-                catch { /* JSON parsing failed - continue */ }
+                catch (Exception ex)
+                {
+                    Logger.LogError("JSON-LD parsing failed", ex);
+                }
             }
             return null;
         }
@@ -381,15 +422,26 @@ namespace ZZZ_Mod_Manager_X.Pages
                     UpdateProgressBar.Visibility = Visibility.Visible;
                     UpdateProgressBar.IsIndeterminate = false;
                     UpdateProgressBar.Value = _progressValue * 100;
+                    // Ensure icons are in correct state during update
+                    if (UpdateIcon != null && CancelIcon != null)
+                    {
+                        UpdateIcon.Visibility = Visibility.Collapsed;
+                        CancelIcon.Visibility = Visibility.Visible;
+                    }
                 }
                 else
                 {
                     UpdateProgressBar.Value = 0;
                     UpdateProgressBar.IsIndeterminate = false;
                     UpdateProgressBar.Visibility = Visibility.Collapsed;
+                    // Ensure icons are reset to default state when not updating
+                    if (UpdateIcon != null && CancelIcon != null)
+                    {
+                        UpdateIcon.Visibility = Visibility.Visible;
+                        CancelIcon.Visibility = Visibility.Collapsed;
+                    }
                 }
             }
-            // Button deactivation removed
         }
 
         protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
@@ -447,32 +499,7 @@ namespace ZZZ_Mod_Manager_X.Pages
         public bool IsSmartUpdate => CurrentUpdateMode == UpdateMode.Smart;
         public bool IsFullUpdate => CurrentUpdateMode == UpdateMode.Full;
 
-        // Validate mod directory name for security (same as in ModGridPage)
-        private static bool IsValidModDirectoryName(string? directoryName)
-        {
-            if (string.IsNullOrWhiteSpace(directoryName))
-                return false;
 
-            // Check for path traversal attempts
-            if (directoryName.Contains("..") || directoryName.Contains("/") || directoryName.Contains("\\"))
-                return false;
-
-            // Check for absolute path attempts
-            if (Path.IsPathRooted(directoryName))
-                return false;
-
-            // Check for invalid filename characters
-            var invalidChars = Path.GetInvalidFileNameChars();
-            if (directoryName.IndexOfAny(invalidChars) >= 0)
-                return false;
-
-            // Check for reserved names (Windows)
-            var reservedNames = new[] { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
-            if (Array.IndexOf(reservedNames, directoryName.ToUpperInvariant()) >= 0)
-                return false;
-
-            return true;
-        }
 
 
 

@@ -13,7 +13,7 @@ namespace ZZZ_Mod_Manager_X
 
         private Dictionary<string, string> _translations = new();
         public string? CurrentLanguage { get; private set; }
-        public static readonly string LanguageFolder = Path.Combine(System.AppContext.BaseDirectory, "Language");
+        public static readonly string LanguageFolder = PathManager.GetAbsolutePath("Language");
 
         public void LoadLanguage(string fileName)
         {
