@@ -838,10 +838,8 @@ namespace FlairX_Mod_Manager
                         var root = doc.RootElement;
                         var character = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
                         
-                        // Filter out invalid/placeholder character names
-                        if (string.IsNullOrWhiteSpace(character) || 
-                            character.Equals("!unknown!", StringComparison.OrdinalIgnoreCase) ||
-                            character.Equals("unknown", StringComparison.OrdinalIgnoreCase))
+                        // Only filter out empty/null character names
+                        if (string.IsNullOrWhiteSpace(character))
                         {
                             character = "other";
                         }
