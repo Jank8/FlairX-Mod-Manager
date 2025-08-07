@@ -19,6 +19,13 @@ namespace FlairX_Mod_Manager
         // Game Selection
         public int SelectedGameIndex { get; set; } = 0; // 0 = no game selected, 1-5 = game indices
         
+        // Window settings
+        public double WindowWidth { get; set; } = 1200;
+        public double WindowHeight { get; set; } = 800;
+        public double WindowX { get; set; } = -1; // -1 means center on screen
+        public double WindowY { get; set; } = -1; // -1 means center on screen
+        public bool WindowMaximized { get; set; } = false;
+        
         // StatusKeeper settings
         public string StatusKeeperD3dxUserIniPath { get; set; } = AppConstants.DEFAULT_D3DX_USER_INI_PATH;
         public bool StatusKeeperDynamicSyncEnabled { get; set; } = false;
@@ -90,6 +97,12 @@ namespace FlairX_Mod_Manager
             Current.Theme = "Auto";
             Current.ShowOrangeAnimation = true;
             Current.SelectedPresetIndex = 0;
+            // Reset window state to defaults
+            Current.WindowWidth = 1200;
+            Current.WindowHeight = 800;
+            Current.WindowX = -1; // Center on screen
+            Current.WindowY = -1; // Center on screen
+            Current.WindowMaximized = false;
             // Don't change SelectedGameIndex when restoring defaults - keep current game
             Save();
         }

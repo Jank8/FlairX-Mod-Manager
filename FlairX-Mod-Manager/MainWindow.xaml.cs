@@ -110,6 +110,27 @@ namespace FlairX_Mod_Manager
             // Initialize backdrop from settings AFTER theme is applied
             string backdropEffect = SettingsManager.Current.BackdropEffect ?? "AcrylicThin";
             ApplyBackdropEffect(backdropEffect);
+            
+            // Ensure settings are loaded before restoring window state
+            SettingsManager.Load();
+            
+            // Restore window state from settings
+            RestoreWindowState();
+            
+            // Subscribe to window events to save state changes
+            if (appWindow != null)
+            {
+                appWindow.Changed += (sender, args) =>
+                {
+                    if (args.DidSizeChange || args.DidPositionChange || args.DidPresenterChange)
+                    {
+                        SaveWindowState();
+                    }
+                };
+            }
+            
+            // Save window state when closing
+            this.Closed += (sender, args) => SaveWindowState();
 
             nvSample.Loaded += NvSample_Loaded;
             nvSample.Loaded += (s, e) =>
@@ -136,21 +157,20 @@ namespace FlairX_Mod_Manager
             // Set main page to All Mods
             contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null);
 
-            appWindow.Resize(new Windows.Graphics.SizeInt32(1650, 820));
-            appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-            appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-
-            // Set preferred minimum and maximum window sizes
-            var presenter = OverlappedPresenter.Create();
-            presenter.PreferredMinimumWidth = MIN_WIDTH;
-            presenter.PreferredMinimumHeight = MIN_HEIGHT;
-            presenter.PreferredMaximumWidth = MAX_WIDTH;
-            presenter.PreferredMaximumHeight = MAX_HEIGHT;
-            appWindow.SetPresenter(presenter);
-
-            // Center window on screen
-            CenterWindow(appWindow);
+            if (appWindow != null)
+            {
+                appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                
+                // Set preferred minimum and maximum window sizes
+                var presenter = OverlappedPresenter.Create();
+                presenter.PreferredMinimumWidth = MIN_WIDTH;
+                presenter.PreferredMinimumHeight = MIN_HEIGHT;
+                presenter.PreferredMaximumWidth = MAX_WIDTH;
+                presenter.PreferredMaximumHeight = MAX_HEIGHT;
+                appWindow.SetPresenter(presenter);
+            }
 
             // Set animation based on settings
             var progressBar = GetOrangeAnimationProgressBar();
@@ -1590,6 +1610,100 @@ namespace FlairX_Mod_Manager
                     MainRoot.Background = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["ApplicationPageBackgroundThemeBrush"];
                 }
             }
+        }
+
+        // Window state management methods
+        private void SaveWindowState()
+        {
+            try
+            {
+                var appWindow = GetAppWindowForCurrentWindow();
+                if (appWindow != null)
+                {
+                    var settings = SettingsManager.Current;
+                    settings.WindowMaximized = appWindow.Presenter.Kind == AppWindowPresenterKind.Overlapped && 
+                                              ((OverlappedPresenter)appWindow.Presenter).State == OverlappedPresenterState.Maximized;
+                    
+                    if (!settings.WindowMaximized)
+                    {
+                        settings.WindowWidth = appWindow.Size.Width;
+                        settings.WindowHeight = appWindow.Size.Height;
+                        settings.WindowX = appWindow.Position.X;
+                        settings.WindowY = appWindow.Position.Y;
+                    }
+                    SettingsManager.Save();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to save window state: {ex.Message}");
+            }
+        }
+        
+        private void RestoreWindowState()
+        {
+            try
+            {
+                var appWindow = GetAppWindowForCurrentWindow();
+                if (appWindow != null)
+                {
+                    var settings = SettingsManager.Current;
+                    var width = Math.Max(MIN_WIDTH, Math.Min(MAX_WIDTH, (int)settings.WindowWidth));
+                    var height = Math.Max(MIN_HEIGHT, Math.Min(MAX_HEIGHT, (int)settings.WindowHeight));
+                    var x = settings.WindowX >= 0 ? (int)settings.WindowX : -1;
+                    var y = settings.WindowY >= 0 ? (int)settings.WindowY : -1;
+                    
+                    System.Diagnostics.Debug.WriteLine($"RestoreWindowState: Width={width}, Height={height}, X={x}, Y={y}, Maximized={settings.WindowMaximized}");
+                    
+                    if (x >= 0 && y >= 0)
+                    {
+                        appWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, width, height));
+                    }
+                    else
+                    {
+                        appWindow.Resize(new Windows.Graphics.SizeInt32(width, height));
+                        CenterWindowInternal();
+                    }
+                    
+                    if (settings.WindowMaximized && appWindow.Presenter is OverlappedPresenter presenter)
+                    {
+                        presenter.Maximize();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to restore window state: {ex.Message}");
+            }
+        }
+        
+        private void CenterWindowInternal()
+        {
+            try
+            {
+                var appWindow = GetAppWindowForCurrentWindow();
+                if (appWindow != null)
+                {
+                    var displayArea = DisplayArea.GetFromWindowId(appWindow.Id, DisplayAreaFallback.Primary);
+                    if (displayArea != null)
+                    {
+                        var centerX = (displayArea.WorkArea.Width - appWindow.Size.Width) / 2;
+                        var centerY = (displayArea.WorkArea.Height - appWindow.Size.Height) / 2;
+                        appWindow.Move(new Windows.Graphics.PointInt32(centerX, centerY));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to center window: {ex.Message}");
+            }
+        }
+        
+        private AppWindow? GetAppWindowForCurrentWindow()
+        {
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+            return AppWindow.GetFromWindowId(windowId);
         }
 
     }
