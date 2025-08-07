@@ -1477,6 +1477,10 @@ namespace FlairX_Mod_Manager
                     System.Diagnostics.Debug.WriteLine("Regenerating character menu for new game...");
                     _ = GenerateModCharacterMenuAsync();
                     
+                    // Recreate symlinks for the new game based on active mods
+                    System.Diagnostics.Debug.WriteLine("Recreating symlinks for new game...");
+                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    
                     // Always navigate to All Mods when a game is selected
                     // This handles all cases including ModDetailPage (since the current mod might not exist in new game)
                     System.Diagnostics.Debug.WriteLine("Game selected - navigating to All Mods view");
