@@ -261,15 +261,26 @@ namespace FlairX_Mod_Manager
         {
             await Task.Run(async () =>
             {
+                // Only run if a game is selected (not index 0)
+                if (SettingsManager.Current.SelectedGameIndex == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("EnsureModJsonInModLibrary: Skipping - no game selected");
+                    return;
+                }
+                
                 // Use current path from settings with validation
                 string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
-                if (!System.IO.Directory.Exists(modLibraryPath)) return;
+                if (!System.IO.Directory.Exists(modLibraryPath)) 
+                {
+                    System.Diagnostics.Debug.WriteLine($"EnsureModJsonInModLibrary: Skipping - mod library path does not exist: {modLibraryPath}");
+                    return;
+                }
             
             // List of newly created/updated mod.json files
             var newlyCreatedModPaths = new List<string>();
             var updatedModPaths = new List<string>();
             
-            // Process each mod directory
+            // Process ALL first-level subdirectories in the game-specific mod library
             foreach (var dir in System.IO.Directory.GetDirectories(modLibraryPath, "*", SearchOption.TopDirectoryOnly))
             {
                 var modJsonPath = System.IO.Path.Combine(dir, "mod.json");
