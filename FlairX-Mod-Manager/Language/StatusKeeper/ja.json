@@ -3,7 +3,7 @@
   "StatusKeeper_Function": "ステータスキーパー",
   "StatusKeeper_D3dxFilePath_Label": "d3dx_user.ini のファイルパス:",
   "StatusKeeper_DynamicSync_Label": "動的な同期",
-  "StatusKeeper_BackupConfirmation_Label": "バックアップを取りました",
+  "StatusKeeper_BackupConfirmation_Label": "バックアップを取る",
   "StatusKeeper_ManualSync_Label": "手動で同期",
   "StatusKeeper_ManualSync_Button": "開始",
   "StatusKeeper_ManualSync_Complete_Title": "同期が完了しました",
