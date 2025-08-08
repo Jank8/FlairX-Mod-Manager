@@ -10,7 +10,7 @@
   "ModInfoBackup_RestoreComplete": "復元が完了しました！ セット {1} から {0} 個のバックアップを復元しました。",
   "ModInfoBackup_DeleteComplete": "削除が完了しました！ セット {1} から {0} 個のバックアップを削除しました。",
   "ModInfoBackup_BackupInfo": "作成済み: {0} | ファイル: {1}",
-  "ModInfoBackup_NoBackup": "{1}、バックアップ {0} がありません",
+  "ModInfoBackup_NoBackup": "{1}、バックアップ {0} はありません",
   "OK": "OK",
   "ModInfoBackup_RestoreConfirm_Title": "復元を確認",
   "ModInfoBackup_RestoreConfirm_Message": "バックアップセット {0} を復元してもよろしいですか？ これにより mod.json ファイルが上書きされます。",
