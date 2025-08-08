@@ -64,12 +64,12 @@ Put each mod in its own folder inside the game-specific directory:
 ```
 📁 app/ModLibrary/GI/
 ├── 📁 Lumine Celestial Embroidery/
-│   ├── 📄 mod.json
+│   ├── 📄 mod.json (created automatically by FlairX)
 │   ├── 📄 TravelerGirl.ini
 │   ├── 📄 preview.jpg (or any file with "preview" in name)
 │   └── 📁 texture files...
 ├── 📁 LumineFavoniousKnight-ToggleP/
-│   ├── 📄 mod.json
+│   ├── 📄 mod.json (created automatically by FlairX)
 │   ├── 📄 merged.ini
 │   ├── 📄 preview777.png (preview file)
 │   └── 📁 subfolders with variants...
@@ -128,7 +128,7 @@ When you activate mods, FlairX creates symbolic links here:
 ## Quick Tips
 - Put mods in the correct game folder: `app/ModLibrary/GI/`, `app/ModLibrary/ZZ/`, etc.
 - Each mod needs its own folder with a clear name
-- Mod folders should contain `mod.json` files and a preview image
+- FlairX automatically creates `mod.json` files when you refresh or start the manager
 - Preview files need "preview" in the filename: `preview.jpg`, `preview888.png`, etc.
 - Thumbnail optimization converts images to optimized JPG and removes the original file
 - Only activate mods you want to use in-game
