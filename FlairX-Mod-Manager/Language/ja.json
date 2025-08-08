@@ -53,7 +53,7 @@
   "Presets": "プリセット",
   "PresetsPage_ComboBox_Placeholder": "プリセットを選択",
   "PresetsPage_DeletePresetButton": "選択したプリセットを削除",
-  "PresetsPage_LoadPresetButton": "選択したプリセットを読み込み",
+  "PresetsPage_LoadPresetButton": "選択したプリセットを読み込む",
   "PresetsPage_NewPreset_Placeholder": "新しいプリセット名",
   "PresetsPage_SavePresetButton": "プリセットを名前を付けて保存",
   "Reload_Mods_Tooltip": "マネージャーを再読み込み",
