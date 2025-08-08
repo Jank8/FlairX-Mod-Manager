@@ -31,7 +31,7 @@ FlairX automatically uses these folders:
     │   ├── 📁 GI/              (Genshin Impact mods)
     │   ├── 📁 HI/              (Honkai Impact mods)
     │   ├── 📁 SR/              (Star Rail mods)
-    │   ├── 📁 WnW/              (Wuthering Waves mods)
+    │   ├── 📁 WW/              (Wuthering Waves mods)
     │   └── 📁 ZZ/              (Zenless Zone Zero mods)
     ├── 📁 XXMI/                (XXMI launchers and active mods)
     │   ├── 📁 GIMI/Mods/       (Active Genshin mods)
