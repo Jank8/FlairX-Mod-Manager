@@ -1,19 +1,5 @@
 # FlairX Mod Manager - Quick Start Guide
 
-## What You Need
-- Windows 10/11 with NTFS file system
-- **Microsoft Visual C++ Redistributable** (latest version)
-- **.NET Runtime 8.0** or newer
-- **DirectX End-User Runtime**
-- XXMI Launcher for your game
-- Downloaded mods from GameBanana/NexusMods
-
-### Required Runtimes
-If FlairX won't start, install these:
-1. **Visual C++ Redistributable**: Download from Microsoft (both x64 and x86 versions)
-2. **.NET 8.0 Runtime**: Download from Microsoft .NET website
-3. **DirectX End-User Runtime**: Download from Microsoft DirectX page
-
 ## Setup (First Time)
 
 ### 1. Extract FlairX Mod Manager
