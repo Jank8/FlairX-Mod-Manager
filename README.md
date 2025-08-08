@@ -231,8 +231,9 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
 
 ---
-
+### USER MANUAL https://github.com/Jank8/FlairX-Mod-Manager/blob/main/FlairX-Mod-Manager/USER_MANUAL.md
 
 *This application is not affiliated with miHoYo/HoYoverse or any of the supported games. It is a community-developed tool for managing game modifications.*
+
 
 
