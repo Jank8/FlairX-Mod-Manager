@@ -87,12 +87,12 @@ When you activate mods, FlairX creates symbolic links here:
    - Zenless Zone Zero → `app/ModLibrary/ZZ/[ModName]/`
    - etc.
 3. **Click reload** button (↻) in FlairX
-4. **Activate** mods by clicking on them in the grid
+4. **Activate** mods by clicking hearth icon on right side of tile
 
 ### Managing Mods
 - **Search**: Use search bar to find mods
 - **View active**: Click heart icon (♡) to see only active mods
-- **Launch game**: Click play button (bottom-right)
+- **Launch XXMI**: Click play button (bottom-right)
 
 ## Common Issues
 
@@ -104,7 +104,7 @@ When you activate mods, FlairX creates symbolic links here:
 ### Mods won't activate
 - **Check file system**: Both directories must be on NTFS drives
 - **Verify paths**: Check Settings for correct folder paths
-- FlairX will ask for admin rights automatically when needed
+- FlairX will ask for admin rights automatically on start
 
 ### Missing thumbnails
 - Ensure each mod folder has a file with "preview" in the name (JPG or PNG format)
