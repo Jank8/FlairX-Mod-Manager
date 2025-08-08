@@ -8,7 +8,7 @@
   "SafetyLockTitle": "セーフティーロック",
   "SafetyLockContent": "最初にセーフティーロックを有効化してください。",
   "SummaryTitle": "作者の更新概要",
-  "SuccessCount": "更新に成功しました: {0}",
+  "SuccessCount": "更新に成功: {0}",
   "SkippedMods": "スキップした Mod:",
   "Errors": "エラー:",
   "None": "なし",
