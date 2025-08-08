@@ -40,7 +40,7 @@
   "Ntfs_Warning_Content": "{0} ({1}) に選択したフォルダーは NTFS のパーティション上にありません。そのため、Mod の有効化 (symlinks) は実行できません。",
   "Ntfs_Warning_Title": "警告: ファイルシステム",
   "OK": "OK",
-  "Open_ModLibrary_Tooltip": "エクスプローラーでメディアライブラリのディレクトリを開く",
+  "Open_ModLibrary_Tooltip": "エクスプローラーで Mod ライブラリのディレクトリを開く",
   "OptimizePreviews_Cancelled": "最適化をキャンセルしました。",
   "OptimizePreviews_Completed": "最適化が完了しました。",
   "OptimizePreviews_Confirm_Message": "すべての Mod プレビュー画像が 1000x1000 ピクセルに最適化されます。\nこの処理には時間がかかる可能性があります。続行しますか？",
