@@ -80,7 +80,7 @@ When you activate mods, FlairX creates symbolic links here:
 ## How to Use
 
 ### Installing Mods
-1. **Download** mod files from GameBanana/NexusMods
+1. **Download** mod files from GameBanana/NexusMods etc.
 2. **Extract** each mod to its own folder in the correct game directory:
    - Genshin Impact → `app/ModLibrary/GI/[ModName]/`
    - Star Rail → `app/ModLibrary/SR/[ModName]/`
