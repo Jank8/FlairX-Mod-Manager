@@ -78,13 +78,13 @@
                         <ComboBoxItem Tag="HIMI" HorizontalContentAlignment="Center">
                             <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                                 <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
-                                <TextBlock Text="Honkai Impact" VerticalAlignment="Center"/>
+                                <TextBlock Text="Honkai Impact 3rd" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ComboBoxItem>
                         <ComboBoxItem Tag="SRMI" HorizontalContentAlignment="Center">
                             <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                                 <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
-                                <TextBlock Text="Star Rail" VerticalAlignment="Center"/>
+                                <TextBlock Text="Honkai Star Rail" VerticalAlignment="Center"/>
                             </StackPanel>
                         </ComboBoxItem>
                         <ComboBoxItem Tag="WWMI" HorizontalContentAlignment="Center">
