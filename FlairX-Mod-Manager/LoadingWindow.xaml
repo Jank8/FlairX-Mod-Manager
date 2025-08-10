@@ -18,7 +18,7 @@
             
             <TextBlock x:Name="TitleText" 
                        Grid.Row="0"
-                       Text="FlairX-Mod-Manager" 
+                       Text="FlairX Mod Manager" 
                        FontSize="28" 
                        FontWeight="Bold" 
                        HorizontalAlignment="Center" 

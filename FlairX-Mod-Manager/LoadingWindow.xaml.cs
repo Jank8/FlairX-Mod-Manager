@@ -25,7 +25,7 @@ namespace FlairX_Mod_Manager
             this.InitializeComponent();
             
             // Set window properties
-            this.Title = "FlairX-Mod-Manager - Loading";
+            this.Title = "FlairX Mod Manager - Loading";
             
             // Apply theme from settings FIRST
             var theme = SettingsManager.Current.Theme ?? "Auto";
