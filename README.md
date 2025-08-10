@@ -75,7 +75,7 @@ A comprehensive mod management application for multiple miHoYo games, built with
 1. Ensure your system meets the requirements above
 2. Install .NET 8 Desktop Runtime from [Microsoft's official site](https://dotnet.microsoft.com/download/dotnet/8.0)
 3. Install Visual C++ Redistributable (x64) from [Microsoft](https://aka.ms/vs/17/release/vc_redist.x64.exe)
-4. Install Windows App SDK from [Microsoft Store](https://apps.microsoft.com/detail/9pb2mz1zmb1s) or [GitHub releases](https://github.com/microsoft/WindowsAppSDK/releases)
+4. Install Windows App SDK from [Microsoft site](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads)
 
 ### Installation Steps
 1. Download the latest release from the [Releases](../../releases) page
@@ -234,6 +234,7 @@ Contributions are welcome! Please feel free to submit pull requests or open issu
 ### USER MANUAL https://github.com/Jank8/FlairX-Mod-Manager/blob/main/FlairX-Mod-Manager/USER_MANUAL.md
 
 *This application is not affiliated with miHoYo/HoYoverse or any of the supported games. It is a community-developed tool for managing game modifications.*
+
 
 
 
