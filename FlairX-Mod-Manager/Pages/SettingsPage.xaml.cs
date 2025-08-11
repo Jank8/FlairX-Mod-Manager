@@ -359,14 +359,20 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var modLibraryPath = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory;
                 if (string.IsNullOrEmpty(modLibraryPath) || !Directory.Exists(modLibraryPath)) return;
-                foreach (var dir in Directory.GetDirectories(modLibraryPath))
+                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
                 {
                     if (token.IsCancellationRequested)
                         break;
-                    var jpgPath = Path.Combine(dir, "preview.jpg");
-                    // Check if we need to create JPEG minitile
-                    var minitileJpgPath = Path.Combine(dir, "minitile.jpg");
-                    bool needsMinitile = !File.Exists(minitileJpgPath);
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    foreach (var modDir in Directory.GetDirectories(categoryDir))
+                    {
+                        if (token.IsCancellationRequested)
+                            break;
+                        var jpgPath = Path.Combine(modDir, "preview.jpg");
+                        // Check if we need to create JPEG minitile
+                        var minitileJpgPath = Path.Combine(modDir, "minitile.jpg");
+                        bool needsMinitile = !File.Exists(minitileJpgPath);
                     
                     // If preview.jpg exists with size 1000x1000, check if we need minitile
                     if (File.Exists(jpgPath))
@@ -412,7 +418,7 @@ namespace FlairX_Mod_Manager.Pages
                         }
                     }
                     // Search for preview.*.png/jpg regardless of case
-                    var files = Directory.GetFiles(dir)
+                    var files = Directory.GetFiles(modDir)
                         .Where(f => Path.GetFileName(f).StartsWith("preview", StringComparison.OrdinalIgnoreCase) &&
                                     (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)))
                         .ToList();
@@ -507,9 +513,10 @@ namespace FlairX_Mod_Manager.Pages
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError("Failed to optimize image", ex);
+                        catch (Exception ex)
+                        {
+                            Logger.LogError("Failed to optimize image", ex);
+                        }
                     }
                 }
             }, token);

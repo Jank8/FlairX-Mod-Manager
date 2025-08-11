@@ -466,10 +466,10 @@ namespace FlairX_Mod_Manager
                 string? selectedTag = selectedItem.Tag as string;
                 if (!string.IsNullOrEmpty(selectedTag))
                 {
-                    if (selectedTag.StartsWith("Character_"))
+                    if (selectedTag.StartsWith("Category_"))
                     {
-                        var character = selectedTag.Substring("Character_".Length);
-                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), character, new DrillInNavigationTransitionInfo());
+                        var category = selectedTag.Substring("Category_".Length);
+                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), $"Category:{category}", new DrillInNavigationTransitionInfo());
                     }
                     else if (selectedTag == "OtherModsPage")
                     {
@@ -840,40 +840,32 @@ namespace FlairX_Mod_Manager
         {
             string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
             if (!System.IO.Directory.Exists(modLibraryPath)) return;
-            var characterSet = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
-            var modFolders = System.IO.Directory.GetDirectories(modLibraryPath);
-            var modCharacterMap = new Dictionary<string, List<string>>(); // character -> list of mod folders
+            var categorySet = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+            var modCategoryMap = new Dictionary<string, List<string>>(); // category -> list of mod folders
             
             // Run the file system scanning in background
             await Task.Run(() =>
             {
-                foreach (var dir in modFolders)
+                // Process category directories (1st level) and mod directories (2nd level)
+                foreach (var categoryDir in System.IO.Directory.GetDirectories(modLibraryPath))
                 {
-                    var modJsonPath = System.IO.Path.Combine(dir, "mod.json");
-                    if (!System.IO.File.Exists(modJsonPath)) continue;
-                    try
+                    if (!System.IO.Directory.Exists(categoryDir)) continue;
+                    
+                    var categoryName = System.IO.Path.GetFileName(categoryDir);
+                    var modDirs = System.IO.Directory.GetDirectories(categoryDir);
+                    
+                    // Only add category if it has mod directories
+                    if (modDirs.Length > 0)
                     {
-                        var json = System.IO.File.ReadAllText(modJsonPath);
-                        using var doc = JsonDocument.Parse(json);
-                        var root = doc.RootElement;
-                        var character = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
+                        categorySet.Add(categoryName);
+                        if (!modCategoryMap.ContainsKey(categoryName))
+                            modCategoryMap[categoryName] = new List<string>();
                         
-                        // Only filter out empty/null character names
-                        if (string.IsNullOrWhiteSpace(character))
+                        foreach (var modDir in modDirs)
                         {
-                            character = "other";
+                            var folderName = System.IO.Path.GetFileName(modDir);
+                            modCategoryMap[categoryName].Add(folderName);
                         }
-                        
-                        var folderName = System.IO.Path.GetFileName(dir);
-                        if (!modCharacterMap.ContainsKey(character))
-                            modCharacterMap[character] = new List<string>();
-                        modCharacterMap[character].Add(folderName);
-                        if (!string.Equals(character, "other", StringComparison.OrdinalIgnoreCase))
-                            characterSet.Add(character);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogWarning($"JSON parsing failed for mod in {dir}: {ex.Message}");
                     }
                 }
             });
@@ -887,12 +879,12 @@ namespace FlairX_Mod_Manager
                 foreach (var item in toRemove)
                     nvSample.MenuItems.Remove(item);
                 // Add new items
-                foreach (var character in characterSet)
+                foreach (var category in categorySet)
                 {
                     var item = new NavigationViewItem
                     {
-                        Content = character,
-                        Tag = $"Character_{character}",
+                        Content = category,
+                        Tag = $"Category_{category}",
                         Icon = new FontIcon { Glyph = "\uE8D4" } // Moving list icon
                     };
                     nvSample.MenuItems.Add(item);
@@ -972,21 +964,33 @@ namespace FlairX_Mod_Manager
             var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
             if (!Directory.Exists(modLibraryPath)) return;
             
-            var directories = Directory.GetDirectories(modLibraryPath);
-            var totalMods = directories.Length;
+            var totalMods = 0;
             var processedMods = 0;
             
-            foreach (var dir in directories)
+            // Count total mods first
+            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
             {
-                try
+                if (Directory.Exists(categoryDir))
                 {
-                    var modJsonPath = System.IO.Path.Combine(dir, "mod.json");
-                    if (!File.Exists(modJsonPath)) continue;
-                    
-                    var previewPath = System.IO.Path.Combine(dir, "preview.jpg");
-                    if (File.Exists(previewPath))
+                    totalMods += Directory.GetDirectories(categoryDir).Length;
+                }
+            }
+            
+            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+            {
+                if (!Directory.Exists(categoryDir)) continue;
+                
+                foreach (var modDir in Directory.GetDirectories(categoryDir))
+                {
+                    try
                     {
-                        var dirName = System.IO.Path.GetFileName(dir);
+                        var modJsonPath = System.IO.Path.Combine(modDir, "mod.json");
+                        if (!File.Exists(modJsonPath)) continue;
+                        
+                        var previewPath = System.IO.Path.Combine(modDir, "preview.jpg");
+                        if (File.Exists(previewPath))
+                        {
+                            var dirName = System.IO.Path.GetFileName(modDir);
                         
                         // Load image into cache
                         var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
@@ -1010,9 +1014,10 @@ namespace FlairX_Mod_Manager
                     // Small delay to prevent overwhelming the system
                     await Task.Delay(10);
                 }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error preloading image for {dir}: {ex.Message}");
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error preloading image for {modDir}: {ex.Message}");
+                    }
                 }
             }
             

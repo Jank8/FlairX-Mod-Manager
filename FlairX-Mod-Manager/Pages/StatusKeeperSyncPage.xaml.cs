@@ -75,8 +75,9 @@ namespace FlairX_Mod_Manager.Pages
 
         private void InitializeBreadcrumbBar()
         {
+            var currentGame = SettingsManager.CurrentSelectedGame ?? "ZZMI";
             var defaultPath = string.IsNullOrEmpty(SettingsManager.Current.StatusKeeperD3dxUserIniPath) 
-                ? Path.Combine(".", "XXMI", "ZZMI", "d3dx_user.ini")
+                ? Path.Combine(".", "XXMI", currentGame, "d3dx_user.ini")
                 : SettingsManager.Current.StatusKeeperD3dxUserIniPath;
             
             if (string.IsNullOrEmpty(SettingsManager.Current.StatusKeeperD3dxUserIniPath))
@@ -230,11 +231,14 @@ namespace FlairX_Mod_Manager.Pages
 
         private void D3dxFilePathDefaultButton_Click(object sender, RoutedEventArgs e)
         {
-            var defaultPath = Path.Combine(".", "XXMI", "ZZMI", "d3dx_user.ini");
+            // Use the currently selected game instead of hardcoded ZZMI
+            var currentGame = SettingsManager.CurrentSelectedGame ?? "ZZMI";
+            var defaultPath = Path.Combine(".", "XXMI", currentGame, "d3dx_user.ini");
+            
             SettingsManager.Current.StatusKeeperD3dxUserIniPath = defaultPath;
             SetBreadcrumbBar(D3dxFilePathBreadcrumb, defaultPath);
             SettingsManager.Save();
-            LogStatic($"D3DX User INI path reset to default: {defaultPath}");
+            LogStatic($"D3DX User INI path reset to default for {currentGame}: {defaultPath}");
 
             // Restart watcher if dynamic sync is enabled
             if (DynamicSyncToggle.IsOn)
@@ -451,16 +455,17 @@ namespace FlairX_Mod_Manager.Pages
                 return defaultPath;
             }
 
-            // Try to find d3dx_user.ini automatically
+            // Try to find d3dx_user.ini automatically using current game settings
+            var currentGame = SettingsManager.CurrentSelectedGame ?? "ZZMI";
             var modLibraryPath = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory ?? 
                                 Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             var xxmiModsPath = FlairX_Mod_Manager.SettingsManager.Current.XXMIModsDirectory ?? 
-                              Path.Combine(AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
+                              Path.Combine(AppContext.BaseDirectory, "XXMI", currentGame, "Mods");
 
             var tryPaths = new string[]
             {
                 Path.Combine(Path.GetDirectoryName(xxmiModsPath) ?? string.Empty, "d3dx_user.ini"),
-                Path.Combine(Path.GetDirectoryName(modLibraryPath) ?? string.Empty, "XXMI", "ZZMI", "d3dx_user.ini"),
+                Path.Combine(".", "XXMI", currentGame, "d3dx_user.ini"),
             };
 
             foreach (var p in tryPaths)
@@ -611,12 +616,17 @@ namespace FlairX_Mod_Manager.Pages
                 LogStatic($"Building namespace mapping from mod.json files in: {modLibraryPath}");
 
                 // Read namespace info from mod.json files (much faster than scanning .ini files)
-                foreach (var modDir in Directory.GetDirectories(modLibraryPath))
+                // Process category directories (1st level) and mod directories (2nd level)
+                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
                 {
-                    try
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    foreach (var modDir in Directory.GetDirectories(categoryDir))
                     {
-                        var modJsonPath = Path.Combine(modDir, "mod.json");
-                        if (!File.Exists(modJsonPath)) continue;
+                        try
+                        {
+                            var modJsonPath = Path.Combine(modDir, "mod.json");
+                            if (!File.Exists(modJsonPath)) continue;
 
                         var jsonContent = File.ReadAllText(modJsonPath);
                         using var doc = JsonDocument.Parse(jsonContent);
@@ -661,9 +671,10 @@ namespace FlairX_Mod_Manager.Pages
                             }
                         }
                     }
-                    catch (Exception ex)
-                    {
-                        LogStatic($"Error reading mod.json in {Path.GetFileName(modDir)}: {ex.Message}", "WARN");
+                        catch (Exception ex)
+                        {
+                            LogStatic($"Error reading mod.json in {Path.GetFileName(modDir)}: {ex.Message}", "WARN");
+                        }
                     }
                 }
 

@@ -193,11 +193,21 @@ namespace FlairX_Mod_Manager.Pages
                     ShowInfoBar("Error", "ModLibraryNotFound");
                     return;
                 }
-                var modDirectories = Directory.GetDirectories(modLibraryPath);
-                processedCount = modDirectories.Length;
+                
+                // Get all mod directories from all categories
+                var modDirectories = new List<string>();
+                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                {
+                    if (Directory.Exists(categoryDir))
+                    {
+                        modDirectories.AddRange(Directory.GetDirectories(categoryDir));
+                    }
+                }
+                
+                processedCount = modDirectories.Count;
                 try
                 {
-                    await DetectAndUpdateHotkeysAsync(modDirectories, true, _cancellationTokenSource.Token);
+                    await DetectAndUpdateHotkeysAsync(modDirectories.ToArray(), true, _cancellationTokenSource.Token);
                     successCount = processedCount;
                 }
                 catch (Exception ex)

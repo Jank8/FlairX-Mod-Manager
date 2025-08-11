@@ -19,11 +19,13 @@ A comprehensive mod management application for multiple miHoYo games, built with
 
 ### 🎮 Mod Management
 - **Visual Mod Library**: Browse mods with thumbnail previews in a responsive grid layout
-- **Character-based Organization**: Automatically categorizes mods by character with dynamic menu generation
+- **Category-based Organization**: Organize mods by categories (Characters, Weapons, UI, Effects, etc.) with automatic folder detection
+- **Dynamic Menu Generation**: Categories automatically appear as menu items in the left sidebar for easy navigation
+- **Flexible Category System**: Create custom categories or use standard ones - FlairX adapts to your organization
 - **Mod Activation/Deactivation**: Toggle mods on/off with symbolic link management
-- **Search & Filter**: Dynamic search functionality with real-time filtering (configurable)
+- **Search & Filter**: Dynamic search functionality with real-time filtering across all categories simultaneously
 - **Mod Details**: View detailed information including author, character, hotkeys, and URLs
-- **Multi-Game Support**: Switch between different games with isolated mod libraries
+- **Multi-Game Support**: Switch between different games with isolated mod libraries and category structures
 
 ### 🔧 Advanced Features
 - **Preset System**: Save and load different mod configurations per game
@@ -85,40 +87,48 @@ A comprehensive mod management application for multiple miHoYo games, built with
 
 ### First Run Setup
 1. **Game Selection**: Choose your game from the dropdown menu
-2. **Language Selection**: The app will auto-detect your system language or default to English
-3. **Directory Configuration**: Set up your mod library and XXMI directories for each game
-4. **XXMI Integration**: Ensure XXMI is properly installed in the manager folder
-5. **Mod Library**: Place your mods in the appropriate game's ModLibrary folder
+2. **XXMI Integration**: Ensure XXMI portable version is extracted to the manager folder
+3. **Mod Library**: Place your mods in category folders within the game's ModLibrary directory
 
 ## Usage
 
-### Game Selection
-1. **Select Game**: Use the dropdown menu to select your target game
-2. **Automatic Setup**: The application will automatically configure paths for the selected game
-3. **Isolated Libraries**: Each game maintains its own mod library and settings
+### Getting Started
+1. **Select Game**: Choose your target game from the dropdown menu
+2. **Add Mods**: Place mod folders in category directories: `ModLibrary/[Game]/[Category]/[ModName]/`
+3. **Browse & Activate**: Use category menu items to browse, then click heart icons to activate mods
+4. **Launch**: Use the floating action button to launch XXMI with active mods
 
-### Managing Mods
-1. **Adding Mods**: Place mod folders in the game-specific ModLibrary directory
-2. **Activating Mods**: Click the heart icon on any mod to activate/deactivate
-3. **Viewing Details**: Click on a mod name to view detailed information
-4. **Searching**: Use the search bar with dynamic or static filtering
+### Key Features
+- **Category Navigation**: Browse mods by auto-detected categories (Characters, Weapons, UI, etc.)
+- **Cross-Category Search**: Search across all categories simultaneously
+- **Presets**: Save and load different mod configurations per game
+- **StatusKeeper**: Backup/restore mod states with automatic game-specific path detection
 
-### Using Presets
-1. **Creating Presets**: Activate desired mods, then save as a new preset
-2. **Loading Presets**: Select a preset from the dropdown and click load
-3. **Managing Presets**: Delete unwanted presets from the presets page
-4. **Game-Specific**: Each game maintains its own preset collection
+## Quick Start Guide
 
-### XXMI Integration
-1. **Launching Game**: Use the floating action button to launch XXMI
-2. **Mod Injection**: Active mods are automatically available in XXMI
-3. **Multi-Game Support**: XXMI launcher adapts to the selected game
+### Setup
+1. **Extract and run** `FlairX Mod Manager Launcher.exe`
+2. **Download XXMI** portable version when prompted, extract to `app/XXMI/`
+3. **Select your game** from the dropdown menu
 
-### StatusKeeper Features
-1. **Backup Creation**: Create backups of your mod configuration files
-2. **Dynamic Sync**: Enable automatic synchronization with file watching
-3. **Log Monitoring**: View detailed logs of backup operations
-4. **Namespace Support**: Modern namespace-based synchronization
+### Installing Mods
+1. **Download** mods from GameBanana/NexusMods
+2. **Extract** to: `app/ModLibrary/[Game]/[Category]/[ModName]/`
+   - Example: `app/ModLibrary/GI/Characters/Ayaka_Outfit/`
+3. **Click reload** (↻) to detect new mods
+4. **Activate** by clicking heart icons
+
+### Directory Structure Example
+```
+📁 app/ModLibrary/GI/
+├── 📁 Characters/
+│   └── 📁 Ayaka_Outfit/
+│       ├── 📄 mod.json (auto-created)
+│       ├── 📄 preview.jpg
+│       └── 📁 mod files...
+├── 📁 Weapons/
+└── 📁 UI/
+```
 
 ## Configuration
 
@@ -127,7 +137,15 @@ A comprehensive mod management application for multiple miHoYo games, built with
 FlairX Mod Manager/
 ├── ModLibrary/
 │   ├── ZZ/              # Zenless Zone Zero mods
+│   │   ├── Characters/  # Character mods
+│   │   ├── Weapons/     # Weapon mods
+│   │   ├── UI/          # UI mods
+│   │   └── Other/       # Other mods
 │   ├── GI/              # Genshin Impact mods
+│   │   ├── Characters/  # Character mods
+│   │   ├── Weapons/     # Weapon mods
+│   │   ├── UI/          # UI mods
+│   │   └── Other/       # Other mods
 │   ├── HI/              # Honkai Impact 3rd mods
 │   ├── SR/              # Honkai: Star Rail mods
 │   └── WW/              # Wuthering Waves mods
@@ -137,20 +155,11 @@ FlairX Mod Manager/
 └── Assets/             # Application resources
 ```
 
-### Settings File
-Settings are stored in `Settings directory`:
-- **SelectedGameIndex**: Currently selected game
-- **Language**: Interface language
-- **Theme**: UI theme preference
-- **BackdropEffect**: Window backdrop effect
-- **Game-specific paths**: Custom paths for mods and XXMI per game
-- **Feature toggles**: Various application features
-
-### Supported Languages
-- English (default)
-- Additional languages can be added via JSON files in the Language folder
-- Automatic system language detection
-- Font support for Asian and RTL scripts
+### Settings
+- **Location**: `Settings/` directory
+- **Languages**: English (default), extensible via JSON files
+- **Themes**: Light, Dark, Auto with various backdrop effects
+- **Per-Game**: Custom paths and configurations for each supported game
 
 ## Development
 
@@ -180,28 +189,21 @@ Settings are stored in `Settings directory`:
 - **MVVM Pattern**: Clean separation of UI and business logic
 - **Page-based Navigation**: Modular page system for different features
 - **Service Layer**: Centralized services for settings, logging, and file operations
-- **Multi-Game Support**: Game-agnostic architecture with configurable paths
+- **Multi-Game Support**: Game-agnostic architecture with configurable paths and dynamic game selection
+- **Category System**: Flexible directory-based organization with automatic detection and menu generation
+- **Dynamic Path Resolution**: Smart path handling that adapts to selected games and category structures
 - **Localization**: Resource-based multi-language support
 
 ## Troubleshooting
 
 ### Common Issues
-1. **Mods not activating**: Ensure you're running as Administrator on an NTFS drive
-2. **XXMI not launching**: Verify XXMI files are in the correct game directory
-3. **Thumbnails not loading**: Run the thumbnail optimization tool in settings
-4. **Language not changing**: Restart the application after changing language
-5. **Game switching issues**: Ensure proper directory structure for each game
+1. **Mods not activating**: Run as Administrator on NTFS drive
+2. **XXMI not launching**: Verify XXMI portable version in correct directory
+3. **Categories not appearing**: Place mods in category subdirectories (`ModLibrary/[Game]/[Category]/[ModName]/`)
+4. **Missing thumbnails**: Ensure mod folders have files with "preview" in filename
 
 ### Log Files
-- **Application Log**: `Settings/Application.log`
-- **StatusKeeper Log**: `Settings/StatusKeeper.log`
-- **Grid Log**: `Settings/GridLog.log`
-
-### Support
-- Check the application logs for detailed error information
-- Ensure all system requirements are met
-- Verify file permissions and NTFS support
-- Confirm proper XXMI installation for your target game
+Check `Settings/` directory for: `Application.log`, `StatusKeeper.log`, `GridLog.log`
 
 ## License
 
@@ -231,7 +233,6 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
 
 ---
-### USER MANUAL https://github.com/Jank8/FlairX-Mod-Manager/blob/main/FlairX-Mod-Manager/USER_MANUAL.md
 
 *This application is not affiliated with miHoYo/HoYoverse or any of the supported games. It is a community-developed tool for managing game modifications.*
 

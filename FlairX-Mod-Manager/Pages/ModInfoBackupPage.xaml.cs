@@ -70,7 +70,15 @@ namespace FlairX_Mod_Manager.Pages
             int count = 0;
             if (!Directory.Exists(ModLibraryPath)) return count;
             
-            var modDirs = Directory.GetDirectories(ModLibraryPath);
+            // Get all mod directories from all categories
+            var modDirs = new List<string>();
+            foreach (var categoryDir in Directory.GetDirectories(ModLibraryPath))
+            {
+                if (Directory.Exists(categoryDir))
+                {
+                    modDirs.AddRange(Directory.GetDirectories(categoryDir));
+                }
+            }
             
             foreach (var dir in modDirs)
             {
@@ -233,7 +241,16 @@ namespace FlairX_Mod_Manager.Pages
             int count = 0;
             if (!Directory.Exists(ModLibraryPath)) return count;
             
-            var modDirs = Directory.GetDirectories(ModLibraryPath);
+            // Get all mod directories from all categories
+            var modDirs = new List<string>();
+            foreach (var categoryDir in Directory.GetDirectories(ModLibraryPath))
+            {
+                if (Directory.Exists(categoryDir))
+                {
+                    modDirs.AddRange(Directory.GetDirectories(categoryDir));
+                }
+            }
+            
             foreach (var dir in modDirs)
             {
                 var modName = new DirectoryInfo(dir).Name;
@@ -327,7 +344,16 @@ namespace FlairX_Mod_Manager.Pages
             int count = 0;
             if (!Directory.Exists(ModLibraryPath)) return count;
             
-            var modDirs = Directory.GetDirectories(ModLibraryPath);
+            // Get all mod directories from all categories
+            var modDirs = new List<string>();
+            foreach (var categoryDir in Directory.GetDirectories(ModLibraryPath))
+            {
+                if (Directory.Exists(categoryDir))
+                {
+                    modDirs.AddRange(Directory.GetDirectories(categoryDir));
+                }
+            }
+            
             foreach (var dir in modDirs)
             {
                 var modName = new DirectoryInfo(dir).Name;
@@ -389,7 +415,16 @@ namespace FlairX_Mod_Manager.Pages
             
             try
             {
-                var modDirs = Directory.GetDirectories(currentModLibPath);
+                // Get all mod directories from all categories
+                var modDirs = new List<string>();
+                foreach (var categoryDir in Directory.GetDirectories(currentModLibPath))
+                {
+                    if (Directory.Exists(categoryDir))
+                    {
+                        modDirs.AddRange(Directory.GetDirectories(categoryDir));
+                    }
+                }
+                
                 foreach (var dir in modDirs)
                 {
                     var modName = new DirectoryInfo(dir).Name;

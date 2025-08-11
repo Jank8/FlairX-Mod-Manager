@@ -211,10 +211,20 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
                 string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
-                var modDirs = Directory.GetDirectories(modLibraryPath);
-                _totalMods = modDirs.Length;
+                
+                // Get all mod directories from all categories
+                var allModDirs = new List<string>();
+                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                {
+                    if (Directory.Exists(categoryDir))
+                    {
+                        allModDirs.AddRange(Directory.GetDirectories(categoryDir));
+                    }
+                }
+                
+                _totalMods = allModDirs.Count;
                 int processed = 0;
-                foreach (var dir in modDirs)
+                foreach (var dir in allModDirs)
                 {
                     if (token.IsCancellationRequested)
                     {

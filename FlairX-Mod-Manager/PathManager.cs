@@ -103,6 +103,41 @@ namespace FlairX_Mod_Manager
         }
         
         /// <summary>
+        /// Gets category-based mod path (ModLibrary/[GameName]/[Category]/[ModName])
+        /// </summary>
+        public static string GetCategoryModPath(string category, string modName)
+        {
+            var gameTag = SettingsManager.CurrentSelectedGame;
+            var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
+            return GetAbsolutePath(CombinePath(gameModLibraryPath, category, modName));
+        }
+        
+        /// <summary>
+        /// Gets category from mod directory path
+        /// </summary>
+        public static string GetCategoryFromModPath(string modPath)
+        {
+            try
+            {
+                var modLibraryPath = GetModLibraryPath();
+                var relativePath = Path.GetRelativePath(modLibraryPath, modPath);
+                var pathParts = relativePath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                
+                // Expected structure: [GameName]/[Category]/[ModName]
+                if (pathParts.Length >= 2)
+                {
+                    return pathParts[1]; // Category is the second part
+                }
+                
+                return "Other"; // Default category
+            }
+            catch
+            {
+                return "Other"; // Default category on error
+            }
+        }
+        
+        /// <summary>
         /// Gets XXMI mods path
         /// </summary>
         public static string GetXXMIModsPath(string? subPath = null)

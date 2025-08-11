@@ -31,6 +31,31 @@ namespace FlairX_Mod_Manager.Pages
             this.ActualThemeChanged += ModDetailPage_ActualThemeChanged;
         }
 
+        /// <summary>
+        /// Finds the full path to a mod folder in the category-based structure
+        /// </summary>
+        private string? FindModFolderPath(string modLibraryDir, string modDirectoryName)
+        {
+            try
+            {
+                // Search through all category directories to find the mod
+                foreach (var categoryDir in Directory.GetDirectories(modLibraryDir))
+                {
+                    var modPath = Path.Combine(categoryDir, modDirectoryName);
+                    if (Directory.Exists(modPath))
+                    {
+                        return Path.GetFullPath(modPath);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error finding mod folder path for {modDirectoryName}", ex);
+            }
+            
+            return null;
+        }
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
@@ -69,7 +94,21 @@ namespace FlairX_Mod_Manager.Pages
             {
                 try
                 {
-                    _allModDirs = Directory.GetDirectories(modLibraryPath).Select(Path.GetFileName).Where(x => x != null).Select(x => x!).OrderBy(x => x).ToList();
+                    // Load all mod directories from all categories
+                    _allModDirs = new List<string>();
+                    foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                    {
+                        if (Directory.Exists(categoryDir))
+                        {
+                            var modDirs = Directory.GetDirectories(categoryDir)
+                                .Select(Path.GetFileName)
+                                .Where(x => x != null)
+                                .Select(x => x!);
+                            _allModDirs.AddRange(modDirs);
+                        }
+                    }
+                    _allModDirs = _allModDirs.OrderBy(x => x).ToList();
+                    
                     if (modDir != null)
                     {
                         _currentModIndex = _allModDirs.FindIndex(x => x == modDir);
@@ -91,8 +130,19 @@ namespace FlairX_Mod_Manager.Pages
             {
                 try
                 {
-                    string fullModDir = Path.IsPathRooted(modDir) ? modDir : Path.Combine(modLibraryPath, modDir);
-                    if (Directory.Exists(fullModDir))
+                    string? fullModDir = null;
+                    
+                    if (Path.IsPathRooted(modDir))
+                    {
+                        fullModDir = modDir;
+                    }
+                    else
+                    {
+                        // Find the mod in the category-based structure
+                        fullModDir = FindModFolderPath(modLibraryPath, modDir);
+                    }
+                    
+                    if (!string.IsNullOrEmpty(fullModDir) && Directory.Exists(fullModDir))
                     {
                         modName = Path.GetFileName(fullModDir);
                         _modJsonPath = Path.Combine(fullModDir, "mod.json");
@@ -173,7 +223,14 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     else
                         ModImage.Source = null;
-                }
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Could not find mod directory: {modDir}");
+                        // Set default values when mod not found
+                        ModImage.Source = null;
+                        ModHotkeysList.ItemsSource = null;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -233,10 +290,12 @@ namespace FlairX_Mod_Manager.Pages
             }
             else if (!string.IsNullOrEmpty(_categoryParam))
             {
-                Frame.Navigate(typeof(ModGridPage), _categoryParam);
+                // Navigate back to the specific category
+                Frame.Navigate(typeof(ModGridPage), $"Category:{_categoryParam}");
             }
             else
             {
+                // Navigate to all mods view
                 Frame.Navigate(typeof(ModGridPage), null);
             }
         }
@@ -338,7 +397,13 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (_allModDirs != null && _currentModIndex > 0)
             {
-                Frame.Navigate(typeof(ModDetailPage), _allModDirs[_currentModIndex - 1]);
+                var prevModDir = _allModDirs[_currentModIndex - 1];
+                var navParam = new ModDetailNav
+                {
+                    ModDirectory = prevModDir,
+                    Category = _categoryParam ?? string.Empty
+                };
+                Frame.Navigate(typeof(ModDetailPage), navParam);
             }
         }
 
@@ -346,7 +411,13 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (_allModDirs != null && _currentModIndex < _allModDirs.Count - 1 && _currentModIndex >= 0)
             {
-                Frame.Navigate(typeof(ModDetailPage), _allModDirs[_currentModIndex + 1]);
+                var nextModDir = _allModDirs[_currentModIndex + 1];
+                var navParam = new ModDetailNav
+                {
+                    ModDirectory = nextModDir,
+                    Category = _categoryParam ?? string.Empty
+                };
+                Frame.Navigate(typeof(ModDetailPage), navParam);
             }
         }
 

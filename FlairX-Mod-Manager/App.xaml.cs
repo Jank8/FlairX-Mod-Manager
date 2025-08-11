@@ -280,21 +280,27 @@ namespace FlairX_Mod_Manager
             var newlyCreatedModPaths = new List<string>();
             var updatedModPaths = new List<string>();
             
-            // Process ALL first-level subdirectories in the game-specific mod library
-            foreach (var dir in System.IO.Directory.GetDirectories(modLibraryPath, "*", SearchOption.TopDirectoryOnly))
+            // Process category directories (1st level) and mod directories (2nd level)
+            foreach (var categoryDir in System.IO.Directory.GetDirectories(modLibraryPath, "*", SearchOption.TopDirectoryOnly))
             {
-                var modJsonPath = System.IO.Path.Combine(dir, "mod.json");
-                bool isNewFile = !System.IO.File.Exists(modJsonPath);
-                bool needsUpdate = false;
+                // Skip if this is not a directory or is a special directory
+                if (!System.IO.Directory.Exists(categoryDir)) continue;
                 
-                // Scan for namespace info
-                var (hasNamespace, namespaceMap) = ScanModForNamespace(dir);
+                // Process each mod directory within the category
+                foreach (var modDir in System.IO.Directory.GetDirectories(categoryDir, "*", SearchOption.TopDirectoryOnly))
+                {
+                    var modJsonPath = System.IO.Path.Combine(modDir, "mod.json");
+                    bool isNewFile = !System.IO.File.Exists(modJsonPath);
+                    bool needsUpdate = false;
+                    
+                    // Scan for namespace info
+                    var (hasNamespace, namespaceMap) = ScanModForNamespace(modDir);
                 
                 Dictionary<string, object> modData;
                 
                 if (isNewFile)
                 {
-                    // Create new mod.json with complete info
+                    // Create new mod.json with complete info (removed category field)
                     modData = new Dictionary<string, object>
                     {
                         ["author"] = "unknown",
@@ -328,7 +334,7 @@ namespace FlairX_Mod_Manager
                         modData["syncMethod"] = "classic";
                     }
                     
-                    newlyCreatedModPaths.Add(dir);
+                    newlyCreatedModPaths.Add(modDir);
                 }
                 else
                 {
@@ -362,12 +368,12 @@ namespace FlairX_Mod_Manager
                                 modData["syncMethod"] = "classic";
                             }
                             needsUpdate = true;
-                            updatedModPaths.Add(dir);
+                            updatedModPaths.Add(modDir);
                         }
                     }
                     catch
                     {
-                        // If JSON is corrupted, recreate it
+                        // If JSON is corrupted, recreate it (removed category field)
                         modData = new Dictionary<string, object>
                         {
                             ["author"] = "unknown",
@@ -394,7 +400,7 @@ namespace FlairX_Mod_Manager
                         }
                         
                         needsUpdate = true;
-                        updatedModPaths.Add(dir);
+                        updatedModPaths.Add(modDir);
                     }
                 }
                 
@@ -404,6 +410,7 @@ namespace FlairX_Mod_Manager
                     var jsonOptions = new System.Text.Json.JsonSerializerOptions { WriteIndented = true };
                     var jsonContent = System.Text.Json.JsonSerializer.Serialize(modData, jsonOptions);
                     System.IO.File.WriteAllText(modJsonPath, jsonContent);
+                }
                 }
             }
             

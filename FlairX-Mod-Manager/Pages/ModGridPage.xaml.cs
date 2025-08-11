@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
@@ -286,16 +286,31 @@ namespace FlairX_Mod_Manager.Pages
                 var modLibraryPath = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 if (!Directory.Exists(modLibraryPath)) return;
                 
-                var directories = Directory.GetDirectories(modLibraryPath);
-                var totalDirs = directories.Length;
+                var categoryDirs = Directory.GetDirectories(modLibraryPath);
+                var totalDirs = 0;
                 var processed = 0;
                 
-                foreach (var dir in directories)
+                // Count total mod directories for progress tracking
+                foreach (var categoryDir in categoryDirs)
                 {
-                    var modJsonPath = Path.Combine(dir, "mod.json");
-                    if (!File.Exists(modJsonPath)) continue;
+                    if (Directory.Exists(categoryDir))
+                    {
+                        totalDirs += Directory.GetDirectories(categoryDir).Length;
+                    }
+                }
+                
+                foreach (var categoryDir in categoryDirs)
+                {
+                    if (!Directory.Exists(categoryDir)) continue;
                     
-                    var dirName = Path.GetFileName(dir);
+                    var categoryName = Path.GetFileName(categoryDir);
+                    
+                    foreach (var modDir in Directory.GetDirectories(categoryDir))
+                    {
+                        var modJsonPath = Path.Combine(modDir, "mod.json");
+                        if (!File.Exists(modJsonPath)) continue;
+                        
+                        var dirName = Path.GetFileName(modDir);
                     
                     // Check if we need to load/update this mod's data
                     lock (_cacheLock)
@@ -320,8 +335,8 @@ namespace FlairX_Mod_Manager.Pages
                             var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
                             var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
                             
-                            var name = Path.GetFileName(dir);
-                            string previewPath = GetOptimalImagePathStatic(dir);
+                            var name = Path.GetFileName(modDir);
+                            string previewPath = GetOptimalImagePathStatic(modDir);
                             
                             var modData = new ModData
                             { 
@@ -331,7 +346,8 @@ namespace FlairX_Mod_Manager.Pages
                                 IsActive = false, // Will be updated when actually used
                                 Character = modCharacter,
                                 Author = modAuthor,
-                                Url = modUrl
+                                Url = modUrl,
+                                Category = categoryName
                             };
                             
                             // Cache the data
@@ -344,12 +360,13 @@ namespace FlairX_Mod_Manager.Pages
                         }
                     }
                     
-                    processed++;
-                    
-                    // Small delay to prevent overwhelming the system
-                    if (processed % 10 == 0)
-                    {
-                        await Task.Delay(1);
+                        processed++;
+                        
+                        // Small delay to prevent overwhelming the system
+                        if (processed % 10 == 0)
+                        {
+                            await Task.Delay(1);
+                        }
                     }
                 }
                 
@@ -820,25 +837,38 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
             }
-            if (e.Parameter is string character && !string.IsNullOrEmpty(character))
+            if (e.Parameter is string parameter && !string.IsNullOrEmpty(parameter))
             {
-                _currentCategory = character; // Store current category
-                if (string.Equals(character, "other", StringComparison.OrdinalIgnoreCase))
+                if (parameter.StartsWith("Category:"))
                 {
-                    var langDict = SharedUtilities.LoadLanguageDictionary();
-                    CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Other_Mods");
-                    LoadMods(character);
-                }
-                else if (string.Equals(character, "Active", StringComparison.OrdinalIgnoreCase))
-                {
-                    var langDict = SharedUtilities.LoadLanguageDictionary();
-                    CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
-                    LoadActiveModsOnly();
+                    // New category-based navigation
+                    var category = parameter.Substring("Category:".Length);
+                    _currentCategory = category;
+                    CategoryTitle.Text = category;
+                    LoadModsByCategory(category);
                 }
                 else
                 {
-                    CategoryTitle.Text = character;
-                    LoadMods(character);
+                    // Legacy character-based navigation
+                    var character = parameter;
+                    _currentCategory = character;
+                    if (string.Equals(character, "other", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var langDict = SharedUtilities.LoadLanguageDictionary();
+                        CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Other_Mods");
+                        LoadMods(character);
+                    }
+                    else if (string.Equals(character, "Active", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var langDict = SharedUtilities.LoadLanguageDictionary();
+                        CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
+                        LoadActiveModsOnly();
+                    }
+                    else
+                    {
+                        CategoryTitle.Text = character;
+                        LoadMods(character);
+                    }
                 }
             }
             else
@@ -940,9 +970,65 @@ namespace FlairX_Mod_Manager.Pages
             public string Character { get; set; } = "";
             public string Author { get; set; } = "";
             public string Url { get; set; } = "";
+            public string Category { get; set; } = "";
         }
 
 
+
+        private void LoadModsByCategory(string category)
+        {
+            LogToGridLog($"LoadModsByCategory() called for category: {category}");
+            
+            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            if (!Directory.Exists(modLibraryPath)) return;
+            
+            var mods = new List<ModTile>();
+            var categoryPath = Path.Combine(modLibraryPath, category);
+            
+            if (Directory.Exists(categoryPath))
+            {
+                foreach (var modDir in Directory.GetDirectories(categoryPath))
+                {
+                    var modJsonPath = Path.Combine(modDir, "mod.json");
+                    if (!File.Exists(modJsonPath)) continue;
+                    
+                    try
+                    {
+                        var name = Path.GetFileName(modDir);
+                        string previewPath = GetOptimalImagePath(modDir);
+                        var dirName = Path.GetFileName(modDir);
+                        var isActive = _activeMods.TryGetValue(dirName, out var active) && active;
+                        
+                        var modTile = new ModTile 
+                        { 
+                            Name = name, 
+                            ImagePath = previewPath, 
+                            Directory = dirName, 
+                            IsActive = isActive, 
+                            IsVisible = true,
+                            ImageSource = null // Start with no image - lazy load when visible
+                        };
+                        
+                        mods.Add(modTile);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to process mod in {modDir}", ex);
+                    }
+                }
+            }
+            
+            // Sort mods: active first, then alphabetically
+            mods = mods.OrderByDescending(m => m.IsActive).ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+            
+            _allMods = new ObservableCollection<ModTile>(mods);
+            ModsGrid.ItemsSource = _allMods;
+            
+            LogToGridLog($"Loaded {mods.Count} mods for category: {category}");
+            
+            // Load visible images after setting new data source
+            LoadVisibleImages();
+        }
 
         private void LoadMods(string character)
         {
@@ -952,23 +1038,27 @@ namespace FlairX_Mod_Manager.Pages
             if (!Directory.Exists(modLibraryPath)) return;
             
             var mods = new List<ModTile>();
-            foreach (var dir in Directory.GetDirectories(modLibraryPath))
+            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
             {
-                var modJsonPath = Path.Combine(dir, "mod.json");
-                if (!File.Exists(modJsonPath)) continue;
-                try
+                if (!Directory.Exists(categoryDir)) continue;
+                
+                foreach (var modDir in Directory.GetDirectories(categoryDir))
                 {
-                    var json = File.ReadAllText(modJsonPath);
-                    using var doc = JsonDocument.Parse(json);
-                    var root = doc.RootElement;
-                    var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
-                    if (!string.Equals(modCharacter, character, StringComparison.OrdinalIgnoreCase))
-                        continue;
-                    
-                    var name = Path.GetFileName(dir);
-                    string previewPath = GetOptimalImagePath(dir);
-                    var dirName = Path.GetFileName(dir);
-                    var isActive = _activeMods.TryGetValue(dirName, out var active) && active;
+                    var modJsonPath = Path.Combine(modDir, "mod.json");
+                    if (!File.Exists(modJsonPath)) continue;
+                    try
+                    {
+                        var json = File.ReadAllText(modJsonPath);
+                        using var doc = JsonDocument.Parse(json);
+                        var root = doc.RootElement;
+                        var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
+                        if (!string.Equals(modCharacter, character, StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        
+                        var name = Path.GetFileName(modDir);
+                        string previewPath = GetOptimalImagePath(modDir);
+                        var dirName = Path.GetFileName(modDir);
+                        var isActive = _activeMods.TryGetValue(dirName, out var active) && active;
                     
                     var modTile = new ModTile 
                     { 
@@ -981,10 +1071,11 @@ namespace FlairX_Mod_Manager.Pages
                     };
                     
                     mods.Add(modTile);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError($"Failed to parse mod.json for {dir}", ex);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to parse mod.json for {modDir}", ex);
+                    }
                 }
             }
             
@@ -1024,29 +1115,38 @@ namespace FlairX_Mod_Manager.Pages
             var cacheHits = 0;
             var cacheMisses = 0;
             
-            foreach (var dir in Directory.GetDirectories(modLibraryPath))
+            // Process category directories (1st level) and mod directories (2nd level)
+            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
             {
-                var modJsonPath = Path.Combine(dir, "mod.json");
-                if (!File.Exists(modJsonPath)) continue;
+                if (!Directory.Exists(categoryDir)) continue;
                 
-                var dirName = Path.GetFileName(dir);
-                var modData = GetCachedModData(dir, modJsonPath);
-                
-                if (modData != null)
+                foreach (var modDir in Directory.GetDirectories(categoryDir))
                 {
-                    // Update active state (this can change without file modification)
-                    modData.IsActive = _activeMods.TryGetValue(dirName, out var active) && active;
+                    var modJsonPath = Path.Combine(modDir, "mod.json");
+                    if (!File.Exists(modJsonPath)) continue;
                     
-                    // Skip "other" mods in All Mods view - they have their own category
-                    if (!string.Equals(modData.Character, "other", StringComparison.OrdinalIgnoreCase))
+                    var dirName = Path.GetFileName(modDir);
+                    var modData = GetCachedModData(modDir, modJsonPath);
+                    
+                    if (modData != null)
                     {
-                        _allModData.Add(modData);
+                        // Update active state (this can change without file modification)
+                        modData.IsActive = _activeMods.TryGetValue(dirName, out var active) && active;
+                        
+                        // Add category information from folder structure
+                        modData.Category = Path.GetFileName(categoryDir);
+                        
+                        // Skip "other" mods in All Mods view - they have their own category
+                        if (!string.Equals(modData.Character, "other", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _allModData.Add(modData);
+                        }
+                        cacheHits++;
                     }
-                    cacheHits++;
-                }
-                else
-                {
-                    cacheMisses++;
+                    else
+                    {
+                        cacheMisses++;
+                    }
                 }
             }
             
@@ -1338,7 +1438,16 @@ namespace FlairX_Mod_Manager.Pages
                     RemoveAllSymlinks(_lastSymlinkTarget);
                 }
                 var linkPath = Path.Combine(modsDirFull, mod.Directory);
-                var absModDir = Path.Combine(FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary"), mod.Directory);
+                
+                // Find the mod folder in the new category-based structure
+                var modLibraryDir = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var absModDir = FindModFolderPath(modLibraryDir, mod.Directory);
+                
+                if (string.IsNullOrEmpty(absModDir))
+                {
+                    Logger.LogError($"Could not find mod folder for {mod.Directory}");
+                    return;
+                }
                 // Remove double slashes in paths
                 linkPath = CleanPath(linkPath);
                 absModDir = CleanPath(absModDir);
@@ -1383,6 +1492,39 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        /// <summary>
+        /// Finds the full path to a mod folder in the category-based structure
+        /// </summary>
+        private string? FindModFolderPath(string modLibraryDir, string modDirectoryName)
+        {
+            return FindModFolderPathStatic(modLibraryDir, modDirectoryName);
+        }
+
+        /// <summary>
+        /// Static version of FindModFolderPath for use in static methods
+        /// </summary>
+        private static string? FindModFolderPathStatic(string modLibraryDir, string modDirectoryName)
+        {
+            try
+            {
+                // Search through all category directories to find the mod
+                foreach (var categoryDir in Directory.GetDirectories(modLibraryDir))
+                {
+                    var modPath = Path.Combine(categoryDir, modDirectoryName);
+                    if (Directory.Exists(modPath))
+                    {
+                        return Path.GetFullPath(modPath);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error finding mod folder path for {modDirectoryName}", ex);
+            }
+            
+            return null;
+        }
+
         private void OpenModFolderButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is ModTile mod)
@@ -1391,17 +1533,19 @@ namespace FlairX_Mod_Manager.Pages
                 if (!SecurityValidator.IsValidModDirectoryName(mod.Directory))
                     return;
 
-                // Always use the current ModLibraryDirectory setting
+                // Find the mod folder in the new category-based structure
                 var modLibraryDir = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory;
                 if (string.IsNullOrWhiteSpace(modLibraryDir))
                     modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-                var folder = Path.GetFullPath(Path.Combine(modLibraryDir, mod.Directory));
-                if (Directory.Exists(folder))
+                
+                string? modFolderPath = FindModFolderPath(modLibraryDir, mod.Directory);
+                
+                if (!string.IsNullOrEmpty(modFolderPath) && Directory.Exists(modFolderPath))
                 {
                     var psi = new System.Diagnostics.ProcessStartInfo
                     {
                         FileName = "explorer.exe",
-                        Arguments = $"\"{folder}\"",
+                        Arguments = $"\"{modFolderPath}\"",
                         UseShellExecute = true
                     };
                     System.Diagnostics.Process.Start(psi);
@@ -1475,15 +1619,18 @@ namespace FlairX_Mod_Manager.Pages
                 if (!SecurityValidator.IsValidModDirectoryName(mod.Directory))
                     return;
 
-                // Get mod folder path
+                // Get mod folder path using the new category-based structure
                 var modLibraryDir = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory;
                 if (string.IsNullOrWhiteSpace(modLibraryDir))
                     modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 
-                var modFolderPath = Path.Combine(modLibraryDir, mod.Directory);
+                var modFolderPath = FindModFolderPath(modLibraryDir, mod.Directory);
                 
-                if (!Directory.Exists(modFolderPath))
+                if (string.IsNullOrEmpty(modFolderPath) || !Directory.Exists(modFolderPath))
+                {
+                    Logger.LogError($"Could not find mod folder for deletion: {mod.Directory}");
                     return; // Folder doesn't exist
+                }
 
                 // Move folder to recycle bin using Windows Shell API
                 MoveToRecycleBin(modFolderPath);
@@ -1732,11 +1879,15 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     if (kv.Value)
                     {
-                        var absModDir = Path.Combine(modLibraryPath, kv.Key);
-                        var linkPath = Path.Combine(modsDirFull, kv.Key);
-                        if (!Directory.Exists(linkPath) && !File.Exists(linkPath))
+                        // Find the mod folder in the new category-based structure
+                        var absModDir = FindModFolderPathStatic(modLibraryPath, kv.Key);
+                        if (!string.IsNullOrEmpty(absModDir))
                         {
-                            CreateSymlinkStatic(linkPath, absModDir);
+                            var linkPath = Path.Combine(modsDirFull, kv.Key);
+                            if (!Directory.Exists(linkPath) && !File.Exists(linkPath))
+                            {
+                                CreateSymlinkStatic(linkPath, absModDir);
+                            }
                         }
                     }
                 }
@@ -1790,28 +1941,32 @@ namespace FlairX_Mod_Manager.Pages
             var allMods = new Dictionary<string, bool>();
             if (Directory.Exists(modLibraryPath))
             {
-                var dirs = Directory.GetDirectories(modLibraryPath);
-                foreach (var dir in dirs)
+                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
                 {
-                    var modJsonPath = Path.Combine(dir, "mod.json");
-                    if (File.Exists(modJsonPath))
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    foreach (var modDir in Directory.GetDirectories(categoryDir))
                     {
-                        try
+                        var modJsonPath = Path.Combine(modDir, "mod.json");
+                        if (File.Exists(modJsonPath))
                         {
-                            var json = File.ReadAllText(modJsonPath);
-                            using var doc = JsonDocument.Parse(json);
-                            var root = doc.RootElement;
-                            var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
-                            if (string.Equals(modCharacter, "other", StringComparison.OrdinalIgnoreCase))
+                            try
+                            {
+                                var json = File.ReadAllText(modJsonPath);
+                                using var doc = JsonDocument.Parse(json);
+                                var root = doc.RootElement;
+                                var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
+                                if (string.Equals(modCharacter, "other", StringComparison.OrdinalIgnoreCase))
+                                    continue;
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to parse mod.json for preset: {modDir}", ex);
                                 continue;
+                            }
+                            string modName = Path.GetFileName(modDir);
+                            allMods[modName] = false;
                         }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"Failed to parse mod.json for preset: {dir}", ex);
-                            continue;
-                        }
-                        string modName = Path.GetFileName(dir);
-                        allMods[modName] = false;
                     }
                 }
             }
@@ -1879,26 +2034,33 @@ namespace FlairX_Mod_Manager.Pages
             var removedMods = new List<string>();
             
             // Check for changed and new mods
-            foreach (var dir in Directory.GetDirectories(modLibraryPath))
+            var existingModDirs = new HashSet<string>();
+            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
             {
-                var modJsonPath = Path.Combine(dir, "mod.json");
-                if (!File.Exists(modJsonPath)) continue;
+                if (!Directory.Exists(categoryDir)) continue;
                 
-                var dirName = Path.GetFileName(dir);
-                var lastWriteTime = File.GetLastWriteTime(modJsonPath);
-                
-                lock (_cacheLock)
+                foreach (var modDir in Directory.GetDirectories(categoryDir))
                 {
-                    if (_modFileTimestamps.TryGetValue(dirName, out var cachedTime))
+                    var modJsonPath = Path.Combine(modDir, "mod.json");
+                    if (!File.Exists(modJsonPath)) continue;
+                    
+                    var dirName = Path.GetFileName(modDir);
+                    existingModDirs.Add(dirName);
+                    var lastWriteTime = File.GetLastWriteTime(modJsonPath);
+                    
+                    lock (_cacheLock)
                     {
-                        if (lastWriteTime > cachedTime)
+                        if (_modFileTimestamps.TryGetValue(dirName, out var cachedTime))
                         {
-                            changedMods.Add(dirName);
+                            if (lastWriteTime > cachedTime)
+                            {
+                                changedMods.Add(dirName);
+                            }
                         }
-                    }
-                    else
-                    {
-                        newMods.Add(dirName);
+                        else
+                        {
+                            newMods.Add(dirName);
+                        }
                     }
                 }
             }
@@ -1906,8 +2068,7 @@ namespace FlairX_Mod_Manager.Pages
             // Check for removed mods
             lock (_cacheLock)
             {
-                var existingDirs = Directory.GetDirectories(modLibraryPath).Select(Path.GetFileName).ToHashSet();
-                removedMods = _modJsonCache.Keys.Where(cached => !existingDirs.Contains(cached)).ToList();
+                removedMods = _modJsonCache.Keys.Where(cached => !existingModDirs.Contains(cached)).ToList();
             }
             
             // Process changes
@@ -2082,9 +2243,9 @@ namespace FlairX_Mod_Manager.Pages
                 foreach (var mod in activeMods.Where(m => m.Value))
                 {
                     var linkPath = Path.Combine(modsDirFull, mod.Key);
-                    var sourcePath = Path.Combine(modLibraryPath, mod.Key);
+                    var sourcePath = FindModFolderPathStatic(modLibraryPath, mod.Key);
                     
-                    if (!Directory.Exists(linkPath) && Directory.Exists(sourcePath))
+                    if (!Directory.Exists(linkPath) && !string.IsNullOrEmpty(sourcePath) && Directory.Exists(sourcePath))
                     {
                         // Missing symlink for active mod - create it
                         try
