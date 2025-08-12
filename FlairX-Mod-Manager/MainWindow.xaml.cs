@@ -898,7 +898,23 @@ namespace FlairX_Mod_Manager
                     }
                     else if (selectedTag == "OtherModsPage")
                     {
-                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Other", new DrillInNavigationTransitionInfo());
+                        // Load "Other" category instead of old character-based filtering
+                        if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+                        {
+                            // SEPARATE NAVIGATION BASED ON CURRENT VIEW MODE
+                            if (modGridPage.CurrentViewMode == FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Categories)
+                            {
+                                modGridPage.LoadCategoryInCategoryMode("Other");
+                            }
+                            else
+                            {
+                                modGridPage.LoadCategoryInDefaultMode("Other");
+                            }
+                        }
+                        else
+                        {
+                            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Category:Other", new DrillInNavigationTransitionInfo());
+                        }
                     }
                     else if (selectedTag == "FunctionsPage")
                     {
