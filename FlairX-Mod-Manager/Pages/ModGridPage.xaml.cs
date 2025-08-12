@@ -141,12 +141,21 @@ namespace FlairX_Mod_Manager.Pages
             LogToGridLog("LoadCategories() called");
             
             var gameTag = SettingsManager.CurrentSelectedGame;
-            if (string.IsNullOrEmpty(gameTag)) return;
+            if (string.IsNullOrEmpty(gameTag)) 
+            {
+                LogToGridLog("LoadCategories: No game selected, returning");
+                return;
+            }
             
             var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
             string modLibraryPath = PathManager.GetAbsolutePath(gameModLibraryPath);
             
-            if (!Directory.Exists(modLibraryPath)) return;
+            LogToGridLog($"LoadCategories: Checking path: {modLibraryPath}");
+            if (!Directory.Exists(modLibraryPath)) 
+            {
+                LogToGridLog("LoadCategories: ModLibrary path does not exist, returning");
+                return;
+            }
             
             var categories = new List<ModTile>();
             
@@ -183,8 +192,11 @@ namespace FlairX_Mod_Manager.Pages
                     _allMods.Add(category);
                 }
                 
+                // Set the ItemsSource to display categories
+                ModsGrid.ItemsSource = _allMods;
+                
                 CategoryTitle.Text = "Categories";
-                LogToGridLog($"Loaded {categories.Count} categories");
+                LogToGridLog($"LoadCategories: Successfully loaded {categories.Count} categories and set ItemsSource");
             });
         }
 
@@ -1005,6 +1017,10 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     // Navigate to categories view
                     CurrentViewMode = ViewMode.Categories;
+                    LoadCategories(); // Explicitly load categories
+                    
+                    // Update MainWindow button text
+                    UpdateMainWindowButtonText();
                     return;
                 }
                 else if (parameter.StartsWith("Category:"))
@@ -1041,10 +1057,19 @@ namespace FlairX_Mod_Manager.Pages
             }
             else
             {
-                _currentCategory = null; // All mods view
-                var langDict = SharedUtilities.LoadLanguageDictionary();
-                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
-                LoadAllMods();
+                _currentCategory = null; // All items view
+                
+                // Load based on current view mode
+                if (CurrentViewMode == ViewMode.Categories)
+                {
+                    LoadCategories();
+                }
+                else
+                {
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
+                    LoadAllMods();
+                }
             }
             
             // Notify MainWindow to update heart button after category title is set

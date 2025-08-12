@@ -896,26 +896,45 @@ namespace FlairX_Mod_Manager
                 {
                     // Switch to mods view
                     icon.Glyph = "\uE8A9";
-                    SetModGridPageViewMode(FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Mods);
                     UpdateAllModsButtonText(false);
+                    
+                    // Navigate to ModGridPage if not already there, or change mode if already there
+                    if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+                    {
+                        modGridPage.CurrentViewMode = FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Mods;
+                        modGridPage.LoadAllModsPublic();
+                    }
+                    else
+                    {
+                        // Navigate to ModGridPage with all mods
+                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
+                    }
                 }
                 else
                 {
                     // Switch to categories view
                     icon.Glyph = "\uE8B3";
-                    SetModGridPageViewMode(FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Categories);
                     UpdateAllModsButtonText(true);
+                    
+                    // Navigate to ModGridPage if not already there, or change mode if already there
+                    if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+                    {
+                        modGridPage.CurrentViewMode = FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Categories;
+                        modGridPage.LoadAllCategories();
+                    }
+                    else
+                    {
+                        // Navigate to ModGridPage with categories
+                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Categories", new DrillInNavigationTransitionInfo());
+                    }
                 }
+                
+                // Unselect menu item since we're going to all mods/categories
+                nvSample.SelectedItem = null;
             }
         }
 
-        private void SetModGridPageViewMode(FlairX_Mod_Manager.Pages.ModGridPage.ViewMode viewMode)
-        {
-            if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
-            {
-                modGridPage.CurrentViewMode = viewMode;
-            }
-        }
+
 
         public void UpdateViewModeButtonIcon(bool isCategoriesView)
         {
