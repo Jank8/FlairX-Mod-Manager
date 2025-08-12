@@ -823,18 +823,21 @@ namespace FlairX_Mod_Manager.Pages
             base.OnNavigatedTo(e);
             if (e.Parameter is string modName && !string.IsNullOrEmpty(modName))
             {
-                // Open mod details for given name
+                // Open mod details for given name using new category-based structure
                 var modLibraryPath = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-                var modDir = Path.Combine(modLibraryPath, modName);
-                var modJsonPath = Path.Combine(modDir, "mod.json");
-                if (File.Exists(modJsonPath))
+                var modDir = FindModFolderPath(modLibraryPath, modName);
+                if (!string.IsNullOrEmpty(modDir))
                 {
-                    var json = File.ReadAllText(modJsonPath);
-                    CategoryTitle.Text = $"Mod details: {modName}";
-                    // You can add mod details display in grid here
-                    // Example: display JSON in TextBlock
-                    ModsGrid.ItemsSource = new[] { json };
-                    return;
+                    var modJsonPath = Path.Combine(modDir, "mod.json");
+                    if (File.Exists(modJsonPath))
+                    {
+                        var json = File.ReadAllText(modJsonPath);
+                        CategoryTitle.Text = $"Mod details: {modName}";
+                        // You can add mod details display in grid here
+                        // Example: display JSON in TextBlock
+                        ModsGrid.ItemsSource = new[] { json };
+                        return;
+                    }
                 }
             }
             if (e.Parameter is string parameter && !string.IsNullOrEmpty(parameter))

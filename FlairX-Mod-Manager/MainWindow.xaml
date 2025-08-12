@@ -17,15 +17,64 @@
             IsBackButtonVisible="Collapsed"
             IsBackEnabled="False"
             SelectionChanged="NavigationView_SelectionChanged"
+            PaneClosing="NavigationView_PaneClosing"
+            PaneOpening="NavigationView_PaneOpening"
             PaneTitle=""
             AlwaysShowHeader="False"
             PaneDisplayMode="Left"
             ExpandedModeThresholdWidth="500"
             SelectionFollowsFocus="Disabled"
-            IsPaneToggleButtonVisible="False"
+            IsPaneToggleButtonVisible="True"
             IsPaneOpen="True"
             IsTabStop="False"
             OpenPaneLength="320">
+
+            <NavigationView.PaneHeader>
+                <ComboBox x:Name="GameSelectionComboBox" 
+                          HorizontalAlignment="Stretch"
+                          Height="36"
+                          Margin="16,2,16,0"
+                          HorizontalContentAlignment="Center"
+                          VerticalAlignment="Top"
+                          SelectionChanged="GameSelectionComboBox_SelectionChanged">
+                    <ComboBoxItem Tag="" IsSelected="True" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE8B0;" FontSize="16"/>
+                            <TextBlock x:Name="SelectGameText" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ComboBoxItem>
+                    <ComboBoxItem Tag="GIMI" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
+                            <TextBlock Text="Genshin Impact" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ComboBoxItem>
+                    <ComboBoxItem Tag="HIMI" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
+                            <TextBlock Text="Honkai Impact 3rd" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ComboBoxItem>
+                    <ComboBoxItem Tag="SRMI" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
+                            <TextBlock Text="Honkai Star Rail" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ComboBoxItem>
+                    <ComboBoxItem Tag="WWMI" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
+                            <TextBlock Text="Wuthering Waves" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ComboBoxItem>
+                    <ComboBoxItem Tag="ZZMI" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
+                            <TextBlock Text="Zenless Zone Zero" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ComboBoxItem>
+                </ComboBox>
+            </NavigationView.PaneHeader>
 
             <NavigationView.MenuItems>
                 <!-- All Menu Items removed -->
@@ -58,51 +107,9 @@
 
             <NavigationView.PaneCustomContent>
                 <StackPanel x:Name="PaneStackPanel" HorizontalAlignment="Stretch" Padding="16,20,16,0">
-                    <ComboBox x:Name="GameSelectionComboBox" 
-                              HorizontalAlignment="Stretch" 
-                              Margin="0,0,0,12"
-                              HorizontalContentAlignment="Center"
-                              SelectionChanged="GameSelectionComboBox_SelectionChanged">
-                        <ComboBoxItem Tag="" IsSelected="True" HorizontalContentAlignment="Center">
-                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                <FontIcon Glyph="&#xE8B0;" FontSize="16"/>
-                                <TextBlock x:Name="SelectGameText" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Tag="GIMI" HorizontalContentAlignment="Center">
-                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
-                                <TextBlock Text="Genshin Impact" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Tag="HIMI" HorizontalContentAlignment="Center">
-                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
-                                <TextBlock Text="Honkai Impact 3rd" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Tag="SRMI" HorizontalContentAlignment="Center">
-                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
-                                <TextBlock Text="Honkai Star Rail" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Tag="WWMI" HorizontalContentAlignment="Center">
-                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
-                                <TextBlock Text="Wuthering Waves" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem>
-                        <ComboBoxItem Tag="ZZMI" HorizontalContentAlignment="Center">
-                            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                                <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
-                                <TextBlock Text="Zenless Zone Zero" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </ComboBoxItem>
-                    </ComboBox>
-                    <TextBlock Text="FlairX Mod Manager" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="25" Margin="0,0,0,8"/>
-                    <ProgressBar x:Name="OrangeAnimationProgressBar" Width="200" IsIndeterminate="True" Margin="0,0,0,8" Visibility="Visible" Opacity="1" />
-                    <Grid Margin="0,16,0,8">
+                    <TextBlock x:Name="PaneTitleText" Text="FlairX Mod Manager" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="25" Margin="0,0,0,8"/>
+                    <ProgressBar x:Name="OrangeAnimationProgressBar" Width="200" IsIndeterminate="True" Margin="0,0,0,16" Visibility="Visible" Opacity="1" />
+                    <Grid x:Name="PaneContentGrid" Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
@@ -147,9 +154,10 @@
                             <FontIcon Glyph="&#xE895;" FontSize="14"/>
                         </Button>
                     </Grid>
-                    <Grid Margin="0,0,0,8">
+                    <Grid x:Name="PaneButtonsGrid" Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
@@ -160,8 +168,21 @@
                                 VerticalAlignment="Center"
                                 Click="AllModsButton_Click"
                                 Grid.Column="0"/>
-                        <Button x:Name="OpenModLibraryButton"
+                        <Button x:Name="ViewModeToggleButton"
                                 Grid.Column="1"
+                                Width="32"
+                                Height="32"
+                                Padding="0"
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                ToolTipService.ToolTip="Toggle view mode"
+                                Click="ViewModeToggleButton_Click">
+                            <FontIcon Glyph="&#xE8A9;" FontSize="16"/>
+                        </Button>
+                        <Button x:Name="OpenModLibraryButton"
+                                Grid.Column="2"
                                 Width="32"
                                 Height="32"
                                 Padding="0"
@@ -174,7 +195,7 @@
                             <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
                         </Button>
                         <Button x:Name="ShowActiveModsButton"
-                                Grid.Column="2"
+                                Grid.Column="3"
                                 Width="32"
                                 Height="32"
                                 Padding="0"

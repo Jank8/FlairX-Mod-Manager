@@ -500,6 +500,32 @@ namespace FlairX_Mod_Manager
             UpdateShowActiveModsButtonIcon();
         }
 
+        private void NavigationView_PaneClosing(NavigationView sender, object args)
+        {
+            // Ukryj tytuł i elementy gdy panel się zamyka
+            if (PaneTitleText != null)
+                PaneTitleText.Visibility = Visibility.Collapsed;
+            if (OrangeAnimationProgressBar != null)
+                OrangeAnimationProgressBar.Visibility = Visibility.Collapsed;
+            if (PaneContentGrid != null)
+                PaneContentGrid.Visibility = Visibility.Collapsed;
+            if (PaneButtonsGrid != null)
+                PaneButtonsGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void NavigationView_PaneOpening(NavigationView sender, object args)
+        {
+            // Pokaż tytuł i elementy gdy panel się otwiera
+            if (PaneTitleText != null)
+                PaneTitleText.Visibility = Visibility.Visible;
+            if (OrangeAnimationProgressBar != null)
+                OrangeAnimationProgressBar.Visibility = Visibility.Visible;
+            if (PaneContentGrid != null)
+                PaneContentGrid.Visibility = Visibility.Visible;
+            if (PaneButtonsGrid != null)
+                PaneButtonsGrid.Visibility = Visibility.Visible;
+        }
+
         private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             string query = sender.Text.Trim().ToLower();
@@ -808,6 +834,23 @@ namespace FlairX_Mod_Manager
             DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => UpdateShowActiveModsButtonIcon());
         }
 
+        private void ViewModeToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            // TODO: Implement view mode toggle functionality
+            // For now, just toggle the icon to show it's working
+            if (ViewModeToggleButton?.Content is FontIcon icon)
+            {
+                if (icon.Glyph == "\uE8A9") // Default mode
+                {
+                    icon.Glyph = "\uE8B3"; // Category tiles mode
+                }
+                else
+                {
+                    icon.Glyph = "\uE8A9"; // Back to default mode
+                }
+            }
+        }
+
         public void UpdateAllModsButtonState()
         {
             // All Mods button is now always enabled since we removed the disable functionality
@@ -838,7 +881,29 @@ namespace FlairX_Mod_Manager
 
         public async Task GenerateModCharacterMenuAsync()
         {
-            string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
+            // Get game-specific mod library path
+            var gameTag = SettingsManager.CurrentSelectedGame;
+            if (string.IsNullOrEmpty(gameTag)) 
+            {
+                // No game selected - clear the menu
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    // Remove old dynamic menu items
+                    var staticTags = new HashSet<string> { "OtherModsPage", "FunctionsPage", "PresetsPage" };
+                    var itemsToRemove = nvSample.MenuItems.OfType<NavigationViewItem>()
+                        .Where(item => item.Tag is string tag && !staticTags.Contains(tag))
+                        .ToList();
+                    
+                    foreach (var item in itemsToRemove)
+                    {
+                        nvSample.MenuItems.Remove(item);
+                    }
+                });
+                return;
+            }
+            
+            var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
+            string modLibraryPath = PathManager.GetAbsolutePath(gameModLibraryPath);
             if (!System.IO.Directory.Exists(modLibraryPath)) return;
             var categorySet = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
             var modCategoryMap = new Dictionary<string, List<string>>(); // category -> list of mod folders
