@@ -881,29 +881,7 @@ namespace FlairX_Mod_Manager
 
         public async Task GenerateModCharacterMenuAsync()
         {
-            // Get game-specific mod library path
-            var gameTag = SettingsManager.CurrentSelectedGame;
-            if (string.IsNullOrEmpty(gameTag)) 
-            {
-                // No game selected - clear the menu
-                DispatcherQueue.TryEnqueue(() =>
-                {
-                    // Remove old dynamic menu items
-                    var staticTags = new HashSet<string> { "OtherModsPage", "FunctionsPage", "PresetsPage" };
-                    var itemsToRemove = nvSample.MenuItems.OfType<NavigationViewItem>()
-                        .Where(item => item.Tag is string tag && !staticTags.Contains(tag))
-                        .ToList();
-                    
-                    foreach (var item in itemsToRemove)
-                    {
-                        nvSample.MenuItems.Remove(item);
-                    }
-                });
-                return;
-            }
-            
-            var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
-            string modLibraryPath = PathManager.GetAbsolutePath(gameModLibraryPath);
+            string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
             if (!System.IO.Directory.Exists(modLibraryPath)) return;
             var categorySet = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
             var modCategoryMap = new Dictionary<string, List<string>>(); // category -> list of mod folders
