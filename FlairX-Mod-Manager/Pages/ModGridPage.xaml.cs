@@ -150,12 +150,7 @@ namespace FlairX_Mod_Manager.Pages
             var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
             string modLibraryPath = PathManager.GetAbsolutePath(gameModLibraryPath);
             
-            LogToGridLog($"LoadCategories: Checking path: {modLibraryPath}");
-            if (!Directory.Exists(modLibraryPath)) 
-            {
-                LogToGridLog("LoadCategories: ModLibrary path does not exist, returning");
-                return;
-            }
+            if (!Directory.Exists(modLibraryPath)) return;
             
             var categories = new List<ModTile>();
             
@@ -196,7 +191,7 @@ namespace FlairX_Mod_Manager.Pages
                 ModsGrid.ItemsSource = _allMods;
                 
                 CategoryTitle.Text = "Categories";
-                LogToGridLog($"LoadCategories: Successfully loaded {categories.Count} categories and set ItemsSource");
+                LogToGridLog($"Loaded {categories.Count} categories");
             });
         }
 
