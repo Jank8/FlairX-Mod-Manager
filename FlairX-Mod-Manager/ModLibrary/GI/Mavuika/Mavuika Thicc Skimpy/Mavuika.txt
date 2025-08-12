@@ -1,0 +1,379 @@
+; Mavuika
+
+; Constants -------------------------
+[Constants]
+
+global persist $Shirt = 1
+global persist $bodyL2 = 0
+global persist $bodyL = 0
+
+; Overrides -------------------------
+
+[TextureOverrideMavuikaPosition]
+hash = 80b13a2f
+vb0 = ResourceMavuikaPosition
+
+[TextureOverrideMavuikaBlend]
+hash = 4e654846
+vb1 = ResourceMavuikaBlend
+handling = skip
+draw = 39726,0 
+
+[TextureOverrideMavuikaTexcoord]
+hash = 3af262c1
+vb1 = ResourceMavuikaTexcoord
+
+[TextureOverrideMavuikaVertexLimitRaise]
+hash = 00323c91
+; override_vertex_count = 39726
+; override_byte_stride = 84
+
+[TextureOverrideMavuikaHelmPosition]
+hash = 862f9f72
+vb0 = ResourceMavuikaHelmPosition
+
+[TextureOverrideMavuikaHelmBlend]
+hash = 93ca98ae
+vb1 = ResourceMavuikaHelmBlend
+handling = skip
+draw = 2358,0 
+
+[TextureOverrideMavuikaHelmTexcoord]
+hash = 2c54dd38
+vb1 = ResourceMavuikaHelmTexcoord
+
+[TextureOverrideMavuikaHelmVertexLimitRaise]
+hash = f77704b3
+; override_vertex_count = 2358
+; override_byte_stride = 92
+
+[TextureOverrideMavuikaBikePosition]
+hash = 04b33215
+vb0 = ResourceMavuikaBikePosition
+
+[TextureOverrideMavuikaBikeBlend]
+hash = fb0263c8
+vb1 = ResourceMavuikaBikeBlend
+handling = skip
+draw = 15090,0 
+
+[TextureOverrideMavuikaBikeTexcoord]
+hash = 6e33cbb5
+vb1 = ResourceMavuikaBikeTexcoord
+
+[TextureOverrideMavuikaBikeVertexLimitRaise]
+hash = 4fa81127
+; override_vertex_count = 15090
+; override_byte_stride = 92
+
+[TextureOverrideMavuikaHairFlamePosition]
+hash = 834cea18
+vb0 = ResourceMavuikaHairFlamePosition
+
+[TextureOverrideMavuikaHairFlameBlend]
+hash = 8b254dde
+vb1 = ResourceMavuikaHairFlameBlend
+handling = skip
+draw = 3928,0 
+
+[TextureOverrideMavuikaHairFlameTexcoord]
+hash = 02c6dd96
+vb1 = ResourceMavuikaHairFlameTexcoord
+
+[TextureOverrideMavuikaHairFlameVertexLimitRaise]
+hash = ddeec9b7
+; override_vertex_count = 3928
+; override_byte_stride = 92
+
+[TextureOverrideMavuikaIB]
+hash = 43f8af29
+handling = skip
+
+[TextureOverrideMavuikaHead]
+hash = 43f8af29
+match_first_index = 0
+ib = ResourceMavuikaHeadIB
+ps-t0 = ResourceMavuikaHeadShadow
+ps-t1 = ResourceMavuikaHeadDiffuse
+ps-t2 = ResourceMavuikaHeadLightMap
+; MavuikaHead-vb0=80b13a2f.txt (816)
+drawindexed = 1908, 0, 0
+
+[TextureOverrideMavuikaBody]
+hash = 43f8af29
+match_first_index = 16914
+ib = ResourceMavuikaBodyIB
+ps-t0 = ResourceMavuikaBodyShadow
+ps-t1 = ResourceMavuikaBodyDiffuse
+ps-t2 = ResourceMavuikaBodyLightMap
+run = CommandList\global\ORFix\ORFix
+
+if $Shirt == 1
+	drawindexed = 10512, 149370, 0
+	drawindexed = 1056, 159882, 0
+endif
+
+if $bodyL2 == 1
+	drawindexed = 18672, 122034, 0
+	drawindexed = 8664, 140706, 0
+endif
+
+if $bodyL == 1
+	drawindexed = 14472, 107562, 0
+endif
+
+; MavuikaBody
+	drawindexed = 107562, 0, 0
+	drawindexed = 10248, 164202, 0
+	drawindexed = 3264, 160938, 0
+
+[TextureOverrideMavuikaDress]
+hash = 43f8af29
+match_first_index = 42618
+ib = null
+ps-t0 = ResourceMavuikaDressShadow
+ps-t1 = ResourceMavuikaDressDiffuse
+ps-t2 = ResourceMavuikaDressLightMap
+
+[TextureOverrideMavuikaFaceHeadDiffuse]
+hash = 3a7e93c8
+this = ResourceMavuikaFaceHeadDiffuse
+
+
+[TextureOverrideMavuikaHelmIB]
+hash = 8f86c652
+handling = skip
+drawindexed = auto
+
+[TextureOverrideMavuikaHelmHead]
+hash = 8f86c652
+match_first_index = 0
+ib = ResourceMavuikaHelmHeadIB
+ps-t0 = ResourceMavuikaHelmHeadDiffuse
+ps-t1 = ResourceMavuikaHelmHeadLightMap
+
+[TextureOverrideMavuikaHelmBody]
+hash = 8f86c652
+match_first_index = 6636
+ib = ResourceMavuikaHelmBodyIB
+ps-t0 = ResourceMavuikaHelmBodyDiffuse
+ps-t1 = ResourceMavuikaHelmBodyShadow
+
+[TextureOverrideMavuikaBikeIB]
+hash = 9bec497f
+handling = skip
+drawindexed = auto
+
+[TextureOverrideMavuikaBikeHead]
+hash = 9bec497f
+match_first_index = 0
+ib = ResourceMavuikaBikeHeadIB
+ps-t0 = ResourceMavuikaBikeHeadShadow
+ps-t1 = ResourceMavuikaBikeHeadDiffuse
+ps-t2 = ResourceMavuikaBikeHeadLightMap
+
+[TextureOverrideMavuikaBikeBody]
+hash = 9bec497f
+match_first_index = 33744
+ib = ResourceMavuikaBikeBodyIB
+ps-t0 = ResourceMavuikaBikeBodyShadow
+ps-t1 = ResourceMavuikaBikeBodyDiffuse
+ps-t2 = ResourceMavuikaBikeBodyLightMap
+
+[TextureOverrideMavuikaHairFlameIB]
+hash = 5bee95b2
+handling = skip
+drawindexed = auto
+
+[TextureOverrideMavuikaHairFlameHead]
+hash = 5bee95b2
+match_first_index = 0
+ib = ResourceMavuikaHairFlameHeadIB
+ps-t0 = ResourceMavuikaHairFlameHeadShadow
+ps-t1 = ResourceMavuikaHairFlameHeadDiffuse
+ps-t2 = ResourceMavuikaHairFlameHeadLightMap
+
+; CommandList -----------------------
+
+; Resources -------------------------
+
+[ResourceMavuikaPosition]
+type = Buffer
+stride = 40
+filename = MavuikaPosition.buf
+
+[ResourceMavuikaBlend]
+type = Buffer
+stride = 32
+filename = MavuikaBlend.buf
+
+[ResourceMavuikaTexcoord]
+type = Buffer
+stride = 12
+filename = MavuikaTexcoord.buf
+
+[ResourceMavuikaHelmPosition]
+type = Buffer
+stride = 40
+filename = MavuikaHelmPosition.buf
+
+[ResourceMavuikaHelmBlend]
+type = Buffer
+stride = 32
+filename = MavuikaHelmBlend.buf
+
+[ResourceMavuikaHelmTexcoord]
+type = Buffer
+stride = 20
+filename = MavuikaHelmTexcoord.buf
+
+[ResourceMavuikaBikePosition]
+type = Buffer
+stride = 40
+filename = MavuikaBikePosition.buf
+
+[ResourceMavuikaBikeBlend]
+type = Buffer
+stride = 32
+filename = MavuikaBikeBlend.buf
+
+[ResourceMavuikaBikeTexcoord]
+type = Buffer
+stride = 20
+filename = MavuikaBikeTexcoord.buf
+
+[ResourceMavuikaHairFlamePosition]
+type = Buffer
+stride = 40
+filename = MavuikaHairFlamePosition.buf
+
+[ResourceMavuikaHairFlameBlend]
+type = Buffer
+stride = 32
+filename = MavuikaHairFlameBlend.buf
+
+[ResourceMavuikaHairFlameTexcoord]
+type = Buffer
+stride = 20
+filename = MavuikaHairFlameTexcoord.buf
+
+[ResourceMavuikaHeadIB]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = MavuikaHead.ib
+
+[ResourceMavuikaBodyIB]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = MavuikaBody.ib
+
+[ResourceMavuikaDressIB]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = MavuikaDress.ib
+
+[ResourceMavuikaHelmHeadIB]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = MavuikaHelmHead.ib
+
+[ResourceMavuikaHelmBodyIB]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = MavuikaHelmBody.ib
+
+[ResourceMavuikaBikeHeadIB]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = MavuikaBikeHead.ib
+
+[ResourceMavuikaBikeBodyIB]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = MavuikaBikeBody.ib
+
+[ResourceMavuikaHairFlameHeadIB]
+type = Buffer
+format = DXGI_FORMAT_R32_UINT
+filename = MavuikaHairFlameHead.ib
+
+[ResourceMavuikaHeadShadow]
+filename = MavuikaHeadShadow.dds
+
+[ResourceMavuikaHeadDiffuse]
+filename = MavuikaHeadDiffuse.dds
+
+[ResourceMavuikaHeadLightMap]
+filename = MavuikaHeadLightMap.dds
+
+[ResourceMavuikaBodyShadow]
+filename = MavuikaBodyShadow.dds
+
+[ResourceMavuikaBodyDiffuse]
+filename = MavuikaBodyDiffuse.dds
+
+[ResourceMavuikaBodyLightMap]
+filename = MavuikaBodyLightMap.dds
+
+[ResourceMavuikaDressShadow]
+filename = MavuikaDressShadow.dds
+
+[ResourceMavuikaDressDiffuse]
+filename = MavuikaDressDiffuse.dds
+
+[ResourceMavuikaDressLightMap]
+filename = MavuikaDressLightMap.dds
+
+[ResourceMavuikaFaceHeadDiffuse]
+filename = MavuikaFaceHeadDiffuse.dds
+
+[ResourceMavuikaHelmHeadDiffuse]
+filename = MavuikaHelmHeadDiffuse.dds
+
+[ResourceMavuikaHelmHeadLightMap]
+filename = MavuikaHelmHeadLightMap.dds
+
+[ResourceMavuikaHelmBodyDiffuse]
+filename = MavuikaHelmBodyDiffuse.dds
+
+[ResourceMavuikaHelmBodyShadow]
+filename = MavuikaHelmBodyShadow.dds
+
+[ResourceMavuikaBikeHeadShadow]
+filename = MavuikaBikeHeadShadow.dds
+
+[ResourceMavuikaBikeHeadDiffuse]
+filename = MavuikaBikeHeadDiffuse.dds
+
+[ResourceMavuikaBikeHeadLightMap]
+filename = MavuikaBikeHeadLightMap.dds
+
+[ResourceMavuikaBikeBodyShadow]
+filename = MavuikaBikeBodyShadow.dds
+
+[ResourceMavuikaBikeBodyDiffuse]
+filename = MavuikaBikeBodyDiffuse.dds
+
+[ResourceMavuikaBikeBodyLightMap]
+filename = MavuikaBikeBodyLightMap.dds
+
+[ResourceMavuikaHairFlameHeadShadow]
+filename = MavuikaHairFlameHeadShadow.dds
+
+[ResourceMavuikaHairFlameHeadDiffuse]
+filename = MavuikaHairFlameHeadDiffuse.dds
+
+[ResourceMavuikaHairFlameHeadLightMap]
+filename = MavuikaHairFlameHeadLightMap.dds
+
+[KeySwap0]
+key = 5
+condition = $active == 0
+type = cycle
+$Shirt = 1,0
+$bodyL = 0,1
+$bodyL2 = 0,1
+
+
+; .ini generated by XXMI (XX-Model-Importer)
+; If you have any issues or find any bugs, please open a ticket at https://github.com/leotorrez/XXMI-Tools/issues

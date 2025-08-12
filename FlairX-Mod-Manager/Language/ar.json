@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "شكر لـ:",
   "AboutDialog_With": "مع",
   "All_Mods": "جميع التعديلات",
+  "All_Categories": "جميع الفئات",
   "Cancel": "إلغاء",
   "Category_Active_Mods": "التعديلات النشطة",
   "Category_All_Mods": "جميع التعديلات",
@@ -87,6 +88,12 @@
   "Success_Title": "موافق",
   "Welcome_SelectGame": "يرجى اختيار لعبة من القائمة المنسدلة أعلاه للبدء.",
   "Welcome_Title": "مرحباً !",
+  "ViewModeToggle_Tooltip": "تبديل وضع العرض",
+  "ViewModeToggle_CategoryMode_Tooltip": "أنت في وضع بلاطات الفئات",
+  "ViewModeToggle_DefaultMode_Tooltip": "أنت في الوضع الافتراضي",
+  "ActiveModsToTop_Label": "نقل التعديلات النشطة إلى الأعلى",
+  "ActiveModsToTop_Tooltip": "عند التفعيل، ستظهر التعديلات النشطة في أعلى القائمة",
+  "SettingsPage_ActiveModsToTop_Label": "نقل التعديلات النشطة إلى الأعلى",
   "XXMI_Download_Instructions": "بعد التحميل، استخرج مجلد XXMI إلى دليل التطبيق أو حدث مسار دليل تعديلات XXMI في الإعدادات.",
   "XXMI_Download_Required": "مشغل XXMI مطلوب لتشغيل التعديلات. حمل النسخة المحمولة من GitHub:"
 }

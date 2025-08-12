@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "ধন্যবাদ:",
   "AboutDialog_With": "সাথে",
   "All_Mods": "সব মড",
+  "All_Categories": "সব বিভাগ",
   "Cancel": "বাতিল",
   "Category_Active_Mods": "সক্রিয় মড",
   "Category_All_Mods": "সব মড",
@@ -87,6 +88,12 @@
   "Success_Title": "ঠিক আছে",
   "Welcome_SelectGame": "শুরু করতে দয়া করে উপরের ড্রপডাউন থেকে একটি গেম নির্বাচন করুন।",
   "Welcome_Title": "স্বাগতম !",
+  "ViewModeToggle_Tooltip": "ভিউ মোড টগল করুন",
+  "ViewModeToggle_CategoryMode_Tooltip": "আপনি ক্যাটেগরি টাইল মোডে আছেন",
+  "ViewModeToggle_DefaultMode_Tooltip": "আপনি ডিফল্ট মোডে আছেন",
+  "ActiveModsToTop_Label": "সক্রিয় মডগুলি উপরে সরান",
+  "ActiveModsToTop_Tooltip": "সক্রিয় করা হলে, সক্রিয় মডগুলি তালিকার শীর্ষে প্রদর্শিত হবে",
+  "SettingsPage_ActiveModsToTop_Label": "সক্রিয় মডগুলি উপরে সরান",
   "XXMI_Download_Instructions": "ডাউনলোডের পর, XXMI ফোল্ডার APP ডিরেক্টরিতে এক্সট্র্যাক্ট করুন বা সেটিংসে XXMI মড ডিরেক্টরি পাথ আপডেট করুন।",
   "XXMI_Download_Required": "মড চালু করতে XXMI লঞ্চার প্রয়োজন। GitHub থেকে পোর্টেবল সংস্করণ ডাউনলোড করুন:"
 }

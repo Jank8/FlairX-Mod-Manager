@@ -93,6 +93,7 @@ namespace FlairX_Mod_Manager.Pages
             GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
             ShowOrangeAnimationToggle.IsOn = SettingsManager.Current.ShowOrangeAnimation;
             ModGridZoomToggle.IsOn = SettingsManager.Current.ModGridZoomEnabled;
+            ActiveModsToTopToggle.IsOn = SettingsManager.Current.ActiveModsToTopEnabled;
             
             // Set BreadcrumbBar paths
             SetBreadcrumbBar(XXMIModsDirectoryBreadcrumb, SettingsManager.XXMIModsDirectorySafe);
@@ -315,8 +316,10 @@ namespace FlairX_Mod_Manager.Pages
             GridLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Label");
             ShowOrangeAnimationLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Label");
             ModGridZoomLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Label");
+            ActiveModsToTopLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Label");
             ToolTipService.SetToolTip(ModGridZoomToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Tooltip"));
             ToolTipService.SetToolTip(GridLoggingToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Tooltip"));
+            ToolTipService.SetToolTip(ActiveModsToTopToggle, SharedUtilities.GetTranslation(lang, "ActiveModsToTop_Tooltip"));
             // Update SelectorBar texts
             ThemeSelectorAutoText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Auto");
             ThemeSelectorLightText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Light");
@@ -651,16 +654,21 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (token.IsCancellationRequested) return;
             
-            var minitileJpgPath = Path.Combine(categoryDir, "minitile.jpg");
+            var catprevJpgPath = Path.Combine(categoryDir, "catprev.jpg");
             
-            // Skip if minitile.jpg already exists
-            if (File.Exists(minitileJpgPath)) return;
+            // Skip if catprev.jpg already exists
+            if (File.Exists(catprevJpgPath)) return;
             
-            // Look for preview files in category directory (same logic as mods)
-            var previewFiles = Directory.GetFiles(categoryDir, "preview.*", SearchOption.TopDirectoryOnly)
-                .Where(f => f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                           f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                           f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+            // Look for preview files in category directory (catpreview.*, preview.*, etc.)
+            var previewFiles = Directory.GetFiles(categoryDir)
+                .Where(f => 
+                {
+                    var fileName = Path.GetFileName(f).ToLower();
+                    return (fileName.StartsWith("catpreview") || fileName.StartsWith("preview")) &&
+                           (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                            f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                            f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                })
                 .ToArray();
             
             if (previewFiles.Length == 0) return;
@@ -671,7 +679,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 using (var img = System.Drawing.Image.FromFile(previewPath))
                 {
-                    // Create minitile (600x600 for high DPI displays)
+                    // Create catprev.jpg (600x600 for category tiles)
                     using (var thumbBmp = new System.Drawing.Bitmap(600, 600))
                     using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
                     {
@@ -689,14 +697,27 @@ namespace FlairX_Mod_Manager.Pages
                         
                         g.DrawImage(img, destRect, srcRect, GraphicsUnit.Pixel);
                         
-                        // Save as JPEG minitile
+                        // Save as JPEG catprev
                         var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
                         if (jpegEncoder != null)
                         {
                             var jpegParams = new EncoderParameters(1);
                             jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
-                            thumbBmp.Save(minitileJpgPath, jpegEncoder, jpegParams);
+                            thumbBmp.Save(catprevJpgPath, jpegEncoder, jpegParams);
                         }
+                    }
+                }
+                
+                // Remove the original preview file after processing (same as mod optimization)
+                if (!previewPath.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        File.Delete(previewPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogWarning($"Failed to delete original category preview file {previewPath}: {ex.Message}");
                     }
                 }
             }
@@ -1056,6 +1077,12 @@ namespace FlairX_Mod_Manager.Pages
         private void ModGridZoomToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.ModGridZoomEnabled = ModGridZoomToggle.IsOn;
+            SettingsManager.Save();
+        }
+
+        private void ActiveModsToTopToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.ActiveModsToTopEnabled = ActiveModsToTopToggle.IsOn;
             SettingsManager.Save();
         }
     }

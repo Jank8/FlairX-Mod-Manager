@@ -54,13 +54,14 @@ namespace FlairX_Mod_Manager
             InitializeComponent();
             LoadLanguage();
 
-            // Set AllModsButton translation
-            AllModsButton.Content = SharedUtilities.GetTranslation(_lang, "All_Mods");
             // Set button tooltip translations
             ToolTipService.SetToolTip(ReloadModsButton, SharedUtilities.GetTranslation(_lang, "Reload_Mods_Tooltip"));
             ToolTipService.SetToolTip(OpenModLibraryButton, SharedUtilities.GetTranslation(_lang, "Open_ModLibrary_Tooltip"));
             ToolTipService.SetToolTip(LauncherFabBorder, SharedUtilities.GetTranslation(_lang, "Launcher_Tooltip"));
             ToolTipService.SetToolTip(ShowActiveModsButton, SharedUtilities.GetTranslation(_lang, "ShowActiveModsButton_Tooltip"));
+            
+            // Initialize view mode from settings
+            InitializeViewModeFromSettings();
 
             // Update game selection ComboBox text
             UpdateGameSelectionComboBoxTexts();
@@ -70,6 +71,9 @@ namespace FlairX_Mod_Manager
             var appWindow = AppWindow.GetFromWindowId(windowId);
             // Set window icon on taskbar
             appWindow.SetIcon("Assets\\appicon.png");
+            
+            // Disable maximize on double-click title bar
+            DisableMaximizeOnDoubleClick(hwnd);
             
             // Force theme on startup according to user settings FIRST
             var theme = FlairX_Mod_Manager.SettingsManager.Current.Theme;
@@ -141,6 +145,16 @@ namespace FlairX_Mod_Manager
                     progressBar.Opacity = FlairX_Mod_Manager.SettingsManager.Current.ShowOrangeAnimation ? 1 : 0;
                 }
             };
+            
+            // Add event to restore view mode button when navigating back to ModGridPage
+            contentFrame.Navigated += (s, e) =>
+            {
+                if (e.Content is FlairX_Mod_Manager.Pages.ModGridPage)
+                {
+                    // Restore view mode button from settings when returning to ModGridPage
+                    RestoreViewModeButtonFromSettings();
+                }
+            };
             MainRoot.Loaded += MainRoot_Loaded;
             MainRoot.Loaded += (s, e) =>
             {
@@ -154,8 +168,21 @@ namespace FlairX_Mod_Manager
             // Update All Mods button state based on settings
             UpdateAllModsButtonState();
 
-            // Set main page to All Mods
-            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null);
+            // Set main page based on ViewMode setting
+            if (SettingsManager.Current.ViewMode == "Categories")
+            {
+                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Categories");
+            }
+            else
+            {
+                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null);
+            }
+            
+            // Force update button state after UI is fully loaded
+            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => 
+            {
+                UpdateAllModsButtonState();
+            });
 
             if (appWindow != null)
             {
@@ -426,6 +453,13 @@ namespace FlairX_Mod_Manager
                 ToolTipService.SetToolTip(RestartAppButton, SharedUtilities.GetTranslation(_lang, "SettingsPage_RestartApp_Tooltip"));
             if (ShowActiveModsButton != null)
                 ToolTipService.SetToolTip(ShowActiveModsButton, SharedUtilities.GetTranslation(_lang, "ShowActiveModsButton_Tooltip"));
+            
+            // Update view mode tooltip based on current state
+            if (ViewModeToggleButton?.Content is FontIcon icon)
+            {
+                bool isCategoriesView = icon.Glyph == "\uE8B3";
+                UpdateViewModeTooltip(isCategoriesView);
+            }
         }
 
         public void UpdateShowActiveModsButtonIcon()
@@ -473,7 +507,15 @@ namespace FlairX_Mod_Manager
                         // If we're already on ModGridPage, just load the category without navigating
                         if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                         {
-                            modGridPage.LoadCategoryDirectly(category);
+                            // SEPARATE NAVIGATION BASED ON CURRENT VIEW MODE
+                            if (modGridPage.CurrentViewMode == FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Categories)
+                            {
+                                modGridPage.LoadCategoryInCategoryMode(category);
+                            }
+                            else
+                            {
+                                modGridPage.LoadCategoryInDefaultMode(category);
+                            }
                         }
                         else
                         {
@@ -491,6 +533,10 @@ namespace FlairX_Mod_Manager
                     else if (selectedTag == "SettingsPage")
                     {
                         contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.SettingsPage), null, new DrillInNavigationTransitionInfo());
+                        // Force restore view mode from settings when entering settings
+                        RestoreViewModeButtonFromSettings();
+                        // Also force update button state
+                        UpdateAllModsButtonState();
                     }
                     else
                     {
@@ -838,36 +884,17 @@ namespace FlairX_Mod_Manager
             // Unselect selected menu item
             nvSample.SelectedItem = null;
             
-            // Check current view mode from the button icon
-            bool isCategoriesView = false;
-            if (ViewModeToggleButton?.Content is FontIcon icon)
-            {
-                isCategoriesView = icon.Glyph == "\uE8B3";
-            }
+            // TYLKO ViewMode z ustawień decyduje o wszystkim
+            bool isCategoriesView = SettingsManager.Current.ViewMode == "Categories";
             
-            if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+            // Zawsze nawiguj do ModGridPage z odpowiednim parametrem
+            if (isCategoriesView)
             {
-                // If we're already on ModGridPage, trigger the appropriate load method directly
-                if (isCategoriesView)
-                {
-                    modGridPage.LoadAllCategories(); // Load all categories
-                }
-                else
-                {
-                    modGridPage.LoadAllModsPublic(); // Load all mods
-                }
+                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Categories", new DrillInNavigationTransitionInfo());
             }
             else
             {
-                // Navigate to ModGridPage with appropriate parameter
-                if (isCategoriesView)
-                {
-                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Categories", new DrillInNavigationTransitionInfo());
-                }
-                else
-                {
-                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
-                }
+                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
             }
             
             // Update heart button after a short delay to ensure page has loaded
@@ -896,13 +923,22 @@ namespace FlairX_Mod_Manager
                 {
                     // Switch to mods view
                     icon.Glyph = "\uE8A9";
-                    UpdateAllModsButtonText(false);
+                    
+                    // Save view mode to settings
+                    SettingsManager.Current.ViewMode = "Mods";
+                    SettingsManager.Save();
+                    SettingsManager.Load(); // Force reload
+                    
+                    // Update UI based on settings
+                    bool isCategoriesView = SettingsManager.Current.ViewMode == "Categories";
+                    UpdateAllModsButtonText(isCategoriesView);
+                    UpdateViewModeTooltip(isCategoriesView);
+                    UpdateMenuItemsEnabledState(isCategoriesView);
                     
                     // Navigate to ModGridPage if not already there, or change mode if already there
                     if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                     {
                         modGridPage.CurrentViewMode = FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Mods;
-                        modGridPage.LoadAllModsPublic();
                     }
                     else
                     {
@@ -914,13 +950,22 @@ namespace FlairX_Mod_Manager
                 {
                     // Switch to categories view
                     icon.Glyph = "\uE8B3";
-                    UpdateAllModsButtonText(true);
+                    
+                    // Save view mode to settings
+                    SettingsManager.Current.ViewMode = "Categories";
+                    SettingsManager.Save();
+                    SettingsManager.Load(); // Force reload
+                    
+                    // Update UI based on settings
+                    bool isCategoriesView = SettingsManager.Current.ViewMode == "Categories";
+                    UpdateAllModsButtonText(isCategoriesView);
+                    UpdateViewModeTooltip(isCategoriesView);
+                    UpdateMenuItemsEnabledState(isCategoriesView);
                     
                     // Navigate to ModGridPage if not already there, or change mode if already there
                     if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                     {
                         modGridPage.CurrentViewMode = FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Categories;
-                        modGridPage.LoadAllCategories();
                     }
                     else
                     {
@@ -945,6 +990,61 @@ namespace FlairX_Mod_Manager
             
             // Update the All Mods button text
             UpdateAllModsButtonText(isCategoriesView);
+            
+            // Update the tooltip
+            UpdateViewModeTooltip(isCategoriesView);
+        }
+
+        public bool IsCurrentlyInCategoryMode()
+        {
+            if (ViewModeToggleButton?.Content is FontIcon icon)
+            {
+                return icon.Glyph == "\uE8B3";
+            }
+            return false;
+        }
+
+        private void InitializeViewModeFromSettings()
+        {
+            // Initialize view mode button from settings
+            bool isCategoriesView = SettingsManager.Current.ViewMode == "Categories";
+            
+            if (ViewModeToggleButton?.Content is FontIcon icon)
+            {
+                icon.Glyph = isCategoriesView ? "\uE8B3" : "\uE8A9";
+            }
+            
+            UpdateAllModsButtonText(isCategoriesView);
+            UpdateViewModeTooltip(isCategoriesView);
+            UpdateMenuItemsEnabledState(isCategoriesView);
+        }
+
+        public void RestoreViewModeButtonFromSettings()
+        {
+            // Restore view mode button from settings (call this when button gets corrupted)
+            InitializeViewModeFromSettings();
+        }
+
+        private void UpdateViewModeTooltip(bool isCategoriesView)
+        {
+            if (ViewModeToggleButton != null)
+            {
+                var tooltipKey = isCategoriesView ? "ViewModeToggle_CategoryMode_Tooltip" : "ViewModeToggle_DefaultMode_Tooltip";
+                var tooltip = SharedUtilities.GetTranslation(_lang, tooltipKey);
+                ToolTipService.SetToolTip(ViewModeToggleButton, tooltip);
+            }
+        }
+
+        private void UpdateMenuItemsEnabledState(bool isCategoriesView)
+        {
+            // Disable/enable scrollable menu entries based on view mode
+            foreach (var item in nvSample.MenuItems.OfType<NavigationViewItem>())
+            {
+                if (item.Tag is string tag && tag.StartsWith("Category_"))
+                {
+                    item.IsEnabled = !isCategoriesView; // Disable in category mode
+                }
+            }
         }
 
         private void UpdateAllModsButtonText(bool isCategoriesView)
@@ -969,6 +1069,10 @@ namespace FlairX_Mod_Manager
             if (AllModsButton != null)
             {
                 AllModsButton.IsEnabled = true;
+                
+                // Restore button text based on current view mode
+                bool isCategoriesView = SettingsManager.Current.ViewMode == "Categories";
+                UpdateAllModsButtonText(isCategoriesView);
             }
         }
 
@@ -1042,6 +1146,15 @@ namespace FlairX_Mod_Manager
                         Tag = $"Category_{category}",
                         Icon = new FontIcon { Glyph = "\uE8D4" } // Moving list icon
                     };
+                    
+                    // Disable menu items in category mode
+                    bool isCategoryMode = false;
+                    if (ViewModeToggleButton?.Content is FontIcon icon)
+                    {
+                        isCategoryMode = icon.Glyph == "\uE8B3";
+                    }
+                    item.IsEnabled = !isCategoryMode;
+                    
                     nvSample.MenuItems.Add(item);
                 }
                 // Set icon (FontIcon) for Other Mods
@@ -1864,6 +1977,34 @@ namespace FlairX_Mod_Manager
             var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
             return AppWindow.GetFromWindowId(windowId);
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+
+        private const int GWL_STYLE = -16;
+        private const int WS_MAXIMIZEBOX = 0x10000;
+
+        private void DisableMaximizeOnDoubleClick(IntPtr hwnd)
+        {
+            try
+            {
+                // Get current window style
+                int style = GetWindowLong(hwnd, GWL_STYLE);
+                
+                // Remove the maximize box style to disable double-click maximize
+                style &= ~WS_MAXIMIZEBOX;
+                
+                // Set the new window style
+                SetWindowLong(hwnd, GWL_STYLE, style);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to disable maximize on double-click: {ex.Message}");
+            }
         }
 
     }

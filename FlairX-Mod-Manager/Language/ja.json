@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "謝辞:",
   "AboutDialog_With": "with",
   "All_Mods": "すべての Mod",
+  "All_Categories": "すべてのカテゴリ",
   "Cancel": "キャンセル",
   "Category_Active_Mods": "有効な Mod",
   "Category_All_Mods": "すべての Mod",
@@ -87,6 +88,12 @@
   "Success_Title": "OK",
   "Welcome_SelectGame": "開始するには上部のドロップダウンからゲームを選択してください。",
   "Welcome_Title": "ようこそ！",
+  "ViewModeToggle_Tooltip": "表示モードを切り替え",
+  "ViewModeToggle_CategoryMode_Tooltip": "カテゴリタイルモードです",
+  "ViewModeToggle_DefaultMode_Tooltip": "デフォルトモードです",
+  "ActiveModsToTop_Label": "アクティブなModを上部に移動",
+  "ActiveModsToTop_Tooltip": "有効にすると、アクティブなModがリストの上部に表示されます",
+  "SettingsPage_ActiveModsToTop_Label": "アクティブなModを上部に移動",
   "XXMI_Download_Instructions": "ダウンロード後に XXMI のフォルダーをアプリのディレクトリに展開するか、設定で XXMI Mod のディレクトリパスを更新します。",
   "XXMI_Download_Required": "Mod を起動するには XXMI Launcher が必要です。\nGitHub からポータブル版をダウンロードしてください:"
 }

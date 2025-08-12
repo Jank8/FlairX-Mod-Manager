@@ -37,13 +37,23 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock x:Name="CategoryTitle"
-                   Text=""
-                   FontSize="24"
-                   FontWeight="Bold"
-                   Margin="0,0,0,16"
-                   HorizontalAlignment="Left"
-                   VerticalAlignment="Top"/>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+            <Button x:Name="CategoryBackButton" 
+                    Width="48" 
+                    Height="48" 
+                    Click="CategoryBackButton_Click" 
+                    VerticalAlignment="Center"
+                    Visibility="Collapsed"
+                    Margin="0,0,8,0">
+                <FontIcon Glyph="&#xE72B;" FontSize="20"/>
+            </Button>
+            <TextBlock x:Name="CategoryTitle"
+                       Text=""
+                       FontSize="24"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
         <ScrollViewer x:Name="ModsScrollViewer" Grid.Row="1">
             <GridView x:Name="ModsGrid"
                       IsItemClickEnabled="False"

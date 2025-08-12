@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "感謝:",
   "AboutDialog_With": "與",
   "All_Mods": "所有模組",
+  "All_Categories": "所有類別",
   "Cancel": "取消",
   "Category_Active_Mods": "活躍模組",
   "Category_All_Mods": "所有模組",
@@ -87,6 +88,12 @@
   "Success_Title": "確定",
   "Welcome_SelectGame": "請從上方下拉選單中選擇遊戲以開始。",
   "Welcome_Title": "歡迎！",
+  "ViewModeToggle_Tooltip": "切換檢視模式",
+  "ViewModeToggle_CategoryMode_Tooltip": "您處於類別磚塊模式",
+  "ViewModeToggle_DefaultMode_Tooltip": "您處於預設模式",
+  "ActiveModsToTop_Label": "將活躍模組移至頂部",
+  "ActiveModsToTop_Tooltip": "啟用後，活躍模組將顯示在清單頂部",
+  "SettingsPage_ActiveModsToTop_Label": "將活躍模組移至頂部",
   "XXMI_Download_Instructions": "下載後，將XXMI資料夾解壓縮到APP目錄或在設定中更新XXMI模組目錄路徑。",
   "XXMI_Download_Required": "需要XXMI啟動器來啟動模組。從GitHub下載可攜式版本:"
 }

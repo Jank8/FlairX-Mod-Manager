@@ -23,6 +23,7 @@ namespace FlairX_Mod_Manager.Pages
         private List<string> _allModDirs = new List<string>();
         private int _currentModIndex = -1;
         private string? _categoryParam;
+        private string? _viewModeParam;
 
         public ModDetailPage()
         {
@@ -78,6 +79,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 modDir = nav.ModDirectory;
                 _categoryParam = nav.Category;
+                _viewModeParam = nav.ViewMode;
             }
             else if (e.Parameter is string modDirStr)
             {
@@ -284,20 +286,42 @@ namespace FlairX_Mod_Manager.Pages
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Frame.CanGoBack)
+            // FUCK NAVIGATION PARAMETERS - DIRECTLY CALL THE RIGHT METHOD
+            
+            // Navigate to ModGridPage first
+            Frame.Navigate(typeof(ModGridPage));
+            
+            // Then directly call the correct method after navigation
+            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () =>
             {
-                Frame.GoBack();
-            }
-            else if (!string.IsNullOrEmpty(_categoryParam))
-            {
-                // Navigate back to the specific category
-                Frame.Navigate(typeof(ModGridPage), $"Category:{_categoryParam}");
-            }
-            else
-            {
-                // Navigate to all mods view
-                Frame.Navigate(typeof(ModGridPage), null);
-            }
+                if (Frame.Content is ModGridPage modGridPage)
+                {
+                    if (_viewModeParam == "Categories")
+                    {
+                        // CATEGORY MODE: ALWAYS go back to the specific category
+                        if (!string.IsNullOrEmpty(_categoryParam))
+                        {
+                            modGridPage.LoadCategoryInCategoryMode(_categoryParam);
+                        }
+                        else
+                        {
+                            modGridPage.LoadAllCategories();
+                        }
+                    }
+                    else
+                    {
+                        // DEFAULT MODE: Use default mode method
+                        if (!string.IsNullOrEmpty(_categoryParam))
+                        {
+                            modGridPage.LoadCategoryInDefaultMode(_categoryParam);
+                        }
+                        else
+                        {
+                            modGridPage.LoadAllModsPublic();
+                        }
+                    }
+                }
+            });
         }
 
         private void ModAuthorTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -401,7 +425,8 @@ namespace FlairX_Mod_Manager.Pages
                 var navParam = new ModDetailNav
                 {
                     ModDirectory = prevModDir,
-                    Category = _categoryParam ?? string.Empty
+                    Category = _categoryParam ?? string.Empty,
+                    ViewMode = _viewModeParam ?? string.Empty
                 };
                 Frame.Navigate(typeof(ModDetailPage), navParam);
             }
@@ -415,7 +440,8 @@ namespace FlairX_Mod_Manager.Pages
                 var navParam = new ModDetailNav
                 {
                     ModDirectory = nextModDir,
-                    Category = _categoryParam ?? string.Empty
+                    Category = _categoryParam ?? string.Empty,
+                    ViewMode = _viewModeParam ?? string.Empty
                 };
                 Frame.Navigate(typeof(ModDetailPage), navParam);
             }
@@ -544,6 +570,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             public string ModDirectory { get; set; } = string.Empty;
             public string Category { get; set; } = string.Empty;
+            public string ViewMode { get; set; } = string.Empty; // "Categories" or "Mods"
         }
     }
 }

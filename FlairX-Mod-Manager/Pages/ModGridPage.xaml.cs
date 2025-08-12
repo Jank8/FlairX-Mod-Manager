@@ -103,6 +103,8 @@ namespace FlairX_Mod_Manager.Pages
         private string? _currentCategory; // Track current category for back navigation
         private string? _previousCategory; // Track category before search for restoration
         private bool _isSearchActive = false; // Track if we're currently in search mode
+        private bool _wasInCategoryMode = false; // Track if we were in category mode before navigation
+        private ViewMode _previousViewMode = ViewMode.Mods; // Track view mode before navigation
         
 
         
@@ -129,7 +131,12 @@ namespace FlairX_Mod_Manager.Pages
             {
                 // When switching back to mods view, load all mods
                 _currentCategory = null; // Clear current category to show all mods
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
                 LoadAllMods();
+                
+                // Hide back button in all mods view
+                CategoryBackButton.Visibility = Visibility.Collapsed;
             }
             
             // Update MainWindow button text
@@ -138,7 +145,8 @@ namespace FlairX_Mod_Manager.Pages
 
         private void LoadCategories()
         {
-            LogToGridLog("LoadCategories() called");
+            LogToGridLog($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
+            System.Diagnostics.Debug.WriteLine($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
             
             var gameTag = SettingsManager.CurrentSelectedGame;
             if (string.IsNullOrEmpty(gameTag)) 
@@ -191,6 +199,10 @@ namespace FlairX_Mod_Manager.Pages
                 ModsGrid.ItemsSource = _allMods;
                 
                 CategoryTitle.Text = "Categories";
+                
+                // Hide back button in categories view
+                CategoryBackButton.Visibility = Visibility.Collapsed;
+                
                 LogToGridLog($"Loaded {categories.Count} categories");
             });
         }
@@ -203,8 +215,10 @@ namespace FlairX_Mod_Manager.Pages
             var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
             string categoryPath = PathManager.GetAbsolutePath(Path.Combine(gameModLibraryPath, categoryName));
             
-            // Look for minitile.jpg in category folder (same as mods)
-            return Path.Combine(categoryPath, "minitile.jpg");
+            // Look for category-specific preview image only
+            string categoryPreview = Path.Combine(categoryPath, "catprev.jpg");
+            LogToGridLog($"Looking for category preview: {categoryPreview}");
+            return categoryPreview;
         }
 
         private void LoadCategoryMiniTile(ModTile categoryTile)
@@ -245,30 +259,59 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
             {
-                mainWindow.UpdateViewModeButtonIcon(CurrentViewMode == ViewMode.Categories);
+                // Use MainWindow's actual view mode, not ModGridPage's view mode
+                bool isCategoryMode = mainWindow.IsCurrentlyInCategoryMode();
+                mainWindow.UpdateViewModeButtonIcon(isCategoryMode);
             }
         }
 
         // Public methods for MainWindow to call
         public void LoadAllModsPublic()
         {
+            // Force load all mods regardless of current view mode
             _currentCategory = null; // Clear current category to show all mods
             var langDict = SharedUtilities.LoadLanguageDictionary();
             CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
             LoadAllMods();
+            
+            // Hide back button
+            CategoryBackButton.Visibility = Visibility.Collapsed;
+            
+            // Don't update MainWindow button - let MainWindow manage its own state
         }
 
         public void LoadAllCategories()
         {
+            // Force load all categories regardless of current view mode
             LoadCategories();
+            
+            // Hide back button
+            CategoryBackButton.Visibility = Visibility.Collapsed;
+            
+            // Don't update MainWindow button - let MainWindow manage its own state
         }
 
-        public void LoadCategoryDirectly(string category)
+        // SEPARATE NAVIGATION SYSTEMS FOR EACH MODE
+        
+        public void LoadCategoryInDefaultMode(string category)
         {
-            // Load specific category without changing view mode
+            // DEFAULT MODE ONLY: Load specific category mods
             _currentCategory = category;
             CategoryTitle.Text = category;
             LoadModsByCategory(category);
+            CategoryBackButton.Visibility = Visibility.Visible;
+        }
+        
+        public void LoadCategoryInCategoryMode(string category)
+        {
+            System.Diagnostics.Debug.WriteLine($"LoadCategoryInCategoryMode called with category: {category}");
+            // CATEGORY MODE ONLY: Load specific category mods in category mode
+            _currentViewMode = ViewMode.Categories; // Force category mode
+            _currentCategory = category;
+            CategoryTitle.Text = category;
+            LoadModsByCategory(category);
+            CategoryBackButton.Visibility = Visibility.Visible;
+            // UpdateMainWindowButtonText(); // Don't interfere with MainWindow button state
         }
 
         private double _zoomFactor = 1.0;
@@ -1015,70 +1058,133 @@ namespace FlairX_Mod_Manager.Pages
             }
             if (e.Parameter is string parameter && !string.IsNullOrEmpty(parameter))
             {
+                // SEPARATE NAVIGATION SYSTEMS FOR EACH MODE
+                
                 if (parameter == "Categories")
                 {
-                    // Navigate to categories view
-                    CurrentViewMode = ViewMode.Categories;
-                    LoadCategories(); // Explicitly load categories
-                    
-                    // Update MainWindow button text
-                    UpdateMainWindowButtonText();
+                    // ZAWSZE ładuj kategorie gdy parametr to "Categories"
+                    _currentViewMode = ViewMode.Categories;
+                    LoadCategories();
+                    CategoryBackButton.Visibility = Visibility.Collapsed;
                     return;
                 }
                 else if (parameter.StartsWith("Category:"))
                 {
-                    // New category-based navigation
                     var category = parameter.Substring("Category:".Length);
+                    
+                    // PRESERVE THE CURRENT VIEW MODE - DON'T LET ANYTHING CHANGE IT
+                    var preservedViewMode = CurrentViewMode;
+                    
                     _currentCategory = category;
                     CategoryTitle.Text = category;
                     LoadModsByCategory(category);
+                    CategoryBackButton.Visibility = Visibility.Visible;
+                    
+                    // FORCE THE VIEW MODE TO STAY THE SAME
+                    _currentViewMode = preservedViewMode;
+                    
+                    // Don't update MainWindow button - let MainWindow manage its own button state
                 }
                 else
                 {
-                    // Legacy character-based navigation
-                    var character = parameter;
-                    _currentCategory = character;
-                    if (string.Equals(character, "other", StringComparison.OrdinalIgnoreCase))
+                    // Legacy navigation - CHECK MAINWINDOW VIEW MODE
+                    bool shouldLoadCategories = false;
+                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                     {
-                        var langDict = SharedUtilities.LoadLanguageDictionary();
-                        CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Other_Mods");
-                        LoadMods(character);
+                        shouldLoadCategories = mainWindow.IsCurrentlyInCategoryMode();
                     }
-                    else if (string.Equals(character, "Active", StringComparison.OrdinalIgnoreCase))
+                    
+                    if (shouldLoadCategories)
                     {
-                        var langDict = SharedUtilities.LoadLanguageDictionary();
-                        CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
-                        LoadActiveModsOnly();
+                        // In category mode, ignore legacy navigation and load categories
+                        _currentViewMode = ViewMode.Categories;
+                        LoadCategories();
+                        CategoryBackButton.Visibility = Visibility.Collapsed;
                     }
                     else
                     {
-                        CategoryTitle.Text = character;
-                        LoadMods(character);
+                        // In default mode, handle legacy navigation
+                        _currentViewMode = ViewMode.Mods;
+                        var character = parameter;
+                        _currentCategory = character;
+                        if (string.Equals(character, "other", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var langDict = SharedUtilities.LoadLanguageDictionary();
+                            CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Other_Mods");
+                            LoadMods(character);
+                        }
+                        else if (string.Equals(character, "Active", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var langDict = SharedUtilities.LoadLanguageDictionary();
+                            CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
+                            LoadActiveModsOnly();
+                        }
+                        else
+                        {
+                            CategoryTitle.Text = character;
+                            LoadMods(character);
+                        }
+                        CategoryBackButton.Visibility = Visibility.Visible;
                     }
                 }
             }
             else
             {
-                _currentCategory = null; // All items view
-                
-                // Load based on current view mode
-                if (CurrentViewMode == ViewMode.Categories)
+                // Check if we're returning from mod details and should restore previous state
+                if (_wasInCategoryMode && !string.IsNullOrEmpty(_currentCategory))
                 {
-                    LoadCategories();
+                    // Restore the previous view mode and category
+                    CurrentViewMode = _previousViewMode;
+                    
+                    if (_previousViewMode == ViewMode.Categories)
+                    {
+                        // Return to category tiles view - CurrentViewMode setter will handle loading
+                        CategoryBackButton.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        // Return to category mods view
+                        CategoryTitle.Text = _currentCategory;
+                        LoadModsByCategory(_currentCategory);
+                        CategoryBackButton.Visibility = Visibility.Visible;
+                    }
+                    
+                    _wasInCategoryMode = false; // Reset flag
                 }
                 else
                 {
-                    var langDict = SharedUtilities.LoadLanguageDictionary();
-                    CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
-                    LoadAllMods();
+                    // Default navigation (null parameter) - CHECK MAINWINDOW VIEW MODE
+                    _currentCategory = null;
+                    
+                    // Check MainWindow view mode to determine what to load
+                    bool shouldLoadCategories = false;
+                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                    {
+                        shouldLoadCategories = mainWindow.IsCurrentlyInCategoryMode();
+                    }
+                    
+                    if (shouldLoadCategories)
+                    {
+                        // CATEGORY MODE: Load categories and set correct view mode
+                        _currentViewMode = ViewMode.Categories;
+                        LoadCategories();
+                    }
+                    else
+                    {
+                        // DEFAULT MODE: Load all mods and set correct view mode
+                        _currentViewMode = ViewMode.Mods;
+                        var langDict = SharedUtilities.LoadLanguageDictionary();
+                        CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
+                        LoadAllMods();
+                    }
+                    CategoryBackButton.Visibility = Visibility.Collapsed;
                 }
             }
             
             // Notify MainWindow to update heart button after category title is set
             NotifyMainWindowToUpdateHeartButton();
             
-            // Update MainWindow button text based on current view mode
-            UpdateMainWindowButtonText();
+            // Don't update MainWindow button - let MainWindow manage its own button state
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -1177,10 +1283,42 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog($"LoadModsByCategory() called for category: {category}");
             
+            // First, load all mod data for this category (lightweight)
+            LoadCategoryModData(category);
+            
+            // Then create only the initial visible ModTiles (same as LoadAllMods)
+            LoadVirtualizedModTiles();
+        }
+
+        private void CategoryBackButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Two separate navigation schemes based on view mode
+            
+            if (CurrentViewMode == ViewMode.Categories)
+            {
+                // CATEGORY MODE: Go back to all categories
+                LoadCategories();
+            }
+            else
+            {
+                // DEFAULT MODE: Always go back to All Mods
+                _currentCategory = null;
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
+                LoadAllMods();
+            }
+            
+            // Hide back button and update MainWindow
+            CategoryBackButton.Visibility = Visibility.Collapsed;
+            // UpdateMainWindowButtonText(); // Don't interfere with MainWindow button state
+        }
+
+        private void LoadCategoryModData(string category)
+        {
             var modLibraryPath = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             if (!Directory.Exists(modLibraryPath)) return;
             
-            var mods = new List<ModTile>();
+            _allModData.Clear();
             var categoryPath = Path.Combine(modLibraryPath, category);
             
             if (Directory.Exists(categoryPath))
@@ -1197,17 +1335,15 @@ namespace FlairX_Mod_Manager.Pages
                         var dirName = Path.GetFileName(modDir);
                         var isActive = _activeMods.TryGetValue(dirName, out var active) && active;
                         
-                        var modTile = new ModTile 
-                        { 
-                            Name = name, 
-                            ImagePath = previewPath, 
-                            Directory = dirName, 
-                            IsActive = isActive, 
-                            IsVisible = true,
-                            ImageSource = null // Start with no image - lazy load when visible
+                        var modData = new ModData
+                        {
+                            Name = name,
+                            ImagePath = previewPath,
+                            Directory = dirName,
+                            IsActive = isActive
                         };
                         
-                        mods.Add(modTile);
+                        _allModData.Add(modData);
                     }
                     catch (Exception ex)
                     {
@@ -1216,16 +1352,22 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            // Sort mods: active first, then alphabetically
-            mods = mods.OrderByDescending(m => m.IsActive).ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+            // Sort the lightweight data: active first (if enabled), then alphabetically
+            if (SettingsManager.Current.ActiveModsToTopEnabled)
+            {
+                _allModData = _allModData
+                    .OrderByDescending(m => m.IsActive)
+                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+            else
+            {
+                _allModData = _allModData
+                    .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
             
-            _allMods = new ObservableCollection<ModTile>(mods);
-            ModsGrid.ItemsSource = _allMods;
-            
-            LogToGridLog($"Loaded {mods.Count} mods for category: {category}");
-            
-            // Load visible images after setting new data source
-            LoadVisibleImages();
+            LogToGridLog($"Loaded {_allModData.Count} mod data entries for category: {category}");
         }
 
         private void LoadMods(string character)
@@ -1277,10 +1419,21 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            var sorted = mods
-                .OrderByDescending(m => m.IsActive)
-                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            // Sort mods: active first (if enabled), then alphabetically
+            List<ModTile> sorted;
+            if (SettingsManager.Current.ActiveModsToTopEnabled)
+            {
+                sorted = mods
+                    .OrderByDescending(m => m.IsActive)
+                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+            else
+            {
+                sorted = mods
+                    .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
                 
             LogToGridLog($"Loaded {sorted.Count} mods for character: {character}");
             ModsGrid.ItemsSource = sorted;
@@ -1295,7 +1448,9 @@ namespace FlairX_Mod_Manager.Pages
 
         private void LoadAllMods()
         {
-            LogToGridLog("LoadAllMods() called - using virtualized loading");
+            LogToGridLog($"LoadAllMods() called - CurrentViewMode: {CurrentViewMode}");
+            System.Diagnostics.Debug.WriteLine($"LoadAllMods() called - CurrentViewMode: {CurrentViewMode}");
+            System.Diagnostics.Debug.WriteLine($"LoadAllMods() stack trace: {Environment.StackTrace}");
             
             // First, load all mod data (lightweight)
             LoadAllModData();
@@ -1348,11 +1503,20 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            // Sort the lightweight data
-            _allModData = _allModData
-                .OrderByDescending(m => m.IsActive)
-                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            // Sort the lightweight data: active first (if enabled), then alphabetically
+            if (SettingsManager.Current.ActiveModsToTopEnabled)
+            {
+                _allModData = _allModData
+                    .OrderByDescending(m => m.IsActive)
+                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+            else
+            {
+                _allModData = _allModData
+                    .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
                 
             LogToGridLog($"Loaded {_allModData.Count} mod data entries (Cache hits: {cacheHits}, Cache misses: {cacheMisses})");
         }
@@ -2005,8 +2169,23 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (tile.IsCategory)
                 {
-                    // Handle category click - load that category but don't change view mode
-                    LoadModsByCategory(tile.Directory);
+                    // Handle category click - USE DUAL NAVIGATION SYSTEM
+                    if (CurrentViewMode == ViewMode.Categories)
+                    {
+                        // CATEGORY MODE: Enter the specific category and show mods within it (same as default mode)
+                        _currentCategory = tile.Directory;
+                        CategoryTitle.Text = tile.Directory;
+                        LoadModsByCategory(tile.Directory);
+                        CategoryBackButton.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        // DEFAULT MODE: Navigate to specific category mods
+                        _currentCategory = tile.Directory;
+                        CategoryTitle.Text = tile.Directory;
+                        LoadModsByCategory(tile.Directory);
+                        CategoryBackButton.Visibility = Visibility.Visible;
+                    }
                 }
                 else
                 {
@@ -2019,8 +2198,17 @@ namespace FlairX_Mod_Manager.Pages
                     var navParam = new FlairX_Mod_Manager.Pages.ModDetailPage.ModDetailNav
                     {
                         ModDirectory = tile.Directory ?? string.Empty,
-                        Category = _currentCategory ?? string.Empty
+                        Category = _currentCategory ?? string.Empty,
+                        ViewMode = CurrentViewMode == ViewMode.Categories ? "Categories" : "Mods"
                     };
+                    
+                    // Remember the current state before navigating
+                    _previousViewMode = CurrentViewMode;
+                    if (!string.IsNullOrEmpty(_currentCategory))
+                    {
+                        _wasInCategoryMode = true;
+                    }
+                    
                     frame?.Navigate(typeof(FlairX_Mod_Manager.Pages.ModDetailPage), navParam);
                 }
             }

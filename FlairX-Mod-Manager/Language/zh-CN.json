@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "感谢:",
   "AboutDialog_With": "与",
   "All_Mods": "所有模组",
+  "All_Categories": "所有类别",
   "Cancel": "取消",
   "Category_Active_Mods": "活跃模组",
   "Category_All_Mods": "所有模组",
@@ -87,6 +88,12 @@
   "Success_Title": "确定",
   "Welcome_SelectGame": "请从上方下拉菜单中选择游戏以开始。",
   "Welcome_Title": "欢迎！",
+  "ViewModeToggle_Tooltip": "切换视图模式",
+  "ViewModeToggle_CategoryMode_Tooltip": "您处于类别磁贴模式",
+  "ViewModeToggle_DefaultMode_Tooltip": "您处于默认模式",
+  "ActiveModsToTop_Label": "将活跃模组移至顶部",
+  "ActiveModsToTop_Tooltip": "启用后，活跃模组将显示在列表顶部",
+  "SettingsPage_ActiveModsToTop_Label": "将活跃模组移至顶部",
   "XXMI_Download_Instructions": "下载后，将XXMI文件夹解压到APP目录或在设置中更新XXMI模组目录路径。",
   "XXMI_Download_Required": "需要XXMI启动器来启动模组。从GitHub下载便携版本:"
 }

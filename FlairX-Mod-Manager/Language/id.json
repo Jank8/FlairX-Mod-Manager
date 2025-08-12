@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "Terima kasih kepada:",
   "AboutDialog_With": "dengan",
   "All_Mods": "Semua Mod",
+  "All_Categories": "Semua Kategori",
   "Cancel": "Batal",
   "Category_Active_Mods": "Mod aktif",
   "Category_All_Mods": "Semua Mod",
@@ -87,6 +88,12 @@
   "Success_Title": "OK",
   "Welcome_SelectGame": "Silakan pilih game dari dropdown di atas untuk memulai.",
   "Welcome_Title": "SELAMAT DATANG!",
+  "ViewModeToggle_Tooltip": "Beralih mode tampilan",
+  "ViewModeToggle_CategoryMode_Tooltip": "Anda dalam mode ubin kategori",
+  "ViewModeToggle_DefaultMode_Tooltip": "Anda dalam mode default",
+  "ActiveModsToTop_Label": "Pindahkan mod aktif ke atas",
+  "ActiveModsToTop_Tooltip": "Ketika diaktifkan, mod aktif akan ditampilkan di bagian atas daftar",
+  "SettingsPage_ActiveModsToTop_Label": "Pindahkan mod aktif ke atas",
   "XXMI_Download_Instructions": "Setelah mengunduh, ekstrak folder XXMI ke direktori APP atau perbarui path Direktori XXMI Mods di Pengaturan.",
   "XXMI_Download_Required": "XXMI Launcher diperlukan untuk meluncurkan mod. Unduh versi portable dari GitHub:"
 }

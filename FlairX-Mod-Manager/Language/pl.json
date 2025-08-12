@@ -87,6 +87,12 @@
   "ShowActiveModsButton_Tooltip": "Aktywne mody",
   "Success_Title": "OK",
   "Welcome_SelectGame": "Proszę wybrać grę z listy rozwijanej powyżej, aby rozpocząć.",
+  "ViewModeToggle_Tooltip": "Przełącz tryb widoku",
+  "ViewModeToggle_CategoryMode_Tooltip": "Jesteś w trybie kafelków kategorii",
+  "ViewModeToggle_DefaultMode_Tooltip": "Jesteś w trybie domyślnym",
+  "ActiveModsToTop_Label": "Przenieś aktywne mody na górę",
+  "ActiveModsToTop_Tooltip": "Gdy włączone, aktywne mody będą wyświetlane na górze listy",
+  "SettingsPage_ActiveModsToTop_Label": "Przenieś aktywne mody na górę",
   "Welcome_Title": "WITAJ !",
   "XXMI_Download_Instructions": "Po pobraniu, rozpakuj folder XXMI do katalogu APP lub zaktualizuj ścieżkę katalogu modów XXMI w Ustawieniach.",
   "XXMI_Download_Required": "Launcher XXMI jest wymagany do uruchamiania modów. Pobierz wersję przenośną z GitHub:"

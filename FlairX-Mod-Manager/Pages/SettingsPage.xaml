@@ -105,6 +105,12 @@
                     </Button>
                 </StackPanel>
 
+                <!-- ActiveModsToTop toggle -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="ActiveModsToTopLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                    <ToggleSwitch x:Name="ActiveModsToTopToggle" Toggled="ActiveModsToTopToggle_Toggled" OnContent="" OffContent="" Margin="-40,0,0,0"/>
+                </StackPanel>
+
                 <!-- 4-column Grid layout for toggle settings -->
                 <Grid Width="770" HorizontalAlignment="Left">
                     <Grid.ColumnDefinitions>

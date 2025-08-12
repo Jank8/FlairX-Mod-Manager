@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "Cảm ơn:",
   "AboutDialog_With": "với",
   "All_Mods": "Tất cả Mod",
+  "All_Categories": "Tất cả Danh mục",
   "Cancel": "Hủy",
   "Category_Active_Mods": "Mod đang hoạt động",
   "Category_All_Mods": "Tất cả Mod",
@@ -87,6 +88,12 @@
   "Success_Title": "OK",
   "Welcome_SelectGame": "Vui lòng chọn game từ menu thả xuống ở trên để bắt đầu.",
   "Welcome_Title": "CHÀO MỪNG!",
+  "ViewModeToggle_Tooltip": "Chuyển đổi chế độ xem",
+  "ViewModeToggle_CategoryMode_Tooltip": "Bạn đang ở chế độ ô danh mục",
+  "ViewModeToggle_DefaultMode_Tooltip": "Bạn đang ở chế độ mặc định",
+  "ActiveModsToTop_Label": "Di chuyển mod đang hoạt động lên trên",
+  "ActiveModsToTop_Tooltip": "Khi được bật, các mod đang hoạt động sẽ được hiển thị ở đầu danh sách",
+  "SettingsPage_ActiveModsToTop_Label": "Di chuyển mod đang hoạt động lên trên",
   "XXMI_Download_Instructions": "Sau khi tải xuống, giải nén thư mục XXMI vào thư mục APP hoặc cập nhật đường dẫn thư mục XXMI Mods trong Cài đặt.",
   "XXMI_Download_Required": "Cần XXMI Launcher để khởi chạy mod. Tải xuống phiên bản di động từ GitHub:"
 }

@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "감사:",
   "AboutDialog_With": "와",
   "All_Mods": "모든 모드",
+  "All_Categories": "모든 카테고리",
   "Cancel": "취소",
   "Category_Active_Mods": "활성 모드",
   "Category_All_Mods": "모든 모드",
@@ -87,6 +88,12 @@
   "Success_Title": "확인",
   "Welcome_SelectGame": "시작하려면 위의 드롭다운에서 게임을 선택하세요.",
   "Welcome_Title": "환영합니다!",
+  "ViewModeToggle_Tooltip": "보기 모드 전환",
+  "ViewModeToggle_CategoryMode_Tooltip": "카테고리 타일 모드입니다",
+  "ViewModeToggle_DefaultMode_Tooltip": "기본 모드입니다",
+  "ActiveModsToTop_Label": "활성 모드를 위로 이동",
+  "ActiveModsToTop_Tooltip": "활성화되면 활성 모드가 목록 상단에 표시됩니다",
+  "SettingsPage_ActiveModsToTop_Label": "활성 모드를 위로 이동",
   "XXMI_Download_Instructions": "다운로드 후 XXMI 폴더를 APP 디렉토리에 압축 해제하거나 설정에서 XXMI 모드 디렉토리 경로를 업데이트하세요.",
   "XXMI_Download_Required": "모드를 실행하려면 XXMI 런처가 필요합니다. GitHub에서 포터블 버전을 다운로드하세요:"
 }

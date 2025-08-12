@@ -88,6 +88,12 @@
   "Success_Title": "OK",
   "Welcome_SelectGame": "Please select a game from the dropdown above to get started.",
   "Welcome_Title": "WELCOME !",
+  "ViewModeToggle_Tooltip": "Toggle view mode",
+  "ViewModeToggle_CategoryMode_Tooltip": "You are in category tiles mode",
+  "ViewModeToggle_DefaultMode_Tooltip": "You are in default mode",
+  "ActiveModsToTop_Label": "Move active mods to top",
+  "ActiveModsToTop_Tooltip": "When enabled, active mods will be displayed at the top of the list",
+  "SettingsPage_ActiveModsToTop_Label": "Move active mods to top",
   "XXMI_Download_Instructions": "After downloading, extract the XXMI folder to APP direvtory or update the XXMI Mods Directory path in Settings.",
   "XXMI_Download_Required": "XXMI Launcher is required to launch mods. Download the portable version from GitHub:"
 }

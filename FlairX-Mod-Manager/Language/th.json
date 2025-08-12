@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "ขอบคุณ:",
   "AboutDialog_With": "กับ",
   "All_Mods": "Mod ทั้งหมด",
+  "All_Categories": "หมวดหมู่ทั้งหมด",
   "Cancel": "ยกเลิก",
   "Category_Active_Mods": "Mod ที่ใช้งาน",
   "Category_All_Mods": "Mod ทั้งหมด",
@@ -87,6 +88,12 @@
   "Success_Title": "ตกลง",
   "Welcome_SelectGame": "กรุณาเลือกเกมจากดรอปดาวน์ด้านบนเพื่อเริ่มต้น",
   "Welcome_Title": "ยินดีต้อนรับ!",
+  "ViewModeToggle_Tooltip": "สลับโหมดการแสดงผล",
+  "ViewModeToggle_CategoryMode_Tooltip": "คุณอยู่ในโหมดไทล์หมวดหมู่",
+  "ViewModeToggle_DefaultMode_Tooltip": "คุณอยู่ในโหมดเริ่มต้น",
+  "ActiveModsToTop_Label": "ย้าย mod ที่ใช้งานไปด้านบน",
+  "ActiveModsToTop_Tooltip": "เมื่อเปิดใช้งาน mod ที่ใช้งานจะแสดงที่ด้านบนของรายการ",
+  "SettingsPage_ActiveModsToTop_Label": "ย้าย mod ที่ใช้งานไปด้านบน",
   "XXMI_Download_Instructions": "หลังจากดาวน์โหลด ให้แตกไฟล์โฟลเดอร์ XXMI ไปยังไดเรกทอรี APP หรืออัปเดตเส้นทางไดเรกทอรี XXMI Mods ในการตั้งค่า",
   "XXMI_Download_Required": "ต้องใช้ XXMI Launcher เพื่อเปิดใช้งาน mod ดาวน์โหลดเวอร์ชันพกพาจาก GitHub:"
 }

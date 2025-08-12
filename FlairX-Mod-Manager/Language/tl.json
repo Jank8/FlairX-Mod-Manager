@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "Salamat sa:",
   "AboutDialog_With": "kasama",
   "All_Mods": "Lahat ng Mod",
+  "All_Categories": "Lahat ng Kategorya",
   "Cancel": "Kanselahin",
   "Category_Active_Mods": "Mga aktibong mod",
   "Category_All_Mods": "Lahat ng Mod",
@@ -87,6 +88,12 @@
   "Success_Title": "OK",
   "Welcome_SelectGame": "Mangyaring pumili ng laro mula sa dropdown sa itaas upang magsimula.",
   "Welcome_Title": "MALIGAYANG PAGDATING!",
+  "ViewModeToggle_Tooltip": "I-toggle ang view mode",
+  "ViewModeToggle_CategoryMode_Tooltip": "Nasa category tiles mode ka",
+  "ViewModeToggle_DefaultMode_Tooltip": "Nasa default mode ka",
+  "ActiveModsToTop_Label": "Ilipat ang mga aktibong mod sa tuktok",
+  "ActiveModsToTop_Tooltip": "Kapag naka-enable, ang mga aktibong mod ay ipapakita sa tuktok ng listahan",
+  "SettingsPage_ActiveModsToTop_Label": "Ilipat ang mga aktibong mod sa tuktok",
   "XXMI_Download_Instructions": "Pagkatapos mag-download, i-extract ang XXMI folder sa APP directory o i-update ang XXMI Mods Directory path sa Settings.",
   "XXMI_Download_Required": "Kailangan ang XXMI Launcher upang magsimula ng mga mod. I-download ang portable version mula sa GitHub:"
 }

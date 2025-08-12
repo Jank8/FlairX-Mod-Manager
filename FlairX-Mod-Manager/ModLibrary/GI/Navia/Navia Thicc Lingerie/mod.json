@@ -1,0 +1,27 @@
+{
+  "author": "Tomii41",
+  "character": "Navia",
+  "url": "https://gamebanana.com/mods/597354",
+  "version": " ",
+  "dateChecked": "2025-08-09",
+  "dateUpdated": "2025-07-31",
+  "hotkeys": [
+    {
+      "key": "5",
+      "description": "0"
+    },
+    {
+      "key": "6",
+      "description": "1"
+    },
+    {
+      "key": "7",
+      "description": "2"
+    },
+    {
+      "key": "8",
+      "description": "3"
+    }
+  ],
+  "syncMethod": "classic"
+}

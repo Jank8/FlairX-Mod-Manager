@@ -38,6 +38,12 @@ namespace FlairX_Mod_Manager
         // Zoom settings
         public double ZoomLevel { get; set; } = 1.0;
         public bool ModGridZoomEnabled { get; set; } = false;
+        
+        // Mod sorting settings
+        public bool ActiveModsToTopEnabled { get; set; } = true;
+        
+        // View mode settings
+        public string ViewMode { get; set; } = "Mods"; // "Mods" or "Categories"
     }
 
     public static class SettingsManager

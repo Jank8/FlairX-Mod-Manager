@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "धन्यवाद:",
   "AboutDialog_With": "के साथ",
   "All_Mods": "सभी मॉड्स",
+  "All_Categories": "सभी श्रेणियां",
   "Cancel": "रद्द करें",
   "Category_Active_Mods": "सक्रिय मॉड्स",
   "Category_All_Mods": "सभी मॉड्स",
@@ -87,6 +88,12 @@
   "Success_Title": "ठीक है",
   "Welcome_SelectGame": "शुरू करने के लिए कृपया ऊपर ड्रॉपडाउन से एक गेम चुनें।",
   "Welcome_Title": "स्वागत है !",
+  "ViewModeToggle_Tooltip": "व्यू मोड टॉगल करें",
+  "ViewModeToggle_CategoryMode_Tooltip": "आप कैटेगरी टाइल मोड में हैं",
+  "ViewModeToggle_DefaultMode_Tooltip": "आप डिफ़ॉल्ट मोड में हैं",
+  "ActiveModsToTop_Label": "सक्रिय मॉड्स को ऊपर ले जाएं",
+  "ActiveModsToTop_Tooltip": "सक्षम होने पर, सक्रिय मॉड्स सूची के शीर्ष पर प्रदर्शित होंगे",
+  "SettingsPage_ActiveModsToTop_Label": "सक्रिय मॉड्स को ऊपर ले जाएं",
   "XXMI_Download_Instructions": "डाउनलोड के बाद, XXMI फ़ोल्डर को APP डायरेक्टरी में निकालें या सेटिंग्स में XXMI मॉड्स डायरेक्टरी पथ अपडेट करें।",
   "XXMI_Download_Required": "मॉड्स लॉन्च करने के लिए XXMI लॉन्चर आवश्यक है। GitHub से पोर्टेबल संस्करण डाउनलोड करें:"
 }

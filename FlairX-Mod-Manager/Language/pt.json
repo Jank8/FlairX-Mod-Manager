@@ -9,6 +9,7 @@
   "AboutDialog_Thanks": "Obrigado a:",
   "AboutDialog_With": "com",
   "All_Mods": "Todos os Mods",
+  "All_Categories": "Todas as Categorias",
   "Cancel": "Cancelar",
   "Category_Active_Mods": "Mods activos",
   "Category_All_Mods": "Todos os Mods",
@@ -87,6 +88,12 @@
   "Success_Title": "OK",
   "Welcome_SelectGame": "Por favor seleccione um jogo no menu suspenso acima para começar.",
   "Welcome_Title": "BEM-VINDO !",
+  "ViewModeToggle_Tooltip": "Alternar modo de visualização",
+  "ViewModeToggle_CategoryMode_Tooltip": "Está no modo de mosaicos de categoria",
+  "ViewModeToggle_DefaultMode_Tooltip": "Está no modo padrão",
+  "ActiveModsToTop_Label": "Mover mods activos para o topo",
+  "ActiveModsToTop_Tooltip": "Quando activado, os mods activos serão exibidos no topo da lista",
+  "SettingsPage_ActiveModsToTop_Label": "Mover mods activos para o topo",
   "XXMI_Download_Instructions": "Após descarregar, extraia a pasta XXMI para o directório da APP ou actualize o caminho do Directório de Mods XXMI nas Definições.",
   "XXMI_Download_Required": "O Lançador XXMI é necessário para executar mods. Descarregue a versão portátil do GitHub:"
 }
