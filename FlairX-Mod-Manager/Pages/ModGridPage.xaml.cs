@@ -211,9 +211,12 @@ namespace FlairX_Mod_Manager.Pages
         {
             var miniTilePath = categoryTile.ImagePath;
             
+            LogToGridLog($"LoadCategoryMiniTile: Checking {miniTilePath} for category {categoryTile.Name}");
+            
             // Load minitile.jpg if it exists (same as mods)
             if (File.Exists(miniTilePath))
             {
+                LogToGridLog($"LoadCategoryMiniTile: Found minitile for {categoryTile.Name}");
                 DispatcherQueue.TryEnqueue(async () =>
                 {
                     try
@@ -228,6 +231,10 @@ namespace FlairX_Mod_Manager.Pages
                         LogToGridLog($"Failed to load category minitile for {categoryTile.Name}: {ex.Message}");
                     }
                 });
+            }
+            else
+            {
+                LogToGridLog($"LoadCategoryMiniTile: No minitile found for {categoryTile.Name} at {miniTilePath}");
             }
             // If minitile.jpg doesn't exist, categoryTile.ImageSource remains null (no image)
         }
