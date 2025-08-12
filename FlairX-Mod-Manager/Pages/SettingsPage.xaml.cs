@@ -103,6 +103,7 @@ namespace FlairX_Mod_Manager.Pages
             OptimizePreviewsHotkeyTextBox.Text = SettingsManager.Current.OptimizePreviewsHotkey;
             ReloadManagerHotkeyTextBox.Text = SettingsManager.Current.ReloadManagerHotkey;
             ShuffleActiveModsHotkeyTextBox.Text = SettingsManager.Current.ShuffleActiveModsHotkey;
+            DeactivateAllModsHotkeyTextBox.Text = SettingsManager.Current.DeactivateAllModsHotkey;
 
             
             // Update all texts and icons once at the end
@@ -364,7 +365,7 @@ namespace FlairX_Mod_Manager.Pages
             OptimizePreviewsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
             ReloadManagerHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "Reload_Mods_Tooltip");
             ShuffleActiveModsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShuffleActiveMods_Label");
-            // Removed XXMIModsDirectoryDefaultButton.ToolTip and ModLibraryDirectoryDefaultButton.ToolTip, as WinUI 3 doesn't have this property
+            DeactivateAllModsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DeactivateAllMods_Label");
         }
 
         private async Task OptimizePreviewsAsync(CancellationToken token)
@@ -1121,6 +1122,15 @@ namespace FlairX_Mod_Manager.Pages
             if (sender is TextBox textBox)
             {
                 SettingsManager.Current.ShuffleActiveModsHotkey = textBox.Text;
+                SettingsManager.Save();
+            }
+        }
+
+        private void DeactivateAllModsHotkeyTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                SettingsManager.Current.DeactivateAllModsHotkey = textBox.Text;
                 SettingsManager.Save();
             }
         }

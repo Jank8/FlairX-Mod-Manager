@@ -161,11 +161,15 @@
                         
                         <!-- Shuffle active mods hotkey -->
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="ShuffleActiveModsHotkeyLabel" Text="Shuffle active mods:" VerticalAlignment="Center" Margin="0,0,8,0" Width="220"/>
+                            <TextBlock x:Name="ShuffleActiveModsHotkeyLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="220"/>
                             <TextBox x:Name="ShuffleActiveModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+S" TextChanged="ShuffleActiveModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown"/>
                         </StackPanel>
                         
-
+                        <!-- Deactivate all mods hotkey -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="DeactivateAllModsHotkeyLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="220"/>
+                            <TextBox x:Name="DeactivateAllModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+D" TextChanged="DeactivateAllModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown"/>
+                        </StackPanel>
                     </StackPanel>
                 </Grid>
 

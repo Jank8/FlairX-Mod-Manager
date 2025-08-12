@@ -94,6 +94,14 @@
   "ActiveModsToTop_Label": "Mover mods ativos para o topo",
   "ActiveModsToTop_Tooltip": "Quando habilitado, os mods ativos serão exibidos no topo da lista",
   "SettingsPage_ActiveModsToTop_Label": "Mover mods ativos para o topo",
+  "SettingsPage_ShuffleActiveMods_Label": "Embaralhar mods ativos",
+  "SettingsPage_DeactivateAllMods_Label": "Desativar todos os mods",
+  "ShuffleActiveMods_Title": "Mods Aleatórios Selecionados",
+  "ShuffleActiveMods_Message": "Selecionados {0} mods aleatórios (1 por categoria):",
+  "ShuffleActiveMods_NoCategories": "Nenhuma categoria de mods encontrada para embaralhar.",
+  "DeactivateAllMods_Title": "Mods Desativados",
+  "DeactivateAllMods_Message": "Desativados {0} mods.\n\nMods na categoria 'Other' foram preservados.",
+  "Information": "Informação",
   "XXMI_Download_Instructions": "Após o download, extraia a pasta XXMI para o diretório APP ou atualize o caminho do Diretório XXMI Mods nas Configurações.",
   "XXMI_Download_Required": "O XXMI Launcher é necessário para executar mods. Baixe a versão portátil do GitHub:"
 }

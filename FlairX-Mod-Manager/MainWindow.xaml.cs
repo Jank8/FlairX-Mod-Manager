@@ -263,6 +263,15 @@ namespace FlairX_Mod_Manager
                     ExecuteShuffleActiveModsHotkey();
                     return;
                 }
+
+                // Deactivate all mods hotkey
+                if (!string.IsNullOrEmpty(settings.DeactivateAllModsHotkey) && 
+                    string.Equals(currentHotkey, settings.DeactivateAllModsHotkey, StringComparison.OrdinalIgnoreCase))
+                {
+                    e.Handled = true;
+                    ExecuteDeactivateAllModsHotkey();
+                    return;
+                }
             }
             catch (Exception ex)
             {
@@ -324,27 +333,251 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        // Execute shuffle active mods hotkey action (placeholder for future implementation)
+        // Execute shuffle active mods hotkey action
         private void ExecuteShuffleActiveModsHotkey()
         {
             try
             {
-                Logger.LogInfo("Shuffle active mods hotkey triggered (not yet implemented)");
+                Logger.LogInfo("Shuffle active mods hotkey triggered");
                 
-                // Show a notification that this feature will be implemented later
-                var lang = SharedUtilities.LoadLanguageDictionary();
-                var dialog = new ContentDialog
+                // Get mod library path
+                var modLibraryPath = SettingsManager.Current.ModLibraryDirectory;
+                if (string.IsNullOrWhiteSpace(modLibraryPath))
+                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                
+                if (!Directory.Exists(modLibraryPath))
                 {
-                    Title = SharedUtilities.GetTranslation(lang, "Information"),
-                    Content = "Shuffle active mods functionality will be implemented in a future update.",
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.Content.XamlRoot
-                };
-                _ = dialog.ShowAsync();
+                    Logger.LogError("Mod library directory does not exist");
+                    return;
+                }
+                
+                // Get all categories except "Other"
+                var categories = Directory.GetDirectories(modLibraryPath)
+                    .Where(categoryDir => !string.Equals(Path.GetFileName(categoryDir), "Other", StringComparison.OrdinalIgnoreCase))
+                    .Where(Directory.Exists)
+                    .ToList();
+                
+                if (categories.Count == 0)
+                {
+                    Logger.LogInfo("No categories found for shuffling");
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var dialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "Information"),
+                        Content = SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_NoCategories"),
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    _ = dialog.ShowAsync();
+                    return;
+                }
+                
+                var random = new Random();
+                var newActiveMods = new Dictionary<string, bool>();
+                var selectedMods = new List<string>();
+                
+                // Load current active mods to deactivate them
+                var activeModsPath = PathManager.GetActiveModsPath();
+                if (File.Exists(activeModsPath))
+                {
+                    try
+                    {
+                        var json = File.ReadAllText(activeModsPath);
+                        var currentMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
+                        // Set all current mods to inactive
+                        foreach (var mod in currentMods.Keys)
+                        {
+                            newActiveMods[mod] = false;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Failed to load current active mods for shuffling", ex);
+                    }
+                }
+                
+                // Select 1 random mod from each category (excluding "Other")
+                foreach (var categoryDir in categories)
+                {
+                    var modDirs = Directory.GetDirectories(categoryDir)
+                        .Where(modDir => File.Exists(Path.Combine(modDir, "mod.json")))
+                        .ToList();
+                    
+                    if (modDirs.Count > 0)
+                    {
+                        // Select random mod from this category
+                        var randomModDir = modDirs[random.Next(modDirs.Count)];
+                        var modName = Path.GetFileName(randomModDir);
+                        
+                        newActiveMods[modName] = true;
+                        selectedMods.Add($"{Path.GetFileName(categoryDir)}: {modName}");
+                    }
+                }
+                
+                // Save new active mods configuration
+                try
+                {
+                    var json = JsonSerializer.Serialize(newActiveMods, new JsonSerializerOptions { WriteIndented = true });
+                    File.WriteAllText(activeModsPath, json);
+                    
+                    // Recreate symlinks
+                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    
+                    Logger.LogInfo($"Shuffle completed - activated {selectedMods.Count} random mods");
+                    
+                    // Show success dialog with selected mods
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var selectedModsText = string.Join("\n", selectedMods);
+                    var dialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_Title"),
+                        Content = string.Format(SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_Message"), selectedMods.Count) + "\n\n" + selectedModsText,
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    _ = dialog.ShowAsync();
+                    
+                    // Refresh the current view if we're on ModGridPage
+                    if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+                    {
+                        // Force refresh to show new active states
+                        modGridPage.RefreshUIAfterLanguageChange();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to save shuffled active mods", ex);
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
+                        Content = SharedUtilities.GetTranslation(lang, "Error_Generic"),
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    _ = errorDialog.ShowAsync();
+                }
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error executing shuffle active mods hotkey", ex);
+            }
+        }
+
+        // Execute deactivate all mods hotkey action
+        private void ExecuteDeactivateAllModsHotkey()
+        {
+            try
+            {
+                Logger.LogInfo("Deactivate all mods hotkey triggered");
+                
+                // Get mod library path
+                var modLibraryPath = SettingsManager.Current.ModLibraryDirectory;
+                if (string.IsNullOrWhiteSpace(modLibraryPath))
+                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                
+                if (!Directory.Exists(modLibraryPath))
+                {
+                    Logger.LogError("Mod library directory does not exist");
+                    return;
+                }
+                
+                // Load current active mods
+                var activeModsPath = PathManager.GetActiveModsPath();
+                var newActiveMods = new Dictionary<string, bool>();
+                var deactivatedMods = new List<string>();
+                
+                if (File.Exists(activeModsPath))
+                {
+                    try
+                    {
+                        var json = File.ReadAllText(activeModsPath);
+                        var currentMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
+                        
+                        // Deactivate all mods except those in "Other" category
+                        foreach (var mod in currentMods.Keys)
+                        {
+                            // Check if mod is in "Other" category
+                            bool isInOtherCategory = false;
+                            var otherCategoryPath = Path.Combine(modLibraryPath, "Other");
+                            if (Directory.Exists(otherCategoryPath))
+                            {
+                                var modPath = Path.Combine(otherCategoryPath, mod);
+                                if (Directory.Exists(modPath))
+                                {
+                                    isInOtherCategory = true;
+                                }
+                            }
+                            
+                            if (isInOtherCategory)
+                            {
+                                // Keep "Other" category mods active if they were active
+                                newActiveMods[mod] = currentMods.TryGetValue(mod, out var isActive) && isActive;
+                            }
+                            else
+                            {
+                                // Deactivate all other mods
+                                if (currentMods.TryGetValue(mod, out var wasActive) && wasActive)
+                                {
+                                    deactivatedMods.Add(mod);
+                                }
+                                newActiveMods[mod] = false;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Failed to load current active mods for deactivation", ex);
+                        return;
+                    }
+                }
+                
+                // Save new active mods configuration
+                try
+                {
+                    var json = JsonSerializer.Serialize(newActiveMods, new JsonSerializerOptions { WriteIndented = true });
+                    File.WriteAllText(activeModsPath, json);
+                    
+                    // Recreate symlinks
+                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    
+                    Logger.LogInfo($"Deactivate all completed - deactivated {deactivatedMods.Count} mods (excluding Other category)");
+                    
+                    // Show success dialog
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var dialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "DeactivateAllMods_Title"),
+                        Content = string.Format(SharedUtilities.GetTranslation(lang, "DeactivateAllMods_Message"), deactivatedMods.Count),
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    _ = dialog.ShowAsync();
+                    
+                    // Refresh the current view if we're on ModGridPage
+                    if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+                    {
+                        // Force refresh to show new active states
+                        modGridPage.RefreshUIAfterLanguageChange();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to save deactivated mods configuration", ex);
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
+                        Content = SharedUtilities.GetTranslation(lang, "Error_Generic"),
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    _ = errorDialog.ShowAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error executing deactivate all mods hotkey", ex);
             }
         }
 
@@ -1655,15 +1888,17 @@ namespace FlairX_Mod_Manager
                 }
                 else if (theme == "Dark")
                 {
+                    root.RequestedTheme = ElementTheme.Dark;
                     appWindow.TitleBar.ButtonForegroundColor = Colors.White;
                     appWindow.TitleBar.ButtonHoverForegroundColor = Colors.White;
                     appWindow.TitleBar.ButtonPressedForegroundColor = Colors.White;
                     appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                     appWindow.TitleBar.ButtonHoverBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 50, 50, 50);
-                    appWindow.TitleBar.ButtonPressedBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 30, 30, 30);
+                    appWindow.TitleBar.ButtonPressedForegroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 30, 30, 30);
                 }
                 else
                 {
+                    root.RequestedTheme = ElementTheme.Default;
                     appWindow.TitleBar.ButtonForegroundColor = null;
                     appWindow.TitleBar.ButtonHoverForegroundColor = null;
                     appWindow.TitleBar.ButtonPressedForegroundColor = null;
@@ -1803,7 +2038,7 @@ namespace FlairX_Mod_Manager
                 // Ensure Presets menu item exists before updating UI state
                 EnsurePresetsMenuItemExists();
                 
-                // Enable/disable navigation menu items (but not the entire navigation view)
+                // // Enable/disable navigation menu items (but not the entire navigation view)
                 if (nvSample != null)
                 {
                     // Disable menu items instead of the entire navigation view
@@ -1824,6 +2059,7 @@ namespace FlairX_Mod_Manager
                 if (AllModsButton != null) AllModsButton.IsEnabled = gameSelected;
                 if (OpenModLibraryButton != null) OpenModLibraryButton.IsEnabled = gameSelected;
                 if (ShowActiveModsButton != null) ShowActiveModsButton.IsEnabled = gameSelected;
+                if (ViewModeToggleButton != null) ViewModeToggleButton.IsEnabled = gameSelected;
                 
                 // Enable/disable launcher FAB
                 if (LauncherFabBorder != null) LauncherFabBorder.IsHitTestVisible = gameSelected;

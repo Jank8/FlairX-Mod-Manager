@@ -94,6 +94,14 @@
   "ActiveModsToTop_Label": "将活跃模组移至顶部",
   "ActiveModsToTop_Tooltip": "启用后，活跃模组将显示在列表顶部",
   "SettingsPage_ActiveModsToTop_Label": "将活跃模组移至顶部",
+  "SettingsPage_ShuffleActiveMods_Label": "随机排列活跃模组",
+  "SettingsPage_DeactivateAllMods_Label": "停用所有模组",
+  "ShuffleActiveMods_Title": "已选择随机模组",
+  "ShuffleActiveMods_Message": "已选择{0}个随机模组（每类别1个）:",
+  "ShuffleActiveMods_NoCategories": "未找到可随机排列的模组类别。",
+  "DeactivateAllMods_Title": "模组已停用",
+  "DeactivateAllMods_Message": "已停用{0}个模组。\n\n'Other'类别中的模组已保留。",
+  "Information": "信息",
   "XXMI_Download_Instructions": "下载后，将XXMI文件夹解压到APP目录或在设置中更新XXMI模组目录路径。",
   "XXMI_Download_Required": "需要XXMI启动器来启动模组。从GitHub下载便携版本:"
 }

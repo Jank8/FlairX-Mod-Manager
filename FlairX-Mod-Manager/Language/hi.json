@@ -94,6 +94,14 @@
   "ActiveModsToTop_Label": "सक्रिय मॉड्स को ऊपर ले जाएं",
   "ActiveModsToTop_Tooltip": "सक्षम होने पर, सक्रिय मॉड्स सूची के शीर्ष पर प्रदर्शित होंगे",
   "SettingsPage_ActiveModsToTop_Label": "सक्रिय मॉड्स को ऊपर ले जाएं",
+  "SettingsPage_ShuffleActiveMods_Label": "सक्रिय मॉड्स को शफल करें",
+  "SettingsPage_DeactivateAllMods_Label": "सभी मॉड्स को निष्क्रिय करें",
+  "ShuffleActiveMods_Title": "यादृच्छिक मॉड्स चयनित",
+  "ShuffleActiveMods_Message": "{0} यादृच्छिक मॉड्स चयनित (प्रति श्रेणी 1):",
+  "ShuffleActiveMods_NoCategories": "शफल करने के लिए कोई मॉड श्रेणियां नहीं मिलीं।",
+  "DeactivateAllMods_Title": "मॉड्स निष्क्रिय किए गए",
+  "DeactivateAllMods_Message": "{0} मॉड्स निष्क्रिय किए गए।\n\n'Other' श्रेणी के मॉड्स संरक्षित रखे गए।",
+  "Information": "जानकारी",
   "XXMI_Download_Instructions": "डाउनलोड के बाद, XXMI फ़ोल्डर को APP डायरेक्टरी में निकालें या सेटिंग्स में XXMI मॉड्स डायरेक्टरी पथ अपडेट करें।",
   "XXMI_Download_Required": "मॉड्स लॉन्च करने के लिए XXMI लॉन्चर आवश्यक है। GitHub से पोर्टेबल संस्करण डाउनलोड करें:"
 }

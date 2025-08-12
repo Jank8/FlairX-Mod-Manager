@@ -94,6 +94,14 @@
   "ActiveModsToTop_Label": "فعال موڈز کو اوپر منتقل کریں",
   "ActiveModsToTop_Tooltip": "فعال ہونے پر، فعال موڈز فہرست کے اوپر دکھائے جائیں گے",
   "SettingsPage_ActiveModsToTop_Label": "فعال موڈز کو اوپر منتقل کریں",
+  "SettingsPage_ShuffleActiveMods_Label": "فعال موڈز کو شفل کریں",
+  "SettingsPage_DeactivateAllMods_Label": "تمام موڈز کو غیر فعال کریں",
+  "ShuffleActiveMods_Title": "بے ترتیب موڈز منتخب",
+  "ShuffleActiveMods_Message": "{0} بے ترتیب موڈز منتخب (فی کیٹگری 1):",
+  "ShuffleActiveMods_NoCategories": "شفلنگ کے لیے کوئی موڈ کیٹگریز نہیں ملیں۔",
+  "DeactivateAllMods_Title": "موڈز غیر فعال",
+  "DeactivateAllMods_Message": "{0} موڈز غیر فعال کیے گئے۔\n\n'Other' کیتگری کے موڈز محفوظ رکھے گئے۔",
+  "Information": "معلومات",
   "XXMI_Download_Instructions": "ڈاؤن لوڈ کے بعد، XXMI فولڈر کو APP ڈائرکٹری میں نکالیں یا سیٹنگز میں XXMI موڈز ڈائرکٹری پاتھ اپ ڈیٹ کریں۔",
   "XXMI_Download_Required": "موڈز لانچ کرنے کے لیے XXMI لانچر درکار ہے۔ GitHub سے پورٹیبل ورژن ڈاؤن لوڈ کریں:"
 }

@@ -94,6 +94,14 @@
   "ActiveModsToTop_Label": "Pindahkan mod aktif ke atas",
   "ActiveModsToTop_Tooltip": "Ketika diaktifkan, mod aktif akan ditampilkan di bagian atas daftar",
   "SettingsPage_ActiveModsToTop_Label": "Pindahkan mod aktif ke atas",
+  "SettingsPage_ShuffleActiveMods_Label": "Acak mod aktif",
+  "SettingsPage_DeactivateAllMods_Label": "Nonaktifkan semua mod",
+  "ShuffleActiveMods_Title": "Mod Acak Dipilih",
+  "ShuffleActiveMods_Message": "Dipilih {0} mod acak (1 per kategori):",
+  "ShuffleActiveMods_NoCategories": "Tidak ditemukan kategori mod untuk diacak.",
+  "DeactivateAllMods_Title": "Mod Dinonaktifkan",
+  "DeactivateAllMods_Message": "Dinonaktifkan {0} mod.\n\nMod dalam kategori 'Other' tetap dipertahankan.",
+  "Information": "Informasi",
   "XXMI_Download_Instructions": "Setelah mengunduh, ekstrak folder XXMI ke direktori APP atau perbarui path Direktori XXMI Mods di Pengaturan.",
   "XXMI_Download_Required": "XXMI Launcher diperlukan untuk meluncurkan mod. Unduh versi portable dari GitHub:"
 }

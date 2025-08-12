@@ -94,6 +94,14 @@
   "ActiveModsToTop_Label": "Ilipat ang mga aktibong mod sa tuktok",
   "ActiveModsToTop_Tooltip": "Kapag naka-enable, ang mga aktibong mod ay ipapakita sa tuktok ng listahan",
   "SettingsPage_ActiveModsToTop_Label": "Ilipat ang mga aktibong mod sa tuktok",
+  "SettingsPage_ShuffleActiveMods_Label": "I-shuffle ang mga aktibong mod",
+  "SettingsPage_DeactivateAllMods_Label": "I-deactivate ang lahat ng mod",
+  "ShuffleActiveMods_Title": "Mga Random na Mod ang Napili",
+  "ShuffleActiveMods_Message": "Napili ang {0} random na mod (1 bawat kategorya):",
+  "ShuffleActiveMods_NoCategories": "Walang nahanap na kategoryang mod para sa shuffle.",
+  "DeactivateAllMods_Title": "Mga Mod ay Na-deactivate",
+  "DeactivateAllMods_Message": "Na-deactivate ang {0} mod.\n\nAng mga mod sa kategoryang 'Other' ay napreserba.",
+  "Information": "Impormasyon",
   "XXMI_Download_Instructions": "Pagkatapos mag-download, i-extract ang XXMI folder sa APP directory o i-update ang XXMI Mods Directory path sa Settings.",
   "XXMI_Download_Required": "Kailangan ang XXMI Launcher upang magsimula ng mga mod. I-download ang portable version mula sa GitHub:"
 }

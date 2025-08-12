@@ -37,7 +37,7 @@
   "ModDetailPage_Title": "মড বিবরণ",
   "ModDetailPage_URL": "URL:",
   "None": "কোনটি নয়",
-  "Ntfs_Startup_Warning_Content": "মড ব্যবস্থাপনা Windows দ্বারা সমর্থিত সব ফাইল সিস্টেমে কাজ করে। তবে, বর্তমান ডিস্ক বা পার্টিশন NTFS হিসেবে ফরম্যাট করা নেই, যা সিম্বলিক লিঙ্ক (symlinks) তৈরি এবং তাই মড সক্রিয়করণ প্রতিরোধ করে। আপনি এখনও NTFS ডিস্কে একটি মড লাইব্রেরি এবং XXMI টার্গেট ফোল্ডার নির্বাচন করতে পারেন মড সক্রিয়করণ সক্ষম করতে।",
+  "Ntfs_Startup_Warning_Content": "মড ব্যবস্থাপনা Windows দ্বারা সমর্থিত সব ফাইল সিস্টেমে কাজ করে। তবে, বর্তমান ডিস্ক বা পার্টিশন NTFS ভাবে ফরম্যাট করা নেই, যা সিম্বলিক লিঙ্ক (symlinks) তৈরি এবং তাই মড সক্রিয়করণ প্রতিরোধ করে। আপনি এখনও NTFS ডিস্কে একটি মড লাইব্রেরি এবং XXMI টার্গেট ফোল্ডার নির্বাচন করতে পারেন মড সক্রিয়করণ সক্ষম করতে।",
   "Ntfs_Warning_Content": "{0} ({1}) এর জন্য নির্বাচিত ফোল্ডার NTFS পার্টিশনে নেই। এটি মড সক্রিয়করণ (symlinks) প্রতিরোধ করবে।",
   "Ntfs_Warning_Title": "সতর্কতা: ফাইল সিস্টেম",
   "OK": "ঠিক আছে",
@@ -94,6 +94,14 @@
   "ActiveModsToTop_Label": "সক্রিয় মডগুলি উপরে সরান",
   "ActiveModsToTop_Tooltip": "সক্রিয় করা হলে, সক্রিয় মডগুলি তালিকার শীর্ষে প্রদর্শিত হবে",
   "SettingsPage_ActiveModsToTop_Label": "সক্রিয় মডগুলি উপরে সরান",
+  "SettingsPage_ShuffleActiveMods_Label": "সক্রিয় মডগুলি মিশ্রিত করুন",
+  "SettingsPage_DeactivateAllMods_Label": "সব মড নিষ্ক্রিয় করুন",
+  "ShuffleActiveMods_Title": "এলোমেলো মড নির্বাচিত",
+  "ShuffleActiveMods_Message": "{0}টি এলোমেলো মড নির্বাচিত (প্রতি বিভাগে 1টি):",
+  "ShuffleActiveMods_NoCategories": "মিশ্রিত করার জন্য কোনো মড বিভাগ পাওয়া যায়নি।",
+  "DeactivateAllMods_Title": "মড নিষ্ক্রিয় করা হয়েছে",
+  "DeactivateAllMods_Message": "{0}টি মড নিষ্ক্রিয় করা হয়েছে।\n\n'Other' বিভাগের মডগুলি সংরক্ষিত রয়েছে।",
+  "Information": "তথ্য",
   "XXMI_Download_Instructions": "ডাউনলোডের পর, XXMI ফোল্ডার APP ডিরেক্টরিতে এক্সট্র্যাক্ট করুন বা সেটিংসে XXMI মড ডিরেক্টরি পাথ আপডেট করুন।",
   "XXMI_Download_Required": "মড চালু করতে XXMI লঞ্চার প্রয়োজন। GitHub থেকে পোর্টেবল সংস্করণ ডাউনলোড করুন:"
 }

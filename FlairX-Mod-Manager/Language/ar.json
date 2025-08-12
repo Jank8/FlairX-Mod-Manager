@@ -41,7 +41,7 @@
   "Ntfs_Warning_Content": "المجلد المحدد لـ {0} ({1}) ليس على قسم NTFS. سيؤدي هذا إلى منع تفعيل التعديلات (symlinks).",
   "Ntfs_Warning_Title": "تحذير: نظام الملفات",
   "OK": "موافق",
-  "Open_ModLibrary_Tooltip": "فتح دليل ModLibrary في المستكشف",
+  "Open_ModLibrary_Tooltip": "فتح دليل ModLibrary في المست explorer",
   "OptimizePreviews_Cancelled": "تم إلغاء التحسين.",
   "OptimizePreviews_Completed": "اكتمل التحسين.",
   "OptimizePreviews_Confirm_Message": "سيؤدي هذا إلى تحسين جميع صور معاينة التعديلات إلى 1000x1000 بكسل. قد تستغرق هذه العملية بعض الوقت. هل تريد المتابعة؟",
@@ -94,6 +94,14 @@
   "ActiveModsToTop_Label": "نقل التعديلات النشطة إلى الأعلى",
   "ActiveModsToTop_Tooltip": "عند التفعيل، ستظهر التعديلات النشطة في أعلى القائمة",
   "SettingsPage_ActiveModsToTop_Label": "نقل التعديلات النشطة إلى الأعلى",
+  "SettingsPage_ShuffleActiveMods_Label": "خلط التعديلات النشطة",
+  "SettingsPage_DeactivateAllMods_Label": "إلغاء تفعيل جميع التعديلات",
+  "ShuffleActiveMods_Title": "تم اختيار تعديلات عشوائية",
+  "ShuffleActiveMods_Message": "تم اختيار {0} تعديلات عشوائية (1 لكل فئة):",
+  "ShuffleActiveMods_NoCategories": "لم يتم العثور على فئات تعديلات للخلط.",
+  "DeactivateAllMods_Title": "تم إلغاء تفعيل التعديلات",
+  "DeactivateAllMods_Message": "تم إلغاء تفعيل {0} تعديلات.\n\nتم الاحتفاظ بالتعديلات في فئة 'Other'.",
+  "Information": "معلومات",
   "XXMI_Download_Instructions": "بعد التحميل، استخرج مجلد XXMI إلى دليل التطبيق أو حدث مسار دليل تعديلات XXMI في الإعدادات.",
   "XXMI_Download_Required": "مشغل XXMI مطلوب لتشغيل التعديلات. حمل النسخة المحمولة من GitHub:"
 }
