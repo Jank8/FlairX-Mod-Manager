@@ -93,6 +93,7 @@
   "ActiveModsToTop_Label": "Przenieś aktywne mody na górę",
   "ActiveModsToTop_Tooltip": "Gdy włączone, aktywne mody będą wyświetlane na górze listy",
   "SettingsPage_ActiveModsToTop_Label": "Przenieś aktywne mody na górę",
+  "SettingsPage_ShuffleActiveMods_Label": "Przemieszaj aktywne mody",
   "Welcome_Title": "WITAJ !",
   "XXMI_Download_Instructions": "Po pobraniu, rozpakuj folder XXMI do katalogu APP lub zaktualizuj ścieżkę katalogu modów XXMI w Ustawieniach.",
   "XXMI_Download_Required": "Launcher XXMI jest wymagany do uruchamiania modów. Pobierz wersję przenośną z GitHub:"

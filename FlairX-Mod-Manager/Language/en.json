@@ -94,6 +94,7 @@
   "ActiveModsToTop_Label": "Move active mods to top",
   "ActiveModsToTop_Tooltip": "When enabled, active mods will be displayed at the top of the list",
   "SettingsPage_ActiveModsToTop_Label": "Move active mods to top",
+  "SettingsPage_ShuffleActiveMods_Label": "Shuffle active mods",
   "XXMI_Download_Instructions": "After downloading, extract the XXMI folder to APP direvtory or update the XXMI Mods Directory path in Settings.",
   "XXMI_Download_Required": "XXMI Launcher is required to launch mods. Download the portable version from GitHub:"
 }

@@ -99,6 +99,12 @@ namespace FlairX_Mod_Manager.Pages
             SetBreadcrumbBar(XXMIModsDirectoryBreadcrumb, SettingsManager.XXMIModsDirectorySafe);
             SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, SettingsManager.Current.ModLibraryDirectory ?? string.Empty);
             
+            // Set hotkey values from settings
+            OptimizePreviewsHotkeyTextBox.Text = SettingsManager.Current.OptimizePreviewsHotkey;
+            ReloadManagerHotkeyTextBox.Text = SettingsManager.Current.ReloadManagerHotkey;
+            ShuffleActiveModsHotkeyTextBox.Text = SettingsManager.Current.ShuffleActiveModsHotkey;
+
+            
             // Update all texts and icons once at the end
             UpdateTexts();
             var lang = SharedUtilities.LoadLanguageDictionary();
@@ -353,6 +359,11 @@ namespace FlairX_Mod_Manager.Pages
             ToolTipService.SetToolTip(DynamicModSearchToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Tooltip"));
             // Update About button text
             AboutButtonText.Text = SharedUtilities.GetTranslation(lang, "AboutButton_Label");
+            
+            // Update hotkey labels using existing translation keys
+            OptimizePreviewsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
+            ReloadManagerHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "Reload_Mods_Tooltip");
+            ShuffleActiveModsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShuffleActiveMods_Label");
             // Removed XXMIModsDirectoryDefaultButton.ToolTip and ModLibraryDirectoryDefaultButton.ToolTip, as WinUI 3 doesn't have this property
         }
 
@@ -1084,6 +1095,67 @@ namespace FlairX_Mod_Manager.Pages
         {
             SettingsManager.Current.ActiveModsToTopEnabled = ActiveModsToTopToggle.IsOn;
             SettingsManager.Save();
+        }
+
+        // Hotkey handling methods
+        private void OptimizePreviewsHotkeyTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                SettingsManager.Current.OptimizePreviewsHotkey = textBox.Text;
+                SettingsManager.Save();
+            }
+        }
+
+        private void ReloadManagerHotkeyTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                SettingsManager.Current.ReloadManagerHotkey = textBox.Text;
+                SettingsManager.Save();
+            }
+        }
+
+        private void ShuffleActiveModsHotkeyTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                SettingsManager.Current.ShuffleActiveModsHotkey = textBox.Text;
+                SettingsManager.Save();
+            }
+        }
+
+
+
+        private void HotkeyTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (sender is TextBox textBox)
+            {
+                e.Handled = true;
+                
+                var key = e.Key;
+                var modifiers = new List<string>();
+                
+                // Check for modifier keys
+                if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
+                    modifiers.Add("Ctrl");
+                if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Shift) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
+                    modifiers.Add("Shift");
+                if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Menu) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
+                    modifiers.Add("Alt");
+                
+                // Skip modifier-only keys
+                if (key == Windows.System.VirtualKey.Control || key == Windows.System.VirtualKey.Shift || 
+                    key == Windows.System.VirtualKey.Menu || key == Windows.System.VirtualKey.LeftWindows || 
+                    key == Windows.System.VirtualKey.RightWindows)
+                    return;
+                
+                // Build hotkey string
+                var hotkeyParts = new List<string>(modifiers);
+                hotkeyParts.Add(key.ToString());
+                
+                textBox.Text = string.Join("+", hotkeyParts);
+            }
         }
     }
 }

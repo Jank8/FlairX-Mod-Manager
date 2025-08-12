@@ -111,37 +111,61 @@
                     <ToggleSwitch x:Name="ActiveModsToTopToggle" Toggled="ActiveModsToTopToggle_Toggled" OnContent="" OffContent="" Margin="-40,0,0,0"/>
                 </StackPanel>
 
-                <!-- 4-column Grid layout for toggle settings -->
-                <Grid Width="770" HorizontalAlignment="Left">
+                <!-- Two column layout: toggles on left, hotkeys on right -->
+                <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="385"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <!-- Column 1: Dynamic filtering -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <TextBlock x:Name="DynamicModSearchLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <ToggleSwitch x:Name="DynamicModSearchToggle" Toggled="DynamicModSearchToggle_Toggled" OnContent="" OffContent=""/>
+                    <!-- Left column: Toggle settings -->
+                    <StackPanel Grid.Column="0" Spacing="16">
+                        <!-- Dynamic filtering -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="DynamicModSearchLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                            <ToggleSwitch x:Name="DynamicModSearchToggle" Toggled="DynamicModSearchToggle_Toggled" OnContent="" OffContent="" Margin="-40,0,0,0"/>
+                        </StackPanel>
+                        
+                        <!-- Animation -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="ShowOrangeAnimationLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                            <ToggleSwitch x:Name="ShowOrangeAnimationToggle" Toggled="ShowOrangeAnimationToggle_Toggled" OnContent="" OffContent="" Margin="-40,0,0,0"/>
+                        </StackPanel>
+                        
+                        <!-- Grid Zoom -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="ModGridZoomLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                            <ToggleSwitch x:Name="ModGridZoomToggle" Toggled="ModGridZoomToggle_Toggled" OnContent="" OffContent="" Margin="-40,0,0,0"/>
+                        </StackPanel>
+                        
+                        <!-- Grid logging -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="GridLoggingLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                            <ToggleSwitch x:Name="GridLoggingToggle" Toggled="GridLoggingToggle_Toggled" OnContent="" OffContent="" ToolTipService.ToolTip="Enable detailed logging for grid performance debugging" Margin="-40,0,0,0"/>
+                        </StackPanel>
                     </StackPanel>
                     
-                    <!-- Column 2: Animation -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <TextBlock x:Name="ShowOrangeAnimationLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <ToggleSwitch x:Name="ShowOrangeAnimationToggle" Toggled="ShowOrangeAnimationToggle_Toggled" OnContent="" OffContent=""/>
-                    </StackPanel>
-                    
-                    <!-- Column 3: Grid Zoom -->
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <TextBlock x:Name="ModGridZoomLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <ToggleSwitch x:Name="ModGridZoomToggle" Toggled="ModGridZoomToggle_Toggled" OnContent="" OffContent=""/>
-                    </StackPanel>
-                    
-                    <!-- Column 4: Grid logging -->
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <TextBlock x:Name="GridLoggingLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <ToggleSwitch x:Name="GridLoggingToggle" Toggled="GridLoggingToggle_Toggled" OnContent="" OffContent="" ToolTipService.ToolTip="Enable detailed logging for grid performance debugging"/>
+                    <!-- Right column: Hotkey settings -->
+                    <StackPanel Grid.Column="1" Spacing="16" Margin="-58,0,0,0">
+                        <!-- Optimize previews hotkey -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="OptimizePreviewsHotkeyLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="220"/>
+                            <TextBox x:Name="OptimizePreviewsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+O" TextChanged="OptimizePreviewsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown"/>
+                        </StackPanel>
+                        
+                        <!-- Reload manager hotkey -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="ReloadManagerHotkeyLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="220"/>
+                            <TextBox x:Name="ReloadManagerHotkeyTextBox" Width="160" PlaceholderText="Ctrl+R" TextChanged="ReloadManagerHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown"/>
+                        </StackPanel>
+                        
+                        <!-- Shuffle active mods hotkey -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="ShuffleActiveModsHotkeyLabel" Text="Shuffle active mods:" VerticalAlignment="Center" Margin="0,0,8,0" Width="220"/>
+                            <TextBox x:Name="ShuffleActiveModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+S" TextChanged="ShuffleActiveModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown"/>
+                        </StackPanel>
+                        
+
                     </StackPanel>
                 </Grid>
 

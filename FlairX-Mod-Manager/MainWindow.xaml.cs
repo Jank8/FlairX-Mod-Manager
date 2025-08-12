@@ -205,6 +205,147 @@ namespace FlairX_Mod_Manager
             {
                 progressBar.Opacity = FlairX_Mod_Manager.SettingsManager.Current.ShowOrangeAnimation ? 1 : 0;
             }
+            
+            // Add global keyboard handler for hotkeys - handle at content level
+            if (this.Content is FrameworkElement contentElement)
+            {
+                contentElement.KeyDown += MainWindow_KeyDown;
+            }
+        }
+
+        // Global keyboard handler for hotkeys
+        private async void MainWindow_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            try
+            {
+                // Only handle hotkeys if a game is selected
+                if (SettingsManager.Current.SelectedGameIndex <= 0)
+                    return;
+
+                // Get current modifier keys
+                var modifiers = new List<string>();
+                if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
+                    modifiers.Add("Ctrl");
+                if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Shift) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
+                    modifiers.Add("Shift");
+                if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Menu) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
+                    modifiers.Add("Alt");
+
+                // Build current hotkey string
+                var currentHotkey = string.Join("+", modifiers.Concat(new[] { e.Key.ToString() }));
+
+                // Check if current hotkey matches any configured hotkey
+                var settings = SettingsManager.Current;
+
+                // Optimize previews hotkey
+                if (!string.IsNullOrEmpty(settings.OptimizePreviewsHotkey) && 
+                    string.Equals(currentHotkey, settings.OptimizePreviewsHotkey, StringComparison.OrdinalIgnoreCase))
+                {
+                    e.Handled = true;
+                    await ExecuteOptimizePreviewsHotkey();
+                    return;
+                }
+
+                // Reload manager hotkey
+                if (!string.IsNullOrEmpty(settings.ReloadManagerHotkey) && 
+                    string.Equals(currentHotkey, settings.ReloadManagerHotkey, StringComparison.OrdinalIgnoreCase))
+                {
+                    e.Handled = true;
+                    await ExecuteReloadManagerHotkey();
+                    return;
+                }
+
+                // Shuffle active mods hotkey (placeholder for future implementation)
+                if (!string.IsNullOrEmpty(settings.ShuffleActiveModsHotkey) && 
+                    string.Equals(currentHotkey, settings.ShuffleActiveModsHotkey, StringComparison.OrdinalIgnoreCase))
+                {
+                    e.Handled = true;
+                    ExecuteShuffleActiveModsHotkey();
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in global hotkey handler", ex);
+            }
+        }
+
+        // Execute optimize previews hotkey action
+        private async Task ExecuteOptimizePreviewsHotkey()
+        {
+            try
+            {
+                Logger.LogInfo("Optimize previews hotkey triggered");
+                
+                // Navigate to settings page if not already there
+                if (!(contentFrame.Content is FlairX_Mod_Manager.Pages.SettingsPage))
+                {
+                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.SettingsPage), null, new DrillInNavigationTransitionInfo());
+                    // Wait a moment for navigation to complete
+                    await Task.Delay(100);
+                }
+
+                // Get the settings page and trigger optimize previews
+                if (contentFrame.Content is FlairX_Mod_Manager.Pages.SettingsPage settingsPage)
+                {
+                    // Use reflection to call the private OptimizePreviewsButton_Click method
+                    var optimizeMethod = settingsPage.GetType().GetMethod("OptimizePreviewsButton_Click", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    
+                    if (optimizeMethod != null)
+                    {
+                        optimizeMethod.Invoke(settingsPage, new object[] { settingsPage, new RoutedEventArgs() });
+                        Logger.LogInfo("Optimize previews started via hotkey");
+                    }
+                    else
+                    {
+                        Logger.LogError("Could not find OptimizePreviewsButton_Click method");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error executing optimize previews hotkey", ex);
+            }
+        }
+
+        // Execute reload manager hotkey action
+        private async Task ExecuteReloadManagerHotkey()
+        {
+            try
+            {
+                Logger.LogInfo("Reload manager hotkey triggered");
+                await ReloadModsAsync();
+                Logger.LogInfo("Reload manager completed via hotkey");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error executing reload manager hotkey", ex);
+            }
+        }
+
+        // Execute shuffle active mods hotkey action (placeholder for future implementation)
+        private void ExecuteShuffleActiveModsHotkey()
+        {
+            try
+            {
+                Logger.LogInfo("Shuffle active mods hotkey triggered (not yet implemented)");
+                
+                // Show a notification that this feature will be implemented later
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                var dialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "Information"),
+                    Content = "Shuffle active mods functionality will be implemented in a future update.",
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                    XamlRoot = this.Content.XamlRoot
+                };
+                _ = dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error executing shuffle active mods hotkey", ex);
+            }
         }
 
         private void UpdateGameSelectionComboBoxTexts()
@@ -2006,7 +2147,6 @@ namespace FlairX_Mod_Manager
                 System.Diagnostics.Debug.WriteLine($"Failed to disable maximize on double-click: {ex.Message}");
             }
         }
-
     }
 
     // Helper class for system dispatcher queue
