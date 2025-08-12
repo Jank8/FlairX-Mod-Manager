@@ -148,6 +148,9 @@ namespace FlairX_Mod_Manager.Pages
             LogToGridLog($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
             System.Diagnostics.Debug.WriteLine($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
             
+            // --- FIX: Always clear mod data to avoid leaking mod tiles into category view ---
+            _allModData.Clear();
+
             var gameTag = SettingsManager.CurrentSelectedGame;
             if (string.IsNullOrEmpty(gameTag)) 
             {
@@ -1795,6 +1798,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (string.IsNullOrWhiteSpace(modsDir))
                     modsDir = Path.Combine(AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
                 var modsDirFull = Path.GetFullPath(modsDir);
+                var defaultModsDirFull = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods"));
                 if (_lastSymlinkTarget != null && !_lastSymlinkTarget.Equals(modsDirFull, StringComparison.OrdinalIgnoreCase))
                 {
                     RemoveAllSymlinks(_lastSymlinkTarget);
