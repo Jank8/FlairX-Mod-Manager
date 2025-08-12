@@ -365,6 +365,11 @@ namespace FlairX_Mod_Manager.Pages
                         break;
                     if (!Directory.Exists(categoryDir)) continue;
                     
+                    // Process category preview (if exists) to create category minitile
+                    ProcessCategoryPreview(categoryDir, token);
+                    if (token.IsCancellationRequested)
+                        break;
+                    
                     foreach (var modDir in Directory.GetDirectories(categoryDir))
                     {
                         if (token.IsCancellationRequested)
@@ -640,6 +645,65 @@ namespace FlairX_Mod_Manager.Pages
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
             return tcs.Task;
+        }
+
+        private void ProcessCategoryPreview(string categoryDir, CancellationToken token)
+        {
+            if (token.IsCancellationRequested) return;
+            
+            var minitileJpgPath = Path.Combine(categoryDir, "minitile.jpg");
+            
+            // Skip if minitile.jpg already exists
+            if (File.Exists(minitileJpgPath)) return;
+            
+            // Look for preview files in category directory (same logic as mods)
+            var previewFiles = Directory.GetFiles(categoryDir, "preview.*", SearchOption.TopDirectoryOnly)
+                .Where(f => f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                           f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                           f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+            
+            if (previewFiles.Length == 0) return;
+            
+            var previewPath = previewFiles[0]; // Take first preview file found
+            
+            try
+            {
+                using (var img = System.Drawing.Image.FromFile(previewPath))
+                {
+                    // Create minitile (600x600 for high DPI displays)
+                    using (var thumbBmp = new System.Drawing.Bitmap(600, 600))
+                    using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
+                    {
+                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        g.CompositingQuality = CompositingQuality.HighQuality;
+                        g.SmoothingMode = SmoothingMode.HighQuality;
+                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                        
+                        // Calculate crop rectangle to make it square (center crop)
+                        int size = Math.Min(img.Width, img.Height);
+                        int x = (img.Width - size) / 2;
+                        int y = (img.Height - size) / 2;
+                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        
+                        g.DrawImage(img, destRect, srcRect, GraphicsUnit.Pixel);
+                        
+                        // Save as JPEG minitile
+                        var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                        if (jpegEncoder != null)
+                        {
+                            var jpegParams = new EncoderParameters(1);
+                            jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                            thumbBmp.Save(minitileJpgPath, jpegEncoder, jpegParams);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to process category preview for {Path.GetFileName(categoryDir)}", ex);
+            }
         }
 
         private bool IsNtfs(string path)

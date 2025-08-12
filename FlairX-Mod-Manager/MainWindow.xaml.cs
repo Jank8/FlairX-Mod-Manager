@@ -469,7 +469,16 @@ namespace FlairX_Mod_Manager
                     if (selectedTag.StartsWith("Category_"))
                     {
                         var category = selectedTag.Substring("Category_".Length);
-                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), $"Category:{category}", new DrillInNavigationTransitionInfo());
+                        
+                        // If we're already on ModGridPage, just load the category without navigating
+                        if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+                        {
+                            modGridPage.LoadCategoryDirectly(category);
+                        }
+                        else
+                        {
+                            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), $"Category:{category}", new DrillInNavigationTransitionInfo());
+                        }
                     }
                     else if (selectedTag == "OtherModsPage")
                     {
@@ -828,25 +837,109 @@ namespace FlairX_Mod_Manager
         {
             // Unselect selected menu item
             nvSample.SelectedItem = null;
-            // Navigate to ModGridPage without parameter to show all mods
-            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
+            
+            // Check current view mode from the button icon
+            bool isCategoriesView = false;
+            if (ViewModeToggleButton?.Content is FontIcon icon)
+            {
+                isCategoriesView = icon.Glyph == "\uE8B3";
+            }
+            
+            if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+            {
+                // If we're already on ModGridPage, trigger the appropriate load method directly
+                if (isCategoriesView)
+                {
+                    modGridPage.LoadAllCategories(); // Load all categories
+                }
+                else
+                {
+                    modGridPage.LoadAllModsPublic(); // Load all mods
+                }
+            }
+            else
+            {
+                // Navigate to ModGridPage with appropriate parameter
+                if (isCategoriesView)
+                {
+                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Categories", new DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
+                }
+            }
+            
             // Update heart button after a short delay to ensure page has loaded
             DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => UpdateShowActiveModsButtonIcon());
         }
 
+        private FlairX_Mod_Manager.Pages.ModGridPage.ViewMode GetCurrentViewMode()
+        {
+            if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+            {
+                return modGridPage.CurrentViewMode;
+            }
+            
+            // Default to mods view
+            return FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Mods;
+        }
+
         private void ViewModeToggleButton_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Implement view mode toggle functionality
-            // For now, just toggle the icon to show it's working
+            // Toggle view mode and update icon
             if (ViewModeToggleButton?.Content is FontIcon icon)
             {
-                if (icon.Glyph == "\uE8A9") // Default mode
+                bool isCurrentlyCategories = icon.Glyph == "\uE8B3";
+                
+                if (isCurrentlyCategories)
                 {
-                    icon.Glyph = "\uE8B3"; // Category tiles mode
+                    // Switch to mods view
+                    icon.Glyph = "\uE8A9";
+                    SetModGridPageViewMode(FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Mods);
+                    UpdateAllModsButtonText(false);
                 }
                 else
                 {
-                    icon.Glyph = "\uE8A9"; // Back to default mode
+                    // Switch to categories view
+                    icon.Glyph = "\uE8B3";
+                    SetModGridPageViewMode(FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Categories);
+                    UpdateAllModsButtonText(true);
+                }
+            }
+        }
+
+        private void SetModGridPageViewMode(FlairX_Mod_Manager.Pages.ModGridPage.ViewMode viewMode)
+        {
+            if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+            {
+                modGridPage.CurrentViewMode = viewMode;
+            }
+        }
+
+        public void UpdateViewModeButtonIcon(bool isCategoriesView)
+        {
+            if (ViewModeToggleButton?.Content is FontIcon icon)
+            {
+                icon.Glyph = isCategoriesView ? "\uE8B3" : "\uE8A9";
+            }
+            
+            // Update the All Mods button text
+            UpdateAllModsButtonText(isCategoriesView);
+        }
+
+        private void UpdateAllModsButtonText(bool isCategoriesView)
+        {
+            if (AllModsButton != null)
+            {
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                if (isCategoriesView)
+                {
+                    AllModsButton.Content = SharedUtilities.GetTranslation(lang, "All_Categories");
+                }
+                else
+                {
+                    AllModsButton.Content = SharedUtilities.GetTranslation(lang, "All_Mods");
                 }
             }
         }

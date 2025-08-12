@@ -22,11 +22,32 @@ namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class ModGridPage : Page
     {
+        public enum ViewMode
+        {
+            Mods,
+            Categories
+        }
+
+        private ViewMode _currentViewMode = ViewMode.Mods;
+        public ViewMode CurrentViewMode
+        {
+            get => _currentViewMode;
+            set
+            {
+                if (_currentViewMode != value)
+                {
+                    _currentViewMode = value;
+                    OnViewModeChanged();
+                }
+            }
+        }
+
         public class ModTile : INotifyPropertyChanged
         {
             public string Name { get; set; } = "";
             public string ImagePath { get; set; } = "";
             public string Directory { get; set; } = ""; // Store only the directory name
+            public bool IsCategory { get; set; } = false; // New property to distinguish categories from mods
             private BitmapImage? _imageSource;
             public BitmapImage? ImageSource
             {
@@ -97,6 +118,144 @@ namespace FlairX_Mod_Manager.Pages
         private static volatile bool _isBackgroundLoading = false;
         private static Task? _backgroundLoadTask = null;
         private static readonly object _backgroundLoadLock = new object();
+
+        private void OnViewModeChanged()
+        {
+            if (CurrentViewMode == ViewMode.Categories)
+            {
+                LoadCategories();
+            }
+            else
+            {
+                // When switching back to mods view, load all mods
+                _currentCategory = null; // Clear current category to show all mods
+                LoadAllMods();
+            }
+            
+            // Update MainWindow button text
+            UpdateMainWindowButtonText();
+        }
+
+        private void LoadCategories()
+        {
+            LogToGridLog("LoadCategories() called");
+            
+            var gameTag = SettingsManager.CurrentSelectedGame;
+            if (string.IsNullOrEmpty(gameTag)) return;
+            
+            var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
+            string modLibraryPath = PathManager.GetAbsolutePath(gameModLibraryPath);
+            
+            if (!Directory.Exists(modLibraryPath)) return;
+            
+            var categories = new List<ModTile>();
+            
+            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+            {
+                if (!Directory.Exists(categoryDir)) continue;
+                
+                var categoryName = Path.GetFileName(categoryDir);
+                var modDirs = Directory.GetDirectories(categoryDir);
+                
+                // Only add category if it has mod directories
+                if (modDirs.Length > 0)
+                {
+                    var categoryTile = new ModTile
+                    {
+                        Name = categoryName,
+                        Directory = categoryName,
+                        IsCategory = true,
+                        ImagePath = GetCategoryMiniTilePath(categoryName)
+                    };
+                    
+                    // Load mini tile image
+                    LoadCategoryMiniTile(categoryTile);
+                    categories.Add(categoryTile);
+                }
+            }
+            
+            // Update UI on main thread
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _allMods.Clear();
+                foreach (var category in categories.OrderBy(c => c.Name))
+                {
+                    _allMods.Add(category);
+                }
+                
+                CategoryTitle.Text = "Categories";
+                LogToGridLog($"Loaded {categories.Count} categories");
+            });
+        }
+
+        private string GetCategoryMiniTilePath(string categoryName)
+        {
+            var gameTag = SettingsManager.CurrentSelectedGame;
+            if (string.IsNullOrEmpty(gameTag)) return "";
+            
+            var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
+            string categoryPath = PathManager.GetAbsolutePath(Path.Combine(gameModLibraryPath, categoryName));
+            
+            // Look for minitile.jpg in category folder (same as mods)
+            return Path.Combine(categoryPath, "minitile.jpg");
+        }
+
+        private void LoadCategoryMiniTile(ModTile categoryTile)
+        {
+            var miniTilePath = categoryTile.ImagePath;
+            
+            // Load minitile.jpg if it exists (same as mods)
+            if (File.Exists(miniTilePath))
+            {
+                DispatcherQueue.TryEnqueue(async () =>
+                {
+                    try
+                    {
+                        var bitmap = new BitmapImage();
+                        using var stream = File.OpenRead(miniTilePath);
+                        await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
+                        categoryTile.ImageSource = bitmap;
+                    }
+                    catch (Exception ex)
+                    {
+                        LogToGridLog($"Failed to load category minitile for {categoryTile.Name}: {ex.Message}");
+                    }
+                });
+            }
+            // If minitile.jpg doesn't exist, categoryTile.ImageSource remains null (no image)
+        }
+
+
+
+        private void UpdateMainWindowButtonText()
+        {
+            if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow.UpdateViewModeButtonIcon(CurrentViewMode == ViewMode.Categories);
+            }
+        }
+
+        // Public methods for MainWindow to call
+        public void LoadAllModsPublic()
+        {
+            _currentCategory = null; // Clear current category to show all mods
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
+            LoadAllMods();
+        }
+
+        public void LoadAllCategories()
+        {
+            LoadCategories();
+        }
+
+        public void LoadCategoryDirectly(string category)
+        {
+            // Load specific category without changing view mode
+            _currentCategory = category;
+            CategoryTitle.Text = category;
+            LoadModsByCategory(category);
+        }
 
         private double _zoomFactor = 1.0;
         private DateTime _lastScrollTime = DateTime.MinValue;
@@ -842,7 +1001,13 @@ namespace FlairX_Mod_Manager.Pages
             }
             if (e.Parameter is string parameter && !string.IsNullOrEmpty(parameter))
             {
-                if (parameter.StartsWith("Category:"))
+                if (parameter == "Categories")
+                {
+                    // Navigate to categories view
+                    CurrentViewMode = ViewMode.Categories;
+                    return;
+                }
+                else if (parameter.StartsWith("Category:"))
                 {
                     // New category-based navigation
                     var category = parameter.Substring("Category:".Length);
@@ -884,6 +1049,9 @@ namespace FlairX_Mod_Manager.Pages
             
             // Notify MainWindow to update heart button after category title is set
             NotifyMainWindowToUpdateHeartButton();
+            
+            // Update MainWindow button text based on current view mode
+            UpdateMainWindowButtonText();
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -1530,25 +1698,39 @@ namespace FlairX_Mod_Manager.Pages
 
         private void OpenModFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button btn && btn.Tag is ModTile mod)
+            if (sender is Button btn && btn.Tag is ModTile tile)
             {
-                // Validate mod directory name for security
-                if (!SecurityValidator.IsValidModDirectoryName(mod.Directory))
+                // Validate directory name for security
+                if (!SecurityValidator.IsValidModDirectoryName(tile.Directory))
                     return;
 
-                // Find the mod folder in the new category-based structure
-                var modLibraryDir = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory;
-                if (string.IsNullOrWhiteSpace(modLibraryDir))
-                    modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                string folderPath;
                 
-                string? modFolderPath = FindModFolderPath(modLibraryDir, mod.Directory);
+                if (tile.IsCategory)
+                {
+                    // Open category folder
+                    var gameTag = SettingsManager.CurrentSelectedGame;
+                    if (string.IsNullOrEmpty(gameTag)) return;
+                    
+                    var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
+                    folderPath = PathManager.GetAbsolutePath(Path.Combine(gameModLibraryPath, tile.Directory));
+                }
+                else
+                {
+                    // Find the mod folder in the new category-based structure
+                    var modLibraryDir = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory;
+                    if (string.IsNullOrWhiteSpace(modLibraryDir))
+                        modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                    
+                    folderPath = FindModFolderPath(modLibraryDir, tile.Directory) ?? "";
+                }
                 
-                if (!string.IsNullOrEmpty(modFolderPath) && Directory.Exists(modFolderPath))
+                if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
                 {
                     var psi = new System.Diagnostics.ProcessStartInfo
                     {
                         FileName = "explorer.exe",
-                        Arguments = $"\"{modFolderPath}\"",
+                        Arguments = $"\"{folderPath}\"",
                         UseShellExecute = true
                     };
                     System.Diagnostics.Process.Start(psi);
@@ -1792,20 +1974,28 @@ namespace FlairX_Mod_Manager.Pages
 
         private void ModName_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Button btn && btn.Tag is ModTile mod)
+            if (sender is Button btn && btn.Tag is ModTile tile)
             {
-                // Validate mod directory name for security
-                if (!SecurityValidator.IsValidModDirectoryName(mod.Directory))
-                    return;
-
-                // Navigate to mod details page, pass both directory and current category
-                var frame = this.Frame;
-                var navParam = new FlairX_Mod_Manager.Pages.ModDetailPage.ModDetailNav
+                if (tile.IsCategory)
                 {
-                    ModDirectory = mod.Directory ?? string.Empty,
-                    Category = _currentCategory ?? string.Empty
-                };
-                frame?.Navigate(typeof(FlairX_Mod_Manager.Pages.ModDetailPage), navParam);
+                    // Handle category click - load that category but don't change view mode
+                    LoadModsByCategory(tile.Directory);
+                }
+                else
+                {
+                    // Validate mod directory name for security
+                    if (!SecurityValidator.IsValidModDirectoryName(tile.Directory))
+                        return;
+
+                    // Navigate to mod details page, pass both directory and current category
+                    var frame = this.Frame;
+                    var navParam = new FlairX_Mod_Manager.Pages.ModDetailPage.ModDetailNav
+                    {
+                        ModDirectory = tile.Directory ?? string.Empty,
+                        Category = _currentCategory ?? string.Empty
+                    };
+                    frame?.Navigate(typeof(FlairX_Mod_Manager.Pages.ModDetailPage), navParam);
+                }
             }
         }
 
