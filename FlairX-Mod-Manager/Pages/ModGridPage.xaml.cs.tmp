@@ -444,9 +444,6 @@ namespace FlairX_Mod_Manager.Pages
             (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary();
             this.Loaded += ModGridPage_Loaded;
             
-            // Use AddHandler with handledEventsToo to catch mouse back button even if handled by child elements
-            this.AddHandler(PointerPressedEvent, new PointerEventHandler(ModGridPage_PointerPressed), handledEventsToo: true);
-            
             // Load saved zoom level from settings
             _zoomFactor = FlairX_Mod_Manager.SettingsManager.Current.ZoomLevel;
             
@@ -1048,9 +1045,7 @@ namespace FlairX_Mod_Manager.Pages
             if (e.Parameter is string modName && !string.IsNullOrEmpty(modName))
             {
                 // Open mod details for given name using new category-based structure
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory(); if (string.IsNullOrEmpty(modLibraryPath)) modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 var modDir = FindModFolderPath(modLibraryPath, modName);
                 if (!string.IsNullOrEmpty(modDir))
                 {
@@ -1323,29 +1318,9 @@ namespace FlairX_Mod_Manager.Pages
             // UpdateMainWindowButtonText(); // Don't interfere with MainWindow button state
         }
 
-        private void ModGridPage_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            // Check if it's the back button on the mouse (XButton1) and back button is visible
-            if (e.Pointer.PointerDeviceType == Microsoft.UI.Input.PointerDeviceType.Mouse)
-            {
-                var properties = e.GetCurrentPoint(this).Properties;
-                if (properties.IsXButton1Pressed && CategoryBackButton.Visibility == Visibility.Visible)
-                {
-                    // Use dispatcher to ensure it runs on UI thread and doesn't get blocked
-                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.High, () =>
-                    {
-                        CategoryBackButton_Click(this, new RoutedEventArgs());
-                    });
-                    e.Handled = true;
-                }
-            }
-        }
-
         private void LoadCategoryModData(string category)
         {
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory(); if (string.IsNullOrEmpty(modLibraryPath)) modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             if (!Directory.Exists(modLibraryPath)) return;
             
             _allModData.Clear();
@@ -1404,9 +1379,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog($"LoadMods() called for character: {character}");
             
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory(); if (string.IsNullOrEmpty(modLibraryPath)) modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             if (!Directory.Exists(modLibraryPath)) return;
             
             var mods = new List<ModTile>();
@@ -1493,9 +1466,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private void LoadAllModData()
         {
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory(); if (string.IsNullOrEmpty(modLibraryPath)) modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             if (!Directory.Exists(modLibraryPath)) return;
             
             _allModData.Clear();
@@ -1825,7 +1796,7 @@ namespace FlairX_Mod_Manager.Pages
                     return;
 
                 // Always use current path from settings
-                var modsDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+                var modsDir = FlairX_Mod_Manager.SettingsManager.Current.XXMIModsDirectory;
                 if (string.IsNullOrWhiteSpace(modsDir))
                     modsDir = Path.Combine(AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
                 var modsDirFull = Path.GetFullPath(modsDir);
@@ -1837,9 +1808,7 @@ namespace FlairX_Mod_Manager.Pages
                 var linkPath = Path.Combine(modsDirFull, mod.Directory);
                 
                 // Find the mod folder in the new category-based structure
-                var modLibraryDir = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryDir))
-                    modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modLibraryDir = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory(); if (string.IsNullOrEmpty(modLibraryPath)) modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 var absModDir = FindModFolderPath(modLibraryDir, mod.Directory);
                 
                 if (string.IsNullOrEmpty(absModDir))
@@ -1946,7 +1915,7 @@ namespace FlairX_Mod_Manager.Pages
                 else
                 {
                     // Find the mod folder in the new category-based structure
-                    var modLibraryDir = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                    var modLibraryDir = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory;
                     if (string.IsNullOrWhiteSpace(modLibraryDir))
                         modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                     
@@ -2033,7 +2002,7 @@ namespace FlairX_Mod_Manager.Pages
                     return;
 
                 // Get mod folder path using the new category-based structure
-                var modLibraryDir = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                var modLibraryDir = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory;
                 if (string.IsNullOrWhiteSpace(modLibraryDir))
                     modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 
@@ -2253,15 +2222,13 @@ namespace FlairX_Mod_Manager.Pages
 
         public static void RecreateSymlinksFromActiveMods()
         {
-            var modsDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+            var modsDir = FlairX_Mod_Manager.SettingsManager.Current.XXMIModsDirectory;
             var defaultModsDir = Path.Combine(AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
             if (string.IsNullOrWhiteSpace(modsDir))
                 modsDir = defaultModsDir;
             var modsDirFull = Path.GetFullPath(modsDir);
             var defaultModsDirFull = Path.GetFullPath(defaultModsDir);
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory(); if (string.IsNullOrEmpty(modLibraryPath)) modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
 
             // Remove symlinks from old location (SymlinkState)
             var symlinkStatePath = Path.Combine(AppContext.BaseDirectory, "Settings", "SymlinkState.json");
@@ -2384,9 +2351,7 @@ namespace FlairX_Mod_Manager.Pages
 
         public void SaveDefaultPresetAllInactive()
         {
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory(); if (string.IsNullOrEmpty(modLibraryPath)) modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             var allMods = new Dictionary<string, bool>();
             if (Directory.Exists(modLibraryPath))
             {
@@ -2475,9 +2440,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog("INCREMENTAL: Starting incremental mod refresh");
             
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory(); if (string.IsNullOrEmpty(modLibraryPath)) modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             if (!Directory.Exists(modLibraryPath)) return;
             
             var changedMods = new List<string>();
@@ -2602,9 +2565,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             // targetPath powinien by� zawsze pe�n� �cie�k� do katalogu moda w bibliotece mod�w
             // Je�li targetPath jest nazw� katalogu, zbuduj pe�n� �cie�k� 
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory(); if (string.IsNullOrEmpty(modLibraryPath)) modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
             if (!Directory.Exists(targetPath))
             {
                 targetPath = Path.Combine(modLibraryPath, Path.GetFileName(targetPath));
@@ -2642,14 +2603,12 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogInfo("Starting symlink validation and repair");
                 
-                var modsDir = SettingsManager.GetCurrentXXMIModsDirectory();
+                var modsDir = SettingsManager.Current.XXMIModsDirectory;
                 if (string.IsNullOrWhiteSpace(modsDir))
                     modsDir = Path.Combine(AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
                 
                 var modsDirFull = Path.GetFullPath(modsDir);
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modLibraryPath = SettingsManager.Current.ModLibraryDirectory ?? Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 
                 // Load active mods using game-specific path
                 var activeModsPath = PathManager.GetActiveModsPath();

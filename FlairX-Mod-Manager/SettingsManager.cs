@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 
@@ -7,8 +8,13 @@ namespace FlairX_Mod_Manager
     public class Settings
     {
         public string? LanguageFile { get; set; }
-        public string? XXMIModsDirectory { get; set; } = AppConstants.DEFAULT_XXMI_MODS_PATH;
+        public string? XXMIRootDirectory { get; set; } = @".\XXMI"; // Root XXMI directory
+        public string? XXMIModsDirectory { get; set; } = AppConstants.DEFAULT_XXMI_MODS_PATH; // Keep for backward compatibility
         public string? ModLibraryDirectory { get; set; } = AppConstants.DEFAULT_MOD_LIBRARY_PATH;
+        
+        // Per-game path settings
+        public Dictionary<string, string> GameXXMIRootPaths { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> GameModLibraryPaths { get; set; } = new Dictionary<string, string>();
         public string? Theme { get; set; } = "Auto";
         public string? BackdropEffect { get; set; } = "AcrylicThin";
         public bool DynamicModSearchEnabled { get; set; } = true;
@@ -103,8 +109,13 @@ namespace FlairX_Mod_Manager
             // Get current game tag to restore game-specific defaults
             string gameTag = GetGameTagFromIndex(Current.SelectedGameIndex);
             
-            Current.XXMIModsDirectory = AppConstants.GameConfig.GetModsPath(gameTag);
-            Current.ModLibraryDirectory = AppConstants.GameConfig.GetModLibraryPath(gameTag);
+            // Remove custom paths for current game to use defaults
+            if (!string.IsNullOrEmpty(gameTag))
+            {
+                Current.GameXXMIRootPaths.Remove(gameTag);
+                Current.GameModLibraryPaths.Remove(gameTag);
+            }
+            
             Current.StatusKeeperD3dxUserIniPath = AppConstants.GameConfig.GetD3dxUserIniPath(gameTag);
             Current.Theme = "Auto";
             Current.ShowOrangeAnimation = true;
@@ -151,8 +162,7 @@ namespace FlairX_Mod_Manager
             string gameTag = GetGameTagFromIndex(gameIndex);
             System.Diagnostics.Debug.WriteLine($"SwitchGame: Setting SelectedGameIndex to {gameIndex} (tag: '{gameTag}')");
             Current.SelectedGameIndex = gameIndex;
-            Current.XXMIModsDirectory = AppConstants.GameConfig.GetModsPath(gameTag);
-            Current.ModLibraryDirectory = AppConstants.GameConfig.GetModLibraryPath(gameTag);
+            // Don't change paths - they are now managed per-game automatically
             Current.StatusKeeperD3dxUserIniPath = AppConstants.GameConfig.GetD3dxUserIniPath(gameTag);
             
             // Only create directories if a game is selected (index > 0)
@@ -160,10 +170,13 @@ namespace FlairX_Mod_Manager
             {
                 try
                 {
-                    if (!string.IsNullOrEmpty(Current.XXMIModsDirectory))
-                        System.IO.Directory.CreateDirectory(Current.XXMIModsDirectory);
-                    if (!string.IsNullOrEmpty(Current.ModLibraryDirectory))
-                        System.IO.Directory.CreateDirectory(Current.ModLibraryDirectory);
+                    string xxmiModsDir = GetCurrentXXMIModsDirectory();
+                    string modLibraryDir = GetCurrentModLibraryDirectory();
+                    
+                    if (!string.IsNullOrEmpty(xxmiModsDir))
+                        System.IO.Directory.CreateDirectory(xxmiModsDir);
+                    if (!string.IsNullOrEmpty(modLibraryDir))
+                        System.IO.Directory.CreateDirectory(modLibraryDir);
                     
                     // Create presets directory for the selected game
                     string presetsPath = AppConstants.GameConfig.GetPresetsPath(gameTag);
@@ -183,9 +196,89 @@ namespace FlairX_Mod_Manager
             System.Diagnostics.Debug.WriteLine($"SwitchGame: Saved settings with SelectedGameIndex = {Current.SelectedGameIndex}");
         }
 
-        public static string XXMIModsDirectorySafe => Current.XXMIModsDirectory ?? string.Empty;
-        public static string ModLibraryDirectorySafe => Current.ModLibraryDirectory ?? string.Empty;
+        public static string XXMIModsDirectorySafe => GetCurrentXXMIModsDirectory();
+        public static string ModLibraryDirectorySafe => GetCurrentModLibraryDirectory();
         public static string CurrentSelectedGame => GetGameTagFromIndex(Current.SelectedGameIndex);
+        
+        // Get current XXMI mods directory with per-game support and fallback
+        public static string GetCurrentXXMIModsDirectory()
+        {
+            string gameTag = GetGameTagFromIndex(Current.SelectedGameIndex);
+            
+            // If no game selected, use legacy path
+            if (string.IsNullOrEmpty(gameTag))
+                return Current.XXMIModsDirectory ?? string.Empty;
+            
+            // Check if we have a custom XXMI root path for this game
+            if (Current.GameXXMIRootPaths.TryGetValue(gameTag, out string? customXXMIRoot) && 
+                !string.IsNullOrEmpty(customXXMIRoot) && Directory.Exists(customXXMIRoot))
+            {
+                // Build mods path from custom XXMI root
+                return Path.Combine(customXXMIRoot, gameTag, "Mods");
+            }
+            
+            // Fallback to default game-specific path
+            return AppConstants.GameConfig.GetModsPath(gameTag);
+        }
+        
+        // Get current mod library directory with per-game support and fallback
+        public static string GetCurrentModLibraryDirectory()
+        {
+            string gameTag = GetGameTagFromIndex(Current.SelectedGameIndex);
+            
+            // If no game selected, use legacy path
+            if (string.IsNullOrEmpty(gameTag))
+                return Current.ModLibraryDirectory ?? string.Empty;
+            
+            // Check if we have a custom mod library path for this game
+            if (Current.GameModLibraryPaths.TryGetValue(gameTag, out string? customPath) && 
+                !string.IsNullOrEmpty(customPath) && Directory.Exists(customPath))
+            {
+                return customPath;
+            }
+            
+            // Fallback to default game-specific path
+            return AppConstants.GameConfig.GetModLibraryPath(gameTag);
+        }
+        
+        // Set XXMI root directory for current game
+        public static void SetCurrentGameXXMIRoot(string xxmiRootPath)
+        {
+            string gameTag = GetGameTagFromIndex(Current.SelectedGameIndex);
+            if (!string.IsNullOrEmpty(gameTag))
+            {
+                Current.GameXXMIRootPaths[gameTag] = xxmiRootPath;
+                Save();
+            }
+        }
+        
+        // Set mod library directory for current game
+        public static void SetCurrentGameModLibrary(string modLibraryPath)
+        {
+            string gameTag = GetGameTagFromIndex(Current.SelectedGameIndex);
+            if (!string.IsNullOrEmpty(gameTag))
+            {
+                Current.GameModLibraryPaths[gameTag] = modLibraryPath;
+                Save();
+            }
+        }
+        
+        // Get XXMI root directory for current game (for display purposes)
+        public static string GetCurrentGameXXMIRoot()
+        {
+            string gameTag = GetGameTagFromIndex(Current.SelectedGameIndex);
+            if (string.IsNullOrEmpty(gameTag))
+                return Current.XXMIRootDirectory ?? @".\XXMI";
+            
+            if (Current.GameXXMIRootPaths.TryGetValue(gameTag, out string? customPath) && 
+                !string.IsNullOrEmpty(customPath))
+            {
+                return customPath;
+            }
+            
+            // Return default XXMI root
+            return @".\XXMI";
+        }
         public static bool ShowOrangeAnimation
         {
             get => Current?.ShowOrangeAnimation ?? true;

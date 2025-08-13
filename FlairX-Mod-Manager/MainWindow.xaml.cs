@@ -341,7 +341,7 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo("Shuffle active mods hotkey triggered");
                 
                 // Get mod library path
-                var modLibraryPath = SettingsManager.Current.ModLibraryDirectory;
+                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
                 if (string.IsNullOrWhiteSpace(modLibraryPath))
                     modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 
@@ -472,7 +472,7 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo("Deactivate all mods hotkey triggered");
                 
                 // Get mod library path
-                var modLibraryPath = SettingsManager.Current.ModLibraryDirectory;
+                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
                 if (string.IsNullOrWhiteSpace(modLibraryPath))
                     modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 
@@ -612,7 +612,7 @@ namespace FlairX_Mod_Manager
         private string GetXXMILauncherPath()
         {
             // Try to derive launcher path from XXMI Mods Directory setting
-            var xxmiModsDir = FlairX_Mod_Manager.SettingsManager.Current.XXMIModsDirectory;
+            var xxmiModsDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
             
             if (!string.IsNullOrEmpty(xxmiModsDir))
             {
@@ -787,8 +787,8 @@ namespace FlairX_Mod_Manager
                 }
                 
                 System.Diagnostics.Debug.WriteLine($"Game restored successfully. Current paths:");
-                System.Diagnostics.Debug.WriteLine($"  Mods: '{SettingsManager.Current.XXMIModsDirectory}'");
-                System.Diagnostics.Debug.WriteLine($"  ModLibrary: '{SettingsManager.Current.ModLibraryDirectory}'");
+                System.Diagnostics.Debug.WriteLine($"  Mods: '{SettingsManager.GetCurrentXXMIModsDirectory()}'");
+                System.Diagnostics.Debug.WriteLine($"  ModLibrary: '{SettingsManager.GetCurrentModLibraryDirectory()}'");
             }
             
             System.Diagnostics.Debug.WriteLine("RestoreGameSelection: Completed");
@@ -1763,7 +1763,7 @@ namespace FlairX_Mod_Manager
 
         private void OpenModLibraryButton_Click(object sender, RoutedEventArgs e)
         {
-            var modLibraryPath = SettingsManager.Current.ModLibraryDirectory;
+            var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
             
             // If no game selected or path is empty, fall back to root ModLibrary
             if (string.IsNullOrEmpty(modLibraryPath))
@@ -2012,7 +2012,7 @@ namespace FlairX_Mod_Manager
             try
             {
                 // Get current XXMI mods directory (before switching)
-                var currentModsDir = SettingsManager.Current.XXMIModsDirectory;
+                var currentModsDir = SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrWhiteSpace(currentModsDir))
                     return;
                 
@@ -2174,8 +2174,8 @@ namespace FlairX_Mod_Manager
                 }
                 
                 System.Diagnostics.Debug.WriteLine($"Game switched successfully. New paths:");
-                System.Diagnostics.Debug.WriteLine($"  Mods: '{SettingsManager.Current.XXMIModsDirectory}'");
-                System.Diagnostics.Debug.WriteLine($"  ModLibrary: '{SettingsManager.Current.ModLibraryDirectory}'");
+                System.Diagnostics.Debug.WriteLine($"  Mods: '{SettingsManager.GetCurrentXXMIModsDirectory()}'");
+                System.Diagnostics.Debug.WriteLine($"  ModLibrary: '{SettingsManager.GetCurrentModLibraryDirectory()}'");
                 System.Diagnostics.Debug.WriteLine($"  D3DX INI: '{SettingsManager.Current.StatusKeeperD3dxUserIniPath}'");
             }
         }

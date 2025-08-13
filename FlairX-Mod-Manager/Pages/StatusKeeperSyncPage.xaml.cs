@@ -457,10 +457,12 @@ namespace FlairX_Mod_Manager.Pages
 
             // Try to find d3dx_user.ini automatically using current game settings
             var currentGame = SettingsManager.CurrentSelectedGame ?? "ZZMI";
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory ?? 
-                                Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-            var xxmiModsPath = FlairX_Mod_Manager.SettingsManager.Current.XXMIModsDirectory ?? 
-                              Path.Combine(AppContext.BaseDirectory, "XXMI", currentGame, "Mods");
+            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+            if (string.IsNullOrEmpty(modLibraryPath))
+                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            var xxmiModsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+            if (string.IsNullOrEmpty(xxmiModsPath))
+                xxmiModsPath = Path.Combine(AppContext.BaseDirectory, "XXMI", currentGame, "Mods");
 
             var tryPaths = new string[]
             {

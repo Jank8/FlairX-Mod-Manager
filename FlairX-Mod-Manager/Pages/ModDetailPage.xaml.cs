@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Input;
 using System.IO;
 using System.Text.Json;
 using System.Linq;
@@ -30,6 +31,20 @@ namespace FlairX_Mod_Manager.Pages
             this.InitializeComponent();
             this.Loaded += ModDetailPage_Loaded;
             this.ActualThemeChanged += ModDetailPage_ActualThemeChanged;
+            
+            // Try multiple event types for maximum reliability
+            this.AddHandler(PointerPressedEvent, new PointerEventHandler(ModDetailPage_PointerPressed), handledEventsToo: true);
+            this.AddHandler(PointerReleasedEvent, new PointerEventHandler(ModDetailPage_PointerReleased), handledEventsToo: true);
+            
+            // Also add to the main grid after it's loaded
+            this.Loaded += (s, e) => 
+            {
+                if (MainGrid != null)
+                {
+                    MainGrid.AddHandler(PointerPressedEvent, new PointerEventHandler(MainGrid_PointerPressed), handledEventsToo: true);
+                    MainGrid.AddHandler(PointerReleasedEvent, new PointerEventHandler(MainGrid_PointerReleased), handledEventsToo: true);
+                }
+            };
         }
 
         /// <summary>
@@ -66,7 +81,7 @@ namespace FlairX_Mod_Manager.Pages
             ModDateCheckedLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_DateChecked");
             ModDateUpdatedLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_DateUpdated");
             ModAuthorLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Author");
-            ModCharacterLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Character");
+
             ModHotkeysLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Hotkeys");
             ModUrlLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_URL");
             
@@ -86,11 +101,15 @@ namespace FlairX_Mod_Manager.Pages
                 modDir = modDirStr;
                 _categoryParam = null;
             }
-            string modLibraryPath = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory ?? string.Empty;
+            string modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
             if (string.IsNullOrEmpty(modLibraryPath))
             {
                 modLibraryPath = PathManager.GetModLibraryPath();
             }
+            
+            System.Diagnostics.Debug.WriteLine($"ModDetailPage: Using mod library path: {modLibraryPath}");
+            System.Diagnostics.Debug.WriteLine($"ModDetailPage: Current game: {SettingsManager.CurrentSelectedGame}");
+            System.Diagnostics.Debug.WriteLine($"ModDetailPage: Requested mod directory: {modDir}");
             
             if (Directory.Exists(modLibraryPath))
             {
@@ -141,13 +160,19 @@ namespace FlairX_Mod_Manager.Pages
                     else
                     {
                         // Find the mod in the category-based structure
+                        System.Diagnostics.Debug.WriteLine($"ModDetailPage: Searching for mod '{modDir}' in library: {modLibraryPath}");
                         fullModDir = FindModFolderPath(modLibraryPath, modDir);
+                        System.Diagnostics.Debug.WriteLine($"ModDetailPage: FindModFolderPath returned: {fullModDir ?? "null"}");
                     }
                     
                     if (!string.IsNullOrEmpty(fullModDir) && Directory.Exists(fullModDir))
                     {
                         modName = Path.GetFileName(fullModDir);
                         _modJsonPath = Path.Combine(fullModDir, "mod.json");
+                        
+                        System.Diagnostics.Debug.WriteLine($"ModDetailPage: Found mod directory: {fullModDir}");
+                        System.Diagnostics.Debug.WriteLine($"ModDetailPage: Looking for mod.json at: {_modJsonPath}");
+                        
                         if (File.Exists(_modJsonPath))
                     {
                         var json = File.ReadAllText(_modJsonPath);
@@ -228,10 +253,34 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     else
                     {
-                        System.Diagnostics.Debug.WriteLine($"Could not find mod directory: {modDir}");
+                        System.Diagnostics.Debug.WriteLine($"Could not find mod directory: {modDir} in library: {modLibraryPath}");
+                        System.Diagnostics.Debug.WriteLine($"Available categories in library:");
+                        try
+                        {
+                            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                            {
+                                System.Diagnostics.Debug.WriteLine($"  - {Path.GetFileName(categoryDir)}");
+                                var modsInCategory = Directory.GetDirectories(categoryDir);
+                                foreach (var modInCategory in modsInCategory)
+                                {
+                                    System.Diagnostics.Debug.WriteLine($"    - {Path.GetFileName(modInCategory)}");
+                                }
+                            }
+                        }
+                        catch (Exception debugEx)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Error listing directories: {debugEx.Message}");
+                        }
+                        
                         // Set default values when mod not found
                         ModImage.Source = null;
                         ModHotkeysList.ItemsSource = null;
+                        ModAuthorTextBox.Text = "";
+                        ModCharacterTextBox.Text = "";
+                        ModUrlTextBox.Text = "";
+                        ModVersionTextBox.Text = "";
+                        ModDateCheckedPicker.Date = null;
+                        ModDateUpdatedPicker.Date = null;
                     }
                 }
                 catch (Exception ex)
@@ -280,6 +329,75 @@ namespace FlairX_Mod_Manager.Pages
                 else
                 {
                     ModImageBorder.BorderBrush = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255));
+                }
+            }
+        }
+
+        private void ModDetailPage_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            // Check if it's the back button on the mouse (XButton1)
+            if (e.Pointer.PointerDeviceType == Microsoft.UI.Input.PointerDeviceType.Mouse)
+            {
+                var properties = e.GetCurrentPoint(this).Properties;
+                if (properties.IsXButton1Pressed)
+                {
+                    // Use dispatcher to ensure it runs on UI thread and doesn't get blocked
+                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.High, () =>
+                    {
+                        BackButton_Click(this, new RoutedEventArgs());
+                    });
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void ModDetailPage_PointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            // Try handling on pointer released instead of pressed
+            if (e.Pointer.PointerDeviceType == Microsoft.UI.Input.PointerDeviceType.Mouse)
+            {
+                var properties = e.GetCurrentPoint(this).Properties;
+                if (properties.IsXButton1Pressed)
+                {
+                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.High, () =>
+                    {
+                        BackButton_Click(this, new RoutedEventArgs());
+                    });
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void MainGrid_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            // Additional handler on the main grid to catch mouse back button
+            if (e.Pointer.PointerDeviceType == Microsoft.UI.Input.PointerDeviceType.Mouse)
+            {
+                var properties = e.GetCurrentPoint(MainGrid).Properties;
+                if (properties.IsXButton1Pressed)
+                {
+                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.High, () =>
+                    {
+                        BackButton_Click(this, new RoutedEventArgs());
+                    });
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void MainGrid_PointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            // Additional handler on the main grid to catch mouse back button on release
+            if (e.Pointer.PointerDeviceType == Microsoft.UI.Input.PointerDeviceType.Mouse)
+            {
+                var properties = e.GetCurrentPoint(MainGrid).Properties;
+                if (properties.IsXButton1Pressed)
+                {
+                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.High, () =>
+                    {
+                        BackButton_Click(this, new RoutedEventArgs());
+                    });
+                    e.Handled = true;
                 }
             }
         }

@@ -96,8 +96,8 @@ namespace FlairX_Mod_Manager.Pages
             ActiveModsToTopToggle.IsOn = SettingsManager.Current.ActiveModsToTopEnabled;
             
             // Set BreadcrumbBar paths
-            SetBreadcrumbBar(XXMIModsDirectoryBreadcrumb, SettingsManager.XXMIModsDirectorySafe);
-            SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, SettingsManager.Current.ModLibraryDirectory ?? string.Empty);
+            SetBreadcrumbBar(XXMIRootDirectoryBreadcrumb, SettingsManager.GetCurrentGameXXMIRoot());
+            SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, SettingsManager.GetCurrentModLibraryDirectory());
             
             // Set hotkey values from settings
             OptimizePreviewsHotkeyTextBox.Text = SettingsManager.Current.OptimizePreviewsHotkey;
@@ -207,22 +207,25 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void XXMIModsDirectoryDefaultButton_Click(object sender, RoutedEventArgs e)
+        private void XXMIRootDirectoryDefaultButton_Click(object sender, RoutedEventArgs e)
         {
-            var defaultPath = AppConstants.DEFAULT_XXMI_MODS_PATH;
-            var currentPath = SettingsManager.Current.XXMIModsDirectory;
-            
-            // If already default, do nothing
-            if (string.IsNullOrWhiteSpace(currentPath) || 
-                string.Equals(Path.GetFullPath(currentPath), Path.GetFullPath(defaultPath), StringComparison.OrdinalIgnoreCase))
+            string gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+            if (string.IsNullOrEmpty(gameTag))
                 return;
 
-            // Clean up symlinks from current (non-default) directory before switching
-            var currentFullPath = Path.GetFullPath(currentPath);
-            if (Directory.Exists(currentFullPath))
+            var currentModsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+            var defaultXXMIRoot = @".\XXMI";
+            var defaultModsPath = AppConstants.GameConfig.GetModsPath(gameTag);
+            
+            // If already using default, do nothing
+            if (string.Equals(Path.GetFullPath(currentModsPath), Path.GetFullPath(defaultModsPath), StringComparison.OrdinalIgnoreCase))
+                return;
+
+            // Clean up symlinks from current directory before switching
+            if (Directory.Exists(currentModsPath))
             {
-                Logger.LogInfo($"Cleaning up symlinks from current directory: {currentFullPath}");
-                foreach (var dir in Directory.GetDirectories(currentFullPath))
+                Logger.LogInfo($"Cleaning up symlinks from current directory: {currentModsPath}");
+                foreach (var dir in Directory.GetDirectories(currentModsPath))
                 {
                     if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
                     {
@@ -239,22 +242,21 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
 
-            // Restore only XXMI mods directory to game-specific default
-            string gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
-            var newDefaultPath = AppConstants.GameConfig.GetModsPath(gameTag);
-            SettingsManager.Current.XXMIModsDirectory = newDefaultPath;
+            // Remove custom XXMI root for current game to use default
+            SettingsManager.Current.GameXXMIRootPaths.Remove(gameTag);
             SettingsManager.Save();
-            SetBreadcrumbBar(XXMIModsDirectoryBreadcrumb, newDefaultPath);
+            
+            SetBreadcrumbBar(XXMIRootDirectoryBreadcrumb, defaultXXMIRoot);
             FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
             
-            Logger.LogInfo($"Restored XXMI directory to game-specific default: {newDefaultPath}");
+            Logger.LogInfo($"Restored XXMI root to default: {defaultXXMIRoot}");
         }
 
         private void ModLibraryDirectoryDefaultButton_Click(object sender, RoutedEventArgs e)
         {
             // If already default, do nothing
             var defaultPath = AppConstants.DEFAULT_MOD_LIBRARY_PATH;
-            var currentPath = SettingsManager.Current.ModLibraryDirectory;
+            var currentPath = SettingsManager.GetCurrentModLibraryDirectory();
             
             Logger.LogInfo($"Restore default mod library button clicked. Current: '{currentPath}', Default: '{defaultPath}'");
             
@@ -299,12 +301,16 @@ namespace FlairX_Mod_Manager.Pages
             }
             FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
 
-            // Restore only mod library directory to game-specific default
+            // Remove custom mod library path for current game to use default
             string gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
-            var newDefaultPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
-            SettingsManager.Current.ModLibraryDirectory = newDefaultPath;
-            SettingsManager.Save();
-            SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, newDefaultPath);
+            if (!string.IsNullOrEmpty(gameTag))
+            {
+                SettingsManager.Current.GameModLibraryPaths.Remove(gameTag);
+                SettingsManager.Save();
+                
+                var newDefaultPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
+                SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, newDefaultPath);
+            }
 
             // Refresh manager
             if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
@@ -349,14 +355,16 @@ namespace FlairX_Mod_Manager.Pages
             {
                 System.Diagnostics.Debug.WriteLine("BackdropSelectorNoneText is null!");
             }
-            XXMIModsDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIModsDirectory");
+            XXMIRootDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory");
             ModLibraryDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModLibraryDirectory");
-            ToolTipService.SetToolTip(XXMIModsDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
+            ToolTipService.SetToolTip(XXMIRootDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
             ToolTipService.SetToolTip(ModLibraryDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
             ToolTipService.SetToolTip(OptimizePreviewsButton, SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Tooltip"));
             OptimizePreviewsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
-            ToolTipService.SetToolTip(XXMIModsDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
+            ToolTipService.SetToolTip(XXMIRootDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
             ToolTipService.SetToolTip(ModLibraryDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
+            ToolTipService.SetToolTip(XXMIRootDirectoryBreadcrumb, SharedUtilities.GetTranslation(lang, "OpenDirectory_Tooltip"));
+            ToolTipService.SetToolTip(ModLibraryDirectoryBreadcrumb, SharedUtilities.GetTranslation(lang, "OpenDirectory_Tooltip"));
             ToolTipService.SetToolTip(DynamicModSearchToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Tooltip"));
             // Update About button text
             AboutButtonText.Text = SharedUtilities.GetTranslation(lang, "AboutButton_Label");
@@ -372,7 +380,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             await Task.Run(() =>
             {
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory;
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
                 if (string.IsNullOrEmpty(modLibraryPath) || !Directory.Exists(modLibraryPath)) return;
                 foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
                 {
@@ -781,7 +789,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             // Explicitly remove all symlinks from XXMI directory
-            var xxmiDir = SettingsManager.Current.XXMIModsDirectory;
+            var xxmiDir = SettingsManager.GetCurrentXXMIModsDirectory();
             if (string.IsNullOrWhiteSpace(xxmiDir))
                 xxmiDir = Path.Combine(AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
             
@@ -812,7 +820,7 @@ namespace FlairX_Mod_Manager.Pages
             Logger.LogInfo("Safety cleanup completed");
         }
 
-        private async Task XXMIModsDirectoryPickButton_ClickAsync(Button senderButton)
+        private async Task XXMIRootDirectoryPickButton_ClickAsync(Button senderButton)
         {
             senderButton.IsEnabled = false;
             try
@@ -824,58 +832,48 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     if (!IsNtfs(folderPath))
                         ShowNtfsWarning(folderPath, "XXMI");
-                    // Clean up symlinks from current directory before switching to new one
-                    var currentPath = SettingsManager.Current.XXMIModsDirectory;
-                    if (!string.IsNullOrWhiteSpace(currentPath))
+                    
+                    // Clean up symlinks from current mods directory before switching
+                    var currentModsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                    if (Directory.Exists(currentModsPath))
                     {
-                        var currentFullPath = Path.GetFullPath(currentPath);
-                        var newFullPath = Path.GetFullPath(folderPath);
-                        
-                        // Only clean up if we're actually changing to a different directory
-                        if (!string.Equals(currentFullPath, newFullPath, StringComparison.OrdinalIgnoreCase))
+                        Logger.LogInfo($"Cleaning up symlinks from current XXMI mods directory: {currentModsPath}");
+                        foreach (var dir in Directory.GetDirectories(currentModsPath))
                         {
-                            if (Directory.Exists(currentFullPath))
+                            if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
                             {
-                                Logger.LogInfo($"Cleaning up symlinks from current XXMI directory: {currentFullPath}");
-                                foreach (var dir in Directory.GetDirectories(currentFullPath))
+                                try
                                 {
-                                    if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
-                                    {
-                                        try
-                                        {
-                                            Directory.Delete(dir, true);
-                                            Logger.LogInfo($"Removed symlink: {dir}");
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Logger.LogError($"Failed to remove symlink: {dir}", ex);
-                                        }
-                                    }
+                                    Directory.Delete(dir, true);
+                                    Logger.LogInfo($"Removed symlink: {dir}");
+                                }
+                                catch (Exception ex)
+                                {
+                                    Logger.LogError($"Failed to remove symlink: {dir}", ex);
                                 }
                             }
                         }
                     }
                     
-                    // Update settings and recreate symlinks in new location
-                    SettingsManager.Current.XXMIModsDirectory = folderPath;
-                    SettingsManager.Save();
-                    SetBreadcrumbBar(XXMIModsDirectoryBreadcrumb, folderPath);
+                    // Set XXMI root for current game
+                    SettingsManager.SetCurrentGameXXMIRoot(folderPath);
+                    SetBreadcrumbBar(XXMIRootDirectoryBreadcrumb, folderPath);
                     FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
                     
-                    Logger.LogInfo($"Changed XXMI directory to: {folderPath}");
+                    Logger.LogInfo($"Changed XXMI root directory to: {folderPath}");
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to change XXMI directory", ex);
+                Logger.LogError("Failed to change XXMI root directory", ex);
             }
             senderButton.IsEnabled = true;
         }
 
-        private async void XXMIModsDirectoryPickButton_Click(object sender, RoutedEventArgs e)
+        private async void XXMIRootDirectoryPickButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button senderButton)
-                await XXMIModsDirectoryPickButton_ClickAsync(senderButton);
+                await XXMIRootDirectoryPickButton_ClickAsync(senderButton);
         }
 
         private async Task ModLibraryDirectoryPickButton_ClickAsync(Button senderButton)
@@ -906,8 +904,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
 
-                    SettingsManager.Current.ModLibraryDirectory = folderPath;
-                    SettingsManager.Save();
+                    SettingsManager.SetCurrentGameModLibrary(folderPath);
                     SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, folderPath);
 
                     // Create default mod.json in subdirectories
@@ -1165,6 +1162,56 @@ namespace FlairX_Mod_Manager.Pages
                 hotkeyParts.Add(key.ToString());
                 
                 textBox.Text = string.Join("+", hotkeyParts);
+            }
+        }
+
+        private void XXMIRootDirectoryBreadcrumb_ItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
+        {
+            try
+            {
+                var xxmiRootPath = SettingsManager.GetCurrentGameXXMIRoot();
+                if (!string.IsNullOrEmpty(xxmiRootPath) && Directory.Exists(xxmiRootPath))
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = xxmiRootPath,
+                        UseShellExecute = true
+                    });
+                    Logger.LogInfo($"Opened XXMI root directory: {xxmiRootPath}");
+                }
+                else
+                {
+                    Logger.LogWarning($"XXMI root directory does not exist: {xxmiRootPath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to open XXMI root directory", ex);
+            }
+        }
+
+        private void ModLibraryDirectoryBreadcrumb_ItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
+        {
+            try
+            {
+                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
+                if (!string.IsNullOrEmpty(modLibraryPath) && Directory.Exists(modLibraryPath))
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = modLibraryPath,
+                        UseShellExecute = true
+                    });
+                    Logger.LogInfo($"Opened mod library directory: {modLibraryPath}");
+                }
+                else
+                {
+                    Logger.LogWarning($"Mod library directory does not exist: {modLibraryPath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to open mod library directory", ex);
             }
         }
     }

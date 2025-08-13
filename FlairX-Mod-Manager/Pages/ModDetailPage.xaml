@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     mc:Ignorable="d">
-    <Grid Margin="24">
+    <Grid Margin="24" x:Name="MainGrid" PointerPressed="MainGrid_PointerPressed" PointerReleased="MainGrid_PointerReleased" Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

@@ -156,7 +156,7 @@ namespace FlairX_Mod_Manager
 
         private void EnsureDefaultDirectories()
         {
-            var xxmiDir = FlairX_Mod_Manager.SettingsManager.Current.XXMIModsDirectory;
+            var xxmiDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
             if (!string.IsNullOrWhiteSpace(xxmiDir))
             {
                 try
@@ -173,7 +173,7 @@ namespace FlairX_Mod_Manager
                     // Directory creation failed - not critical for app startup
                 }
             }
-            var modLibDir = FlairX_Mod_Manager.SettingsManager.Current.ModLibraryDirectory;
+            var modLibDir = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
             if (!string.IsNullOrWhiteSpace(modLibDir))
             {
                 try
@@ -510,7 +510,7 @@ namespace FlairX_Mod_Manager
                 _window.Closed += (s, e) =>
                 {
                     FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
-                    var modsDir = FlairX_Mod_Manager.SettingsManager.Current.XXMIModsDirectory;
+                    var modsDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                     if (string.IsNullOrWhiteSpace(modsDir))
                         modsDir = SharedUtilities.GetSafeXXMIModsPath();
                     if (System.IO.Directory.Exists(modsDir))

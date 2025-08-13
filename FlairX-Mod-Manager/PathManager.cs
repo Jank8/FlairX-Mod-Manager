@@ -94,7 +94,7 @@ namespace FlairX_Mod_Manager
         /// </summary>
         public static string GetModLibraryPath(string? subPath = null)
         {
-            var modLibPath = SettingsManager.Current?.ModLibraryDirectory ?? MOD_LIBRARY_DIR;
+            var modLibPath = SettingsManager.GetCurrentModLibraryDirectory();
             
             if (string.IsNullOrEmpty(subPath))
                 return GetAbsolutePath(modLibPath);
@@ -142,7 +142,7 @@ namespace FlairX_Mod_Manager
         /// </summary>
         public static string GetXXMIModsPath(string? subPath = null)
         {
-            var xxmiPath = SettingsManager.Current?.XXMIModsDirectory ?? AppConstants.DEFAULT_XXMI_MODS_PATH;
+            var xxmiPath = SettingsManager.GetCurrentXXMIModsDirectory();
             
             if (string.IsNullOrEmpty(subPath))
                 return GetAbsolutePath(xxmiPath);
