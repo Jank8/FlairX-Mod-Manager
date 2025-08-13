@@ -414,6 +414,24 @@ namespace FlairX_Mod_Manager
                 }
             }
             
+            // Clean up any mod.json files that shouldn't be in category directories
+            foreach (var categoryDir in System.IO.Directory.GetDirectories(modLibraryPath, "*", SearchOption.TopDirectoryOnly))
+            {
+                var categoryModJsonPath = System.IO.Path.Combine(categoryDir, "mod.json");
+                if (System.IO.File.Exists(categoryModJsonPath))
+                {
+                    try
+                    {
+                        System.IO.File.Delete(categoryModJsonPath);
+                        System.Diagnostics.Debug.WriteLine($"Removed incorrect mod.json from category directory: {categoryDir}");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to remove mod.json from category directory {categoryDir}: {ex.Message}");
+                    }
+                }
+            }
+            
             // Automatically detect hotkeys for newly created mod.json files
             if (newlyCreatedModPaths.Count > 0)
             {
