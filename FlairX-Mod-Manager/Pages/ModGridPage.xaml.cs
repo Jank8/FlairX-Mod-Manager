@@ -170,6 +170,11 @@ namespace FlairX_Mod_Manager.Pages
                 if (!Directory.Exists(categoryDir)) continue;
                 
                 var categoryName = Path.GetFileName(categoryDir);
+                
+                // Skip "Other" category in category view - it has its own menu item
+                if (string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                
                 var modDirs = Directory.GetDirectories(categoryDir);
                 
                 // Only add category if it has mod directories
