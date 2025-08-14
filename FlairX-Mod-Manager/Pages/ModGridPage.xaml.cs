@@ -1104,9 +1104,9 @@ namespace FlairX_Mod_Manager.Pages
                         shouldLoadCategories = mainWindow.IsCurrentlyInCategoryMode();
                     }
                     
-                    if (shouldLoadCategories)
+                    if (shouldLoadCategories && !string.Equals(parameter, "Active", StringComparison.OrdinalIgnoreCase))
                     {
-                        // In category mode, ignore legacy navigation and load categories
+                        // In category mode, ignore legacy navigation and load categories (except for Active)
                         _currentViewMode = ViewMode.Categories;
                         LoadCategories();
                         CategoryBackButton.Visibility = Visibility.Collapsed;
@@ -2515,22 +2515,38 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog("LoadActiveModsOnly() called");
             
-            // Load all mods first if not already loaded
-            if (_allMods.Count == 0)
-            {
-                LoadAllMods();
-            }
+            // For active mods, we need to load from ALL categories including "Other"
+            LoadActiveModData();
             
-            // Filter to show only active mods
-            var activeMods = _allMods.Where(mod => 
+            // Filter to show only active mods from _allModData
+            var activeModTiles = new List<ModTile>();
+            foreach (var modData in _allModData)
             {
                 // Update active state first
-                mod.IsActive = _activeMods.TryGetValue(mod.Directory, out var active) && active;
-                return mod.IsActive;
-            }).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                modData.IsActive = _activeMods.TryGetValue(modData.Directory, out var active) && active;
+                
+                if (modData.IsActive)
+                {
+                    var modTile = new ModTile 
+                    { 
+                        Name = modData.Name, 
+                        ImagePath = modData.ImagePath, 
+                        Directory = modData.Directory, 
+                        IsActive = modData.IsActive, 
+                        IsVisible = true,
+                        ImageSource = null // Start with no image - lazy load when visible
+                    };
+                    activeModTiles.Add(modTile);
+                }
+            }
             
-            LogToGridLog($"Found {activeMods.Count} active mods");
-            ModsGrid.ItemsSource = activeMods;
+            // Sort active mods alphabetically
+            var sortedActiveMods = activeModTiles
+                .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            
+            LogToGridLog($"Found {sortedActiveMods.Count} active mods");
+            ModsGrid.ItemsSource = sortedActiveMods;
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>
@@ -2538,6 +2554,70 @@ namespace FlairX_Mod_Manager.Pages
                 await Task.Delay(100); // Small delay to let the grid update
                 DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
             });
+        }
+
+        private void LoadActiveModData()
+        {
+            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+            if (string.IsNullOrEmpty(modLibraryPath))
+                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            if (!Directory.Exists(modLibraryPath)) return;
+            
+            _allModData.Clear();
+            var cacheHits = 0;
+            var cacheMisses = 0;
+            
+            // Process category directories excluding "Other" for active mods view (same as All Mods)
+            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+            {
+                if (!Directory.Exists(categoryDir)) continue;
+                
+                foreach (var modDir in Directory.GetDirectories(categoryDir))
+                {
+                    var modJsonPath = Path.Combine(modDir, "mod.json");
+                    if (!File.Exists(modJsonPath)) continue;
+                    
+                    var dirName = Path.GetFileName(modDir);
+                    var modData = GetCachedModData(modDir, modJsonPath);
+                    
+                    if (modData != null)
+                    {
+                        // Update active state (this can change without file modification)
+                        modData.IsActive = _activeMods.TryGetValue(dirName, out var active) && active;
+                        
+                        // Add category information from folder structure
+                        modData.Category = Path.GetFileName(categoryDir);
+                        
+                        // Skip "Other" category mods in Active Mods view - same as All Mods
+                        if (!string.Equals(modData.Category, "Other", StringComparison.OrdinalIgnoreCase))
+                        {
+                            _allModData.Add(modData);
+                        }
+                        cacheHits++;
+                    }
+                    else
+                    {
+                        cacheMisses++;
+                    }
+                }
+            }
+            
+            // Sort the lightweight data: active first (if enabled), then alphabetically
+            if (SettingsManager.Current.ActiveModsToTopEnabled)
+            {
+                _allModData = _allModData
+                    .OrderByDescending(m => m.IsActive)
+                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+            else
+            {
+                _allModData = _allModData
+                    .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+                
+            LogToGridLog($"Loaded {_allModData.Count} mod data entries for active mods view (Cache hits: {cacheHits}, Cache misses: {cacheMisses})");
         }
 
         public string GetCategoryTitleText()
