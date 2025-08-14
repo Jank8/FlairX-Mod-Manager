@@ -1501,6 +1501,12 @@ namespace FlairX_Mod_Manager
                     if (!System.IO.Directory.Exists(categoryDir)) continue;
                     
                     var categoryName = System.IO.Path.GetFileName(categoryDir);
+                    if (string.IsNullOrEmpty(categoryName)) continue;
+                    
+                    // Skip "Other" category from menu - it has its own dedicated menu item
+                    if (categoryName.Equals("Other", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    
                     var modDirs = System.IO.Directory.GetDirectories(categoryDir);
                     
                     // Only add category if it has mod directories
