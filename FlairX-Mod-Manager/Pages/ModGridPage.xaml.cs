@@ -2846,6 +2846,18 @@ namespace FlairX_Mod_Manager.Pages
             {
                 targetPath = Path.Combine(modLibraryPath, Path.GetFileName(targetPath));
             }
+            
+            // Check if target directory exists before creating symlink
+            if (!Directory.Exists(targetPath))
+            {
+                System.Diagnostics.Debug.WriteLine($"Target directory does not exist: {targetPath}");
+                System.Diagnostics.Debug.WriteLine("Triggering manager reload due to missing mod directory...");
+                
+                // Trigger automatic reload
+                TriggerManagerReloadStatic();
+                return; // Don't create symlink for non-existent directory
+            }
+            
             targetPath = Path.GetFullPath(targetPath);
             CreateSymbolicLink(linkPath, targetPath, 1); // 1 = directory
         }
@@ -2867,6 +2879,41 @@ namespace FlairX_Mod_Manager.Pages
                 return false;
             }
         }
+
+        private static async void TriggerManagerReloadStatic()
+        {
+            try
+            {
+                // Get the main window to trigger reload
+                var mainWindow = (App.Current as App)?.MainWindow as FlairX_Mod_Manager.MainWindow;
+                if (mainWindow != null)
+                {
+                    System.Diagnostics.Debug.WriteLine("Triggering manager reload due to missing mod directory for symlink creation...");
+                    
+                    // Small delay to let current operations complete
+                    await Task.Delay(100);
+                    
+                    // Trigger reload using the same method as the reload button
+                    var reloadMethod = mainWindow.GetType().GetMethod("ReloadModsAsync", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    
+                    if (reloadMethod != null)
+                    {
+                        var task = reloadMethod.Invoke(mainWindow, null) as Task;
+                        if (task != null)
+                        {
+                            await task;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error triggering manager reload: {ex.Message}");
+            }
+        }
+
+
 
 
 
