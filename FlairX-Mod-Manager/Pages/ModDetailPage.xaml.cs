@@ -452,31 +452,31 @@ namespace FlairX_Mod_Manager.Pages
             });
         }
 
-        private void ModAuthorTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void ModAuthorTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            UpdateModJsonField("author", ModAuthorTextBox.Text);
+            await UpdateModJsonField("author", ModAuthorTextBox.Text);
         }
 
-        private void ModUrlTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void ModUrlTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            UpdateModJsonField("url", ModUrlTextBox.Text);
+            await UpdateModJsonField("url", ModUrlTextBox.Text);
         }
 
-        private void ModVersionTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void ModVersionTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            UpdateModJsonField("version", ModVersionTextBox.Text);
+            await UpdateModJsonField("version", ModVersionTextBox.Text);
         }
 
-        private void ModDateCheckedPicker_DateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
+        private async void ModDateCheckedPicker_DateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
         {
             var dateValue = args.NewDate?.ToString("yyyy-MM-dd") ?? "";
-            UpdateModJsonField("dateChecked", dateValue);
+            await UpdateModJsonField("dateChecked", dateValue);
         }
 
-        private void ModDateUpdatedPicker_DateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
+        private async void ModDateUpdatedPicker_DateChanged(CalendarDatePicker sender, CalendarDatePickerDateChangedEventArgs args)
         {
             var dateValue = args.NewDate?.ToString("yyyy-MM-dd") ?? "";
-            UpdateModJsonField("dateUpdated", dateValue);
+            await UpdateModJsonField("dateUpdated", dateValue);
         }
 
         private void OpenUrlButton_Click(object sender, RoutedEventArgs e)
@@ -496,7 +496,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void UpdateModJsonField(string field, string value)
+        private async Task UpdateModJsonField(string field, string value)
         {
             if (string.IsNullOrEmpty(_modJsonPath)) return;
             if (!File.Exists(_modJsonPath))
