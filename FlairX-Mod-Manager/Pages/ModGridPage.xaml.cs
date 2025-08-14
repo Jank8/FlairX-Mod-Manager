@@ -2216,25 +2216,196 @@ namespace FlairX_Mod_Manager.Pages
                     if (!SecurityValidator.IsValidModDirectoryName(tile.Directory))
                         return;
 
-                    // Navigate to mod details page, pass both directory and current category
-                    var frame = this.Frame;
-                    var navParam = new FlairX_Mod_Manager.Pages.ModDetailPage.ModDetailNav
+                    try
                     {
-                        ModDirectory = tile.Directory ?? string.Empty,
-                        Category = _currentCategory ?? string.Empty,
-                        ViewMode = CurrentViewMode == ViewMode.Categories ? "Categories" : "Mods"
-                    };
-                    
-                    // Remember the current state before navigating
-                    _previousViewMode = CurrentViewMode;
-                    if (!string.IsNullOrEmpty(_currentCategory))
-                    {
-                        _wasInCategoryMode = true;
+                        // Create UserControl for mod details
+                        var modDetailControl = new ModDetailUserControl();
+                        modDetailControl.LoadModDetails(tile.Directory, _currentCategory ?? "", 
+                            CurrentViewMode == ViewMode.Categories ? "Categories" : "Mods");
+
+                        // Get current app theme and create appropriate background
+                        string appTheme = FlairX_Mod_Manager.SettingsManager.Current.Theme ?? "Auto";
+                        bool isDarkTheme = false;
+                        
+                        if (appTheme == "Dark")
+                            isDarkTheme = true;
+                        else if (appTheme == "Light")
+                            isDarkTheme = false;
+                        else if (this.XamlRoot.Content is FrameworkElement rootElement)
+                            isDarkTheme = rootElement.ActualTheme == ElementTheme.Dark;
+
+                        // Create transparent overlay (no background)
+                        var overlay = new Grid
+                        {
+                            Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
+                            HorizontalAlignment = HorizontalAlignment.Stretch,
+                            VerticalAlignment = VerticalAlignment.Stretch
+                        };
+
+                        // Set maximum size but allow shrinking - no fixed sizes
+                        double maxDialogWidth = 1400;
+                        double maxDialogHeight = 900;
+                        
+                        // Create dialog with acrylic background for blur effect
+                        Microsoft.UI.Xaml.Media.AcrylicBrush dialogAcrylicBrush;
+                        Brush borderBrush;
+                        
+                        if (isDarkTheme)
+                        {
+                            dialogAcrylicBrush = new Microsoft.UI.Xaml.Media.AcrylicBrush
+                            {
+                                TintColor = Microsoft.UI.ColorHelper.FromArgb(255, 32, 32, 32),
+                                TintOpacity = 0.85,
+                                FallbackColor = Microsoft.UI.ColorHelper.FromArgb(255, 32, 32, 32)
+                            };
+                            borderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(80, 255, 255, 255));
+                        }
+                        else
+                        {
+                            dialogAcrylicBrush = new Microsoft.UI.Xaml.Media.AcrylicBrush
+                            {
+                                TintColor = Microsoft.UI.ColorHelper.FromArgb(255, 248, 248, 248),
+                                TintOpacity = 0.85,
+                                FallbackColor = Microsoft.UI.ColorHelper.FromArgb(255, 248, 248, 248)
+                            };
+                            borderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(80, 0, 0, 0));
+                        }
+
+                        // Create panel sliding from right - full height, width to menu edge
+                        var dialogContainer = new Border
+                        {
+                            Background = dialogAcrylicBrush,
+                            CornerRadius = new CornerRadius(12, 0, 0, 0), // Rounded only on top-left
+                            HorizontalAlignment = HorizontalAlignment.Right,
+                            VerticalAlignment = VerticalAlignment.Stretch,
+                            Margin = new Thickness(320, 0, 0, 0), // Start after menu (320px menu width)
+                            BorderBrush = borderBrush,
+                            BorderThickness = new Thickness(1, 0, 0, 0) // Only left border
+                        };
+
+                        // Create main grid for content
+                        var mainGrid = new Grid();
+                        
+                        // No close button - will be handled by back button in ModDetailUserControl
+
+                        // Set UserControl to fill available space
+                        modDetailControl.HorizontalAlignment = HorizontalAlignment.Stretch;
+                        modDetailControl.VerticalAlignment = VerticalAlignment.Stretch;
+                        modDetailControl.Margin = new Thickness(20); // Równe marginesy ze wszystkich stron
+                        // No RequestedTheme - let it inherit naturally
+                        
+                        // Allow UserControl to shrink with window
+                        modDetailControl.MaxWidth = maxDialogWidth - 80; // Account for margins
+                        modDetailControl.MaxHeight = maxDialogHeight - 80;
+
+                        mainGrid.Children.Add(modDetailControl);
+                        
+                        dialogContainer.Child = mainGrid;
+                        overlay.Children.Add(dialogContainer);
+
+                        // Add slide-in animation from right
+                        var slideTransform = new Microsoft.UI.Xaml.Media.TranslateTransform();
+                        dialogContainer.RenderTransform = slideTransform;
+                        
+                        // Start off-screen to the right
+                        slideTransform.X = 800;
+                        
+                        // Animate sliding in
+                        var slideAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            From = 800,
+                            To = 0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(300)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                        };
+                        
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideAnimation, slideTransform);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideAnimation, "X");
+                        
+                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        storyboard.Children.Add(slideAnimation);
+                        storyboard.Begin();
+
+                        // Add overlay to parent grid for fullscreen effect
+                        Grid? parentGrid = null;
+                        
+                        // Try to find the Frame's parent grid (fullscreen but not affecting menu)
+                        var current = this.Parent;
+                        while (current != null && !(current is Grid))
+                        {
+                            current = (current as FrameworkElement)?.Parent;
+                        }
+                        parentGrid = current as Grid;
+
+                        if (parentGrid != null)
+                        {
+                            parentGrid.Children.Add(overlay);
+
+                            // Function to close with slide-out animation
+                            Action closeWithAnimation = () =>
+                            {
+                                // Create slide-out animation
+                                var slideOutAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                                {
+                                    From = 0,
+                                    To = dialogContainer.ActualWidth > 0 ? dialogContainer.ActualWidth : 800,
+                                    Duration = new Duration(TimeSpan.FromMilliseconds(250)),
+                                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                                };
+                                
+                                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideOutAnimation, slideTransform);
+                                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideOutAnimation, "X");
+                                
+                                var slideOutStoryboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                                slideOutStoryboard.Children.Add(slideOutAnimation);
+                                
+                                // Remove overlay when animation completes
+                                slideOutStoryboard.Completed += (s, e) => parentGrid.Children.Remove(overlay);
+                                slideOutStoryboard.Begin();
+                            };
+
+                            // Back button handler from UserControl
+                            modDetailControl.CloseRequested += (s, args) => closeWithAnimation();
+                            
+                            // Click outside to close
+                            overlay.Tapped += (s, args) =>
+                            {
+                                if (ReferenceEquals(args.OriginalSource, overlay))
+                                    closeWithAnimation();
+                            };
+
+                            // Escape key handler
+                            overlay.KeyDown += (s, args) =>
+                            {
+                                if (args.Key == Windows.System.VirtualKey.Escape)
+                                {
+                                    closeWithAnimation();
+                                    args.Handled = true;
+                                }
+                            };
+
+                            // Make overlay focusable to receive key events
+                            overlay.IsTabStop = true;
+                            overlay.Focus(FocusState.Programmatic);
+                        }
                     }
-                    
-                    frame?.Navigate(typeof(FlairX_Mod_Manager.Pages.ModDetailPage), navParam);
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to show mod details for {tile.Name}", ex);
+                    }
                 }
             }
+        }
+
+        private Grid? FindParentGrid(FrameworkElement element)
+        {
+            if (element is Grid grid)
+                return grid;
+                
+            if (element.Parent is FrameworkElement parent)
+                return FindParentGrid(parent);
+                
+            return null;
         }
 
         public static void RecreateSymlinksFromActiveMods()

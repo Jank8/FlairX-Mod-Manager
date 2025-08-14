@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,8 +32,6 @@ namespace FlairX_Mod_Manager.Pages
             this.InitializeComponent();
             UpdateTexts();
             LoadPresetsToComboBox();
-            PresetModsListView.ItemClick += PresetModsListView_ItemClick;
-            PresetModsListView.IsItemClickEnabled = true;
         }
 
         private void UpdateTexts()
@@ -241,17 +239,6 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void PresetModsListView_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            if (e.ClickedItem is string modInfo)
-            {
-                var modName = modInfo.Split('(')[0].Trim();
-                var mainWindow = (App.Current as App)?.MainWindow as FlairX_Mod_Manager.MainWindow;
-                if (mainWindow != null)
-                {
-                    mainWindow.GetContentFrame()?.Navigate(typeof(FlairX_Mod_Manager.Pages.ModDetailPage), modName);
-                }
-            }
-        }
+
     }
 }
