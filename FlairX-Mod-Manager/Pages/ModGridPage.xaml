@@ -72,6 +72,11 @@
                                 BorderBrush="{ThemeResource TileBorderBrush}" 
                                 Margin="12"
                                 Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Border.ContextFlyout>
+                                <MenuFlyout Opening="ContextMenu_Opening">
+                                    <!-- Dynamic menu items will be populated in code-behind -->
+                                </MenuFlyout>
+                            </Border.ContextFlyout>
                             <Border.Shadow>
                                 <ThemeShadow/>
                             </Border.Shadow>
@@ -103,96 +108,69 @@
                                         </Image>
                                         
                                         <!-- Action Buttons Panel -->
-                                        <StackPanel Orientation="Vertical" 
-                                                   VerticalAlignment="Top" 
-                                                   HorizontalAlignment="Right" 
-                                                   Margin="8,8,8,0" 
-                                                   Spacing="4">
-                                            <Grid Width="{Binding IsCategory, Converter={StaticResource CategoryBackgroundSizeConverter}, ConverterParameter=width}" 
-                                                  Height="{Binding IsCategory, Converter={StaticResource CategoryBackgroundSizeConverter}, ConverterParameter=height}" 
-                                                  VerticalAlignment="Center" 
-                                                  HorizontalAlignment="Center">
-                                                <Border Width="{Binding IsCategory, Converter={StaticResource CategoryBackgroundSizeConverter}, ConverterParameter=width}" 
-                                                        Height="{Binding IsCategory, Converter={StaticResource CategoryBackgroundSizeConverter}, ConverterParameter=height}" 
+                                        <Grid VerticalAlignment="Top" 
+                                              HorizontalAlignment="Right" 
+                                              Margin="8,8,8,0">
+                                            
+                                            <!-- For Categories: Show folder button with 48x48 backdrop -->
+                                            <Grid Width="48" Height="48" 
+                                                  Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <Border Width="48" Height="48" 
                                                         CornerRadius="12" 
                                                         Background="{ThemeResource IconAcrylicBrush}" />
-                                                <StackPanel Orientation="Vertical" 
-                                                           VerticalAlignment="Center" 
-                                                           HorizontalAlignment="Center" 
-                                                           Spacing="0">
-                                                    <!-- Heart/Active Button -->
-                                                    <Button Width="40" Height="40" 
-                                                            Click="ModActiveButton_Click" 
-                                                            Tag="{Binding}" 
-                                                            Style="{StaticResource TransparentButtonStyle}"
-                                                            PointerEntered="ModActiveButton_PointerEntered" 
-                                                            PointerExited="ModActiveButton_PointerExited"
-                                                            Visibility="{Binding IsCategory, Converter={StaticResource CategoryButtonVisibilityConverter}, ConverterParameter=activate}">
-                                                        <Grid>
-                                                            <FontIcon x:Name="HeartEmpty" 
-                                                                      FontSize="24" 
-                                                                      Glyph="&#xEB51;" 
-                                                                      Foreground="White"
-                                                                      Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
-                                                            <FontIcon x:Name="HeartFull" 
-                                                                      FontSize="24" 
-                                                                      Glyph="&#xEB52;" 
-                                                                      Foreground="White"
-                                                                      Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                            <FontIcon x:Name="HeartHover" 
-                                                                      FontSize="24" 
-                                                                      Glyph="&#xEB52;" 
-                                                                      Foreground="White"
-                                                                      Visibility="{Binding IsHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                        </Grid>
-                                                    </Button>
-                                                    
-                                                    <!-- Folder Button -->
-                                                    <Button Width="40" Height="40" 
-                                                            Click="OpenModFolderButton_Click" 
-                                                            Tag="{Binding}" 
-                                                            Style="{StaticResource TransparentButtonStyle}"
-                                                            PointerEntered="OpenModFolderButton_PointerEntered" 
-                                                            PointerExited="OpenModFolderButton_PointerExited"
-                                                            Visibility="{Binding IsCategory, Converter={StaticResource CategoryButtonVisibilityConverter}, ConverterParameter=folder}">
-                                                        <Grid>
-                                                            <FontIcon x:Name="OpenFolderIcon" 
-                                                                      FontSize="24" 
-                                                                      Glyph="&#xE8B7;" 
-                                                                      Foreground="White"
-                                                                      Visibility="{Binding IsFolderHovered, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
-                                                            <FontIcon x:Name="OpenFolderIconHover" 
-                                                                      FontSize="24" 
-                                                                      Glyph="&#xE8D5;" 
-                                                                      Foreground="White"
-                                                                      Visibility="{Binding IsFolderHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                        </Grid>
-                                                    </Button>
-                                                    
-                                                    <!-- Delete Button -->
-                                                    <Button Width="40" Height="40" 
-                                                            Click="DeleteModButton_Click" 
-                                                            Tag="{Binding}" 
-                                                            Style="{StaticResource TransparentButtonStyle}"
-                                                            PointerEntered="DeleteModButton_PointerEntered" 
-                                                            PointerExited="DeleteModButton_PointerExited"
-                                                            Visibility="{Binding IsCategory, Converter={StaticResource CategoryButtonVisibilityConverter}, ConverterParameter=delete}">
-                                                        <Grid>
-                                                            <FontIcon x:Name="DeleteIcon" 
-                                                                      FontSize="24" 
-                                                                      Glyph="&#xE74D;" 
-                                                                      Foreground="White"
-                                                                      Visibility="{Binding IsDeleteHovered, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
-                                                            <FontIcon x:Name="DeleteIconHover" 
-                                                                      FontSize="24" 
-                                                                      Glyph="&#xE74D;" 
-                                                                      Foreground="Red"
-                                                                      Visibility="{Binding IsDeleteHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                        </Grid>
-                                                    </Button>
-                                                </StackPanel>
+                                                <Button Width="48" Height="48" 
+                                                        Click="OpenModFolderButton_Click" 
+                                                        Tag="{Binding}" 
+                                                        Style="{StaticResource TransparentButtonStyle}"
+                                                        PointerEntered="OpenModFolderButton_PointerEntered" 
+                                                        PointerExited="OpenModFolderButton_PointerExited">
+                                                    <Grid>
+                                                        <FontIcon x:Name="OpenFolderIcon" 
+                                                                  FontSize="24" 
+                                                                  Glyph="&#xE8B7;" 
+                                                                  Foreground="White"
+                                                                  Visibility="{Binding IsFolderHovered, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
+                                                        <FontIcon x:Name="OpenFolderIconHover" 
+                                                                  FontSize="24" 
+                                                                  Glyph="&#xE8D5;" 
+                                                                  Foreground="White"
+                                                                  Visibility="{Binding IsFolderHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                    </Grid>
+                                                </Button>
                                             </Grid>
-                                        </StackPanel>
+                                            
+                                            <!-- For Mods: Show heart button with 48x48 backdrop -->
+                                            <Grid Width="48" Height="48" 
+                                                  Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}">
+                                                <Border Width="48" Height="48" 
+                                                        CornerRadius="12" 
+                                                        Background="{ThemeResource IconAcrylicBrush}" />
+                                                <Button Width="48" Height="48" 
+                                                        Click="ModActiveButton_Click" 
+                                                        Tag="{Binding}" 
+                                                        Style="{StaticResource TransparentButtonStyle}"
+                                                        PointerEntered="ModActiveButton_PointerEntered" 
+                                                        PointerExited="ModActiveButton_PointerExited">
+                                                    <Grid>
+                                                        <FontIcon x:Name="HeartEmpty" 
+                                                                  FontSize="24" 
+                                                                  Glyph="&#xEB51;" 
+                                                                  Foreground="White"
+                                                                  Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
+                                                        <FontIcon x:Name="HeartFull" 
+                                                                  FontSize="24" 
+                                                                  Glyph="&#xEB52;" 
+                                                                  Foreground="White"
+                                                                  Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                        <FontIcon x:Name="HeartHover" 
+                                                                  FontSize="24" 
+                                                                  Glyph="&#xEB52;" 
+                                                                  Foreground="White"
+                                                                  Visibility="{Binding IsHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                    </Grid>
+                                                </Button>
+                                            </Grid>
+                                        </Grid>
                                     </Grid>
                                 </Border>
                                 
@@ -225,9 +203,25 @@
                                                    TextAlignment="Center" 
                                                    VerticalAlignment="Center" 
                                                    HorizontalAlignment="Center" 
-                                                   TextWrapping="NoWrap"/>
+                                                   TextWrapping="NoWrap"
+                                                   ToolTipService.ToolTip="{Binding Name}"/>
                                     </Button>
                                 </Grid>
+                                
+                                <!-- Deletion Overlay -->
+                                <Border Grid.RowSpan="2" 
+                                        Background="#80000000" 
+                                        CornerRadius="8"
+                                        Visibility="{Binding IsBeingDeleted, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Grid>
+                                        <FontIcon Glyph="&#xE74D;" 
+                                                  FontSize="48" 
+                                                  Foreground="White" 
+                                                  HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"
+                                                  Opacity="0.8"/>
+                                    </Grid>
+                                </Border>
                             </Grid>
                         </Border>
                     </DataTemplate>

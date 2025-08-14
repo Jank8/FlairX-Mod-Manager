@@ -84,6 +84,12 @@ namespace FlairX_Mod_Manager.Pages
                 get => _isVisible;
                 set { if (_isVisible != value) { _isVisible = value; OnPropertyChanged(nameof(IsVisible)); } }
             }
+            private bool _isBeingDeleted = false;
+            public bool IsBeingDeleted
+            {
+                get => _isBeingDeleted;
+                set { if (_isBeingDeleted != value) { _isBeingDeleted = value; OnPropertyChanged(nameof(IsBeingDeleted)); } }
+            }
             // Removed IsInViewport - using new scroll-based lazy loading instead
             public event PropertyChangedEventHandler? PropertyChanged;
             protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -1984,8 +1990,9 @@ namespace FlairX_Mod_Manager.Pages
                 if (result != ContentDialogResult.Primary)
                     return; // User cancelled
 
-                // Save current scroll position
-                var currentScrollPosition = ModsScrollViewer?.VerticalOffset ?? 0;
+                // Show deletion effect immediately
+                mod.IsBeingDeleted = true;
+                await Task.Delay(500); // Show the effect for half a second
 
                 // Validate mod directory name for security
                 if (!SecurityValidator.IsValidModDirectoryName(mod.Directory))
@@ -2021,8 +2028,15 @@ namespace FlairX_Mod_Manager.Pages
                     _modFileTimestamps.Remove(mod.Directory);
                 }
 
-                // Refresh the grid while preserving scroll position
-                await RefreshGridWithScrollPosition(currentScrollPosition);
+                // Remove the tile from the grid collection - same logic as rename but just remove
+                if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> collection)
+                {
+                    var item = collection.FirstOrDefault(x => x.Directory == mod.Directory);
+                    if (item != null)
+                    {
+                        collection.Remove(item); // Simply remove the tile - super smooth!
+                    }
+                }
 
                 LogToGridLog($"DELETED: Mod '{mod.Name}' moved to recycle bin");
             }
@@ -2059,11 +2073,24 @@ namespace FlairX_Mod_Manager.Pages
                 LoadMods(_currentCategory);
             }
 
-            // Wait for UI to update, then restore scroll position
-            await Task.Delay(100);
-            if (ModsScrollViewer != null)
+            // Wait longer for virtualized grid to fully load, then restore scroll position multiple times
+            if (ModsScrollViewer != null && scrollPosition > 0)
             {
+                // Try multiple times with increasing delays to handle virtualization
+                await Task.Delay(200);
                 ModsScrollViewer.ScrollToVerticalOffset(scrollPosition);
+                
+                await Task.Delay(100);
+                ModsScrollViewer.ScrollToVerticalOffset(scrollPosition);
+                
+                await Task.Delay(100);
+                ModsScrollViewer.ScrollToVerticalOffset(scrollPosition);
+                
+                // Final attempt with dispatcher priority
+                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+                {
+                    ModsScrollViewer.ScrollToVerticalOffset(scrollPosition);
+                });
             }
         }
 
@@ -2797,6 +2824,335 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     mainWindow.UpdateShowActiveModsButtonIcon();
                 });
+            }
+        }
+
+        // Dynamic Context Menu
+        private void ContextMenu_Opening(object sender, object e)
+        {
+            if (sender is MenuFlyout menuFlyout && menuFlyout.Target is Border border && border.DataContext is ModTile modTile)
+            {
+                menuFlyout.Items.Clear();
+                
+                if (modTile.IsCategory)
+                {
+                    // Category context menu: Open Folder, Copy Name, Rename
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = "Open Folder",
+                        Icon = new SymbolIcon(Symbol.Folder),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[0]).Click += ContextMenu_OpenFolder_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = "Copy Name",
+                        Icon = new SymbolIcon(Symbol.Copy),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[2]).Click += ContextMenu_CopyName_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = "Rename",
+                        Icon = new SymbolIcon(Symbol.Rename),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[3]).Click += ContextMenu_Rename_Click;
+                }
+                else
+                {
+                    // Mod context menu: Dynamic Activate/Deactivate, Open Folder, View Details, Copy Name, Rename, Delete
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = modTile.IsActive ? "Deactivate" : "Activate",
+                        Icon = new SymbolIcon(modTile.IsActive ? Symbol.Remove : Symbol.Accept),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[0]).Click += ContextMenu_ActivateDeactivate_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = "Open Folder",
+                        Icon = new SymbolIcon(Symbol.Folder),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[1]).Click += ContextMenu_OpenFolder_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = "View Details",
+                        Icon = new SymbolIcon(Symbol.View),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[2]).Click += ContextMenu_ViewDetails_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = "Copy Name",
+                        Icon = new SymbolIcon(Symbol.Copy),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[4]).Click += ContextMenu_CopyName_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = "Rename",
+                        Icon = new SymbolIcon(Symbol.Rename),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[5]).Click += ContextMenu_Rename_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                    
+                    var deleteItem = new MenuFlyoutItem
+                    {
+                        Text = "Delete",
+                        Icon = new SymbolIcon(Symbol.Delete),
+                        Tag = modTile
+                    };
+                    deleteItem.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red);
+                    deleteItem.Click += ContextMenu_Delete_Click;
+                    menuFlyout.Items.Add(deleteItem);
+                }
+            }
+        }
+
+        // Context Menu Event Handlers
+        private void ContextMenu_ActivateDeactivate_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
+            {
+                // Create a fake button with the ModTile as Tag to reuse existing logic
+                var fakeButton = new Button { Tag = modTile };
+                ModActiveButton_Click(fakeButton, e);
+            }
+        }
+
+        private void ContextMenu_OpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
+            {
+                // Create a fake button with the ModTile as Tag to reuse existing logic
+                var fakeButton = new Button { Tag = modTile };
+                OpenModFolderButton_Click(fakeButton, e);
+            }
+        }
+
+        private void ContextMenu_ViewDetails_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
+            {
+                // Create a fake button with the ModTile as Tag to reuse existing logic
+                var fakeButton = new Button { Tag = modTile };
+                ModName_Click(fakeButton, e);
+            }
+        }
+
+        private void ContextMenu_CopyName_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
+            {
+                try
+                {
+                    var dataPackage = new Windows.ApplicationModel.DataTransfer.DataPackage();
+                    dataPackage.SetText(modTile.Name);
+                    Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+                    Logger.LogInfo($"Copied mod name to clipboard: {modTile.Name}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to copy mod name to clipboard", ex);
+                }
+            }
+        }
+
+        private async void ContextMenu_Rename_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
+            {
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                
+                var textBox = new TextBox
+                {
+                    Text = modTile.Name,
+                    SelectionStart = 0,
+                    SelectionLength = modTile.Name.Length
+                };
+                
+                var dialog = new ContentDialog
+                {
+                    Title = modTile.IsCategory ? "Rename Category" : "Rename Mod",
+                    Content = textBox,
+                    PrimaryButtonText = SharedUtilities.GetTranslation(lang, "OK") ?? "OK",
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel",
+                    DefaultButton = ContentDialogButton.Primary,
+                    XamlRoot = this.XamlRoot
+                };
+                
+                var result = await dialog.ShowAsync();
+                
+                if (result == ContentDialogResult.Primary)
+                {
+                    var newName = textBox.Text.Trim();
+                    
+                    if (string.IsNullOrEmpty(newName))
+                    {
+                        await ShowErrorDialog("Error", "Name cannot be empty.");
+                        return;
+                    }
+                    
+                    if (newName == modTile.Name)
+                    {
+                        return; // No change
+                    }
+                    
+                    if (!SecurityValidator.IsValidModDirectoryName(newName))
+                    {
+                        await ShowErrorDialog("Error", "Invalid name. Please use only valid characters for folder names.");
+                        return;
+                    }
+                    
+                    await RenameItemAsync(modTile, newName);
+                }
+            }
+        }
+        
+        private async Task RenameItemAsync(ModTile modTile, string newName)
+        {
+            try
+            {
+                var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
+                string? currentPath = null;
+                string? parentPath = null;
+                
+                if (modTile.IsCategory)
+                {
+                    // Renaming category
+                    currentPath = Path.Combine(modLibraryPath, modTile.Directory);
+                    parentPath = modLibraryPath;
+                }
+                else
+                {
+                    // Renaming mod - find it in categories
+                    foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                    {
+                        var modPath = Path.Combine(categoryDir, modTile.Directory);
+                        if (Directory.Exists(modPath))
+                        {
+                            currentPath = modPath;
+                            parentPath = categoryDir;
+                            break;
+                        }
+                    }
+                }
+                
+                if (currentPath == null || parentPath == null)
+                {
+                    await ShowErrorDialog("Error", $"Could not find {(modTile.IsCategory ? "category" : "mod")} directory.");
+                    return;
+                }
+                
+                var newPath = Path.Combine(parentPath, newName);
+                
+                if (Directory.Exists(newPath))
+                {
+                    await ShowErrorDialog("Error", $"A {(modTile.IsCategory ? "category" : "mod")} with the name '{newName}' already exists.");
+                    return;
+                }
+                
+                // Rename the directory
+                Directory.Move(currentPath, newPath);
+                
+                // Update the ModTile object
+                var oldName = modTile.Directory;
+                modTile.Name = newName;
+                modTile.Directory = newName;
+                
+                // For mods: Update active mods file if this mod was active
+                if (!modTile.IsCategory && modTile.IsActive)
+                {
+                    var activeModsPath = PathManager.GetActiveModsPath();
+                    if (File.Exists(activeModsPath))
+                    {
+                        var json = File.ReadAllText(activeModsPath);
+                        var activeMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
+                        
+                        if (activeMods.ContainsKey(oldName))
+                        {
+                            activeMods.Remove(oldName);
+                            activeMods[newName] = true;
+                            
+                            var newJson = JsonSerializer.Serialize(activeMods, new JsonSerializerOptions { WriteIndented = true });
+                            File.WriteAllText(activeModsPath, newJson);
+                        }
+                    }
+                    
+                    // Recreate symlinks
+                    RecreateSymlinksFromActiveMods();
+                }
+                
+                Logger.LogInfo($"Successfully renamed {(modTile.IsCategory ? "category" : "mod")} from '{oldName}' to '{newName}'");
+                
+                // Save current scroll position
+                double currentScrollPosition = 0;
+                if (ModsScrollViewer != null)
+                {
+                    currentScrollPosition = ModsScrollViewer.VerticalOffset;
+                }
+                
+                // Refresh the grid to show updated name - same logic for both categories and mods
+                if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> collection)
+                {
+                    // Find the item in the collection and trigger update
+                    var item = collection.FirstOrDefault(x => x.Directory == newName);
+                    if (item != null)
+                    {
+                        // Force UI refresh by temporarily removing and re-adding the item
+                        var index = collection.IndexOf(item);
+                        collection.RemoveAt(index);
+                        collection.Insert(index, item);
+                    }
+                }
+                
+                // Restore scroll position after a short delay
+                if (ModsScrollViewer != null && currentScrollPosition > 0)
+                {
+                    await Task.Delay(100); // Small delay to let UI update
+                    ModsScrollViewer.ScrollToVerticalOffset(currentScrollPosition);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to rename {(modTile.IsCategory ? "category" : "mod")} '{modTile.Name}' to '{newName}'", ex);
+                await ShowErrorDialog("Error", $"Failed to rename: {ex.Message}");
+            }
+        }
+        
+        private async Task ShowErrorDialog(string title, string message)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = title,
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
+        }
+
+        private void ContextMenu_Delete_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
+            {
+                // Create a fake button with the ModTile as Tag to reuse existing logic
+                var fakeButton = new Button { Tag = modTile };
+                DeleteModButton_Click(fakeButton, e);
             }
         }
     }
