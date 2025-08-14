@@ -248,6 +248,18 @@ namespace FlairX_Mod_Manager.Pages
                     if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) { SafeIncrementSkip(); SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); processed++; lock (_lockObject) { _progressValue = (double)processed / _totalMods; } NotifyProgressChanged(); continue; }
                     string currentAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? string.Empty : string.Empty;
                     bool shouldUpdate = string.IsNullOrWhiteSpace(currentAuthor) || currentAuthor.Equals("unknown", StringComparison.OrdinalIgnoreCase);
+                    
+                    // For smart update, skip mods that already have known authors
+                    if (IsSmartUpdate && !shouldUpdate)
+                    {
+                        SafeIncrementSkip();
+                        SafeAddSkippedMod($"{modName}: Already has author ({currentAuthor})");
+                        processed++;
+                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                        NotifyProgressChanged();
+                        continue;
+                    }
+                    
                     string url = urlProp.GetString()!;
                     if (string.IsNullOrWhiteSpace(url) || !url.Contains("gamebanana.com")) { _skip++; _skippedMods.Add($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); processed++; _progressValue = (double)processed / _totalMods; NotifyProgressChanged(); continue; }
                     bool urlWorks = false;
@@ -340,10 +352,28 @@ namespace FlairX_Mod_Manager.Pages
                                 SharedUtilities.GetTranslation(lang, "SkippedMods") + "\n" + (_skippedMods.Count > 0 ? string.Join("\n", _skippedMods) : SharedUtilities.GetTranslation(lang, "None")) +
                                 "\n\n" + SharedUtilities.GetTranslation(lang, "Errors") + "\n" + (_failedMods.Count > 0 ? string.Join("\n", _failedMods) : SharedUtilities.GetTranslation(lang, "None")) +
                                 "\n\n" + string.Format(SharedUtilities.GetTranslation(lang, "TotalChecked"), _totalMods);
+                // Create scrollable content
+                var textBlock = new Microsoft.UI.Xaml.Controls.TextBlock
+                {
+                    Text = summary,
+                    TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap,
+                    IsTextSelectionEnabled = true,
+                    Width = 500
+                };
+
+                var scrollViewer = new Microsoft.UI.Xaml.Controls.ScrollViewer
+                {
+                    Content = textBlock,
+                    VerticalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Auto,
+                    HorizontalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Disabled,
+                    MaxHeight = 400,
+                    Padding = new Microsoft.UI.Xaml.Thickness(10)
+                };
+
                 var dialog = new ContentDialog
                 {
                     Title = SharedUtilities.GetTranslation(lang, "SummaryTitle"),
-                    Content = summary,
+                    Content = scrollViewer,
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };
