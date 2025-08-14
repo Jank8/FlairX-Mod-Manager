@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
 using System;
+using System.Threading.Tasks;
 
 namespace FlairX_Mod_Manager.Pages
 {
@@ -234,6 +235,18 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             ModHotkeysList.ItemsSource = null;
                         }
+                    }
+                    else
+                    {
+                        // mod.json doesn't exist - clear all fields and disable editing
+                        ModAuthorTextBox.Text = "";
+                        ModUrlTextBox.Text = "";
+                        ModVersionTextBox.Text = "";
+                        ModDateCheckedPicker.Date = null;
+                        ModDateUpdatedPicker.Date = null;
+                        ModHotkeysList.ItemsSource = null;
+                        
+                        System.Diagnostics.Debug.WriteLine($"ModDetailPage: mod.json not found at {_modJsonPath}");
                     }
                     var previewPathJpg = Path.Combine(fullModDir, "preview.jpg");
                     if (File.Exists(previewPathJpg))
@@ -488,19 +501,15 @@ namespace FlairX_Mod_Manager.Pages
             if (string.IsNullOrEmpty(_modJsonPath)) return;
             if (!File.Exists(_modJsonPath))
             {
-                var dict = new Dictionary<string, object?>
+                // If mod.json doesn't exist, ensure default mod.json is created first
+                await Task.Run(() => (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary());
+                
+                // Check if mod.json was created successfully
+                if (!File.Exists(_modJsonPath))
                 {
-                    {"author", ""},
-                    {"url", ""},
-                    {"version", ""},
-                    {"dateChecked", ""},
-                    {"dateUpdated", ""},
-                    {"hotkeys", new List<object>()}
-                };
-                dict[field] = value;
-                var newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_modJsonPath, newJson);
-                return;
+                    Logger.LogError($"Failed to create default mod.json at: {_modJsonPath}");
+                    return;
+                }
             }
             try
             {

@@ -337,13 +337,13 @@ namespace FlairX_Mod_Manager
                 }
                 else
                 {
-                    // Read existing mod.json
+                    // Read existing mod.json - PRESERVE ALL EXISTING DATA
                     try
                     {
                         var jsonContent = System.IO.File.ReadAllText(modJsonPath);
                         modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonContent) ?? new();
                         
-                        // Check if sync method info is missing or outdated
+                        // ONLY add missing syncMethod if it doesn't exist - never overwrite existing data
                         if (!modData.ContainsKey("syncMethod"))
                         {
                             if (hasNamespace && namespaceMap.Count > 0)
@@ -369,10 +369,22 @@ namespace FlairX_Mod_Manager
                             needsUpdate = true;
                             updatedModPaths.Add(modDir);
                         }
+                        
+                        // ONLY add missing hotkeys array if it doesn't exist
+                        if (!modData.ContainsKey("hotkeys"))
+                        {
+                            modData["hotkeys"] = new List<object>();
+                            needsUpdate = true;
+                            if (!updatedModPaths.Contains(modDir))
+                                updatedModPaths.Add(modDir);
+                        }
+                        
+                        // DO NOT add any other missing fields - preserve user data
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // If JSON is corrupted, recreate it (removed category field)
+                        System.Diagnostics.Debug.WriteLine($"Failed to read existing mod.json at {modJsonPath}: {ex.Message}");
+                        // If JSON is corrupted, try to preserve what we can by creating minimal structure
                         modData = new Dictionary<string, object>
                         {
                             ["author"] = "unknown",
@@ -399,6 +411,7 @@ namespace FlairX_Mod_Manager
                         
                         needsUpdate = true;
                         updatedModPaths.Add(modDir);
+                        System.Diagnostics.Debug.WriteLine($"Recreated corrupted mod.json at {modJsonPath}");
                     }
                 }
                 

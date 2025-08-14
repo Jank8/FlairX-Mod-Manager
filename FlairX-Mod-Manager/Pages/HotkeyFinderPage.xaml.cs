@@ -661,12 +661,27 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 else
                 {
-                    modData = new Dictionary<string, object>
+                    // If mod.json doesn't exist, ensure default mod.json is created first
+                    await Task.Run(() => (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary());
+                    
+                    // Now try to read the newly created mod.json
+                    if (File.Exists(modJsonPath))
                     {
-                        ["author"] = "unknown",
-                        ["character"] = "!unknown!",
-                        ["url"] = "https://"
-                    };
+                        var existingJson = await File.ReadAllTextAsync(modJsonPath, token);
+                        modData = JsonSerializer.Deserialize<Dictionary<string, object>>(existingJson) ?? new();
+                    }
+                    else
+                    {
+                        // Fallback: create minimal structure if default creation failed
+                        modData = new Dictionary<string, object>
+                        {
+                            ["author"] = "unknown",
+                            ["url"] = "https://",
+                            ["version"] = "",
+                            ["dateChecked"] = "0000-00-00",
+                            ["dateUpdated"] = "0000-00-00"
+                        };
+                    }
                 }
 
                 var hotkeyArray = hotkeys.Select(h => new Dictionary<string, string>
