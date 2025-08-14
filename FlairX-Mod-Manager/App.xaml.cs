@@ -304,7 +304,6 @@ namespace FlairX_Mod_Manager
                     modData = new Dictionary<string, object>
                     {
                         ["author"] = "unknown",
-                        ["character"] = "!unknown!",
                         ["url"] = "https://",
                         ["version"] = "",
                         ["dateChecked"] = "0000-00-00",
@@ -377,7 +376,6 @@ namespace FlairX_Mod_Manager
                         modData = new Dictionary<string, object>
                         {
                             ["author"] = "unknown",
-                            ["character"] = "!unknown!",
                             ["url"] = "https://",
                             ["hotkeys"] = new List<object>(),
                             ["syncMethod"] = hasNamespace ? "namespace" : "classic"

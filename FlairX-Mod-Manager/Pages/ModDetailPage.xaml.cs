@@ -179,7 +179,6 @@ namespace FlairX_Mod_Manager.Pages
                         using var doc = JsonDocument.Parse(json);
                         var root = doc.RootElement;
                         string author = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
-                        string character = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "" : "";
                         string url = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
                         string version = root.TryGetProperty("version", out var versionProp) ? versionProp.GetString() ?? "" : "";
                         
@@ -207,7 +206,6 @@ namespace FlairX_Mod_Manager.Pages
                         }
                         
                         ModAuthorTextBox.Text = author;
-                        ModCharacterTextBox.Text = character;
                         ModUrlTextBox.Text = url;
                         ModVersionTextBox.Text = version;
                         if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
@@ -276,7 +274,6 @@ namespace FlairX_Mod_Manager.Pages
                         ModImage.Source = null;
                         ModHotkeysList.ItemsSource = null;
                         ModAuthorTextBox.Text = "";
-                        ModCharacterTextBox.Text = "";
                         ModUrlTextBox.Text = "";
                         ModVersionTextBox.Text = "";
                         ModDateCheckedPicker.Date = null;
@@ -446,10 +443,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             UpdateModJsonField("author", ModAuthorTextBox.Text);
         }
-        private void ModCharacterTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            UpdateModJsonField("character", ModCharacterTextBox.Text);
-        }
+
         private void ModUrlTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             UpdateModJsonField("url", ModUrlTextBox.Text);
@@ -497,7 +491,6 @@ namespace FlairX_Mod_Manager.Pages
                 var dict = new Dictionary<string, object?>
                 {
                     {"author", ""},
-                    {"character", ""},
                     {"url", ""},
                     {"version", ""},
                     {"dateChecked", ""},
@@ -519,7 +512,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     if (prop.Name == field)
                         dict[field] = value;
-                    else if (prop.Name == "author" || prop.Name == "character" || prop.Name == "url" || prop.Name == "version" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
+                    else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
                         dict[prop.Name] = prop.Value.GetString();
                     else
                         dict[prop.Name] = prop.Value.Deserialize<object>();

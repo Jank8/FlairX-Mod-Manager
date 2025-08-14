@@ -125,6 +125,6 @@ namespace FlairX_Mod_Manager
         public const string CONSTANTS_SECTION = "constants";
         
         // Default JSON Content
-        public const string DEFAULT_MOD_JSON = "{\n    \"author\": \"unknown\",\n    \"character\": \"!unknown!\",\n    \"url\": \"https://\",\n    \"hotkeys\": []\n}";
+        public const string DEFAULT_MOD_JSON = "{\n    \"author\": \"unknown\",\n    \"url\": \"https://\",\n    \"hotkeys\": []\n}";
     }
 }
