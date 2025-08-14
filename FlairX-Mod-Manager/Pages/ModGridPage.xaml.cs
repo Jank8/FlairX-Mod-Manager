@@ -1400,75 +1400,33 @@ namespace FlairX_Mod_Manager.Pages
             LogToGridLog($"Loaded {_allModData.Count} mod data entries for category: {category}");
         }
 
-        private void LoadMods(string character)
+        private void LoadMods(string category)
         {
-            LogToGridLog($"LoadMods() called for character: {character}");
+            LogToGridLog($"LoadMods() called for category: {category}");
             
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-            if (!Directory.Exists(modLibraryPath)) return;
+            // Use the same logic as LoadModsByCategory but with direct ModTile creation
+            // First, load all mod data for this category (lightweight)
+            LoadCategoryModData(category);
             
+            // Then create ModTiles directly (not virtualized like LoadModsByCategory)
             var mods = new List<ModTile>();
-            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+            foreach (var modData in _allModData)
             {
-                if (!Directory.Exists(categoryDir)) continue;
+                var modTile = new ModTile 
+                { 
+                    Name = modData.Name, 
+                    ImagePath = modData.ImagePath, 
+                    Directory = modData.Directory, 
+                    IsActive = modData.IsActive, 
+                    IsVisible = true,
+                    ImageSource = null // Start with no image - lazy load when visible
+                };
                 
-                foreach (var modDir in Directory.GetDirectories(categoryDir))
-                {
-                    var modJsonPath = Path.Combine(modDir, "mod.json");
-                    if (!File.Exists(modJsonPath)) continue;
-                    try
-                    {
-                        var json = File.ReadAllText(modJsonPath);
-                        using var doc = JsonDocument.Parse(json);
-                        var root = doc.RootElement;
-                        var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
-                        if (!string.Equals(modCharacter, character, StringComparison.OrdinalIgnoreCase))
-                            continue;
-                        
-                        var name = Path.GetFileName(modDir);
-                        string previewPath = GetOptimalImagePath(modDir);
-                        var dirName = Path.GetFileName(modDir);
-                        var isActive = _activeMods.TryGetValue(dirName, out var active) && active;
-                    
-                    var modTile = new ModTile 
-                    { 
-                        Name = name, 
-                        ImagePath = previewPath, 
-                        Directory = dirName, 
-                        IsActive = isActive, 
-                        IsVisible = true,
-                        ImageSource = null // Start with no image - lazy load when visible
-                    };
-                    
-                    mods.Add(modTile);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Failed to parse mod.json for {modDir}", ex);
-                    }
-                }
-            }
-            
-            // Sort mods: active first (if enabled), then alphabetically
-            List<ModTile> sorted;
-            if (SettingsManager.Current.ActiveModsToTopEnabled)
-            {
-                sorted = mods
-                    .OrderByDescending(m => m.IsActive)
-                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-            }
-            else
-            {
-                sorted = mods
-                    .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
-                    .ToList();
+                mods.Add(modTile);
             }
                 
-            LogToGridLog($"Loaded {sorted.Count} mods for character: {character}");
-            ModsGrid.ItemsSource = sorted;
+            LogToGridLog($"Loaded {mods.Count} mods for category: {category}");
+            ModsGrid.ItemsSource = mods;
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>
@@ -1523,8 +1481,8 @@ namespace FlairX_Mod_Manager.Pages
                         // Add category information from folder structure
                         modData.Category = Path.GetFileName(categoryDir);
                         
-                        // Skip "other" mods in All Mods view - they have their own category
-                        if (!string.Equals(modData.Character, "other", StringComparison.OrdinalIgnoreCase))
+                        // Skip "Other" category mods in All Mods view - they have their own category
+                        if (!string.Equals(modData.Category, "Other", StringComparison.OrdinalIgnoreCase))
                         {
                             _allModData.Add(modData);
                         }
