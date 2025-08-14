@@ -1169,19 +1169,23 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var xxmiRootPath = SettingsManager.GetCurrentGameXXMIRoot();
-                if (!string.IsNullOrEmpty(xxmiRootPath) && Directory.Exists(xxmiRootPath))
+                // Only handle clicks on the home icon (first item)
+                if (args.Index == 0)
                 {
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    var xxmiRootPath = SettingsManager.GetCurrentGameXXMIRoot();
+                    if (!string.IsNullOrEmpty(xxmiRootPath) && Directory.Exists(xxmiRootPath))
                     {
-                        FileName = xxmiRootPath,
-                        UseShellExecute = true
-                    });
-                    Logger.LogInfo($"Opened XXMI root directory: {xxmiRootPath}");
-                }
-                else
-                {
-                    Logger.LogWarning($"XXMI root directory does not exist: {xxmiRootPath}");
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = xxmiRootPath,
+                            UseShellExecute = true
+                        });
+                        Logger.LogInfo($"Opened XXMI root directory: {xxmiRootPath}");
+                    }
+                    else
+                    {
+                        Logger.LogWarning($"XXMI root directory does not exist: {xxmiRootPath}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -1194,19 +1198,23 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-                if (!string.IsNullOrEmpty(modLibraryPath) && Directory.Exists(modLibraryPath))
+                // Only handle clicks on the home icon (first item)
+                if (args.Index == 0)
                 {
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
+                    if (!string.IsNullOrEmpty(modLibraryPath) && Directory.Exists(modLibraryPath))
                     {
-                        FileName = modLibraryPath,
-                        UseShellExecute = true
-                    });
-                    Logger.LogInfo($"Opened mod library directory: {modLibraryPath}");
-                }
-                else
-                {
-                    Logger.LogWarning($"Mod library directory does not exist: {modLibraryPath}");
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = modLibraryPath,
+                            UseShellExecute = true
+                        });
+                        Logger.LogInfo($"Opened mod library directory: {modLibraryPath}");
+                    }
+                    else
+                    {
+                        Logger.LogWarning($"Mod library directory does not exist: {modLibraryPath}");
+                    }
                 }
             }
             catch (Exception ex)

@@ -250,6 +250,39 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        private void D3dxFilePathBreadcrumb_ItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
+        {
+            try
+            {
+                // Only handle clicks on the home icon (first item)
+                if (args.Index == 0)
+                {
+                    var d3dxUserPath = SettingsManager.Current.StatusKeeperD3dxUserIniPath;
+                    if (!string.IsNullOrEmpty(d3dxUserPath))
+                    {
+                        var directoryPath = Path.GetDirectoryName(d3dxUserPath);
+                        if (!string.IsNullOrEmpty(directoryPath) && Directory.Exists(directoryPath))
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = directoryPath,
+                                UseShellExecute = true
+                            });
+                            LogStatic($"Opened d3dx_user.ini directory: {directoryPath}");
+                        }
+                        else
+                        {
+                            LogStatic($"Directory does not exist: {directoryPath}", "WARNING");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogStatic($"Failed to open d3dx_user.ini directory: {ex.Message}", "ERROR");
+            }
+        }
+
         private void BackupConfirmationToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.StatusKeeperBackupConfirmed = BackupConfirmationToggle.IsOn;
