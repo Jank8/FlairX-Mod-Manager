@@ -170,28 +170,24 @@ namespace FlairX_Mod_Manager.Pages
                 if (!Directory.Exists(categoryDir)) continue;
                 
                 var categoryName = Path.GetFileName(categoryDir);
+                if (string.IsNullOrEmpty(categoryName)) continue;
                 
                 // Skip "Other" category in category view - it has its own menu item
-                if (string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
+                if (categoryName.Equals("Other", StringComparison.OrdinalIgnoreCase))
                     continue;
                 
-                var modDirs = Directory.GetDirectories(categoryDir);
-                
-                // Only add category if it has mod directories
-                if (modDirs.Length > 0)
+                // Add all categories, even empty ones
+                var categoryTile = new ModTile
                 {
-                    var categoryTile = new ModTile
-                    {
-                        Name = categoryName,
-                        Directory = categoryName,
-                        IsCategory = true,
-                        ImagePath = GetCategoryMiniTilePath(categoryName)
-                    };
-                    
-                    // Load mini tile image
-                    LoadCategoryMiniTile(categoryTile);
-                    categories.Add(categoryTile);
-                }
+                    Name = categoryName,
+                    Directory = categoryName,
+                    IsCategory = true,
+                    ImagePath = GetCategoryMiniTilePath(categoryName)
+                };
+                
+                // Load mini tile image
+                LoadCategoryMiniTile(categoryTile);
+                categories.Add(categoryTile);
             }
             
             // Update UI on main thread
