@@ -23,12 +23,43 @@ namespace FlairX_Mod_Manager
         public static string GetAbsolutePath(string relativePath)
         {
             if (string.IsNullOrWhiteSpace(relativePath))
-                return _baseDirectory;
+                return GetSafeBaseDirectory();
                 
             if (Path.IsPathRooted(relativePath))
                 return relativePath; // Already absolute
                 
-            return Path.Combine(_baseDirectory, relativePath);
+            return Path.Combine(GetSafeBaseDirectory(), relativePath);
+        }
+        
+        /// <summary>
+        /// Gets a safe base directory, avoiding system directories
+        /// </summary>
+        private static string GetSafeBaseDirectory()
+        {
+            var baseDir = _baseDirectory;
+            
+            // Check if base directory is in a system location
+            var systemDirs = new[]
+            {
+                Environment.GetFolderPath(Environment.SpecialFolder.System),
+                Environment.GetFolderPath(Environment.SpecialFolder.SystemX86),
+                Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)
+            };
+            
+            foreach (var systemDir in systemDirs)
+            {
+                if (!string.IsNullOrEmpty(systemDir) && 
+                    baseDir.StartsWith(systemDir, StringComparison.OrdinalIgnoreCase))
+                {
+                    // If we're in a system directory, use Documents/FlairX-Mod-Manager instead
+                    var documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    return Path.Combine(documentsPath, "FlairX-Mod-Manager");
+                }
+            }
+            
+            return baseDir;
         }
         
         /// <summary>
