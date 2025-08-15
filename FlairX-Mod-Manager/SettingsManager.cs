@@ -60,6 +60,7 @@ namespace FlairX_Mod_Manager
         // Navigation state persistence
         public string? LastSelectedCategory { get; set; }
         public string? LastSelectedPage { get; set; } = "ModGridPage";
+        public string? LastViewMode { get; set; } // "Mods" or "Categories"
         public bool RememberLastPosition { get; set; } = true;
     }
 
@@ -297,29 +298,33 @@ namespace FlairX_Mod_Manager
         }
         
         // Navigation state management
-        public static void SaveLastPosition(string? category, string? page)
+        public static void SaveLastPosition(string? category, string? page, string? viewMode = null)
         {
             if (Current.RememberLastPosition)
             {
                 Current.LastSelectedCategory = category;
                 Current.LastSelectedPage = page;
+                Current.LastViewMode = viewMode ?? Current.ViewMode;
                 Save();
             }
         }
         
-        public static (string? category, string? page) GetLastPosition()
+        public static (string? category, string? page, string? viewMode) GetLastPosition()
         {
             if (Current.RememberLastPosition)
             {
-                return (Current.LastSelectedCategory, Current.LastSelectedPage);
+                // Use Current.ViewMode as fallback if LastViewMode is null
+                var viewMode = Current.LastViewMode ?? Current.ViewMode;
+                return (Current.LastSelectedCategory, Current.LastSelectedPage, viewMode);
             }
-            return (null, "ModGridPage");
+            return (null, "ModGridPage", Current.ViewMode);
         }
         
         public static void ClearLastPosition()
         {
             Current.LastSelectedCategory = null;
             Current.LastSelectedPage = "ModGridPage";
+            Current.LastViewMode = null;
             Save();
         }
     }

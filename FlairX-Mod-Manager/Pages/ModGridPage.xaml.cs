@@ -1085,6 +1085,15 @@ namespace FlairX_Mod_Manager.Pages
                     CategoryBackButton.Visibility = Visibility.Collapsed;
                     return;
                 }
+                else if (parameter.StartsWith("CategoryInCategoryMode:"))
+                {
+                    var category = parameter.Substring("CategoryInCategoryMode:".Length);
+                    
+                    // Force category mode and load specific category
+                    _currentViewMode = ViewMode.Categories;
+                    LoadCategoryInCategoryMode(category);
+                    CategoryBackButton.Visibility = Visibility.Visible;
+                }
                 else if (parameter.StartsWith("Category:"))
                 {
                     var category = parameter.Substring("Category:".Length);
