@@ -44,6 +44,12 @@ Klasa danych przechowująca wszystkie ustawienia aplikacji
 - `ShuffleActiveModsHotkey` - Shuffle aktywnych modów (default: "Ctrl+S")
 - `DeactivateAllModsHotkey` - Deaktywacja wszystkich modów (default: "Ctrl+D")
 
+### Navigation State Persistence
+- `LastSelectedCategory` - Ostatnio wybrana kategoria (nullable)
+- `LastSelectedPage` - Ostatnio wybrana strona (default: "ModGridPage")
+- `LastViewMode` - Ostatni tryb widoku ("Mods" lub "Categories")
+- `RememberLastPosition` - Czy pamiętać ostatnią pozycję (default: true)
+
 ## Klasa SettingsManager (static)
 
 ### Właściwości
@@ -103,6 +109,22 @@ Klasa danych przechowująca wszystkie ustawienia aplikacji
   - Do celów display
   - Fallback do @".\XXMI"
 
+### Navigation State Management
+- `SaveLastPosition(string? category, string? page, string? viewMode)` - Zapisuje pozycję nawigacji
+  - Sprawdza RememberLastPosition setting
+  - Zapisuje category, page, viewMode
+  - Używa Current.ViewMode jako fallback dla viewMode
+  - Automatyczny Save()
+- `GetLastPosition()` - Pobiera zapisaną pozycję nawigacji
+  - Zwraca tuple: (category, page, viewMode)
+  - Używa Current.ViewMode jako fallback dla LastViewMode
+  - Respektuje RememberLastPosition setting
+  - Fallback: (null, "ModGridPage", Current.ViewMode)
+- `ClearLastPosition()` - Czyści zapisaną pozycję
+  - Resetuje LastSelectedCategory, LastSelectedPage, LastViewMode
+  - Używane gdy pozycja staje się nieprawidłowa
+  - Automatyczny Save()
+
 ## Zależności
 - System.IO
 - System.Text.Json
@@ -117,4 +139,6 @@ Klasa danych przechowująca wszystkie ustawienia aplikacji
 5. **Hotkey management**
 6. **Window state management**
 7. **Game switching logic**
-8. **JSON serialization/deserialization**
+8. **Navigation state persistence** - Pamiętanie pozycji nawigacji
+9. **Position validation and fallback** - Walidacja i fallback pozycji
+10. **JSON serialization/deserialization**

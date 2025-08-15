@@ -60,7 +60,7 @@ UI ELEMENTS:
 
 ================================================================================
 FILE: Pages/ModGridPage.xaml.cs
-TOTAL LINES: 3377
+TOTAL LINES: 3386
 
 LINE RANGES:
 ├── Using statements: lines 1-20
@@ -176,24 +176,24 @@ LINE RANGES:
 │   │   ├── RefreshChangedMods: lines 2692-2770
 │   │   ├── LoadActiveModsOnly: lines 2772-2810
 │   │   ├── LoadActiveModData: lines 2812-2870
-│   │   ├── GetCategoryTitleText: lines 2872-2875
-│   │   ├── CleanPath: lines 2877-2882
-│   │   ├── CreateSymlinkStatic: lines 2884-2920
-│   │   ├── IsSymlinkStatic: lines 2922-2935
-│   │   ├── TriggerManagerReloadStatic: lines 2937-2970
-│   │   ├── ValidateAndFixSymlinks: lines 2972-3070
-│   │   ├── RefreshUIAfterLanguageChange: lines 3072-3085
-│   │   ├── GetDisplayPath: lines 3087-3090
-│   │   └── NotifyMainWindowToUpdateHeartButton: lines 3092-3102
-│   ├── Context menu system: lines 3104-3377
-│   │   ├── ContextMenu_Opening: lines 3104-3245
-│   │   ├── ContextMenu_ActivateDeactivate_Click: lines 3247-3255
-│   │   ├── ContextMenu_OpenFolder_Click: lines 3257-3265
-│   │   ├── ContextMenu_ViewDetails_Click: lines 3267-3275
-│   │   ├── ContextMenu_OpenUrl_Click: lines 3277-3301
-│   │   ├── ContextMenu_CopyName_Click: lines 3303-3319
-│   │   ├── ContextMenu_Rename_Click: lines 3321-3375
-│   │   └── RenameItemAsync: lines 3377 (continues beyond file)
+│   │   ├── GetCategoryTitleText: lines 2891-2895
+│   │   ├── CleanPath: lines 2897-2902
+│   │   ├── CreateSymlinkStatic: lines 2904-2940
+│   │   ├── IsSymlinkStatic: lines 2942-2955
+│   │   ├── TriggerManagerReloadStatic: lines 2957-2990
+│   │   ├── ValidateAndFixSymlinks: lines 2992-3090
+│   │   ├── RefreshUIAfterLanguageChange: lines 3092-3105
+│   │   ├── GetDisplayPath: lines 3107-3110
+│   │   └── NotifyMainWindowToUpdateHeartButton: lines 3112-3122
+│   ├── Context menu system: lines 3124-3386
+│   │   ├── ContextMenu_Opening: lines 3124-3265
+│   │   ├── ContextMenu_ActivateDeactivate_Click: lines 3267-3275
+│   │   ├── ContextMenu_OpenFolder_Click: lines 3277-3285
+│   │   ├── ContextMenu_ViewDetails_Click: lines 3287-3295
+│   │   ├── ContextMenu_OpenUrl_Click: lines 3297-3321
+│   │   ├── ContextMenu_CopyName_Click: lines 3323-3339
+│   │   ├── ContextMenu_Rename_Click: lines 3341-3385
+│   │   └── RenameItemAsync: lines 3386 (continues beyond file)
 
 ================================================================================
 COMPONENT OVERVIEW
@@ -255,6 +255,7 @@ PUBLIC API METHODS:
 - FilterMods(string query): Filters mods with comprehensive search across name, author, URL
 - LoadMods(string category): Loads mods from specific category
 - LoadActiveModsOnly(): Loads only active mods from all categories
+- GetCategoryTitleText(): Returns current category title text for position memory system
 
 NAVIGATION:
 - Category back button with proper state management
@@ -263,6 +264,7 @@ NAVIGATION:
 - Search mode state preservation and restoration
 - Category drill-down with breadcrumb navigation
 - Mouse back button support for navigation
+- Position memory integration via GetCategoryTitleText() for reload restoration
 
 THREAD SAFETY:
 - Static caching with proper locking mechanisms
