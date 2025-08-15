@@ -211,8 +211,9 @@ namespace FlairX_Mod_Manager.Pages
                 var langDict = SharedUtilities.LoadLanguageDictionary();
                 CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "All_Categories");
                 
-                // Hide back button in categories view
+                // Hide back button and folder button in categories view
                 CategoryBackButton.Visibility = Visibility.Collapsed;
+                CategoryOpenFolderButton.Visibility = Visibility.Collapsed;
                 
                 LogToGridLog($"Loaded {categories.Count} categories");
             });
