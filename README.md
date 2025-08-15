@@ -85,7 +85,7 @@ A comprehensive mod management application for multiple miHoYo games, built with
 ### Installation Steps
 1. Download the latest release from the [Releases](../../releases) page
 2. Extract the archive to your desired location (preferably on an NTFS drive)
-3. Run `FlairX Mod Manager.exe` as Administrator
+3. Run `FlairX Mod Manager Launcher.exe`
 4. The application will automatically request administrator privileges if needed
 
 ### First Run Setup
@@ -251,6 +251,7 @@ Contributions are welcome! Please feel free to submit pull requests or open issu
 ---
 
 *This application is not affiliated with miHoYo/HoYoverse or any of the supported games. It is a community-developed tool for managing game modifications.*
+
 
 
 
