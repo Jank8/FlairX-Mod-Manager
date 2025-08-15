@@ -1,0 +1,293 @@
+COMPONENT: ModGridPage
+DESCRIPTION: Main page for displaying mod grid with categories, zoom, lazy loading, and context menus
+
+================================================================================
+FILE: Pages/ModGridPage.xaml
+TOTAL LINES: 229
+
+LINE RANGES:
+├── Page Declaration: lines 1-11
+│   ├── Class definition: line 2
+│   ├── Namespace declarations: lines 3-10
+│   └── Tab stop enabled: line 11
+├── Page Resources: lines 12-31
+│   ├── BoolToVisibilityConverter: line 13
+│   └── TransparentButtonStyle: lines 14-31
+│       ├── Style properties: lines 15-20
+│       └── Control template: lines 21-30
+├── Main Grid Layout: lines 32-228
+│   ├── Grid setup: lines 32-35
+│   ├── Header Section: lines 36-53
+│   │   ├── Back button: lines 37-46
+│   │   └── Category title: lines 47-52
+│   └── Content Section: lines 54-227
+│       ├── ScrollViewer: line 54
+│       ├── GridView setup: lines 55-62
+│       ├── WrapGrid panel: lines 63-66
+│       └── Item Template: lines 67-226
+│           ├── Tile border: lines 68-76
+│           ├── Context menu: lines 77-80
+│           ├── Shadow effect: lines 81-83
+│           ├── Main grid: lines 84-87
+│           ├── Image section: lines 89-108
+│           │   ├── Image border: lines 89-93
+│           │   ├── Image element: lines 94-105
+│           │   └── Viewport behavior: lines 96-104
+│           ├── Action buttons: lines 110-170
+│           │   ├── Category folder button: lines 113-135
+│           │   └── Mod heart button: lines 138-169
+│           ├── Description section: lines 172-206
+│           │   ├── Description grid: lines 172-176
+│           │   ├── Background border: lines 177-179
+│           │   └── Name button: lines 180-205
+│           └── Deletion overlay: lines 208-225
+
+UI ELEMENTS:
+- CategoryBackButton: lines 37-46 - Navigation back button (&#xE72B;)
+- CategoryTitle: lines 47-52 - Dynamic page title
+- ModsScrollViewer: line 54 - Main scroll container
+- ModsGrid: lines 55-62 - GridView for mod tiles
+- TileBorder: lines 68-76 - Individual tile container with context menu
+- ImageBorder: lines 89-93 - Image container with background
+- ModImage: lines 94-105 - Mod preview image with lazy loading
+- OpenFolderIcon: lines 124-127 - Category folder icon (&#xE8B7;)
+- OpenFolderIconHover: lines 128-131 - Hover folder icon (&#xE8D5;)
+- HeartEmpty: lines 153-157 - Inactive mod icon (&#xEB51;)
+- HeartFull: lines 158-162 - Active mod icon (&#xEB52;)
+- HeartHover: lines 163-167 - Hover heart icon (&#xEB52;)
+- ModNameBtn: lines 180-205 - Clickable mod name button
+- Deletion overlay: lines 208-225 - Delete animation overlay (&#xE74D;)
+
+================================================================================
+FILE: Pages/ModGridPage.xaml.cs
+TOTAL LINES: 3377
+
+LINE RANGES:
+├── Using statements: lines 1-20
+├── Namespace declaration: lines 22-23
+├── ModGridPage class: lines 23-3377
+│   ├── ViewMode enum: lines 25-29
+│   ├── ViewMode properties: lines 31-44
+│   ├── ModTile class: lines 45-96
+│   │   ├── Properties: lines 48-51
+│   │   ├── ImageSource: lines 52-57
+│   │   ├── IsActive: lines 58-62
+│   │   ├── Hover states: lines 63-82
+│   │   ├── Visibility: lines 83-92
+│   │   └── PropertyChanged: lines 95-96
+│   ├── Static paths: lines 98-105
+│   ├── Instance fields: lines 107-128
+│   │   ├── Collections: lines 107-109
+│   │   ├── Navigation state: lines 110-117
+│   │   ├── Mod data: lines 119-120
+│   │   └── Caching system: lines 121-128
+│   ├── View mode management: lines 130-327
+│   │   ├── OnViewModeChanged: lines 130-151
+│   │   ├── LoadCategories: lines 152-217
+│   │   ├── GetCategoryMiniTilePath: lines 219-228
+│   │   ├── LoadCategoryMiniTile: lines 230-267
+│   │   ├── UpdateMainWindowButtonText: lines 268-277
+│   │   ├── LoadAllModsPublic: lines 279-292
+│   │   ├── LoadAllCategories: lines 293-302
+│   │   ├── LoadCategoryInDefaultMode: lines 306-314
+│   │   └── LoadCategoryInCategoryMode: lines 315-327
+│   ├── Zoom functionality: lines 328-482
+│   │   ├── ZoomFactor property: lines 328-359
+│   │   ├── ResetZoom: lines 360-364
+│   │   ├── ApplyScalingToContainer: lines 365-395
+│   │   ├── UpdateGridItemSizes: lines 396-465
+│   │   └── Container handling: lines 466-482
+│   ├── Constructor & initialization: lines 444-482
+│   │   ├── ModGridPage constructor: lines 444-462
+│   │   └── ModsGrid_ContainerContentChanging: lines 464-482
+│   ├── Background loading: lines 483-631
+│   │   ├── StartBackgroundLoadingIfNeeded: lines 483-508
+│   │   ├── BackgroundLoadModDataAsync: lines 509-611
+│   │   └── GetOptimalImagePathStatic: lines 612-631
+│   ├── Page lifecycle: lines 632-772
+│   │   ├── ModGridPage_Loaded: lines 632-668
+│   │   ├── ModGridPage_SizeChanged: lines 669-687
+│   │   ├── ModsScrollViewer_ViewChanged: lines 688-722
+│   │   ├── ModsScrollViewer_PointerWheelChanged: lines 723-757
+│   │   └── OnKeyDown: lines 758-772
+│   ├── Lazy loading system: lines 773-1026
+│   │   ├── LoadMoreModTilesIfNeeded: lines 773-790
+│   │   ├── LoadMoreModTiles: lines 791-816
+│   │   ├── LoadVisibleImages: lines 817-905
+│   │   ├── IsItemInPreloadBuffer: lines 907-939
+│   │   ├── DisposeDistantImages: lines 941-968
+│   │   ├── TriggerGarbageCollection: lines 970-1000
+│   │   ├── PerformAggressiveDisposal: lines 1002-1026
+│   │   └── IsItemVisible: lines 1028-1050
+│   ├── Logging: lines 1027-1050
+│   ├── Navigation handling: lines 1052-1200
+│   │   ├── OnNavigatedTo: lines 1052-1200
+│   │   └── OnNavigatedFrom: lines 1202-1210
+│   ├── Active mods management: lines 1212-1280
+│   │   ├── LoadActiveMods: lines 1212-1233
+│   │   ├── SaveActiveMods: lines 1234-1245
+│   │   ├── LoadSymlinkState: lines 1247-1260
+│   │   ├── SaveSymlinkState: lines 1262-1273
+│   │   └── SymlinkState class: lines 1275-1278
+│   ├── ModData class: lines 1280-1290
+│   ├── Mod loading core: lines 1292-1700
+│   │   ├── LoadModsByCategory: lines 1292-1300
+│   │   ├── CategoryBackButton_Click: lines 1302-1320
+│   │   ├── ModGridPage_PointerPressed: lines 1322-1340
+│   │   ├── LoadCategoryModData: lines 1342-1410
+│   │   ├── LoadMods: lines 1412-1450
+│   │   ├── LoadAllMods: lines 1452-1465
+│   │   ├── LoadAllModData: lines 1467-1520
+│   │   ├── GetCachedModData: lines 1522-1580
+│   │   ├── LoadVirtualizedModTiles: lines 1582-1610
+│   │   ├── CalculateInitialLoadCount: lines 1612-1620
+│   │   ├── GetOptimalImagePath: lines 1622-1650
+│   │   └── CreateBitmapImage: lines 1652-1670
+│   ├── Search functionality: lines 1672-1780
+│   │   └── FilterMods: lines 1672-1780
+│   ├── Mod operations: lines 1782-2150
+│   │   ├── ModActiveButton_Click: lines 1782-1890
+│   │   ├── Pointer events: lines 1892-1910
+│   │   ├── FindModFolderPath: lines 1912-1940
+│   │   ├── OpenModFolderButton_Click: lines 1942-1970
+│   │   ├── Folder button events: lines 1972-1990
+│   │   ├── Delete button events: lines 1992-2010
+│   │   ├── DeleteModWithConfirmation: lines 2012-2100
+│   │   └── RefreshGridWithScrollPosition: lines 2102-2150
+│   ├── Windows API & utilities: lines 2152-2300
+│   │   ├── DLL imports: lines 2152-2170
+│   │   ├── MoveToRecycleBin: lines 2172-2185
+│   │   ├── CreateSymlink: lines 2187-2220
+│   │   ├── IsSymlink: lines 2222-2230
+│   │   └── RemoveAllSymlinks: lines 2232-2240
+│   ├── Mod detail overlay: lines 2242-2470
+│   │   └── ModName_Click: lines 2242-2470
+│   ├── Static utilities: lines 2472-2900
+│   │   ├── FindParentGrid: lines 2472-2480
+│   │   ├── RecreateSymlinksFromActiveMods: lines 2482-2570
+│   │   ├── ApplyPreset: lines 2572-2600
+│   │   ├── SaveDefaultPresetAllInactive: lines 2602-2660
+│   │   ├── Cache management: lines 2662-2690
+│   │   ├── RefreshChangedMods: lines 2692-2770
+│   │   ├── LoadActiveModsOnly: lines 2772-2810
+│   │   ├── LoadActiveModData: lines 2812-2870
+│   │   ├── GetCategoryTitleText: lines 2872-2875
+│   │   ├── CleanPath: lines 2877-2882
+│   │   ├── CreateSymlinkStatic: lines 2884-2920
+│   │   ├── IsSymlinkStatic: lines 2922-2935
+│   │   ├── TriggerManagerReloadStatic: lines 2937-2970
+│   │   ├── ValidateAndFixSymlinks: lines 2972-3070
+│   │   ├── RefreshUIAfterLanguageChange: lines 3072-3085
+│   │   ├── GetDisplayPath: lines 3087-3090
+│   │   └── NotifyMainWindowToUpdateHeartButton: lines 3092-3102
+│   ├── Context menu system: lines 3104-3377
+│   │   ├── ContextMenu_Opening: lines 3104-3245
+│   │   ├── ContextMenu_ActivateDeactivate_Click: lines 3247-3255
+│   │   ├── ContextMenu_OpenFolder_Click: lines 3257-3265
+│   │   ├── ContextMenu_ViewDetails_Click: lines 3267-3275
+│   │   ├── ContextMenu_OpenUrl_Click: lines 3277-3301
+│   │   ├── ContextMenu_CopyName_Click: lines 3303-3319
+│   │   ├── ContextMenu_Rename_Click: lines 3321-3375
+│   │   └── RenameItemAsync: lines 3377 (continues beyond file)
+
+================================================================================
+COMPONENT OVERVIEW
+
+KEY CLASSES:
+- ModGridPage: Main page class with comprehensive mod grid functionality
+- ViewMode enum: Mods/Categories view mode switching
+- ModTile: Data model for mod tiles with INotifyPropertyChanged
+- ModData: Lightweight data structure for virtualized loading
+- SymlinkState: Symlink target path persistence
+
+CORE FUNCTIONALITY:
+- Dual view modes (Mods/Categories) with seamless switching
+- Advanced zoom system (1.0x to 2.5x) with ScaleTransform
+- Lazy loading with viewport detection and image disposal
+- Thread-safe background mod data caching with timestamps
+- Context menu system with directory validation
+- Active mods management with Windows symlink support
+- Category-based mod organization with navigation
+- Search and filtering with state preservation
+- Mod detail overlay with slide animations
+
+PERFORMANCE OPTIMIZATIONS:
+- Background JSON caching with file timestamp validation
+- Lazy image loading with CommunityToolkit viewport behavior
+- Aggressive memory management with GC triggering
+- Thread-safe operations with proper locking mechanisms
+- Virtualized mod tile loading (progressive loading on scroll)
+- Distance-based image disposal for memory efficiency
+- Incremental mod refresh for changed files only
+
+ZOOM SYSTEM:
+- Mouse wheel zoom with Ctrl modifier detection
+- ScaleTransform-based scaling for smooth performance
+- Dynamic container size management for proper layout
+- Zoom indicator integration with MainWindow
+- Keyboard shortcut (Ctrl+0) for zoom reset
+- Settings persistence for zoom level
+
+LAZY LOADING:
+- Viewport-based image loading using behaviors
+- Progressive mod tile loading (calculated batch sizes)
+- Distance-based image disposal with preload buffer
+- Scroll-triggered loading with throttling (100ms)
+- Background thread processing for smooth UI
+- Memory pressure monitoring and cleanup
+
+CONTEXT MENU SYSTEM:
+- Dynamic menu creation based on mod/category type
+- Directory validation before menu display
+- Automatic tile removal for missing directories
+- Comprehensive menu options (activate, folder, details, URL, copy, rename, delete)
+- Translation support for all menu items
+- Security validation for directory operations
+
+NAVIGATION:
+- Category back button with proper state management
+- Separate navigation systems for different view modes
+- MainWindow integration for view mode synchronization
+- Search mode state preservation and restoration
+- Category drill-down with breadcrumb navigation
+- Mouse back button support for navigation
+
+THREAD SAFETY:
+- Static caching with proper locking mechanisms
+- Background loading with cancellation support
+- UI updates dispatched to main thread
+- Volatile fields for cross-thread access
+- Safe increment methods for counters
+- Thread-safe collection operations
+
+DATA BINDING:
+- ObservableCollection for reactive UI updates
+- INotifyPropertyChanged implementation in ModTile
+- Converter-based visibility control
+- Command binding for viewport changes
+- Two-way binding for mod states
+- Dynamic property updates
+
+MEMORY MANAGEMENT:
+- Aggressive image disposal for distant items
+- Garbage collection triggering with cooldown (5s)
+- Background thread cleanup operations
+- Proper resource disposal patterns
+- Memory pressure monitoring
+- Cache invalidation for changed files
+
+ERROR HANDLING:
+- Comprehensive try-catch blocks throughout
+- Logging system for debugging and monitoring
+- Graceful fallback for missing directories
+- File system error recovery
+- Network error handling for operations
+- Security validation for all file operations
+
+WINDOWS INTEGRATION:
+- Windows Shell API for recycle bin operations
+- Symbolic link creation and management
+- File system monitoring and validation
+- Explorer integration for folder opening
+- Clipboard operations for copying
+- URL launching for mod links

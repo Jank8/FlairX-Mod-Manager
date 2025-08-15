@@ -267,10 +267,6 @@ namespace FlairX_Mod_Manager.Pages
                 case "ModInfoBackup":
                     FunctionContentFrame.Navigate(typeof(ModInfoBackupPage));
                     break;
-                default:
-                    // Fallback to the generic settings page
-                    FunctionContentFrame.Navigate(typeof(SettingsFunctionPage), function.FileName);
-                    break;
             }
         }
 

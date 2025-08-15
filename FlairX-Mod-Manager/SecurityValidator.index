@@ -1,0 +1,45 @@
+# SecurityValidator.cs - Indeks Klasy
+
+## Opis
+Security validation utilities
+
+## Stałe
+- `ReservedNames` - Array of Windows reserved names (CON, PRN, AUX, NUL, COM1-9, LPT1-9)
+
+## Metody Publiczne
+
+### Walidacja Nazw Katalogów
+- `IsValidModDirectoryName(string? directoryName)` - Validates that a directory name is safe for mod operations
+  - Sprawdza null/empty
+  - Wykrywa path traversal (.., /, \)
+  - Sprawdza absolute paths
+  - Waliduje invalid filename characters
+  - Sprawdza reserved names (Windows)
+  - Kontroluje długość (max 255)
+
+### Walidacja URL
+- `IsValidUrl(string? url)` - Validates URL for safety
+  - Sprawdza null/empty
+  - Waliduje URI format
+  - Akceptuje tylko http/https schemes
+
+### Sanityzacja Danych
+- `SanitizeInput(string input)` - Sanitizes user input for safe file operations
+  - Usuwa dangerous characters
+  - Zastępuje invalid chars na '_'
+  - Usuwa path traversal attempts (.., ~)
+  - Ogranicza długość do 255 znaków
+
+## Zależności
+- System.IO
+- System.Linq
+- Logger (LogWarning, LogError)
+
+## Funkcjonalności
+1. **Walidacja nazw katalogów modów**
+2. **Sprawdzanie bezpieczeństwa URL**
+3. **Sanityzacja input użytkownika**
+4. **Ochrona przed path traversal**
+5. **Walidacja Windows reserved names**
+6. **Kontrola długości nazw plików**
+7. **Comprehensive error logging**

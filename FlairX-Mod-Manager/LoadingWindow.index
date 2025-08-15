@@ -1,0 +1,203 @@
+COMPONENT: LoadingWindow
+DESCRIPTION: Loading screen window with progress indication, status updates, and backdrop effects during application startup
+
+================================================================================
+FILE: LoadingWindow.xaml
+TOTAL LINES: 46
+
+LINE RANGES:
+├── XML Declaration: line 1
+├── Window Declaration: lines 2-6
+│   ├── Class definition: line 3
+│   └── Namespace declarations: lines 4-5
+├── Main Grid Layout: lines 9-45
+│   ├── Loading root grid: line 9
+│   ├── Centered container: lines 10-44
+│   │   ├── Grid definitions: lines 11-17
+│   │   ├── Title text: lines 19-25
+│   │   │   ├── Text content: line 21
+│   │   │   ├── Font styling: lines 22-23
+│   │   │   └── Alignment: lines 24-25
+│   │   ├── Progress bar container: lines 27-37
+│   │   │   ├── Column definitions: lines 28-32
+│   │   │   └── Progress bar: lines 34-37
+│   │   └── Status text: lines 39-44
+│   │       ├── Text content: line 41
+│   │       ├── Font size: line 42
+│   │       ├── Alignment: lines 43-44
+│   │       └── Opacity: line 45
+
+UI ELEMENTS:
+- LoadingRoot: line 9 - Main grid container for backdrop effects
+- TitleText: lines 19-25 - Application title with large bold font
+- LoadingProgressBar: lines 34-37 - Indeterminate progress indicator
+- StatusText: lines 39-44 - Dynamic status message display
+
+================================================================================
+FILE: LoadingWindow.xaml.cs
+TOTAL LINES: 263
+
+LINE RANGES:
+├── Using statements: lines 1-12
+├── Namespace declaration: lines 14-15
+├── LoadingWindow class: lines 16-263
+│   ├── Backdrop fields: lines 17-21
+│   │   ├── Dispatcher queue helper: line 18
+│   │   ├── Acrylic controller: line 19
+│   │   ├── Mica controller: line 20
+│   │   └── Configuration source: line 21
+│   ├── Constructor: lines 23-70
+│   │   ├── Component initialization: line 25
+│   │   ├── Window title: line 27
+│   │   ├── Theme application: lines 29-38
+│   │   ├── Backdrop effect: lines 40-42
+│   │   ├── Window configuration: lines 44-70
+│   │   │   ├── Handle and ID retrieval: lines 44-46
+│   │   │   ├── Window sizing: line 49
+│   │   │   ├── Window centering: lines 51-58
+│   │   │   ├── Icon setting: line 60
+│   │   │   └── Title bar configuration: lines 62-68
+│   ├── Status Management: lines 72-95
+│   │   ├── UpdateStatus: lines 72-78
+│   │   ├── SetProgress: lines 80-86
+│   │   └── SetIndeterminate: lines 88-95
+│   ├── Backdrop Management: lines 97-160
+│   │   └── ApplyBackdropEffect: lines 97-160
+│   │       ├── Controller disposal: lines 99-104
+│   │       ├── Background clearing: lines 106-110
+│   │       ├── Mica effect: lines 112-130
+│   │       ├── MicaAlt effect: lines 131-149
+│   │       ├── Acrylic effects: lines 150-154
+│   │       └── None effect: lines 155-160
+│   ├── Acrylic Implementation: lines 162-185
+│   │   └── TrySetAcrylicBackdrop: lines 162-185
+│   │       ├── Support check: line 164
+│   │       ├── Queue helper setup: lines 165-167
+│   │       ├── Configuration setup: lines 169-176
+│   │       ├── Controller creation: lines 178-179
+│   │       └── Backdrop activation: lines 181-185
+│   ├── Window Event Handlers: lines 187-220
+│   │   ├── Window_Activated: lines 187-192
+│   │   ├── Window_Closed: lines 194-205
+│   │   └── Window_ThemeChanged: lines 207-220
+│   │       ├── Configuration update: lines 209-213
+│   │       └── Background update: lines 215-220
+│   ├── Theme Configuration: lines 222-232
+│   │   └── SetConfigurationSourceTheme: lines 222-232
+│   │       ├── Theme detection: lines 224-230
+│   └── Background Management: lines 234-263
+│       └── SetNoneBackgroundForTheme: lines 234-263
+│           ├── Theme detection: lines 236-238
+│           ├── Light theme background: lines 239-243
+│           ├── Dark theme background: lines 244-248
+│           └── Auto theme background: lines 249-253
+
+================================================================================
+COMPONENT OVERVIEW
+
+KEY METHODS:
+- Constructor: lines 23-70 - Initialize window with theme, backdrop, and positioning
+- UpdateStatus: lines 72-78 - Update status text on UI thread
+- SetProgress: lines 80-86 - Set progress bar value
+- SetIndeterminate: lines 88-95 - Toggle indeterminate progress mode
+- ApplyBackdropEffect: lines 97-160 - Apply backdrop effects (Mica/Acrylic/None)
+- TrySetAcrylicBackdrop: lines 162-185 - Configure acrylic backdrop
+- SetNoneBackgroundForTheme: lines 234-263 - Set solid background for None effect
+
+FUNCTIONALITY:
+- Loading screen display during application startup
+- Progress indication with status text updates
+- Backdrop effects matching main application settings
+- Theme-aware styling and colors
+- Centered window positioning
+- Professional loading experience
+
+BACKDROP SYSTEM:
+- Mica: Base and BaseAlt variants
+- Acrylic: Base and Thin variants
+- None: Solid color backgrounds matching theme
+- Automatic fallback for unsupported systems
+- Theme-aware backdrop configuration
+
+WINDOW MANAGEMENT:
+- Fixed size: 500x250 pixels
+- Centered positioning on primary display
+- Custom title bar with transparency
+- Application icon display
+- Proper window lifecycle management
+
+STATUS UPDATES:
+- Thread-safe status text updates
+- Progress bar value and mode control
+- Indeterminate progress for unknown duration
+- Real-time feedback during loading operations
+
+THEME INTEGRATION:
+- Automatic theme detection from settings
+- Light/Dark/Auto theme support
+- Theme-aware background colors
+- Consistent styling with main application
+- Dynamic theme change handling
+
+UI DESIGN:
+- Clean, minimalist loading interface
+- Large application title (28px, bold)
+- Centered progress bar with proper spacing
+- Status text with reduced opacity (0.8)
+- Professional typography and layout
+
+BACKDROP EFFECTS:
+- Mica: Modern Windows 11 backdrop
+- MicaAlt: Alternative Mica variant
+- Acrylic: Translucent blur effect
+- AcrylicThin: Lighter acrylic variant
+- None: Solid color matching theme
+
+PERFORMANCE:
+- Lightweight window for fast startup
+- Efficient backdrop controller management
+- Minimal resource usage during loading
+- Quick initialization and disposal
+
+ERROR HANDLING:
+- Graceful fallback for unsupported backdrop effects
+- Safe disposal of backdrop controllers
+- Null checks for configuration objects
+- Exception-safe window operations
+
+INTEGRATION:
+- SettingsManager integration for theme and backdrop
+- Consistent styling with main application
+- Proper resource management and cleanup
+- Thread-safe UI updates
+
+VISUAL HIERARCHY:
+- Application title: Primary focus (28px, bold)
+- Progress bar: Secondary visual element
+- Status text: Tertiary information (14px, 0.8 opacity)
+- Balanced spacing with 24px gaps
+
+ACCESSIBILITY:
+- High contrast support through theme system
+- Readable font sizes and weights
+- Clear visual feedback for loading progress
+- Consistent with Windows accessibility guidelines
+
+WINDOW PROPERTIES:
+- Title: "FlairX Mod Manager - Loading"
+- Size: 500x250 pixels (fixed)
+- Position: Centered on primary display
+- Icon: app.ico
+- Title bar: Extended content area with transparency
+
+LIFECYCLE MANAGEMENT:
+- Proper initialization of backdrop controllers
+- Event handler registration and cleanup
+- Resource disposal on window close
+- Memory leak prevention
+
+THREAD SAFETY:
+- DispatcherQueue for UI thread operations
+- Safe status and progress updates
+- Thread-safe backdrop configuration
+- Proper synchronization for UI elements

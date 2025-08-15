@@ -111,13 +111,10 @@ namespace FlairX_Mod_Manager.Pages
                             System.Diagnostics.Debug.WriteLine($"Error listing directories: {debugEx.Message}");
                         }
                         
-                        // Mod not found - trigger automatic reload to refresh mod library
-                        System.Diagnostics.Debug.WriteLine($"Mod directory not found, triggering automatic reload...");
-                        TriggerManagerReload();
-                        
-                        // Set defaults for now
-                        ModDetailTitle.Text = $"Mod Details - {modDirectory}";
+                        // Mod not found - this shouldn't happen anymore since we check before opening
+                        System.Diagnostics.Debug.WriteLine($"Mod directory not found: {modDirectory}");
                         SetDefaultValues();
+                        return;
                     }
                 }
                 else
@@ -540,40 +537,6 @@ namespace FlairX_Mod_Manager.Pages
             storyboard.Begin();
         }
 
-        private async void TriggerManagerReload()
-        {
-            try
-            {
-                // Get the main window to trigger reload
-                var mainWindow = (App.Current as App)?.MainWindow as FlairX_Mod_Manager.MainWindow;
-                if (mainWindow != null)
-                {
-                    System.Diagnostics.Debug.WriteLine("Triggering manager reload due to missing mod directory...");
-                    
-                    // Close this detail panel first
-                    CloseRequested?.Invoke(this, EventArgs.Empty);
-                    
-                    // Small delay to let the panel close
-                    await Task.Delay(300);
-                    
-                    // Trigger reload using the same method as the reload button
-                    var reloadMethod = mainWindow.GetType().GetMethod("ReloadModsAsync", 
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    
-                    if (reloadMethod != null)
-                    {
-                        var task = reloadMethod.Invoke(mainWindow, null) as Task;
-                        if (task != null)
-                        {
-                            await task;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error triggering manager reload: {ex.Message}");
-            }
-        }
+
     }
 }

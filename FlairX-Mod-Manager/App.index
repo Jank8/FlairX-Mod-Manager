@@ -1,0 +1,246 @@
+COMPONENT: App
+DESCRIPTION: Main application class with startup logic, language detection, font management, and mod library initialization
+
+================================================================================
+FILE: App.xaml
+TOTAL LINES: 106
+
+LINE RANGES:
+├── Application Declaration: lines 1-5
+│   ├── Class definition: line 2
+│   └── Namespace declarations: lines 3-5
+├── Application Resources: lines 6-105
+│   ├── Resource Dictionary: lines 7-104
+│   │   ├── Merged Dictionaries: lines 8-10
+│   │   ├── Font Families: lines 11-18
+│   │   │   ├── AppFontFamily (Noto Sans): line 11
+│   │   │   ├── ChineseFont (Noto Sans SC): line 12
+│   │   │   ├── JapaneseFont (Noto Sans JP): line 13
+│   │   │   ├── KoreanFont (Noto Sans KR): line 14
+│   │   │   ├── ArabicFont (Noto Sans Arabic): line 15
+│   │   │   ├── HebrewFont (Noto Sans Hebrew): line 16
+│   │   │   ├── HindiFont (Noto Sans Devanagari): line 17
+│   │   │   └── ThaiFont (Noto Sans Thai): line 18
+│   │   ├── Global Styles: lines 19-58
+│   │   │   ├── TextBlock style: lines 19-21
+│   │   │   ├── Button style: lines 22-25
+│   │   │   ├── ComboBox style: lines 26-29
+│   │   │   ├── ComboBoxItem style: lines 30-33
+│   │   │   ├── NavigationViewItem style: lines 34-36
+│   │   │   ├── ContentDialog style: lines 37-40
+│   │   │   ├── TextBox style: lines 41-44
+│   │   │   ├── PasswordBox style: lines 45-47
+│   │   │   ├── ContentControl style: lines 48-50
+│   │   │   ├── ListView style: lines 51-53
+│   │   │   ├── ListViewItem style: lines 54-56
+│   │   │   ├── GridView style: lines 57-59
+│   │   │   └── GridViewItem style: lines 60-62
+│   │   └── Theme Dictionaries: lines 63-103
+│   │       ├── Light Theme: lines 64-82
+│   │       │   ├── LauncherAcrylicBrush: lines 65-69
+│   │       │   ├── IconAcrylicBrush: lines 70-74
+│   │       │   ├── ModDetailNavButtonAcrylicBrush: lines 75-79
+│   │       │   ├── TileBorderBrush: line 80
+│   │       │   └── TileDescriptionBackground: line 81
+│   │       └── Dark Theme: lines 83-101
+│   │           ├── LauncherAcrylicBrush: lines 84-88
+│   │           ├── IconAcrylicBrush: lines 89-93
+│   │           ├── ModDetailNavButtonAcrylicBrush: lines 94-98
+│   │           ├── TileBorderBrush: line 99
+│   │           └── TileDescriptionBackground: line 100
+
+RESOURCE DEFINITIONS:
+- Font Families: 8 different fonts for international language support
+- Global Styles: 12 control styles with consistent font family and corner radius
+- Theme Resources: Light and Dark theme dictionaries with acrylic brushes and colors
+- Acrylic Brushes: LauncherAcrylicBrush, IconAcrylicBrush, ModDetailNavButtonAcrylicBrush
+- Color Brushes: TileBorderBrush, TileDescriptionBackground
+
+================================================================================
+FILE: App.xaml.cs
+TOTAL LINES: 590
+
+LINE RANGES:
+├── Using statements: lines 1-23
+├── Namespace declaration: lines 28-29
+├── App class: lines 33-590
+│   ├── Fields: lines 34-35
+│   │   ├── Window reference: line 34
+│   │   └── MainWindow property: line 35
+│   ├── Constructor: lines 37-46
+│   │   ├── Admin requirement: line 42
+│   │   ├── Component initialization: line 43
+│   │   └── Notification registration: line 45
+│   ├── Application Launch: lines 48-140
+│   │   └── OnLaunched: lines 48-140
+│   │       ├── Settings loading: line 50
+│   │       ├── Language detection: lines 52-60
+│   │       ├── Culture and font setup: lines 62-110
+│   │       │   ├── Chinese setup: lines 62-70
+│   │       │   ├── Japanese setup: lines 71-79
+│   │       │   ├── Korean setup: lines 80-88
+│   │       │   ├── Arabic setup: lines 89-97
+│   │       │   ├── Hebrew setup: lines 98-106
+│   │       │   ├── Hindi setup: lines 107-115
+│   │       │   ├── Thai setup: lines 116-124
+│   │       │   └── Silesian setup: lines 125-130
+│   │       ├── Mod library initialization: line 132
+│   │       ├── Directory creation: line 133
+│   │       ├── Default preset generation: lines 135-136
+│   │       ├── Symlink validation: lines 138-142
+│   │       ├── Loading window display: line 145
+│   │       └── StatusKeeper startup: lines 148-152
+│   ├── Directory Management: lines 154-220
+│   │   ├── EnsureDefaultDirectories: lines 154-185
+│   │   │   ├── XXMI directory creation: lines 155-170
+│   │   │   └── ModLibrary directory creation: lines 171-185
+│   │   ├── IsNtfs: lines 187-200
+│   │   ├── ShowNtfsWarning: lines 202-210
+│   │   └── ShowStartupNtfsWarningIfNeeded: lines 213-235
+│   ├── Mod Library Management: lines 240-450
+│   │   ├── EnsureModJsonInModLibrary: lines 240-420
+│   │   │   ├── Game validation: lines 242-250
+│   │   │   ├── Directory processing: lines 252-270
+│   │   │   ├── New mod.json creation: lines 272-320
+│   │   │   ├── Existing mod.json updating: lines 322-390
+│   │   │   ├── File saving: lines 392-400
+│   │   │   ├── Cleanup operations: lines 402-415
+│   │   │   └── Hotkey detection: lines 417-420
+│   │   └── ScanModForNamespace: lines 452-490
+│   │       ├── INI file scanning: lines 452-465
+│   │       ├── Namespace detection: lines 467-480
+│   │       └── Mapping creation: lines 482-490
+│   ├── Window Management: lines 492-550
+│   │   └── ShowLoadingWindowAndInitialize: lines 492-550
+│   │       ├── Loading window creation: lines 492-495
+│   │       ├── Status updates: lines 497-510
+│   │       ├── Main window creation: lines 512-530
+│   │       ├── Window close handling: lines 532-545
+│   │       └── Window activation: lines 547-550
+│   ├── Logging System: lines 552-570
+│   │   └── LogToGridLog: lines 552-570
+│   │       ├── Timestamp generation: line 554
+│   │       ├── Log path resolution: line 555
+│   │       ├── Directory creation: lines 557-562
+│   │       └── File writing: lines 564-570
+│   └── Security: lines 572-590
+│       └── RequireAdmin: lines 572-590
+│           ├── Identity check: line 574
+│           ├── Principal creation: lines 575-580
+│           ├── Admin validation: lines 582-585
+│           └── Elevation handling: lines 587-590
+
+================================================================================
+COMPONENT OVERVIEW
+
+KEY METHODS:
+- Constructor: lines 37-46 - Initialize app with admin check and notifications
+- OnLaunched: lines 48-140 - Main startup logic with language and font setup
+- EnsureDefaultDirectories: lines 154-185 - Create required directories with NTFS validation
+- EnsureModJsonInModLibrary: lines 240-420 - Generate/update mod.json files with namespace detection
+- ScanModForNamespace: lines 452-490 - Scan mod files for namespace declarations
+- ShowLoadingWindowAndInitialize: lines 492-550 - Display loading screen and create main window
+- RequireAdmin: lines 572-590 - Enforce administrator privileges
+
+FUNCTIONALITY:
+- Application startup and initialization
+- Automatic language detection based on system culture
+- Dynamic font switching for international languages
+- Mod library initialization and validation
+- mod.json file generation with namespace support
+- Directory creation with NTFS validation
+- Loading screen with status updates
+- Administrator privilege enforcement
+- StatusKeeper automatic startup
+- Symlink validation and recreation
+
+LANGUAGE SUPPORT:
+- Automatic language detection from system culture
+- Support for 8+ languages with dedicated fonts
+- Culture and UI culture setting for proper localization
+- Font family switching based on language selection
+- Fallback to English for unsupported languages
+
+FONT MANAGEMENT:
+- Noto Sans font family as default
+- Specialized fonts for Chinese, Japanese, Korean
+- Arabic, Hebrew, Hindi, Thai font support
+- Dynamic font switching based on language
+- Global font application through resource dictionary
+
+MOD LIBRARY INITIALIZATION:
+- Automatic mod.json creation for all mod directories
+- Namespace detection and mapping from INI files
+- Preservation of existing mod.json data
+- Hotkey auto-detection for new mods
+- Cleanup of misplaced mod.json files
+- Support for both classic and namespace sync methods
+
+DIRECTORY MANAGEMENT:
+- XXMI and ModLibrary directory creation
+- NTFS file system validation and warnings
+- Safe directory operations with error handling
+- Path resolution and validation
+- Default directory structure establishment
+
+STARTUP SEQUENCE:
+1. Admin privilege check
+2. Settings loading
+3. Language detection and font setup
+4. Mod library initialization
+5. Directory creation and validation
+6. Default preset generation
+7. Symlink validation
+8. Loading window display
+9. Main window creation
+10. StatusKeeper startup
+
+SECURITY:
+- Administrator privilege requirement
+- Windows identity validation
+- Elevation prompt for non-admin users
+- Security principal checking
+- Safe file system operations
+
+RESOURCE MANAGEMENT:
+- Global application resources definition
+- Theme-aware acrylic brushes and colors
+- Consistent styling across all controls
+- Corner radius standardization
+- Font family inheritance
+
+INTEGRATION:
+- SettingsManager integration for configuration
+- SharedUtilities integration for common operations
+- PathManager integration for file paths
+- Logger integration for debugging
+- StatusKeeper integration for automatic sync
+- ModGridPage integration for symlink management
+- HotkeyFinderPage integration for hotkey detection
+
+PERFORMANCE:
+- Asynchronous mod library processing
+- Background directory operations
+- Efficient namespace scanning
+- Minimal UI blocking during startup
+- Smart resource loading and caching
+
+ERROR HANDLING:
+- Comprehensive try-catch blocks for all operations
+- Graceful degradation on failures
+- Debug logging for troubleshooting
+- User-friendly error dialogs
+- Safe fallback operations
+
+NOTIFICATION SYSTEM:
+- Windows notification registration
+- App notification manager integration
+- System notification support
+- Cross-platform notification handling
+
+WINDOW MANAGEMENT:
+- Loading window for startup feedback
+- Main window creation and activation
+- Window close event handling
+- Proper window lifecycle management
+- UI thread synchronization

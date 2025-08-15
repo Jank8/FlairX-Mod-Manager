@@ -1,0 +1,62 @@
+# PathManager.cs - Indeks Klasy
+
+## Opis
+Centralized path management using relative paths by default
+
+## Stałe
+- `SETTINGS_DIR` = "Settings"
+- `LANGUAGE_DIR` = "Language"
+- `MOD_LIBRARY_DIR` = "ModLibrary"
+- `XXMI_DIR` = "XXMI"
+- `ASSETS_DIR` = "Assets"
+
+## Prywatne Pola
+- `_baseDirectory` - AppContext.BaseDirectory
+
+## Metody Publiczne
+
+### Zarządzanie Ścieżkami
+- `GetAbsolutePath(string relativePath)` - Gets absolute path from relative path
+- `GetRelativePath(string absolutePath)` - Gets relative path from absolute path
+- `CombinePath(params string[] paths)` - Safely combines paths
+
+### Ścieżki Specjalne
+- `GetSettingsPath(string fileName = AppConstants.SETTINGS_FILE)` - Gets settings file path
+- `GetLanguagePath(string fileName, string? subfolder = null)` - Gets language file path
+- `GetModLibraryPath(string? subPath = null)` - Gets mod library path
+- `GetCategoryModPath(string category, string modName)` - Gets category-based mod path
+- `GetCategoryFromModPath(string modPath)` - Gets category from mod directory path
+- `GetXXMIModsPath(string? subPath = null)` - Gets XXMI mods path
+- `GetActiveModsPath()` - Gets game-specific ActiveMods file path
+
+### Bezpieczeństwo i Walidacja
+- `IsPathSafe(string path)` - Validates path for security
+  - Sprawdza null/whitespace
+  - Wykrywa path traversal (.., ~)
+  - Sprawdza invalid path characters
+  - Weryfikuje czy resolved path jest w base directory
+- `EnsureDirectoryExists(string path)` - Creates directory if it doesn't exist
+  - Tworzy katalog jeśli nie istnieje
+  - Loguje utworzenie katalogu
+  - Zwraca bool success status
+
+### Prywatne Metody
+- `GetSafeBaseDirectory()` - Gets a safe base directory, avoiding system directories
+  - Sprawdza czy base directory jest w system location
+  - Unika System, SystemX86, Windows, ProgramFiles, ProgramFilesX86
+  - Fallback do Documents/FlairX-Mod-Manager jeśli w system dir
+
+## Zależności
+- System.IO
+- SettingsManager (GetCurrentModLibraryDirectory, GetCurrentXXMIModsDirectory, CurrentSelectedGame)
+- AppConstants (SETTINGS_FILE, GameConfig)
+- Logger (LogInfo, LogError)
+
+## Funkcjonalności
+1. **Zarządzanie ścieżkami względnymi/bezwzględnymi**
+2. **Bezpieczne łączenie ścieżek**
+3. **Specjalne ścieżki dla różnych typów plików**
+4. **Walidacja bezpieczeństwa ścieżek**
+5. **Automatyczne tworzenie katalogów**
+6. **Obsługa ścieżek specyficznych dla gier**
+7. **Unikanie katalogów systemowych**

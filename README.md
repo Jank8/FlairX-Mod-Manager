@@ -15,46 +15,47 @@ A comprehensive mod management application for multiple miHoYo games, built with
 - **Honkai: Star Rail (SR)** - SRMI
 - **Wuthering Waves (WW)** - WWMI
 
-## Features
+## Key Features
 
 ### 🎮 Mod Management
-- **Visual Mod Library**: Browse mods with thumbnail previews in a responsive grid layout
-- **Category-based Organization**: Organize mods by categories (Characters, Weapons, UI, Effects, etc.) with automatic folder detection
-- **Dynamic Menu Generation**: Categories automatically appear as menu items in the left sidebar for easy navigation
-- **Flexible Category System**: Create custom categories or use standard ones - FlairX adapts to your organization
-- **Mod Activation/Deactivation**: Toggle mods on/off with symbolic link management
-- **Search & Filter**: Dynamic search functionality with real-time filtering across all categories simultaneously
-- **Mod Details**: View detailed information including author, character, hotkeys, and URLs
-- **Multi-Game Support**: Switch between different games with isolated mod libraries and category structures
+- **Visual Mod Library**: Browse mods with thumbnails in a responsive grid layout
+- **Category Organization**: Automatic detection of categories (Characters, Weapons, UI, Effects) from mod library structure
+- **Dynamic Menu**: Categories automatically appear in the sidebar menu for easy navigation
+- **Mod Activation**: Toggle mods on/off using symbolic links with simple heart icons
+- **Real-time Search**: Dynamic search functionality across all categories simultaneously
+- **Multi-Game Support**: Switch between games with isolated mod libraries and configurations
+- **Automatic Detection**: Smart detection of mod metadata and hotkeys from configuration files
 
 ### 🔧 Advanced Features
-- **Preset System**: Save and load different mod configurations per game
-- **XXMI Integration**: Integrated launcher for XXMI (mod injection framework)
-- **Hotkey Detection**: Automatic detection of mod hotkeys from configuration files
-- **StatusKeeper Integration**: Backup/restore system for mod states with dynamic synchronization
+- **Preset System**: Save and load different mod configurations for each game
+- **XXMI Integration**: Built-in launcher for the XXMI mod injection framework
+- **Hotkey Detection**: Automatic detection of mod hotkeys from INI configuration files
+- **StatusKeeper Integration**: Backup and restore system with dynamic synchronization
 - **Namespace Support**: Modern namespace-based mod synchronization alongside classic methods
-- **Multi-language Support**: Automatic language detection with font support for various scripts
-
-### 🛠️ Utility Functions
-- **Mod Library Management**: Organize mods in dedicated game-specific library folders
-- **Thumbnail Optimization**: Optimize mod preview images with automatic resizing and cropping
-- **File System Validation**: NTFS requirement checking for symbolic link support
-- **Settings Management**: Customizable paths, themes, and preferences per game
-- **Backup Management**: Comprehensive backup system for mod configurations
+- **Multi-language Support**: Automatic language detection with specialized fonts for international scripts
+- **Administrator Privileges**: Automatic elevation for symbolic link creation and file operations
 
 ### 🎨 User Interface
-- **Modern Design**: WinUI 3 with Fluent Design System
-- **Theme Support**: Light, Dark, and Auto themes
-- **Backdrop Effects**: Mica, Mica Alt, Acrylic, Acrylic Thin, or None
-- **Responsive Layout**: Adaptive interface with zoom support
-- **Accessibility**: Multi-language font support including Asian and RTL languages
-- **Visual Effects**: Configurable animations and smooth transitions
+- **Modern Design**: WinUI 3 with Fluent Design System and smooth animations
+- **Theme Support**: Light, Dark, and Auto themes with system integration
+- **Backdrop Effects**: Mica, Acrylic variants, or solid colors matching your preference
+- **Responsive Layout**: Adaptive interface with zoom support and window state persistence
+- **Accessibility**: Multi-language font support including Chinese, Japanese, Korean, Arabic, Hebrew, Hindi, and Thai
+- **Loading Experience**: Professional loading screen with progress indication during startup
+
+### 🛠️ Technical Features
+- **Security Validation**: Path traversal protection and safe file operations
+- **NTFS Validation**: Automatic file system checking for symbolic link support
+- **Directory Management**: Automatic creation of required directories with proper structure
+- **Error Handling**: Comprehensive error handling with detailed logging
+- **Performance Optimization**: Efficient image caching and background processing
+- **Global Hotkeys**: Configurable keyboard shortcuts for common operations
 
 ## System Requirements
 
 ### Operating System
 - **Windows 10** version 1809 (build 17763) or later
-- **Windows 11** (recommended)
+- **Windows 11** (recommended for best backdrop effects)
 
 ### Required Software
 - **.NET 8 Runtime** (Windows Desktop)
@@ -62,14 +63,16 @@ A comprehensive mod management application for multiple miHoYo games, built with
 - **Windows App SDK** 1.7 or later
 - **XXMI Framework** (Portable version recommended)
 
-### File System
+### File System & Permissions
 - **NTFS partition** required for mod activation (symbolic link support)
-- Administrator privileges required for symbolic link creation
+- **Administrator privileges** automatically requested for symbolic link creation
+- Application validates NTFS file system and shows warnings for incompatible drives
 
 ### Hardware
 - **RAM**: 4 GB minimum, 8 GB recommended
 - **Storage**: 500 MB for application, additional space for mod libraries
-- **Display**: 1280x720 minimum resolution
+- **Display**: 1280x720 minimum resolution (supports up to 20000x15000)
+- **Default Window Size**: 1650x820 pixels
 
 ## Installation
 
@@ -134,32 +137,38 @@ A comprehensive mod management application for multiple miHoYo games, built with
 
 ### Directory Structure
 ```
-FlairX Mod Manager/
-├── ModLibrary/
-│   ├── ZZ/              # Zenless Zone Zero mods
-│   │   ├── Characters/  # Character mods
-│   │   ├── Weapons/     # Weapon mods
-│   │   ├── UI/          # UI mods
-│   │   └── Other/       # Other mods
-│   ├── GI/              # Genshin Impact mods
-│   │   ├── Characters/  # Character mods
-│   │   ├── Weapons/     # Weapon mods
-│   │   ├── UI/          # UI mods
-│   │   └── Other/       # Other mods
-│   ├── HI/              # Honkai Impact 3rd mods
-│   ├── SR/              # Honkai: Star Rail mods
-│   └── WW/              # Wuthering Waves mods
-├── XXMI/
-├── Settings/            # Application settings
-├── Language/            # Language files
-└── Assets/             # Application resources
+📁 FlairX Mod Manager/
+├── 📁 ModLibrary/
+│   ├── 📁 ZZ/              # Zenless Zone Zero mods (ZZMI)
+│   │   ├── 📁 Characters/  # Character mods
+│   │   ├── 📁 Weapons/     # Weapon mods
+│   │   ├── 📁 UI/          # UI mods
+│   │   └── 📁 Other/       # Other mods
+│   ├── 📁 GI/              # Genshin Impact mods (GIMI)
+│   ├── 📁 HI/              # Honkai Impact 3rd mods (HIMI)
+│   ├── 📁 SR/              # Honkai: Star Rail mods (SRMI)
+│   └── 📁 WW/              # Wuthering Waves mods (WWMI)
+├── 📁 XXMI/
+│   ├── 📁 ZZ/              # Game-specific XXMI directories
+│   │   ├── 📁 Mods/        # Active mod symlinks
+│   │   └── 📄 d3dx_user.ini # Game configuration
+│   └── 📁 GI/, HI/, SR/, WW/ # Other game directories
+├── 📁 Settings/
+│   ├── 📄 Settings.json    # Main application settings
+│   ├── 📁 Presets/         # Game-specific preset configurations
+│   ├── 📄 Application.log  # Application log file
+│   └── 📄 StatusKeeper.log # StatusKeeper log file
+├── 📁 Language/            # Multi-language support files
+└── 📁 Assets/              # Application resources and icons
 ```
 
-### Settings
-- **Location**: `Settings/` directory
-- **Languages**: English (default), extensible via JSON files
-- **Themes**: Light, Dark, Auto with various backdrop effects
-- **Per-Game**: Custom paths and configurations for each supported game
+### Settings & Configuration
+- **Per-Game Paths**: Custom XXMI and ModLibrary paths for each game
+- **Themes**: Light, Dark, Auto with Mica, Acrylic, or solid backdrop effects
+- **Global Hotkeys**: Configurable shortcuts (Ctrl+O, Ctrl+R, Ctrl+S, Ctrl+D)
+- **Window State**: Automatic saving of size, position, and maximized state
+- **Language Support**: Automatic detection with specialized font loading
+- **Cache Management**: Configurable image cache limits (100 disk, 50 RAM)
 
 ## Development
 
@@ -186,13 +195,20 @@ FlairX Mod Manager/
    - System.Drawing.Common (8.0.10)
 
 ### Architecture
-- **MVVM Pattern**: Clean separation of UI and business logic
-- **Page-based Navigation**: Modular page system for different features
-- **Service Layer**: Centralized services for settings, logging, and file operations
-- **Multi-Game Support**: Game-agnostic architecture with configurable paths and dynamic game selection
-- **Category System**: Flexible directory-based organization with automatic detection and menu generation
-- **Dynamic Path Resolution**: Smart path handling that adapts to selected games and category structures
-- **Localization**: Resource-based multi-language support
+- **Component-Based Design**: Modular architecture with specialized components
+- **Core Components**:
+  - **App**: Main application with startup logic, language detection, and mod library initialization
+  - **MainWindow**: Navigation, game selection, search functionality, and backdrop effects
+  - **LoadingWindow**: Professional loading screen with progress indication
+  - **PathManager**: Centralized path management with security validation
+  - **SettingsManager**: Per-game configuration and settings persistence
+  - **SecurityValidator**: Path traversal protection and input sanitization
+  - **SharedUtilities**: Common utilities for file operations and UI helpers
+  - **Logger**: Thread-safe logging with multiple severity levels
+- **Multi-Game Support**: Game-agnostic architecture with configurable paths per game
+- **Dynamic Menu System**: Automatic category detection and menu generation from mod library structure
+- **Security-First**: Comprehensive validation and safe file operations throughout
+- **Internationalization**: Multi-language support with automatic font switching for different scripts
 
 ## Troubleshooting
 
@@ -225,7 +241,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ### Additional Acknowledgments
 - **Microsoft WinUI 3 and Windows App SDK** - UI framework
-- **miHoYo game modding communities** - Feedback and testing support
+- **Game modding communities** - Feedback and testing support
 - **XXMI Framework developers** - Mod injection system
 
 ## Contributing

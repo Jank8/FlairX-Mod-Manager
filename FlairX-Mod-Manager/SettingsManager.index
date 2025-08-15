@@ -1,0 +1,120 @@
+# SettingsManager.cs - Indeks Klasy
+
+## Klasa Settings
+Klasa danych przechowująca wszystkie ustawienia aplikacji
+
+### Właściwości Podstawowe
+- `LanguageFile` - Plik języka
+- `XXMIRootDirectory` - Root XXMI directory (default: @".\XXMI")
+- `XXMIModsDirectory` - XXMI Mods directory (backward compatibility)
+- `ModLibraryDirectory` - Mod Library directory
+- `Theme` - Motyw aplikacji (default: "Auto")
+- `BackdropEffect` - Efekt tła (default: "AcrylicThin")
+
+### Ustawienia Per-Game
+- `GameXXMIRootPaths` - Dictionary<string, string> - Ścieżki XXMI per game
+- `GameModLibraryPaths` - Dictionary<string, string> - Ścieżki ModLibrary per game
+- `SelectedGameIndex` - Wybrany indeks gry (0 = brak, 1-5 = gry)
+
+### Ustawienia UI/UX
+- `DynamicModSearchEnabled` - Dynamiczne wyszukiwanie modów
+- `GridLoggingEnabled` - Logowanie siatki
+- `ShowOrangeAnimation` - Pomarańczowa animacja
+- `SelectedPresetIndex` - Wybrany preset (default: 0)
+- `ZoomLevel` - Poziom zoom (default: 1.0)
+- `ModGridZoomEnabled` - Zoom siatki modów
+- `ActiveModsToTopEnabled` - Aktywne mody na górze
+- `ViewMode` - Tryb widoku ("Mods" lub "Categories")
+
+### Ustawienia Okna
+- `WindowWidth/Height` - Rozmiar okna (default: 1200x800)
+- `WindowX/Y` - Pozycja okna (-1 = center)
+- `WindowMaximized` - Stan maksymalizacji
+
+### StatusKeeper Settings
+- `StatusKeeperD3dxUserIniPath` - Ścieżka d3dx_user.ini
+- `StatusKeeperDynamicSyncEnabled` - Dynamiczna synchronizacja
+- `StatusKeeperLoggingEnabled` - Logowanie StatusKeeper
+- `StatusKeeperBackupConfirmed` - Potwierdzenie backupu
+- `StatusKeeperBackupOverride1/2/3Enabled` - Override backups
+
+### Hotkeys
+- `OptimizePreviewsHotkey` - Optymalizacja podglądów (default: "Ctrl+O")
+- `ReloadManagerHotkey` - Przeładowanie managera (default: "Ctrl+R")
+- `ShuffleActiveModsHotkey` - Shuffle aktywnych modów (default: "Ctrl+S")
+- `DeactivateAllModsHotkey` - Deaktywacja wszystkich modów (default: "Ctrl+D")
+
+## Klasa SettingsManager (static)
+
+### Właściwości
+- `Current` - Aktualne ustawienia (Settings)
+- `XXMIModsDirectorySafe` - Bezpieczny dostęp do XXMI Mods
+- `ModLibraryDirectorySafe` - Bezpieczny dostęp do ModLibrary
+- `CurrentSelectedGame` - Aktualnie wybrana gra (tag)
+- `ShowOrangeAnimation` - Property wrapper dla animacji
+
+### Metody Podstawowe
+- `Load()` - Ładuje ustawienia z pliku
+  - Sprawdza czy plik istnieje
+  - Deserializuje JSON
+  - Fallback do new Settings() przy błędzie
+  - Debug logging
+- `Save()` - Zapisuje ustawienia do pliku
+  - Tworzy katalog jeśli nie istnieje
+  - Serializuje do JSON z WriteIndented
+  - Graceful error handling
+- `RestoreDefaults()` - Przywraca domyślne ustawienia
+  - Usuwa custom paths dla aktualnej gry
+  - Resetuje Theme, ShowOrangeAnimation, SelectedPresetIndex
+  - Resetuje window state (1200x800, centered)
+  - Zachowuje SelectedGameIndex
+
+### Zarządzanie Grami
+- `GetGameTagFromIndex(int index)` - Konwertuje indeks na tag gry
+  - 0 = "", 1 = "GIMI", 2 = "HIMI", 3 = "SRMI", 4 = "WWMI", 5 = "ZZMI"
+- `GetIndexFromGameTag(string gameTag)` - Konwertuje tag na indeks
+  - Reverse mapping tagów na indeksy
+- `SwitchGame(int gameIndex)` - Przełącza grę i tworzy katalogi
+  - Ustawia SelectedGameIndex
+  - Aktualizuje StatusKeeperD3dxUserIniPath
+  - Tworzy katalogi XXMI i ModLibrary
+  - Tworzy presets directory
+  - Debug logging
+  - Automatyczny Save()
+
+### Zarządzanie Ścieżkami Per-Game
+- `GetCurrentXXMIModsDirectory()` - Pobiera aktualny katalog XXMI Mods
+  - Fallback do legacy path jeśli brak gry
+  - Sprawdza custom XXMI root paths per game
+  - Buduje path: customXXMIRoot/gameTag/Mods
+  - Fallback do AppConstants.GameConfig.GetModsPath
+- `GetCurrentModLibraryDirectory()` - Pobiera aktualny katalog ModLibrary
+  - Fallback do legacy path jeśli brak gry
+  - Sprawdza custom mod library paths per game
+  - Weryfikuje czy custom path istnieje
+  - Fallback do AppConstants.GameConfig.GetModLibraryPath
+- `SetCurrentGameXXMIRoot(string xxmiRootPath)` - Ustawia XXMI root dla gry
+  - Zapisuje w GameXXMIRootPaths dictionary
+  - Automatyczny Save()
+- `SetCurrentGameModLibrary(string modLibraryPath)` - Ustawia ModLibrary dla gry
+  - Zapisuje w GameModLibraryPaths dictionary
+  - Automatyczny Save()
+- `GetCurrentGameXXMIRoot()` - Pobiera XXMI root dla aktualnej gry
+  - Do celów display
+  - Fallback do @".\XXMI"
+
+## Zależności
+- System.IO
+- System.Text.Json
+- PathManager (GetSettingsPath, GetAbsolutePath)
+- AppConstants (DEFAULT_*, GameConfig)
+
+## Funkcjonalności
+1. **Zarządzanie ustawieniami aplikacji**
+2. **Obsługa per-game paths**
+3. **Automatyczne tworzenie katalogów**
+4. **Backup i restore ustawień**
+5. **Hotkey management**
+6. **Window state management**
+7. **Game switching logic**
+8. **JSON serialization/deserialization**

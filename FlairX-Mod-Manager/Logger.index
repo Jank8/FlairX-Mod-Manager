@@ -1,0 +1,138 @@
+COMPONENT: Logger
+DESCRIPTION: Static logging utility class providing thread-safe file and console logging with multiple severity levels
+
+================================================================================
+FILE: Logger.cs
+TOTAL LINES: 72
+
+LINE RANGES:
+├── Using statements: lines 1-3
+├── Namespace declaration: lines 5-6
+├── Logger class: lines 7-72
+│   ├── Static fields: lines 8-10
+│   │   ├── LogPath: line 9 - Application.log file path
+│   │   └── LogLock: line 10 - Thread synchronization object
+│   ├── Public logging methods: lines 12-30
+│   │   ├── LogInfo: lines 12-15
+│   │   ├── LogWarning: lines 17-20
+│   │   ├── LogError: lines 22-26
+│   │   │   ├── Exception handling: line 24
+│   │   │   └── Log call: line 25
+│   │   └── LogDebug: lines 28-32
+│   │       ├── Debug output: line 30
+│   │       └── File exclusion comment: line 31
+│   ├── Core logging implementation: lines 34-58
+│   │   └── Log: lines 34-58
+│   │       ├── Timestamp generation: line 36
+│   │       ├── Message formatting: line 37
+│   │       ├── Debug output: line 40
+│   │       ├── File logging: lines 42-57
+│   │       │   ├── Thread safety: line 45
+│   │       │   ├── Directory creation: lines 46-50
+│   │       │   └── File writing: line 52
+│   │       └── Error handling: lines 54-57
+│   └── Utility methods: lines 60-72
+│       └── ClearLog: lines 60-72
+│           ├── Thread safety: line 63
+│           ├── File deletion: lines 64-68
+│           └── Error handling: lines 70-72
+
+================================================================================
+COMPONENT OVERVIEW
+
+KEY METHODS:
+- LogInfo: lines 12-15 - Log informational messages
+- LogWarning: lines 17-20 - Log warning messages
+- LogError: lines 22-26 - Log error messages with optional exception details
+- LogDebug: lines 28-32 - Log debug messages (console only)
+- Log: lines 34-58 - Core logging implementation with file and console output
+- ClearLog: lines 60-72 - Clear log file with thread safety
+
+FUNCTIONALITY:
+- Multi-level logging (INFO, WARNING, ERROR, DEBUG)
+- Thread-safe file operations with lock synchronization
+- Dual output: file logging and debug console
+- Automatic directory creation for log files
+- Exception-safe logging with error handling
+- Log file clearing functionality
+
+LOGGING LEVELS:
+- INFO: General informational messages
+- WARNING: Warning conditions that don't stop execution
+- ERROR: Error conditions with optional exception details
+- DEBUG: Debug messages (console only, not written to file)
+
+FILE MANAGEMENT:
+- Log file path: Application.log in Settings directory
+- Automatic Settings directory creation if missing
+- Thread-safe file operations using lock object
+- UTF-8 text encoding with Environment.NewLine
+- Graceful handling of file system errors
+
+THREAD SAFETY:
+- Static LogLock object for synchronization
+- Lock-protected file operations
+- Safe concurrent access from multiple threads
+- Atomic log entry writing
+- Exception isolation between threads
+
+MESSAGE FORMATTING:
+- Timestamp format: "yyyy-MM-dd HH:mm:ss"
+- Log format: "[timestamp] [level] message"
+- Exception integration in error messages
+- Consistent formatting across all log levels
+
+ERROR HANDLING:
+- Try-catch blocks for all file operations
+- Fallback to debug console on file errors
+- Non-blocking error handling
+- Exception message logging for troubleshooting
+- Graceful degradation on file system issues
+
+INTEGRATION:
+- PathManager integration for log file path resolution
+- Debug.WriteLine integration for development debugging
+- Exception object integration for detailed error logging
+- Settings directory integration for log storage
+
+PERFORMANCE:
+- Minimal overhead for debug-only messages
+- Efficient string formatting and concatenation
+- Lock-based synchronization for thread safety
+- Lazy directory creation only when needed
+- Optimized file append operations
+
+USAGE PATTERNS:
+- Static class design for global accessibility
+- Simple method signatures for ease of use
+- Optional exception parameter for error logging
+- Consistent API across all logging levels
+- No configuration required for basic usage
+
+DEBUGGING SUPPORT:
+- All log messages output to debug console
+- Debug-only messages for development
+- Exception stack traces in error logs
+- Timestamp precision for timing analysis
+- File-based persistence for post-mortem analysis
+
+RELIABILITY:
+- Exception-safe logging operations
+- Automatic recovery from file system errors
+- Thread-safe concurrent access
+- Robust error handling and reporting
+- Consistent behavior across different scenarios
+
+MAINTENANCE:
+- Simple, focused implementation
+- Clear separation of concerns
+- Minimal dependencies
+- Easy to extend with additional log levels
+- Straightforward debugging and troubleshooting
+
+STORAGE:
+- Log file location: Settings/Application.log
+- Persistent storage across application sessions
+- Automatic log file creation and management
+- UTF-8 encoding for international character support
+- Append-only file operations for performance

@@ -1809,12 +1809,46 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (string.IsNullOrEmpty(absModDir))
                 {
-                    Logger.LogError($"Could not find mod folder for {mod.Directory}");
+                    // Mod directory not found - remove tile dynamically
+                    System.Diagnostics.Debug.WriteLine($"Mod directory '{mod.Directory}' not found during activation, removing tile...");
+                    Logger.LogError($"Could not find mod folder for {mod.Directory}, removing from UI");
+                    
+                    // Remove from UI collection
+                    _allMods.Remove(mod);
+                    
+                    // Also remove from active mods if it exists there
+                    if (_activeMods.ContainsKey(mod.Directory))
+                    {
+                        _activeMods.Remove(mod.Directory);
+                        SaveActiveMods();
+                    }
+                    
                     return;
                 }
                 // Remove double slashes in paths
                 linkPath = CleanPath(linkPath);
                 absModDir = CleanPath(absModDir);
+                
+                // Double-check that source directory still exists before creating symlink
+                if (!Directory.Exists(absModDir))
+                {
+                    // Source directory disappeared - remove tile dynamically
+                    System.Diagnostics.Debug.WriteLine($"Source mod directory '{absModDir}' no longer exists, removing tile...");
+                    Logger.LogError($"Source mod directory for {mod.Directory} no longer exists, removing from UI");
+                    
+                    // Remove from UI collection
+                    _allMods.Remove(mod);
+                    
+                    // Also remove from active mods if it exists there
+                    if (_activeMods.ContainsKey(mod.Directory))
+                    {
+                        _activeMods.Remove(mod.Directory);
+                        SaveActiveMods();
+                    }
+                    
+                    return;
+                }
+                
                 if (!_activeMods.TryGetValue(mod.Directory, out var isActive) || !isActive)
                 {
                     if (!Directory.Exists(modsDirFull))
@@ -2218,6 +2252,32 @@ namespace FlairX_Mod_Manager.Pages
 
                     try
                     {
+                        // Check if mod directory exists before opening detail page
+                        string modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                        if (string.IsNullOrEmpty(modLibraryPath))
+                        {
+                            modLibraryPath = PathManager.GetModLibraryPath();
+                        }
+                        
+                        string? fullModDir = FindModFolderPath(modLibraryPath, tile.Directory);
+                        if (string.IsNullOrEmpty(fullModDir) || !Directory.Exists(fullModDir))
+                        {
+                            // Mod directory not found - remove tile dynamically
+                            System.Diagnostics.Debug.WriteLine($"Mod directory '{tile.Directory}' not found, removing tile...");
+                            
+                            // Remove from UI collection
+                            _allMods.Remove(tile);
+                            
+                            // Also remove from active mods if it exists there
+                            if (_activeMods.ContainsKey(tile.Directory))
+                            {
+                                _activeMods.Remove(tile.Directory);
+                                SaveActiveMods();
+                            }
+                            
+                            return;
+                        }
+                        
                         // Create UserControl for mod details
                         var modDetailControl = new ModDetailUserControl();
                         modDetailControl.LoadModDetails(tile.Directory, _currentCategory ?? "", 
@@ -3050,6 +3110,36 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (sender is MenuFlyout menuFlyout && menuFlyout.Target is Border border && border.DataContext is ModTile modTile)
             {
+                // Check if mod directory exists before showing context menu (skip for categories)
+                if (!modTile.IsCategory)
+                {
+                    string modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                    if (string.IsNullOrEmpty(modLibraryPath))
+                    {
+                        modLibraryPath = PathManager.GetModLibraryPath();
+                    }
+                    
+                    string? fullModDir = FindModFolderPath(modLibraryPath, modTile.Directory);
+                    if (string.IsNullOrEmpty(fullModDir) || !Directory.Exists(fullModDir))
+                    {
+                        // Mod directory not found - remove tile and cancel context menu
+                        System.Diagnostics.Debug.WriteLine($"Mod directory '{modTile.Directory}' not found during context menu, removing tile...");
+                        
+                        // Remove from UI collection
+                        _allMods.Remove(modTile);
+                        
+                        // Also remove from active mods if it exists there
+                        if (_activeMods.ContainsKey(modTile.Directory))
+                        {
+                            _activeMods.Remove(modTile.Directory);
+                            SaveActiveMods();
+                        }
+                        
+                        // Cancel context menu opening
+                        return;
+                    }
+                }
+                
                 menuFlyout.Items.Clear();
                 var lang = SharedUtilities.LoadLanguageDictionary();
                 
@@ -3442,6 +3532,8 @@ namespace FlairX_Mod_Manager.Pages
                 DeleteModButton_Click(fakeButton, e);
             }
         }
+
+
     }
 
     public class RelayCommand<T> : ICommand

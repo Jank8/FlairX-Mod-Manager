@@ -10,10 +10,7 @@
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     IsTabStop="True">
     <Page.Resources>
-        <local:ModActiveGlyphConverter x:Key="ModActiveGlyphConverter" />
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-        <local:CategoryButtonVisibilityConverter x:Key="CategoryButtonVisibilityConverter" />
-        <local:CategoryBackgroundSizeConverter x:Key="CategoryBackgroundSizeConverter" />
         <Style x:Key="TransparentButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>

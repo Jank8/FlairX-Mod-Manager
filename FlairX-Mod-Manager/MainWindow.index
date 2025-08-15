@@ -1,0 +1,320 @@
+COMPONENT: MainWindow
+DESCRIPTION: Main application window with navigation, game selection, search functionality, backdrop effects, and comprehensive UI management
+
+================================================================================
+FILE: MainWindow.xaml
+TOTAL LINES: 246
+
+LINE RANGES:
+├── Window Declaration: lines 1-10
+│   ├── Class definition: line 2
+│   └── Namespace declarations: lines 3-10
+├── Main Grid Layout: lines 14-245
+│   ├── NavigationView: lines 15-233
+│   │   ├── NavigationView properties: lines 15-28
+│   │   ├── PaneHeader (Game Selection): lines 30-72
+│   │   │   ├── Game selection ComboBox: lines 31-71
+│   │   │   │   ├── Select Game item: lines 33-39
+│   │   │   │   ├── Genshin Impact item: lines 40-46
+│   │   │   │   ├── Honkai Impact 3rd item: lines 47-53
+│   │   │   │   ├── Honkai Star Rail item: lines 54-60
+│   │   │   │   ├── Wuthering Waves item: lines 61-67
+│   │   │   │   └── Zenless Zone Zero item: lines 68-72
+│   │   ├── MenuItems: lines 74-76 (empty)
+│   │   ├── FooterMenuItems: lines 78-104
+│   │   │   ├── Other Mods item: lines 79-83
+│   │   │   ├── Functions item: lines 84-88
+│   │   │   └── Settings item: lines 89-103
+│   │   ├── PaneCustomContent: lines 106-232
+│   │   │   ├── Main StackPanel: lines 107-231
+│   │   │   │   ├── Title and progress: lines 108-110
+│   │   │   │   ├── Search and buttons grid: lines 111-140
+│   │   │   │   │   ├── Search box: lines 115-125
+│   │   │   │   │   ├── Reload button: lines 126-134
+│   │   │   │   │   └── Restart button: lines 135-143
+│   │   │   │   └── Action buttons grid: lines 144-230
+│   │   │   │       ├── All mods button: lines 150-155
+│   │   │   │       ├── View mode toggle: lines 156-165
+│   │   │   │       ├── Open mod library: lines 166-175
+│   │   │   │       └── Show active mods: lines 176-188
+│   │   └── Content Frame: line 233
+│   ├── Zoom Indicator: lines 235-243
+│   │   ├── Border container: lines 235-241
+│   │   └── Zoom text: lines 242-243
+│   └── Launcher FAB: lines 245-253
+│       ├── Border container: lines 245-251
+│       └── Launcher icon: line 252
+
+UI ELEMENTS:
+- MainRoot: line 14 - Main grid container for backdrop effects
+- nvSample: lines 15-233 - Main navigation view
+- GameSelectionComboBox: lines 31-71 - Game selection dropdown
+- SearchBox: lines 115-125 - Search functionality with animated icon
+- ReloadModsButton: lines 126-134 - Reload mods button (&#xE72C;)
+- RestartAppButton: lines 135-143 - Restart application button (&#xE895;)
+- AllModsButton: lines 150-155 - All mods navigation button
+- ViewModeToggleButton: lines 156-165 - Toggle view mode button (&#xE8A9;)
+- OpenModLibraryButton: lines 166-175 - Open mod library button (&#xE8DA;)
+- ShowActiveModsButton: lines 176-188 - Show active mods button with heart icons
+- ZoomIndicatorBorder: lines 235-243 - Zoom level indicator
+- LauncherFabBorder: lines 245-253 - Floating action button for launcher (&#xE768;)
+
+================================================================================
+FILE: MainWindow.xaml.cs
+TOTAL LINES: 2330
+
+LINE RANGES:
+├── Using statements: lines 1-24
+├── Namespace declaration: lines 26-27
+├── MainWindow class: lines 28-2330
+│   ├── Constants and fields: lines 29-50
+│   │   ├── Window size constants: lines 29-31
+│   │   ├── Language dictionary: line 32
+│   │   ├── Menu item collections: lines 39-40
+│   │   ├── State flags: lines 42-43
+│   │   └── Backdrop fields: lines 45-49
+│   ├── Constructor: lines 51-200
+│   │   ├── Component initialization: lines 52-53
+│   │   ├── Language loading: line 54
+│   │   ├── Tooltip setup: lines 56-60
+│   │   ├── View mode initialization: line 62
+│   │   ├── Game selection setup: line 65
+│   │   ├── Window configuration: lines 67-75
+│   │   ├── Theme application: lines 77-110
+│   │   ├── Backdrop initialization: lines 112-114
+│   │   ├── Window state management: lines 116-130
+│   │   ├── Event handlers: lines 132-150
+│   │   ├── UI initialization: lines 152-180
+│   │   └── Global hotkey handler: lines 182-200
+│   ├── Global Hotkey System: lines 202-450
+│   │   ├── MainWindow_KeyDown: lines 202-250
+│   │   │   ├── Modifier key detection: lines 202-220
+│   │   │   ├── Hotkey string building: lines 222-230
+│   │   │   └── Hotkey matching: lines 232-250
+│   │   ├── ExecuteOptimizePreviewsHotkey: lines 252-290
+│   │   ├── ExecuteReloadManagerHotkey: lines 292-310
+│   │   ├── ExecuteShuffleActiveModsHotkey: lines 312-400
+│   │   └── ExecuteDeactivateAllModsHotkey: lines 402-450
+│   ├── UI Management: lines 452-650
+│   │   ├── UpdateGameSelectionComboBoxTexts: lines 452-470
+│   │   ├── CenterWindow: lines 472-480
+│   │   ├── GetXXMILauncherPath: lines 482-510
+│   │   ├── CreateXXMIDownloadContent: lines 512-550
+│   │   ├── LogToGridLog: lines 552-570
+│   │   ├── NvSample_Loaded: lines 572-580
+│   │   ├── MainRoot_Loaded: lines 582-590
+│   │   └── RestoreGameSelection: lines 592-650
+│   ├── Search and Navigation: lines 652-900
+│   │   ├── SetSearchBoxPlaceholder: lines 652-660
+│   │   ├── SetFooterMenuTranslations: lines 662-700
+│   │   ├── UpdateShowActiveModsButtonIcon: lines 702-730
+│   │   ├── NavigationView_SelectionChanged: lines 732-800
+│   │   ├── NavigationView_PaneClosing: lines 802-820
+│   │   ├── NavigationView_PaneOpening: lines 822-840
+│   │   ├── SearchBox_TextChanged: lines 842-880
+│   │   └── SearchBox_QuerySubmitted: lines 882-900
+│   ├── Button Event Handlers: lines 902-1200
+│   │   ├── ReloadModsButton_Click: lines 902-920
+│   │   ├── ReloadModsAsync: lines 922-980
+│   │   ├── AllModsButton_Click: lines 982-1000
+│   │   ├── ViewModeToggleButton_Click: lines 1002-1080
+│   │   ├── ShowActiveModsButton events: lines 1082-1100
+│   │   ├── OpenModLibraryButton_Click: lines 1102-1120
+│   │   ├── LauncherFabBorder events: lines 1122-1180
+│   │   └── RestartAppButton_Click: lines 1182-1200
+│   ├── View Mode Management: lines 1202-1400
+│   │   ├── UpdateViewModeButtonIcon: lines 1202-1220
+│   │   ├── IsCurrentlyInCategoryMode: lines 1222-1230
+│   │   ├── InitializeViewModeFromSettings: lines 1232-1250
+│   │   ├── RestoreViewModeButtonFromSettings: lines 1252-1260
+│   │   ├── UpdateViewModeTooltip: lines 1262-1270
+│   │   ├── UpdateMenuItemsEnabledState: lines 1272-1290
+│   │   ├── UpdateAllModsButtonText: lines 1292-1310
+│   │   └── UpdateAllModsButtonState: lines 1312-1330
+│   ├── Menu Generation: lines 1402-1600
+│   │   ├── GenerateModCharacterMenuAsync: lines 1402-1550
+│   │   │   ├── Directory scanning: lines 1402-1450
+│   │   │   ├── Category processing: lines 1452-1500
+│   │   │   └── UI updates: lines 1502-1550
+│   │   ├── EnsurePresetsMenuItemExists: lines 1552-1580
+│   │   └── PreloadModImages: lines 1582-1600
+│   ├── Language and UI Refresh: lines 1602-1800
+│   │   └── RefreshUIAfterLanguageChange: lines 1602-1800
+│   │       ├── Language reloading: lines 1602-1620
+│   │       ├── UI element updates: lines 1622-1650
+│   │       └── Page-specific refreshes: lines 1652-1800
+│   ├── Game Selection System: lines 1802-2000
+│   │   ├── UpdateUIForGameSelection: lines 1802-1880
+│   │   │   ├── Menu item enabling: lines 1802-1820
+│   │   │   ├── Control enabling: lines 1822-1850
+│   │   │   └── Welcome page navigation: lines 1852-1880
+│   │   ├── GameSelectionComboBox_SelectionChanged: lines 1882-1980
+│   │   │   ├── Initialization check: lines 1882-1890
+│   │   │   ├── Game switching logic: lines 1892-1950
+│   │   │   └── StatusKeeper management: lines 1952-1980
+│   │   └── CleanupSymlinksForGameSwitch: lines 1982-2000
+│   ├── Backdrop System: lines 2002-2200
+│   │   ├── ApplyBackdropEffect: lines 2002-2100
+│   │   │   ├── Controller disposal: lines 2002-2010
+│   │   │   ├── Mica effects: lines 2012-2060
+│   │   │   ├── Acrylic effects: lines 2062-2080
+│   │   │   └── None effect: lines 2082-2100
+│   │   ├── TrySetAcrylicBackdrop: lines 2102-2130
+│   │   ├── Window_Activated: lines 2132-2140
+│   │   ├── Window_Closed: lines 2142-2160
+│   │   ├── Window_ThemeChanged: lines 2162-2180
+│   │   ├── SetConfigurationSourceTheme: lines 2182-2195
+│   │   └── SetNoneBackgroundForTheme: lines 2197-2220
+│   ├── Window State Management: lines 2222-2300
+│   │   ├── SaveWindowState: lines 2222-2250
+│   │   ├── RestoreWindowState: lines 2252-2280
+│   │   └── GetAppWindowForCurrentWindow: lines 2282-2300
+│   ├── Theme Management: lines 2302-2330
+│   │   └── ApplyThemeToTitleBar: lines 2302-2330
+│   │       ├── Light theme colors: lines 2302-2310
+│   │       ├── Dark theme colors: lines 2312-2320
+│   │       └── Auto theme colors: lines 2322-2330
+
+================================================================================
+COMPONENT OVERVIEW
+
+KEY METHODS:
+- Constructor: lines 51-200 - Initialize window, theme, backdrop, and UI components
+- MainWindow_KeyDown: lines 202-250 - Global hotkey handler for application shortcuts
+- RestoreGameSelection: lines 592-650 - Restore saved game selection on startup
+- GenerateModCharacterMenuAsync: lines 1402-1550 - Generate dynamic navigation menu from mod categories
+- GameSelectionComboBox_SelectionChanged: lines 1882-1980 - Handle game switching with cleanup and initialization
+- ApplyBackdropEffect: lines 2002-2100 - Apply backdrop effects (Mica/Acrylic/None)
+- RefreshUIAfterLanguageChange: lines 1602-1800 - Refresh all UI elements after language change
+
+FUNCTIONALITY:
+- Main application window with navigation and content management
+- Game selection system with per-game configuration
+- Dynamic menu generation from mod library structure
+- Global hotkey system for common operations
+- Search functionality with dynamic and static modes
+- View mode switching between mods and categories
+- Backdrop effects with theme-aware configuration
+- Window state persistence and restoration
+- Language switching with UI refresh
+- Zoom indicator and launcher integration
+
+GAME SELECTION SYSTEM:
+- ComboBox with 6 games: Select Game, GIMI, HIMI, SRMI, WWMI, ZZMI
+- Per-game path configuration and switching
+- Symlink cleanup on game changes
+- StatusKeeper watcher management per game
+- UI state management based on game selection
+- Welcome page display when no game selected
+
+NAVIGATION SYSTEM:
+- NavigationView with dynamic menu generation
+- Category-based navigation from mod library structure
+- Footer menu items: Other Mods, Functions, Settings, Presets
+- Search-based filtering of navigation items
+- View mode dependent navigation behavior
+- Active mods special navigation with heart icon
+
+SEARCH FUNCTIONALITY:
+- AutoSuggestBox with animated search icon
+- Dynamic search (3+ characters) with real-time filtering
+- Static search (2+ characters) on query submission
+- Menu item filtering based on search query
+- ModGridPage integration for mod filtering
+- Search box focus restoration after navigation
+
+VIEW MODE SYSTEM:
+- Toggle between Mods and Categories view modes
+- Settings persistence for view mode preference
+- Button icon updates based on current mode
+- Menu item enabling/disabling in category mode
+- All Mods/All Categories button text switching
+- Tooltip updates for view mode toggle
+
+HOTKEY SYSTEM:
+- Global keyboard event handling at window level
+- Modifier key detection (Ctrl, Shift, Alt)
+- Hotkey string building and matching
+- Four configurable hotkeys: Optimize Previews, Reload Manager, Shuffle Active Mods, Deactivate All Mods
+- Settings integration for hotkey configuration
+- Action execution with proper error handling
+
+BACKDROP EFFECTS:
+- Mica: Base and BaseAlt variants
+- Acrylic: Base and Thin variants
+- None: Solid color backgrounds matching theme
+- Theme-aware backdrop configuration
+- Automatic fallback for unsupported systems
+- Controller lifecycle management
+
+THEME SYSTEM:
+- Light/Dark/Auto theme support
+- Title bar color customization per theme
+- Theme-aware backdrop effects
+- Background color management for None effect
+- Theme change event handling
+- Settings integration for theme persistence
+
+WINDOW MANAGEMENT:
+- Window state persistence (size, position, maximized)
+- Minimum and maximum size constraints
+- Window centering on first launch
+- Title bar customization with transparency
+- Application icon setting
+- Window event handling for state changes
+
+UI STATE MANAGEMENT:
+- Game selection dependent UI enabling/disabling
+- Menu item state management
+- Button state updates based on context
+- Progress bar visibility control
+- Search box state management
+- Launcher FAB interaction states
+
+LANGUAGE SYSTEM:
+- Dynamic language dictionary loading
+- UI text updates on language change
+- Page-specific language refresh
+- Tooltip translation updates
+- Menu item text translation
+- Placeholder text translation
+
+MENU GENERATION:
+- Dynamic category menu from mod library structure
+- Mod directory scanning and categorization
+- Menu item creation with icons and tags
+- Category filtering (excluding "Other" from menu)
+- Presets menu item management
+- Menu state updates based on view mode
+
+ERROR HANDLING:
+- Try-catch blocks for all major operations
+- Graceful fallback for missing resources
+- Debug logging for troubleshooting
+- User-friendly error dialogs
+- Safe operations with validation
+- Exception isolation between components
+
+INTEGRATION:
+- SettingsManager integration for all settings
+- SharedUtilities integration for common operations
+- PathManager integration for file paths
+- Logger integration for debugging
+- StatusKeeper integration for sync management
+- ModGridPage integration for content display
+
+PERFORMANCE:
+- Asynchronous operations for UI responsiveness
+- Background task execution for heavy operations
+- Efficient menu generation and updates
+- Smart UI updates only when needed
+- Memory management for backdrop controllers
+- Optimized search and filtering operations
+
+ACCESSIBILITY:
+- Keyboard navigation support
+- Screen reader friendly elements
+- High contrast theme support
+- Proper focus management
+- Tooltip integration for all interactive elements
+- Consistent UI patterns and behaviors

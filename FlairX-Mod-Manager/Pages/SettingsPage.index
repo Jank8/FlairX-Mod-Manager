@@ -1,0 +1,354 @@
+COMPONENT: SettingsPage
+DESCRIPTION: Main settings page with theme, backdrop, language, paths, toggles, hotkeys, and optimization features
+
+================================================================================
+FILE: Pages/SettingsPage.xaml
+TOTAL LINES: 189
+
+LINE RANGES:
+├── Page Declaration: lines 1-5
+│   ├── Class definition: line 2
+│   └── Namespace declarations: lines 3-5
+├── Main Grid Layout: lines 7-188
+│   ├── Grid definitions: lines 8-11
+│   ├── ScrollViewer container: lines 12-175
+│   │   ├── Main StackPanel: lines 13-174
+│   │   │   ├── Settings Title Grid: lines 14-33
+│   │   │   │   ├── Settings title: line 15
+│   │   │   │   └── Theme SelectorBar: lines 16-32
+│   │   │   │       ├── Theme label: line 17
+│   │   │   │       ├── Auto theme option: lines 19-24
+│   │   │   │       ├── Light theme option: lines 25-30
+│   │   │   │       └── Dark theme option: lines 31-32
+│   │   │   ├── Backdrop Section: lines 34-66
+│   │   │   │   ├── Backdrop label: line 35
+│   │   │   │   └── Backdrop SelectorBar: lines 36-65
+│   │   │   │       ├── Mica option: lines 37-42
+│   │   │   │       ├── MicaAlt option: lines 43-48
+│   │   │   │       ├── Acrylic option: lines 49-54
+│   │   │   │       ├── AcrylicThin option: lines 55-60
+│   │   │   │       └── None option: lines 61-65
+│   │   │   ├── Language Section: lines 67-70
+│   │   │   │   ├── Language label: line 68
+│   │   │   │   └── Language ComboBox: line 69
+│   │   │   ├── Optimize Previews Section: lines 71-76
+│   │   │   │   ├── Optimize label: line 72
+│   │   │   │   ├── Optimize button: lines 73-75
+│   │   │   │   └── Progress bar: line 76
+│   │   │   ├── XXMI Root Directory Section: lines 78-85
+│   │   │   │   ├── XXMI label: line 79
+│   │   │   │   ├── XXMI breadcrumb: line 80
+│   │   │   │   ├── Pick button: lines 81-83
+│   │   │   │   └── Default button: lines 84-85
+│   │   │   ├── Mod Library Directory Section: lines 86-93
+│   │   │   │   ├── ModLibrary label: line 87
+│   │   │   │   ├── ModLibrary breadcrumb: line 88
+│   │   │   │   ├── Pick button: lines 89-91
+│   │   │   │   └── Default button: lines 92-93
+│   │   │   ├── ActiveModsToTop Toggle: lines 96-99
+│   │   │   │   ├── ActiveModsToTop label: line 97
+│   │   │   │   └── ActiveModsToTop toggle: line 98
+│   │   │   └── Two Column Layout: lines 101-173
+│   │   │       ├── Grid definitions: lines 102-105
+│   │   │       ├── Left Column (Toggles): lines 107-139
+│   │   │       │   ├── Dynamic search toggle: lines 109-112
+│   │   │       │   ├── Orange animation toggle: lines 115-118
+│   │   │       │   ├── Grid zoom toggle: lines 121-124
+│   │   │       │   └── Grid logging toggle: lines 127-130
+│   │   │       └── Right Column (Hotkeys): lines 133-172
+│   │   │           ├── Optimize previews hotkey: lines 135-138
+│   │   │           ├── Reload manager hotkey: lines 141-144
+│   │   │           ├── Shuffle mods hotkey: lines 147-150
+│   │   │           └── Deactivate all hotkey: lines 153-156
+│   └── About Button: lines 176-187
+│       ├── Button definition: lines 176-184
+│       ├── Icon: line 185
+│       └── Text: line 186
+
+UI ELEMENTS:
+- SettingsTitle: line 15 - Page title "Settings"
+- ThemeLabel: line 17 - Theme selection label
+- ThemeSelectorBar: lines 18-32 - Theme selector (Auto/Light/Dark)
+- BackdropLabel: line 35 - Backdrop selection label
+- BackdropSelectorBar: lines 36-65 - Backdrop selector (Mica/MicaAlt/Acrylic/AcrylicThin/None)
+- LanguageLabel: line 68 - Language selection label
+- LanguageComboBox: line 69 - Language dropdown
+- OptimizePreviewsLabel: line 72 - Optimize previews label
+- OptimizePreviewsButton: lines 73-75 - Optimize button (&#xE89E;)
+- OptimizePreviewsProgressBar: line 76 - Progress indicator
+- XXMIRootDirectoryLabel: line 79 - XXMI root directory label
+- XXMIRootDirectoryBreadcrumb: line 80 - XXMI path breadcrumb
+- XXMIRootDirectoryPickButton: lines 81-83 - Browse XXMI folder (&#xE8B7;)
+- XXMIRootDirectoryDefaultButton: lines 84-85 - Reset XXMI to default (&#xE72C;)
+- ModLibraryDirectoryLabel: line 87 - Mod library directory label
+- ModLibraryDirectoryBreadcrumb: line 88 - Mod library path breadcrumb
+- ModLibraryDirectoryPickButton: lines 89-91 - Browse mod library (&#xE8B7;)
+- ModLibraryDirectoryDefaultButton: lines 92-93 - Reset mod library to default (&#xE72C;)
+- ActiveModsToTopLabel: line 97 - Active mods to top label
+- ActiveModsToTopToggle: line 98 - Active mods to top toggle
+- DynamicModSearchLabel: line 110 - Dynamic mod search label
+- DynamicModSearchToggle: line 111 - Dynamic search toggle
+- ShowOrangeAnimationLabel: line 116 - Orange animation label
+- ShowOrangeAnimationToggle: line 117 - Orange animation toggle
+- ModGridZoomLabel: line 122 - Grid zoom label
+- ModGridZoomToggle: line 123 - Grid zoom toggle
+- GridLoggingLabel: line 128 - Grid logging label
+- GridLoggingToggle: line 129 - Grid logging toggle
+- OptimizePreviewsHotkeyLabel: line 136 - Optimize previews hotkey label
+- OptimizePreviewsHotkeyTextBox: line 137 - Optimize previews hotkey input
+- ReloadManagerHotkeyLabel: line 142 - Reload manager hotkey label
+- ReloadManagerHotkeyTextBox: line 143 - Reload manager hotkey input
+- ShuffleActiveModsHotkeyLabel: line 148 - Shuffle mods hotkey label
+- ShuffleActiveModsHotkeyTextBox: line 149 - Shuffle mods hotkey input
+- DeactivateAllModsHotkeyLabel: line 154 - Deactivate all hotkey label
+- DeactivateAllModsHotkeyTextBox: line 155 - Deactivate all hotkey input
+- AboutButton: lines 176-187 - About dialog button (&#xE946;)
+
+================================================================================
+FILE: Pages/SettingsPage.xaml.cs
+TOTAL LINES: 1226
+
+LINE RANGES:
+├── Using statements: lines 1-16
+├── Namespace declaration: lines 18-19
+├── SettingsPage class: lines 20-1226
+│   ├── Fields and properties: lines 21-27
+│   │   ├── Language folder path: line 21
+│   │   ├── Language dictionaries: lines 22-23
+│   │   ├── Preview optimization state: lines 24-26
+│   │   └── Button icon reference: line 27
+│   ├── Utility methods: lines 29-37
+│   │   ├── SetBreadcrumbBar: lines 29-32
+│   │   └── GetBreadcrumbPath: lines 34-37
+│   ├── Constructor: lines 39-46
+│   │   ├── Component initialization: line 41
+│   │   ├── Icon reference setup: line 42
+│   │   ├── Settings loading: line 43
+│   │   ├── Language loading: line 44
+│   │   └── UI state initialization: line 45
+│   ├── UI State Management: lines 48-105
+│   │   ├── InitializeUIState: lines 48-105
+│   │   │   ├── Language selection setup: lines 49-60
+│   │   │   ├── Theme selector setup: lines 62-69
+│   │   │   ├── Backdrop selector setup: lines 71-81
+│   │   │   ├── Toggle states setup: lines 83-88
+│   │   │   ├── Breadcrumb paths setup: lines 90-91
+│   │   │   ├── Hotkey values setup: lines 93-97
+│   │   │   └── Text and icon updates: lines 100-105
+│   ├── Page lifecycle: lines 107-125
+│   │   └── OnNavigatedTo: lines 107-125
+│   │       ├── Preview optimization state refresh: lines 109-125
+│   ├── Language Management: lines 127-185
+│   │   ├── LoadLanguages: lines 127-165
+│   │   │   ├── Language enumeration: lines 127-145
+│   │   │   ├── File processing: lines 147-160
+│   │   │   └── Error handling: lines 162-165
+│   │   └── LanguageComboBox_SelectionChanged: lines 167-185
+│   │       ├── Language file saving: lines 167-175
+│   │       ├── Local text updates: lines 177-178
+│   │       └── UI refresh: lines 180-185
+│   ├── Directory Management: lines 187-340
+│   │   ├── XXMIRootDirectoryDefaultButton_Click: lines 187-225
+│   │   │   ├── Path validation: lines 187-195
+│   │   │   ├── Symlink cleanup: lines 197-215
+│   │   │   ├── Settings update: lines 217-220
+│   │   │   └── UI refresh: lines 222-225
+│   │   └── ModLibraryDirectoryDefaultButton_Click: lines 227-340
+│   │       ├── Path comparison: lines 227-250
+│   │       ├── Mod deactivation: lines 252-265
+│   │       ├── Settings update: lines 267-275
+│   │       └── Manager refresh: lines 277-280
+│   ├── Text Updates: lines 282-340
+│   │   └── UpdateTexts: lines 282-340
+│   │       ├── Basic labels: lines 282-295
+│   │       ├── Theme selector texts: lines 297-300
+│   │       ├── Backdrop selector texts: lines 302-315
+│   │       ├── Directory labels: lines 317-325
+│   │       ├── Tooltips: lines 327-335
+│   │       └── Hotkey labels: lines 337-340
+│   ├── Preview Optimization: lines 342-600
+│   │   ├── OptimizePreviewsAsync: lines 342-400
+│   │   │   ├── Directory enumeration: lines 342-350
+│   │   │   ├── Category processing: lines 352-360
+│   │   │   ├── Mod processing: lines 362-395
+│   │   │   └── Image optimization: lines 397-400
+│   │   ├── OptimizePreviewsButton_Click: lines 565-600
+│   │   │   ├── Confirmation dialog: lines 565-580
+│   │   │   ├── Optimization execution: lines 582-590
+│   │   │   └── Completion dialogs: lines 592-600
+│   │   └── ProcessCategoryPreview: lines 650-720
+│   │       ├── File enumeration: lines 650-665
+│   │       ├── Image processing: lines 667-700
+│   │       └── File cleanup: lines 702-720
+│   ├── Folder Picker Utilities: lines 602-648
+│   │   ├── PickFolderWin32Dialog: lines 602-615
+│   │   └── PickFolderWin32DialogSTA: lines 617-648
+│   ├── File System Utilities: lines 722-780
+│   │   ├── IsNtfs: lines 722-725
+│   │   ├── ShowNtfsWarning: lines 727-735
+│   │   └── SafelyDeactivateAllModsAndCleanupSymlinks: lines 737-780
+│   │       ├── Mod deactivation: lines 737-750
+│   │       ├── Symlink cleanup: lines 752-775
+│   │       └── Symlink recreation: lines 777-780
+│   ├── Directory Picker Handlers: lines 782-900
+│   │   ├── XXMIRootDirectoryPickButton_ClickAsync: lines 782-825
+│   │   │   ├── Folder selection: lines 782-790
+│   │   │   ├── NTFS validation: lines 792-795
+│   │   │   ├── Symlink cleanup: lines 797-815
+│   │   │   └── Settings update: lines 817-825
+│   │   ├── XXMIRootDirectoryPickButton_Click: lines 827-830
+│   │   ├── ModLibraryDirectoryPickButton_ClickAsync: lines 832-875
+│   │   │   ├── Folder selection: lines 832-840
+│   │   │   ├── NTFS validation: lines 842-845
+│   │   │   ├── Mod deactivation: lines 847-860
+│   │   │   ├── Settings update: lines 862-865
+│   │   │   └── Manager refresh: lines 867-875
+│   │   └── ModLibraryDirectoryPickButton_Click: lines 877-880
+│   ├── Win32 API Declarations: lines 882-900
+│   │   ├── SHBrowseForFolder: line 882
+│   │   ├── SHGetPathFromIDList: line 885
+│   │   ├── MAX_PATH constant: line 887
+│   │   └── BROWSEINFO struct: lines 889-900
+│   ├── About Dialog: lines 902-980
+│   │   └── AboutButton_Click: lines 902-980
+│   │       ├── Dialog setup: lines 902-910
+│   │       ├── Content creation: lines 912-970
+│   │       └── Dialog display: lines 972-980
+│   ├── Theme and Backdrop Handlers: lines 982-1020
+│   │   ├── ThemeSelectorBar_SelectionChanged: lines 982-1005
+│   │   │   ├── Theme saving: lines 982-985
+│   │   │   ├── Theme application: lines 987-1000
+│   │   │   └── Backdrop refresh: lines 1002-1005
+│   │   └── BackdropSelectorBar_SelectionChanged: lines 1007-1020
+│   │       ├── Backdrop saving: lines 1007-1010
+│   │       └── Backdrop application: lines 1012-1020
+│   ├── Toggle Event Handlers: lines 1022-1080
+│   │   ├── DynamicModSearchToggle_Toggled: lines 1022-1027
+│   │   ├── GridLoggingToggle_Toggled: lines 1029-1035
+│   │   ├── ShowOrangeAnimationToggle_Toggled: lines 1037-1050
+│   │   ├── ModGridZoomToggle_Toggled: lines 1052-1057
+│   │   └── ActiveModsToTopToggle_Toggled: lines 1059-1064
+│   ├── Hotkey Event Handlers: lines 1066-1120
+│   │   ├── OptimizePreviewsHotkeyTextBox_TextChanged: lines 1066-1073
+│   │   ├── ReloadManagerHotkeyTextBox_TextChanged: lines 1075-1082
+│   │   ├── ShuffleActiveModsHotkeyTextBox_TextChanged: lines 1084-1091
+│   │   ├── DeactivateAllModsHotkeyTextBox_TextChanged: lines 1093-1100
+│   │   └── HotkeyTextBox_KeyDown: lines 1104-1130
+│   │       ├── Modifier key detection: lines 1104-1115
+│   │       ├── Key filtering: lines 1117-1122
+│   │       └── Hotkey string building: lines 1124-1130
+│   └── Breadcrumb Click Handlers: lines 1132-1226
+│       ├── XXMIRootDirectoryBreadcrumb_ItemClicked: lines 1132-1155
+│       │   ├── Path validation: lines 1132-1140
+│       │   ├── Process launch: lines 1142-1150
+│       │   └── Error handling: lines 1152-1155
+│       └── ModLibraryDirectoryBreadcrumb_ItemClicked: lines 1157-1226
+│           ├── Path validation: lines 1157-1165
+│           ├── Process launch: lines 1167-1175
+│           └── Error handling: lines 1177-1180
+
+================================================================================
+COMPONENT OVERVIEW
+
+KEY METHODS:
+- Constructor: lines 39-46 - Initialize page, load settings, and setup UI
+- InitializeUIState: lines 48-105 - Configure all UI elements from settings
+- LoadLanguages: lines 127-165 - Enumerate and load available languages
+- UpdateTexts: lines 282-340 - Apply translations to all UI elements
+- OptimizePreviewsAsync: lines 342-400 - Optimize mod preview images
+- XXMIRootDirectoryPickButton_ClickAsync: lines 782-825 - Handle XXMI directory selection
+- ModLibraryDirectoryPickButton_ClickAsync: lines 832-875 - Handle mod library selection
+- ThemeSelectorBar_SelectionChanged: lines 982-1005 - Apply theme changes
+- BackdropSelectorBar_SelectionChanged: lines 1007-1020 - Apply backdrop effects
+
+FUNCTIONALITY:
+- Theme selection (Auto/Light/Dark) with immediate application
+- Backdrop effect selection (Mica/MicaAlt/Acrylic/AcrylicThin/None)
+- Language selection with dynamic UI updates
+- Preview image optimization with progress tracking
+- XXMI root directory management with symlink handling
+- Mod library directory management with safety mechanisms
+- Toggle settings for various application features
+- Hotkey configuration with real-time key capture
+- About dialog with application information
+- Breadcrumb navigation for directory paths
+
+THEME SYSTEM:
+- Auto theme detection based on system settings
+- Light and Dark theme options with immediate application
+- Theme persistence across sessions
+- Integration with MainWindow theme management
+- Backdrop effect refresh on theme changes
+
+LANGUAGE SYSTEM:
+- Dynamic language enumeration from Language folder
+- Language display name mapping for user-friendly names
+- Immediate UI text updates on language change
+- Language persistence and restoration
+- Fallback to English for missing translations
+
+DIRECTORY MANAGEMENT:
+- XXMI root directory selection with folder picker
+- Mod library directory selection with validation
+- Default path restoration functionality
+- NTFS file system validation and warnings
+- Symlink cleanup and recreation on path changes
+- Safety mechanisms for mod deactivation
+
+PREVIEW OPTIMIZATION:
+- Batch image processing for mod previews
+- Square cropping and size optimization (1000x1000)
+- Minitile generation (600x600) for performance
+- Category preview processing (catprev.jpg)
+- Progress tracking with cancellation support
+- File cleanup and format standardization
+
+HOTKEY SYSTEM:
+- Real-time hotkey capture and display
+- Modifier key detection (Ctrl/Shift/Alt)
+- Hotkey string formatting and persistence
+- Integration with application-wide hotkey handling
+- Support for optimize previews, reload, shuffle, and deactivate actions
+
+TOGGLE SETTINGS:
+- Dynamic mod search enabling/disabling
+- Grid logging for performance debugging
+- Orange animation visibility control
+- Mod grid zoom functionality
+- Active mods to top sorting
+
+USER INTERFACE:
+- ScrollViewer for content overflow handling
+- Two-column layout for toggles and hotkeys
+- SelectorBar controls for theme and backdrop selection
+- BreadcrumbBar controls for path display and navigation
+- Progress indicators for long-running operations
+- Consistent spacing and margins throughout
+
+ERROR HANDLING:
+- Try-catch blocks for all file and directory operations
+- User-friendly error dialogs with translations
+- Graceful fallback for missing resources
+- Exception logging for debugging purposes
+- Safe operations with validation checks
+
+TRANSLATION SUPPORT:
+- Dynamic text updates using SharedUtilities
+- Language dictionary loading for all UI text
+- Tooltip text translation
+- Button text and label translation
+- Error and success message translation
+
+PERFORMANCE:
+- Lazy loading of language and directory lists
+- Efficient settings operations with immediate persistence
+- Minimal UI blocking during operations
+- Optimized file system operations
+- Smart UI updates only when needed
+
+INTEGRATION:
+- Deep integration with SettingsManager for persistence
+- MainWindow communication for theme and UI updates
+- ModGridPage integration for symlink management
+- SharedUtilities integration for common operations
+- App-level integration for mod library management

@@ -1,0 +1,280 @@
+COMPONENT: StatusKeeperSyncPage
+DESCRIPTION: Synchronization page for StatusKeeper with file watching, persistent variable sync, and backup confirmation
+
+================================================================================
+FILE: Pages/StatusKeeperSyncPage.xaml
+TOTAL LINES: 47
+
+LINE RANGES:
+├── XML Declaration: line 1
+├── Page Declaration: lines 2-9
+│   ├── Class definition: line 3
+│   └── Namespace declarations: lines 4-9
+├── Main ScrollViewer: lines 10-46
+│   ├── Main StackPanel: lines 11-45
+│   │   ├── File Path Selection: lines 13-21
+│   │   │   ├── Path label: line 14
+│   │   │   ├── Path breadcrumb: line 15
+│   │   │   ├── Pick button: lines 16-18 (&#xE8B7;)
+│   │   │   └── Default button: lines 19-21 (&#xE72C;)
+│   │   ├── Backup Confirmation Toggle: lines 23-26
+│   │   │   ├── Backup label: line 24
+│   │   │   └── Backup toggle: line 25
+│   │   ├── Dynamic Sync Toggle: lines 28-31
+│   │   │   ├── Dynamic sync label: line 29
+│   │   │   └── Dynamic sync toggle: line 30
+│   │   └── Manual Sync Section: lines 33-44
+│   │       ├── Manual sync label: line 34
+│   │       ├── Manual sync button: lines 35-40 (&#xE895;)
+│   │       └── Progress bar: line 41
+
+UI ELEMENTS:
+- D3dxFilePathLabel: line 14 - D3DX file path selection label
+- D3dxFilePathBreadcrumb: line 15 - D3DX file path breadcrumb display
+- D3dxFilePathPickButton: lines 16-18 - Browse for D3DX file button (&#xE8B7;)
+- D3dxFilePathDefaultButton: lines 19-21 - Reset to default path button (&#xE72C;)
+- BackupConfirmationLabel: line 24 - Backup confirmation label
+- BackupConfirmationToggle: line 25 - Backup confirmation toggle switch
+- DynamicSyncLabel: line 29 - Dynamic sync label
+- DynamicSyncToggle: line 30 - Dynamic sync toggle switch
+- ManualSyncLabel: line 34 - Manual sync label
+- ManualSyncButton: lines 35-40 - Manual sync trigger button (&#xE895;)
+- ManualSyncButtonText: line 38 - Manual sync button text
+- ManualSyncProgressBar: line 41 - Manual sync progress indicator
+
+================================================================================
+FILE: Pages/StatusKeeperSyncPage.xaml.cs
+TOTAL LINES: 1132
+
+LINE RANGES:
+├── Using statements: lines 1-16
+├── Namespace declaration: lines 18-19
+├── StatusKeeperSyncPage class: lines 20-1132
+│   ├── Static fields: lines 21-25
+│   │   ├── Sync lock: line 21
+│   │   ├── File watcher: line 22
+│   │   ├── Periodic timer: line 23
+│   │   └── Log file path: line 24
+│   ├── Constructor: lines 27-36
+│   │   ├── Component initialization: line 29
+│   │   ├── Text updates: line 30
+│   │   └── Logging initialization: lines 32-35
+│   ├── Translation Support: lines 38-56
+│   │   ├── TStatic: lines 38-42 - Static translation method
+│   │   └── UpdateTexts: lines 44-56 - UI text and tooltip updates
+│   ├── Settings Management: lines 58-75
+│   │   ├── SetLoggingEnabled: lines 58-62
+│   │   └── InitializeBreadcrumbBar: lines 64-75
+│   ├── Page Lifecycle: lines 77-140
+│   │   ├── OnNavigatedTo: lines 77-120
+│   │   │   ├── UI initialization: lines 79-85
+│   │   │   ├── Background validation: lines 87-105
+│   │   │   └── Heavy operations: lines 107-120
+│   │   ├── ValidateAndHandleSyncState: lines 122-140
+│   │   └── OnNavigatedFrom: lines 142-148
+│   ├── File Path Management: lines 150-220
+│   │   ├── D3dxFilePathPickButton_Click: lines 150-185
+│   │   │   ├── Folder selection: lines 150-165
+│   │   │   ├── File validation: lines 167-175
+│   │   │   ├── Watcher restart: lines 177-185
+│   │   ├── D3dxFilePathDefaultButton_Click: lines 187-205
+│   │   └── D3dxFilePathBreadcrumb_ItemClicked: lines 207-220
+│   ├── Toggle Event Handlers: lines 222-290
+│   │   ├── BackupConfirmationToggle_Toggled: lines 222-240
+│   │   │   ├── Settings update: lines 222-225
+│   │   │   ├── Button state update: lines 227-230
+│   │   │   └── Sync disabling: lines 232-240
+│   │   ├── UpdateSyncButtonStates: lines 242-250
+│   │   └── DynamicSyncToggle_Toggled: lines 252-290
+│   │       ├── Backup validation: lines 252-260
+│   │       ├── File validation: lines 262-275
+│   │       ├── Watcher management: lines 277-285
+│   │       └── Sync triggering: lines 287-290
+│   ├── Manual Sync Handler: lines 292-340
+│   │   └── ManualSyncButton_Click: lines 292-340
+│   │       ├── Validation checks: lines 292-310
+│   │       ├── UI state management: lines 312-320
+│   │       ├── Sync execution: lines 322-335
+│   │       └── Completion handling: lines 337-340
+│   ├── Dialog Utilities: lines 342-360
+│   │   └── ShowInfoDialog: lines 342-360
+│   ├── Logging System: lines 362-400
+│   │   ├── InitFileLogging: lines 362-375
+│   │   ├── GetLogPath: lines 377-380
+│   │   └── LogStatic: lines 382-400
+│   ├── D3DX Path Management: lines 402-470
+│   │   └── GetD3dxUserPathStatic: lines 402-470
+│   │       ├── Path validation: lines 402-410
+│   │       ├── Automatic discovery: lines 412-450
+│   │       └── Path registration: lines 452-470
+│   ├── Persistent Variables Parsing: lines 472-620
+│   │   ├── ParsePersistentVariables: lines 472-550
+│   │   │   ├── File reading: lines 472-485
+│   │   │   ├── Old format parsing: lines 487-505
+│   │   │   ├── New format parsing: lines 507-540
+│   │   │   └── Case-insensitive matching: lines 542-550
+│   │   └── BuildNamespaceMapping: lines 552-620
+│   │       ├── Directory traversal: lines 552-570
+│   │       ├── mod.json processing: lines 572-610
+│   │       └── Namespace extraction: lines 612-620
+│   ├── File Sync Operations: lines 622-900
+│   │   ├── ResolvePath: lines 622-670
+│   │   │   ├── Direct path resolution: lines 622-635
+│   │   │   └── Case-insensitive fallback: lines 637-670
+│   │   ├── UpdateVariablesInFile: lines 672-750
+│   │   │   ├── File reading: lines 672-680
+│   │   │   ├── Constants section detection: lines 682-690
+│   │   │   ├── Variable updating: lines 692-730
+│   │   │   └── File writing: lines 732-750
+│   │   ├── UpdateConstantsSection: lines 752-820
+│   │   │   ├── Section parsing: lines 752-770
+│   │   │   ├── Variable updating: lines 772-800
+│   │   │   └── Section creation: lines 802-820
+│   │   └── SyncPersistentVariables: lines 822-900
+│   │       ├── Entry processing: lines 822-850
+│   │       ├── Main file updates: lines 852-870
+│   │       ├── LOD file synchronization: lines 872-895
+│   │       └── Result compilation: lines 897-900
+│   ├── File Watcher System: lines 902-1000
+│   │   ├── StartWatcherStatic: lines 902-950
+│   │   │   ├── Watcher setup: lines 902-920
+│   │   │   ├── Event handler: lines 922-940
+│   │   │   └── Error handling: lines 942-950
+│   │   ├── StopWatcher: lines 952-965
+│   │   ├── StartPeriodicSync: lines 967-985
+│   │   └── StopPeriodicSync: lines 987-1000
+│   ├── Instance Methods: lines 1002-1050
+│   │   ├── StartWatcher: lines 1002-1010
+│   │   ├── ExtractConstantsSection: lines 1012-1050
+│   │   │   ├── File parsing: lines 1012-1025
+│   │   │   ├── Section detection: lines 1027-1035
+│   │   │   └── Variable extraction: lines 1037-1050
+│   └── Static Cleanup: lines 1052-1132
+│       ├── StopAllWatchers: lines 1052-1070
+│       ├── IsWatcherActive: lines 1072-1080
+│       ├── GetWatcherStatus: lines 1082-1100
+│       └── Cleanup methods: lines 1102-1132
+
+================================================================================
+COMPONENT OVERVIEW
+
+KEY METHODS:
+- Constructor: lines 27-36 - Initialize page, texts, and logging
+- UpdateTexts: lines 44-56 - Apply translations and tooltips
+- OnNavigatedTo: lines 77-120 - Fast UI setup with background validation
+- ValidateAndHandleSyncState: lines 122-140 - Validate sync prerequisites
+- D3dxFilePathPickButton_Click: lines 150-185 - Handle D3DX file selection
+- DynamicSyncToggle_Toggled: lines 252-290 - Manage automatic synchronization
+- ManualSyncButton_Click: lines 292-340 - Execute manual synchronization
+- ParsePersistentVariables: lines 472-550 - Parse D3DX persistent variables
+- SyncPersistentVariables: lines 822-900 - Synchronize variables to mod files
+- StartWatcherStatic: lines 902-950 - Start file system monitoring
+
+FUNCTIONALITY:
+- D3DX user.ini file path management with automatic discovery
+- Backup confirmation requirement for sync operations
+- Dynamic file watching for automatic synchronization
+- Manual synchronization with progress tracking
+- Persistent variable parsing (old and new formats)
+- Namespace-based variable mapping from mod.json files
+- LOD file synchronization with Constants sections
+- File system monitoring with change detection
+- Comprehensive logging system with file output
+
+SYNCHRONIZATION SYSTEM:
+- Two-format support: old path-based and new namespace-based
+- Automatic namespace to file mapping via mod.json
+- Case-insensitive path resolution for compatibility
+- Constants section synchronization to LOD files
+- Variable update tracking and reporting
+- Atomic file operations with UTF-8 encoding
+
+FILE WATCHING:
+- FileSystemWatcher for d3dx_user.ini changes
+- Automatic sync triggering on file modifications
+- Periodic sync timer for additional reliability
+- Static watcher management for cross-page persistence
+- Proper cleanup and resource management
+
+BACKUP SAFETY:
+- Mandatory backup confirmation before sync operations
+- UI state management based on backup status
+- Automatic sync disabling when backup not confirmed
+- Safety checks in all sync-related operations
+
+PATH MANAGEMENT:
+- Automatic D3DX file discovery across game directories
+- BreadcrumbBar integration for path display
+- Folder picker for manual path selection
+- Default path restoration based on current game
+- Path validation and existence checking
+
+NAMESPACE MAPPING:
+- mod.json file parsing for namespace definitions
+- Dynamic namespace to INI file mapping
+- Support for multiple INI files per namespace
+- Case-insensitive namespace matching
+- Efficient mapping cache for performance
+
+VARIABLE PARSING:
+- Regex-based parsing for both old and new formats
+- Old format: $\mods\<path>\<file>.ini\<variable> = <value>
+- New format: $\<namespace>\<variable> = <value>
+- Comprehensive error handling and logging
+- Variable name case-insensitive matching
+
+FILE OPERATIONS:
+- UTF-8 encoding for all file operations
+- Atomic file updates with backup safety
+- Constants section detection and management
+- LOD file automatic synchronization
+- Line ending preservation and normalization
+
+USER INTERFACE:
+- Progress indication for long-running operations
+- Dynamic button state management
+- Tooltip integration with translations
+- BreadcrumbBar for path visualization
+- Toggle switches for feature control
+
+TRANSLATION SUPPORT:
+- StatusKeeper-specific language dictionary
+- Static translation method for cross-component use
+- Dynamic UI text updates
+- Tooltip localization
+- Error message translation
+
+ERROR HANDLING:
+- Comprehensive try-catch blocks for all operations
+- Detailed logging with multiple severity levels
+- User-friendly error dialogs
+- Graceful degradation on failures
+- Resource cleanup on errors
+
+SETTINGS INTEGRATION:
+- Deep integration with SettingsManager
+- Persistent state across sessions
+- Automatic settings saving on changes
+- Cross-component settings sharing
+- Default value management
+
+PERFORMANCE:
+- Background validation to avoid UI blocking
+- Efficient file parsing and processing
+- Smart watcher management
+- Optimized namespace mapping
+- Minimal UI thread operations
+
+LOGGING SYSTEM:
+- File-based logging with timestamps
+- Multiple log levels (DEBUG, INFO, WARN, ERROR)
+- Console output for development
+- Conditional file logging based on settings
+- UTF-8 encoding for international characters
+
+INTEGRATION:
+- SharedUtilities integration for common operations
+- PathManager integration for file paths
+- SettingsManager integration for persistence
+- Cross-page static method access
+- App-level watcher management

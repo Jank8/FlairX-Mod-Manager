@@ -1,0 +1,151 @@
+COMPONENT: ModInfoBackupPage
+DESCRIPTION: Page for creating and managing mod.json backups with restore functionality
+
+================================================================================
+FILE: Pages/ModInfoBackupPage.xaml
+TOTAL LINES: 90
+
+LINE RANGES:
+├── Page Declaration: lines 1-10
+│   ├── Class definition: line 2
+│   ├── Namespace declarations: lines 3-7
+│   └── Design properties: lines 8-10
+├── Main Grid: lines 11-89
+│   ├── StackPanel container: lines 12-88
+│   │   ├── Create Backup Section: lines 13-20
+│   │   │   ├── Button container: lines 13-19
+│   │   │   └── Progress bar: line 20
+│   │   └── Backup Slots Section: lines 21-87
+│   │       ├── Backup 1 Grid: lines 22-40
+│   │       │   ├── Restore button: lines 28-33
+│   │       │   ├── Delete button: lines 36-38
+│   │       │   └── Info text: line 40
+│   │       ├── Backup 2 Grid: lines 41-59
+│   │       │   ├── Restore button: lines 47-52
+│   │       │   ├── Delete button: lines 55-57
+│   │       │   └── Info text: line 59
+│   │       └── Backup 3 Grid: lines 60-78
+│   │           ├── Restore button: lines 66-71
+│   │           ├── Delete button: lines 74-76
+│   │           └── Info text: line 78
+
+UI ELEMENTS:
+- CreateBackupsButton: lines 14-18 - Main backup creation button (&#xEA35;)
+- CreateBackupsText: line 16 - Dynamic button text
+- CreateBackupsProgressBar: line 20 - Progress indicator for backup creation
+- RestoreBackup1Button: lines 28-33 - Restore newest backup (&#xE8EB;)
+- RestoreBackup2Button: lines 47-52 - Restore middle backup (&#xE8EB;)
+- RestoreBackup3Button: lines 66-71 - Restore oldest backup (&#xE8EB;)
+- DeleteBackup1Button: lines 36-38 - Delete newest backup (&#xE74D;)
+- DeleteBackup2Button: lines 55-57 - Delete middle backup (&#xE74D;)
+- DeleteBackup3Button: lines 74-76 - Delete oldest backup (&#xE74D;)
+- Backup1Info: line 40 - Backup 1 status information
+- Backup2Info: line 59 - Backup 2 status information
+- Backup3Info: line 78 - Backup 3 status information
+
+================================================================================
+FILE: Pages/ModInfoBackupPage.xaml.cs
+TOTAL LINES: 451
+
+LINE RANGES:
+├── Using statements: lines 1-9
+├── Namespace declaration: lines 11-12
+├── ModInfoBackupPage class: lines 13-451
+│   ├── Properties and constants: lines 14-16
+│   │   ├── ModLibraryPath: line 14
+│   │   └── MaxBackups: line 15
+│   ├── Constructor: lines 17-22
+│   ├── UpdateTexts method: lines 24-32
+│   ├── Create backup functionality: lines 34-140
+│   │   ├── CreateBackupsButton_Click: lines 34-44
+│   │   ├── CreateBackupsAsync: lines 46-58
+│   │   └── CreateAllBackups: lines 60-140
+│   │       ├── Directory scanning: lines 61-70
+│   │       ├── Backup shifting logic: lines 72-115
+│   │       └── ZIP creation: lines 117-140
+│   ├── Restore backup functionality: lines 142-290
+│   │   ├── RestoreBackupButton_Click: lines 142-152
+│   │   ├── RestoreBackupAsync: lines 154-200
+│   │   ├── CreateProgressBarAfter: lines 202-230
+│   │   └── RestoreAllBackups: lines 232-290
+│   │       ├── Directory scanning: lines 233-242
+│   │       ├── ZIP extraction: lines 244-285
+│   │       └── Error handling: lines 286-290
+│   ├── Delete backup functionality: lines 292-370
+│   │   ├── DeleteBackupButton_Click: lines 292-340
+│   │   └── DeleteAllBackups: lines 342-370
+│   ├── Utility methods: lines 372-400
+│   │   └── ShowDialog: lines 372-380
+│   ├── Backup info updates: lines 382-451
+│   │   ├── UpdateBackupInfo: lines 382-387
+│   │   └── UpdateBackupInfoFor: lines 389-451
+│   │       ├── Directory validation: lines 389-397
+│   │       ├── Backup counting: lines 399-430
+│   │       ├── Status display: lines 432-445
+│   │       └── Button state management: lines 447-451
+
+================================================================================
+COMPONENT OVERVIEW
+
+KEY METHODS:
+- Constructor: lines 17-22 - Initialize UI and load backup information
+- CreateAllBackups: lines 60-140 - Create ZIP backups for all mods with rotation
+- RestoreAllBackups: lines 232-290 - Extract and restore backups for all mods
+- DeleteAllBackups: lines 342-370 - Delete specific backup files for all mods
+- UpdateBackupInfoFor: lines 389-451 - Update UI with backup status and counts
+
+FUNCTIONALITY:
+- Create compressed backups of mod.json and essential files
+- Three-slot backup rotation system (newest, middle, oldest)
+- Restore backups with confirmation dialogs
+- Delete specific backup slots with confirmation
+- Real-time backup status display with file counts and dates
+- Progress tracking for all operations
+- Category-based mod directory scanning
+
+BACKUP SYSTEM:
+- Maximum 3 backups per mod (mib1.zip, mib2.zip, mib3.zip)
+- Automatic rotation: new backup becomes slot 1, others shift down
+- ZIP compression for space efficiency
+- Essential files included: mod.json, preview.jpg, minitile.jpg
+- Backup files stored in individual mod directories
+
+LAYOUT:
+- 5-column grid layout for backup slots (220px + 15px + 48px + 10px + *)
+- Restore buttons with icons and descriptive text
+- Delete buttons with trash icon
+- Info text showing backup count and creation date
+- Progress bars for long-running operations
+
+USER INTERFACE:
+- Confirmation dialogs for restore and delete operations
+- Dynamic button enabling/disabling based on backup availability
+- Progress indicators for all operations
+- Tooltips for delete buttons
+- Translation support for all UI text
+
+SECURITY:
+- Path validation for mod directories
+- Safe file operations with exception handling
+- Confirmation dialogs for destructive operations
+- Proper resource disposal for ZIP operations
+
+ERROR HANDLING:
+- Comprehensive try-catch blocks for all file operations
+- Logging for debugging and monitoring
+- Graceful fallback for missing directories
+- User-friendly error messages with dialogs
+- Continuation on individual mod failures
+
+PERFORMANCE:
+- Background task execution for file operations
+- Efficient directory scanning with category support
+- ZIP compression for storage optimization
+- Minimal UI blocking during operations
+
+BACKUP ROTATION:
+- Slot 1: Newest backup (mib1.zip)
+- Slot 2: Middle backup (mib2.zip)  
+- Slot 3: Oldest backup (mib3.zip)
+- Automatic shifting when creating new backups
+- Individual slot deletion without affecting others

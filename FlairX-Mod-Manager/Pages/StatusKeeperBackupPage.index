@@ -1,0 +1,252 @@
+COMPONENT: StatusKeeperBackupPage
+DESCRIPTION: Backup management page for StatusKeeper mod configuration files with safety mechanisms
+
+================================================================================
+FILE: Pages/StatusKeeperBackupPage.xaml
+TOTAL LINES: 79
+
+LINE RANGES:
+├── XML Declaration: line 1
+├── Page Declaration: lines 2-9
+│   ├── Class definition: line 3
+│   └── Namespace declarations: lines 4-9
+├── Main ScrollViewer: lines 10-78
+│   ├── Main StackPanel: lines 11-77
+│   │   ├── Create Backup Section: lines 12-33
+│   │   │   ├── Grid layout: lines 13-19
+│   │   │   ├── Create backup label: line 20
+│   │   │   ├── Create backup button: lines 21-26
+│   │   │   │   ├── Button icon: line 23
+│   │   │   │   └── Button text: line 24
+│   │   │   ├── Check backup button: lines 27-32
+│   │   │   │   ├── Button icon: line 29
+│   │   │   │   └── Button text: line 30
+│   │   │   └── Progress bars: lines 33-36
+│   │   │       ├── Create progress bar: line 34
+│   │   │       └── Check progress bar: line 35
+│   │   ├── Safety Override Section: lines 38-49
+│   │   │   ├── Grid layout: lines 39-47
+│   │   │   ├── Safety label: line 48
+│   │   │   ├── Safety toggle 1: line 49
+│   │   │   ├── Safety toggle 2: line 50
+│   │   │   └── Safety toggle 3: line 51
+│   │   ├── Restore Backup Section: lines 53-61
+│   │   │   ├── Restore label: line 54
+│   │   │   ├── Restore button: lines 55-60
+│   │   │   │   ├── Button icon: line 57
+│   │   │   │   └── Button text: line 58
+│   │   └── Delete Backups Section: lines 63-71
+│   │       ├── Delete label: line 64
+│   │       └── Delete button: lines 65-70
+│   │           ├── Button icon: line 67
+│   │           └── Button text: line 68
+
+UI ELEMENTS:
+- CreateBackupLabel: line 20 - Create backup operation label
+- CreateBackupButton: lines 21-26 - Create backup button (&#xEA35;)
+- CreateBackupButtonText: line 24 - Create backup button text
+- CheckBackupButton: lines 27-32 - Check backup status button (&#xF0B5;)
+- CheckBackupButtonText: line 30 - Check backup button text
+- CreateBackupProgressBar: line 34 - Progress indicator for backup creation
+- CheckBackupProgressBar: line 35 - Progress indicator for backup checking
+- SafetyOverrideLabel: line 48 - Safety override warning label
+- SafetyOverride1Toggle: line 49 - First safety toggle switch
+- SafetyOverride2Toggle: line 50 - Second safety toggle switch
+- SafetyOverride3Toggle: line 51 - Third safety toggle switch
+- RestoreBackupLabel: line 54 - Restore backup operation label
+- RestoreBackupButton: lines 55-60 - Restore backup button (&#xE8EB;)
+- RestoreBackupButtonText: line 58 - Restore backup button text
+- DeleteBackupsLabel: line 64 - Delete backups operation label
+- DeleteBackupsButton: lines 65-70 - Delete backups button (&#xE74D;)
+- DeleteBackupsButtonText: line 68 - Delete backups button text
+
+================================================================================
+FILE: Pages/StatusKeeperBackupPage.xaml.cs
+TOTAL LINES: 411
+
+LINE RANGES:
+├── Using statements: lines 1-10
+├── Namespace declaration: lines 12-13
+├── StatusKeeperBackupPage class: lines 14-411
+│   ├── Fields: lines 15-16
+│   │   └── Settings instance: line 16
+│   ├── Constructor: lines 18-22
+│   │   ├── Component initialization: line 20
+│   │   └── Text updates: line 21
+│   ├── UI Management: lines 24-58
+│   │   ├── UpdateTexts: lines 24-39
+│   │   │   ├── Language loading: line 26
+│   │   │   ├── Label translations: lines 27-33
+│   │   │   └── Window title: lines 35-39
+│   │   ├── LoadSettingsToUI: lines 41-52
+│   │   │   ├── Settings loading: lines 43-45
+│   │   │   ├── Local settings sync: lines 47-50
+│   │   │   └── Button state update: line 52
+│   │   └── UpdateButtonStates: lines 54-58
+│   │       ├── Safety validation: line 56
+│   │       └── Button enabling: lines 57-58
+│   ├── Page Lifecycle: lines 60-67
+│   │   └── OnNavigatedTo: lines 60-67
+│   │       ├── Parameter handling: lines 63-66
+│   ├── Button Event Handlers: lines 69-250
+│   │   ├── CreateBackupButton_Click: lines 69-115
+│   │   │   ├── UI state setup: lines 72-76
+│   │   │   ├── Backup counting: lines 78-85
+│   │   │   ├── Backup operation: line 87
+│   │   │   ├── Result counting: lines 89-96
+│   │   │   ├── Success dialog: lines 98-105
+│   │   │   ├── Error handling: lines 107-111
+│   │   │   └── UI cleanup: lines 113-115
+│   │   ├── RestoreBackupButton_Click: lines 117-158
+│   │   │   ├── Safety validation: lines 119-123
+│   │   │   ├── UI state setup: lines 126-129
+│   │   │   ├── Restore operation: line 136
+│   │   │   ├── Safety reset: lines 138-148
+│   │   │   ├── Settings save: lines 149-150
+│   │   │   ├── Error handling: lines 152-156
+│   │   │   └── UI cleanup: lines 158
+│   │   ├── DeleteBackupsButton_Click: lines 160-201
+│   │   │   ├── Safety validation: lines 162-166
+│   │   │   ├── UI state setup: lines 169-172
+│   │   │   ├── Delete operation: line 179
+│   │   │   ├── Safety reset: lines 181-191
+│   │   │   ├── Settings save: lines 192-193
+│   │   │   ├── Error handling: lines 195-199
+│   │   │   └── UI cleanup: lines 201
+│   │   └── CheckBackupButton_Click: lines 203-250
+│   │       ├── UI state setup: lines 206-209
+│   │       ├── Path validation: lines 211-214
+│   │       ├── File counting: lines 217-235
+│   │       ├── Result dialog: lines 237-245
+│   │       └── UI cleanup: lines 247-250
+│   ├── Backup Operations: lines 252-380
+│   │   ├── BackupIniFiles: lines 254-305
+│   │   │   ├── Directory validation: line 256
+│   │   │   ├── File enumeration: lines 259-261
+│   │   │   ├── Recursive processing: lines 263-266
+│   │   │   ├── File filtering: lines 268-278
+│   │   │   ├── Backup creation: lines 280-295
+│   │   │   └── Error handling: lines 297-305
+│   │   ├── RestoreFromBackups: lines 307-340
+│   │   │   ├── Directory validation: line 309
+│   │   │   ├── File enumeration: lines 312-314
+│   │   │   ├── Recursive processing: lines 316-319
+│   │   │   ├── File restoration: lines 321-333
+│   │   │   └── Error handling: lines 335-340
+│   │   └── DeleteBackups: lines 342-380
+│   │       ├── Directory validation: line 344
+│   │       ├── File enumeration: lines 347-349
+│   │       ├── Recursive processing: lines 351-354
+│   │       ├── File deletion: lines 356-368
+│   │       └── Error handling: lines 370-380
+│   └── Safety Toggle Handlers: lines 382-411
+│       ├── SafetyOverride1Toggle_Toggled: lines 382-388
+│       │   ├── Settings update: lines 384-385
+│       │   ├── Settings save: line 386
+│       │   └── Button state update: line 387
+│       ├── SafetyOverride2Toggle_Toggled: lines 390-396
+│       │   ├── Settings update: lines 392-393
+│       │   ├── Settings save: line 394
+│       │   └── Button state update: line 395
+│       └── SafetyOverride3Toggle_Toggled: lines 398-411
+│           ├── Settings update: lines 400-401
+│           ├── Settings save: line 402
+│           └── Button state update: line 403
+
+================================================================================
+COMPONENT OVERVIEW
+
+KEY METHODS:
+- Constructor: lines 18-22 - Initialize page and update UI texts
+- UpdateTexts: lines 24-39 - Apply translations to all UI elements
+- LoadSettingsToUI: lines 41-52 - Load settings and sync UI state
+- UpdateButtonStates: lines 54-58 - Enable/disable buttons based on safety toggles
+- CreateBackupButton_Click: lines 69-115 - Handle backup creation with progress tracking
+- RestoreBackupButton_Click: lines 117-158 - Handle backup restoration with safety checks
+- DeleteBackupsButton_Click: lines 160-201 - Handle backup deletion with safety checks
+- CheckBackupButton_Click: lines 203-250 - Check backup status and show statistics
+- BackupIniFiles: lines 254-305 - Recursively backup .ini files to .msk format
+- RestoreFromBackups: lines 307-340 - Recursively restore .msk files to .ini format
+- DeleteBackups: lines 342-380 - Recursively delete all .msk backup files
+
+FUNCTIONALITY:
+- Backup creation for mod configuration files (.ini to .msk)
+- Backup status checking with detailed statistics
+- Backup restoration with safety mechanisms
+- Backup deletion with safety mechanisms
+- Three-step safety override system for destructive operations
+- Progress tracking for long-running operations
+- Automatic safety reset after operations
+- File filtering to exclude disabled and LOD files
+
+SAFETY SYSTEM:
+- Three-toggle safety override mechanism
+- All three toggles must be enabled for restore/delete operations
+- Automatic safety reset after successful operations
+- Visual warning with red text for safety override
+- Settings persistence for safety toggle states
+- Button state management based on safety status
+
+BACKUP SYSTEM:
+- Recursive directory traversal for backup operations
+- .ini to .msk file format conversion for backups
+- File filtering to exclude disabled and LOD variants
+- Duplicate backup prevention
+- Comprehensive error handling and logging
+- Operation counting and statistics reporting
+
+FILE OPERATIONS:
+- Recursive file system traversal
+- File extension filtering (.ini files only)
+- Filename pattern exclusion (disabled, _lod1, _lod2)
+- Safe file copying with overwrite protection
+- Atomic file operations with error recovery
+- Directory existence validation
+
+USER INTERFACE:
+- Grid-based layout for organized button placement
+- Progress bars for visual feedback during operations
+- Icon-enhanced buttons for clear action identification
+- Disabled state management for safety compliance
+- Dynamic text updates based on operation state
+- Consistent spacing and alignment
+
+TRANSLATION SUPPORT:
+- StatusKeeper-specific language dictionary loading
+- Dynamic text updates for all UI elements
+- Localized dialog messages and titles
+- Window title translation support
+- Error message localization
+- Operation status text translation
+
+ERROR HANDLING:
+- Try-catch blocks for all file operations
+- Detailed error logging with Debug.WriteLine
+- Graceful failure handling for individual files
+- Operation continuation despite individual failures
+- User-friendly error reporting
+- Safe operation state restoration
+
+SETTINGS INTEGRATION:
+- Deep integration with SettingsManager
+- Persistent safety toggle states
+- Settings synchronization between UI and storage
+- Automatic settings saving on changes
+- Parameter-based settings loading
+- Cross-session state maintenance
+
+PERFORMANCE:
+- Asynchronous operations for UI responsiveness
+- Background task execution for file operations
+- Efficient recursive directory traversal
+- Minimal UI blocking during operations
+- Progress indication for user feedback
+- Optimized file filtering and processing
+
+INTEGRATION:
+- ModLibrary directory path integration
+- SharedUtilities integration for common operations
+- SettingsManager integration for persistence
+- StatusKeeperSettings parameter handling
+- App-level directory path resolution
+- Cross-component settings synchronization
