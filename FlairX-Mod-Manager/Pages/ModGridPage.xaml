@@ -44,6 +44,16 @@
                     Margin="0,0,8,0">
                 <FontIcon Glyph="&#xE72B;" FontSize="20"/>
             </Button>
+            <Button x:Name="CategoryOpenFolderButton" 
+                    Width="48" 
+                    Height="48" 
+                    Click="CategoryOpenFolderButton_Click" 
+                    VerticalAlignment="Center"
+                    Visibility="Collapsed"
+                    Margin="0,0,8,0"
+                    ToolTipService.ToolTip="Open Category Folder">
+                <FontIcon Glyph="&#xE838;" FontSize="20"/>
+            </Button>
             <TextBlock x:Name="CategoryTitle"
                        Text=""
                        FontSize="24"

@@ -208,7 +208,8 @@ namespace FlairX_Mod_Manager.Pages
                 // Set the ItemsSource to display categories
                 ModsGrid.ItemsSource = _allMods;
                 
-                CategoryTitle.Text = "Categories";
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "All_Categories");
                 
                 // Hide back button in categories view
                 CategoryBackButton.Visibility = Visibility.Collapsed;
@@ -310,6 +311,7 @@ namespace FlairX_Mod_Manager.Pages
             CategoryTitle.Text = category;
             LoadModsByCategory(category);
             CategoryBackButton.Visibility = Visibility.Visible;
+            CategoryOpenFolderButton.Visibility = Visibility.Visible;
         }
         
         public void LoadCategoryInCategoryMode(string category)
@@ -321,6 +323,7 @@ namespace FlairX_Mod_Manager.Pages
             CategoryTitle.Text = category;
             LoadModsByCategory(category);
             CategoryBackButton.Visibility = Visibility.Visible;
+            CategoryOpenFolderButton.Visibility = Visibility.Visible;
             // UpdateMainWindowButtonText(); // Don't interfere with MainWindow button state
         }
 
@@ -1334,9 +1337,39 @@ namespace FlairX_Mod_Manager.Pages
                 LoadAllMods();
             }
             
-            // Hide back button and update MainWindow
+            // Hide back button and folder button
             CategoryBackButton.Visibility = Visibility.Collapsed;
+            CategoryOpenFolderButton.Visibility = Visibility.Collapsed;
             // UpdateMainWindowButtonText(); // Don't interfere with MainWindow button state
+        }
+
+        private void CategoryOpenFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(_currentCategory))
+                    return;
+
+                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
+                if (string.IsNullOrEmpty(modLibraryPath))
+                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+
+                var categoryPath = Path.Combine(modLibraryPath, _currentCategory);
+                
+                if (Directory.Exists(categoryPath))
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = categoryPath,
+                        UseShellExecute = true,
+                        Verb = "open"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error opening category folder", ex);
+            }
         }
 
         private void ModGridPage_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
