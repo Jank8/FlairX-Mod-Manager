@@ -104,5 +104,17 @@
   "Information": "Informacja",
   "Welcome_Title": "WITAJ !",
   "XXMI_Download_Instructions": "Po pobraniu, rozpakuj folder XXMI do katalogu APP lub zaktualizuj ścieżkę katalogu modów XXMI w Ustawieniach.",
-  "XXMI_Download_Required": "Launcher XXMI jest wymagany do uruchamiania modów. Pobierz wersję przenośną z GitHub:"
+  "XXMI_Download_Required": "Launcher XXMI jest wymagany do uruchamiania modów. Pobierz wersję przenośną z GitHub:",
+  "ContextMenu_Activate": "Aktywuj",
+  "ContextMenu_Deactivate": "Deaktywuj",
+  "ContextMenu_OpenFolder": "Otwórz folder",
+  "ContextMenu_ViewDetails": "Pokaż szczegóły",
+  "ContextMenu_OpenURL": "Otwórz URL",
+  "ContextMenu_CopyName": "Kopiuj nazwę",
+  "ContextMenu_Rename": "Zmień nazwę",
+  "ContextMenu_Delete": "Usuń",
+  "RenameDialog_Category_Title": "Zmień nazwę kategorii",
+  "RenameDialog_Mod_Title": "Zmień nazwę moda",
+  "RenameDialog_EmptyName_Error": "Nazwa nie może być pusta.",
+  "RenameDialog_InvalidName_Error": "Nieprawidłowa nazwa. Używaj tylko prawidłowych znaków dla nazw folderów."
 }

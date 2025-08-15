@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "{0}টি মড নিষ্ক্রিয় করা হয়েছে।\n\n'Other' বিভাগের মডগুলি সংরক্ষিত রয়েছে।",
   "Information": "তথ্য",
   "XXMI_Download_Instructions": "ডাউনলোডের পর, XXMI ফোল্ডার APP ডিরেক্টরিতে এক্সট্র্যাক্ট করুন বা সেটিংসে XXMI মড ডিরেক্টরি পাথ আপডেট করুন।",
-  "XXMI_Download_Required": "মড চালু করতে XXMI লঞ্চার প্রয়োজন। GitHub থেকে পোর্টেবল সংস্করণ ডাউনলোড করুন:"
+  "XXMI_Download_Required": "মড চালু করতে XXMI লঞ্চার প্রয়োজন। GitHub থেকে পোর্টেবল সংস্করণ ডাউনলোড করুন:",
+  "ContextMenu_Activate": "সক্রিয় করুন",
+  "ContextMenu_Deactivate": "নিষ্ক্রিয় করুন",
+  "ContextMenu_OpenFolder": "ফোল্ডার খুলুন",
+  "ContextMenu_ViewDetails": "বিস্তারিত দেখুন",
+  "ContextMenu_OpenURL": "URL খুলুন",
+  "ContextMenu_CopyName": "নাম কপি করুন",
+  "ContextMenu_Rename": "নাম পরিবর্তন করুন",
+  "ContextMenu_Delete": "মুছে ফেলুন",
+  "RenameDialog_Category_Title": "বিভাগের নাম পরিবর্তন করুন",
+  "RenameDialog_Mod_Title": "মডের নাম পরিবর্তন করুন",
+  "RenameDialog_EmptyName_Error": "নাম খালি থাকতে পারে না।",
+  "RenameDialog_InvalidName_Error": "অবৈধ নাম। ফোল্ডারের নামের জন্য শুধুমাত্র বৈধ অক্ষর ব্যবহার করুন।"
 }

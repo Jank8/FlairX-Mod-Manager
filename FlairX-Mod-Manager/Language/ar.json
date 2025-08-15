@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "تم إلغاء تفعيل {0} تعديلات.\n\nتم الاحتفاظ بالتعديلات في فئة 'Other'.",
   "Information": "معلومات",
   "XXMI_Download_Instructions": "بعد التحميل، استخرج مجلد XXMI إلى دليل التطبيق أو حدث مسار دليل تعديلات XXMI في الإعدادات.",
-  "XXMI_Download_Required": "مشغل XXMI مطلوب لتشغيل التعديلات. حمل النسخة المحمولة من GitHub:"
+  "XXMI_Download_Required": "مشغل XXMI مطلوب لتشغيل التعديلات. حمل النسخة المحمولة من GitHub:",
+  "ContextMenu_Activate": "تفعيل",
+  "ContextMenu_Deactivate": "إلغاء التفعيل",
+  "ContextMenu_OpenFolder": "فتح المجلد",
+  "ContextMenu_ViewDetails": "عرض التفاصيل",
+  "ContextMenu_OpenURL": "فتح الرابط",
+  "ContextMenu_CopyName": "نسخ الاسم",
+  "ContextMenu_Rename": "إعادة تسمية",
+  "ContextMenu_Delete": "حذف",
+  "RenameDialog_Category_Title": "إعادة تسمية الفئة",
+  "RenameDialog_Mod_Title": "إعادة تسمية التعديل",
+  "RenameDialog_EmptyName_Error": "لا يمكن أن يكون الاسم فارغاً.",
+  "RenameDialog_InvalidName_Error": "اسم غير صالح. يرجى استخدام أحرف صالحة فقط لأسماء المجلدات."
 }

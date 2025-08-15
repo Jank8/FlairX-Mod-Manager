@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "Dinonaktifkan {0} mod.\n\nMod dalam kategori 'Other' tetap dipertahankan.",
   "Information": "Informasi",
   "XXMI_Download_Instructions": "Setelah mengunduh, ekstrak folder XXMI ke direktori APP atau perbarui path Direktori XXMI Mods di Pengaturan.",
-  "XXMI_Download_Required": "XXMI Launcher diperlukan untuk meluncurkan mod. Unduh versi portable dari GitHub:"
+  "XXMI_Download_Required": "XXMI Launcher diperlukan untuk meluncurkan mod. Unduh versi portable dari GitHub:",
+  "ContextMenu_Activate": "Aktifkan",
+  "ContextMenu_Deactivate": "Nonaktifkan",
+  "ContextMenu_OpenFolder": "Buka folder",
+  "ContextMenu_ViewDetails": "Lihat detail",
+  "ContextMenu_OpenURL": "Buka URL",
+  "ContextMenu_CopyName": "Salin nama",
+  "ContextMenu_Rename": "Ubah nama",
+  "ContextMenu_Delete": "Hapus",
+  "RenameDialog_Category_Title": "Ubah nama kategori",
+  "RenameDialog_Mod_Title": "Ubah nama mod",
+  "RenameDialog_EmptyName_Error": "Nama tidak boleh kosong.",
+  "RenameDialog_InvalidName_Error": "Nama tidak valid. Harap gunakan hanya karakter yang valid untuk nama folder."
 }

@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "{0}個のModを無効化しました。\n\n'Other'カテゴリのModは保持されました。",
   "Information": "情報",
   "XXMI_Download_Instructions": "ダウンロード後に XXMI のフォルダーをアプリのディレクトリに展開するか、設定で XXMI Mod のディレクトリパスを更新します。",
-  "XXMI_Download_Required": "Mod を起動するには XXMI Launcher が必要です。\nGitHub からポータブル版をダウンロードしてください:"
+  "XXMI_Download_Required": "Mod を起動するには XXMI Launcher が必要です。\nGitHub からポータブル版をダウンロードしてください:",
+  "ContextMenu_Activate": "有効化",
+  "ContextMenu_Deactivate": "無効化",
+  "ContextMenu_OpenFolder": "フォルダを開く",
+  "ContextMenu_ViewDetails": "詳細を表示",
+  "ContextMenu_OpenURL": "URLを開く",
+  "ContextMenu_CopyName": "名前をコピー",
+  "ContextMenu_Rename": "名前を変更",
+  "ContextMenu_Delete": "削除",
+  "RenameDialog_Category_Title": "カテゴリ名を変更",
+  "RenameDialog_Mod_Title": "Mod名を変更",
+  "RenameDialog_EmptyName_Error": "名前を空にすることはできません。",
+  "RenameDialog_InvalidName_Error": "無効な名前です。フォルダ名に有効な文字のみを使用してください。"
 }

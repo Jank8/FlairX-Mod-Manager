@@ -3051,13 +3051,14 @@ namespace FlairX_Mod_Manager.Pages
             if (sender is MenuFlyout menuFlyout && menuFlyout.Target is Border border && border.DataContext is ModTile modTile)
             {
                 menuFlyout.Items.Clear();
+                var lang = SharedUtilities.LoadLanguageDictionary();
                 
                 if (modTile.IsCategory)
                 {
                     // Category context menu: Open Folder, Copy Name, Rename
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
-                        Text = "Open Folder",
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_OpenFolder"),
                         Icon = new SymbolIcon(Symbol.Folder),
                         Tag = modTile
                     });
@@ -3067,7 +3068,7 @@ namespace FlairX_Mod_Manager.Pages
                     
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
-                        Text = "Copy Name",
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_CopyName"),
                         Icon = new SymbolIcon(Symbol.Copy),
                         Tag = modTile
                     });
@@ -3075,7 +3076,7 @@ namespace FlairX_Mod_Manager.Pages
                     
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
-                        Text = "Rename",
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_Rename"),
                         Icon = new SymbolIcon(Symbol.Rename),
                         Tag = modTile
                     });
@@ -3086,7 +3087,7 @@ namespace FlairX_Mod_Manager.Pages
                     // Mod context menu: Dynamic Activate/Deactivate, Open Folder, View Details, Copy Name, Rename, Delete
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
-                        Text = modTile.IsActive ? "Deactivate" : "Activate",
+                        Text = modTile.IsActive ? SharedUtilities.GetTranslation(lang, "ContextMenu_Deactivate") : SharedUtilities.GetTranslation(lang, "ContextMenu_Activate"),
                         Icon = new SymbolIcon(modTile.IsActive ? Symbol.Remove : Symbol.Accept),
                         Tag = modTile
                     });
@@ -3094,7 +3095,7 @@ namespace FlairX_Mod_Manager.Pages
                     
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
-                        Text = "Open Folder",
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_OpenFolder"),
                         Icon = new SymbolIcon(Symbol.Folder),
                         Tag = modTile
                     });
@@ -3102,35 +3103,46 @@ namespace FlairX_Mod_Manager.Pages
                     
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
-                        Text = "View Details",
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_ViewDetails"),
                         Icon = new SymbolIcon(Symbol.View),
                         Tag = modTile
                     });
                     ((MenuFlyoutItem)menuFlyout.Items[2]).Click += ContextMenu_ViewDetails_Click;
                     
+                    var modUrl = GetModUrl(modTile);
+                    var openUrlItem = new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_OpenURL"),
+                        Icon = new SymbolIcon(Symbol.Globe),
+                        Tag = modTile,
+                        IsEnabled = !string.IsNullOrEmpty(modUrl)
+                    };
+                    openUrlItem.Click += ContextMenu_OpenUrl_Click;
+                    menuFlyout.Items.Add(openUrlItem);
+                    
                     menuFlyout.Items.Add(new MenuFlyoutSeparator());
                     
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
-                        Text = "Copy Name",
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_CopyName"),
                         Icon = new SymbolIcon(Symbol.Copy),
                         Tag = modTile
                     });
-                    ((MenuFlyoutItem)menuFlyout.Items[4]).Click += ContextMenu_CopyName_Click;
+                    ((MenuFlyoutItem)menuFlyout.Items[5]).Click += ContextMenu_CopyName_Click;
                     
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
-                        Text = "Rename",
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_Rename"),
                         Icon = new SymbolIcon(Symbol.Rename),
                         Tag = modTile
                     });
-                    ((MenuFlyoutItem)menuFlyout.Items[5]).Click += ContextMenu_Rename_Click;
+                    ((MenuFlyoutItem)menuFlyout.Items[6]).Click += ContextMenu_Rename_Click;
                     
                     menuFlyout.Items.Add(new MenuFlyoutSeparator());
                     
                     var deleteItem = new MenuFlyoutItem
                     {
-                        Text = "Delete",
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_Delete"),
                         Icon = new SymbolIcon(Symbol.Delete),
                         Tag = modTile
                     };
@@ -3172,6 +3184,32 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        private void ContextMenu_OpenUrl_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
+            {
+                var url = GetModUrl(modTile);
+                if (!string.IsNullOrEmpty(url))
+                {
+                    try
+                    {
+                        if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                            url = "https://" + url;
+                        
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = url,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Error opening URL: {ex.Message}");
+                    }
+                }
+            }
+        }
+
         private void ContextMenu_CopyName_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
@@ -3205,7 +3243,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 var dialog = new ContentDialog
                 {
-                    Title = modTile.IsCategory ? "Rename Category" : "Rename Mod",
+                    Title = modTile.IsCategory ? SharedUtilities.GetTranslation(lang, "RenameDialog_Category_Title") : SharedUtilities.GetTranslation(lang, "RenameDialog_Mod_Title"),
                     Content = textBox,
                     PrimaryButtonText = SharedUtilities.GetTranslation(lang, "OK") ?? "OK",
                     CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel",
@@ -3221,7 +3259,7 @@ namespace FlairX_Mod_Manager.Pages
                     
                     if (string.IsNullOrEmpty(newName))
                     {
-                        await ShowErrorDialog("Error", "Name cannot be empty.");
+                        await ShowErrorDialog(SharedUtilities.GetTranslation(lang, "Error_Title"), SharedUtilities.GetTranslation(lang, "RenameDialog_EmptyName_Error"));
                         return;
                     }
                     
@@ -3232,7 +3270,7 @@ namespace FlairX_Mod_Manager.Pages
                     
                     if (!SecurityValidator.IsValidModDirectoryName(newName))
                     {
-                        await ShowErrorDialog("Error", "Invalid name. Please use only valid characters for folder names.");
+                        await ShowErrorDialog(SharedUtilities.GetTranslation(lang, "Error_Title"), SharedUtilities.GetTranslation(lang, "RenameDialog_InvalidName_Error"));
                         return;
                     }
                     
@@ -3362,6 +3400,37 @@ namespace FlairX_Mod_Manager.Pages
                 XamlRoot = this.XamlRoot
             };
             await dialog.ShowAsync();
+        }
+
+        private string? GetModUrl(ModTile modTile)
+        {
+            try
+            {
+                if (modTile.IsCategory) return null;
+                
+                var modLibraryDir = SharedUtilities.GetSafeModLibraryPath();
+                var modFolderPath = FindModFolderPath(modLibraryDir, modTile.Directory);
+                
+                if (string.IsNullOrEmpty(modFolderPath)) return null;
+                
+                var modJsonPath = Path.Combine(modFolderPath, "mod.json");
+                if (!File.Exists(modJsonPath)) return null;
+                
+                var json = File.ReadAllText(modJsonPath);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                
+                if (root.TryGetProperty("url", out var urlProp))
+                {
+                    return urlProp.GetString();
+                }
+                
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private void ContextMenu_Delete_Click(object sender, RoutedEventArgs e)

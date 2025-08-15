@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "ปิดใช้งาน {0} mod แล้ว\n\nMod ในหมวดหมู่ 'Other' ได้รับการรักษาไว้",
   "Information": "ข้อมูล",
   "XXMI_Download_Instructions": "หลังจากดาวน์โหลด ให้แตกไฟล์โฟลเดอร์ XXMI ไปยังไดเรกทอรี APP หรืออัปเดตเส้นทางไดเรกทอรี XXMI Mods ในการตั้งค่า",
-  "XXMI_Download_Required": "ต้องใช้ XXMI Launcher เพื่อเปิดใช้งาน mod ดาวน์โหลดเวอร์ชันพกพาจาก GitHub:"
+  "XXMI_Download_Required": "ต้องใช้ XXMI Launcher เพื่อเปิดใช้งาน mod ดาวน์โหลดเวอร์ชันพกพาจาก GitHub:",
+  "ContextMenu_Activate": "เปิดใช้งาน",
+  "ContextMenu_Deactivate": "ปิดใช้งาน",
+  "ContextMenu_OpenFolder": "เปิดโฟลเดอร์",
+  "ContextMenu_ViewDetails": "ดูรายละเอียด",
+  "ContextMenu_OpenURL": "เปิด URL",
+  "ContextMenu_CopyName": "คัดลอกชื่อ",
+  "ContextMenu_Rename": "เปลี่ยนชื่อ",
+  "ContextMenu_Delete": "ลบ",
+  "RenameDialog_Category_Title": "เปลี่ยนชื่อหมวดหมู่",
+  "RenameDialog_Mod_Title": "เปลี่ยนชื่อ mod",
+  "RenameDialog_EmptyName_Error": "ชื่อไม่สามารถเว้นว่างได้",
+  "RenameDialog_InvalidName_Error": "ชื่อไม่ถูกต้อง กรุณาใช้เฉพาะอักขระที่ถูกต้องสำหรับชื่อโฟลเดอร์"
 }

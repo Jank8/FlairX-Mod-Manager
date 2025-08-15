@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "{0} موڈز غیر فعال کیے گئے۔\n\n'Other' کیتگری کے موڈز محفوظ رکھے گئے۔",
   "Information": "معلومات",
   "XXMI_Download_Instructions": "ڈاؤن لوڈ کے بعد، XXMI فولڈر کو APP ڈائرکٹری میں نکالیں یا سیٹنگز میں XXMI موڈز ڈائرکٹری پاتھ اپ ڈیٹ کریں۔",
-  "XXMI_Download_Required": "موڈز لانچ کرنے کے لیے XXMI لانچر درکار ہے۔ GitHub سے پورٹیبل ورژن ڈاؤن لوڈ کریں:"
+  "XXMI_Download_Required": "موڈز لانچ کرنے کے لیے XXMI لانچر درکار ہے۔ GitHub سے پورٹیبل ورژن ڈاؤن لوڈ کریں:",
+  "ContextMenu_Activate": "فعال کریں",
+  "ContextMenu_Deactivate": "غیر فعال کریں",
+  "ContextMenu_OpenFolder": "فولڈر کھولیں",
+  "ContextMenu_ViewDetails": "تفصیلات دیکھیں",
+  "ContextMenu_OpenURL": "URL کھولیں",
+  "ContextMenu_CopyName": "نام کاپی کریں",
+  "ContextMenu_Rename": "نام تبدیل کریں",
+  "ContextMenu_Delete": "حذف کریں",
+  "RenameDialog_Category_Title": "کیٹگری کا نام تبدیل کریں",
+  "RenameDialog_Mod_Title": "موڈ کا نام تبدیل کریں",
+  "RenameDialog_EmptyName_Error": "نام خالی نہیں ہو سکتا۔",
+  "RenameDialog_InvalidName_Error": "غلط نام۔ براہ کرم فولڈر ناموں کے لیے صرف درست حروف استعمال کریں۔"
 }

@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "Na-deactivate ang {0} mod.\n\nAng mga mod sa kategoryang 'Other' ay napreserba.",
   "Information": "Impormasyon",
   "XXMI_Download_Instructions": "Pagkatapos mag-download, i-extract ang XXMI folder sa APP directory o i-update ang XXMI Mods Directory path sa Settings.",
-  "XXMI_Download_Required": "Kailangan ang XXMI Launcher upang magsimula ng mga mod. I-download ang portable version mula sa GitHub:"
+  "XXMI_Download_Required": "Kailangan ang XXMI Launcher upang magsimula ng mga mod. I-download ang portable version mula sa GitHub:",
+  "ContextMenu_Activate": "I-activate",
+  "ContextMenu_Deactivate": "I-deactivate",
+  "ContextMenu_OpenFolder": "Buksan ang folder",
+  "ContextMenu_ViewDetails": "Tingnan ang mga detalye",
+  "ContextMenu_OpenURL": "Buksan ang URL",
+  "ContextMenu_CopyName": "Kopyahin ang pangalan",
+  "ContextMenu_Rename": "Palitan ang pangalan",
+  "ContextMenu_Delete": "Tanggalin",
+  "RenameDialog_Category_Title": "Palitan ang pangalan ng kategorya",
+  "RenameDialog_Mod_Title": "Palitan ang pangalan ng mod",
+  "RenameDialog_EmptyName_Error": "Hindi maaaring walang laman ang pangalan.",
+  "RenameDialog_InvalidName_Error": "Hindi wastong pangalan. Gumamit lamang ng wastong mga karakter para sa mga pangalan ng folder."
 }

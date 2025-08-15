@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "Deactivated {0} mods.\n\nMods in 'Other' category were preserved.",
   "Information": "Information",
   "XXMI_Download_Instructions": "After downloading, extract the XXMI folder to APP direvtory or update the XXMI Mods Directory path in Settings.",
-  "XXMI_Download_Required": "XXMI Launcher is required to launch mods. Download the portable version from GitHub:"
+  "XXMI_Download_Required": "XXMI Launcher is required to launch mods. Download the portable version from GitHub:",
+  "ContextMenu_Activate": "Activate",
+  "ContextMenu_Deactivate": "Deactivate",
+  "ContextMenu_OpenFolder": "Open Folder",
+  "ContextMenu_ViewDetails": "View Details",
+  "ContextMenu_OpenURL": "Open URL",
+  "ContextMenu_CopyName": "Copy Name",
+  "ContextMenu_Rename": "Rename",
+  "ContextMenu_Delete": "Delete",
+  "RenameDialog_Category_Title": "Rename Category",
+  "RenameDialog_Mod_Title": "Rename Mod",
+  "RenameDialog_EmptyName_Error": "Name cannot be empty.",
+  "RenameDialog_InvalidName_Error": "Invalid name. Please use only valid characters for folder names."
 }

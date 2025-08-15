@@ -104,5 +104,17 @@
   "Information": "Information",
   "Welcome_Title": "WILLKOMMEN !",
   "XXMI_Download_Instructions": "Nach dem Herunterladen extrahieren Sie den XXMI-Ordner in das APP-Verzeichnis oder aktualisieren Sie den XXMI Mods-Verzeichnispfad in den Einstellungen.",
-  "XXMI_Download_Required": "XXMI Launcher ist erforderlich, um Mods zu starten. Laden Sie die portable Version von GitHub herunter:"
+  "XXMI_Download_Required": "XXMI Launcher ist erforderlich, um Mods zu starten. Laden Sie die portable Version von GitHub herunter:",
+  "ContextMenu_Activate": "Aktivieren",
+  "ContextMenu_Deactivate": "Deaktivieren",
+  "ContextMenu_OpenFolder": "Ordner öffnen",
+  "ContextMenu_ViewDetails": "Details anzeigen",
+  "ContextMenu_OpenURL": "URL öffnen",
+  "ContextMenu_CopyName": "Name kopieren",
+  "ContextMenu_Rename": "Umbenennen",
+  "ContextMenu_Delete": "Löschen",
+  "RenameDialog_Category_Title": "Kategorie umbenennen",
+  "RenameDialog_Mod_Title": "Mod umbenennen",
+  "RenameDialog_EmptyName_Error": "Name darf nicht leer sein.",
+  "RenameDialog_InvalidName_Error": "Ungültiger Name. Bitte verwenden Sie nur gültige Zeichen für Ordnernamen."
 }

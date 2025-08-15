@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "{0} mod devre dışı bırakıldı.\n\n'Other' kategorisindeki modlar korundu.",
   "Information": "Bilgi",
   "XXMI_Download_Instructions": "İndirdikten sonra, XXMI klasörünü APP dizinine çıkarın veya Ayarlar'da XXMI Modları Dizini yolunu güncelleyin.",
-  "XXMI_Download_Required": "Modları başlatmak için XXMI Başlatıcısı gereklidir. GitHub'dan taşınabilir sürümü indirin:"
+  "XXMI_Download_Required": "Modları başlatmak için XXMI Başlatıcısı gereklidir. GitHub'dan taşınabilir sürümü indirin:",
+  "ContextMenu_Activate": "Etkinleştir",
+  "ContextMenu_Deactivate": "Devre dışı bırak",
+  "ContextMenu_OpenFolder": "Klasörü aç",
+  "ContextMenu_ViewDetails": "Ayrıntıları görüntüle",
+  "ContextMenu_OpenURL": "URL'yi aç",
+  "ContextMenu_CopyName": "Adı kopyala",
+  "ContextMenu_Rename": "Yeniden adlandır",
+  "ContextMenu_Delete": "Sil",
+  "RenameDialog_Category_Title": "Kategoriyi yeniden adlandır",
+  "RenameDialog_Mod_Title": "Modu yeniden adlandır",
+  "RenameDialog_EmptyName_Error": "Ad boş olamaz.",
+  "RenameDialog_InvalidName_Error": "Geçersiz ad. Lütfen klasör adları için yalnızca geçerli karakterler kullanın."
 }

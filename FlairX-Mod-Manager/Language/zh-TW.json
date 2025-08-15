@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "已停用{0}個模組。\n\n'Other'類別中的模組已保留。",
   "Information": "資訊",
   "XXMI_Download_Instructions": "下載後，將XXMI資料夾解壓縮到APP目錄或在設定中更新XXMI模組目錄路徑。",
-  "XXMI_Download_Required": "需要XXMI啟動器來啟動模組。從GitHub下載可攜式版本:"
+  "XXMI_Download_Required": "需要XXMI啟動器來啟動模組。從GitHub下載可攜式版本:",
+  "ContextMenu_Activate": "啟用",
+  "ContextMenu_Deactivate": "停用",
+  "ContextMenu_OpenFolder": "開啟資料夾",
+  "ContextMenu_ViewDetails": "檢視詳細資訊",
+  "ContextMenu_OpenURL": "開啟URL",
+  "ContextMenu_CopyName": "複製名稱",
+  "ContextMenu_Rename": "重新命名",
+  "ContextMenu_Delete": "刪除",
+  "RenameDialog_Category_Title": "重新命名類別",
+  "RenameDialog_Mod_Title": "重新命名模組",
+  "RenameDialog_EmptyName_Error": "名稱不能為空。",
+  "RenameDialog_InvalidName_Error": "無效名稱。請僅使用資料夾名稱的有效字元。"
 }

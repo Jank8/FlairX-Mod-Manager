@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "{0}개의 모드가 비활성화되었습니다.\n\n'Other' 카테고리의 모드는 보존되었습니다.",
   "Information": "정보",
   "XXMI_Download_Instructions": "다운로드 후 XXMI 폴더를 APP 디렉토리에 압축 해제하거나 설정에서 XXMI 모드 디렉토리 경로를 업데이트하세요.",
-  "XXMI_Download_Required": "모드를 실행하려면 XXMI 런처가 필요합니다. GitHub에서 포터블 버전을 다운로드하세요:"
+  "XXMI_Download_Required": "모드를 실행하려면 XXMI 런처가 필요합니다. GitHub에서 포터블 버전을 다운로드하세요:",
+  "ContextMenu_Activate": "활성화",
+  "ContextMenu_Deactivate": "비활성화",
+  "ContextMenu_OpenFolder": "폴더 열기",
+  "ContextMenu_ViewDetails": "세부 정보 보기",
+  "ContextMenu_OpenURL": "URL 열기",
+  "ContextMenu_CopyName": "이름 복사",
+  "ContextMenu_Rename": "이름 바꾸기",
+  "ContextMenu_Delete": "삭제",
+  "RenameDialog_Category_Title": "카테고리 이름 바꾸기",
+  "RenameDialog_Mod_Title": "모드 이름 바꾸기",
+  "RenameDialog_EmptyName_Error": "이름은 비워둘 수 없습니다.",
+  "RenameDialog_InvalidName_Error": "잘못된 이름입니다. 폴더 이름에 유효한 문자만 사용하세요."
 }

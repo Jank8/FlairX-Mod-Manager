@@ -104,5 +104,17 @@
   "DeactivateAllMods_Message": "Desativados {0} mods.\n\nMods na categoria 'Other' foram preservados.",
   "Information": "Informação",
   "XXMI_Download_Instructions": "Após o download, extraia a pasta XXMI para o diretório APP ou atualize o caminho do Diretório XXMI Mods nas Configurações.",
-  "XXMI_Download_Required": "O XXMI Launcher é necessário para executar mods. Baixe a versão portátil do GitHub:"
+  "XXMI_Download_Required": "O XXMI Launcher é necessário para executar mods. Baixe a versão portátil do GitHub:",
+  "ContextMenu_Activate": "Ativar",
+  "ContextMenu_Deactivate": "Desativar",
+  "ContextMenu_OpenFolder": "Abrir pasta",
+  "ContextMenu_ViewDetails": "Ver detalhes",
+  "ContextMenu_OpenURL": "Abrir URL",
+  "ContextMenu_CopyName": "Copiar nome",
+  "ContextMenu_Rename": "Renomear",
+  "ContextMenu_Delete": "Excluir",
+  "RenameDialog_Category_Title": "Renomear categoria",
+  "RenameDialog_Mod_Title": "Renomear mod",
+  "RenameDialog_EmptyName_Error": "O nome não pode estar vazio.",
+  "RenameDialog_InvalidName_Error": "Nome inválido. Use apenas caracteres válidos para nomes de pastas."
 }
