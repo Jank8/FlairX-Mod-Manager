@@ -32,7 +32,7 @@
                     </FontIcon.RenderTransform>
                 </FontIcon>
             </Button>
-            <TextBlock x:Name="ModDetailTitle" Text="" FontSize="24" FontWeight="Bold" Margin="16,0,16,0" VerticalAlignment="Center"/>
+            <TextBlock x:Name="ModDetailTitle" Text="Mod Details" FontSize="24" FontWeight="Bold" Margin="16,0,16,0" VerticalAlignment="Center"/>
             <TextBox x:Name="ModVersionTextBox" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" MinWidth="100" MaxWidth="200" PlaceholderText="Version" TextChanged="ModVersionTextBox_TextChanged" BorderThickness="0" Background="Transparent" Padding="0" Margin="0,2,0,0"/>
         </StackPanel>
         

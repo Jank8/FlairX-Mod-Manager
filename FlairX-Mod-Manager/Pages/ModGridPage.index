@@ -136,7 +136,8 @@ LINE RANGES:
 │   │   ├── ModGridPage_PointerPressed: lines 1322-1340
 │   │   ├── LoadCategoryModData: lines 1342-1410
 │   │   ├── LoadMods: lines 1412-1450
-│   │   ├── LoadAllMods: lines 1452-1465
+│   │   ├── LoadAllMods: lines 1452-1465 (public method for external access)
+│   │   ├── LoadAllCategories: lines 293-298 (public method for category view)
 │   │   ├── LoadAllModData: lines 1467-1520
 │   │   ├── GetCachedModData: lines 1522-1580
 │   │   ├── LoadVirtualizedModTiles: lines 1582-1610
@@ -145,6 +146,10 @@ LINE RANGES:
 │   │   └── CreateBitmapImage: lines 1652-1670
 │   ├── Search functionality: lines 1672-1780
 │   │   └── FilterMods: lines 1672-1780
+│   │       ├── Comprehensive search across all mods with LoadAllModData()
+│   │       ├── URL, name, and author matching with null safety checks
+│   │       ├── Search state management with category restoration
+│   │       └── Integration with MainWindow search navigation
 │   ├── Mod operations: lines 1782-2150
 │   │   ├── ModActiveButton_Click: lines 1782-1890
 │   │   ├── Pointer events: lines 1892-1910
@@ -243,6 +248,13 @@ CONTEXT MENU SYSTEM:
 - Comprehensive menu options (activate, folder, details, URL, copy, rename, delete)
 - Translation support for all menu items
 - Security validation for directory operations
+
+PUBLIC API METHODS:
+- LoadAllMods(): Loads all mods across categories for comprehensive search
+- LoadAllCategories(): Loads category view for navigation after search clear
+- FilterMods(string query): Filters mods with comprehensive search across name, author, URL
+- LoadMods(string category): Loads mods from specific category
+- LoadActiveModsOnly(): Loads only active mods from all categories
 
 NAVIGATION:
 - Category back button with proper state management

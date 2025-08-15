@@ -976,7 +976,7 @@ namespace FlairX_Mod_Manager
             string query = sender.Text.Trim().ToLower();
 
             // If search is empty, restore all menu items by refreshing the character categories
-            // and also clear any existing filter on ModGridPage
+            // and navigate appropriately based on current view mode
             if (string.IsNullOrEmpty(query))
             {
                 // First clear the mod filter if we're on ModGridPage
@@ -987,6 +987,29 @@ namespace FlairX_Mod_Manager
                 
                 // Then regenerate the menu on the UI thread (not in Task.Run)
                 _ = GenerateModCharacterMenuAsync();
+                
+                // Navigate to appropriate page based on view mode
+                if (IsCurrentlyInCategoryMode())
+                {
+                    // In category mode, navigate to ModGridPage and load all categories
+                    if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPageForCategories)
+                    {
+                        modGridPageForCategories.LoadAllCategories();
+                    }
+                    else
+                    {
+                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage));
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage newModGridPageForCategories)
+                            {
+                                newModGridPageForCategories.LoadAllCategories();
+                            }
+                        });
+                    }
+                }
+                // In mods mode, stay on current page (ModGridPage if already there)
+                
                 return;
             }
 
@@ -1040,15 +1063,16 @@ namespace FlairX_Mod_Manager
             {
                 if (!string.IsNullOrEmpty(query) && query.Length >= 3)
                 {
-                    // Check if we're already on ModGridPage to avoid unnecessary navigation
+                    // Always navigate to ModGridPage for search to ensure we search in all mods
                     if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                     {
-                        // Just apply filter without navigation to preserve focus
+                        // Load all mods first, then apply filter
+                        modGridPage.LoadAllMods();
                         modGridPage.FilterMods(query);
                     }
                     else
                     {
-                        // Navigate to ModGridPage only if we're not already there
+                        // Navigate to ModGridPage for all mods search
                         contentFrame.Navigate(
                             typeof(FlairX_Mod_Manager.Pages.ModGridPage),
                             null,
@@ -1059,6 +1083,7 @@ namespace FlairX_Mod_Manager
                         {
                             if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage newModGridPage)
                             {
+                                newModGridPage.LoadAllMods();
                                 newModGridPage.FilterMods(query);
                                 // Restore focus to search box after navigation
                                 RestoreSearchBoxFocus();
@@ -1068,9 +1093,29 @@ namespace FlairX_Mod_Manager
                 }
                 else if (string.IsNullOrEmpty(query))
                 {
-                    // Clear search - only filter if we're already on ModGridPage
-                    if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+                    // Clear search - navigate appropriately based on view mode
+                    if (IsCurrentlyInCategoryMode())
                     {
+                        // In category mode, navigate to ModGridPage and load all categories
+                        if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPageForCategories)
+                        {
+                            modGridPageForCategories.LoadAllCategories();
+                        }
+                        else
+                        {
+                            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage));
+                            DispatcherQueue.TryEnqueue(() =>
+                            {
+                                if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage newModGridPageForCategories)
+                                {
+                                    newModGridPageForCategories.LoadAllCategories();
+                                }
+                            });
+                        }
+                    }
+                    else if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+                    {
+                        // In mods mode, just clear the filter
                         modGridPage.FilterMods(query);
                     }
                 }
@@ -1084,15 +1129,16 @@ namespace FlairX_Mod_Manager
             // Static search requires at least 2 characters
             if (!string.IsNullOrEmpty(query) && query.Length >= 2)
             {
-                // Check if we're already on ModGridPage to avoid unnecessary navigation
+                // Always navigate to ModGridPage for search to ensure we search in all mods
                 if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                 {
-                    // Just apply filter without navigation to preserve focus
+                    // Load all mods first, then apply filter
+                    modGridPage.LoadAllMods();
                     modGridPage.FilterMods(query);
                 }
                 else
                 {
-                    // Navigate to ModGridPage only if we're not already there
+                    // Navigate to ModGridPage for all mods search
                     contentFrame.Navigate(
                         typeof(FlairX_Mod_Manager.Pages.ModGridPage),
                         null,
@@ -1103,6 +1149,7 @@ namespace FlairX_Mod_Manager
                     {
                         if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage newModGridPage)
                         {
+                            newModGridPage.LoadAllMods();
                             newModGridPage.FilterMods(query);
                             // Restore focus to search box after navigation
                             RestoreSearchBoxFocus();

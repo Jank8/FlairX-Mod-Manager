@@ -217,11 +217,13 @@ NAVIGATION SYSTEM:
 
 SEARCH FUNCTIONALITY:
 - AutoSuggestBox with animated search icon
-- Dynamic search (3+ characters) with real-time filtering
-- Static search (2+ characters) on query submission
+- Dynamic search (3+ characters) with real-time filtering across all mods
+- Static search (2+ characters) on query submission across all mods
+- Always navigates to ModGridPage and loads all mods for comprehensive search
 - Menu item filtering based on search query
-- ModGridPage integration for mod filtering
 - Search box focus restoration after navigation
+- Category mode: Returns to ModGridPage with LoadAllCategories() after clearing search
+- Mods mode: Remains on ModGridPage after clearing search
 
 VIEW MODE SYSTEM:
 - Toggle between Mods and Categories view modes

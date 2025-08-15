@@ -1443,7 +1443,7 @@ namespace FlairX_Mod_Manager.Pages
             });
         }
 
-        private void LoadAllMods()
+        public void LoadAllMods()
         {
             LogToGridLog($"LoadAllMods() called - CurrentViewMode: {CurrentViewMode}");
             System.Diagnostics.Debug.WriteLine($"LoadAllMods() called - CurrentViewMode: {CurrentViewMode}");
@@ -1737,7 +1737,7 @@ namespace FlairX_Mod_Manager.Pages
                 var filteredData = _allModData.Where(modData => 
                     modData.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                     modData.Author.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                    modData.Url.Contains(query, StringComparison.OrdinalIgnoreCase)).ToList();
+                    (!string.IsNullOrEmpty(modData.Url) && modData.Url.Contains(query, StringComparison.OrdinalIgnoreCase))).ToList();
                 var filteredMods = new List<ModTile>();
                 
                 foreach (var modData in filteredData)

@@ -78,7 +78,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (!string.IsNullOrEmpty(fullModDir) && Directory.Exists(fullModDir))
                     {
                         string modName = Path.GetFileName(fullModDir);
-                        ModDetailTitle.Text = $"Mod Details - {modName}";
+                        ModDetailTitle.Text = modName;
                         _modJsonPath = Path.Combine(fullModDir, "mod.json");
                         
                         System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: Found mod directory: {fullModDir}");
