@@ -878,6 +878,9 @@ namespace FlairX_Mod_Manager
                     {
                         var category = selectedTag.Substring("Category_".Length);
                         
+                        // Save position for reload
+                        SettingsManager.SaveLastPosition(category, "ModGridPage");
+                        
                         // If we're already on ModGridPage, just load the category without navigating
                         if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                         {
@@ -898,6 +901,9 @@ namespace FlairX_Mod_Manager
                     }
                     else if (selectedTag == "OtherModsPage")
                     {
+                        // Save position for reload
+                        SettingsManager.SaveLastPosition("Other", "ModGridPage");
+                        
                         // Load "Other" category instead of old character-based filtering
                         if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                         {
@@ -918,10 +924,14 @@ namespace FlairX_Mod_Manager
                     }
                     else if (selectedTag == "FunctionsPage")
                     {
+                        // Save position for reload
+                        SettingsManager.SaveLastPosition(null, "FunctionsPage");
                         contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.FunctionsPage), null, new DrillInNavigationTransitionInfo());
                     }
                     else if (selectedTag == "SettingsPage")
                     {
+                        // Save position for reload
+                        SettingsManager.SaveLastPosition(null, "SettingsPage");
                         contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.SettingsPage), null, new DrillInNavigationTransitionInfo());
                         // Force restore view mode from settings when entering settings
                         RestoreViewModeButtonFromSettings();
@@ -1308,8 +1318,8 @@ namespace FlairX_Mod_Manager
                 
                 nvSample.SelectedItem = null; // Unselect active button
                 
-                // Navigate to All Mods
-                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
+                // Restore last position instead of always going to All Mods
+                RestoreLastPosition();
                 
                 UpdateShowActiveModsButtonIcon();
                 loadingWindow.Close();
@@ -1323,6 +1333,16 @@ namespace FlairX_Mod_Manager
             
             // TYLKO ViewMode z ustawień decyduje o wszystkim
             bool isCategoriesView = SettingsManager.Current.ViewMode == "Categories";
+            
+            // Save position for reload
+            if (isCategoriesView)
+            {
+                SettingsManager.SaveLastPosition(null, "Categories");
+            }
+            else
+            {
+                SettingsManager.SaveLastPosition(null, "ModGridPage");
+            }
             
             // Zawsze nawiguj do ModGridPage z odpowiednim parametrem
             if (isCategoriesView)
@@ -1347,6 +1367,71 @@ namespace FlairX_Mod_Manager
             
             // Default to mods view
             return FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Mods;
+        }
+
+        private void RestoreLastPosition()
+        {
+            var (lastCategory, lastPage) = SettingsManager.GetLastPosition();
+            
+            if (!string.IsNullOrEmpty(lastCategory))
+            {
+                if (lastCategory == "Active")
+                {
+                    // Navigate to Active mods
+                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Active", new DrillInNavigationTransitionInfo());
+                    // Don't select any menu item for Active mods
+                }
+                else
+                {
+                    // Navigate to specific category
+                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), $"Category:{lastCategory}", new DrillInNavigationTransitionInfo());
+                    
+                    // Try to select the corresponding menu item
+                    var categoryMenuItem = nvSample.MenuItems.OfType<NavigationViewItem>()
+                        .FirstOrDefault(item => item.Tag?.ToString() == $"Category_{lastCategory}");
+                    if (categoryMenuItem != null)
+                    {
+                        nvSample.SelectedItem = categoryMenuItem;
+                    }
+                    else if (lastCategory == "Other")
+                    {
+                        // Select Other Mods footer item
+                        var otherMenuItem = nvSample.FooterMenuItems.OfType<NavigationViewItem>()
+                            .FirstOrDefault(item => item.Tag?.ToString() == "OtherModsPage");
+                        if (otherMenuItem != null)
+                        {
+                            nvSample.SelectedItem = otherMenuItem;
+                        }
+                    }
+                }
+            }
+            else if (lastPage == "Categories")
+            {
+                // Navigate to All Categories view
+                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Categories", new DrillInNavigationTransitionInfo());
+            }
+            else if (lastPage == "FunctionsPage")
+            {
+                // Navigate to Functions page
+                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.FunctionsPage), null, new DrillInNavigationTransitionInfo());
+                var functionsMenuItem = nvSample.FooterMenuItems.OfType<NavigationViewItem>()
+                    .FirstOrDefault(item => item.Tag?.ToString() == "FunctionsPage");
+                if (functionsMenuItem != null)
+                {
+                    nvSample.SelectedItem = functionsMenuItem;
+                }
+            }
+            else if (lastPage == "SettingsPage")
+            {
+                // Navigate to Settings page
+                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.SettingsPage), null, new DrillInNavigationTransitionInfo());
+                // Settings is handled by NavigationView automatically
+            }
+            else
+            {
+                // Default to All Mods
+                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
+            }
         }
 
         private void ViewModeToggleButton_Click(object sender, RoutedEventArgs e)
@@ -1528,6 +1613,10 @@ namespace FlairX_Mod_Manager
         private void ShowActiveModsButton_Click(object sender, RoutedEventArgs e)
         {
             nvSample.SelectedItem = null; // Unselect active button in menu
+            
+            // Save position for reload
+            SettingsManager.SaveLastPosition("Active", "ModGridPage");
+            
             contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Active", new DrillInNavigationTransitionInfo());
             UpdateShowActiveModsButtonIcon();
         }

@@ -56,6 +56,11 @@ namespace FlairX_Mod_Manager
         public string ReloadManagerHotkey { get; set; } = "Ctrl+R";
         public string ShuffleActiveModsHotkey { get; set; } = "Ctrl+S";
         public string DeactivateAllModsHotkey { get; set; } = "Ctrl+D";
+        
+        // Navigation state persistence
+        public string? LastSelectedCategory { get; set; }
+        public string? LastSelectedPage { get; set; } = "ModGridPage";
+        public bool RememberLastPosition { get; set; } = true;
     }
 
     public static class SettingsManager
@@ -289,6 +294,33 @@ namespace FlairX_Mod_Manager
                     Current.ShowOrangeAnimation = value;
                 }
             }
+        }
+        
+        // Navigation state management
+        public static void SaveLastPosition(string? category, string? page)
+        {
+            if (Current.RememberLastPosition)
+            {
+                Current.LastSelectedCategory = category;
+                Current.LastSelectedPage = page;
+                Save();
+            }
+        }
+        
+        public static (string? category, string? page) GetLastPosition()
+        {
+            if (Current.RememberLastPosition)
+            {
+                return (Current.LastSelectedCategory, Current.LastSelectedPage);
+            }
+            return (null, "ModGridPage");
+        }
+        
+        public static void ClearLastPosition()
+        {
+            Current.LastSelectedCategory = null;
+            Current.LastSelectedPage = "ModGridPage";
+            Save();
         }
     }
 }
