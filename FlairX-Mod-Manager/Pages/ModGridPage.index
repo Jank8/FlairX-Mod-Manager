@@ -62,7 +62,7 @@ UI ELEMENTS:
 
 ================================================================================
 FILE: Pages/ModGridPage.xaml.cs
-TOTAL LINES: 3416
+TOTAL LINES: 3420
 
 LINE RANGES:
 ├── Using statements: lines 1-20
@@ -85,7 +85,7 @@ LINE RANGES:
 │   │   └── Caching system: lines 121-128
 │   ├── View mode management: lines 130-327
 │   │   ├── OnViewModeChanged: lines 130-151
-│   │   ├── LoadCategories: lines 152-217
+│   │   ├── LoadCategories: lines 152-218
 │   │   ├── GetCategoryMiniTilePath: lines 219-228
 │   │   ├── LoadCategoryMiniTile: lines 230-267
 │   │   ├── UpdateMainWindowButtonText: lines 268-277
@@ -168,9 +168,9 @@ LINE RANGES:
 │   │   ├── CreateSymlink: lines 2187-2220
 │   │   ├── IsSymlink: lines 2222-2230
 │   │   └── RemoveAllSymlinks: lines 2232-2240
-│   ├── Mod detail overlay: lines 2242-2470
-│   │   └── ModName_Click: lines 2242-2470
-│   ├── Static utilities: lines 2472-2900
+│   ├── Mod detail overlay: lines 2242-2473
+│   │   └── ModName_Click: lines 2242-2473
+│   ├── Static utilities: lines 2475-2903
 │   │   ├── FindParentGrid: lines 2472-2480
 │   │   ├── RecreateSymlinksFromActiveMods: lines 2482-2570
 │   │   ├── ApplyPreset: lines 2572-2600
@@ -179,24 +179,24 @@ LINE RANGES:
 │   │   ├── RefreshChangedMods: lines 2692-2770
 │   │   ├── LoadActiveModsOnly: lines 2772-2810
 │   │   ├── LoadActiveModData: lines 2812-2870
-│   │   ├── GetCategoryTitleText: lines 2891-2895
-│   │   ├── CleanPath: lines 2897-2902
-│   │   ├── CreateSymlinkStatic: lines 2904-2940
-│   │   ├── IsSymlinkStatic: lines 2942-2955
-│   │   ├── TriggerManagerReloadStatic: lines 2957-2990
-│   │   ├── ValidateAndFixSymlinks: lines 2992-3090
-│   │   ├── RefreshUIAfterLanguageChange: lines 3092-3105
-│   │   ├── GetDisplayPath: lines 3107-3110
-│   │   └── NotifyMainWindowToUpdateHeartButton: lines 3112-3122
-│   ├── Context menu system: lines 3124-3386
-│   │   ├── ContextMenu_Opening: lines 3124-3265
-│   │   ├── ContextMenu_ActivateDeactivate_Click: lines 3267-3275
-│   │   ├── ContextMenu_OpenFolder_Click: lines 3277-3285
-│   │   ├── ContextMenu_ViewDetails_Click: lines 3287-3295
-│   │   ├── ContextMenu_OpenUrl_Click: lines 3297-3321
-│   │   ├── ContextMenu_CopyName_Click: lines 3323-3339
-│   │   ├── ContextMenu_Rename_Click: lines 3341-3385
-│   │   └── RenameItemAsync: lines 3386 (continues beyond file)
+│   │   ├── GetCategoryTitleText: lines 2894-2898
+│   │   ├── CleanPath: lines 2900-2905
+│   │   ├── CreateSymlinkStatic: lines 2907-2943
+│   │   ├── IsSymlinkStatic: lines 2945-2958
+│   │   ├── TriggerManagerReloadStatic: lines 2960-2993
+│   │   ├── ValidateAndFixSymlinks: lines 2995-3093
+│   │   ├── RefreshUIAfterLanguageChange: lines 3095-3108
+│   │   ├── GetDisplayPath: lines 3110-3113
+│   │   └── NotifyMainWindowToUpdateHeartButton: lines 3115-3125
+│   ├── Context menu system: lines 3127-3420
+│   │   ├── ContextMenu_Opening: lines 3127-3268
+│   │   ├── ContextMenu_ActivateDeactivate_Click: lines 3270-3278
+│   │   ├── ContextMenu_OpenFolder_Click: lines 3280-3288
+│   │   ├── ContextMenu_ViewDetails_Click: lines 3290-3298
+│   │   ├── ContextMenu_OpenUrl_Click: lines 3300-3324
+│   │   ├── ContextMenu_CopyName_Click: lines 3326-3342
+│   │   ├── ContextMenu_Rename_Click: lines 3344-3388
+│   │   └── RenameItemAsync: lines 3390-3420
 
 ================================================================================
 COMPONENT OVERVIEW
@@ -218,8 +218,10 @@ CORE FUNCTIONALITY:
 - Category-based mod organization with navigation
 - Search and filtering with state preservation
 - Mod detail overlay with slide animations
-- Category folder access via header button in both view modes
+- Category folder access via header button when in specific category (both view modes)
 - Localized category titles for proper position memory integration
+- Smart button visibility management (folder button hidden in all categories view)
+- Fixed category tile click navigation to show folder button in both view modes
 
 PERFORMANCE OPTIMIZATIONS:
 - Background JSON caching with file timestamp validation

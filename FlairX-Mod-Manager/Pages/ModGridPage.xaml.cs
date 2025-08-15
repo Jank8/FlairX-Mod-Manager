@@ -325,6 +325,7 @@ namespace FlairX_Mod_Manager.Pages
             LoadModsByCategory(category);
             CategoryBackButton.Visibility = Visibility.Visible;
             CategoryOpenFolderButton.Visibility = Visibility.Visible;
+            System.Diagnostics.Debug.WriteLine($"CategoryOpenFolderButton visibility set to Visible for category: {category}");
             // UpdateMainWindowButtonText(); // Don't interfere with MainWindow button state
         }
 
@@ -1096,7 +1097,7 @@ namespace FlairX_Mod_Manager.Pages
                     // Force category mode and load specific category
                     _currentViewMode = ViewMode.Categories;
                     LoadCategoryInCategoryMode(category);
-                    CategoryBackButton.Visibility = Visibility.Visible;
+                    // Visibility is handled by LoadCategoryInCategoryMode
                 }
                 else if (parameter.StartsWith("Category:"))
                 {
@@ -2277,6 +2278,7 @@ namespace FlairX_Mod_Manager.Pages
                         CategoryTitle.Text = tile.Directory;
                         LoadModsByCategory(tile.Directory);
                         CategoryBackButton.Visibility = Visibility.Visible;
+                        CategoryOpenFolderButton.Visibility = Visibility.Visible;
                     }
                     else
                     {
@@ -2285,6 +2287,7 @@ namespace FlairX_Mod_Manager.Pages
                         CategoryTitle.Text = tile.Directory;
                         LoadModsByCategory(tile.Directory);
                         CategoryBackButton.Visibility = Visibility.Visible;
+                        CategoryOpenFolderButton.Visibility = Visibility.Visible;
                     }
                 }
                 else
