@@ -3,7 +3,7 @@ DESCRIPTION: Main page for displaying mod grid with categories, zoom, lazy loadi
 
 ================================================================================
 FILE: Pages/ModGridPage.xaml
-TOTAL LINES: 229
+TOTAL LINES: 239
 
 LINE RANGES:
 ├── Page Declaration: lines 1-11
@@ -15,12 +15,13 @@ LINE RANGES:
 │   └── TransparentButtonStyle: lines 14-31
 │       ├── Style properties: lines 15-20
 │       └── Control template: lines 21-30
-├── Main Grid Layout: lines 32-228
+├── Main Grid Layout: lines 32-238
 │   ├── Grid setup: lines 32-35
-│   ├── Header Section: lines 36-53
+│   ├── Header Section: lines 36-63
 │   │   ├── Back button: lines 37-46
-│   │   └── Category title: lines 47-52
-│   └── Content Section: lines 54-227
+│   │   ├── Open folder button: lines 47-56
+│   │   └── Category title: lines 57-62
+│   └── Content Section: lines 64-237
 │       ├── ScrollViewer: line 54
 │       ├── GridView setup: lines 55-62
 │       ├── WrapGrid panel: lines 63-66
@@ -44,7 +45,8 @@ LINE RANGES:
 
 UI ELEMENTS:
 - CategoryBackButton: lines 37-46 - Navigation back button (&#xE72B;)
-- CategoryTitle: lines 47-52 - Dynamic page title
+- CategoryOpenFolderButton: lines 47-56 - Open category folder button (&#xE838;)
+- CategoryTitle: lines 57-62 - Dynamic page title
 - ModsScrollViewer: line 54 - Main scroll container
 - ModsGrid: lines 55-62 - GridView for mod tiles
 - TileBorder: lines 68-76 - Individual tile container with context menu
@@ -60,12 +62,12 @@ UI ELEMENTS:
 
 ================================================================================
 FILE: Pages/ModGridPage.xaml.cs
-TOTAL LINES: 3386
+TOTAL LINES: 3416
 
 LINE RANGES:
 ├── Using statements: lines 1-20
 ├── Namespace declaration: lines 22-23
-├── ModGridPage class: lines 23-3377
+├── ModGridPage class: lines 23-3416
 │   ├── ViewMode enum: lines 25-29
 │   ├── ViewMode properties: lines 31-44
 │   ├── ModTile class: lines 45-96
@@ -130,11 +132,12 @@ LINE RANGES:
 │   │   ├── SaveSymlinkState: lines 1262-1273
 │   │   └── SymlinkState class: lines 1275-1278
 │   ├── ModData class: lines 1280-1290
-│   ├── Mod loading core: lines 1292-1700
+│   ├── Mod loading core: lines 1292-1730
 │   │   ├── LoadModsByCategory: lines 1292-1300
 │   │   ├── CategoryBackButton_Click: lines 1302-1320
-│   │   ├── ModGridPage_PointerPressed: lines 1322-1340
-│   │   ├── LoadCategoryModData: lines 1342-1410
+│   │   ├── CategoryOpenFolderButton_Click: lines 1322-1340
+│   │   ├── ModGridPage_PointerPressed: lines 1342-1360
+│   │   ├── LoadCategoryModData: lines 1362-1430
 │   │   ├── LoadMods: lines 1412-1450
 │   │   ├── LoadAllMods: lines 1452-1465 (public method for external access)
 │   │   ├── LoadAllCategories: lines 293-298 (public method for category view)
@@ -215,6 +218,8 @@ CORE FUNCTIONALITY:
 - Category-based mod organization with navigation
 - Search and filtering with state preservation
 - Mod detail overlay with slide animations
+- Category folder access via header button in both view modes
+- Localized category titles for proper position memory integration
 
 PERFORMANCE OPTIMIZATIONS:
 - Background JSON caching with file timestamp validation
