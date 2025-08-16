@@ -44,7 +44,7 @@ UI ELEMENTS:
 
 ================================================================================
 FILE: Pages/StatusKeeperSyncPage.xaml.cs
-TOTAL LINES: 1132
+TOTAL LINES: 1147
 
 LINE RANGES:
 ├── Using statements: lines 1-16
@@ -119,8 +119,9 @@ LINE RANGES:
 │   │       └── Namespace extraction: lines 612-620
 │   ├── File Sync Operations: lines 622-900
 │   │   ├── ResolvePath: lines 622-670
-│   │   │   ├── Direct path resolution: lines 622-635
-│   │   │   └── Case-insensitive fallback: lines 637-670
+│   │   │   ├── XXMI Mods path resolution: lines 622-640
+│   │   │   ├── Direct path resolution: lines 642-650
+│   │   │   └── Case-insensitive fallback: lines 652-670
 │   │   ├── UpdateVariablesInFile: lines 672-750
 │   │   │   ├── File reading: lines 672-680
 │   │   │   ├── Constants section detection: lines 682-690
@@ -184,6 +185,8 @@ FUNCTIONALITY:
 SYNCHRONIZATION SYSTEM:
 - Two-format support: old path-based and new namespace-based
 - Automatic namespace to file mapping via mod.json
+- XXMI Mods directory path resolution (uses symlinks instead of ModLibrary)
+- Category-independent file access through symlink structure
 - Case-insensitive path resolution for compatibility
 - Constants section synchronization to LOD files
 - Variable update tracking and reporting

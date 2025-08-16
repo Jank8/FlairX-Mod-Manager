@@ -729,22 +729,28 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                // Use SharedUtilities to get mod library path
-                var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
+                // Use XXMI Mods directory (symlinks) instead of ModLibrary
+                var xxmiModsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(xxmiModsPath))
+                    xxmiModsPath = Path.Combine(AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
                 
-                // For new format (namespace), path is already relative from ModLibrary: "ModFolder/KeySwaps.ini"
-                // For old format, path needs case-insensitive resolution: "folder\file.ini"
+                var currentGame = SettingsManager.CurrentSelectedGame;
+                LogStatic($"DEBUG: Current game: '{currentGame}', XXMI Mods: '{xxmiModsPath}'");
+                LogStatic($"DEBUG: Resolving path '{d3dxPath}' from XXMI Mods: '{xxmiModsPath}'");
                 
-                // Try direct path first (new format)
-                var directPath = Path.Combine(modLibraryPath, d3dxPath.Replace('/', '\\'));
+                // Try direct path first
+                var directPath = Path.Combine(xxmiModsPath, d3dxPath.Replace('/', '\\'));
+                LogStatic($"DEBUG: Trying direct path: '{directPath}'");
                 if (File.Exists(directPath))
                 {
+                    LogStatic($"DEBUG: Found direct path: '{directPath}'");
                     return directPath;
                 }
                 
-                // Fall back to case-insensitive resolution (old format)
-                var currentPath = Path.GetFullPath(modLibraryPath);
+                // Fall back to case-insensitive resolution
+                var currentPath = Path.GetFullPath(xxmiModsPath);
                 var pathParts = d3dxPath.Split('\\', '/').Where(part => !string.IsNullOrEmpty(part)).ToArray();
+                LogStatic($"DEBUG: Fallback search, path parts: [{string.Join(", ", pathParts)}]");
 
                 foreach (var part in pathParts)
                 {
@@ -757,18 +763,23 @@ namespace FlairX_Mod_Manager.Pages
                         if (found != null)
                         {
                             currentPath = found;
+                            LogStatic($"DEBUG: Found part '{part}' -> '{currentPath}'");
                         }
                         else
                         {
+                            LogStatic($"DEBUG: Part '{part}' not found in '{currentPath}'");
+                            LogStatic($"DEBUG: Available items in '{currentPath}': [{string.Join(", ", Directory.GetFileSystemEntries(currentPath).Select(Path.GetFileName))}]");
                             return null;
                         }
                     }
                     else
                     {
+                        LogStatic($"DEBUG: Directory does not exist: '{currentPath}'");
                         return null;
                     }
                 }
 
+                LogStatic($"DEBUG: Final resolved path: '{currentPath}'");
                 return currentPath;
             }
             catch (Exception error)
@@ -780,8 +791,12 @@ namespace FlairX_Mod_Manager.Pages
 
         private static (bool updated, int updateCount) UpdateVariablesInFile(string filePath, Dictionary<string, string> variables)
         {
+            LogStatic($"DEBUG: UpdateVariablesInFile called for: '{filePath}'");
+            LogStatic($"DEBUG: Variables to update: [{string.Join(", ", variables.Select(kv => $"{kv.Key}={kv.Value}"))}]");
+            
             if (!File.Exists(filePath))
             {
+                LogStatic($"DEBUG: File does not exist: '{filePath}'");
                 return (false, 0);
             }
 
