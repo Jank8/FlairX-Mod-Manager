@@ -116,7 +116,7 @@ A comprehensive mod management application for multiple miHoYo games, built with
 
 ### Installing Mods
 1. **Download** mods from GameBanana/NexusMods
-2. **Extract** to: `app/ModLibrary/[Game]/[Category]/[ModName]/`
+## 2. **Extract** to: `app/ModLibrary/[Game]/[Category]/[ModName]/`
    - Example: `app/ModLibrary/GI/Characters/Ayaka_Outfit/`
 3. **Click reload** (↻) to detect new mods
 4. **Activate** by clicking heart icons
@@ -251,6 +251,7 @@ Contributions are welcome! Please feel free to submit pull requests or open issu
 ---
 
 *This application is not affiliated with miHoYo/HoYoverse or any of the supported games. It is a community-developed tool for managing game modifications.*
+
 
 
 
