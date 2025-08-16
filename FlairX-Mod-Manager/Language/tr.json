@@ -116,5 +116,15 @@
   "RenameDialog_Category_Title": "Kategoriyi yeniden adlandır",
   "RenameDialog_Mod_Title": "Modu yeniden adlandır",
   "RenameDialog_EmptyName_Error": "Ad boş olamaz.",
-  "RenameDialog_InvalidName_Error": "Geçersiz ad. Lütfen klasör adları için yalnızca geçerli karakterler kullanın."
+  "RenameDialog_InvalidName_Error": "Geçersiz ad. Lütfen klasör adları için yalnızca geçerli karakterler kullanın.",
+  "SortByName": "Ada göre sırala",
+  "SortByCategory": "Kategoriye göre sırala",
+  "SortByLastChecked": "Son kontrol tarihine göre sırala",
+  "SortByLastUpdated": "Son güncellenme tarihine göre sırala",
+  "ShowActive": "Aktifleri göster",
+  "ClearSorting": "Sıralamayı temizle",
+  "SortAZ": "A-Z",
+  "SortZA": "Z-A",
+  "SortNewest": "En yeni ilk",
+  "SortOldest": "En eski ilk"
 }

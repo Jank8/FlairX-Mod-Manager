@@ -39,7 +39,7 @@
   "None": "कोई नहीं",
   "Ntfs_Startup_Warning_Content": "मॉड प्रबंधन Windows द्वारा समर्थित सभी फ़ाइल सिस्टम पर काम करता है। हालांकि, वर्तमान डिस्क या पार्टीशन NTFS के रूप में फॉर्मेट नहीं है, जो सिम्बॉलिक लिंक (symlinks) बनाने और इस प्रकार मॉड सक्रियण को रोकता है। आप अभी भी NTFS डिस्क पर मॉड लाइब्रेरी और XXMI टारगेट फ़ोल्डर का चयन कर सकते हैं।",
   "Ntfs_Warning_Content": "{0} ({1}) के लिए चयनित फ़ोल्डर NTFS पार्टीशन पर नहीं है। यह मॉड सक्रियण (symlinks) को रोकेगा।",
-  "Ntfs_Warning_Title": "चेतावनी: फ़ाइल सिस्टम",
+  "Ntfs_Warning_Title": "चेतावनी: फ़ाइल प्रणाली",
   "OK": "ठीक है",
   "Open_ModLibrary_Tooltip": "एक्सप्लोरर में ModLibrary डायरेक्टरी खोलें",
   "OpenDirectory_Tooltip": "डायरेक्टरी खोलने के लिए क्लिक करें",
@@ -116,5 +116,15 @@
   "RenameDialog_Category_Title": "श्रेणी का नाम बदलें",
   "RenameDialog_Mod_Title": "मॉड का नाम बदलें",
   "RenameDialog_EmptyName_Error": "नाम खाली नहीं हो सकता।",
-  "RenameDialog_InvalidName_Error": "अमान्य नाम। कृपया फ़ोल्डर नामों के लिए केवल मान्य वर्ण उपयोग करें।"
+  "RenameDialog_InvalidName_Error": "अमान्य नाम। कृपया फ़ोल्डर नामों के लिए केवल मान्य वर्ण उपयोग करें।",
+  "SortByName": "नाम से छांटें",
+  "SortByCategory": "श्रेणी से छांटें",
+  "SortByLastChecked": "अंतिम जांच से छांटें",
+  "SortByLastUpdated": "अंतिम अपडेट से छांटें",
+  "ShowActive": "सक्रिय दिखाएं",
+  "ClearSorting": "छंटाई साफ़ करें",
+  "SortAZ": "A-Z",
+  "SortZA": "Z-A",
+  "SortNewest": "नवीनतम पहले",
+  "SortOldest": "सबसे पुराने पहले"
 }

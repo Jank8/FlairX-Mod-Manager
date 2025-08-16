@@ -40,7 +40,7 @@ namespace FlairX_Mod_Manager
         private List<NavigationViewItem> _allMenuItems = new();
         private List<NavigationViewItem> _allFooterItems = new();
 
-        private bool _isShowActiveModsHovered = false;
+
         private bool _isInitializationComplete = false;
 
         // Backdrop fields
@@ -58,7 +58,6 @@ namespace FlairX_Mod_Manager
             ToolTipService.SetToolTip(ReloadModsButton, SharedUtilities.GetTranslation(_lang, "Reload_Mods_Tooltip"));
             ToolTipService.SetToolTip(OpenModLibraryButton, SharedUtilities.GetTranslation(_lang, "Open_ModLibrary_Tooltip"));
             ToolTipService.SetToolTip(LauncherFabBorder, SharedUtilities.GetTranslation(_lang, "Launcher_Tooltip"));
-            ToolTipService.SetToolTip(ShowActiveModsButton, SharedUtilities.GetTranslation(_lang, "ShowActiveModsButton_Tooltip"));
             
             // Initialize view mode from settings
             InitializeViewModeFromSettings();
@@ -818,8 +817,7 @@ namespace FlairX_Mod_Manager
                 ToolTipService.SetToolTip(LauncherFabBorder, SharedUtilities.GetTranslation(_lang, "Launcher_Tooltip"));
             if (RestartAppButton != null)
                 ToolTipService.SetToolTip(RestartAppButton, SharedUtilities.GetTranslation(_lang, "SettingsPage_RestartApp_Tooltip"));
-            if (ShowActiveModsButton != null)
-                ToolTipService.SetToolTip(ShowActiveModsButton, SharedUtilities.GetTranslation(_lang, "ShowActiveModsButton_Tooltip"));
+
             
             // Update view mode tooltip based on current state
             if (ViewModeToggleButton?.Content is FontIcon icon)
@@ -829,36 +827,7 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        public void UpdateShowActiveModsButtonIcon()
-        {
-            if (ShowActiveModsButton == null) return;
-            var heartEmpty = ShowActiveModsButton.FindName("HeartEmptyIcon") as FontIcon;
-            var heartFull = ShowActiveModsButton.FindName("HeartFullIcon") as FontIcon;
-            var heartHover = ShowActiveModsButton.FindName("HeartHoverIcon") as FontIcon;
-            bool isActivePage = false;
-            if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
-            {
-                isActivePage = modGridPage.GetCategoryTitleText() == SharedUtilities.GetTranslation(_lang, "Category_Active_Mods");
-            }
-            if (_isShowActiveModsHovered)
-            {
-                if (heartEmpty != null) heartEmpty.Visibility = Visibility.Collapsed;
-                if (heartFull != null) heartFull.Visibility = Visibility.Collapsed;
-                if (heartHover != null) heartHover.Visibility = Visibility.Visible;
-            }
-            else if (isActivePage)
-            {
-                if (heartEmpty != null) heartEmpty.Visibility = Visibility.Collapsed;
-                if (heartFull != null) heartFull.Visibility = Visibility.Visible;
-                if (heartHover != null) heartHover.Visibility = Visibility.Collapsed;
-            }
-            else
-            {
-                if (heartEmpty != null) heartEmpty.Visibility = Visibility.Visible;
-                if (heartFull != null) heartFull.Visibility = Visibility.Collapsed;
-                if (heartHover != null) heartHover.Visibility = Visibility.Collapsed;
-            }
-        }
+
 
         private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
@@ -947,7 +916,6 @@ namespace FlairX_Mod_Manager
                     }
                 }
             }
-            UpdateShowActiveModsButtonIcon();
         }
 
         private void NavigationView_PaneClosing(NavigationView sender, object args)
@@ -1319,7 +1287,6 @@ namespace FlairX_Mod_Manager
                 // Restore last position instead of always going to All Mods
                 RestoreLastPosition();
                 
-                UpdateShowActiveModsButtonIcon();
                 loadingWindow.Close();
             });
         }
@@ -1352,8 +1319,7 @@ namespace FlairX_Mod_Manager
                 contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
             }
             
-            // Update heart button after a short delay to ensure page has loaded
-            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => UpdateShowActiveModsButtonIcon());
+
         }
 
         private FlairX_Mod_Manager.Pages.ModGridPage.ViewMode GetCurrentViewMode()
@@ -1701,29 +1667,7 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        private void ShowActiveModsButton_PointerEntered(object sender, PointerRoutedEventArgs e)
-        {
-            _isShowActiveModsHovered = true;
-            UpdateShowActiveModsButtonIcon();
-        }
 
-        private void ShowActiveModsButton_PointerExited(object sender, PointerRoutedEventArgs e)
-        {
-            _isShowActiveModsHovered = false;
-            UpdateShowActiveModsButtonIcon();
-        }
-
-        private void ShowActiveModsButton_Click(object sender, RoutedEventArgs e)
-        {
-            nvSample.SelectedItem = null; // Unselect active button in menu
-            
-            // Save position for reload
-            var currentViewMode = GetCurrentViewModeString();
-            SettingsManager.SaveLastPosition("Active", "ModGridPage", currentViewMode);
-            
-            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Active", new DrillInNavigationTransitionInfo());
-            UpdateShowActiveModsButtonIcon();
-        }
 
         public async Task GenerateModCharacterMenuAsync()
         {
@@ -2320,7 +2264,6 @@ namespace FlairX_Mod_Manager
                 if (RestartAppButton != null) RestartAppButton.IsEnabled = gameSelected;
                 if (AllModsButton != null) AllModsButton.IsEnabled = gameSelected;
                 if (OpenModLibraryButton != null) OpenModLibraryButton.IsEnabled = gameSelected;
-                if (ShowActiveModsButton != null) ShowActiveModsButton.IsEnabled = gameSelected;
                 if (ViewModeToggleButton != null) ViewModeToggleButton.IsEnabled = gameSelected;
                 
                 // Enable/disable launcher FAB

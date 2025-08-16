@@ -116,5 +116,15 @@
   "RenameDialog_Category_Title": "Ubah nama kategori",
   "RenameDialog_Mod_Title": "Ubah nama mod",
   "RenameDialog_EmptyName_Error": "Nama tidak boleh kosong.",
-  "RenameDialog_InvalidName_Error": "Nama tidak valid. Harap gunakan hanya karakter yang valid untuk nama folder."
+  "RenameDialog_InvalidName_Error": "Nama tidak valid. Harap gunakan hanya karakter yang valid untuk nama folder.",
+  "SortByName": "Urutkan berdasarkan Nama",
+  "SortByCategory": "Urutkan berdasarkan Kategori",
+  "SortByLastChecked": "Urutkan berdasarkan Terakhir Diperiksa",
+  "SortByLastUpdated": "Urutkan berdasarkan Terakhir Diperbarui",
+  "ShowActive": "Tampilkan Aktif",
+  "ClearSorting": "Bersihkan Pengurutan",
+  "SortAZ": "A-Z",
+  "SortZA": "Z-A",
+  "SortNewest": "Terbaru Dulu",
+  "SortOldest": "Terlama Dulu"
 }

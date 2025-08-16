@@ -159,7 +159,6 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Button x:Name="AllModsButton"
                                 Content="All mods"
@@ -194,25 +193,7 @@
                                 Click="OpenModLibraryButton_Click">
                             <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
                         </Button>
-                        <Button x:Name="ShowActiveModsButton"
-                                Grid.Column="3"
-                                Width="32"
-                                Height="32"
-                                Padding="0"
-                                Margin="8,0,0,0"
-                                VerticalAlignment="Center"
-                                HorizontalContentAlignment="Center"
-                                VerticalContentAlignment="Center"
-                                ToolTipService.ToolTip="Aktywne mody"
-                                Click="ShowActiveModsButton_Click"
-                                PointerEntered="ShowActiveModsButton_PointerEntered"
-                                PointerExited="ShowActiveModsButton_PointerExited">
-                            <Grid>
-                                <FontIcon x:Name="HeartEmptyIcon" Glyph="&#xEB51;" FontSize="17" Visibility="Visible"/>
-                                <FontIcon x:Name="HeartFullIcon" Glyph="&#xEB52;" FontSize="17" Visibility="Collapsed"/>
-                                <FontIcon x:Name="HeartHoverIcon" Glyph="&#xEB52;" FontSize="17" Visibility="Collapsed"/>
-                            </Grid>
-                        </Button>
+
                     </Grid>
                 </StackPanel>
             </NavigationView.PaneCustomContent>

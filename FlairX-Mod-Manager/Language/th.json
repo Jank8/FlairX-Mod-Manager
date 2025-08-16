@@ -116,5 +116,15 @@
   "RenameDialog_Category_Title": "เปลี่ยนชื่อหมวดหมู่",
   "RenameDialog_Mod_Title": "เปลี่ยนชื่อ mod",
   "RenameDialog_EmptyName_Error": "ชื่อไม่สามารถเว้นว่างได้",
-  "RenameDialog_InvalidName_Error": "ชื่อไม่ถูกต้อง กรุณาใช้เฉพาะอักขระที่ถูกต้องสำหรับชื่อโฟลเดอร์"
+  "RenameDialog_InvalidName_Error": "ชื่อไม่ถูกต้อง กรุณาใช้เฉพาะอักขระที่ถูกต้องสำหรับชื่อโฟลเดอร์",
+  "SortByName": "จัดเรียงตามชื่อ",
+  "SortByCategory": "จัดเรียงตามหมวดหมู่",
+  "SortByLastChecked": "จัดเรียงตามการตรวจสอบล่าสุด",
+  "SortByLastUpdated": "จัดเรียงตามการอัปเดตล่าสุด",
+  "ShowActive": "แสดงที่ใช้งาน",
+  "ClearSorting": "ล้างการจัดเรียง",
+  "SortAZ": "A-Z",
+  "SortZA": "Z-A",
+  "SortNewest": "ใหม่สุดก่อน",
+  "SortOldest": "เก่าสุดก่อน"
 }

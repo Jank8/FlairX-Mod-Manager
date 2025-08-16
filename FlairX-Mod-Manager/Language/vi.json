@@ -116,5 +116,15 @@
   "RenameDialog_Category_Title": "Đổi tên danh mục",
   "RenameDialog_Mod_Title": "Đổi tên mod",
   "RenameDialog_EmptyName_Error": "Tên không được để trống.",
-  "RenameDialog_InvalidName_Error": "Tên không hợp lệ. Vui lòng chỉ sử dụng các ký tự hợp lệ cho tên thư mục."
+  "RenameDialog_InvalidName_Error": "Tên không hợp lệ. Vui lòng chỉ sử dụng các ký tự hợp lệ cho tên thư mục.",
+  "SortByName": "Sắp xếp theo tên",
+  "SortByCategory": "Sắp xếp theo danh mục",
+  "SortByLastChecked": "Sắp xếp theo lần kiểm tra cuối",
+  "SortByLastUpdated": "Sắp xếp theo lần cập nhật cuối",
+  "ShowActive": "Hiển thị đang hoạt động",
+  "ClearSorting": "Xóa sắp xếp",
+  "SortAZ": "A-Z",
+  "SortZA": "Z-A",
+  "SortNewest": "Mới nhất trước",
+  "SortOldest": "Cũ nhất trước"
 }

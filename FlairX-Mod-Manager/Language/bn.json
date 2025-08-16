@@ -116,5 +116,15 @@
   "RenameDialog_Category_Title": "বিভাগের নাম পরিবর্তন করুন",
   "RenameDialog_Mod_Title": "মডের নাম পরিবর্তন করুন",
   "RenameDialog_EmptyName_Error": "নাম খালি থাকতে পারে না।",
-  "RenameDialog_InvalidName_Error": "অবৈধ নাম। ফোল্ডারের নামের জন্য শুধুমাত্র বৈধ অক্ষর ব্যবহার করুন।"
+  "RenameDialog_InvalidName_Error": "অবৈধ নাম। ফোল্ডারের নামের জন্য শুধুমাত্র বৈধ অক্ষর ব্যবহার করুন।",
+  "SortByName": "নামের দ্বারা সাজান",
+  "SortByCategory": "বিভাগ দ্বারা সাজান",
+  "SortByLastChecked": "শেষ পরীক্ষার দ্বারা সাজান",
+  "SortByLastUpdated": "শেষ আপডেটের দ্বারা সাজান",
+  "ShowActive": "সক্রিয় দেখান",
+  "ClearSorting": "সাজানো মুছুন",
+  "SortAZ": "A-Z",
+  "SortZA": "Z-A",
+  "SortNewest": "নতুনতম প্রথম",
+  "SortOldest": "পুরাতনতম প্রথম"
 }

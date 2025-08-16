@@ -116,5 +116,15 @@
   "RenameDialog_Category_Title": "Renomear categoria",
   "RenameDialog_Mod_Title": "Renomear mod",
   "RenameDialog_EmptyName_Error": "O nome não pode estar vazio.",
-  "RenameDialog_InvalidName_Error": "Nome inválido. Use apenas caracteres válidos para nomes de pastas."
+  "RenameDialog_InvalidName_Error": "Nome inválido. Use apenas caracteres válidos para nomes de pastas.",
+  "SortByName": "Ordenar por nome",
+  "SortByCategory": "Ordenar por categoria",
+  "SortByLastChecked": "Ordenar por última verificação",
+  "SortByLastUpdated": "Ordenar por última atualização",
+  "ShowActive": "Mostrar ativos",
+  "ClearSorting": "Limpar ordenação",
+  "SortAZ": "A-Z",
+  "SortZA": "Z-A",
+  "SortNewest": "Mais recentes primeiro",
+  "SortOldest": "Mais antigos primeiro"
 }

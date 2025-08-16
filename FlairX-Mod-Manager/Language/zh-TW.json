@@ -116,5 +116,15 @@
   "RenameDialog_Category_Title": "重新命名類別",
   "RenameDialog_Mod_Title": "重新命名模組",
   "RenameDialog_EmptyName_Error": "名稱不能為空。",
-  "RenameDialog_InvalidName_Error": "無效名稱。請僅使用資料夾名稱的有效字元。"
+  "RenameDialog_InvalidName_Error": "無效名稱。請僅使用資料夾名稱的有效字元。",
+  "SortByName": "按名稱排序",
+  "SortByCategory": "按類別排序",
+  "SortByLastChecked": "按最後檢查排序",
+  "SortByLastUpdated": "按最後更新排序",
+  "ShowActive": "顯示活躍",
+  "ClearSorting": "清除排序",
+  "SortAZ": "A-Z",
+  "SortZA": "Z-A",
+  "SortNewest": "最新優先",
+  "SortOldest": "最舊優先"
 }

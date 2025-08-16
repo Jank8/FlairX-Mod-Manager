@@ -98,7 +98,7 @@
   "SettingsPage_ShuffleActiveMods_Label": "فعال موڈز کو شفل کریں",
   "SettingsPage_DeactivateAllMods_Label": "تمام موڈز کو غیر فعال کریں",
   "ShuffleActiveMods_Title": "بے ترتیب موڈز منتخب",
-  "ShuffleActiveMods_Message": "{0} بے ترتیب موڈز منتخب (فی کیٹگری 1):",
+  "ShuffleActiveMods_Message": "{0} بے ترتیب موڈز منتخب (فی کیتگری 1):",
   "ShuffleActiveMods_NoCategories": "شفلنگ کے لیے کوئی موڈ کیٹگریز نہیں ملیں۔",
   "DeactivateAllMods_Title": "موڈز غیر فعال",
   "DeactivateAllMods_Message": "{0} موڈز غیر فعال کیے گئے۔\n\n'Other' کیتگری کے موڈز محفوظ رکھے گئے۔",
@@ -116,5 +116,15 @@
   "RenameDialog_Category_Title": "کیٹگری کا نام تبدیل کریں",
   "RenameDialog_Mod_Title": "موڈ کا نام تبدیل کریں",
   "RenameDialog_EmptyName_Error": "نام خالی نہیں ہو سکتا۔",
-  "RenameDialog_InvalidName_Error": "غلط نام۔ براہ کرم فولڈر ناموں کے لیے صرف درست حروف استعمال کریں۔"
+  "RenameDialog_InvalidName_Error": "غلط نام۔ براہ کرم فولڈر ناموں کے لیے صرف درست حروف استعمال کریں۔",
+  "SortByName": "نام کے لحاظ سے ترتیب دیں",
+  "SortByCategory": "زمرہ کے لحاظ سے ترتیب دیں",
+  "SortByLastChecked": "آخری چیک کے لحاظ سے ترتیب دیں",
+  "SortByLastUpdated": "آخری اپ ڈیٹ کے لحاظ سے ترتیب دیں",
+  "ShowActive": "فعال دکھائیں",
+  "ClearSorting": "ترتیب صاف کریں",
+  "SortAZ": "A-Z",
+  "SortZA": "Z-A",
+  "SortNewest": "جدید ترین پہلے",
+  "SortOldest": "سب سے پرانے پہلے"
 }

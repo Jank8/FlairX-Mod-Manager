@@ -28,7 +28,21 @@ namespace FlairX_Mod_Manager.Pages
             Categories
         }
 
+        public enum SortMode
+        {
+            None,
+            NameAZ,
+            NameZA,
+            CategoryAZ,
+            CategoryZA,
+            LastCheckedNewest,
+            LastCheckedOldest,
+            LastUpdatedNewest,
+            LastUpdatedOldest
+        }
+
         private ViewMode _currentViewMode = ViewMode.Mods;
+        private SortMode _currentSortMode = SortMode.None;
         public ViewMode CurrentViewMode
         {
             get => _currentViewMode;
@@ -215,6 +229,9 @@ namespace FlairX_Mod_Manager.Pages
                 CategoryBackButton.Visibility = Visibility.Collapsed;
                 CategoryOpenFolderButton.Visibility = Visibility.Collapsed;
                 
+                // Update context menu visibility for category mode
+                UpdateContextMenuVisibility();
+                
                 LogToGridLog($"Loaded {categories.Count} categories");
             });
         }
@@ -289,7 +306,8 @@ namespace FlairX_Mod_Manager.Pages
             // Hide back button
             CategoryBackButton.Visibility = Visibility.Collapsed;
             
-            // Don't update MainWindow button - let MainWindow manage its own state
+            // Update context menu visibility
+            UpdateContextMenuVisibility();
         }
 
         public void LoadAllCategories()
@@ -313,6 +331,9 @@ namespace FlairX_Mod_Manager.Pages
             LoadModsByCategory(category);
             CategoryBackButton.Visibility = Visibility.Visible;
             CategoryOpenFolderButton.Visibility = Visibility.Visible;
+            
+            // Update context menu visibility
+            UpdateContextMenuVisibility();
         }
         
         public void LoadCategoryInCategoryMode(string category)
@@ -326,7 +347,9 @@ namespace FlairX_Mod_Manager.Pages
             CategoryBackButton.Visibility = Visibility.Visible;
             CategoryOpenFolderButton.Visibility = Visibility.Visible;
             System.Diagnostics.Debug.WriteLine($"CategoryOpenFolderButton visibility set to Visible for category: {category}");
-            // UpdateMainWindowButtonText(); // Don't interfere with MainWindow button state
+            
+            // Update context menu visibility
+            UpdateContextMenuVisibility();
         }
 
         private double _zoomFactor = 1.0;
@@ -456,6 +479,9 @@ namespace FlairX_Mod_Manager.Pages
             (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary();
             this.Loaded += ModGridPage_Loaded;
             
+            // Initialize context menu translations
+            UpdateContextMenuTranslations();
+            
             // Use AddHandler with handledEventsToo to catch mouse back button even if handled by child elements
             this.AddHandler(PointerPressedEvent, new PointerEventHandler(ModGridPage_PointerPressed), handledEventsToo: true);
             
@@ -571,6 +597,31 @@ namespace FlairX_Mod_Manager.Pages
                             var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
                             var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
                             
+                            // Parse dates for sorting
+                            var lastChecked = DateTime.MinValue;
+                            var lastUpdated = DateTime.MinValue;
+                            
+                            if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && dateCheckedProp.ValueKind == JsonValueKind.String)
+                            {
+                                DateTime.TryParse(dateCheckedProp.GetString(), out lastChecked);
+                            }
+                            
+                            if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && dateUpdatedProp.ValueKind == JsonValueKind.String)
+                            {
+                                DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
+                            }
+                            
+                            // If dates are not in JSON, use file system dates as fallback
+                            if (lastChecked == DateTime.MinValue)
+                            {
+                                lastChecked = File.GetLastAccessTime(modDir);
+                            }
+                            
+                            if (lastUpdated == DateTime.MinValue)
+                            {
+                                lastUpdated = File.GetLastWriteTime(modDir);
+                            }
+                            
                             var name = Path.GetFileName(modDir);
                             string previewPath = GetOptimalImagePathStatic(modDir);
                             
@@ -583,7 +634,9 @@ namespace FlairX_Mod_Manager.Pages
                                 Character = modCharacter,
                                 Author = modAuthor,
                                 Url = modUrl,
-                                Category = categoryName
+                                Category = categoryName,
+                                LastChecked = lastChecked,
+                                LastUpdated = lastUpdated
                             };
                             
                             // Cache the data
@@ -1212,8 +1265,7 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            // Notify MainWindow to update heart button after category title is set
-            NotifyMainWindowToUpdateHeartButton();
+
             
             // Don't update MainWindow button - let MainWindow manage its own button state
         }
@@ -1306,6 +1358,8 @@ namespace FlairX_Mod_Manager.Pages
             public string Author { get; set; } = "";
             public string Url { get; set; } = "";
             public string Category { get; set; } = "";
+            public DateTime LastChecked { get; set; } = DateTime.MinValue;
+            public DateTime LastUpdated { get; set; } = DateTime.MinValue;
         }
 
 
@@ -1342,7 +1396,9 @@ namespace FlairX_Mod_Manager.Pages
             // Hide back button and folder button
             CategoryBackButton.Visibility = Visibility.Collapsed;
             CategoryOpenFolderButton.Visibility = Visibility.Collapsed;
-            // UpdateMainWindowButtonText(); // Don't interfere with MainWindow button state
+            
+            // Update context menu visibility
+            UpdateContextMenuVisibility();
         }
 
         private void CategoryOpenFolderButton_Click(object sender, RoutedEventArgs e)
@@ -1416,12 +1472,61 @@ namespace FlairX_Mod_Manager.Pages
                         var dirName = Path.GetFileName(modDir);
                         var isActive = _activeMods.TryGetValue(dirName, out var active) && active;
                         
+                        // Parse JSON for additional data
+                        var modCharacter = "other";
+                        var modAuthor = "";
+                        var modUrl = "";
+                        var lastChecked = DateTime.MinValue;
+                        var lastUpdated = DateTime.MinValue;
+                        
+                        try
+                        {
+                            var json = File.ReadAllText(modJsonPath);
+                            using var doc = JsonDocument.Parse(json);
+                            var root = doc.RootElement;
+                            
+                            modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
+                            modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
+                            modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
+                            
+                            if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && dateCheckedProp.ValueKind == JsonValueKind.String)
+                            {
+                                DateTime.TryParse(dateCheckedProp.GetString(), out lastChecked);
+                            }
+                            
+                            if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && dateUpdatedProp.ValueKind == JsonValueKind.String)
+                            {
+                                DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
+                            }
+                        }
+                        catch
+                        {
+                            // Use defaults if JSON parsing fails
+                        }
+                        
+                        // Use file system dates as fallback
+                        if (lastChecked == DateTime.MinValue)
+                        {
+                            lastChecked = File.GetLastAccessTime(modDir);
+                        }
+                        
+                        if (lastUpdated == DateTime.MinValue)
+                        {
+                            lastUpdated = File.GetLastWriteTime(modDir);
+                        }
+                        
                         var modData = new ModData
                         {
                             Name = name,
                             ImagePath = previewPath,
                             Directory = dirName,
-                            IsActive = isActive
+                            IsActive = isActive,
+                            Character = modCharacter,
+                            Author = modAuthor,
+                            Url = modUrl,
+                            Category = category,
+                            LastChecked = lastChecked,
+                            LastUpdated = lastUpdated
                         };
                         
                         _allModData.Add(modData);
@@ -1591,9 +1696,49 @@ namespace FlairX_Mod_Manager.Pages
                     var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
                     var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
                     
+                    // Parse dates for sorting
+                    var lastChecked = DateTime.MinValue;
+                    var lastUpdated = DateTime.MinValue;
+                    
+                    if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && dateCheckedProp.ValueKind == JsonValueKind.String)
+                    {
+                        DateTime.TryParse(dateCheckedProp.GetString(), out lastChecked);
+                    }
+                    
+                    if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && dateUpdatedProp.ValueKind == JsonValueKind.String)
+                    {
+                        DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
+                    }
+                    
+                    // Use file system dates as fallback
+                    if (lastChecked == DateTime.MinValue)
+                    {
+                        lastChecked = File.GetLastAccessTime(dir);
+                    }
+                    
+                    if (lastUpdated == DateTime.MinValue)
+                    {
+                        lastUpdated = File.GetLastWriteTime(dir);
+                    }
+                    
                     var name = Path.GetFileName(dir);
                     string previewPath = GetOptimalImagePath(dir);
                     var isActive = _activeMods.TryGetValue(dirName, out var active) && active;
+                    
+                    // Determine category from directory structure
+                    var categoryName = "Unknown";
+                    try
+                    {
+                        var parentDir = Directory.GetParent(dir);
+                        if (parentDir != null)
+                        {
+                            categoryName = parentDir.Name;
+                        }
+                    }
+                    catch
+                    {
+                        // Use default if unable to determine category
+                    }
                     
                     var modData = new ModData
                     { 
@@ -1603,7 +1748,10 @@ namespace FlairX_Mod_Manager.Pages
                         IsActive = isActive,
                         Character = modCharacter,
                         Author = modAuthor,
-                        Url = modUrl
+                        Url = modUrl,
+                        Category = categoryName,
+                        LastChecked = lastChecked,
+                        LastUpdated = lastUpdated
                     };
                     
                     // Cache the data
@@ -3139,17 +3287,7 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         // Notify MainWindow to update heart button
-        private void NotifyMainWindowToUpdateHeartButton()
-        {
-            if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
-            {
-                // Use dispatcher to ensure UI update happens after page is fully loaded
-                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => 
-                {
-                    mainWindow.UpdateShowActiveModsButtonIcon();
-                });
-            }
-        }
+
 
         // Dynamic Context Menu
         private void ContextMenu_Opening(object sender, object e)
@@ -3578,6 +3716,253 @@ namespace FlairX_Mod_Manager.Pages
                 DeleteModButton_Click(fakeButton, e);
             }
         }
+
+        // Context Menu Translation Update
+        private void UpdateContextMenuTranslations()
+        {
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            
+            SortByNameSubItem.Text = SharedUtilities.GetTranslation(langDict, "SortByName");
+            SortByNameAZItem.Text = SharedUtilities.GetTranslation(langDict, "SortAZ");
+            SortByNameZAItem.Text = SharedUtilities.GetTranslation(langDict, "SortZA");
+            
+            SortByCategorySubItem.Text = SharedUtilities.GetTranslation(langDict, "SortByCategory");
+            SortByCategoryAZItem.Text = SharedUtilities.GetTranslation(langDict, "SortAZ");
+            SortByCategoryZAItem.Text = SharedUtilities.GetTranslation(langDict, "SortZA");
+            
+            SortByLastCheckedSubItem.Text = SharedUtilities.GetTranslation(langDict, "SortByLastChecked");
+            SortByLastCheckedNewestItem.Text = SharedUtilities.GetTranslation(langDict, "SortNewest");
+            SortByLastCheckedOldestItem.Text = SharedUtilities.GetTranslation(langDict, "SortOldest");
+            
+            SortByLastUpdatedSubItem.Text = SharedUtilities.GetTranslation(langDict, "SortByLastUpdated");
+            SortByLastUpdatedNewestItem.Text = SharedUtilities.GetTranslation(langDict, "SortNewest");
+            SortByLastUpdatedOldestItem.Text = SharedUtilities.GetTranslation(langDict, "SortOldest");
+            ShowActiveItem.Text = SharedUtilities.GetTranslation(langDict, "ShowActive");
+            
+            // Update menu visibility based on current context
+            UpdateContextMenuVisibility();
+        }
+
+        private void UpdateContextMenuVisibility()
+        {
+            // Check if we're in category mode showing all categories
+            bool isInCategoryModeShowingCategories = (CurrentViewMode == ViewMode.Categories && string.IsNullOrEmpty(_currentCategory));
+            
+            // Check if we're in a specific category (not "All Mods" or "Active")
+            bool isInSpecificCategory = !string.IsNullOrEmpty(_currentCategory) && 
+                                       _currentCategory != "Active" && 
+                                       !_currentCategory.Equals("All Mods", StringComparison.OrdinalIgnoreCase);
+            
+            if (isInCategoryModeShowingCategories)
+            {
+                // In category mode showing all categories: hide everything except name sorting and show active
+                SortByCategorySubItem.Visibility = Visibility.Collapsed;
+                SortByLastCheckedSubItem.Visibility = Visibility.Collapsed;
+                SortByLastUpdatedSubItem.Visibility = Visibility.Collapsed;
+                SortByNameSubItem.Visibility = Visibility.Visible;
+                ShowActiveItem.Visibility = Visibility.Visible;
+            }
+            else if (isInSpecificCategory)
+            {
+                // In specific category: hide category sorting but show dates
+                SortByCategorySubItem.Visibility = Visibility.Collapsed;
+                SortByLastCheckedSubItem.Visibility = Visibility.Visible;
+                SortByLastUpdatedSubItem.Visibility = Visibility.Visible;
+                SortByNameSubItem.Visibility = Visibility.Visible;
+                ShowActiveItem.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                // In all mods view: show everything
+                SortByCategorySubItem.Visibility = Visibility.Visible;
+                SortByLastCheckedSubItem.Visibility = Visibility.Visible;
+                SortByLastUpdatedSubItem.Visibility = Visibility.Visible;
+                SortByNameSubItem.Visibility = Visibility.Visible;
+                ShowActiveItem.Visibility = Visibility.Visible;
+            }
+        }
+
+        // Sorting Context Menu Event Handlers
+        private void SortByNameAZ_Click(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = SortMode.NameAZ;
+            ApplySorting();
+        }
+
+        private void SortByNameZA_Click(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = SortMode.NameZA;
+            ApplySorting();
+        }
+
+        private void SortByCategoryAZ_Click(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = SortMode.CategoryAZ;
+            ApplySorting();
+        }
+
+        private void SortByCategoryZA_Click(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = SortMode.CategoryZA;
+            ApplySorting();
+        }
+
+        private void SortByLastCheckedNewest_Click(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = SortMode.LastCheckedNewest;
+            ApplySorting();
+        }
+
+        private void SortByLastCheckedOldest_Click(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = SortMode.LastCheckedOldest;
+            ApplySorting();
+        }
+
+        private void SortByLastUpdatedNewest_Click(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = SortMode.LastUpdatedNewest;
+            ApplySorting();
+        }
+
+        private void SortByLastUpdatedOldest_Click(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = SortMode.LastUpdatedOldest;
+            ApplySorting();
+        }
+
+        private void ShowActive_Click(object sender, RoutedEventArgs e)
+        {
+            // Use existing show active functionality
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
+            _currentCategory = "Active"; // Set current category to Active
+            LoadActiveModsOnly();
+            CategoryBackButton.Visibility = Visibility.Visible;
+            CategoryOpenFolderButton.Visibility = Visibility.Collapsed; // Hide folder button for Active mods
+            
+            // Update menu visibility after changing context
+            UpdateContextMenuVisibility();
+        }
+
+
+
+        private void ApplySorting()
+        {
+            // Check if we're currently showing categories
+            if (CurrentViewMode == ViewMode.Categories && string.IsNullOrEmpty(_currentCategory))
+            {
+                // We're showing category tiles - sort them directly
+                if (ModsGrid.ItemsSource is not IEnumerable<ModTile> currentCategories)
+                    return;
+
+                var categoryList = currentCategories.ToList();
+                
+                switch (_currentSortMode)
+                {
+                    case SortMode.NameAZ:
+                        categoryList = categoryList.OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    case SortMode.NameZA:
+                        categoryList = categoryList.OrderByDescending(c => c.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    default:
+                        categoryList = categoryList.OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                }
+
+                ModsGrid.ItemsSource = categoryList;
+                return;
+            }
+
+            // Original logic for mods
+            if (_allModData == null || _allModData.Count == 0)
+                return;
+
+            // Sort the entire dataset (_allModData) first
+            List<ModData> sortedModData;
+            
+            switch (_currentSortMode)
+            {
+                case SortMode.NameAZ:
+                    sortedModData = _allModData.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                    break;
+                case SortMode.NameZA:
+                    sortedModData = _allModData.OrderByDescending(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                    break;
+                case SortMode.CategoryAZ:
+                    sortedModData = _allModData.OrderBy(m => m.Category, StringComparer.OrdinalIgnoreCase)
+                                              .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                    break;
+                case SortMode.CategoryZA:
+                    sortedModData = _allModData.OrderByDescending(m => m.Category, StringComparer.OrdinalIgnoreCase)
+                                              .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                    break;
+                case SortMode.LastCheckedNewest:
+                    sortedModData = _allModData.OrderByDescending(m => m.LastChecked)
+                                              .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                    break;
+                case SortMode.LastCheckedOldest:
+                    sortedModData = _allModData.OrderBy(m => m.LastChecked)
+                                              .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                    break;
+                case SortMode.LastUpdatedNewest:
+                    sortedModData = _allModData.OrderByDescending(m => m.LastUpdated)
+                                              .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                    break;
+                case SortMode.LastUpdatedOldest:
+                    sortedModData = _allModData.OrderBy(m => m.LastUpdated)
+                                              .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                    break;
+                default:
+                    sortedModData = _allModData.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                    break;
+            }
+
+            // Update _allModData with sorted order
+            _allModData = sortedModData;
+
+            // Create ModTiles from sorted data and apply current filter (if any)
+            var modTiles = new List<ModTile>();
+            foreach (var modData in _allModData)
+            {
+                // Apply current view filter (active mods, category, etc.)
+                bool shouldInclude = true;
+                
+                // Check if we're in active mods view
+                if (_currentCategory == "Active" && !modData.IsActive)
+                    shouldInclude = false;
+                
+                // Check if we're in specific category view
+                if (!string.IsNullOrEmpty(_currentCategory) && _currentCategory != "Active" && 
+                    !string.Equals(modData.Category, _currentCategory, StringComparison.OrdinalIgnoreCase))
+                    shouldInclude = false;
+
+                if (shouldInclude)
+                {
+                    var modTile = new ModTile 
+                    { 
+                        Name = modData.Name, 
+                        ImagePath = modData.ImagePath, 
+                        Directory = modData.Directory, 
+                        IsActive = modData.IsActive, 
+                        IsVisible = true,
+                        ImageSource = null // Lazy load when visible
+                    };
+                    modTiles.Add(modTile);
+                }
+            }
+
+            ModsGrid.ItemsSource = modTiles;
+            
+            // Reload visible images after sorting
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100);
+                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+            });
+        }
+
 
 
     }

@@ -116,5 +116,15 @@
   "RenameDialog_Category_Title": "Palitan ang pangalan ng kategorya",
   "RenameDialog_Mod_Title": "Palitan ang pangalan ng mod",
   "RenameDialog_EmptyName_Error": "Hindi maaaring walang laman ang pangalan.",
-  "RenameDialog_InvalidName_Error": "Hindi wastong pangalan. Gumamit lamang ng wastong mga karakter para sa mga pangalan ng folder."
+  "RenameDialog_InvalidName_Error": "Hindi wastong pangalan. Gumamit lamang ng wastong mga karakter para sa mga pangalan ng folder.",
+  "SortByName": "I-sort ayon sa pangalan",
+  "SortByCategory": "I-sort ayon sa kategorya",
+  "SortByLastChecked": "I-sort ayon sa huling nasuring petsa",
+  "SortByLastUpdated": "I-sort ayon sa huling na-update na petsa",
+  "ShowActive": "Ipakita ang aktibo",
+  "ClearSorting": "I-clear ang pag-sort",
+  "SortAZ": "A-Z",
+  "SortZA": "Z-A",
+  "SortNewest": "Pinakabago una",
+  "SortOldest": "Pinakapumauna"
 }

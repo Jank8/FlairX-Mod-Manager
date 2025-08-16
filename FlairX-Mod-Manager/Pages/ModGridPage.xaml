@@ -62,6 +62,77 @@
                        VerticalAlignment="Center"/>
         </StackPanel>
         <ScrollViewer x:Name="ModsScrollViewer" Grid.Row="1">
+            <ScrollViewer.ContextFlyout>
+                <MenuFlyout x:Name="SortingContextMenu">
+                    <MenuFlyoutSubItem x:Name="SortByNameSubItem">
+                        <MenuFlyoutSubItem.Icon>
+                            <FontIcon Glyph="&#xE8C4;"/>
+                        </MenuFlyoutSubItem.Icon>
+                        <MenuFlyoutItem x:Name="SortByNameAZItem" Click="SortByNameAZ_Click">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE70E;"/>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem x:Name="SortByNameZAItem" Click="SortByNameZA_Click">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE70D;"/>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutSubItem x:Name="SortByCategorySubItem">
+                        <MenuFlyoutSubItem.Icon>
+                            <FontIcon Glyph="&#xE8FD;"/>
+                        </MenuFlyoutSubItem.Icon>
+                        <MenuFlyoutItem x:Name="SortByCategoryAZItem" Click="SortByCategoryAZ_Click">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE70E;"/>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem x:Name="SortByCategoryZAItem" Click="SortByCategoryZA_Click">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE70D;"/>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutSubItem x:Name="SortByLastCheckedSubItem">
+                        <MenuFlyoutSubItem.Icon>
+                            <FontIcon Glyph="&#xE823;"/>
+                        </MenuFlyoutSubItem.Icon>
+                        <MenuFlyoutItem x:Name="SortByLastCheckedNewestItem" Click="SortByLastCheckedNewest_Click">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE70E;"/>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem x:Name="SortByLastCheckedOldestItem" Click="SortByLastCheckedOldest_Click">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE70D;"/>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutSubItem x:Name="SortByLastUpdatedSubItem">
+                        <MenuFlyoutSubItem.Icon>
+                            <FontIcon Glyph="&#xE895;"/>
+                        </MenuFlyoutSubItem.Icon>
+                        <MenuFlyoutItem x:Name="SortByLastUpdatedNewestItem" Click="SortByLastUpdatedNewest_Click">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE70E;"/>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem x:Name="SortByLastUpdatedOldestItem" Click="SortByLastUpdatedOldest_Click">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE70D;"/>
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem x:Name="ShowActiveItem" Click="ShowActive_Click">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xEB52;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+
+                </MenuFlyout>
+            </ScrollViewer.ContextFlyout>
             <GridView x:Name="ModsGrid"
                       IsItemClickEnabled="False"
                       SelectionMode="None"
