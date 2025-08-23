@@ -42,16 +42,7 @@ namespace FlairX_Mod_Manager
 
         private string GetXXMILauncherPath()
         {
-            var gameTag = SettingsManager.CurrentSelectedGame;
-            return gameTag switch
-            {
-                "GIMI" => PathManager.GetAbsolutePath(@".\XXMI\GIMI\GIMI.exe"),
-                "HIMI" => PathManager.GetAbsolutePath(@".\XXMI\HIMI\HIMI.exe"),
-                "SRMI" => PathManager.GetAbsolutePath(@".\XXMI\SRMI\SRMI.exe"),
-                "WWMI" => PathManager.GetAbsolutePath(@".\XXMI\WWMI\WWMI.exe"),
-                "ZZMI" => PathManager.GetAbsolutePath(@".\XXMI\ZZMI\ZZMI.exe"),
-                _ => PathManager.GetAbsolutePath(@".\XXMI\ZZMI\ZZMI.exe")
-            };
+            return Path.Combine(AppContext.BaseDirectory, @"XXMI\Resources\Bin\XXMI Launcher.exe");
         }
 
         private StackPanel CreateXXMIDownloadContent(string expectedPath)
