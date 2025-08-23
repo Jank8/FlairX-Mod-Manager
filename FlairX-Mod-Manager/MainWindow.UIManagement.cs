@@ -180,7 +180,7 @@ namespace FlairX_Mod_Manager
                                     {
                                         Content = category,
                                         Tag = $"Category_{category}",
-                                        Icon = new FontIcon { Glyph = "\uE8D2" } // Character icon
+                                        Icon = new FontIcon { Glyph = "\uEA8C" } // Character icon
                                     };
                                     nvSample.MenuItems.Add(menuItem);
                                 }
