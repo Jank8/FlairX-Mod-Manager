@@ -58,6 +58,8 @@ namespace FlairX_Mod_Manager.Pages
         }
     }
 
+
+
     public sealed partial class ModGridPage : Page
     {
         public enum ViewMode
@@ -322,15 +324,21 @@ namespace FlairX_Mod_Manager.Pages
                         Name = modData.Name, 
                         ImagePath = modData.ImagePath, 
                         Directory = modData.Directory, 
-                        IsActive = modData.IsActive,
+                        IsActive = _activeMods.TryGetValue(modData.Directory, out var isActive) && isActive,
                         Category = modData.Category,
                         Author = modData.Author,
                         Url = modData.Url,
                         LastChecked = modData.LastChecked,
                         LastUpdated = modData.LastUpdated,
                         IsVisible = true,
-                        ImageSource = null // Will be loaded on demand
+                        ImageSource = null // Will be loaded immediately below
                     };
+                    
+                    // Load image immediately for table view
+                    if (!string.IsNullOrEmpty(modData.ImagePath) && File.Exists(modData.ImagePath))
+                    {
+                        modTile.ImageSource = CreateBitmapImage(modData.ImagePath);
+                    }
                     tableItems.Add(modTile);
                 }
             }
@@ -687,10 +695,33 @@ namespace FlairX_Mod_Manager.Pages
             {
                 PreviewImage.Source = modTile.ImageSource;
                 
-                // Position popup relative to the image
-                var position = e.GetCurrentPoint(image);
-                ImagePreviewPopup.HorizontalOffset = position.Position.X + 60;
-                ImagePreviewPopup.VerticalOffset = position.Position.Y - 100;
+                // Get image bounds and window dimensions
+                var bounds = image.TransformToVisual(this).TransformBounds(new Windows.Foundation.Rect(0, 0, image.ActualWidth, image.ActualHeight));
+                var windowWidth = this.ActualWidth;
+                var windowHeight = this.ActualHeight;
+                
+                const double popupWidth = 600;
+                const double popupHeight = 600;
+                const double margin = 15;
+                
+                // Calculate horizontal position - prefer right side, fallback to left
+                double horizontalOffset;
+                if (bounds.Right + margin + popupWidth <= windowWidth)
+                {
+                    // Show on right side
+                    horizontalOffset = bounds.Right + margin;
+                }
+                else
+                {
+                    // Show on left side
+                    horizontalOffset = Math.Max(margin, bounds.Left - popupWidth - margin);
+                }
+                
+                // Calculate vertical position - keep fully visible
+                double verticalOffset = Math.Max(margin, Math.Min(bounds.Top - 100, windowHeight - popupHeight - margin));
+                
+                ImagePreviewPopup.HorizontalOffset = horizontalOffset;
+                ImagePreviewPopup.VerticalOffset = verticalOffset;
                 
                 ImagePreviewPopup.IsOpen = true;
             }
@@ -855,9 +886,10 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Add exit table view option
                 menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                var langDict = SharedUtilities.LoadLanguageDictionary();
                 menuFlyout.Items.Add(new MenuFlyoutItem
                 {
-                    Text = "Exit Table View",
+                    Text = SharedUtilities.GetTranslation(langDict, "Exit_Table_View"),
                     Icon = new SymbolIcon(Symbol.Back)
                 });
                 ((MenuFlyoutItem)menuFlyout.Items[menuFlyout.Items.Count - 1]).Click += ExitTableView_Click;

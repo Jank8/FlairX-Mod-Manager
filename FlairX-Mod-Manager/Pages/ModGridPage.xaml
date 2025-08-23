@@ -75,7 +75,7 @@
             <!-- Center: Search box (only visible when sorting/table mode is enabled) -->
             <AutoSuggestBox x:Name="TableSearchBox" 
                             Grid.Column="1"
-                            PlaceholderText="Search mods by name, author, or URL..."
+                            PlaceholderText=""
                             TextChanged="TableSearchBox_TextChanged"
                             KeyDown="TableSearchBox_KeyDown"
                             HorizontalAlignment="Center"
@@ -369,7 +369,7 @@
                             <ColumnDefinition Width="80"/>  <!-- Preview -->
                             <ColumnDefinition Width="*" MinWidth="200"/>  <!-- Name -->
                             <ColumnDefinition Width="60"/>  <!-- Activity -->
-                            <ColumnDefinition Width="150"/>  <!-- Category -->
+                            <ColumnDefinition Width="300"/>  <!-- Category -->
                             <ColumnDefinition Width="120"/>  <!-- Last Checked -->
                             <ColumnDefinition Width="120"/>  <!-- Last Updated -->
                         </Grid.ColumnDefinitions>
@@ -435,7 +435,7 @@
                     </ListView.ItemContainerStyle>
                     <ListView.ContextFlyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem x:Name="ExitTableViewItem" Text="Exit Table View" Click="ExitTableView_Click">
+                            <MenuFlyoutItem x:Name="ExitTableViewItem" Text="" Click="ExitTableView_Click">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE8A7;"/>
                                 </MenuFlyoutItem.Icon>
@@ -459,7 +459,7 @@
                                         <ColumnDefinition Width="80"/>  <!-- Preview -->
                                         <ColumnDefinition Width="*" MinWidth="200"/>  <!-- Name -->
                                         <ColumnDefinition Width="60"/>  <!-- Activity -->
-                                        <ColumnDefinition Width="150"/>  <!-- Category -->
+                                        <ColumnDefinition Width="300"/>  <!-- Category -->
                                         <ColumnDefinition Width="120"/>  <!-- Last Checked -->
                                         <ColumnDefinition Width="120"/>  <!-- Last Updated -->
                                     </Grid.ColumnDefinitions>
@@ -487,11 +487,21 @@
                                             Padding="8,0"
                                             Click="ModName_Click"
                                             Tag="{Binding}">
-                                        <TextBlock Text="{Binding Name}" 
-                                                   FontWeight="SemiBold" 
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   ToolTipService.ToolTip="{Binding Name}"/>
+                                        <Grid>
+                                            <TextBlock Text="{Binding Name}" 
+                                                       FontWeight="SemiBold" 
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTipService.ToolTip="{Binding Name}"
+                                                       Foreground="White"
+                                                       Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                            <TextBlock Text="{Binding Name}" 
+                                                       FontWeight="SemiBold" 
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTipService.ToolTip="{Binding Name}"
+                                                       Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
+                                        </Grid>
                                     </Button>
                                     
                                     <!-- Activity Heart -->
@@ -545,19 +555,22 @@
 
         <!-- Image Preview Popup -->
         <Popup x:Name="ImagePreviewPopup" 
-               IsLightDismissEnabled="True">
+               IsLightDismissEnabled="False"
+               IsHitTestVisible="False">
             <Border Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="8"
-                    Padding="8">
+                    Padding="8"
+                    IsHitTestVisible="False">
                 <Border.Shadow>
                     <ThemeShadow/>
                 </Border.Shadow>
                 <Image x:Name="PreviewImage" 
-                       Width="200" 
-                       Height="200" 
-                       Stretch="UniformToFill"/>
+                       Width="600" 
+                       Height="600" 
+                       Stretch="UniformToFill"
+                       IsHitTestVisible="False"/>
             </Border>
         </Popup>
     </Grid>

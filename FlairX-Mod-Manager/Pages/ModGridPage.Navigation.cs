@@ -44,6 +44,9 @@ namespace FlairX_Mod_Manager.Pages
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            
+            // Set up translations
+            UpdateTranslations();
             if (e.Parameter is string modName && !string.IsNullOrEmpty(modName))
             {
                 // Open mod details for given name using new category-based structure
@@ -384,6 +387,23 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 Logger.LogError("Failed to save symlink state", ex);
+            }
+        }
+
+        private void UpdateTranslations()
+        {
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            
+            // Update search box placeholder
+            if (TableSearchBox != null)
+            {
+                TableSearchBox.PlaceholderText = SharedUtilities.GetTranslation(langDict, "Search_Placeholder");
+            }
+            
+            // Update exit table view text
+            if (ExitTableViewItem != null)
+            {
+                ExitTableViewItem.Text = SharedUtilities.GetTranslation(langDict, "Exit_Table_View");
             }
         }
 

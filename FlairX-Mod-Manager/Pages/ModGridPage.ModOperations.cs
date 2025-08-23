@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -126,6 +127,27 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 SaveActiveMods();
                 SaveSymlinkState(modsDirFull);
+                
+                // Update table view if it exists - sync the IsActive state
+                if (_originalTableItems != null)
+                {
+                    var tableItem = _originalTableItems.FirstOrDefault(x => x.Directory == mod.Directory);
+                    if (tableItem != null)
+                    {
+                        tableItem.IsActive = mod.IsActive;
+                    }
+                }
+                
+                // Also update the currently displayed table items if search is active
+                if (ModsTableList?.ItemsSource is IEnumerable<ModTile> currentTableItems && currentTableItems != _originalTableItems)
+                {
+                    var currentItem = currentTableItems.FirstOrDefault(x => x.Directory == mod.Directory);
+                    if (currentItem != null)
+                    {
+                        currentItem.IsActive = mod.IsActive;
+                    }
+                }
+                
                 // Reset hover only on clicked tile
                 mod.IsHovered = false;
             }
