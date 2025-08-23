@@ -19,22 +19,10 @@ namespace FlairX_Mod_Manager
         {
             if (GameSelectionComboBox?.Items != null && _lang != null)
             {
-                // Only translate the first item ("Select Game") - other items have hardcoded game names
-                if (GameSelectionComboBox.Items.Count > 0 && 
-                    GameSelectionComboBox.Items[0] is ComboBoxItem firstItem)
+                // Update the SelectGameText TextBlock directly by name
+                if (SelectGameText != null)
                 {
-                    // Find the TextBlock in the first item and set its text
-                    if (firstItem.Content is StackPanel stackPanel)
-                    {
-                        foreach (var child in stackPanel.Children)
-                        {
-                            if (child is TextBlock textBlock)
-                            {
-                                textBlock.Text = SharedUtilities.GetTranslation(_lang, "SelectGame_Placeholder");
-                                break;
-                            }
-                        }
-                    }
+                    SelectGameText.Text = SharedUtilities.GetTranslation(_lang, "SelectGame_Placeholder");
                 }
             }
         }
@@ -111,21 +99,32 @@ namespace FlairX_Mod_Manager
                     var settings = SettingsManager.Current;
                     if (settings != null)
                     {
+                        // Temporarily disable initialization flag to prevent event firing during restore
+                        bool wasInitComplete = _isInitializationComplete;
+                        _isInitializationComplete = false;
+                        
                         GameSelectionComboBox.SelectedIndex = settings.SelectedGameIndex;
+                        
+                        // Restore initialization flag
+                        _isInitializationComplete = wasInitComplete;
                         
                         // Update UI based on whether a game is selected
                         bool gameSelected = settings.SelectedGameIndex > 0;
                         UpdateUIForGameSelection(gameSelected);
                         
-                        // If game is selected, restore last position
-                        if (gameSelected && contentFrame != null)
+                        // Navigate to appropriate page based on game selection
+                        if (contentFrame != null)
                         {
-                            RestoreLastPosition();
-                        }
-                        else if (contentFrame != null)
-                        {
-                            // Navigate to welcome page if no game selected
-                            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.WelcomePage));
+                            if (gameSelected)
+                            {
+                                // If game is selected, restore last position will be called later
+                                // Don't navigate here to avoid double navigation
+                            }
+                            else
+                            {
+                                // Navigate to welcome page if no game selected
+                                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.WelcomePage));
+                            }
                         }
                     }
                 }
@@ -425,8 +424,17 @@ namespace FlairX_Mod_Manager
                 // Enable/disable launcher FAB
                 if (LauncherFabBorder != null) LauncherFabBorder.IsHitTestVisible = gameSelected;
                 
-                // Enable/disable zoom indicator
-                if (ZoomIndicatorBorder != null) ZoomIndicatorBorder.IsHitTestVisible = gameSelected;
+                // Enable/disable zoom indicator based on game selection and zoom settings
+                if (ZoomIndicatorBorder != null) 
+                {
+                    ZoomIndicatorBorder.IsHitTestVisible = gameSelected;
+                    // Also update visibility based on zoom settings
+                    bool zoomEnabled = SettingsManager.Current.ModGridZoomEnabled;
+                    if (!gameSelected || !zoomEnabled)
+                    {
+                        ZoomIndicatorBorder.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+                    }
+                }
                 
                 // Ensure the game selection ComboBox stays enabled (double-check)
                 if (GameSelectionComboBox != null) GameSelectionComboBox.IsEnabled = true;

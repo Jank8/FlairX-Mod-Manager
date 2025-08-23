@@ -13,19 +13,58 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Windows.Storage;
+using Microsoft.UI;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.IO.Compression;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Microsoft.UI.Xaml.Data;
+using Windows.UI;
 
 namespace FlairX_Mod_Manager.Pages
 {
+    // Converter for heart icon glyph
+    public class BoolToHeartGlyphConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            return (bool)value ? "\uEB52" : "\uEB51"; // Filled heart : Empty heart
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    // Converter for heart icon color
+    public class BoolToHeartColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if ((bool)value)
+            {
+                // Use system accent color for active hearts
+                var accentColor = (Color)Application.Current.Resources["SystemAccentColor"];
+                return new SolidColorBrush(accentColor);
+            }
+            return new SolidColorBrush(Colors.Gray);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public sealed partial class ModGridPage : Page
     {
         public enum ViewMode
         {
             Mods,
-            Categories
+            Categories,
+            Table
         }
 
         public enum SortMode
@@ -35,6 +74,8 @@ namespace FlairX_Mod_Manager.Pages
             NameZA,
             CategoryAZ,
             CategoryZA,
+            ActiveFirst,
+            InactiveFirst,
             LastCheckedNewest,
             LastCheckedOldest,
             LastUpdatedNewest,
@@ -58,10 +99,30 @@ namespace FlairX_Mod_Manager.Pages
 
         public class ModTile : INotifyPropertyChanged
         {
-            public string Name { get; set; } = "";
+            private string _name = "";
+            public string Name 
+            { 
+                get => _name; 
+                set { if (_name != value) { _name = value; OnPropertyChanged(nameof(Name)); } } 
+            }
+            
+            private string _directory = "";
+            public string Directory 
+            { 
+                get => _directory; 
+                set { if (_directory != value) { _directory = value; OnPropertyChanged(nameof(Directory)); } } 
+            }
+            
             public string ImagePath { get; set; } = "";
-            public string Directory { get; set; } = ""; // Store only the directory name
             public bool IsCategory { get; set; } = false; // New property to distinguish categories from mods
+            public string Category { get; set; } = "";
+            public string Author { get; set; } = "";
+            public string Url { get; set; } = "";
+            public DateTime LastChecked { get; set; } = DateTime.MinValue;
+            public DateTime LastUpdated { get; set; } = DateTime.MinValue;
+            
+            public string LastCheckedFormatted => LastChecked == DateTime.MinValue ? "Never" : LastChecked.ToString("MM/dd/yyyy");
+            public string LastUpdatedFormatted => LastUpdated == DateTime.MinValue ? "Never" : LastUpdated.ToString("MM/dd/yyyy");
             private BitmapImage? _imageSource;
             public BitmapImage? ImageSource
             {
@@ -120,11 +181,27 @@ namespace FlairX_Mod_Manager.Pages
         private Dictionary<string, bool> _activeMods = new();
         private string? _lastSymlinkTarget;
         private ObservableCollection<ModTile> _allMods = new();
-        private string? _currentCategory; // Track current category for back navigation
+        private string? _currentCategoryField; // Track current category for back navigation
+        private string? _currentCategory
+        {
+            get => _currentCategoryField;
+            set
+            {
+                if (_currentCategoryField != value)
+                {
+                    _currentCategoryField = value;
+                    // Global context menu refresh on category change
+                    RefreshContextMenuGlobally();
+                    // Update context flyout based on current category
+                    UpdateContextFlyout();
+                }
+            }
+        }
         private string? _previousCategory; // Track category before search for restoration
         private bool _isSearchActive = false; // Track if we're currently in search mode
         private bool _wasInCategoryMode = false; // Track if we were in category mode before navigation
         private ViewMode _previousViewMode = ViewMode.Mods; // Track view mode before navigation
+        private string? _previousTableCategory; // Track category before table view for restoration
         
 
         
@@ -140,9 +217,21 @@ namespace FlairX_Mod_Manager.Pages
 
         private void OnViewModeChanged()
         {
+            // Update UI visibility based on view mode
+            ModsGrid.Visibility = (CurrentViewMode == ViewMode.Table) ? Visibility.Collapsed : Visibility.Visible;
+            ModsTable.Visibility = (CurrentViewMode == ViewMode.Table) ? Visibility.Visible : Visibility.Collapsed;
+            
+            // Search box is only visible when sorting is enabled (table view)
+            UpdateSearchBoxVisibility();
+            
             if (CurrentViewMode == ViewMode.Categories)
             {
                 LoadCategories();
+            }
+            else if (CurrentViewMode == ViewMode.Table)
+            {
+                // Load table view with current data
+                LoadTableView();
             }
             else
             {
@@ -158,6 +247,12 @@ namespace FlairX_Mod_Manager.Pages
             
             // Update MainWindow button text
             UpdateMainWindowButtonText();
+            
+            // Global context menu refresh on view mode change
+            RefreshContextMenuGlobally();
+            
+            // Update context flyout based on current mode
+            UpdateContextFlyout();
         }
 
         private void UpdateMainWindowButtonText()
@@ -167,6 +262,605 @@ namespace FlairX_Mod_Manager.Pages
                 // Use MainWindow's actual view mode, not ModGridPage's view mode
                 bool isCategoryMode = mainWindow.IsCurrentlyInCategoryMode();
                 mainWindow.UpdateViewModeButtonIcon(isCategoryMode);
+            }
+        }
+
+        /// <summary>
+        /// Global context menu refresh - called whenever view state changes
+        /// This ensures context menu is always in sync with current view
+        /// </summary>
+        private void RefreshContextMenuGlobally()
+        {
+            try
+            {
+                // Use a small delay to ensure all state changes are complete
+                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+                {
+                    UpdateContextMenuVisibility();
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in RefreshContextMenuGlobally: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Public method to refresh context menu (for external calls like language changes)
+        /// </summary>
+        public void RefreshContextMenu()
+        {
+            RefreshContextMenuGlobally();
+        }
+
+        // TABLE VIEW METHODS
+        
+        private void LoadTableView()
+        {
+            if (_allModData == null || _allModData.Count == 0)
+            {
+                LoadAllModData(); // Ensure we have data
+            }
+            
+            var tableItems = new List<ModTile>();
+            foreach (var modData in _allModData ?? new List<ModData>())
+            {
+                // Apply current filter if any
+                bool shouldInclude = true;
+                
+                if (_currentCategory == "Active" && !modData.IsActive)
+                    shouldInclude = false;
+                
+                if (!string.IsNullOrEmpty(_currentCategory) && _currentCategory != "Active" && 
+                    !string.Equals(modData.Category, _currentCategory, StringComparison.OrdinalIgnoreCase))
+                    shouldInclude = false;
+
+                if (shouldInclude)
+                {
+                    var modTile = new ModTile 
+                    { 
+                        Name = modData.Name, 
+                        ImagePath = modData.ImagePath, 
+                        Directory = modData.Directory, 
+                        IsActive = modData.IsActive,
+                        Category = modData.Category,
+                        Author = modData.Author,
+                        Url = modData.Url,
+                        LastChecked = modData.LastChecked,
+                        LastUpdated = modData.LastUpdated,
+                        IsVisible = true,
+                        ImageSource = null // Will be loaded on demand
+                    };
+                    tableItems.Add(modTile);
+                }
+            }
+            
+            // Store original items for search functionality
+            _originalTableItems.Clear();
+            foreach (var item in tableItems)
+            {
+                _originalTableItems.Add(item);
+            }
+            
+            // Apply current search filter if any
+            // Always set the table to use the observable collection
+            ModsTableList.ItemsSource = _originalTableItems;
+            
+            // Apply search filter if active
+            if (!string.IsNullOrWhiteSpace(_currentTableSearchQuery))
+            {
+                FilterTableResults();
+            }
+            
+            // Update search UI
+            UpdateSearchUI();
+            
+            // Load images for visible items
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100);
+                DispatcherQueue.TryEnqueue(() => LoadTableImages());
+            });
+        }
+        
+        private void LoadTableImages()
+        {
+            if (ModsTableList.ItemsSource is not IEnumerable<ModTile> items)
+                return;
+                
+            foreach (var item in items.Take(100)) // Load first 100 images for table view
+            {
+                if (item.ImageSource == null && !string.IsNullOrEmpty(item.ImagePath))
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var bitmap = new BitmapImage();
+                            bitmap.DecodePixelWidth = 48; // Optimize for table view size
+                            bitmap.DecodePixelHeight = 48;
+                            
+                            var file = await StorageFile.GetFileFromPathAsync(item.ImagePath);
+                            using var stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
+                            await bitmap.SetSourceAsync(stream);
+                            
+                            // Ensure UI update happens on UI thread
+                            DispatcherQueue.TryEnqueue(() => 
+                            {
+                                item.ImageSource = bitmap;
+                                // Force UI refresh for this item
+                                if (ModsTableList.ItemsSource is ObservableCollection<ModTile> collection)
+                                {
+                                    var index = collection.IndexOf(item);
+                                    if (index >= 0)
+                                    {
+                                        collection[index] = item;
+                                    }
+                                }
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            // Image loading failed - could be file not found, access denied, etc.
+                            System.Diagnostics.Debug.WriteLine($"Failed to load image {item.ImagePath}: {ex.Message}");
+                            
+                            // Set a default/placeholder image on UI thread
+                            DispatcherQueue.TryEnqueue(() => 
+                            {
+                                // You could set a default image here if needed
+                                // item.ImageSource = defaultImage;
+                            });
+                        }
+                    });
+                }
+            }
+        }
+
+        public void SwitchToTableView()
+        {
+            // Store the current view mode and category before switching to table
+            _previousViewMode = CurrentViewMode;
+            _previousTableCategory = _currentCategory;
+            CurrentViewMode = ViewMode.Table;
+            
+            // Auto-focus search box when table view is activated
+            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+            {
+                TableSearchBox?.Focus(FocusState.Programmatic);
+                
+                // Load images for table view
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(200);
+                    DispatcherQueue.TryEnqueue(() => LoadTableImages());
+                });
+            });
+        }
+
+        // TABLE SEARCH FUNCTIONALITY
+        
+        private System.Collections.ObjectModel.ObservableCollection<ModTile> _originalTableItems = new System.Collections.ObjectModel.ObservableCollection<ModTile>();
+        private string _currentTableSearchQuery = string.Empty;
+        
+        private void TableSearchBox_TextChanged(object sender, AutoSuggestBoxTextChangedEventArgs e)
+        {
+            if (sender is AutoSuggestBox searchBox)
+            {
+                _currentTableSearchQuery = searchBox.Text;
+                FilterTableResults();
+                UpdateSearchUI();
+            }
+        }
+        
+
+        
+        private void FilterTableResults()
+        {
+            if (_originalTableItems == null || _originalTableItems.Count == 0)
+                return;
+                
+            if (string.IsNullOrWhiteSpace(_currentTableSearchQuery) || _currentTableSearchQuery.Length < 3)
+            {
+                // No search query or less than 3 characters - show all items
+                if (ModsTableList.ItemsSource != _originalTableItems)
+                {
+                    ModsTableList.ItemsSource = _originalTableItems;
+                }
+            }
+            else
+            {
+                // Filter items by name, author, and URL (case-insensitive)
+                var filteredItems = _originalTableItems
+                    .Where(item => 
+                        item.Name.Contains(_currentTableSearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                        (!string.IsNullOrEmpty(item.Author) && item.Author.Contains(_currentTableSearchQuery, StringComparison.OrdinalIgnoreCase)) ||
+                        (!string.IsNullOrEmpty(item.Url) && item.Url.Contains(_currentTableSearchQuery, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+                    
+                ModsTableList.ItemsSource = filteredItems;
+            }
+            
+            // Load images for visible items after filtering
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100);
+                DispatcherQueue.TryEnqueue(() => LoadTableImages());
+            });
+        }
+        
+        private void UpdateSearchUI()
+        {
+            bool hasSearchQuery = !string.IsNullOrWhiteSpace(_currentTableSearchQuery);
+            bool isSearchActive = hasSearchQuery && _currentTableSearchQuery.Length >= 3;
+            
+            // Update search results info
+            if (isSearchActive)
+            {
+                var currentItems = ModsTableList.ItemsSource as IEnumerable<ModTile>;
+                int resultCount = currentItems?.Count() ?? 0;
+                
+                if (resultCount == 0)
+                {
+                    TableSearchResultsText.Text = "No results found";
+                }
+                else
+                {
+                    TableSearchResultsText.Text = $"{resultCount} result{(resultCount == 1 ? "" : "s")} found";
+                }
+                
+                TableSearchResultsInfo.Visibility = Visibility.Visible;
+            }
+            else if (hasSearchQuery && _currentTableSearchQuery.Length < 3)
+            {
+                TableSearchResultsText.Text = "Type at least 3 characters to search";
+                TableSearchResultsInfo.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                TableSearchResultsInfo.Visibility = Visibility.Collapsed;
+            }
+        }
+        
+        private void ClearTableSearch()
+        {
+            TableSearchBox.Text = string.Empty;
+            _currentTableSearchQuery = string.Empty;
+            _originalTableItems.Clear();
+            UpdateSearchUI();
+        }
+        
+        private void TableSearchBox_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Escape)
+            {
+                // Clear search on Escape
+                TableSearchBox.Text = string.Empty;
+                e.Handled = true;
+            }
+            else if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                // Focus table on Enter (remove focus from search box)
+                ModsTableList.Focus(FocusState.Programmatic);
+                e.Handled = true;
+            }
+        }
+
+        // TABLE VIEW EVENT HANDLERS
+        
+        private void SortByName_HeaderClick(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = (_currentSortMode == SortMode.NameAZ) ? SortMode.NameZA : SortMode.NameAZ;
+            ApplySorting();
+            UpdateSortIcons();
+        }
+        
+        private void SortByCategory_HeaderClick(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = (_currentSortMode == SortMode.CategoryAZ) ? SortMode.CategoryZA : SortMode.CategoryAZ;
+            ApplySorting();
+            UpdateSortIcons();
+        }
+        
+        private void SortByActive_HeaderClick(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = (_currentSortMode == SortMode.ActiveFirst) ? SortMode.InactiveFirst : SortMode.ActiveFirst;
+            ApplySorting();
+            UpdateSortIcons();
+        }
+        
+        private void SortByLastChecked_HeaderClick(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = (_currentSortMode == SortMode.LastCheckedNewest) ? SortMode.LastCheckedOldest : SortMode.LastCheckedNewest;
+            ApplySorting();
+            UpdateSortIcons();
+        }
+        
+        private void SortByLastUpdated_HeaderClick(object sender, RoutedEventArgs e)
+        {
+            _currentSortMode = (_currentSortMode == SortMode.LastUpdatedNewest) ? SortMode.LastUpdatedOldest : SortMode.LastUpdatedNewest;
+            ApplySorting();
+            UpdateSortIcons();
+        }
+        
+        private void UpdateSortIcons()
+        {
+            // Reset all icons
+            NameSortIcon.Visibility = Visibility.Collapsed;
+            CategorySortIcon.Visibility = Visibility.Collapsed;
+            ActiveSortIcon.Visibility = Visibility.Collapsed;
+            LastCheckedSortIcon.Visibility = Visibility.Collapsed;
+            LastUpdatedSortIcon.Visibility = Visibility.Collapsed;
+            
+            // Show appropriate icon
+            switch (_currentSortMode)
+            {
+                case SortMode.NameAZ:
+                    NameSortIcon.Glyph = "\uE70E"; // Up arrow
+                    NameSortIcon.Visibility = Visibility.Visible;
+                    break;
+                case SortMode.NameZA:
+                    NameSortIcon.Glyph = "\uE70D"; // Down arrow
+                    NameSortIcon.Visibility = Visibility.Visible;
+                    break;
+                case SortMode.CategoryAZ:
+                    CategorySortIcon.Glyph = "\uE70E";
+                    CategorySortIcon.Visibility = Visibility.Visible;
+                    break;
+                case SortMode.CategoryZA:
+                    CategorySortIcon.Glyph = "\uE70D";
+                    CategorySortIcon.Visibility = Visibility.Visible;
+                    break;
+                case SortMode.ActiveFirst:
+                    ActiveSortIcon.Glyph = "\uE70D"; // Down arrow (active first)
+                    ActiveSortIcon.Visibility = Visibility.Visible;
+                    break;
+                case SortMode.InactiveFirst:
+                    ActiveSortIcon.Glyph = "\uE70E"; // Up arrow (inactive first)
+                    ActiveSortIcon.Visibility = Visibility.Visible;
+                    break;
+                case SortMode.LastCheckedNewest:
+                    LastCheckedSortIcon.Glyph = "\uE70D";
+                    LastCheckedSortIcon.Visibility = Visibility.Visible;
+                    break;
+                case SortMode.LastCheckedOldest:
+                    LastCheckedSortIcon.Glyph = "\uE70E";
+                    LastCheckedSortIcon.Visibility = Visibility.Visible;
+                    break;
+                case SortMode.LastUpdatedNewest:
+                    LastUpdatedSortIcon.Glyph = "\uE70D";
+                    LastUpdatedSortIcon.Visibility = Visibility.Visible;
+                    break;
+                case SortMode.LastUpdatedOldest:
+                    LastUpdatedSortIcon.Glyph = "\uE70E";
+                    LastUpdatedSortIcon.Visibility = Visibility.Visible;
+                    break;
+            }
+        }
+        
+        private void ExitTableView_Click(object sender, RoutedEventArgs e)
+        {
+            // Clear search and return to previous view mode and category
+            ClearTableSearch();
+            _currentSortMode = SortMode.None;
+            
+            // Restore previous category context BEFORE changing view mode
+            _currentCategory = _previousTableCategory;
+            
+            // Manually update UI visibility to avoid OnViewModeChanged automatic behavior
+            ModsGrid.Visibility = Visibility.Visible;
+            ModsTable.Visibility = Visibility.Collapsed;
+            _currentViewMode = _previousViewMode; // Set directly without triggering setter
+            
+            // Load the correct content based on restored category
+            if (_currentCategory == null)
+            {
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
+                LoadAllMods();
+                CategoryBackButton.Visibility = Visibility.Collapsed;
+            }
+            else if (string.Equals(_currentCategory, "Active", StringComparison.OrdinalIgnoreCase))
+            {
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
+                LoadActiveModsOnly();
+                CategoryBackButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                CategoryTitle.Text = _currentCategory;
+                LoadModsByCategory(_currentCategory);
+                CategoryBackButton.Visibility = Visibility.Visible;
+            }
+            
+            // Update MainWindow button text and refresh context menu
+            UpdateMainWindowButtonText();
+            RefreshContextMenuGlobally();
+            
+            // Clear the stored category
+            _previousTableCategory = null;
+        }
+        
+        private void TablePreview_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Image image && image.Tag is ModTile modTile && modTile.ImageSource != null)
+            {
+                PreviewImage.Source = modTile.ImageSource;
+                
+                // Position popup relative to the image
+                var position = e.GetCurrentPoint(image);
+                ImagePreviewPopup.HorizontalOffset = position.Position.X + 60;
+                ImagePreviewPopup.VerticalOffset = position.Position.Y - 100;
+                
+                ImagePreviewPopup.IsOpen = true;
+            }
+        }
+        
+        private void TablePreview_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            ImagePreviewPopup.IsOpen = false;
+        }
+        
+        private void SortingContextMenu_Opening(object sender, object e)
+        {
+            // Context menu logic is handled by UpdateContextFlyout method
+        }
+        
+        private void UpdateContextFlyout()
+        {
+            if (ModsScrollViewer == null) return;
+            
+            // Disable context menu for empty space when in categories view showing category tiles
+            if (CurrentViewMode == ViewMode.Categories && string.IsNullOrEmpty(_currentCategory))
+            {
+                // We're showing category tiles - disable empty space context menu
+                ModsScrollViewer.ContextFlyout = null;
+            }
+            else
+            {
+                // Enable context menu for other modes
+                ModsScrollViewer.ContextFlyout = SortingContextMenu;
+            }
+        }
+        
+        private void UpdateSearchBoxVisibility()
+        {
+            if (TableSearchBox == null) return;
+            
+            // Search box is only visible when sorting is enabled (table view)
+            TableSearchBox.Visibility = (CurrentViewMode == ViewMode.Table) ? Visibility.Visible : Visibility.Collapsed;
+        }
+        
+        private void TableContextMenu_Opening(object sender, object e)
+        {
+            if (sender is MenuFlyout menuFlyout && menuFlyout.Target is Border border && border.DataContext is ModTile modTile)
+            {
+                // Check if mod directory exists before showing context menu (skip for categories)
+                if (!modTile.IsCategory)
+                {
+                    string modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                    if (string.IsNullOrEmpty(modLibraryPath))
+                    {
+                        modLibraryPath = PathManager.GetModLibraryPath();
+                    }
+                    
+                    string? fullModDir = FindModFolderPath(modLibraryPath, modTile.Directory);
+                    if (string.IsNullOrEmpty(fullModDir) || !Directory.Exists(fullModDir))
+                    {
+                        // Mod directory not found - cancel context menu opening
+                        return;
+                    }
+                }
+                
+                menuFlyout.Items.Clear();
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                
+                if (modTile.IsCategory)
+                {
+                    // Category context menu: Open Folder, Copy Name, Rename
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_OpenFolder"),
+                        Icon = new SymbolIcon(Symbol.Folder),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[0]).Click += ContextMenu_OpenFolder_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_CopyName"),
+                        Icon = new SymbolIcon(Symbol.Copy),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[2]).Click += ContextMenu_CopyName_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_Rename"),
+                        Icon = new SymbolIcon(Symbol.Rename),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[3]).Click += ContextMenu_Rename_Click;
+                }
+                else
+                {
+                    // Mod context menu: Dynamic Activate/Deactivate, Open Folder, View Details, Open URL, Copy Name, Rename, Delete
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = modTile.IsActive ? SharedUtilities.GetTranslation(lang, "ContextMenu_Deactivate") : SharedUtilities.GetTranslation(lang, "ContextMenu_Activate"),
+                        Icon = new SymbolIcon(modTile.IsActive ? Symbol.Remove : Symbol.Accept),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[0]).Click += ContextMenu_ActivateDeactivate_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_OpenFolder"),
+                        Icon = new SymbolIcon(Symbol.Folder),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[1]).Click += ContextMenu_OpenFolder_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_ViewDetails"),
+                        Icon = new SymbolIcon(Symbol.View),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[2]).Click += ContextMenu_ViewDetails_Click;
+                    
+                    var modUrl = GetModUrl(modTile);
+                    var openUrlItem = new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_OpenURL"),
+                        Icon = new SymbolIcon(Symbol.Globe),
+                        Tag = modTile,
+                        IsEnabled = !string.IsNullOrEmpty(modUrl)
+                    };
+                    openUrlItem.Click += ContextMenu_OpenUrl_Click;
+                    menuFlyout.Items.Add(openUrlItem);
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_CopyName"),
+                        Icon = new SymbolIcon(Symbol.Copy),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[5]).Click += ContextMenu_CopyName_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_Rename"),
+                        Icon = new SymbolIcon(Symbol.Rename),
+                        Tag = modTile
+                    });
+                    ((MenuFlyoutItem)menuFlyout.Items[6]).Click += ContextMenu_Rename_Click;
+                    
+                    menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                    
+                    var deleteItem = new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_Delete"),
+                        Icon = new SymbolIcon(Symbol.Delete),
+                        Tag = modTile
+                    };
+                    deleteItem.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red);
+                    deleteItem.Click += ContextMenu_Delete_Click;
+                    menuFlyout.Items.Add(deleteItem);
+                }
+                
+                // Add exit table view option
+                menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                menuFlyout.Items.Add(new MenuFlyoutItem
+                {
+                    Text = "Exit Table View",
+                    Icon = new SymbolIcon(Symbol.Back)
+                });
+                ((MenuFlyoutItem)menuFlyout.Items[menuFlyout.Items.Count - 1]).Click += ExitTableView_Click;
             }
         }
 
@@ -181,18 +875,19 @@ namespace FlairX_Mod_Manager.Pages
             
             // Hide back button
             CategoryBackButton.Visibility = Visibility.Collapsed;
-            
-            // Update context menu visibility
-            UpdateContextMenuVisibility();
         }
 
         public void LoadAllCategories()
         {
             // Force load all categories regardless of current view mode
+            _currentCategory = null; // Clear current category
             LoadCategories();
             
             // Hide back button
             CategoryBackButton.Visibility = Visibility.Collapsed;
+            
+            // Ensure context menu is properly disabled for categories view
+            UpdateContextFlyout();
             
             // Don't update MainWindow button - let MainWindow manage its own state
         }
@@ -207,9 +902,6 @@ namespace FlairX_Mod_Manager.Pages
             LoadModsByCategory(category);
             CategoryBackButton.Visibility = Visibility.Visible;
             CategoryOpenFolderButton.Visibility = Visibility.Visible;
-            
-            // Update context menu visibility
-            UpdateContextMenuVisibility();
         }
         
         public void LoadCategoryInCategoryMode(string category)
@@ -223,9 +915,6 @@ namespace FlairX_Mod_Manager.Pages
             CategoryBackButton.Visibility = Visibility.Visible;
             CategoryOpenFolderButton.Visibility = Visibility.Visible;
             System.Diagnostics.Debug.WriteLine($"CategoryOpenFolderButton visibility set to Visible for category: {category}");
-            
-            // Update context menu visibility
-            UpdateContextMenuVisibility();
         }
 
         public ModGridPage()
@@ -276,11 +965,18 @@ namespace FlairX_Mod_Manager.Pages
 
         private void CategoryBackButton_Click(object sender, RoutedEventArgs e)
         {
-            // Two separate navigation schemes based on view mode
+            // Exit table view if active - do exactly what ExitTableView_Click does
+            if (CurrentViewMode == ViewMode.Table)
+            {
+                ExitTableView_Click(sender, e);
+                return;
+            }
             
+            // Two separate navigation schemes based on view mode
             if (CurrentViewMode == ViewMode.Categories)
             {
                 // CATEGORY MODE: Go back to all categories
+                _currentCategory = null; // Clear current category
                 LoadCategories();
             }
             else
@@ -295,9 +991,6 @@ namespace FlairX_Mod_Manager.Pages
             // Hide back button and folder button
             CategoryBackButton.Visibility = Visibility.Collapsed;
             CategoryOpenFolderButton.Visibility = Visibility.Collapsed;
-            
-            // Update context menu visibility
-            UpdateContextMenuVisibility();
         }
 
         private void CategoryOpenFolderButton_Click(object sender, RoutedEventArgs e)

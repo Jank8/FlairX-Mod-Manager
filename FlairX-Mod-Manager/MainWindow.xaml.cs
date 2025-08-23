@@ -147,10 +147,12 @@ namespace FlairX_Mod_Manager
             // Add event to restore view mode button when navigating back to ModGridPage
             contentFrame.Navigated += (s, e) =>
             {
-                if (e.Content is FlairX_Mod_Manager.Pages.ModGridPage)
+                if (e.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                 {
                     // Restore view mode button from settings when returning to ModGridPage
                     RestoreViewModeButtonFromSettings();
+                    
+                    // Context menu visibility is now handled automatically by the global refresh system
                 }
             };
             MainRoot.Loaded += MainRoot_Loaded;
@@ -159,8 +161,11 @@ namespace FlairX_Mod_Manager
                 // Ensure settings are loaded before initializing game selection
                 SettingsManager.Load();
                 
-                // Restore last position after UI is fully loaded
-                RestoreLastPosition();
+                // Restore last position after UI is fully loaded (only if game is selected)
+                if (SettingsManager.Current.SelectedGameIndex > 0)
+                {
+                    RestoreLastPosition();
+                }
             };
             SetSearchBoxPlaceholder();
             SetFooterMenuTranslations();
@@ -330,6 +335,16 @@ namespace FlairX_Mod_Manager
 
         private void RestoreLastPosition()
         {
+            // Check if a game is selected first
+            bool gameSelected = SettingsManager.Current.SelectedGameIndex > 0;
+            
+            if (!gameSelected)
+            {
+                // No game selected - show welcome page
+                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.WelcomePage));
+                return;
+            }
+            
             var (lastCategory, lastPage, lastViewMode) = SettingsManager.GetLastPosition();
             
             if (!string.IsNullOrEmpty(lastCategory))
@@ -524,10 +539,11 @@ namespace FlairX_Mod_Manager
 
         public void UpdateAllModsButtonState()
         {
-            // All Mods button is now always enabled since we removed the disable functionality
             if (AllModsButton != null)
             {
-                AllModsButton.IsEnabled = true;
+                // Enable button only if a game is selected
+                bool gameSelected = SettingsManager.Current.SelectedGameIndex > 0;
+                AllModsButton.IsEnabled = gameSelected;
                 
                 // Restore button text based on current view mode
                 bool isCategoriesView = SettingsManager.Current.ViewMode == "Categories";

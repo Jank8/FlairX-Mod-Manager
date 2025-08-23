@@ -320,7 +320,12 @@ namespace FlairX_Mod_Manager.Pages
                     Name = modData.Name, 
                     ImagePath = modData.ImagePath, 
                     Directory = modData.Directory, 
-                    IsActive = modData.IsActive, 
+                    IsActive = modData.IsActive,
+                    Category = modData.Category,
+                    Author = modData.Author,
+                    Url = modData.Url,
+                    LastChecked = modData.LastChecked,
+                    LastUpdated = modData.LastUpdated,
                     IsVisible = true,
                     ImageSource = null // Start with no image - lazy load when visible
                 };

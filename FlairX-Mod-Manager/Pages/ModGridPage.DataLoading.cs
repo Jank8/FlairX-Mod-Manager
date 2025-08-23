@@ -21,6 +21,9 @@ namespace FlairX_Mod_Manager.Pages
             LogToGridLog($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
             System.Diagnostics.Debug.WriteLine($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
             
+            // Clear current category when loading categories view
+            _currentCategory = null;
+            
             // --- FIX: Always clear mod data to avoid leaking mod tiles into category view ---
             _allModData.Clear();
 
@@ -82,8 +85,8 @@ namespace FlairX_Mod_Manager.Pages
                 CategoryBackButton.Visibility = Visibility.Collapsed;
                 CategoryOpenFolderButton.Visibility = Visibility.Collapsed;
                 
-                // Update context menu visibility for category mode
-                UpdateContextMenuVisibility();
+                // Update context flyout to disable context menu for category tiles
+                UpdateContextFlyout();
                 
                 LogToGridLog($"Loaded {categories.Count} categories");
             });
@@ -138,6 +141,13 @@ namespace FlairX_Mod_Manager.Pages
         private void LoadModsByCategory(string category)
         {
             LogToGridLog($"LoadModsByCategory() called for category: {category}");
+            
+            // Exit table view if active and clear sorting when navigating to category
+            if (CurrentViewMode == ViewMode.Table)
+            {
+                _currentSortMode = SortMode.None;
+                CurrentViewMode = ViewMode.Mods;
+            }
             
             // First, load all mod data for this category (lightweight)
             LoadCategoryModData(category);
@@ -271,7 +281,12 @@ namespace FlairX_Mod_Manager.Pages
                     Name = modData.Name, 
                     ImagePath = modData.ImagePath, 
                     Directory = modData.Directory, 
-                    IsActive = modData.IsActive, 
+                    IsActive = modData.IsActive,
+                    Category = modData.Category,
+                    Author = modData.Author,
+                    Url = modData.Url,
+                    LastChecked = modData.LastChecked,
+                    LastUpdated = modData.LastUpdated,
                     IsVisible = true,
                     ImageSource = null // Start with no image - lazy load when visible
                 };
@@ -295,6 +310,13 @@ namespace FlairX_Mod_Manager.Pages
             LogToGridLog($"LoadAllMods() called - CurrentViewMode: {CurrentViewMode}");
             System.Diagnostics.Debug.WriteLine($"LoadAllMods() called - CurrentViewMode: {CurrentViewMode}");
             System.Diagnostics.Debug.WriteLine($"LoadAllMods() stack trace: {Environment.StackTrace}");
+            
+            // Exit table view if active and clear sorting when loading all mods
+            if (CurrentViewMode == ViewMode.Table)
+            {
+                _currentSortMode = SortMode.None;
+                CurrentViewMode = ViewMode.Mods;
+            }
             
             // First, load all mod data (lightweight)
             LoadAllModData();
@@ -479,7 +501,12 @@ namespace FlairX_Mod_Manager.Pages
                     Name = modData.Name, 
                     ImagePath = modData.ImagePath, 
                     Directory = modData.Directory, 
-                    IsActive = modData.IsActive, 
+                    IsActive = modData.IsActive,
+                    Category = modData.Category,
+                    Author = modData.Author,
+                    Url = modData.Url,
+                    LastChecked = modData.LastChecked,
+                    LastUpdated = modData.LastUpdated,
                     IsVisible = true,
                     ImageSource = null // Start with no image - lazy load when visible
                 };
@@ -560,7 +587,12 @@ namespace FlairX_Mod_Manager.Pages
                         Name = modData.Name, 
                         ImagePath = modData.ImagePath, 
                         Directory = modData.Directory, 
-                        IsActive = modData.IsActive, 
+                        IsActive = modData.IsActive,
+                        Category = modData.Category,
+                        Author = modData.Author,
+                        Url = modData.Url,
+                        LastChecked = modData.LastChecked,
+                        LastUpdated = modData.LastUpdated,
                         IsVisible = true,
                         ImageSource = null // Start with no image - lazy load when visible
                     };

@@ -36,12 +36,9 @@ namespace FlairX_Mod_Manager.Pages
             SortByLastUpdatedNewestItem.Text = SharedUtilities.GetTranslation(langDict, "SortNewest");
             SortByLastUpdatedOldestItem.Text = SharedUtilities.GetTranslation(langDict, "SortOldest");
             ShowActiveItem.Text = SharedUtilities.GetTranslation(langDict, "ShowActive");
-            
-            // Update menu visibility based on current context
-            UpdateContextMenuVisibility();
         }
 
-        private void UpdateContextMenuVisibility()
+        public void UpdateContextMenuVisibility()
         {
             // Check if we're in category mode showing all categories
             bool isInCategoryModeShowingCategories = (CurrentViewMode == ViewMode.Categories && string.IsNullOrEmpty(_currentCategory));
@@ -81,6 +78,13 @@ namespace FlairX_Mod_Manager.Pages
         }
         private void ShowActive_Click(object sender, RoutedEventArgs e)
         {
+            // Exit table view if active and clear sorting
+            if (CurrentViewMode == ViewMode.Table)
+            {
+                _currentSortMode = SortMode.None;
+                CurrentViewMode = ViewMode.Mods;
+            }
+            
             // Use existing show active functionality
             var langDict = SharedUtilities.LoadLanguageDictionary();
             CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
@@ -88,62 +92,148 @@ namespace FlairX_Mod_Manager.Pages
             LoadActiveModsOnly();
             CategoryBackButton.Visibility = Visibility.Visible;
             CategoryOpenFolderButton.Visibility = Visibility.Collapsed; // Hide folder button for Active mods
-            
-            // Update menu visibility after changing context
-            UpdateContextMenuVisibility();
         }
 
-        // Sorting event handlers
+
+
+        // Sorting event handlers - automatically enable table view
         private void SortByNameAZ_Click(object sender, RoutedEventArgs e)
         {
             _currentSortMode = SortMode.NameAZ;
+            SwitchToTableView();
             ApplySorting();
         }
 
         private void SortByNameZA_Click(object sender, RoutedEventArgs e)
         {
             _currentSortMode = SortMode.NameZA;
+            SwitchToTableView();
             ApplySorting();
         }
 
         private void SortByCategoryAZ_Click(object sender, RoutedEventArgs e)
         {
             _currentSortMode = SortMode.CategoryAZ;
+            SwitchToTableView();
             ApplySorting();
         }
 
         private void SortByCategoryZA_Click(object sender, RoutedEventArgs e)
         {
             _currentSortMode = SortMode.CategoryZA;
+            SwitchToTableView();
             ApplySorting();
         }
 
         private void SortByLastCheckedNewest_Click(object sender, RoutedEventArgs e)
         {
             _currentSortMode = SortMode.LastCheckedNewest;
+            SwitchToTableView();
             ApplySorting();
         }
 
         private void SortByLastCheckedOldest_Click(object sender, RoutedEventArgs e)
         {
             _currentSortMode = SortMode.LastCheckedOldest;
+            SwitchToTableView();
             ApplySorting();
         }
 
         private void SortByLastUpdatedNewest_Click(object sender, RoutedEventArgs e)
         {
             _currentSortMode = SortMode.LastUpdatedNewest;
+            SwitchToTableView();
             ApplySorting();
         }
 
         private void SortByLastUpdatedOldest_Click(object sender, RoutedEventArgs e)
         {
             _currentSortMode = SortMode.LastUpdatedOldest;
+            SwitchToTableView();
             ApplySorting();
         }
 
         private void ApplySorting()
         {
+            try
+            {
+                // Only apply sorting if we're in table view
+                if (CurrentViewMode != ViewMode.Table)
+                    return;
+                    
+                // Handle table view sorting
+                if (CurrentViewMode == ViewMode.Table)
+                {
+                    // Safety check for table list
+                    if (ModsTableList?.ItemsSource is not IEnumerable<ModTile> tableItems)
+                        return;
+
+                var sortedItems = tableItems.ToList();
+                
+                switch (_currentSortMode)
+                {
+                    case SortMode.NameAZ:
+                        sortedItems = sortedItems.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    case SortMode.NameZA:
+                        sortedItems = sortedItems.OrderByDescending(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    case SortMode.CategoryAZ:
+                        sortedItems = sortedItems.OrderBy(m => m.Category, StringComparer.OrdinalIgnoreCase)
+                                                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    case SortMode.CategoryZA:
+                        sortedItems = sortedItems.OrderByDescending(m => m.Category, StringComparer.OrdinalIgnoreCase)
+                                                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    case SortMode.ActiveFirst:
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsActive)
+                                                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    case SortMode.InactiveFirst:
+                        sortedItems = sortedItems.OrderBy(m => m.IsActive)
+                                                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    case SortMode.LastCheckedNewest:
+                        sortedItems = sortedItems.OrderByDescending(m => m.LastChecked)
+                                                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    case SortMode.LastCheckedOldest:
+                        sortedItems = sortedItems.OrderBy(m => m.LastChecked)
+                                                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    case SortMode.LastUpdatedNewest:
+                        sortedItems = sortedItems.OrderByDescending(m => m.LastUpdated)
+                                                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    case SortMode.LastUpdatedOldest:
+                        sortedItems = sortedItems.OrderBy(m => m.LastUpdated)
+                                                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                    default:
+                        sortedItems = sortedItems.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        break;
+                }
+
+                // Update original table items with sorted results
+                _originalTableItems.Clear();
+                foreach (var item in sortedItems)
+                {
+                    _originalTableItems.Add(item);
+                }
+                
+                // Set table to use the observable collection
+                ModsTableList.ItemsSource = _originalTableItems;
+                
+                // Update search results if search is active
+                if (!string.IsNullOrWhiteSpace(_currentTableSearchQuery) && _currentTableSearchQuery.Length >= 3)
+                {
+                    FilterTableResults();
+                }
+                
+                return;
+            }
+            
             // Check if we're currently showing categories
             if (CurrentViewMode == ViewMode.Categories && string.IsNullOrEmpty(_currentCategory))
             {
@@ -240,7 +330,12 @@ namespace FlairX_Mod_Manager.Pages
                         Name = modData.Name, 
                         ImagePath = modData.ImagePath, 
                         Directory = modData.Directory, 
-                        IsActive = modData.IsActive, 
+                        IsActive = modData.IsActive,
+                        Category = modData.Category,
+                        Author = modData.Author,
+                        Url = modData.Url,
+                        LastChecked = modData.LastChecked,
+                        LastUpdated = modData.LastUpdated,
                         IsVisible = true,
                         ImageSource = null // Lazy load when visible
                     };
@@ -256,6 +351,12 @@ namespace FlairX_Mod_Manager.Pages
                 await Task.Delay(100);
                 DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
             });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in ApplySorting: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+            }
         }
 
         // Dynamic Context Menu
@@ -568,7 +669,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Rename the directory
                 Directory.Move(currentPath, newPath);
                 
-                // Update the ModTile object
+                // Update the ModTile object (this will trigger PropertyChanged events)
                 var oldName = modTile.Directory;
                 modTile.Name = newName;
                 modTile.Directory = newName;
@@ -605,17 +706,33 @@ namespace FlairX_Mod_Manager.Pages
                     currentScrollPosition = ModsScrollViewer.VerticalOffset;
                 }
                 
-                // Refresh the grid to show updated name - same logic for both categories and mods
-                if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> collection)
+                // Refresh the UI to show updated name - handle both grid and table views
+                if (CurrentViewMode == ViewMode.Table)
                 {
-                    // Find the item in the collection and trigger update
-                    var item = collection.FirstOrDefault(x => x.Directory == newName);
-                    if (item != null)
+                    // Update table view: the ModTile object has already been updated above
+                    // and since it implements INotifyPropertyChanged, the table should update automatically
+                    // We just need to update the _originalTableItems for search functionality
+                    var originalItem = _originalTableItems.FirstOrDefault(x => x.Directory == newName);
+                    if (originalItem != null && originalItem != modTile)
                     {
-                        // Force UI refresh by temporarily removing and re-adding the item
-                        var index = collection.IndexOf(item);
-                        collection.RemoveAt(index);
-                        collection.Insert(index, item);
+                        originalItem.Name = newName;
+                        originalItem.Directory = newName;
+                    }
+                }
+                else
+                {
+                    // Update grid view
+                    if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> collection)
+                    {
+                        // Find the item in the collection and trigger update
+                        var item = collection.FirstOrDefault(x => x.Directory == newName);
+                        if (item != null)
+                        {
+                            // Force UI refresh by temporarily removing and re-adding the item
+                            var index = collection.IndexOf(item);
+                            collection.RemoveAt(index);
+                            collection.Insert(index, item);
+                        }
                     }
                 }
                 

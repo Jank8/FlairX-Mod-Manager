@@ -28,8 +28,11 @@ namespace FlairX_Mod_Manager
                 app.ShowStartupNtfsWarningIfNeeded();
             }
             
-            // Restore saved game selection
+            // Restore saved game selection first
             RestoreGameSelection();
+            
+            // Mark initialization as complete after game selection is restored
+            _isInitializationComplete = true;
         }
 
         private async void ReloadModsButton_Click(object sender, RoutedEventArgs e)
@@ -142,6 +145,8 @@ namespace FlairX_Mod_Manager
             {
                 contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
             }
+            
+            // Update context menu after navigation (will be handled by contentFrame.Navigated event)
         }
 
         private void ViewModeToggleButton_Click(object sender, RoutedEventArgs e)
@@ -262,7 +267,7 @@ namespace FlairX_Mod_Manager
                     FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.StopWatcherStatic();
                 }
                 
-                // Only refresh pages if a game is selected
+                // Handle navigation based on game selection
                 if (gameSelected)
                 {
                     // Ensure mod.json files exist in the new game's directory
@@ -284,6 +289,15 @@ namespace FlairX_Mod_Manager
                     // This handles all cases including ModDetailPage (since the current mod might not exist in new game)
                     System.Diagnostics.Debug.WriteLine("Game selected - navigating to All Mods view");
                     AllModsButton_Click(AllModsButton, new RoutedEventArgs());
+                }
+                else
+                {
+                    // No game selected - navigate to welcome page
+                    System.Diagnostics.Debug.WriteLine("No game selected - navigating to welcome page");
+                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.WelcomePage));
+                    
+                    // Clear navigation selection
+                    nvSample.SelectedItem = null;
                 }
                 
                 System.Diagnostics.Debug.WriteLine($"Game switched successfully. New paths:");
@@ -488,10 +502,16 @@ namespace FlairX_Mod_Manager
             {
                 ZoomIndicatorText.Text = $"{(int)(zoomLevel * 100)}%";
                 
-                // Hide indicator at 100% zoom, show at other levels
-                ZoomIndicatorBorder.Visibility = Math.Abs(zoomLevel - 1.0) < 0.001 ? 
-                    Microsoft.UI.Xaml.Visibility.Collapsed : 
-                    Microsoft.UI.Xaml.Visibility.Visible;
+                // Only show zoom indicator if zoom is enabled in settings
+                bool zoomEnabled = SettingsManager.Current.ModGridZoomEnabled;
+                bool gameSelected = SettingsManager.Current.SelectedGameIndex > 0;
+                
+                // Hide indicator if zoom is disabled, no game selected, or at 100% zoom
+                bool shouldShow = zoomEnabled && gameSelected && Math.Abs(zoomLevel - 1.0) >= 0.001;
+                
+                ZoomIndicatorBorder.Visibility = shouldShow ? 
+                    Microsoft.UI.Xaml.Visibility.Visible : 
+                    Microsoft.UI.Xaml.Visibility.Collapsed;
             }
         }
 

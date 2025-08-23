@@ -319,14 +319,31 @@ namespace FlairX_Mod_Manager.Pages
                     _modFileTimestamps.Remove(mod.Directory);
                 }
 
-                // Remove the tile from the grid collection - same logic as rename but just remove
-                if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> collection)
+                // Remove the tile from both grid and table collections
+                if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> gridCollection)
                 {
-                    var item = collection.FirstOrDefault(x => x.Directory == mod.Directory);
+                    var item = gridCollection.FirstOrDefault(x => x.Directory == mod.Directory);
                     if (item != null)
                     {
-                        collection.Remove(item); // Simply remove the tile - super smooth!
+                        gridCollection.Remove(item); // Simply remove the tile - super smooth!
                     }
+                }
+                
+                // Also remove from table collections
+                if (ModsTableList?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> tableCollection)
+                {
+                    var item = tableCollection.FirstOrDefault(x => x.Directory == mod.Directory);
+                    if (item != null)
+                    {
+                        tableCollection.Remove(item); // Remove from current table view
+                    }
+                }
+                
+                // Remove from original table items (the base collection for search/sort)
+                var originalItem = _originalTableItems.FirstOrDefault(x => x.Directory == mod.Directory);
+                if (originalItem != null)
+                {
+                    _originalTableItems.Remove(originalItem); // Remove from base table collection
                 }
 
                 LogToGridLog($"DELETED: Mod '{mod.Name}' moved to recycle bin");

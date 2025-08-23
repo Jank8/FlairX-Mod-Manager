@@ -11,6 +11,8 @@
     IsTabStop="True">
     <Page.Resources>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <local:BoolToHeartGlyphConverter x:Key="BoolToHeartGlyphConverter" />
+        <local:BoolToHeartColorConverter x:Key="BoolToHeartColorConverter" />
         <Style x:Key="TransparentButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
@@ -34,36 +36,61 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
-            <Button x:Name="CategoryBackButton" 
-                    Width="48" 
-                    Height="48" 
-                    Click="CategoryBackButton_Click" 
-                    VerticalAlignment="Center"
-                    Visibility="Collapsed"
-                    Margin="0,0,8,0">
-                <FontIcon Glyph="&#xE72B;" FontSize="20"/>
-            </Button>
-            <Button x:Name="CategoryOpenFolderButton" 
-                    Width="48" 
-                    Height="48" 
-                    Click="CategoryOpenFolderButton_Click" 
-                    VerticalAlignment="Center"
-                    Visibility="Collapsed"
-                    Margin="0,0,8,0"
-                    ToolTipService.ToolTip="Open Category Folder">
-                <FontIcon Glyph="&#xE838;" FontSize="20"/>
-            </Button>
-            <TextBlock x:Name="CategoryTitle"
-                       Text=""
-                       FontSize="24"
-                       FontWeight="Bold"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Center"/>
-        </StackPanel>
+        <Grid Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Left side: Back button, folder button, and title -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button x:Name="CategoryBackButton" 
+                        Width="48" 
+                        Height="48" 
+                        Click="CategoryBackButton_Click" 
+                        VerticalAlignment="Center"
+                        Visibility="Collapsed"
+                        Margin="0,0,8,0">
+                    <FontIcon Glyph="&#xE72B;" FontSize="20"/>
+                </Button>
+                <Button x:Name="CategoryOpenFolderButton" 
+                        Width="48" 
+                        Height="48" 
+                        Click="CategoryOpenFolderButton_Click" 
+                        VerticalAlignment="Center"
+                        Visibility="Collapsed"
+                        Margin="0,0,8,0"
+                        ToolTipService.ToolTip="Open Category Folder">
+                    <FontIcon Glyph="&#xE838;" FontSize="20"/>
+                </Button>
+                <TextBlock x:Name="CategoryTitle"
+                           Text=""
+                           FontSize="24"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+            
+            <!-- Center: Search box (only visible when sorting/table mode is enabled) -->
+            <AutoSuggestBox x:Name="TableSearchBox" 
+                            Grid.Column="1"
+                            PlaceholderText="Search mods by name, author, or URL..."
+                            TextChanged="TableSearchBox_TextChanged"
+                            KeyDown="TableSearchBox_KeyDown"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Width="400"
+                            Margin="20,0"
+                            Visibility="Collapsed">
+                <AutoSuggestBox.QueryIcon>
+                    <SymbolIcon Symbol="Find"/>
+                </AutoSuggestBox.QueryIcon>
+            </AutoSuggestBox>
+        </Grid>
         <ScrollViewer x:Name="ModsScrollViewer" Grid.Row="1">
             <ScrollViewer.ContextFlyout>
-                <MenuFlyout x:Name="SortingContextMenu">
+                <MenuFlyout x:Name="SortingContextMenu" Opening="SortingContextMenu_Opening">
                     <MenuFlyoutSubItem x:Name="SortByNameSubItem">
                         <MenuFlyoutSubItem.Icon>
                             <FontIcon Glyph="&#xE8C4;"/>
@@ -133,7 +160,11 @@
 
                 </MenuFlyout>
             </ScrollViewer.ContextFlyout>
-            <GridView x:Name="ModsGrid"
+            
+            <!-- Container for both views -->
+            <Grid>
+                <!-- Grid View -->
+                <GridView x:Name="ModsGrid"
                       IsItemClickEnabled="False"
                       SelectionMode="None"
                       Background="Transparent">
@@ -305,6 +336,229 @@
                     </DataTemplate>
                 </GridView.ItemTemplate>
             </GridView>
+
+
+
+            <!-- Table View -->
+            <Grid x:Name="ModsTable" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>  <!-- Search Results Info -->
+                    <RowDefinition Height="Auto"/>  <!-- Table Header -->
+                    <RowDefinition Height="*"/>     <!-- Scrollable Content -->
+                </Grid.RowDefinitions>
+                
+                <!-- Search Results Info -->
+                <Border Grid.Row="0" 
+                        x:Name="TableSearchResultsInfo"
+                        Padding="12,6"
+                        Visibility="Collapsed">
+                    <TextBlock x:Name="TableSearchResultsText" 
+                               FontSize="12"
+                               Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                               HorizontalAlignment="Left"/>
+                </Border>
+                
+                <!-- Table Header -->
+                <Border Grid.Row="1" 
+                        Background="{ThemeResource LayerFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                        BorderThickness="0,0,0,1"
+                        Padding="12,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="80"/>  <!-- Preview -->
+                            <ColumnDefinition Width="*" MinWidth="200"/>  <!-- Name -->
+                            <ColumnDefinition Width="60"/>  <!-- Activity -->
+                            <ColumnDefinition Width="150"/>  <!-- Category -->
+                            <ColumnDefinition Width="120"/>  <!-- Last Checked -->
+                            <ColumnDefinition Width="120"/>  <!-- Last Updated -->
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="Preview" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <Button Grid.Column="1" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="8,0" Click="SortByName_HeaderClick">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Name" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <FontIcon x:Name="NameSortIcon" Glyph="&#xE70D;" FontSize="12" Margin="4,0,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="2" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Padding="8,0" Click="SortByActive_HeaderClick">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Active" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <FontIcon x:Name="ActiveSortIcon" Glyph="&#xE70D;" FontSize="12" Margin="4,0,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="3" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="8,0" Click="SortByCategory_HeaderClick">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Category" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <FontIcon x:Name="CategorySortIcon" Glyph="&#xE70D;" FontSize="12" Margin="4,0,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="4" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="8,0" Click="SortByLastChecked_HeaderClick">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Last Checked" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <FontIcon x:Name="LastCheckedSortIcon" Glyph="&#xE70D;" FontSize="12" Margin="4,0,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="5" Background="Transparent" BorderThickness="0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Padding="8,0" Click="SortByLastUpdated_HeaderClick">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Last Updated" FontWeight="Bold" VerticalAlignment="Center"/>
+                                <FontIcon x:Name="LastUpdatedSortIcon" Glyph="&#xE70D;" FontSize="12" Margin="4,0,0,0" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Border>
+                
+
+                
+                <!-- Scrollable Table Content -->
+                <ListView x:Name="ModsTableList" 
+                          Grid.Row="2"
+                          SelectionMode="None"
+                          IsItemClickEnabled="False"
+                          Background="Transparent"
+                          ScrollViewer.HorizontalScrollMode="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                          ScrollViewer.VerticalScrollMode="Auto"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          Padding="0"
+                          Margin="0">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                            <Setter Property="Padding" Value="0"/>
+                            <Setter Property="Margin" Value="0"/>
+                            <Setter Property="MinHeight" Value="0"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ContextFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem x:Name="ExitTableViewItem" Text="Exit Table View" Click="ExitTableView_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE8A7;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </ListView.ContextFlyout>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="Transparent" 
+                                    BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}"
+                                    BorderThickness="0,0,0,1"
+                                    Padding="12,8"
+                                    MinHeight="60">
+                                <Border.ContextFlyout>
+                                    <MenuFlyout Opening="TableContextMenu_Opening">
+                                        <!-- Dynamic menu items will be populated in code-behind -->
+                                    </MenuFlyout>
+                                </Border.ContextFlyout>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="80"/>  <!-- Preview -->
+                                        <ColumnDefinition Width="*" MinWidth="200"/>  <!-- Name -->
+                                        <ColumnDefinition Width="60"/>  <!-- Activity -->
+                                        <ColumnDefinition Width="150"/>  <!-- Category -->
+                                        <ColumnDefinition Width="120"/>  <!-- Last Checked -->
+                                        <ColumnDefinition Width="120"/>  <!-- Last Updated -->
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <!-- Preview Image -->
+                                    <Border Grid.Column="0" 
+                                            Width="48" 
+                                            Height="48" 
+                                            CornerRadius="6"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center">
+                                        <Image Source="{Binding ImageSource}" 
+                                               Stretch="UniformToFill"
+                                               PointerEntered="TablePreview_PointerEntered"
+                                               PointerExited="TablePreview_PointerExited"
+                                               Tag="{Binding}"/>
+                                    </Border>
+                                    
+                                    <!-- Name -->
+                                    <Button Grid.Column="1" 
+                                            Background="Transparent" 
+                                            BorderThickness="0" 
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            Padding="8,0"
+                                            Click="ModName_Click"
+                                            Tag="{Binding}">
+                                        <TextBlock Text="{Binding Name}" 
+                                                   FontWeight="SemiBold" 
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTipService.ToolTip="{Binding Name}"/>
+                                    </Button>
+                                    
+                                    <!-- Activity Heart -->
+                                    <Button Grid.Column="2" 
+                                            Width="32" 
+                                            Height="32"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            HorizontalAlignment="Center"
+                                            Margin="0"
+                                            Padding="0"
+                                            Click="ModActiveButton_Click"
+                                            Tag="{Binding}"
+                                            Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}">
+                                        <FontIcon Glyph="{Binding IsActive, Converter={StaticResource BoolToHeartGlyphConverter}}" 
+                                                  FontSize="16"
+                                                  Foreground="{Binding IsActive, Converter={StaticResource BoolToHeartColorConverter}}"/>
+                                    </Button>
+                                    
+                                    <!-- Category -->
+                                    <TextBlock Grid.Column="3" 
+                                               Text="{Binding Category}" 
+                                               VerticalAlignment="Center"
+                                               Padding="8,0"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTipService.ToolTip="{Binding Category}"/>
+                                    
+                                    <!-- Last Checked -->
+                                    <TextBlock Grid.Column="4" 
+                                               Text="{Binding LastCheckedFormatted}" 
+                                               VerticalAlignment="Center"
+                                               Padding="8,0"
+                                               FontSize="12"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    
+                                    <!-- Last Updated -->
+                                    <TextBlock Grid.Column="5" 
+                                               Text="{Binding LastUpdatedFormatted}" 
+                                               VerticalAlignment="Center"
+                                               Padding="8,0"
+                                               FontSize="12"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+            </Grid>
         </ScrollViewer>
+
+        <!-- Image Preview Popup -->
+        <Popup x:Name="ImagePreviewPopup" 
+               IsLightDismissEnabled="True">
+            <Border Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="8">
+                <Border.Shadow>
+                    <ThemeShadow/>
+                </Border.Shadow>
+                <Image x:Name="PreviewImage" 
+                       Width="200" 
+                       Height="200" 
+                       Stretch="UniformToFill"/>
+            </Border>
+        </Popup>
     </Grid>
 </Page>
