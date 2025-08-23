@@ -1075,11 +1075,7 @@ namespace FlairX_Mod_Manager.Pages
             // Refresh animation in MainWindow
             if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
             {
-                var progressBar = mainWindow.GetOrangeAnimationProgressBar();
-                if (progressBar != null)
-                {
-                    progressBar.Opacity = ShowOrangeAnimationToggle.IsOn ? 1 : 0;
-                }
+                mainWindow.UpdateOrangeAnimationVisibility(ShowOrangeAnimationToggle.IsOn);
             }
         }
 

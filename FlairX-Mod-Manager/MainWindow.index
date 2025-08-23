@@ -1,8 +1,10 @@
-COMPONENT: MainWindow
+COMPONENT: MainWindow (SPLIT INTO 6 PARTIAL CLASSES)
 DESCRIPTION: Main application window with navigation, game selection, search functionality, backdrop effects, and comprehensive UI management
+REDUCTION: Original 2,628 lines → 587 lines main file (77.7% reduction)
+TOTAL CODE LINES: 2,665 lines across 6 files (main: 587 + hotkeys: 376 + navigation: 235 + window: 285 + events: 534 + ui: 444 + xml: 246)
 
 ================================================================================
-FILE: MainWindow.xaml
+FILE: MainWindow.xaml (UNCHANGED)
 TOTAL LINES: 246
 
 LINE RANGES:
@@ -60,13 +62,13 @@ UI ELEMENTS:
 - LauncherFabBorder: lines 245-253 - Floating action button for launcher (&#xE768;)
 
 ================================================================================
-FILE: MainWindow.xaml.cs
-TOTAL LINES: 2567
+FILE: MainWindow.xaml.cs (MAIN PARTIAL CLASS)
+TOTAL LINES: 587
 
 LINE RANGES:
 ├── Using statements: lines 1-24
 ├── Namespace declaration: lines 26-27
-├── MainWindow class: lines 28-2330
+├── MainWindow class (partial): lines 28-694
 │   ├── Constants and fields: lines 29-50
 │   │   ├── Window size constants: lines 29-31
 │   │   ├── Language dictionary: line 32
@@ -86,143 +88,199 @@ LINE RANGES:
 │   │   ├── Event handlers: lines 132-150
 │   │   ├── UI initialization: lines 152-180
 │   │   └── Global hotkey handler: lines 182-200
-│   ├── Global Hotkey System: lines 202-450
-│   │   ├── MainWindow_KeyDown: lines 202-250
-│   │   │   ├── Modifier key detection: lines 202-220
-│   │   │   ├── Hotkey string building: lines 222-230
-│   │   │   └── Hotkey matching: lines 232-250
-│   │   ├── ExecuteOptimizePreviewsHotkey: lines 252-290
-│   │   ├── ExecuteReloadManagerHotkey: lines 292-310
-│   │   ├── ExecuteShuffleActiveModsHotkey: lines 312-400
-│   │   └── ExecuteDeactivateAllModsHotkey: lines 402-450
-│   ├── UI Management: lines 452-650
-│   │   ├── UpdateGameSelectionComboBoxTexts: lines 452-470
-│   │   ├── CenterWindow: lines 472-480
-│   │   ├── GetXXMILauncherPath: lines 482-510
-│   │   ├── CreateXXMIDownloadContent: lines 512-550
-│   │   ├── LogToGridLog: lines 552-570
-│   │   ├── NvSample_Loaded: lines 572-580
-│   │   ├── MainRoot_Loaded: lines 582-590
-│   │   └── RestoreGameSelection: lines 592-650
-│   ├── Search and Navigation: lines 652-900
-│   │   ├── SetSearchBoxPlaceholder: lines 652-660
-│   │   ├── SetFooterMenuTranslations: lines 662-700
-│   │   ├── UpdateShowActiveModsButtonIcon: lines 702-730
-│   │   ├── NavigationView_SelectionChanged: lines 732-800
-│   │   ├── NavigationView_PaneClosing: lines 802-820
-│   │   ├── NavigationView_PaneOpening: lines 822-840
-│   │   ├── SearchBox_TextChanged: lines 842-880
-│   │   └── SearchBox_QuerySubmitted: lines 882-900
-│   ├── Button Event Handlers: lines 902-1200
-│   │   ├── ReloadModsButton_Click: lines 902-920
-│   │   ├── ReloadModsAsync: lines 922-980
-│   │   │   ├── Loading window management: lines 922-950
-│   │   │   ├── Cache clearing and mod scanning: lines 952-980
-│   │   │   ├── Image preloading: lines 982-1000
-│   │   │   ├── Position saving and restoration: lines 1002-1020
-│   │   │   └── UI updates: lines 1022-980
-│   │   ├── AllModsButton_Click: lines 982-1000
-│   │   ├── ViewModeToggleButton_Click: lines 1002-1080
-│   │   ├── ShowActiveModsButton events: lines 1082-1100
-│   │   ├── OpenModLibraryButton_Click: lines 1102-1120
-│   │   ├── LauncherFabBorder events: lines 1122-1180
-│   │   └── RestartAppButton_Click: lines 1182-1200
-│   ├── Position Memory System: lines 1202-1520
-│   │   ├── GetCurrentViewModeString: lines 1202-1210
-│   │   ├── SaveCurrentPositionBeforeReload: lines 1212-1250
-│   │   │   ├── Category title analysis: lines 1220-1235
-│   │   │   ├── Position determination logic: lines 1237-1250
-│   │   ├── DoesCategoryExist: lines 1252-1270
-│   │   │   ├── Path validation: lines 1255-1265
-│   │   │   └── Error handling: lines 1267-1270
-│   │   └── RestoreLastPosition: lines 1272-1520
-│   │       ├── Position retrieval: lines 1275-1280
-│   │       ├── Active mods handling: lines 1282-1290
-│   │       ├── Category existence validation: lines 1292-1350
-│   │       ├── Navigation logic: lines 1352-1420
-│   │       ├── Menu item selection: lines 1422-1460
-│   │       ├── Fallback handling: lines 1462-1500
-│   │       └── Position clearing: lines 1502-1520
-│   ├── View Mode Management: lines 1522-1650
-│   │   ├── UpdateViewModeButtonIcon: lines 1522-1540
-│   │   ├── IsCurrentlyInCategoryMode: lines 1542-1550
-│   │   ├── InitializeViewModeFromSettings: lines 1552-1570
-│   │   ├── RestoreViewModeButtonFromSettings: lines 1572-1580
-│   │   ├── UpdateViewModeTooltip: lines 1582-1590
-│   │   ├── UpdateMenuItemsEnabledState: lines 1592-1610
-│   │   ├── UpdateAllModsButtonText: lines 1612-1630
-│   │   └── UpdateAllModsButtonState: lines 1632-1650
-│   ├── Menu Generation: lines 1652-1850
-│   │   ├── GenerateModCharacterMenuAsync: lines 1652-1800
-│   │   │   ├── Directory scanning: lines 1652-1700
-│   │   │   ├── Category processing: lines 1702-1750
-│   │   │   └── UI updates: lines 1752-1800
-│   │   ├── EnsurePresetsMenuItemExists: lines 1802-1830
-│   │   └── PreloadModImages: lines 1832-1850
-│   ├── Language and UI Refresh: lines 1852-2050
-│   │   └── RefreshUIAfterLanguageChange: lines 1852-2050
-│   │       ├── Language reloading: lines 1852-1870
-│   │       ├── UI element updates: lines 1872-1900
-│   │       └── Page-specific refreshes: lines 1902-2050
-│   ├── Game Selection System: lines 2052-2250
-│   │   ├── UpdateUIForGameSelection: lines 2052-2130
-│   │   │   ├── Menu item enabling: lines 2052-2070
-│   │   │   ├── Control enabling: lines 2072-2100
-│   │   │   └── Welcome page navigation: lines 2102-2130
-│   │   ├── GameSelectionComboBox_SelectionChanged: lines 2132-2230
-│   │   │   ├── Initialization check: lines 2132-2140
-│   │   │   ├── Game switching logic: lines 2142-2200
-│   │   │   └── StatusKeeper management: lines 2202-2230
-│   │   └── CleanupSymlinksForGameSwitch: lines 2232-2250
-│   ├── Backdrop System: lines 2252-2450
-│   │   ├── ApplyBackdropEffect: lines 2252-2350
-│   │   │   ├── Controller disposal: lines 2252-2260
-│   │   │   ├── Mica effects: lines 2262-2310
-│   │   │   ├── Acrylic effects: lines 2312-2330
-│   │   │   └── None effect: lines 2332-2350
-│   │   ├── TrySetAcrylicBackdrop: lines 2352-2380
-│   │   ├── Window_Activated: lines 2382-2390
-│   │   ├── Window_Closed: lines 2392-2410
-│   │   ├── Window_ThemeChanged: lines 2412-2430
-│   │   ├── SetConfigurationSourceTheme: lines 2432-2445
-│   │   └── SetNoneBackgroundForTheme: lines 2447-2470
-│   ├── Window State Management: lines 2472-2550
-│   │   ├── SaveWindowState: lines 2472-2500
-│   │   ├── RestoreWindowState: lines 2502-2530
-│   │   └── GetAppWindowForCurrentWindow: lines 2532-2550
-│   └── Theme Management: lines 2552-2567
-│       └── ApplyThemeToTitleBar: lines 2552-2567
-│           ├── Light theme colors: lines 2552-2560
-│           ├── Dark theme colors: lines 2562-2565
-│           └── Auto theme colors: lines 2566-2567
+│   ├── Core UI Methods: lines 202-250
+│   │   ├── SetSearchBoxPlaceholder: lines 202-210
+│   │   └── SetFooterMenuTranslations: lines 212-250
+│   ├── Position Memory System: lines 252-420
+│   │   ├── GetCurrentViewMode: lines 252-260
+│   │   ├── GetCurrentViewModeString: lines 262-270
+│   │   ├── SaveCurrentPositionBeforeReload: lines 272-310
+│   │   ├── DoesCategoryExist: lines 312-330
+│   │   └── RestoreLastPosition: lines 332-420
+│   ├── View Mode Management: lines 422-520
+│   │   ├── UpdateViewModeButtonIcon: lines 422-440
+│   │   ├── IsCurrentlyInCategoryMode: lines 442-450
+│   │   ├── InitializeViewModeFromSettings: lines 452-470
+│   │   ├── RestoreViewModeButtonFromSettings: lines 472-480
+│   │   ├── UpdateViewModeTooltip: lines 482-490
+│   │   ├── UpdateMenuItemsEnabledState: lines 492-505
+│   │   ├── UpdateAllModsButtonText: lines 507-515
+│   │   └── UpdateAllModsButtonState: lines 517-520
+│   ├── Menu Generation: lines 522-680
+│   │   ├── GenerateModCharacterMenuAsync: lines 522-670
+│   │   └── EnsurePresetsMenuItemExists: lines 672-680
+│   └── Helper Classes: lines 682-694
+│       └── WindowsSystemDispatcherQueueHelper: lines 682-694
 
 ================================================================================
-COMPONENT OVERVIEW
+FILE: MainWindow.UIManagement.cs
+TOTAL LINES: 444
 
-KEY METHODS:
-- Constructor: lines 51-200 - Initialize window, theme, backdrop, and UI components
-- MainWindow_KeyDown: lines 202-250 - Global hotkey handler for application shortcuts
-- RestoreGameSelection: lines 592-650 - Restore saved game selection on startup
-- SaveCurrentPositionBeforeReload: lines 1212-1250 - Capture current navigation position before reload
-- RestoreLastPosition: lines 1272-1520 - Restore saved navigation position with validation and fallback
-- DoesCategoryExist: lines 1252-1270 - Validate category existence before navigation
-- GenerateModCharacterMenuAsync: lines 1652-1800 - Generate dynamic navigation menu from mod categories
-- GameSelectionComboBox_SelectionChanged: lines 2132-2230 - Handle game switching with cleanup and initialization
-- ApplyBackdropEffect: lines 2252-2350 - Apply backdrop effects (Mica/Acrylic/None)
-- RefreshUIAfterLanguageChange: lines 1852-2050 - Refresh all UI elements after language change
+LINE RANGES:
+├── Using statements: lines 1-9
+├── Namespace declaration: lines 11-12
+├── MainWindow class (partial - UI Management): lines 13-444
+│   ├── UI Utility Methods: lines 14-100
+│   │   ├── UpdateGameSelectionComboBoxTexts: lines 14-25
+│   │   ├── CenterWindow: lines 27-40
+│   │   ├── GetXXMILauncherPath: lines 42-55
+│   │   ├── CreateXXMIDownloadContent: lines 57-80
+│   │   └── LogToGridLog: lines 82-100
+│   ├── Game Selection Management: lines 102-126
+│   │   └── RestoreGameSelection: lines 102-126
+│   ├── Menu Generation: lines 128-216
+│   │   ├── GenerateModCharacterMenuAsync: lines 128-186
+│   │   └── EnsurePresetsMenuItemExists: lines 188-216
+│   ├── Image Management: lines 218-316
+│   │   └── PreloadModImages: lines 218-316
+│   ├── Language and UI Refresh: lines 318-408
+│   │   └── RefreshUIAfterLanguageChange: lines 318-408
+│   ├── Game Selection UI: lines 410-438
+│   │   └── UpdateUIForGameSelection: lines 410-438
+│   └── Animation Control: lines 440-444
+│       └── UpdateOrangeAnimationVisibility: lines 440-444
 
-FUNCTIONALITY:
-- Main application window with navigation and content management
-- Game selection system with per-game configuration
-- Dynamic menu generation from mod library structure
-- Global hotkey system for common operations
-- Search functionality with dynamic and static modes
-- View mode switching between mods and categories
-- Position memory system with automatic restoration and fallback
-- Backdrop effects with theme-aware configuration
-- Window state persistence and restoration
-- Language switching with UI refresh
-- Zoom indicator and launcher integration
+================================================================================
+FILE: MainWindow.Hotkeys.cs
+TOTAL LINES: 376
+
+LINE RANGES:
+├── Using statements: lines 1-13
+├── Namespace declaration: lines 15-16
+├── MainWindow class (partial - Hotkeys): lines 17-376
+│   └── Global Hotkey System: lines 18-376
+│       ├── MainWindow_KeyDown: lines 18-85
+│       │   ├── Game selection validation: lines 18-26
+│       │   ├── Modifier key detection: lines 28-36
+│       │   ├── Hotkey string building: lines 38-42
+│       │   └── Hotkey matching and execution: lines 44-85
+│       ├── ExecuteOptimizePreviewsHotkey: lines 87-150
+│       │   ├── Settings validation: lines 87-95
+│       │   ├── Navigation to SettingsPage: lines 97-105
+│       │   ├── Reflection method invocation: lines 107-125
+│       │   └── Error handling: lines 127-150
+│       ├── ExecuteReloadManagerHotkey: lines 152-180
+│       │   ├── Validation and setup: lines 152-160
+│       │   ├── ReloadModsAsync call: lines 162-170
+│       │   └── Error handling: lines 172-180
+│       ├── ExecuteShuffleActiveModsHotkey: lines 182-346
+│       │   ├── Settings validation: lines 182-190
+│       │   ├── Directory scanning: lines 192-210
+│       │   ├── Category filtering: lines 212-230
+│       │   ├── Random selection logic: lines 232-290
+│       │   ├── Active mods management: lines 292-320
+│       │   ├── File saving: lines 322-340
+│       │   └── Error handling: lines 342-346
+│       └── ExecuteDeactivateAllModsHotkey: lines 348-376
+│           ├── Settings validation: lines 348-356
+│           ├── Active mods clearing: lines 358-370
+│           └── Error handling: lines 372-376
+
+================================================================================
+FILE: MainWindow.Navigation.cs
+TOTAL LINES: 235
+
+LINE RANGES:
+├── Using statements: lines 1-12
+├── Namespace declaration: lines 14-15
+├── MainWindow class (partial - Navigation): lines 16-235
+│   ├── SetSearchBoxPlaceholder: lines 17-25
+│   ├── SetFooterMenuTranslations: lines 27-65
+│   │   ├── Footer menu items setup: lines 27-40
+│   │   ├── Translation updates: lines 42-60
+│   │   └── Icon assignments: lines 62-65
+│   ├── UpdateShowActiveModsButtonIcon: lines 67-95
+│   │   ├── Button reference: lines 67-70
+│   │   ├── Icon state logic: lines 72-85
+│   │   └── Heart icon updates: lines 87-95
+│   ├── NavigationView_SelectionChanged: lines 97-165
+│   │   ├── Event validation: lines 97-105
+│   │   ├── Category navigation: lines 107-135
+│   │   ├── Special page navigation: lines 137-155
+│   │   └── Error handling: lines 157-165
+│   ├── NavigationView_PaneClosing: lines 167-175
+│   ├── NavigationView_PaneOpening: lines 177-185
+│   ├── SearchBox_TextChanged: lines 187-215
+│   │   ├── Empty search handling: lines 187-200
+│   │   ├── Menu regeneration: lines 202-210
+│   │   └── Filter application: lines 212-215
+│   └── SearchBox_QuerySubmitted: lines 217-235
+│       ├── Query validation: lines 217-225
+│       ├── Navigation to ModGridPage: lines 227-230
+│       └── Search execution: lines 232-235
+
+================================================================================
+FILE: MainWindow.WindowManagement.cs
+TOTAL LINES: 285
+
+LINE RANGES:
+├── Using statements: lines 1-15
+├── DLL imports and constants: lines 17-25
+├── Namespace declaration: lines 27-28
+├── MainWindow class (partial - Window Management): lines 29-285
+│   ├── Window State Management: lines 30-120
+│   │   ├── DisableMaximizeOnDoubleClick: lines 30-42
+│   │   ├── RestoreWindowState: lines 44-80
+│   │   │   ├── Window handle retrieval: lines 44-50
+│   │   │   ├── Size restoration: lines 52-58
+│   │   │   ├── Position restoration: lines 60-70
+│   │   │   └── Maximized state restoration: lines 72-80
+│   │   ├── SaveWindowState: lines 82-105
+│   │   │   ├── Window handle retrieval: lines 82-88
+│   │   │   ├── Size and position capture: lines 90-98
+│   │   │   └── Settings save: lines 100-105
+│   │   └── CenterWindow: lines 107-120
+│   ├── Theme Management: lines 122-160
+│   │   └── ApplyThemeToTitleBar: lines 122-160
+│   │       ├── Window handle setup: lines 122-128
+│   │       ├── Light theme colors: lines 130-138
+│   │       ├── Dark theme colors: lines 140-148
+│   │       └── Auto theme colors: lines 150-160
+│   └── Backdrop System: lines 162-285
+│       ├── ApplyBackdropEffect: lines 162-240
+│       │   ├── Controller disposal: lines 162-170
+│       │   ├── Background clearing: lines 172-178
+│       │   ├── Mica effects: lines 180-220
+│       │   ├── Acrylic effects: lines 222-235
+│       │   └── None effect handling: lines 237-240
+│       ├── TrySetAcrylicBackdrop: lines 242-260
+│       ├── Backdrop event handlers: lines 262-285
+│       │   ├── Window_Activated: lines 262-270
+│       │   ├── Window_Closed: lines 272-280
+│       │   └── Window_ThemeChanged: lines 282-285
+
+================================================================================
+FILE: MainWindow.EventHandlers.cs
+TOTAL LINES: 534
+
+LINE RANGES:
+├── Using statements: lines 1-16
+├── Namespace declaration: lines 18-19
+├── MainWindow class (partial - Event Handlers): lines 20-534
+│   ├── Initialization Event Handlers: lines 21-35
+│   │   ├── NvSample_Loaded: lines 21-25
+│   │   └── MainRoot_Loaded: lines 27-35
+│   ├── Button Event Handlers: lines 37-220
+│   │   ├── ReloadModsButton_Click: lines 37-45
+│   │   ├── AllModsButton_Click: lines 47-75
+│   │   ├── ViewModeToggleButton_Click: lines 77-140
+│   │   ├── ShowActiveModsButton events: lines 142-145
+│   │   ├── OpenModLibraryButton_Click: lines 147-150
+│   │   └── ReloadModsAsync: lines 152-220
+│   ├── Game Selection System: lines 222-370
+│   │   ├── GameSelectionComboBox_SelectionChanged: lines 222-340
+│   │   ├── LauncherFabBorder_Tapped: lines 342-365
+│   │   └── RestartAppButton_Click: lines 367-370
+│   ├── Application Management: lines 372-404
+│   │   └── RestartApplication: lines 372-404
+│   └── Additional UI Events: lines 406-534
+│       ├── LauncherFabBorder_PointerPressed: lines 406-470
+│       ├── LauncherFabBorder_PointerEntered: lines 472-475
+│       ├── LauncherFabBorder_PointerExited: lines 477-480
+│       ├── LauncherFabBorder_PointerWheelChanged: lines 482-490
+│       ├── ZoomIndicatorBorder_PointerWheelChanged: lines 492-500
+│       ├── UpdateZoomIndicator: lines 502-515
+│       └── CleanupSymlinksForGameSwitch: lines 517-534
 
 GAME SELECTION SYSTEM:
 - ComboBox with 6 games: Select Game, GIMI, HIMI, SRMI, WWMI, ZZMI
