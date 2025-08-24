@@ -231,7 +231,7 @@ namespace FlairX_Mod_Manager
             // Set animation based on settings
             if (OrangeAnimationProgressBar != null)
             {
-                OrangeAnimationProgressBar.Opacity = FlairX_Mod_Manager.SettingsManager.Current.ShowOrangeAnimation ? 1 : 0;
+                OrangeAnimationProgressBar.Opacity = FlairX_Mod_Manager.SettingsManager.Current?.ShowOrangeAnimation == true ? 1 : 0;
             }
             
             // Add global keyboard handler for hotkeys - handle at content level
