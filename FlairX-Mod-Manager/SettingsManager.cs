@@ -48,9 +48,6 @@ namespace FlairX_Mod_Manager
         // Mod sorting settings
         public bool ActiveModsToTopEnabled { get; set; } = true;
         
-        // Symlink cleanup settings
-        public bool DisableSymlinkCleanup { get; set; } = false;
-        
         // View mode settings
         public string ViewMode { get; set; } = "Mods"; // "Mods" or "Categories"
         

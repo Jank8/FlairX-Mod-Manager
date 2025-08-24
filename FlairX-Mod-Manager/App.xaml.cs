@@ -535,19 +535,10 @@ namespace FlairX_Mod_Manager
             {
                 _window = new MainWindow();
                 
-                // Add window close handling - remove symlinks only if cleanup is enabled
+                // Add window close handling - remove symlinks
                 _window.Closed += (s, e) =>
                 {
-                    // Check if symlink cleanup is disabled
-                    if (FlairX_Mod_Manager.SettingsManager.Current?.DisableSymlinkCleanup == true)
-                    {
-                        // Skip all cleanup when disabled - leave symlinks in place
-                        Logger.LogInfo("Skipping symlink cleanup on exit - cleanup is disabled");
-                        return;
-                    }
-                    
-                    // Perform cleanup when enabled - remove all symlinks
-                    Logger.LogInfo("Performing symlink cleanup on exit");
+                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
                     var modsDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                     if (string.IsNullOrWhiteSpace(modsDir))
                         modsDir = SharedUtilities.GetSafeXXMIModsPath();

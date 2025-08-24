@@ -51,19 +51,48 @@ namespace FlairX_Mod_Manager
 
         public MainWindow()
         {
-            InitializeComponent();
-            LoadLanguage();
+            try
+            {
+                Logger.LogInfo("MainWindow: Starting InitializeComponent");
+                InitializeComponent();
+                Logger.LogInfo("MainWindow: InitializeComponent completed");
+                
+                Logger.LogInfo("MainWindow: Loading language");
+                LoadLanguage();
+                Logger.LogInfo("MainWindow: Language loaded");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("MainWindow: Error during basic initialization", ex);
+                System.Diagnostics.Debug.WriteLine($"MainWindow init error: {ex.Message}");
+                throw;
+            }
 
-            // Set button tooltip translations
-            ToolTipService.SetToolTip(ReloadModsButton, SharedUtilities.GetTranslation(_lang, "Reload_Mods_Tooltip"));
-            ToolTipService.SetToolTip(OpenModLibraryButton, SharedUtilities.GetTranslation(_lang, "Open_ModLibrary_Tooltip"));
-            ToolTipService.SetToolTip(LauncherFabBorder, SharedUtilities.GetTranslation(_lang, "Launcher_Tooltip"));
-            
-            // Initialize view mode from settings
-            InitializeViewModeFromSettings();
+            try
+            {
+                Logger.LogInfo("MainWindow: Setting button tooltips");
+                // Set button tooltip translations
+                ToolTipService.SetToolTip(ReloadModsButton, SharedUtilities.GetTranslation(_lang, "Reload_Mods_Tooltip"));
+                ToolTipService.SetToolTip(OpenModLibraryButton, SharedUtilities.GetTranslation(_lang, "Open_ModLibrary_Tooltip"));
+                ToolTipService.SetToolTip(LauncherFabBorder, SharedUtilities.GetTranslation(_lang, "Launcher_Tooltip"));
+                Logger.LogInfo("MainWindow: Button tooltips set");
+                
+                Logger.LogInfo("MainWindow: Initializing view mode from settings");
+                // Initialize view mode from settings
+                InitializeViewModeFromSettings();
+                Logger.LogInfo("MainWindow: View mode initialized");
 
-            // Update game selection ComboBox text
-            UpdateGameSelectionComboBoxTexts();
+                Logger.LogInfo("MainWindow: Updating game selection ComboBox");
+                // Update game selection ComboBox text
+                UpdateGameSelectionComboBoxTexts();
+                Logger.LogInfo("MainWindow: Game selection ComboBox updated");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("MainWindow: Error during UI setup", ex);
+                System.Diagnostics.Debug.WriteLine($"MainWindow UI setup error: {ex.Message}");
+                throw;
+            }
 
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
             var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
