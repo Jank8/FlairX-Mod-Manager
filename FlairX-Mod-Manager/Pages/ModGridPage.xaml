@@ -367,10 +367,10 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="80"/>  <!-- Preview -->
                             <ColumnDefinition Width="*" MinWidth="200"/>  <!-- Name -->
-                            <ColumnDefinition Width="60"/>  <!-- Activity -->
+                            <ColumnDefinition Width="100"/>  <!-- Activity -->
                             <ColumnDefinition Width="300"/>  <!-- Category -->
-                            <ColumnDefinition Width="120"/>  <!-- Last Checked -->
-                            <ColumnDefinition Width="120"/>  <!-- Last Updated -->
+                            <ColumnDefinition Width="160"/>  <!-- Last Checked -->
+                            <ColumnDefinition Width="160"/>  <!-- Last Updated -->
                         </Grid.ColumnDefinitions>
                         
                         <TextBlock Grid.Column="0" Text="Preview" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -457,10 +457,10 @@
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="80"/>  <!-- Preview -->
                                         <ColumnDefinition Width="*" MinWidth="200"/>  <!-- Name -->
-                                        <ColumnDefinition Width="60"/>  <!-- Activity -->
+                                        <ColumnDefinition Width="100"/>  <!-- Activity -->
                                         <ColumnDefinition Width="300"/>  <!-- Category -->
-                                        <ColumnDefinition Width="120"/>  <!-- Last Checked -->
-                                        <ColumnDefinition Width="120"/>  <!-- Last Updated -->
+                                        <ColumnDefinition Width="160"/>  <!-- Last Checked -->
+                                        <ColumnDefinition Width="160"/>  <!-- Last Updated -->
                                     </Grid.ColumnDefinitions>
                                     
                                     <!-- Preview Image -->
