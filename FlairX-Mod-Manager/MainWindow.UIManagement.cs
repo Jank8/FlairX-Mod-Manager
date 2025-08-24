@@ -16,6 +16,7 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        private volatile bool _isGeneratingMenu = false;
         private void UpdateGameSelectionComboBoxTexts()
         {
             if (GameSelectionComboBox?.Items != null && _lang != null)
@@ -129,6 +130,12 @@ namespace FlairX_Mod_Manager
 
         public async Task GenerateModCharacterMenuAsync()
         {
+            // Prevent race conditions caused by multiple asynchronous operations
+            if (_isGeneratingMenu)
+                return;
+                
+            _isGeneratingMenu = true;
+            
             try
             {
                 // Only generate menu items if a game is selected
@@ -234,6 +241,10 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError("Error generating mod character menu", ex);
+            }
+            finally
+            {
+                _isGeneratingMenu = false;
             }
         }
 
