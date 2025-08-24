@@ -22,6 +22,9 @@ namespace FlairX_Mod_Manager.Pages
         private string? _modJsonPath;
         private string? _categoryParam;
         private string? _viewModeParam;
+        private string? _currentModDirectory;
+        private List<string> _availablePreviewImages = new List<string>();
+        private int _currentImageIndex = 0;
         public event EventHandler? CloseRequested; // Event to notify parent to close
 
         public ModDetailUserControl()
@@ -80,6 +83,7 @@ namespace FlairX_Mod_Manager.Pages
                         string modName = Path.GetFileName(fullModDir);
                         ModDetailTitle.Text = modName;
                         _modJsonPath = Path.Combine(fullModDir, "mod.json");
+                        _currentModDirectory = fullModDir;
                         
                         System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: Found mod directory: {fullModDir}");
                         System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: Looking for mod.json at: {_modJsonPath}");
@@ -87,8 +91,8 @@ namespace FlairX_Mod_Manager.Pages
                         // Load mod.json data
                         LoadModJsonData();
                         
-                        // Load preview image
-                        LoadPreviewImage(fullModDir);
+                        // Load preview images
+                        LoadPreviewImages(fullModDir);
                     }
                     else
                     {
@@ -232,15 +236,51 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void LoadPreviewImage(string fullModDir)
+        private void LoadPreviewImages(string fullModDir)
         {
             try
             {
-                var previewPathJpg = Path.Combine(fullModDir, "preview.jpg");
-                if (File.Exists(previewPathJpg))
+                _availablePreviewImages.Clear();
+                _currentImageIndex = 0;
+
+                // Check for main preview.jpg first
+                var mainPreviewPath = Path.Combine(fullModDir, "preview.jpg");
+                if (File.Exists(mainPreviewPath))
                 {
+                    _availablePreviewImages.Add(mainPreviewPath);
+                }
+
+                // Check for preview-01.jpg through preview-99.jpg
+                for (int i = 1; i <= 99; i++)
+                {
+                    var previewPath = Path.Combine(fullModDir, $"preview-{i:D2}.jpg");
+                    if (File.Exists(previewPath))
+                    {
+                        _availablePreviewImages.Add(previewPath);
+                    }
+                }
+
+                // Update UI based on available images
+                UpdateImageNavigation();
+                LoadCurrentImage();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error loading preview images from {fullModDir}", ex);
+                ModImage.Source = null;
+                UpdateImageNavigation();
+            }
+        }
+
+        private void LoadCurrentImage()
+        {
+            try
+            {
+                if (_availablePreviewImages.Count > 0 && _currentImageIndex >= 0 && _currentImageIndex < _availablePreviewImages.Count)
+                {
+                    var imagePath = _availablePreviewImages[_currentImageIndex];
                     var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                    byte[] imageData = File.ReadAllBytes(previewPathJpg);
+                    byte[] imageData = File.ReadAllBytes(imagePath);
                     using (var memStream = new MemoryStream(imageData))
                     {
                         bitmap.SetSource(memStream.AsRandomAccessStream());
@@ -254,8 +294,29 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Error loading preview image from {fullModDir}", ex);
+                Logger.LogError($"Error loading current image", ex);
                 ModImage.Source = null;
+            }
+        }
+
+        private void UpdateImageNavigation()
+        {
+            bool hasMultipleImages = _availablePreviewImages.Count > 1;
+            
+            // Show/hide navigation buttons
+            PrevImageButton.Visibility = hasMultipleImages ? Visibility.Visible : Visibility.Collapsed;
+            NextImageButton.Visibility = hasMultipleImages ? Visibility.Visible : Visibility.Collapsed;
+            
+            // Show/hide image counter
+            ImageCounterBorder.Visibility = hasMultipleImages ? Visibility.Visible : Visibility.Collapsed;
+            
+            if (hasMultipleImages)
+            {
+                ImageCounterText.Text = $"{_currentImageIndex + 1} / {_availablePreviewImages.Count}";
+                
+                // Enable/disable buttons based on current position
+                PrevImageButton.IsEnabled = _currentImageIndex > 0;
+                NextImageButton.IsEnabled = _currentImageIndex < _availablePreviewImages.Count - 1;
             }
         }
 
@@ -270,6 +331,11 @@ namespace FlairX_Mod_Manager.Pages
             ModVersionTextBox.Text = "";
             ModDateCheckedPicker.Date = null;
             ModDateUpdatedPicker.Date = null;
+            
+            // Reset image navigation
+            _availablePreviewImages.Clear();
+            _currentImageIndex = 0;
+            UpdateImageNavigation();
         }
 
         private void ModDetailUserControl_Loaded(object sender, RoutedEventArgs e)
@@ -535,6 +601,26 @@ namespace FlairX_Mod_Manager.Pages
             storyboard.Children.Add(scaleAnimation);
             storyboard.Children.Add(scaleAnimationY);
             storyboard.Begin();
+        }
+
+        private void PrevImageButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentImageIndex > 0)
+            {
+                _currentImageIndex--;
+                LoadCurrentImage();
+                UpdateImageNavigation();
+            }
+        }
+
+        private void NextImageButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentImageIndex < _availablePreviewImages.Count - 1)
+            {
+                _currentImageIndex++;
+                LoadCurrentImage();
+                UpdateImageNavigation();
+            }
         }
 
 

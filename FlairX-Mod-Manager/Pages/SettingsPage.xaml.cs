@@ -398,154 +398,8 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         if (token.IsCancellationRequested)
                             break;
-                        var jpgPath = Path.Combine(modDir, "preview.jpg");
-                        // Check if we need to create JPEG minitile
-                        var minitileJpgPath = Path.Combine(modDir, "minitile.jpg");
-                        bool needsMinitile = !File.Exists(minitileJpgPath);
-                    
-                    // If preview.jpg exists with size 1000x1000, check if we need minitile
-                    if (File.Exists(jpgPath))
-                    {
-                        try
-                        {
-                            using (var img = System.Drawing.Image.FromFile(jpgPath))
-                            {
-                                // Only skip if image is already square (1:1 ratio) and not larger than 1000x1000
-                                if (img.Width == img.Height && img.Width <= 1000)
-                                {
-                                    // preview.jpg is already optimized (1000x1000 square), but create minitile if missing
-                                    if (!needsMinitile)
-                                        continue; // Both files exist and are correct
-                                    
-                                    // Create minitile from existing preview.jpg (600x600 for high DPI displays)
-                                    using (var thumbBmp = new System.Drawing.Bitmap(600, 600))
-                                    using (var g3 = System.Drawing.Graphics.FromImage(thumbBmp))
-                                    {
-                                        g3.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                                        g3.CompositingQuality = CompositingQuality.HighQuality;
-                                        g3.SmoothingMode = SmoothingMode.HighQuality;
-                                        g3.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                        var thumbRect = new System.Drawing.Rectangle(0, 0, 600, 600);
-                                        g3.DrawImage(img, thumbRect);
-                                        
-                                        // Save as JPEG minitile
-                                        var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                                        if (jpegEncoder != null)
-                                        {
-                                            var jpegParams = new EncoderParameters(1);
-                                            jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
-                                            thumbBmp.Save(minitileJpgPath, jpegEncoder, jpegParams);
-                                        }
-                                    }
-                                    continue; // Done processing this directory
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError("Failed to process image during optimization", ex);
-                        }
-                    }
-                    // Search for preview.*.png/jpg regardless of case
-                    var files = Directory.GetFiles(modDir)
-                        .Where(f => Path.GetFileName(f).StartsWith("preview", StringComparison.OrdinalIgnoreCase) &&
-                                    (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase)))
-                        .ToList();
-                    var jpgFile = files.FirstOrDefault(f => f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase));
-                    var pngFile = files.FirstOrDefault(f => f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
-                    string? sourcePath = jpgFile ?? pngFile;
-                    if (string.IsNullOrEmpty(sourcePath)) continue;
-                    try
-                    {
-                        using (var src = System.Drawing.Image.FromFile(sourcePath))
-                        {
-                            // Step 1: Crop to square (1:1 ratio) if needed
-                            int originalSize = Math.Min(src.Width, src.Height);
-                            int x = (src.Width - originalSize) / 2;
-                            int y = (src.Height - originalSize) / 2;
-                            bool needsCrop = src.Width != src.Height;
-                            
-                            System.Drawing.Image squareImage = src;
-                            if (needsCrop)
-                            {
-                                var cropped = new System.Drawing.Bitmap(originalSize, originalSize);
-                                using (var g = System.Drawing.Graphics.FromImage(cropped))
-                                {
-                                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                                    g.CompositingQuality = CompositingQuality.HighQuality;
-                                    g.SmoothingMode = SmoothingMode.HighQuality;
-                                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                    var srcRect = new System.Drawing.Rectangle(x, y, originalSize, originalSize);
-                                    var destRect = new System.Drawing.Rectangle(0, 0, originalSize, originalSize);
-                                    g.DrawImage(src, destRect, srcRect, GraphicsUnit.Pixel);
-                                }
-                                squareImage = cropped;
-                            }
-                            
-                            // Step 2: Scale down only if larger than 1000x1000 (no upscaling)
-                            int finalSize = Math.Min(originalSize, 1000);
-                            
-                            using (var finalBmp = new System.Drawing.Bitmap(finalSize, finalSize))
-                            using (var g2 = System.Drawing.Graphics.FromImage(finalBmp))
-                            {
-                                g2.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                                g2.CompositingQuality = CompositingQuality.HighQuality;
-                                g2.SmoothingMode = SmoothingMode.HighQuality;
-                                g2.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                var rect = new System.Drawing.Rectangle(0, 0, finalSize, finalSize);
-                                g2.DrawImage(squareImage, rect);
-                                
-                                var encoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                                if (encoder != null)
-                                {
-                                    var encParams = new EncoderParameters(1);
-                                    encParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100L);
-                                    finalBmp.Save(jpgPath, encoder, encParams);
-                                }
-                            }
-                            
-                            // Dispose cropped image if we created one
-                            if (needsCrop && squareImage != src)
-                            {
-                                squareImage.Dispose();
-                            }
-                            
-                            // Now create 600x600 JPEG minitile from the newly created preview.jpg
-                            using (var previewImg = System.Drawing.Image.FromFile(jpgPath))
-                            using (var thumbBmp = new System.Drawing.Bitmap(600, 600))
-                            using (var g3 = System.Drawing.Graphics.FromImage(thumbBmp))
-                            {
-                                g3.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                                g3.CompositingQuality = CompositingQuality.HighQuality;
-                                g3.SmoothingMode = SmoothingMode.HighQuality;
-                                g3.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                var thumbRect = new System.Drawing.Rectangle(0, 0, 600, 600);
-                                g3.DrawImage(previewImg, thumbRect);
-                                
-                                // Save as JPEG minitile
-                                var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                                if (jpegEncoder != null)
-                                {
-                                    var jpegParams = new EncoderParameters(1);
-                                    jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
-                                    thumbBmp.Save(minitileJpgPath, jpegEncoder, jpegParams);
-                                }
-                            }
-                            // Dispose is handled in the using block above
-                        }
-                        // Remove all preview.* (PNG/JPG/JPEG) files with other names
-                        foreach (var f in files)
-                        {
-                            if (!string.Equals(f, jpgPath, StringComparison.OrdinalIgnoreCase))
-                            {
-                                try { File.Delete(f); } catch (Exception ex) { Logger.LogWarning($"Failed to delete file {f}: {ex.Message}"); }
-                            }
-                        }
-                    }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError("Failed to optimize image", ex);
-                        }
+                        
+                        ProcessModPreviewImages(modDir);
                     }
                 }
             }, token);
@@ -729,22 +583,237 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
                 
-                // Remove the original preview file after processing (same as mod optimization)
+                // Move the original preview file to recycle bin after processing
                 if (!previewPath.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    try
-                    {
-                        File.Delete(previewPath);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogWarning($"Failed to delete original category preview file {previewPath}: {ex.Message}");
-                    }
+                    MoveToRecycleBin(previewPath);
                 }
             }
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to process category preview for {Path.GetFileName(categoryDir)}", ex);
+            }
+        }
+
+        private void ProcessModPreviewImages(string modDir)
+        {
+            try
+            {
+                // Find all preview*.png and preview*.jpg files
+                var previewFiles = Directory.GetFiles(modDir)
+                    .Where(f => 
+                    {
+                        var fileName = Path.GetFileName(f).ToLower();
+                        return fileName.StartsWith("preview") &&
+                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                    })
+                    .OrderBy(f => f) // Sort to ensure consistent ordering
+                    .ToList();
+
+                if (previewFiles.Count == 0) return;
+
+                var minitileJpgPath = Path.Combine(modDir, "minitile.jpg");
+                bool needsMinitile = !File.Exists(minitileJpgPath);
+
+                // Process each preview file
+                for (int i = 0; i < previewFiles.Count && i < 100; i++) // Max 100 images (preview.jpg + preview-01.jpg to preview-99.jpg)
+                {
+                    var sourceFile = previewFiles[i];
+                    string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
+                    var targetPath = Path.Combine(modDir, targetFileName);
+
+                    // Skip if target already exists and is optimized
+                    if (File.Exists(targetPath) && IsImageOptimized(targetPath))
+                    {
+                        // Only create minitile for main preview if missing
+                        if (i == 0 && needsMinitile)
+                        {
+                            CreateMinitile(targetPath, minitileJpgPath);
+                        }
+                        continue;
+                    }
+
+                    // Optimize and save the image
+                    OptimizePreviewImage(sourceFile, targetPath);
+
+                    // Create minitile only for the main preview (index 0)
+                    if (i == 0)
+                    {
+                        CreateMinitile(targetPath, minitileJpgPath);
+                    }
+
+                    // Move original file to recycle bin if it has a different name
+                    if (!sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        MoveToRecycleBin(sourceFile);
+                    }
+                }
+
+                // Clean up any extra preview files beyond the 100 limit
+                var existingPreviews = Directory.GetFiles(modDir, "preview*.jpg")
+                    .Where(f => 
+                    {
+                        var name = Path.GetFileNameWithoutExtension(f);
+                        if (name == "preview") return false; // Keep main preview
+                        if (name.StartsWith("preview-"))
+                        {
+                            var suffix = name.Substring(8); // Remove "preview-"
+                            return !int.TryParse(suffix, out int num) || num > 99; // Remove if not 01-99
+                        }
+                        return true; // Remove other preview files
+                    })
+                    .ToList();
+
+                foreach (var extraFile in existingPreviews)
+                {
+                    MoveToRecycleBin(extraFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to process preview images in {modDir}", ex);
+            }
+        }
+
+        private bool IsImageOptimized(string imagePath)
+        {
+            try
+            {
+                using (var img = System.Drawing.Image.FromFile(imagePath))
+                {
+                    // Consider optimized if it's square and not larger than 1000x1000
+                    return img.Width == img.Height && img.Width <= 1000;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void OptimizePreviewImage(string sourcePath, string targetPath)
+        {
+            using (var src = System.Drawing.Image.FromFile(sourcePath))
+            {
+                // Step 1: Crop to square (1:1 ratio) if needed
+                int originalSize = Math.Min(src.Width, src.Height);
+                int x = (src.Width - originalSize) / 2;
+                int y = (src.Height - originalSize) / 2;
+                bool needsCrop = src.Width != src.Height;
+                
+                System.Drawing.Image squareImage = src;
+                if (needsCrop)
+                {
+                    var cropped = new System.Drawing.Bitmap(originalSize, originalSize);
+                    using (var g = System.Drawing.Graphics.FromImage(cropped))
+                    {
+                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        g.CompositingQuality = CompositingQuality.HighQuality;
+                        g.SmoothingMode = SmoothingMode.HighQuality;
+                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                        var srcRect = new System.Drawing.Rectangle(x, y, originalSize, originalSize);
+                        var destRect = new System.Drawing.Rectangle(0, 0, originalSize, originalSize);
+                        g.DrawImage(src, destRect, srcRect, GraphicsUnit.Pixel);
+                    }
+                    squareImage = cropped;
+                }
+                
+                // Step 2: Scale down only if larger than 1000x1000 (no upscaling)
+                int finalSize = Math.Min(originalSize, 1000);
+                
+                using (var finalBmp = new System.Drawing.Bitmap(finalSize, finalSize))
+                using (var g2 = System.Drawing.Graphics.FromImage(finalBmp))
+                {
+                    g2.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g2.CompositingQuality = CompositingQuality.HighQuality;
+                    g2.SmoothingMode = SmoothingMode.HighQuality;
+                    g2.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    var rect = new System.Drawing.Rectangle(0, 0, finalSize, finalSize);
+                    g2.DrawImage(squareImage, rect);
+                    
+                    var encoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                    if (encoder != null)
+                    {
+                        var encParams = new EncoderParameters(1);
+                        encParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100L);
+                        finalBmp.Save(targetPath, encoder, encParams);
+                    }
+                }
+                
+                // Dispose cropped image if we created one
+                if (needsCrop && squareImage != src)
+                {
+                    squareImage.Dispose();
+                }
+            }
+        }
+
+        private void CreateMinitile(string previewPath, string minitilePath)
+        {
+            try
+            {
+                using (var previewImg = System.Drawing.Image.FromFile(previewPath))
+                using (var thumbBmp = new System.Drawing.Bitmap(600, 600))
+                using (var g3 = System.Drawing.Graphics.FromImage(thumbBmp))
+                {
+                    g3.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g3.CompositingQuality = CompositingQuality.HighQuality;
+                    g3.SmoothingMode = SmoothingMode.HighQuality;
+                    g3.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    var thumbRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                    g3.DrawImage(previewImg, thumbRect);
+                    
+                    // Save as JPEG minitile
+                    var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                    if (jpegEncoder != null)
+                    {
+                        var jpegParams = new EncoderParameters(1);
+                        jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                        thumbBmp.Save(minitilePath, jpegEncoder, jpegParams);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to create minitile from {previewPath}", ex);
+            }
+        }
+
+        private void MoveToRecycleBin(string path)
+        {
+            try
+            {
+                var shf = new SHFILEOPSTRUCT
+                {
+                    wFunc = FO_DELETE,
+                    pFrom = path + '\0', // Must be null-terminated
+                    fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION
+                };
+                
+                int result = SHFileOperation(ref shf);
+                if (result != 0)
+                {
+                    Logger.LogWarning($"Failed to move file to recycle bin (error {result}), falling back to permanent deletion: {path}");
+                    File.Delete(path); // Fallback to permanent deletion
+                }
+                else
+                {
+                    Logger.LogInfo($"Moved file to recycle bin: {path}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Failed to move file to recycle bin, falling back to permanent deletion: {path}. Error: {ex.Message}");
+                try
+                {
+                    File.Delete(path); // Fallback to permanent deletion
+                }
+                catch (Exception deleteEx)
+                {
+                    Logger.LogError($"Failed to delete file permanently: {path}. Error: {deleteEx.Message}");
+                }
             }
         }
 
@@ -952,6 +1021,27 @@ namespace FlairX_Mod_Manager.Pages
             public nint lParam;
             public int iImage;
         }
+
+        // Win32 API for moving files to Recycle Bin
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+        private static extern int SHFileOperation(ref SHFILEOPSTRUCT lpFileOp);
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        private struct SHFILEOPSTRUCT
+        {
+            public IntPtr hwnd;
+            public uint wFunc;
+            public string pFrom;
+            public string pTo;
+            public ushort fFlags;
+            public bool fAnyOperationsAborted;
+            public IntPtr hNameMappings;
+            public string lpszProgressTitle;
+        }
+
+        private const uint FO_DELETE = 0x0003;
+        private const ushort FOF_ALLOWUNDO = 0x0040;
+        private const ushort FOF_NOCONFIRMATION = 0x0010;
 
         private async void AboutButton_Click(object sender, RoutedEventArgs e)
         {
