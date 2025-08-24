@@ -362,8 +362,21 @@ namespace FlairX_Mod_Manager.Pages
         // Dynamic Context Menu
         private void ContextMenu_Opening(object sender, object e)
         {
-            if (sender is MenuFlyout menuFlyout && menuFlyout.Target is Border border && border.DataContext is ModTile modTile)
+            if (sender is MenuFlyout menuFlyout)
             {
+                ModTile? modTile = null;
+                
+                // Handle both Border (old) and Button (new) targets
+                if (menuFlyout.Target is Border border && border.DataContext is ModTile borderTile)
+                {
+                    modTile = borderTile;
+                }
+                else if (menuFlyout.Target is Button button && button.DataContext is ModTile buttonTile)
+                {
+                    modTile = buttonTile;
+                }
+                
+                if (modTile == null) return;
                 // Check if mod directory exists before showing context menu (skip for categories)
                 if (!modTile.IsCategory)
                 {

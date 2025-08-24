@@ -175,20 +175,30 @@
                 </GridView.ItemsPanel>
                 <GridView.ItemTemplate>
                     <DataTemplate>
-                        <Border x:Name="TileBorder" 
-                                CornerRadius="8" 
-                                BorderThickness="1" 
-                                BorderBrush="{ThemeResource TileBorderBrush}" 
+                        <Button x:Name="TileButton" 
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="0"
                                 Margin="12"
-                                Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <Border.ContextFlyout>
+                                Click="ModName_Click"
+                                Tag="{Binding}"
+                                Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch">
+                            <Button.ContextFlyout>
                                 <MenuFlyout Opening="ContextMenu_Opening">
                                     <!-- Dynamic menu items will be populated in code-behind -->
                                 </MenuFlyout>
-                            </Border.ContextFlyout>
-                            <Border.Shadow>
-                                <ThemeShadow/>
-                            </Border.Shadow>
+                            </Button.ContextFlyout>
+                            <Border x:Name="TileBorder" 
+                                    CornerRadius="8" 
+                                    BorderThickness="1" 
+                                    BorderBrush="{ThemeResource TileBorderBrush}">
+                                <Border.Shadow>
+                                    <ThemeShadow/>
+                                </Border.Shadow>
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="*"/>
@@ -292,29 +302,17 @@
                                     <Border Background="{ThemeResource TileDescriptionBackground}" 
                                             CornerRadius="0,0,8,8" 
                                             Opacity="1" />
-                                    <Button x:Name="ModNameBtn" 
-                                            Click="ModName_Click" 
-                                            Tag="{Binding}" 
-                                            Background="Transparent" 
-                                            BorderThickness="0" 
-                                            HorizontalAlignment="Stretch" 
-                                            VerticalAlignment="Stretch" 
-                                            Padding="0" 
-                                            Width="277" 
-                                            Height="56" 
-                                            CornerRadius="0,0,8,8">
-                                        <TextBlock Text="{Binding Name}" 
-                                                   FontWeight="Bold" 
-                                                   FontSize="16" 
-                                                   Padding="8,4" 
-                                                   Foreground="{ThemeResource SystemBaseHighColor}" 
-                                                   TextTrimming="CharacterEllipsis" 
-                                                   TextAlignment="Center" 
-                                                   VerticalAlignment="Center" 
-                                                   HorizontalAlignment="Center" 
-                                                   TextWrapping="NoWrap"
-                                                   ToolTipService.ToolTip="{Binding Name}"/>
-                                    </Button>
+                                    <TextBlock Text="{Binding Name}" 
+                                               FontWeight="Bold" 
+                                               FontSize="16" 
+                                               Padding="8,4" 
+                                               Foreground="{ThemeResource SystemBaseHighColor}" 
+                                               TextTrimming="CharacterEllipsis" 
+                                               TextAlignment="Center" 
+                                               VerticalAlignment="Center" 
+                                               HorizontalAlignment="Center" 
+                                               TextWrapping="NoWrap"
+                                               ToolTipService.ToolTip="{Binding Name}"/>
                                 </Grid>
                                 
                                 <!-- Deletion Overlay -->
@@ -333,6 +331,7 @@
                                 </Border>
                             </Grid>
                         </Border>
+                        </Button>
                     </DataTemplate>
                 </GridView.ItemTemplate>
             </GridView>
