@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "Desabilite se funcionar lentamente",
   "SettingsPage_GridLogging_Label": "Log da grade",
   "SettingsPage_GridLogging_Tooltip": "Habilitar log detalhado para depuração de desempenho da grade",
-  "SettingsPage_DisableSymlinkCleanup_Label": "Desabilitar limpeza de symlinks ao sair",
+  "SettingsPage_DisableSymlinkCleanup_Label": "Desabilitar limpeza de symlinks",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "Impede a limpeza automática de symlinks de mods ao fechar o gerenciador",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "Desabilitar Limpeza de Symlinks",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "Tem certeza de que deseja desabilitar a limpeza de symlinks ao sair? Isso deixará symlinks de mods no seu diretório de jogo quando você fechar o gerenciador.",

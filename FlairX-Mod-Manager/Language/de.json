@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "Deaktivieren, wenn es langsam funktioniert",
   "SettingsPage_GridLogging_Label": "Raster-Protokollierung",
   "SettingsPage_GridLogging_Tooltip": "Detaillierte Protokollierung für Raster-Performance-Debugging aktivieren",
-  "SettingsPage_DisableSymlinkCleanup_Label": "Symlink-Bereinigung beim Beenden deaktivieren",
+  "SettingsPage_DisableSymlinkCleanup_Label": "Symlink-Bereinigung deaktivieren",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "Verhindert die automatische Bereinigung von Mod-Symlinks beim Schließen des Managers",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "Symlink-Bereinigung deaktivieren",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "Sind Sie sicher, dass Sie die Symlink-Bereinigung beim Beenden deaktivieren möchten? Dies lässt Mod-Symlinks in Ihrem Spielverzeichnis zurück, wenn Sie den Manager schließen.",

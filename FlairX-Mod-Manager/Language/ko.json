@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "느리게 작동하면 비활성화하세요",
   "SettingsPage_GridLogging_Label": "그리드 로깅",
   "SettingsPage_GridLogging_Tooltip": "그리드 성능 디버깅을 위한 상세 로깅 활성화",
-  "SettingsPage_DisableSymlinkCleanup_Label": "종료 시 심볼릭 링크 정리 비활성화",
+  "SettingsPage_DisableSymlinkCleanup_Label": "심볼릭 링크 정리 비활성화",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "매니저를 닫을 때 모드 심볼릭 링크의 자동 정리를 방지합니다",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "심볼릭 링크 정리 비활성화",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "종료 시 심볼릭 링크 정리를 비활성화하시겠습니까? 이렇게 하면 매니저를 닫을 때 게임 디렉토리에 모드 심볼릭 링크가 남게 됩니다.",

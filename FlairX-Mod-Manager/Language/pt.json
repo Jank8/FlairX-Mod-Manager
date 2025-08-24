@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "Desactivar se funcionar lentamente",
   "SettingsPage_GridLogging_Label": "Registo de grelha",
   "SettingsPage_GridLogging_Tooltip": "Activar registo detalhado para depuração de desempenho de grelha",
-  "SettingsPage_DisableSymlinkCleanup_Label": "Desactivar limpeza de symlinks ao sair",
+  "SettingsPage_DisableSymlinkCleanup_Label": "Desactivar limpeza de symlinks",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "Impede a limpeza automática de symlinks de mods ao fechar o gestor",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "Desactivar Limpeza de Symlinks",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "Tem a certeza de que deseja desactivar a limpeza de symlinks ao sair? Isto deixará symlinks de mods no seu directório de jogo quando fechar o gestor.",

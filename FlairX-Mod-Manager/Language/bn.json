@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "যদি ধীরে কাজ করে তাহলে নিষ্ক্রিয় করুন",
   "SettingsPage_GridLogging_Label": "গ্রিড লগিং",
   "SettingsPage_GridLogging_Tooltip": "গ্রিড পারফরম্যান্স ডিবাগিংয়ের জন্য বিস্তারিত লগিং সক্ষম করুন",
-  "SettingsPage_DisableSymlinkCleanup_Label": "প্রস্থানে symlink পরিষ্কার নিষ্ক্রিয় করুন",
+  "SettingsPage_DisableSymlinkCleanup_Label": "symlink পরিষ্কার নিষ্ক্রিয়",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "ম্যানেজার বন্ধ করার সময় মড symlinks এর স্বয়ংক্রিয় পরিষ্কার প্রতিরোধ করে",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "Symlink পরিষ্কার নিষ্ক্রিয় করুন",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "আপনি কি নিশ্চিত যে প্রস্থানে symlink পরিষ্কার নিষ্ক্রিয় করতে চান? এটি ম্যানেজার বন্ধ করার সময় আপনার গেম ডিরেক্টরিতে মড symlinks রেখে দেবে।",

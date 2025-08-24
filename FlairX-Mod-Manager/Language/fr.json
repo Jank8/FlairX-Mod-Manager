@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "Désactiver si cela fonctionne lentement",
   "SettingsPage_GridLogging_Label": "Journalisation de grille",
   "SettingsPage_GridLogging_Tooltip": "Activer la journalisation détaillée pour le débogage des performances de grille",
-  "SettingsPage_DisableSymlinkCleanup_Label": "Désactiver le nettoyage des liens symboliques à la sortie",
+  "SettingsPage_DisableSymlinkCleanup_Label": "Désactiver nettoyage symlinks",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "Empêche le nettoyage automatique des liens symboliques de mods lors de la fermeture du gestionnaire",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "Désactiver le Nettoyage des Liens Symboliques",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "Êtes-vous sûr de vouloir désactiver le nettoyage des liens symboliques à la sortie ? Cela laissera des liens symboliques de mods dans votre répertoire de jeu lorsque vous fermerez le gestionnaire.",

@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "如果运行缓慢请禁用",
   "SettingsPage_GridLogging_Label": "网格日志",
   "SettingsPage_GridLogging_Tooltip": "启用详细日志记录以调试网格性能",
-  "SettingsPage_DisableSymlinkCleanup_Label": "退出时禁用符号链接清理",
+  "SettingsPage_DisableSymlinkCleanup_Label": "禁用符号链接清理",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "防止关闭管理器时自动清理模组符号链接",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "禁用符号链接清理",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "您确定要在退出时禁用符号链接清理吗？这将在您关闭管理器时在游戏目录中留下模组符号链接。",

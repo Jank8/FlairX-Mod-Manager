@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "Wyłącz jeśli działa wolno",
   "SettingsPage_GridLogging_Label": "Logowanie siatki",
   "SettingsPage_GridLogging_Tooltip": "Włącz szczegółowe logowanie do debugowania wydajności siatki",
-  "SettingsPage_DisableSymlinkCleanup_Label": "Wyłącz czyszczenie dowiązań symbolicznych przy wyjściu",
+  "SettingsPage_DisableSymlinkCleanup_Label": "Wyłącz czyszczenie symlinków",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "Zapobiega automatycznemu czyszczeniu dowiązań symbolicznych modów przy zamykaniu menedżera",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "Wyłącz Czyszczenie Dowiązań Symbolicznych",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "Czy na pewno chcesz wyłączyć czyszczenie dowiązań symbolicznych przy wyjściu? Spowoduje to pozostawienie dowiązań symbolicznych modów w katalogu gry po zamknięciu menedżera.",

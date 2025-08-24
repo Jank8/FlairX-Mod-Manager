@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "Tắt nếu hoạt động chậm",
   "SettingsPage_GridLogging_Label": "Ghi nhật ký lưới",
   "SettingsPage_GridLogging_Tooltip": "Bật ghi nhật ký chi tiết để gỡ lỗi hiệu suất lưới",
-  "SettingsPage_DisableSymlinkCleanup_Label": "Tắt dọn dẹp symlink khi thoát",
+  "SettingsPage_DisableSymlinkCleanup_Label": "Tắt dọn dẹp symlink",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "Ngăn việc dọn dẹp tự động các symlink mod khi đóng trình quản lý",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "Tắt Dọn Dẹp Symlink",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "Bạn có chắc chắn muốn tắt dọn dẹp symlink khi thoát không? Điều này sẽ để lại các symlink mod trong thư mục game của bạn khi bạn đóng trình quản lý.",

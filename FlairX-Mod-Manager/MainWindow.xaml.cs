@@ -515,12 +515,12 @@ namespace FlairX_Mod_Manager
 
         private void UpdateMenuItemsEnabledState(bool isCategoriesView)
         {
-            // Disable/enable scrollable menu entries based on view mode
+            // Hide/show scrollable menu entries based on view mode
             foreach (var item in nvSample.MenuItems.OfType<NavigationViewItem>())
             {
                 if (item.Tag is string tag && tag.StartsWith("Category_"))
                 {
-                    item.IsEnabled = !isCategoriesView; // Disable in category mode
+                    item.Visibility = isCategoriesView ? Visibility.Collapsed : Visibility.Visible;
                 }
             }
         }

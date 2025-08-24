@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "I-disable kung mabagal",
   "SettingsPage_GridLogging_Label": "Grid logging",
   "SettingsPage_GridLogging_Tooltip": "Paganahin ang detalyadong logging para sa grid performance debugging",
-  "SettingsPage_DisableSymlinkCleanup_Label": "I-disable ang symlink cleanup sa paglabas",
+  "SettingsPage_DisableSymlinkCleanup_Label": "I-disable ang symlink cleanup",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "Pinipigilan ang awtomatikong paglilinis ng mod symlinks kapag sinasara ang manager",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "I-disable ang Symlink Cleanup",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "Sigurado ka bang gusto mong i-disable ang symlink cleanup sa paglabas? Iiwan nito ang mod symlinks sa inyong game directory kapag sinara ninyo ang manager.",

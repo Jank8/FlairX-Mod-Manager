@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "Yavaş çalışıyorsa devre dışı bırak",
   "SettingsPage_GridLogging_Label": "Izgara günlükleme",
   "SettingsPage_GridLogging_Tooltip": "Izgara performans hata ayıklama için ayrıntılı günlüklemeyi etkinleştir",
-  "SettingsPage_DisableSymlinkCleanup_Label": "Çıkışta symlink temizlemeyi devre dışı bırak",
+  "SettingsPage_DisableSymlinkCleanup_Label": "Symlink temizlemeyi devre dışı bırak",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "Yöneticiyi kapatırken mod symlink'lerinin otomatik temizlenmesini engeller",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "Symlink Temizlemeyi Devre Dışı Bırak",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "Çıkışta symlink temizlemeyi devre dışı bırakmak istediğinizden emin misiniz? Bu, yöneticiyi kapattığınızda oyun dizininizde mod symlink'lerini bırakacaktır.",

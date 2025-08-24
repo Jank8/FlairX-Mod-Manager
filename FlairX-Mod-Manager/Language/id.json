@@ -74,7 +74,7 @@
   "SettingsPage_DynamicModSearch_Tooltip": "Nonaktifkan jika bekerja lambat",
   "SettingsPage_GridLogging_Label": "Grid logging",
   "SettingsPage_GridLogging_Tooltip": "Aktifkan logging detail untuk debugging performa grid",
-  "SettingsPage_DisableSymlinkCleanup_Label": "Nonaktifkan pembersihan symlink saat keluar",
+  "SettingsPage_DisableSymlinkCleanup_Label": "Nonaktifkan pembersihan symlink",
   "SettingsPage_DisableSymlinkCleanup_Tooltip": "Mencegah pembersihan otomatis symlink mod saat menutup manager",
   "SettingsPage_DisableSymlinkCleanup_ConfirmTitle": "Nonaktifkan Pembersihan Symlink",
   "SettingsPage_DisableSymlinkCleanup_ConfirmMessage": "Apakah Anda yakin ingin menonaktifkan pembersihan symlink saat keluar? Ini akan meninggalkan symlink mod di direktori game Anda saat Anda menutup manager.",
