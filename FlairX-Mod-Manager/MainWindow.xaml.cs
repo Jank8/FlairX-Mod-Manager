@@ -463,9 +463,19 @@ namespace FlairX_Mod_Manager
             }
             else if (lastPage == "SettingsPage")
             {
-                // Navigate to Settings page
-                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.SettingsPage), null, new DrillInNavigationTransitionInfo());
-                // Settings is handled by NavigationView automatically
+                // Don't start on Settings page to avoid category list duplicates
+                // Instead, navigate to All Mods based on current view mode
+                var currentViewMode = SettingsManager.Current.ViewMode;
+                if (currentViewMode == "Categories")
+                {
+                    // Navigate to All Categories in category mode
+                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Categories", new DrillInNavigationTransitionInfo());
+                }
+                else
+                {
+                    // Navigate to All Mods in default mode
+                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
+                }
             }
             else
             {
