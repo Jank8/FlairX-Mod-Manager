@@ -91,6 +91,7 @@ namespace FlairX_Mod_Manager.Pages
             // Set toggle states from settings
             DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
             GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
+            DisableSymlinkCleanupToggle.IsOn = SettingsManager.Current.DisableSymlinkCleanup;
             ShowOrangeAnimationToggle.IsOn = SettingsManager.Current.ShowOrangeAnimation;
             ModGridZoomToggle.IsOn = SettingsManager.Current.ModGridZoomEnabled;
             ActiveModsToTopToggle.IsOn = SettingsManager.Current.ActiveModsToTopEnabled;
@@ -327,11 +328,13 @@ namespace FlairX_Mod_Manager.Pages
             LanguageLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language");
             DynamicModSearchLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Label");
             GridLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Label");
+            DisableSymlinkCleanupLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DisableSymlinkCleanup_Label");
             ShowOrangeAnimationLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Label");
             ModGridZoomLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Label");
             ActiveModsToTopLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Label");
             ToolTipService.SetToolTip(ModGridZoomToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Tooltip"));
             ToolTipService.SetToolTip(GridLoggingToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Tooltip"));
+            ToolTipService.SetToolTip(DisableSymlinkCleanupToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_DisableSymlinkCleanup_Tooltip"));
             ToolTipService.SetToolTip(ActiveModsToTopToggle, SharedUtilities.GetTranslation(lang, "ActiveModsToTop_Tooltip"));
             // Update SelectorBar texts
             ThemeSelectorAutoText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Auto");
@@ -1089,6 +1092,41 @@ namespace FlairX_Mod_Manager.Pages
         {
             SettingsManager.Current.ActiveModsToTopEnabled = ActiveModsToTopToggle.IsOn;
             SettingsManager.Save();
+        }
+
+        private async void DisableSymlinkCleanupToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (DisableSymlinkCleanupToggle.IsOn)
+            {
+                // Show confirmation dialog when enabling
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                var dialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "SettingsPage_DisableSymlinkCleanup_ConfirmTitle"),
+                    Content = SharedUtilities.GetTranslation(lang, "SettingsPage_DisableSymlinkCleanup_ConfirmMessage"),
+                    PrimaryButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel"),
+                    XamlRoot = this.Content.XamlRoot
+                };
+
+                var result = await dialog.ShowAsync();
+                if (result == ContentDialogResult.Primary)
+                {
+                    SettingsManager.Current.DisableSymlinkCleanup = true;
+                    SettingsManager.Save();
+                }
+                else
+                {
+                    // User cancelled, revert the toggle
+                    DisableSymlinkCleanupToggle.IsOn = false;
+                }
+            }
+            else
+            {
+                // No confirmation needed when disabling
+                SettingsManager.Current.DisableSymlinkCleanup = false;
+                SettingsManager.Save();
+            }
         }
 
         // Hotkey handling methods

@@ -143,6 +143,12 @@
                             <TextBlock x:Name="GridLoggingLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
                             <ToggleSwitch x:Name="GridLoggingToggle" Toggled="GridLoggingToggle_Toggled" OnContent="" OffContent="" ToolTipService.ToolTip="Enable detailed logging for grid performance debugging" Margin="-40,0,0,0"/>
                         </StackPanel>
+                        
+                        <!-- Disable symlink cleanup on exit -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="DisableSymlinkCleanupLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
+                            <ToggleSwitch x:Name="DisableSymlinkCleanupToggle" Toggled="DisableSymlinkCleanupToggle_Toggled" OnContent="" OffContent="" Margin="-40,0,0,0"/>
+                        </StackPanel>
                     </StackPanel>
                     
                     <!-- Right column: Hotkey settings -->

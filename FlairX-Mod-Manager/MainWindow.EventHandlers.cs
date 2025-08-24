@@ -170,7 +170,13 @@ namespace FlairX_Mod_Manager
                     bool isCategoriesView = SettingsManager.Current.ViewMode == "Categories";
                     UpdateAllModsButtonText(isCategoriesView);
                     UpdateViewModeTooltip(isCategoriesView);
-                    UpdateMenuItemsEnabledState(isCategoriesView);
+                    
+                    // Update menu items enabled state with a small delay to ensure menu is fully loaded
+                    DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        await Task.Delay(100); // Small delay to ensure menu items are loaded
+                        UpdateMenuItemsEnabledState(isCategoriesView);
+                    });
                     
                     // Navigate to ModGridPage if not already there, or change mode if already there
                     if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)

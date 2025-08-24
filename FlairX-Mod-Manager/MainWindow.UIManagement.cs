@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Windows.Storage.Streams;
 
@@ -130,6 +131,21 @@ namespace FlairX_Mod_Manager
         {
             try
             {
+                // Only generate menu items if a game is selected
+                bool gameSelected = SettingsManager.Current?.SelectedGameIndex > 0;
+                if (!gameSelected)
+                {
+                    // Clear menu items if no game is selected
+                    DispatcherQueue.TryEnqueue(() =>
+                    {
+                        if (nvSample?.MenuItems != null)
+                        {
+                            nvSample.MenuItems.Clear();
+                        }
+                    });
+                    return;
+                }
+
                 await Task.Run(() =>
                 {
                     var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
@@ -155,14 +171,30 @@ namespace FlairX_Mod_Manager
                     categories.Sort(StringComparer.OrdinalIgnoreCase);
                     
                     // Update UI on main thread
-                    DispatcherQueue.TryEnqueue(() =>
+                    DispatcherQueue.TryEnqueue(async () =>
                     {
                         try
                         {
                             if (nvSample?.MenuItems != null)
                             {
-                                // Clear existing menu items (but preserve footer items)
+                                // Clear existing menu items
                                 nvSample.MenuItems.Clear();
+                                
+                                // Also clear and rebuild footer items to prevent duplication
+                                var existingFooterItems = nvSample.FooterMenuItems.OfType<NavigationViewItem>()
+                                    .Where(item => item.Tag?.ToString() == "OtherModsPage" || 
+                                                   item.Tag?.ToString() == "FunctionsPage" || 
+                                                   item.Tag?.ToString() == "PresetsPage" || 
+                                                   item.Tag?.ToString() == "SettingsPage")
+                                    .ToList();
+                                
+                                nvSample.FooterMenuItems.Clear();
+                                
+                                // Re-add the footer items
+                                foreach (var item in existingFooterItems)
+                                {
+                                    nvSample.FooterMenuItems.Add(item);
+                                }
                                 
                                 // Add character categories
                                 foreach (var category in categories)
@@ -171,9 +203,20 @@ namespace FlairX_Mod_Manager
                                     {
                                         Content = category,
                                         Tag = $"Category_{category}",
-                                        Icon = new FontIcon { Glyph = "\uEA8C" } // Character icon
+                                        Icon = await CreateCategoryIconAsync(category, modLibraryPath),
+                                        Style = (Style)Application.Current.Resources["CategoryAvatarNavigationViewItem"]
                                     };
+                                    
+                                    // Add the menu item first
                                     nvSample.MenuItems.Add(menuItem);
+                                    
+                                    // Wait for the template to be applied, then find and attach hover events to the icon border
+                                    menuItem.Loaded += async (s, e) => 
+                                    {
+                                        // Small delay to ensure template is fully applied
+                                        await Task.Delay(50);
+                                        AttachIconHoverEvents(menuItem, category, modLibraryPath);
+                                    };
                                 }
                                 
                                 // Update menu items state based on current view mode
@@ -192,6 +235,49 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogError("Error generating mod character menu", ex);
             }
+        }
+
+        private async Task<IconElement> CreateCategoryIconAsync(string categoryName, string modLibraryPath)
+        {
+            try
+            {
+                var categoryPath = Path.Combine(modLibraryPath, categoryName);
+                var categoryPreviewPath = Path.Combine(categoryPath, "catprev.jpg");
+                
+                // Check if category preview image exists
+                if (File.Exists(categoryPreviewPath))
+                {
+                    // Create a high-quality bitmap from the category image
+                    var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+                    
+                    // Set decode pixel dimensions for optimal quality at 32x32
+                    bitmap.DecodePixelWidth = 64;  // 2x for high DPI displays
+                    bitmap.DecodePixelHeight = 64; // 2x for high DPI displays
+                    
+                    using (var stream = File.OpenRead(categoryPreviewPath))
+                    {
+                        await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
+                    }
+                    
+                    // Create ImageIcon with the category image
+                    // The NavigationView will handle appropriate styling
+                    var imageIcon = new ImageIcon
+                    {
+                        Source = bitmap,
+                        Width = 32,
+                        Height = 32
+                    };
+                    
+                    return imageIcon;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to create category icon for {categoryName}", ex);
+            }
+            
+            // Fallback to default character icon if image doesn't exist or fails to load
+            return new FontIcon { Glyph = "\uEA8C" };
         }
 
         private void EnsurePresetsMenuItemExists()
@@ -313,7 +399,11 @@ namespace FlairX_Mod_Manager
             SetPaneButtonTooltips();
             SetCategoryTitles();
             UpdateAllModsButtonState();
-            _ = GenerateModCharacterMenuAsync();
+            // Only generate menu if a game is selected
+            if (SettingsManager.Current?.SelectedGameIndex > 0)
+            {
+                _ = GenerateModCharacterMenuAsync();
+            }
             // Refresh page if it's ModGridPage or PresetsPage
             if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
             {
@@ -390,17 +480,31 @@ namespace FlairX_Mod_Manager
                 // Ensure Presets menu item exists before updating UI state
                 EnsurePresetsMenuItemExists();
                 
-                // // Enable/disable navigation menu items (but not the entire navigation view)
+                // Clear or populate menu items based on game selection
                 if (nvSample != null)
                 {
-                    // Disable menu items instead of the entire navigation view
-                    foreach (var item in nvSample.MenuItems.OfType<NavigationViewItem>())
+                    if (gameSelected)
                     {
-                        item.IsEnabled = gameSelected;
+                        // Enable menu items when game is selected
+                        foreach (var item in nvSample.MenuItems.OfType<NavigationViewItem>())
+                        {
+                            item.IsEnabled = true;
+                        }
+                        foreach (var item in nvSample.FooterMenuItems.OfType<NavigationViewItem>())
+                        {
+                            item.IsEnabled = true;
+                        }
                     }
-                    foreach (var item in nvSample.FooterMenuItems.OfType<NavigationViewItem>())
+                    else
                     {
-                        item.IsEnabled = gameSelected;
+                        // Clear menu items when no game is selected to hide them completely
+                        nvSample.MenuItems.Clear();
+                        
+                        // Keep footer items but disable them
+                        foreach (var item in nvSample.FooterMenuItems.OfType<NavigationViewItem>())
+                        {
+                            item.IsEnabled = false;
+                        }
                     }
                 }
                 
@@ -447,6 +551,131 @@ namespace FlairX_Mod_Manager
             if (OrangeAnimationProgressBar != null)
             {
                 OrangeAnimationProgressBar.Opacity = isVisible ? 1 : 0;
+            }
+        }
+
+        private void AttachIconHoverEvents(NavigationViewItem menuItem, string categoryName, string modLibraryPath)
+        {
+            try
+            {
+                // Find the IconBorder in the template
+                var iconBorder = FindChildByName<Border>(menuItem, "IconBorder");
+                if (iconBorder != null)
+                {
+                    // Store category info in the border's tag for the event handlers
+                    iconBorder.Tag = new { CategoryName = categoryName, ModLibraryPath = modLibraryPath };
+                    
+                    // Ensure the border can receive pointer events
+                    iconBorder.Background = iconBorder.Background ?? new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                    
+                    // Attach hover events to the icon border only
+                    iconBorder.PointerEntered += CategoryIcon_PointerEntered;
+                    iconBorder.PointerExited += CategoryIcon_PointerExited;
+                }
+                else
+                {
+                    Logger.LogWarning($"IconBorder not found for category {categoryName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to attach hover events for category {categoryName}", ex);
+            }
+        }
+
+        private T? FindChildByName<T>(DependencyObject parent, string name) where T : FrameworkElement
+        {
+            if (parent == null) return null;
+
+            // Check if the parent itself matches
+            if (parent is T parentElement && parentElement.Name == name)
+            {
+                return parentElement;
+            }
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                
+                if (child is T element && element.Name == name)
+                {
+                    return element;
+                }
+                
+                var result = FindChildByName<T>(child, name);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
+        }
+
+        private async void CategoryIcon_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (sender is Border iconBorder && iconBorder.Tag != null)
+            {
+                var categoryInfo = iconBorder.Tag;
+                var categoryName = categoryInfo.GetType().GetProperty("CategoryName")?.GetValue(categoryInfo) as string;
+                var modLibraryPath = categoryInfo.GetType().GetProperty("ModLibraryPath")?.GetValue(categoryInfo) as string;
+                
+                if (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(modLibraryPath))
+                    return;
+                    
+                var categoryPath = Path.Combine(modLibraryPath, categoryName);
+                var categoryPreviewPath = Path.Combine(categoryPath, "catprev.jpg");
+                
+                if (File.Exists(categoryPreviewPath) && CategoryPreviewPopup != null && CategoryPreviewImage != null)
+                {
+                    try
+                    {
+                        // Load the category preview image
+                        var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+                        using (var stream = File.OpenRead(categoryPreviewPath))
+                        {
+                            await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
+                        }
+                        
+                        CategoryPreviewImage.Source = bitmap;
+                        
+                        // Calculate popup position using the icon border position
+                        var bounds = iconBorder.TransformToVisual(MainRoot).TransformBounds(new Windows.Foundation.Rect(0, 0, iconBorder.ActualWidth, iconBorder.ActualHeight));
+                        var windowWidth = MainRoot.ActualWidth;
+                        var windowHeight = MainRoot.ActualHeight;
+                        
+                        const double popupWidth = 400;
+                        const double popupHeight = 400;
+                        const double margin = 15;
+                        
+                        // Position to the right of the navigation pane
+                        double horizontalOffset = bounds.Right + margin;
+                        
+                        // If it would go off screen, position to the left
+                        if (horizontalOffset + popupWidth > windowWidth)
+                        {
+                            horizontalOffset = Math.Max(margin, bounds.Left - popupWidth - margin);
+                        }
+                        
+                        // Center vertically relative to the icon
+                        double verticalOffset = Math.Max(margin, Math.Min(bounds.Top - (popupHeight - bounds.Height) / 2, windowHeight - popupHeight - margin));
+                        
+                        CategoryPreviewPopup.HorizontalOffset = horizontalOffset;
+                        CategoryPreviewPopup.VerticalOffset = verticalOffset;
+                        CategoryPreviewPopup.IsOpen = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to show category preview for {categoryName}", ex);
+                    }
+                }
+            }
+        }
+
+        private void CategoryIcon_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (CategoryPreviewPopup != null)
+            {
+                CategoryPreviewPopup.IsOpen = false;
             }
         }
     }

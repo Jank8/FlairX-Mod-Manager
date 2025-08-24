@@ -143,7 +143,11 @@ namespace FlairX_Mod_Manager
                 }
                 
                 // Then regenerate the menu on the UI thread (not in Task.Run)
-                _ = GenerateModCharacterMenuAsync();
+                // Only generate menu if a game is selected
+                if (SettingsManager.Current?.SelectedGameIndex > 0)
+                {
+                    _ = GenerateModCharacterMenuAsync();
+                }
                 
                 // Navigate to appropriate page based on view mode
                 if (IsCurrentlyInCategoryMode())
@@ -191,9 +195,9 @@ namespace FlairX_Mod_Manager
                     foreach (var item in currentMenuItems)
                     {
                         var tag = item.Tag?.ToString();
+                        // Skip footer items - they should only be in footer, not main menu
                         if (tag == "OtherModsPage" || tag == "FunctionsPage" || tag == "PresetsPage" || tag == "SettingsPage")
                         {
-                            nvSample.FooterMenuItems.Add(item);
                             continue;
                         }
                         if (item.Content?.ToString()?.ToLower().Contains(query) ?? false)

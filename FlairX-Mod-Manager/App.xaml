@@ -33,7 +33,85 @@
             </Style>
             <Style TargetType="NavigationViewItem">
                 <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+                <Setter Property="MinHeight" Value="48" />
+                <Setter Property="Height" Value="48" />
+                <Setter Property="Padding" Value="16,8,16,8" />
             </Style>
+            
+            <!-- Custom style for category avatar NavigationViewItems -->
+            <Style x:Key="CategoryAvatarNavigationViewItem" TargetType="NavigationViewItem">
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+                <Setter Property="MinHeight" Value="48" />
+                <Setter Property="Height" Value="48" />
+                <Setter Property="Padding" Value="16,8,16,8" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="NavigationViewItem">
+                            <Grid x:Name="LayoutRoot" Background="Transparent" Height="48">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal"/>
+                                        <VisualState x:Name="PointerOver">
+                                            <VisualState.Setters>
+                                                <Setter Target="LayoutRoot.Background" Value="{ThemeResource NavigationViewItemBackgroundPointerOver}"/>
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource NavigationViewItemForegroundPointerOver}"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Pressed">
+                                            <VisualState.Setters>
+                                                <Setter Target="LayoutRoot.Background" Value="{ThemeResource NavigationViewItemBackgroundPressed}"/>
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource NavigationViewItemForegroundPressed}"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter Target="LayoutRoot.Background" Value="{ThemeResource NavigationViewItemBackgroundSelected}"/>
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource NavigationViewItemForegroundSelected}"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="PointerOverSelected">
+                                            <VisualState.Setters>
+                                                <Setter Target="LayoutRoot.Background" Value="{ThemeResource NavigationViewItemBackgroundSelectedPointerOver}"/>
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource NavigationViewItemForegroundSelectedPointerOver}"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="PressedSelected">
+                                            <VisualState.Setters>
+                                                <Setter Target="LayoutRoot.Background" Value="{ThemeResource NavigationViewItemBackgroundSelectedPressed}"/>
+                                                <Setter Target="ContentPresenter.Foreground" Value="{ThemeResource NavigationViewItemForegroundSelectedPressed}"/>
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                                
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="48"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <!-- Icon container with fixed size and rounded corners -->
+                                <Border x:Name="IconBorder" Grid.Column="0" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        CornerRadius="4" Background="Transparent">
+                                    <Viewbox Stretch="Uniform">
+                                        <ContentPresenter x:Name="Icon" Content="{TemplateBinding Icon}" />
+                                    </Viewbox>
+                                </Border>
+                                
+                                <!-- Content (text) -->
+                                <ContentPresenter Grid.Column="1" 
+                                                x:Name="ContentPresenter"
+                                                Content="{TemplateBinding Content}"
+                                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                ContentTransitions="{TemplateBinding ContentTransitions}"
+                                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                VerticalAlignment="Center"
+                                                Margin="12,0,0,0"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <Style TargetType="ContentDialog">
                 <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
                 <Setter Property="CornerRadius" Value="8" />

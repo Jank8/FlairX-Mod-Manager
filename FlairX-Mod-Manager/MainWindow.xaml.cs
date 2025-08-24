@@ -169,7 +169,11 @@ namespace FlairX_Mod_Manager
             };
             SetSearchBoxPlaceholder();
             SetFooterMenuTranslations();
-            _ = GenerateModCharacterMenuAsync();
+            // Only generate menu if a game is selected
+            if (SettingsManager.Current?.SelectedGameIndex > 0)
+            {
+                _ = GenerateModCharacterMenuAsync();
+            }
 
             // Update All Mods button state based on settings
             UpdateAllModsButtonState();

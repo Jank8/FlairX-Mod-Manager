@@ -219,6 +219,27 @@
                        VerticalAlignment="Center"/>
         </Border>
 
+        <!-- Category Image Preview Popup -->
+        <Popup x:Name="CategoryPreviewPopup" 
+               IsLightDismissEnabled="False"
+               IsHitTestVisible="False">
+            <Border Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="8"
+                    IsHitTestVisible="False">
+                <Border.Shadow>
+                    <ThemeShadow/>
+                </Border.Shadow>
+                <Image x:Name="CategoryPreviewImage" 
+                       Width="400" 
+                       Height="400" 
+                       Stretch="Uniform"
+                       IsHitTestVisible="False"/>
+            </Border>
+        </Popup>
+
         <!-- Floating Action Button in bottom right corner -->
         <Border x:Name="LauncherFabBorder"
                 Width="64" Height="64"
