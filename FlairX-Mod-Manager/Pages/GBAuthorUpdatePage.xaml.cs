@@ -253,7 +253,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (IsSmartUpdate && !shouldUpdate)
                     {
                         SafeIncrementSkip();
-                        SafeAddSkippedMod($"{modName}: Already has author ({currentAuthor})");
+                        SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "AlreadyHasAuthor")} ({currentAuthor})");
                         processed++;
                         lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
                         NotifyProgressChanged();
@@ -348,10 +348,42 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Successful completion - reset button state and show summary
                 ResetButtonToUpdateState();
-                string summary = string.Format(SharedUtilities.GetTranslation(lang, "SuccessCount"), _success) + "\n\n" +
-                                SharedUtilities.GetTranslation(lang, "SkippedMods") + "\n" + (_skippedMods.Count > 0 ? string.Join("\n", _skippedMods) : SharedUtilities.GetTranslation(lang, "None")) +
-                                "\n\n" + SharedUtilities.GetTranslation(lang, "Errors") + "\n" + (_failedMods.Count > 0 ? string.Join("\n", _failedMods) : SharedUtilities.GetTranslation(lang, "None")) +
-                                "\n\n" + string.Format(SharedUtilities.GetTranslation(lang, "TotalChecked"), _totalMods);
+                string summary = string.Format(SharedUtilities.GetTranslation(lang, "TotalChecked"), _totalMods) + "\n" +
+                                string.Format(SharedUtilities.GetTranslation(lang, "SuccessCount"), _success) + "\n" +
+                                string.Format(SharedUtilities.GetTranslation(lang, "SkippedCount"), _skip);
+                
+                // For smart update, only show skipped items with errors/issues (not "already has author")
+                // For full update, show all skipped items
+                List<string> skippedToShow = new List<string>();
+                if (IsSmartUpdate)
+                {
+                    // Smart update: only show skipped items that are NOT "already has author"
+                    string alreadyHasAuthorText = SharedUtilities.GetTranslation(lang, "AlreadyHasAuthor");
+                    foreach (var skipped in _skippedMods)
+                    {
+                        if (!skipped.Contains(alreadyHasAuthorText))
+                        {
+                            skippedToShow.Add(skipped);
+                        }
+                    }
+                }
+                else
+                {
+                    // Full update: show all skipped items
+                    skippedToShow = _skippedMods;
+                }
+                
+                // Add failed mods to skipped list for display
+                skippedToShow.AddRange(_failedMods);
+                
+                // Show skipped items if there are any to show
+                if (skippedToShow.Count > 0)
+                {
+                    string skippedHeader = IsSmartUpdate ? 
+                        SharedUtilities.GetTranslation(lang, "SkippedModsWithIssues") : 
+                        SharedUtilities.GetTranslation(lang, "SkippedMods");
+                    summary += "\n\n" + skippedHeader + "\n" + string.Join("\n", skippedToShow);
+                }
                 // Create scrollable content
                 var textBlock = new Microsoft.UI.Xaml.Controls.TextBlock
                 {
