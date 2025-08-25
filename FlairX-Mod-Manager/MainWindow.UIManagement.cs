@@ -44,7 +44,8 @@ namespace FlairX_Mod_Manager
 
         private string GetXXMILauncherPath()
         {
-            return Path.Combine(AppContext.BaseDirectory, @"XXMI\Resources\Bin\XXMI Launcher.exe");
+            var xxmiRoot = SettingsManager.Current.XXMIRootDirectory ?? @".\XXMI";
+            return Path.Combine(AppContext.BaseDirectory, xxmiRoot, @"Resources\Bin\XXMI Launcher.exe");
         }
 
         private StackPanel CreateXXMIDownloadContent(string expectedPath)
