@@ -26,7 +26,7 @@ namespace FlairX_Mod_Manager
 {
     public sealed partial class MainWindow : Window
     {
-        private const int MIN_WIDTH = 1280;
+        private const int MIN_WIDTH = 1300;
         private const int MIN_HEIGHT = 720;
         private Dictionary<string, string> _lang = new();
 

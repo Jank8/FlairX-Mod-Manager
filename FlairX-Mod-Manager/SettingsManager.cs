@@ -26,8 +26,8 @@ namespace FlairX_Mod_Manager
         public int SelectedGameIndex { get; set; } = 0; // 0 = no game selected, 1-5 = game indices
         
         // Window settings
-        public double WindowWidth { get; set; } = 1200;
-        public double WindowHeight { get; set; } = 800;
+        public double WindowWidth { get; set; } = 1300;
+        public double WindowHeight { get; set; } = 720;
         public double WindowX { get; set; } = -1; // -1 means center on screen
         public double WindowY { get; set; } = -1; // -1 means center on screen
         public bool WindowMaximized { get; set; } = false;

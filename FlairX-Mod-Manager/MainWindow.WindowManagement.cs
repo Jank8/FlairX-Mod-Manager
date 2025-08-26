@@ -49,16 +49,27 @@ namespace FlairX_Mod_Manager
                 {
                     var settings = SettingsManager.Current;
                     
-                    // Restore window size
-                    if (settings.WindowWidth > 0 && settings.WindowHeight > 0)
+                    // Validate and restore window size with fallbacks
+                    int targetWidth = MIN_WIDTH;
+                    int targetHeight = MIN_HEIGHT;
+                    
+                    if (settings.WindowWidth >= MIN_WIDTH && settings.WindowHeight >= MIN_HEIGHT)
                     {
-                        appWindow.Resize(new Windows.Graphics.SizeInt32(
-                            (int)settings.WindowWidth, 
-                            (int)settings.WindowHeight));
+                        targetWidth = (int)settings.WindowWidth;
+                        targetHeight = (int)settings.WindowHeight;
+                    }
+                    else
+                    {
+                        // Reset corrupted values to defaults
+                        settings.WindowWidth = MIN_WIDTH;
+                        settings.WindowHeight = MIN_HEIGHT;
+                        SettingsManager.Save();
                     }
                     
-                    // Restore window position (only if valid)
-                    if (settings.WindowX >= 0 && settings.WindowY >= 0)
+                    appWindow.Resize(new Windows.Graphics.SizeInt32(targetWidth, targetHeight));
+                    
+                    // Restore window position (only if valid and on-screen)
+                    if (settings.WindowX >= 0 && settings.WindowY >= 0 && IsPositionOnScreen(settings.WindowX, settings.WindowY))
                     {
                         appWindow.Move(new Windows.Graphics.PointInt32(
                             (int)settings.WindowX, 
@@ -66,20 +77,65 @@ namespace FlairX_Mod_Manager
                     }
                     else
                     {
-                        // Center window if no saved position
+                        // Center window if no saved position or position is off-screen
                         CenterWindow(appWindow);
                     }
                     
                     // Restore maximized state
-                    if (settings.WindowMaximized && appWindow.Presenter is OverlappedPresenter presenter)
+                    if (settings.WindowMaximized && appWindow.Presenter is OverlappedPresenter maximizePresenter)
                     {
-                        presenter.Maximize();
+                        maximizePresenter.Maximize();
                     }
                 }
             }
             catch (Exception ex)
             {
                 Logger.LogError("Failed to restore window state", ex);
+                // Fallback to default size on any error
+                SetDefaultWindowSize();
+            }
+        }
+
+        private bool IsPositionOnScreen(double x, double y)
+        {
+            try
+            {
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+                var appWindow = AppWindow.GetFromWindowId(windowId);
+                var displayArea = DisplayArea.GetFromWindowId(windowId, DisplayAreaFallback.Nearest);
+                
+                if (displayArea?.WorkArea != null)
+                {
+                    var workArea = displayArea.WorkArea;
+                    return x >= workArea.X && y >= workArea.Y && 
+                           x < workArea.X + workArea.Width && y < workArea.Y + workArea.Height;
+                }
+            }
+            catch
+            {
+                // If we can't determine, assume it's valid
+            }
+            return true;
+        }
+
+        private void SetDefaultWindowSize()
+        {
+            try
+            {
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+                var appWindow = AppWindow.GetFromWindowId(windowId);
+                
+                if (appWindow != null)
+                {
+                    appWindow.Resize(new Windows.Graphics.SizeInt32(MIN_WIDTH, MIN_HEIGHT));
+                    CenterWindow(appWindow);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to set default window size", ex);
             }
         }
 
