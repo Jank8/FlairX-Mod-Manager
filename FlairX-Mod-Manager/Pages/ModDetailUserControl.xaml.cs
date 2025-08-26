@@ -51,6 +51,10 @@ namespace FlairX_Mod_Manager.Pages
 
                 // Set tooltip for OpenUrlButton
                 ToolTipService.SetToolTip(OpenUrlButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_OpenURL_Tooltip"));
+                
+                // Set tooltips for Today buttons
+                ToolTipService.SetToolTip(TodayDateCheckedButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_SetToday_Tooltip"));
+                ToolTipService.SetToolTip(TodayDateUpdatedButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_SetToday_Tooltip"));
 
                 string modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
                 if (string.IsNullOrEmpty(modLibraryPath))
@@ -504,6 +508,16 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogError("Error opening URL", ex);
             }
+        }
+
+        private void TodayDateCheckedButton_Click(object sender, RoutedEventArgs e)
+        {
+            ModDateCheckedPicker.Date = DateTimeOffset.Now;
+        }
+
+        private void TodayDateUpdatedButton_Click(object sender, RoutedEventArgs e)
+        {
+            ModDateUpdatedPicker.Date = DateTimeOffset.Now;
         }
 
         private async Task UpdateModJsonField(string field, string value)
