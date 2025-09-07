@@ -289,7 +289,59 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         bitmap.SetSource(memStream.AsRandomAccessStream());
                     }
+                    
+                    // Change the image source first
                     ModImage.Source = bitmap;
+                    
+                    // Create elastic scale animation
+                    var elasticScaleX = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        From = 0.8,
+                        To = 1.0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(600)),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
+                        { 
+                            EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
+                            Oscillations = 2,
+                            Springiness = 8
+                        }
+                    };
+                    
+                    var elasticScaleY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        From = 0.8,
+                        To = 1.0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(600)),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
+                        { 
+                            EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
+                            Oscillations = 2,
+                            Springiness = 8
+                        }
+                    };
+                    
+                    // Ensure the image has a ScaleTransform
+                    if (ModImage.RenderTransform == null || !(ModImage.RenderTransform is Microsoft.UI.Xaml.Media.ScaleTransform))
+                    {
+                        ModImage.RenderTransform = new Microsoft.UI.Xaml.Media.ScaleTransform();
+                        ModImage.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5); // Center the scaling
+                    }
+                    
+                    var scaleTransform = (Microsoft.UI.Xaml.Media.ScaleTransform)ModImage.RenderTransform;
+                    
+                    // Create storyboard and apply animations
+                    var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleX, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleX, "ScaleX");
+                    
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleY, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleY, "ScaleY");
+                    
+                    storyboard.Children.Add(elasticScaleX);
+                    storyboard.Children.Add(elasticScaleY);
+                    
+                    storyboard.Begin();
                 }
                 else
                 {
@@ -318,9 +370,12 @@ namespace FlairX_Mod_Manager.Pages
             {
                 ImageCounterText.Text = $"{_currentImageIndex + 1} / {_availablePreviewImages.Count}";
                 
-                // Enable/disable buttons based on current position
-                PrevImageButton.IsEnabled = _currentImageIndex > 0;
-                NextImageButton.IsEnabled = _currentImageIndex < _availablePreviewImages.Count - 1;
+                // Enable/disable buttons based on current position using opacity and pointer capture
+                PrevImageButton.Opacity = _currentImageIndex > 0 ? 1.0 : 0.5;
+                PrevImageButton.IsHitTestVisible = _currentImageIndex > 0;
+                
+                NextImageButton.Opacity = _currentImageIndex < _availablePreviewImages.Count - 1 ? 1.0 : 0.5;
+                NextImageButton.IsHitTestVisible = _currentImageIndex < _availablePreviewImages.Count - 1;
             }
         }
 
@@ -617,7 +672,7 @@ namespace FlairX_Mod_Manager.Pages
             storyboard.Begin();
         }
 
-        private void PrevImageButton_Click(object sender, RoutedEventArgs e)
+        private void PrevImageButton_Click(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if (_currentImageIndex > 0)
             {
@@ -627,7 +682,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void NextImageButton_Click(object sender, RoutedEventArgs e)
+        private void NextImageButton_Click(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if (_currentImageIndex < _availablePreviewImages.Count - 1)
             {

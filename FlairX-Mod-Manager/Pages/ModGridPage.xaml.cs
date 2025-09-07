@@ -1112,6 +1112,9 @@ namespace FlairX_Mod_Manager.Pages
             }
             // Check mod directories and create mod.json in level 1 directories
             (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary();
+            
+            // Reload active mods state before refreshing UI to ensure heart icons are updated
+            LoadActiveMods();
             LoadAllMods();
         }
 
