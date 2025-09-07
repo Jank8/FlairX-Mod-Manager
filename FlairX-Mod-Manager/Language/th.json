@@ -85,6 +85,7 @@
   "SettingsPage_RestartApp_Title": "รีสตาร์ท?",
   "SettingsPage_RestartApp_Content": "แอปพลิเคชันจะถูกรีสตาร์ท",
   "SettingsPage_RestartApp_Button": "รีสตาร์ทตอนนี้",
+  "SettingsPage_RestartApp_Confirm": "รีสตาร์ทตอนนี้",
   "SettingsPage_RestartApp_Tooltip": "รีสตาร์ทแอปพลิเคชัน",
   "SettingsPage_RestoreDefault_Tooltip": "คืนค่าเริ่มต้น",
   "SettingsPage_ShowOrangeAnimation_Label": "แอนิเมชัน",

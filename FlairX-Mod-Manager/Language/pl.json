@@ -85,6 +85,7 @@
   "SettingsPage_RestartApp_Title": "Uruchomić ponownie?",
   "SettingsPage_RestartApp_Content": "Aplikacja zostanie zrestartowana",
   "SettingsPage_RestartApp_Button": "Uruchom ponownie",
+  "SettingsPage_RestartApp_Confirm": "Uruchom ponownie",
   "SettingsPage_RestartApp_Tooltip": "Uruchom ponownie aplikację",
   "SettingsPage_RestoreDefault_Tooltip": "Przywróć wartość domyślną",
   "SettingsPage_ShowOrangeAnimation_Label": "Animacja",

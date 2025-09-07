@@ -85,6 +85,7 @@
   "SettingsPage_RestartApp_Title": "重新啟動？",
   "SettingsPage_RestartApp_Content": "應用程式將被重新啟動",
   "SettingsPage_RestartApp_Button": "立即重新啟動",
+  "SettingsPage_RestartApp_Confirm": "立即重新啟動",
   "SettingsPage_RestartApp_Tooltip": "重新啟動應用程式",
   "SettingsPage_RestoreDefault_Tooltip": "恢復預設值",
   "SettingsPage_ShowOrangeAnimation_Label": "動畫",

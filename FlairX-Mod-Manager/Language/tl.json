@@ -85,6 +85,7 @@
   "SettingsPage_RestartApp_Title": "I-restart?",
   "SettingsPage_RestartApp_Content": "Ire-restart ang application",
   "SettingsPage_RestartApp_Button": "I-restart Ngayon",
+  "SettingsPage_RestartApp_Confirm": "I-restart Ngayon",
   "SettingsPage_RestartApp_Tooltip": "I-restart ang application",
   "SettingsPage_RestoreDefault_Tooltip": "Ibalik sa default na halaga",
   "SettingsPage_ShowOrangeAnimation_Label": "Animation",

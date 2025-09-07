@@ -85,6 +85,7 @@
   "SettingsPage_RestartApp_Title": "Khởi động lại?",
   "SettingsPage_RestartApp_Content": "Ứng dụng sẽ được khởi động lại",
   "SettingsPage_RestartApp_Button": "Khởi động lại ngay",
+  "SettingsPage_RestartApp_Confirm": "Khởi động lại ngay",
   "SettingsPage_RestartApp_Tooltip": "Khởi động lại ứng dụng",
   "SettingsPage_RestoreDefault_Tooltip": "Khôi phục giá trị mặc định",
   "SettingsPage_ShowOrangeAnimation_Label": "Hoạt ảnh",

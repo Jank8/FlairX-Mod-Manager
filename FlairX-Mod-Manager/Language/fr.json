@@ -85,6 +85,7 @@
   "SettingsPage_RestartApp_Title": "Redémarrer ?",
   "SettingsPage_RestartApp_Content": "L'application sera redémarrée",
   "SettingsPage_RestartApp_Button": "Redémarrer maintenant",
+  "SettingsPage_RestartApp_Confirm": "Redémarrer maintenant",
   "SettingsPage_RestartApp_Tooltip": "Redémarrer l'application",
   "SettingsPage_RestoreDefault_Tooltip": "Restaurer la valeur par défaut",
   "SettingsPage_ShowOrangeAnimation_Label": "Animation",

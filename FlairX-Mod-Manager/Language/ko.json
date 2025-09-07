@@ -85,6 +85,7 @@
   "SettingsPage_RestartApp_Title": "재시작?",
   "SettingsPage_RestartApp_Content": "애플리케이션이 재시작됩니다",
   "SettingsPage_RestartApp_Button": "지금 재시작",
+  "SettingsPage_RestartApp_Confirm": "지금 재시작",
   "SettingsPage_RestartApp_Tooltip": "애플리케이션 재시작",
   "SettingsPage_RestoreDefault_Tooltip": "기본값 복원",
   "SettingsPage_ShowOrangeAnimation_Label": "애니메이션",

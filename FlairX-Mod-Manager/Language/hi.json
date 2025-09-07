@@ -85,6 +85,7 @@
   "SettingsPage_RestartApp_Title": "पुनः आरंभ करें?",
   "SettingsPage_RestartApp_Content": "एप्लिकेशन पुनः आरंभ किया जाएगा",
   "SettingsPage_RestartApp_Button": "अभी पुनः आरंभ करें",
+  "SettingsPage_RestartApp_Confirm": "अभी पुनः आरंभ करें",
   "SettingsPage_RestartApp_Tooltip": "एप्लिकेशन पुनः आरंभ करें",
   "SettingsPage_RestoreDefault_Tooltip": "डिफ़ॉल्ट मान पुनर्स्थापित करें",
   "SettingsPage_ShowOrangeAnimation_Label": "एनीमेशन",

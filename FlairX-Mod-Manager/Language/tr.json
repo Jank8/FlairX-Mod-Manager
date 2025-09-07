@@ -85,6 +85,7 @@
   "SettingsPage_RestartApp_Title": "Yeniden başlat?",
   "SettingsPage_RestartApp_Content": "Uygulama yeniden başlatılacak",
   "SettingsPage_RestartApp_Button": "Şimdi Yeniden Başlat",
+  "SettingsPage_RestartApp_Confirm": "Şimdi Yeniden Başlat",
   "SettingsPage_RestartApp_Tooltip": "Uygulamayı yeniden başlat",
   "SettingsPage_RestoreDefault_Tooltip": "Varsayılan değeri geri yükle",
   "SettingsPage_ShowOrangeAnimation_Label": "Animasyon",

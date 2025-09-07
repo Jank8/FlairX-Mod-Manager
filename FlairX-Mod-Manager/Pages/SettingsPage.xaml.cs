@@ -531,27 +531,69 @@ namespace FlairX_Mod_Manager.Pages
             
             var catprevJpgPath = Path.Combine(categoryDir, "catprev.jpg");
             
-            // Skip if catprev.jpg already exists
-            if (File.Exists(catprevJpgPath)) return;
-            
-            // Look for preview files in category directory (catpreview.*, preview.*, etc.)
-            var previewFiles = Directory.GetFiles(categoryDir)
+            // Look for existing catprev files (catprev.png, catprev.jpg) and other preview files
+            var catprevFiles = Directory.GetFiles(categoryDir)
                 .Where(f => 
                 {
                     var fileName = Path.GetFileName(f).ToLower();
-                    return (fileName.StartsWith("catpreview") || fileName.StartsWith("preview")) &&
+                    return fileName.StartsWith("catprev") &&
                            (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
                             f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
                             f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
                 })
                 .ToArray();
             
-            if (previewFiles.Length == 0) return;
+            // Look for other preview files in category directory (catpreview.*, preview.*, etc.)
+            var otherPreviewFiles = Directory.GetFiles(categoryDir)
+                .Where(f => 
+                {
+                    var fileName = Path.GetFileName(f).ToLower();
+                    return (fileName.StartsWith("catpreview") || fileName.StartsWith("preview")) &&
+                           !fileName.StartsWith("catprev") &&
+                           (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                            f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                            f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                })
+                .ToArray();
             
-            var previewPath = previewFiles[0]; // Take first preview file found
+            // Combine all preview files, prioritizing catprev files
+            var allPreviewFiles = catprevFiles.Concat(otherPreviewFiles).ToArray();
+            
+            if (allPreviewFiles.Length == 0) return;
+            
+            // Check if we need to optimize existing catprev.jpg
+            bool needsOptimization = true;
+            if (File.Exists(catprevJpgPath))
+            {
+                try
+                {
+                    using (var img = System.Drawing.Image.FromFile(catprevJpgPath))
+                    {
+                        // Consider optimized if it's square and 600x600
+                        needsOptimization = !(img.Width == 600 && img.Height == 600);
+                    }
+                }
+                catch
+                {
+                    needsOptimization = true;
+                }
+            }
+            
+            // Skip if catprev.jpg already exists and is optimized, and no other catprev files to process
+            if (!needsOptimization && catprevFiles.Length <= 1 && catprevFiles.All(f => f.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase)))
+                return;
+            
+            var previewPath = allPreviewFiles[0]; // Take first preview file found
             
             try
             {
+                // Create temporary path if we're optimizing existing catprev.jpg
+                var tempPath = catprevJpgPath;
+                if (previewPath.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    tempPath = Path.Combine(categoryDir, "catprev_temp.jpg");
+                }
+                
                 using (var img = System.Drawing.Image.FromFile(previewPath))
                 {
                     // Create catprev.jpg (600x600 for category tiles)
@@ -578,13 +620,30 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             var jpegParams = new EncoderParameters(1);
                             jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
-                            thumbBmp.Save(catprevJpgPath, jpegEncoder, jpegParams);
+                            thumbBmp.Save(tempPath, jpegEncoder, jpegParams);
                         }
                     }
                 }
                 
-                // Move the original preview file to recycle bin after processing
-                if (!previewPath.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                // If we used a temporary file, replace the original
+                if (!tempPath.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (File.Exists(catprevJpgPath))
+                        File.Delete(catprevJpgPath);
+                    File.Move(tempPath, catprevJpgPath);
+                }
+                
+                // Move all other catprev files to recycle bin after processing
+                foreach (var catprevFile in catprevFiles)
+                {
+                    if (!catprevFile.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        MoveToRecycleBin(catprevFile);
+                    }
+                }
+                
+                // Move other preview files to recycle bin if they were used
+                if (!catprevFiles.Contains(previewPath, StringComparer.OrdinalIgnoreCase))
                 {
                     MoveToRecycleBin(previewPath);
                 }
