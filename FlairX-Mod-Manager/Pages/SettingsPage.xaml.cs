@@ -322,59 +322,82 @@ namespace FlairX_Mod_Manager.Pages
 
         private void UpdateTexts()
         {
-            var lang = SharedUtilities.LoadLanguageDictionary();
-            SettingsTitle.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Title");
-            BackdropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop");
-            LanguageLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language");
-            DynamicModSearchLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Label");
-            GridLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Label");
-            ShowOrangeAnimationLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Label");
-            ModGridZoomLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Label");
-            ActiveModsToTopLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Label");
-            ToolTipService.SetToolTip(ModGridZoomToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Tooltip"));
-            ToolTipService.SetToolTip(GridLoggingToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Tooltip"));
-            ToolTipService.SetToolTip(ActiveModsToTopToggle, SharedUtilities.GetTranslation(lang, "ActiveModsToTop_Tooltip"));
-            // Update SelectorBar texts
-            ThemeSelectorAutoText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Auto");
-            ThemeSelectorLightText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Light");
-            ThemeSelectorDarkText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Dark");
-            // Update Backdrop SelectorBar texts
-            if (BackdropSelectorMicaText != null)
-                BackdropSelectorMicaText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_Mica");
-            if (BackdropSelectorMicaAltText != null)
-                BackdropSelectorMicaAltText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_MicaAlt");
-            if (BackdropSelectorAcrylicText != null)
-                BackdropSelectorAcrylicText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_Acrylic");
-            if (BackdropSelectorAcrylicThinText != null)
-                BackdropSelectorAcrylicThinText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_AcrylicThin");
-            if (BackdropSelectorNoneText != null)
+            Dictionary<string, string> lang = null;
+            try
             {
-                BackdropSelectorNoneText.Text = SharedUtilities.GetTranslation(lang, "None");
-                System.Diagnostics.Debug.WriteLine($"Set BackdropSelectorNoneText to: {BackdropSelectorNoneText.Text}");
+                lang = SharedUtilities.LoadLanguageDictionary();
             }
-            else
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("BackdropSelectorNoneText is null!");
+                Logger.LogError("Failed to load language dictionary in SettingsPage.UpdateTexts", ex);
+                lang = new Dictionary<string, string>();
             }
-            XXMIRootDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory");
-            ModLibraryDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModLibraryDirectory");
-            ToolTipService.SetToolTip(XXMIRootDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
-            ToolTipService.SetToolTip(ModLibraryDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
-            ToolTipService.SetToolTip(OptimizePreviewsButton, SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Tooltip"));
-            OptimizePreviewsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
-            ToolTipService.SetToolTip(XXMIRootDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
-            ToolTipService.SetToolTip(ModLibraryDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
-            ToolTipService.SetToolTip(XXMIRootDirectoryBreadcrumb, SharedUtilities.GetTranslation(lang, "OpenDirectory_Tooltip"));
-            ToolTipService.SetToolTip(ModLibraryDirectoryBreadcrumb, SharedUtilities.GetTranslation(lang, "OpenDirectory_Tooltip"));
-            ToolTipService.SetToolTip(DynamicModSearchToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Tooltip"));
-            // Update About button text
-            AboutButtonText.Text = SharedUtilities.GetTranslation(lang, "AboutButton_Label");
+
+            // Main labels - use null checks
+            if (SettingsTitle != null) SettingsTitle.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Title");
+            if (ThemeLabel != null) ThemeLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme");
+            if (BackdropLabel != null) BackdropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop");
+            if (LanguageLabel != null) LanguageLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language");
+            if (OptimizePreviewsLabel != null) OptimizePreviewsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
+            if (XXMIRootDirectoryLabel != null) XXMIRootDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory");
+            if (ModLibraryDirectoryLabel != null) ModLibraryDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModLibraryDirectory");
+            if (ActiveModsToTopLabel != null) ActiveModsToTopLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Label");
+            if (DynamicModSearchLabel != null) DynamicModSearchLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Label");
+            if (ShowOrangeAnimationLabel != null) ShowOrangeAnimationLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Label");
+            if (ModGridZoomLabel != null) ModGridZoomLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Label");
+            if (GridLoggingLabel != null) GridLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Label");
+            if (HotkeysHeader != null) HotkeysHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Hotkeys_Header");
+
+            // Description texts - use null checks and fallback to empty string if missing
+            if (ThemeDescription != null) ThemeDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Description") ?? string.Empty;
+            if (BackdropDescription != null) BackdropDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_Description") ?? string.Empty;
+            if (LanguageDescription != null) LanguageDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language_Description") ?? string.Empty;
+            if (OptimizePreviewsDescription != null) OptimizePreviewsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Description") ?? string.Empty;
+            if (XXMIRootDirectoryDescription != null) XXMIRootDirectoryDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory_Description") ?? string.Empty;
+            if (ModLibraryDirectoryDescription != null) ModLibraryDirectoryDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModLibraryDirectory_Description") ?? string.Empty;
+            if (ActiveModsToTopDescription != null) ActiveModsToTopDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Description") ?? string.Empty;
+            if (DynamicModSearchDescription != null) DynamicModSearchDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Description") ?? string.Empty;
+            if (ShowOrangeAnimationDescription != null) ShowOrangeAnimationDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Description") ?? string.Empty;
+            if (ModGridZoomDescription != null) ModGridZoomDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Description") ?? string.Empty;
+            if (GridLoggingDescription != null) GridLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Description") ?? string.Empty;
             
-            // Update hotkey labels using existing translation keys
-            OptimizePreviewsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
-            ReloadManagerHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "Reload_Mods_Tooltip");
-            ShuffleActiveModsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShuffleActiveMods_Label");
-            DeactivateAllModsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DeactivateAllMods_Label");
+            // Hotkey labels and descriptions - use null checks
+            if (OptimizePreviewsHotkeyLabel != null) OptimizePreviewsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
+            if (OptimizePreviewsHotkeyDescription != null) OptimizePreviewsHotkeyDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviewsHotkey_Description");
+            if (ReloadManagerHotkeyLabel != null) ReloadManagerHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "Reload_Mods_Tooltip");
+            if (ReloadManagerHotkeyDescription != null) ReloadManagerHotkeyDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ReloadManagerHotkey_Description");
+            if (ShuffleActiveModsHotkeyLabel != null) ShuffleActiveModsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShuffleActiveMods_Label");
+            if (ShuffleActiveModsHotkeyDescription != null) ShuffleActiveModsHotkeyDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShuffleActiveModsHotkey_Description");
+            if (DeactivateAllModsHotkeyLabel != null) DeactivateAllModsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DeactivateAllMods_Label");
+            if (DeactivateAllModsHotkeyDescription != null) DeactivateAllModsHotkeyDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DeactivateAllModsHotkey_Description");
+            
+            // Theme SelectorBar texts - use null checks
+            if (ThemeSelectorAutoText != null) ThemeSelectorAutoText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Auto");
+            if (ThemeSelectorLightText != null) ThemeSelectorLightText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Light");
+            if (ThemeSelectorDarkText != null) ThemeSelectorDarkText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Dark");
+            
+            // Backdrop SelectorBar texts - already have null checks
+            if (BackdropSelectorMicaText != null) BackdropSelectorMicaText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_Mica");
+            if (BackdropSelectorMicaAltText != null) BackdropSelectorMicaAltText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_MicaAlt");
+            if (BackdropSelectorAcrylicText != null) BackdropSelectorAcrylicText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_Acrylic");
+            if (BackdropSelectorAcrylicThinText != null) BackdropSelectorAcrylicThinText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_AcrylicThin");
+            if (BackdropSelectorNoneText != null) BackdropSelectorNoneText.Text = SharedUtilities.GetTranslation(lang, "None");
+            
+            // Tooltips - use null checks
+            if (ModGridZoomToggle != null) ToolTipService.SetToolTip(ModGridZoomToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Tooltip"));
+            if (GridLoggingToggle != null) ToolTipService.SetToolTip(GridLoggingToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Tooltip"));
+            if (ActiveModsToTopToggle != null) ToolTipService.SetToolTip(ActiveModsToTopToggle, SharedUtilities.GetTranslation(lang, "ActiveModsToTop_Tooltip"));
+            if (XXMIRootDirectoryDefaultButton != null) ToolTipService.SetToolTip(XXMIRootDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
+            if (ModLibraryDirectoryDefaultButton != null) ToolTipService.SetToolTip(ModLibraryDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
+            if (OptimizePreviewsButton != null) ToolTipService.SetToolTip(OptimizePreviewsButton, SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Tooltip"));
+            if (XXMIRootDirectoryPickButton != null) ToolTipService.SetToolTip(XXMIRootDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
+            if (ModLibraryDirectoryPickButton != null) ToolTipService.SetToolTip(ModLibraryDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
+            if (XXMIRootDirectoryBreadcrumb != null) ToolTipService.SetToolTip(XXMIRootDirectoryBreadcrumb, SharedUtilities.GetTranslation(lang, "OpenDirectory_Tooltip"));
+            if (ModLibraryDirectoryBreadcrumb != null) ToolTipService.SetToolTip(ModLibraryDirectoryBreadcrumb, SharedUtilities.GetTranslation(lang, "OpenDirectory_Tooltip"));
+            if (DynamicModSearchToggle != null) ToolTipService.SetToolTip(DynamicModSearchToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Tooltip"));
+            
+            // About button - use null check
+            if (AboutButtonText != null) AboutButtonText.Text = SharedUtilities.GetTranslation(lang, "AboutButton_Label");
         }
 
         private async Task OptimizePreviewsAsync(CancellationToken token)

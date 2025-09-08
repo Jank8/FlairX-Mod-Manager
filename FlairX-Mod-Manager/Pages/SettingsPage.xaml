@@ -10,12 +10,27 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="20">
-                <Grid Height="40" Margin="0,0,0,16">
-                    <TextBlock x:Name="SettingsTitle" Text="" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0,0,0,0">
-                        <TextBlock x:Name="ThemeLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                        <SelectorBar x:Name="ThemeSelectorBar" Width="410" SelectionChanged="ThemeSelectorBar_SelectionChanged" Margin="-40,0,8,0">
+            <StackPanel Spacing="16" Margin="0,0,48,0">
+                <!-- Settings Title -->
+                <TextBlock x:Name="SettingsTitle" Text="" FontSize="24" FontWeight="Bold" Margin="0,0,0,24" />
+                
+                <!-- Theme Setting -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE790;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="ThemeLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="ThemeDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <SelectorBar Grid.Column="3" x:Name="ThemeSelectorBar" SelectionChanged="ThemeSelectorBar_SelectionChanged" VerticalAlignment="Center">
                             <SelectorBarItem x:Name="ThemeSelectorAuto" Tag="Auto" Margin="0,0,8,0">
                                 <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
                                     <FontIcon Glyph="&#xE890;" FontSize="16"/>
@@ -28,18 +43,32 @@
                                     <TextBlock x:Name="ThemeSelectorLightText" Text="Light" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </SelectorBarItem>
-                            <SelectorBarItem x:Name="ThemeSelectorDark" Tag="Dark" Margin="8,0,0,0">
+                            <SelectorBarItem x:Name="ThemeSelectorDark" Tag="Dark">
                                 <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
                                     <FontIcon Glyph="&#xE708;" FontSize="16"/>
                                     <TextBlock x:Name="ThemeSelectorDarkText" Text="Dark" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </SelectorBarItem>
-                    </SelectorBar>
-                </StackPanel>
+                        </SelectorBar>
                 </Grid>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="BackdropLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                    <SelectorBar x:Name="BackdropSelectorBar" Width="500" SelectionChanged="BackdropSelectorBar_SelectionChanged" Margin="-40,0,8,0">
+                
+                <!-- Backdrop Setting -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xF4A5;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="BackdropLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="BackdropDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <SelectorBar Grid.Column="3" x:Name="BackdropSelectorBar" SelectionChanged="BackdropSelectorBar_SelectionChanged" VerticalAlignment="Center">
                         <SelectorBarItem x:Name="BackdropSelectorMica" Tag="Mica" Margin="0,0,4,0">
                             <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
                                 <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
@@ -64,115 +93,253 @@
                                 <TextBlock x:Name="BackdropSelectorAcrylicThinText" Text="" VerticalAlignment="Center"/>
                             </StackPanel>
                         </SelectorBarItem>
-                        <SelectorBarItem x:Name="BackdropSelectorNone" Tag="None" Margin="4,0,0,0">
+                        <SelectorBarItem x:Name="BackdropSelectorNone" Tag="None">
                             <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
                                 <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
                                 <TextBlock x:Name="BackdropSelectorNoneText" Text="None" VerticalAlignment="Center" MinWidth="40"/>
                             </StackPanel>
                         </SelectorBarItem>
                     </SelectorBar>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="LanguageLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                    <ComboBox x:Name="LanguageComboBox" Width="200" SelectionChanged="LanguageComboBox_SelectionChanged" Margin="-40,0,0,0"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="OptimizePreviewsLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                    <Button x:Name="OptimizePreviewsButton" Width="40" Height="32" Padding="0" Click="OptimizePreviewsButton_Click" Margin="-40,0,0,0">
-                        <FontIcon x:Name="OptimizePreviewsButtonIcon" Glyph="&#xE89E;" FontSize="20"/>
-                    </Button>
-                    <ProgressBar x:Name="OptimizePreviewsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="20,0,0,0" />
-                </StackPanel>
-                <!-- Path selection lines -->
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="XXMIRootDirectoryLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                    <BreadcrumbBar x:Name="XXMIRootDirectoryBreadcrumb" Width="410" Margin="-40,0,8,0" ItemClicked="XXMIRootDirectoryBreadcrumb_ItemClicked"/>
-                    <Button x:Name="XXMIRootDirectoryPickButton" Click="XXMIRootDirectoryPickButton_Click" Width="32" Height="32" Padding="0">
-                        <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
-                    </Button>
-                    <Button x:Name="XXMIRootDirectoryDefaultButton" Click="XXMIRootDirectoryDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0">
-                        <FontIcon Glyph="&#xE72C;" FontSize="14"/>
-                    </Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="ModLibraryDirectoryLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                    <BreadcrumbBar x:Name="ModLibraryDirectoryBreadcrumb" Width="410" Margin="-40,0,8,0" ItemClicked="ModLibraryDirectoryBreadcrumb_ItemClicked"/>
-                    <Button x:Name="ModLibraryDirectoryPickButton" Click="ModLibraryDirectoryPickButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Select directory">
-                        <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
-                    </Button>
-                    <Button x:Name="ModLibraryDirectoryDefaultButton" Click="ModLibraryDirectoryDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0" ToolTipService.ToolTip="">
-                        <FontIcon Glyph="&#xE72C;" FontSize="14"/>
-                    </Button>
-                </StackPanel>
-
-                <!-- ActiveModsToTop toggle -->
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock x:Name="ActiveModsToTopLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                    <ToggleSwitch x:Name="ActiveModsToTopToggle" Toggled="ActiveModsToTopToggle_Toggled" OnContent="" OffContent="" Margin="-40,0,0,0"/>
-                </StackPanel>
-
-                <!-- Two column layout: toggles on left, hotkeys on right -->
+                </Grid>
+                
+                <!-- Language Setting -->
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="385"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <!-- Left column: Toggle settings -->
-                    <StackPanel Grid.Column="0" Spacing="16">
-                        <!-- Dynamic filtering -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="DynamicModSearchLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                            <ToggleSwitch x:Name="DynamicModSearchToggle" Toggled="DynamicModSearchToggle_Toggled" OnContent="" OffContent="" Margin="-40,0,0,0"/>
-                        </StackPanel>
-                        
-                        <!-- Animation -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="ShowOrangeAnimationLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                            <ToggleSwitch x:Name="ShowOrangeAnimationToggle" Toggled="ShowOrangeAnimationToggle_Toggled" OnContent="" OffContent="" Margin="-40,0,0,0"/>
-                        </StackPanel>
-                        
-                        <!-- Grid Zoom -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="ModGridZoomLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                            <ToggleSwitch x:Name="ModGridZoomToggle" Toggled="ModGridZoomToggle_Toggled" OnContent="" OffContent="" Margin="-40,0,0,0"/>
-                        </StackPanel>
-                        
-                        <!-- Grid logging -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="GridLoggingLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                            <ToggleSwitch x:Name="GridLoggingToggle" Toggled="GridLoggingToggle_Toggled" OnContent="" OffContent="" ToolTipService.ToolTip="Enable detailed logging for grid performance debugging" Margin="-40,0,0,0"/>
-                        </StackPanel>
-                        
-
+                    <FontIcon Grid.Column="0" Glyph="&#xF2B7;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="LanguageLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="LanguageDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                     </StackPanel>
                     
-                    <!-- Right column: Hotkey settings -->
-                    <StackPanel Grid.Column="1" Spacing="16" Margin="-58,0,0,0">
-                        <!-- Optimize previews hotkey -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="OptimizePreviewsHotkeyLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="220"/>
-                            <TextBox x:Name="OptimizePreviewsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+O" TextChanged="OptimizePreviewsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown"/>
-                        </StackPanel>
-                        
-                        <!-- Reload manager hotkey -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="ReloadManagerHotkeyLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="220"/>
-                            <TextBox x:Name="ReloadManagerHotkeyTextBox" Width="160" PlaceholderText="Ctrl+R" TextChanged="ReloadManagerHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown"/>
-                        </StackPanel>
-                        
-                        <!-- Shuffle active mods hotkey -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="ShuffleActiveModsHotkeyLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="220"/>
-                            <TextBox x:Name="ShuffleActiveModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+S" TextChanged="ShuffleActiveModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown"/>
-                        </StackPanel>
-                        
-                        <!-- Deactivate all mods hotkey -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="DeactivateAllModsHotkeyLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="220"/>
-                            <TextBox x:Name="DeactivateAllModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+D" TextChanged="DeactivateAllModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown"/>
+                    <ComboBox Grid.Column="3" x:Name="LanguageComboBox" Width="200" SelectionChanged="LanguageComboBox_SelectionChanged" VerticalAlignment="Center"/>
+                </Grid>
+                
+                <!-- Optimize Previews Setting -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE89E;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="OptimizePreviewsLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="OptimizePreviewsDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button x:Name="OptimizePreviewsButton" Width="40" Height="32" Padding="0" Click="OptimizePreviewsButton_Click">
+                            <FontIcon x:Name="OptimizePreviewsButtonIcon" Glyph="&#xE89E;" FontSize="20"/>
+                        </Button>
+                        <ProgressBar x:Name="OptimizePreviewsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="8,0,0,0" />
+                    </StackPanel>
+                </Grid>
+                <!-- XXMI Root Directory -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE8B7;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="XXMIRootDirectoryLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="XXMIRootDirectoryDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                        <BreadcrumbBar x:Name="XXMIRootDirectoryBreadcrumb" Width="300" ItemClicked="XXMIRootDirectoryBreadcrumb_ItemClicked" Margin="0,0,8,0"/>
+                        <Button x:Name="XXMIRootDirectoryPickButton" Click="XXMIRootDirectoryPickButton_Click" Width="32" Height="32" Padding="0">
+                            <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
+                        </Button>
+                        <Button x:Name="XXMIRootDirectoryDefaultButton" Click="XXMIRootDirectoryDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0">
+                            <FontIcon Glyph="&#xE72C;" FontSize="14"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                
+                <!-- Mod Library Directory -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE8F1;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="ModLibraryDirectoryLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="ModLibraryDirectoryDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                        <BreadcrumbBar x:Name="ModLibraryDirectoryBreadcrumb" Width="300" ItemClicked="ModLibraryDirectoryBreadcrumb_ItemClicked" Margin="0,0,8,0"/>
+                        <Button x:Name="ModLibraryDirectoryPickButton" Click="ModLibraryDirectoryPickButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Select directory">
+                            <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
+                        </Button>
+                        <Button x:Name="ModLibraryDirectoryDefaultButton" Click="ModLibraryDirectoryDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0" ToolTipService.ToolTip="">
+                            <FontIcon Glyph="&#xE72C;" FontSize="14"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Active Mods to Top -->
+                <Grid Height="48">
+                    <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <FontIcon Glyph="&#xE74A;" FontSize="20"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="ActiveModsToTopLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="ActiveModsToTopDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                         </StackPanel>
                     </StackPanel>
+                    
+                    <ToggleSwitch x:Name="ActiveModsToTopToggle" Toggled="ActiveModsToTopToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,-112,0"/>
+                </Grid>
+
+                <!-- Dynamic Filtering -->
+                <Grid Height="48">
+                    <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <FontIcon Glyph="&#xE71C;" FontSize="20"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="DynamicModSearchLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="DynamicModSearchDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <ToggleSwitch x:Name="DynamicModSearchToggle" Toggled="DynamicModSearchToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,-112,0"/>
+                </Grid>
+                
+                <!-- Animation -->
+                <Grid Height="48">
+                    <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <FontIcon Glyph="&#xE91B;" FontSize="20"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="ShowOrangeAnimationLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="ShowOrangeAnimationDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <ToggleSwitch x:Name="ShowOrangeAnimationToggle" Toggled="ShowOrangeAnimationToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,-112,0"/>
+                </Grid>
+                
+                <!-- Grid Zoom -->
+                <Grid Height="48">
+                    <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <FontIcon Glyph="&#xE8A3;" FontSize="20"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="ModGridZoomLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="ModGridZoomDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <ToggleSwitch x:Name="ModGridZoomToggle" Toggled="ModGridZoomToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,-112,0"/>
+                </Grid>
+                
+                <!-- Grid Logging -->
+                <Grid Height="48">
+                    <StackPanel Orientation="Horizontal" Spacing="16" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <FontIcon Glyph="&#xE7C3;" FontSize="20"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock x:Name="GridLoggingLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="GridLoggingDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    
+                    <ToggleSwitch x:Name="GridLoggingToggle" Toggled="GridLoggingToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,-112,0"/>
+                </Grid>
+                
+                <!-- Hotkeys Section Header -->
+                <TextBlock x:Name="HotkeysHeader" Text="" FontSize="18" FontWeight="SemiBold" Margin="0,24,0,8"/>
+                
+                <!-- Optimize Previews Hotkey -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="OptimizePreviewsHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="OptimizePreviewsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <TextBox Grid.Column="3" x:Name="OptimizePreviewsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+O" TextChanged="OptimizePreviewsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
+                </Grid>
+                
+                <!-- Reload Manager Hotkey -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="ReloadManagerHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="ReloadManagerHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <TextBox Grid.Column="3" x:Name="ReloadManagerHotkeyTextBox" Width="160" PlaceholderText="Ctrl+R" TextChanged="ReloadManagerHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
+                </Grid>
+                
+                <!-- Shuffle Active Mods Hotkey -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="ShuffleActiveModsHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="ShuffleActiveModsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <TextBox Grid.Column="3" x:Name="ShuffleActiveModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+S" TextChanged="ShuffleActiveModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
+                </Grid>
+                
+                <!-- Deactivate All Mods Hotkey -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="DeactivateAllModsHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="DeactivateAllModsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <TextBox Grid.Column="3" x:Name="DeactivateAllModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+D" TextChanged="DeactivateAllModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
                 </Grid>
 
             </StackPanel>
