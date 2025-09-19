@@ -63,9 +63,12 @@ namespace FlairX_Mod_Manager
             try
             {
                 long sizeBytes = EstimateImageSize(image);
+                Logger.LogDebug($"Caching image: {key} ({sizeBytes / 1024}KB)");
+                
                 _imageCache.AddOrUpdate(key,
                     k => {
                         System.Threading.Interlocked.Add(ref _currentCacheSizeBytes, sizeBytes);
+                        Logger.LogDebug($"Added new image to cache: {key}");
                         return new CacheEntry(image, sizeBytes);
                     },
                     (k, existing) =>
@@ -74,18 +77,20 @@ namespace FlairX_Mod_Manager
                         existing.Image = image;
                         existing.LastAccessed = DateTime.Now;
                         existing.SizeBytes = sizeBytes;
+                        Logger.LogDebug($"Updated existing image in cache: {key}");
                         return existing;
                     });
 
                 // Cleanup if cache is getting too large
                 if (_currentCacheSizeBytes > CLEANUP_THRESHOLD_BYTES)
                 {
+                    Logger.LogInfo($"Image cache size exceeded threshold ({_currentCacheSizeBytes / (1024 * 1024)}MB), starting cleanup");
                     CleanupCache(_imageCache, ref _currentCacheSizeBytes);
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to cache image {key}: {ex.Message}");
+                Logger.LogError($"Failed to cache image: {key}", ex);
             }
         }
 
@@ -106,9 +111,12 @@ namespace FlairX_Mod_Manager
             try
             {
                 long sizeBytes = EstimateImageSize(image);
+                Logger.LogDebug($"Caching RAM image: {key} ({sizeBytes / 1024}KB)");
+                
                 _ramImageCache.AddOrUpdate(key,
                     k => {
                         System.Threading.Interlocked.Add(ref _currentRamCacheSizeBytes, sizeBytes);
+                        Logger.LogDebug($"Added new RAM image to cache: {key}");
                         return new CacheEntry(image, sizeBytes);
                     },
                     (k, existing) =>
@@ -117,18 +125,20 @@ namespace FlairX_Mod_Manager
                         existing.Image = image;
                         existing.LastAccessed = DateTime.Now;
                         existing.SizeBytes = sizeBytes;
+                        Logger.LogDebug($"Updated existing RAM image in cache: {key}");
                         return existing;
                     });
 
                 // Cleanup if cache is getting too large
                 if (_currentRamCacheSizeBytes > CLEANUP_THRESHOLD_BYTES)
                 {
+                    Logger.LogInfo($"RAM cache size exceeded threshold ({_currentRamCacheSizeBytes / (1024 * 1024)}MB), starting cleanup");
                     CleanupCache(_ramImageCache, ref _currentRamCacheSizeBytes);
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to cache RAM image {key}: {ex.Message}");
+                Logger.LogError($"Failed to cache RAM image: {key}", ex);
             }
         }
 
@@ -136,34 +146,40 @@ namespace FlairX_Mod_Manager
         {
             try
             {
+                Logger.LogInfo($"Starting cache cleanup - Current size: {currentCacheSizeBytes / (1024 * 1024)}MB, Items: {cache.Count}");
+                
                 var ordered = cache.OrderBy(kvp => kvp.Value.LastAccessed).ToList();
                 long sizeToRemove = currentCacheSizeBytes - MAX_CACHE_SIZE_BYTES;
                 long removed = 0;
                 int removedCount = 0;
+                
                 foreach (var kvp in ordered)
                 {
                     if (currentCacheSizeBytes - removed <= MAX_CACHE_SIZE_BYTES)
                         break;
+                        
                     if (cache.TryRemove(kvp.Key, out var removedEntry))
                     {
                         removed += removedEntry.SizeBytes;
                         removedCount++;
+                        
                         try
                         {
                             removedEntry.Image?.ClearValue(BitmapImage.UriSourceProperty);
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine($"Failed to clear image value: {ex.Message}");
+                            Logger.LogError($"Failed to clear image value for {kvp.Key}", ex);
                         }
                     }
                 }
+                
                 System.Threading.Interlocked.Add(ref currentCacheSizeBytes, -removed);
-                Debug.WriteLine($"Cleaned up {removedCount} cached images. Cache size: {currentCacheSizeBytes / (1024 * 1024)} MB");
+                Logger.LogInfo($"Cache cleanup completed - Removed {removedCount} images ({removed / (1024 * 1024)}MB), New size: {currentCacheSizeBytes / (1024 * 1024)}MB");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Cache cleanup failed: {ex.Message}");
+                Logger.LogError("Cache cleanup failed", ex);
             }
         }
 
@@ -171,15 +187,21 @@ namespace FlairX_Mod_Manager
         {
             try
             {
+                int imageCount = _imageCache.Count;
+                int ramCount = _ramImageCache.Count;
+                long imageMB = _currentCacheSizeBytes / (1024 * 1024);
+                long ramMB = _currentRamCacheSizeBytes / (1024 * 1024);
+                
                 _imageCache.Clear();
                 _ramImageCache.Clear();
                 _currentCacheSizeBytes = 0;
                 _currentRamCacheSizeBytes = 0;
-                Debug.WriteLine("All image caches cleared");
+                
+                Logger.LogInfo($"All image caches cleared - Image cache: {imageCount} items ({imageMB}MB), RAM cache: {ramCount} items ({ramMB}MB)");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to clear caches: {ex.Message}");
+                Logger.LogError("Failed to clear image caches", ex);
             }
         }
 

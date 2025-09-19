@@ -43,9 +43,14 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (sender is Button btn && btn.Tag is ModTile mod)
             {
+                Logger.LogInfo($"User clicked mod activation button for: {mod.Directory}");
+                
                 // Validate mod directory name for security
                 if (!SecurityValidator.IsValidModDirectoryName(mod.Directory))
+                {
+                    Logger.LogWarning($"Invalid mod directory name rejected: {mod.Directory}");
                     return;
+                }
 
                 // Always use current path from settings
                 var modsDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
@@ -109,21 +114,31 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (!_activeMods.TryGetValue(mod.Directory, out var isActive) || !isActive)
                 {
+                    Logger.LogInfo($"Activating mod: {mod.Directory}");
                     if (!Directory.Exists(modsDirFull))
+                    {
                         Directory.CreateDirectory(modsDirFull);
+                        Logger.LogInfo($"Created mods directory: {modsDirFull}");
+                    }
                     if (!Directory.Exists(linkPath) && !File.Exists(linkPath))
                     {
                         CreateSymlink(linkPath, absModDir);
                     }
                     _activeMods[mod.Directory] = true;
                     mod.IsActive = true;
+                    Logger.LogInfo($"Mod activated successfully: {mod.Directory}");
                 }
                 else
                 {
+                    Logger.LogInfo($"Deactivating mod: {mod.Directory}");
                     if ((Directory.Exists(linkPath) || File.Exists(linkPath)) && IsSymlink(linkPath))
+                    {
                         Directory.Delete(linkPath, true);
+                        Logger.LogInfo($"Removed symlink: {linkPath}");
+                    }
                     _activeMods[mod.Directory] = false;
                     mod.IsActive = false;
+                    Logger.LogInfo($"Mod deactivated successfully: {mod.Directory}");
                 }
                 SaveActiveMods();
                 SaveSymlinkState(modsDirFull);
@@ -206,9 +221,14 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (sender is Button btn && btn.Tag is ModTile tile)
             {
+                Logger.LogInfo($"User clicked open folder button for: {tile.Directory}");
+                
                 // Validate directory name for security
                 if (!SecurityValidator.IsValidModDirectoryName(tile.Directory))
+                {
+                    Logger.LogWarning($"Invalid directory name rejected for folder open: {tile.Directory}");
                     return;
+                }
 
                 string folderPath;
                 
@@ -233,6 +253,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (!string.IsNullOrEmpty(folderPath) && Directory.Exists(folderPath))
                 {
+                    Logger.LogInfo($"Opening folder in explorer: {folderPath}");
                     var psi = new System.Diagnostics.ProcessStartInfo
                     {
                         FileName = "explorer.exe",
@@ -240,6 +261,11 @@ namespace FlairX_Mod_Manager.Pages
                         UseShellExecute = true
                     };
                     System.Diagnostics.Process.Start(psi);
+                    Logger.LogInfo($"Successfully opened folder: {folderPath}");
+                }
+                else
+                {
+                    Logger.LogWarning($"Folder not found or empty path: {folderPath}");
                 }
             }
         }
@@ -264,6 +290,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (sender is Button btn && btn.Tag is ModTile mod)
             {
+                Logger.LogInfo($"User clicked delete button for mod: {mod.Directory}");
                 _ = DeleteModWithConfirmation(mod);
             }
         }
@@ -286,8 +313,10 @@ namespace FlairX_Mod_Manager.Pages
 
         private async Task DeleteModWithConfirmation(ModTile mod)
         {
+            Logger.LogMethodEntry($"Attempting to delete mod: {mod.Directory}");
             try
             {
+                Logger.LogInfo($"Showing delete confirmation dialog for: {mod.Directory}");
                 // Show confirmation dialog
                 var langDict = SharedUtilities.LoadLanguageDictionary();
                 var dialog = new ContentDialog
@@ -301,7 +330,12 @@ namespace FlairX_Mod_Manager.Pages
 
                 var result = await dialog.ShowAsync();
                 if (result != ContentDialogResult.Primary)
+                {
+                    Logger.LogInfo($"User cancelled deletion of mod: {mod.Directory}");
                     return; // User cancelled
+                }
+                
+                Logger.LogInfo($"User confirmed deletion of mod: {mod.Directory}");
 
                 // Show deletion effect immediately
                 mod.IsBeingDeleted = true;

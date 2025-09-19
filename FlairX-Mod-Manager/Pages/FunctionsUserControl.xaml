@@ -42,7 +42,16 @@
                             PaneDisplayMode="Top"
                             ExpandedModeThresholdWidth="500"
                             SelectionFollowsFocus="Disabled"
-                            IsTabStop="False">
+                            IsTabStop="False"
+                            Background="Transparent">
+                
+                <NavigationView.Resources>
+                    <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent"/>
+                </NavigationView.Resources>
                 <NavigationView.MenuItems>
                     <NavigationViewItem x:Name="GBAuthorUpdateNavItem" Content="GameBanana Update" Tag="GBAuthorUpdate">
                         <NavigationViewItem.Icon>

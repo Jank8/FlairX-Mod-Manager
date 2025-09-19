@@ -71,42 +71,51 @@ namespace FlairX_Mod_Manager
 
         public static void Load()
         {
-            System.Diagnostics.Debug.WriteLine($"SettingsManager.Load() called. Settings file path: {SettingsPath}");
+            Logger.LogInfo($"Loading settings from: {PathManager.GetRelativePath(SettingsPath)}");
+            
             if (File.Exists(SettingsPath))
             {
                 try
                 {
                     var json = File.ReadAllText(SettingsPath);
-                    System.Diagnostics.Debug.WriteLine($"Settings JSON content: {json}");
+                    Logger.LogDebug($"Settings file size: {json.Length} characters");
+                    
                     Current = JsonSerializer.Deserialize<Settings>(json) ?? new Settings();
-                    System.Diagnostics.Debug.WriteLine($"Settings loaded: SelectedGameIndex = {Current.SelectedGameIndex}");
+                    Logger.LogInfo($"Settings loaded successfully - Game: {GetGameTagFromIndex(Current.SelectedGameIndex)}, Theme: {Current.Theme}");
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Failed to load settings: {ex.Message}");
+                    Logger.LogError("Failed to deserialize settings file, using defaults", ex);
                     Current = new Settings();
                 }
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("Settings file does not exist, using defaults");
+                Logger.LogInfo("Settings file does not exist, creating with default values");
                 Current = new Settings();
+                Save(); // Create the file with defaults
             }
         }
 
         public static void Save()
         {
+            Logger.LogDebug("Saving settings to file");
             try
             {
                 var dir = Path.GetDirectoryName(SettingsPath);
-                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir)) Directory.CreateDirectory(dir);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                    Logger.LogInfo($"Created settings directory: {PathManager.GetRelativePath(dir)}");
+                }
+                
                 var json = JsonSerializer.Serialize(Current, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(SettingsPath, json);
+                Logger.LogDebug($"Settings saved successfully - {json.Length} characters written");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Settings save failed: {ex.Message}");
-                // Settings save failed - not critical for app functionality
+                Logger.LogError("Failed to save settings file", ex);
             }
         }
 
@@ -166,9 +175,9 @@ namespace FlairX_Mod_Manager
         public static void SwitchGame(int gameIndex)
         {
             string gameTag = GetGameTagFromIndex(gameIndex);
-            System.Diagnostics.Debug.WriteLine($"SwitchGame: Setting SelectedGameIndex to {gameIndex} (tag: '{gameTag}')");
+            Logger.LogInfo($"Switching to game: {gameTag} (index: {gameIndex})");
+            
             Current.SelectedGameIndex = gameIndex;
-            // Don't change paths - they are now managed per-game automatically
             Current.StatusKeeperD3dxUserIniPath = AppConstants.GameConfig.GetD3dxUserIniPath(gameTag);
             
             // Only create directories if a game is selected (index > 0)
@@ -179,10 +188,19 @@ namespace FlairX_Mod_Manager
                     string xxmiModsDir = GetCurrentXXMIModsDirectory();
                     string modLibraryDir = GetCurrentModLibraryDirectory();
                     
+                    Logger.LogInfo($"Creating game directories - XXMI: {xxmiModsDir}, ModLibrary: {modLibraryDir}");
+                    
                     if (!string.IsNullOrEmpty(xxmiModsDir))
+                    {
                         System.IO.Directory.CreateDirectory(xxmiModsDir);
+                        Logger.LogInfo("XXMI mods directory created");
+                    }
+                    
                     if (!string.IsNullOrEmpty(modLibraryDir))
+                    {
                         System.IO.Directory.CreateDirectory(modLibraryDir);
+                        Logger.LogInfo("Mod library directory created");
+                    }
                     
                     // Create presets directory for the selected game
                     string presetsPath = AppConstants.GameConfig.GetPresetsPath(gameTag);
@@ -190,16 +208,21 @@ namespace FlairX_Mod_Manager
                     {
                         string fullPresetsPath = PathManager.GetAbsolutePath(presetsPath);
                         System.IO.Directory.CreateDirectory(fullPresetsPath);
+                        Logger.LogInfo($"Presets directory created: {PathManager.GetRelativePath(fullPresetsPath)}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Failed to create game directories: {ex.Message}");
+                    Logger.LogError($"Failed to create directories for game {gameTag}", ex);
                 }
+            }
+            else
+            {
+                Logger.LogInfo("No game selected, skipping directory creation");
             }
             
             Save();
-            System.Diagnostics.Debug.WriteLine($"SwitchGame: Saved settings with SelectedGameIndex = {Current.SelectedGameIndex}");
+            Logger.LogInfo($"Game switch completed successfully to {gameTag}");
         }
 
         public static string XXMIModsDirectorySafe => GetCurrentXXMIModsDirectory();

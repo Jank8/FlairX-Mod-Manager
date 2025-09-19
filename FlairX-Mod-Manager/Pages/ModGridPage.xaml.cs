@@ -951,25 +951,45 @@ namespace FlairX_Mod_Manager.Pages
 
         public ModGridPage()
         {
-            this.InitializeComponent();
-            LoadActiveMods();
-            LoadSymlinkState();
-            (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary();
-            this.Loaded += ModGridPage_Loaded;
-            
-            // Initialize context menu translations
-            UpdateContextMenuTranslations();
-            
-            // Use AddHandler with handledEventsToo to catch mouse back button even if handled by child elements
-            this.AddHandler(PointerPressedEvent, new PointerEventHandler(ModGridPage_PointerPressed), handledEventsToo: true);
-            
-            // Load saved zoom level from settings
-            _zoomFactor = FlairX_Mod_Manager.SettingsManager.Current.ZoomLevel;
-            
-            // Handle container generation to apply scaling to new items
-            ModsGrid.ContainerContentChanging += ModsGrid_ContainerContentChanging;
-            
-            StartBackgroundLoadingIfNeeded();
+            Logger.LogMethodEntry("ModGridPage constructor starting");
+            try
+            {
+                Logger.LogInfo("Initializing ModGridPage components");
+                this.InitializeComponent();
+                
+                Logger.LogInfo("Loading active mods state");
+                LoadActiveMods();
+                
+                Logger.LogInfo("Loading symlink state");
+                LoadSymlinkState();
+                
+                Logger.LogInfo("Ensuring mod.json files exist in ModLibrary");
+                (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary();
+                
+                this.Loaded += ModGridPage_Loaded;
+                
+                Logger.LogInfo("Updating context menu translations");
+                UpdateContextMenuTranslations();
+                
+                Logger.LogInfo("Setting up pointer event handlers");
+                this.AddHandler(PointerPressedEvent, new PointerEventHandler(ModGridPage_PointerPressed), handledEventsToo: true);
+                
+                Logger.LogInfo($"Loading zoom settings - Current zoom factor: {FlairX_Mod_Manager.SettingsManager.Current.ZoomLevel}");
+                _zoomFactor = FlairX_Mod_Manager.SettingsManager.Current.ZoomLevel;
+                
+                Logger.LogInfo("Setting up container content changing handler");
+                ModsGrid.ContainerContentChanging += ModsGrid_ContainerContentChanging;
+                
+                Logger.LogInfo("Starting background loading");
+                StartBackgroundLoadingIfNeeded();
+                
+                Logger.LogMethodExit("ModGridPage constructor completed successfully");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error during ModGridPage initialization", ex);
+                throw;
+            }
         }
 
         // Background loading moved to ModGridPage.Loading.cs

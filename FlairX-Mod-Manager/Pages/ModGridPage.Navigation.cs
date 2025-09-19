@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ namespace FlairX_Mod_Manager.Pages
     /// </summary>
     public sealed partial class ModGridPage : Page
     {
-        public static void LogToGridLog(string message)
+        public static void LogToGridLog(string message, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null)
         {
             // Only log if grid logging is enabled in settings
             if (!SettingsManager.Current.GridLoggingEnabled) return;
@@ -24,7 +25,7 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-                var logPath = Path.Combine(AppContext.BaseDirectory, "Settings", "GridLog.log");
+                var logPath = PathManager.GetSettingsPath("GridLog.log");
                 var settingsDir = Path.GetDirectoryName(logPath);
                 
                 if (!string.IsNullOrEmpty(settingsDir) && !Directory.Exists(settingsDir))
@@ -32,20 +33,29 @@ namespace FlairX_Mod_Manager.Pages
                     Directory.CreateDirectory(settingsDir);
                 }
                 
-                var logEntry = $"[{timestamp}] {message}\n";
+                // Format message with caller information like main Logger
+                var fileName = !string.IsNullOrEmpty(callerFile) ? Path.GetFileNameWithoutExtension(callerFile) : "Unknown";
+                var methodName = !string.IsNullOrEmpty(callerName) ? callerName : "Unknown";
+                var formattedMessage = $"[{fileName}.{methodName}] {message}";
+                
+                var logEntry = $"[{timestamp}] [GRID] {formattedMessage}\n";
                 File.AppendAllText(logPath, logEntry, System.Text.Encoding.UTF8);
+                
+                // Also log to main logger for unified logging (but as debug level to avoid spam)
+                Logger.LogDebug($"GRID: {message}", callerName, callerFile);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to write to GridLog: {ex.Message}");
+                Logger.LogError("Failed to write to GridLog", ex);
             }
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            Logger.LogMethodEntry($"Navigation parameter: {e.Parameter?.ToString() ?? "null"}");
             base.OnNavigatedTo(e);
             
-            // Set up translations
+            Logger.LogInfo("Setting up translations for ModGridPage");
             UpdateTranslations();
             if (e.Parameter is string modName && !string.IsNullOrEmpty(modName))
             {
