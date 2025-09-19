@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using System;
+using System.Linq;
 using FlairX_Mod_Manager.Pages;
 
 namespace FlairX_Mod_Manager
@@ -34,6 +35,149 @@ namespace FlairX_Mod_Manager
             var presetsControl = new PresetsUserControl();
             ShowSlidingPanel(presetsControl, "Presets");
         }
+
+        // Method to update panel background when theme changes
+        public void UpdateSlidingPanelTheme()
+        {
+            try
+            {
+                Logger.LogInfo("Updating sliding panel theme");
+                
+                // Find the MainRoot grid and look for overlay
+                if (this.Content is NavigationView navView)
+                {
+                    Logger.LogInfo($"Found NavigationView, parent type: {navView.Parent?.GetType().Name}");
+                    
+                    if (navView.Parent is Grid mainRoot)
+                    {
+                        Logger.LogInfo($"Found MainRoot grid with {mainRoot.Children.Count} children");
+                        SearchForPanelInGrid(mainRoot);
+                    }
+                    else
+                    {
+                        Logger.LogWarning("NavigationView parent is not Grid");
+                    }
+                }
+                else
+                {
+                    Logger.LogWarning("Content is not NavigationView");
+                    
+                    // Try alternative approach - look for NavigationView in content
+                    if (this.Content is FrameworkElement rootElement)
+                    {
+                        Logger.LogInfo($"Root element type: {rootElement.GetType().Name}");
+                        
+                        // Try to find NavigationView by name
+                        var foundNavView = rootElement.FindName("nvSample") as NavigationView;
+                        if (foundNavView != null)
+                        {
+                            Logger.LogInfo("Found NavigationView by name nvSample");
+                            
+                            if (foundNavView.Parent is Grid mainRoot)
+                            {
+                                Logger.LogInfo($"Found MainRoot grid with {mainRoot.Children.Count} children");
+                                SearchForPanelInGrid(mainRoot);
+                            }
+                            else
+                            {
+                                Logger.LogWarning($"NavigationView parent is not Grid, it's: {foundNavView.Parent?.GetType().Name}");
+                            }
+                        }
+                        else
+                        {
+                            Logger.LogWarning("Could not find NavigationView by name nvSample");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("PANEL: Failed to update sliding panel theme", ex);
+            }
+            
+            Logger.LogInfo("Sliding panel theme updated");
+        }
+
+        private void SearchForPanelInGrid(Grid mainRoot)
+        {
+            // Look for overlay grid (should be the last child with transparent background)
+            var overlays = mainRoot.Children.OfType<Grid>()
+                .Where(g => g.Background is SolidColorBrush brush && 
+                          brush.Color == Microsoft.UI.Colors.Transparent)
+                .ToList();
+            
+            var overlay = overlays.LastOrDefault();
+            if (overlay != null)
+            {
+                var borders = overlay.Children.OfType<Border>().ToList();
+                var dialogContainer = borders.FirstOrDefault(b => b.HorizontalAlignment == HorizontalAlignment.Right);
+                
+                if (dialogContainer != null)
+                {
+                    Logger.LogInfo("Panel found, updating background");
+                    UpdatePanelBackground(dialogContainer);
+                }
+                else
+                {
+                    // Try any border as fallback
+                    var anyBorder = borders.FirstOrDefault();
+                    if (anyBorder != null)
+                    {
+                        Logger.LogInfo("Using fallback panel");
+                        UpdatePanelBackground(anyBorder);
+                    }
+                }
+            }
+        }
+
+
+
+        private void UpdatePanelBackground(Border dialogContainer)
+        {
+            // Get current app theme
+            string appTheme = FlairX_Mod_Manager.SettingsManager.Current.Theme ?? "Auto";
+            bool isDarkTheme = false;
+            
+            if (appTheme == "Dark")
+                isDarkTheme = true;
+            else if (appTheme == "Light")
+                isDarkTheme = false;
+            else if (this.Content is FrameworkElement rootElement)
+                isDarkTheme = rootElement.ActualTheme == ElementTheme.Dark;
+
+            Logger.LogInfo($"Applying {(isDarkTheme ? "dark" : "light")} theme to panel");
+
+            // Create new background and border brush
+            Microsoft.UI.Xaml.Media.AcrylicBrush dialogAcrylicBrush;
+            Brush borderBrush;
+            
+            if (isDarkTheme)
+            {
+                dialogAcrylicBrush = new Microsoft.UI.Xaml.Media.AcrylicBrush
+                {
+                    TintColor = Microsoft.UI.ColorHelper.FromArgb(255, 32, 32, 32),
+                    TintOpacity = 0.85,
+                    FallbackColor = Microsoft.UI.ColorHelper.FromArgb(255, 32, 32, 32)
+                };
+                borderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(80, 255, 255, 255));
+            }
+            else
+            {
+                dialogAcrylicBrush = new Microsoft.UI.Xaml.Media.AcrylicBrush
+                {
+                    TintColor = Microsoft.UI.ColorHelper.FromArgb(255, 248, 248, 248),
+                    TintOpacity = 0.85,
+                    FallbackColor = Microsoft.UI.ColorHelper.FromArgb(255, 248, 248, 248)
+                };
+                borderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(80, 0, 0, 0));
+            }
+
+            // Update background immediately (matches system theme change speed)
+            dialogContainer.Background = dialogAcrylicBrush;
+            dialogContainer.BorderBrush = borderBrush;
+        }
+
+
 
         private void ShowSlidingPanel(UserControl userControl, string title)
         {

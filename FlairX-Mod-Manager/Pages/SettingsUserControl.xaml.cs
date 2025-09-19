@@ -13,6 +13,7 @@ using Windows.Storage.Pickers;
 using WinRT.Interop;
 using System.Runtime.InteropServices;
 using System.Threading;
+using FlairX_Mod_Manager;
 
 namespace FlairX_Mod_Manager.Pages
 {
@@ -392,8 +393,11 @@ namespace FlairX_Mod_Manager.Pages
         // Event handlers - copying from original SettingsPage
         private async void ThemeSelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
         {
+            Logger.LogInfo("ThemeSelectorBar_SelectionChanged called");
+            
             if (sender.SelectedItem is SelectorBarItem item && item.Tag is string theme)
             {
+                Logger.LogInfo($"Theme selected: {theme}");
                 // Get current effective theme before change
                 ElementTheme currentEffectiveTheme = GetEffectiveTheme(SettingsManager.Current.Theme ?? "Auto");
                 
@@ -426,19 +430,21 @@ namespace FlairX_Mod_Manager.Pages
                             mainWindow.ApplyBackdropEffect("None");
                         }
                         
-                        // Only reopen panel if the effective theme actually changed
+                        // Only update panel theme if the effective theme actually changed
                         if (currentEffectiveTheme != newEffectiveTheme)
                         {
-                            // Close current panel and reopen to apply theme immediately
-                            CloseRequested?.Invoke(this, EventArgs.Empty);
+                            Logger.LogInfo($"Theme changed from {currentEffectiveTheme} to {newEffectiveTheme}");
                             
-                            // Small delay to ensure panel closes before reopening
-                            await Task.Delay(50);
+                            // Small delay to ensure theme change is fully applied
+                            await Task.Delay(100);
                             
-                            // Reopen settings panel with new theme
-                            var showSettingsPanelMethod = mainWindow.GetType().GetMethod("ShowSettingsPanel", 
-                                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                            showSettingsPanelMethod?.Invoke(mainWindow, null);
+                            // Update the sliding panel background instead of closing/reopening
+                            Logger.LogInfo("Calling UpdateSlidingPanelTheme");
+                            mainWindow.UpdateSlidingPanelTheme();
+                        }
+                        else
+                        {
+                            Logger.LogInfo($"Theme not changed - current: {currentEffectiveTheme}, new: {newEffectiveTheme}");
                         }
                     }
                 }
