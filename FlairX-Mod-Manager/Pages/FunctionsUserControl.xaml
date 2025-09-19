@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="FlairX_Mod_Manager.Pages.FunctionsUserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FlairX_Mod_Manager.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Stretch">
+    
+    <Grid Margin="24" x:Name="MainGrid" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header with Back button -->
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,24">
+            <Button x:Name="BackButton" Width="48" Height="48" Click="BackButton_Click" VerticalAlignment="Center"
+                    PointerEntered="BackButton_PointerEntered" PointerExited="BackButton_PointerExited">
+                <FontIcon x:Name="BackIcon" Glyph="&#xE72A;" FontSize="20">
+                    <FontIcon.RenderTransform>
+                        <ScaleTransform x:Name="BackIconScale" ScaleX="1" ScaleY="1"/>
+                    </FontIcon.RenderTransform>
+                </FontIcon>
+            </Button>
+            <TextBlock x:Name="FunctionsTitle" Text="Functions" FontSize="24" FontWeight="Bold" Margin="16,0,16,0" VerticalAlignment="Center"/>
+        </StackPanel>
+        
+        <!-- NavigationView Content -->
+        <Grid Grid.Row="1" Padding="0,0,0,24" VerticalAlignment="Stretch">
+            <NavigationView x:Name="FunctionNavigationView"
+                            IsSettingsVisible="False"
+                            IsBackButtonVisible="Collapsed"
+                            IsBackEnabled="False"
+                            SelectionChanged="FunctionNavigationView_SelectionChanged"
+                            Header=""
+                            AlwaysShowHeader="False"
+                            PaneTitle=""
+                            PaneDisplayMode="Top"
+                            ExpandedModeThresholdWidth="500"
+                            SelectionFollowsFocus="Disabled"
+                            IsTabStop="False">
+                <NavigationView.MenuItems>
+                    <NavigationViewItem x:Name="GBAuthorUpdateNavItem" Content="GameBanana Update" Tag="GBAuthorUpdate">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xF49A;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Name="HotkeyFinderNavItem" Content="Hotkey Finder" Tag="HotkeyFinder">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE765;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Name="StatusKeeperNavItem" Content="Status Keeper" Tag="StatusKeeperPage">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE792;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Name="ModInfoBackupNavItem" Content="ModInfo Backup" Tag="ModInfoBackup">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE8C8;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                </NavigationView.MenuItems>
+                <Frame x:Name="FunctionContentFrame"/>
+            </NavigationView>
+        </Grid>
+    </Grid>
+</UserControl>

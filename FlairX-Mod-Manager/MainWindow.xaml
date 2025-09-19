@@ -86,12 +86,12 @@
                         <SymbolIcon Symbol="Download" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Functions" Tag="FunctionsPage" x:Name="FunctionsPageItem">
+                <NavigationViewItem Content="Functions" Tag="FunctionsUserControl" x:Name="FunctionsPageItem">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xF22C;" FontSize="20" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Settings" Tag="SettingsPage" x:Name="SettingsPageItem">
+                <NavigationViewItem Content="Settings" Tag="SettingsUserControl" x:Name="SettingsPageItem">
                     <NavigationViewItem.Icon>
                         <AnimatedIcon>
                             <AnimatedIcon.Source>

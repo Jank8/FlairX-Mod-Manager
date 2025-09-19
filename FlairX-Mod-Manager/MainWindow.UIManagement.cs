@@ -17,6 +17,7 @@ namespace FlairX_Mod_Manager
     public sealed partial class MainWindow : Window
     {
         private volatile bool _isGeneratingMenu = false;
+        private volatile bool _suppressMenuRegeneration = false;
         private void UpdateGameSelectionComboBoxTexts()
         {
             if (GameSelectionComboBox?.Items != null && _lang != null)
@@ -131,6 +132,16 @@ namespace FlairX_Mod_Manager
 
         public async Task GenerateModCharacterMenuAsync()
         {
+            // Debug logging to track when menu regeneration is triggered
+            System.Diagnostics.Debug.WriteLine($"[MENU DEBUG] GenerateModCharacterMenuAsync called from: {Environment.StackTrace}");
+            
+            // Skip menu regeneration if suppressed
+            if (_suppressMenuRegeneration)
+            {
+                System.Diagnostics.Debug.WriteLine("[MENU DEBUG] Menu regeneration suppressed");
+                return;
+            }
+            
             // Prevent race conditions caused by multiple asynchronous operations
             if (_isGeneratingMenu)
                 return;
@@ -191,9 +202,9 @@ namespace FlairX_Mod_Manager
                                 // Also clear and rebuild footer items to prevent duplication
                                 var existingFooterItems = nvSample.FooterMenuItems.OfType<NavigationViewItem>()
                                     .Where(item => item.Tag?.ToString() == "OtherModsPage" || 
-                                                   item.Tag?.ToString() == "FunctionsPage" || 
-                                                   item.Tag?.ToString() == "PresetsPage" || 
-                                                   item.Tag?.ToString() == "SettingsPage")
+                                                   item.Tag?.ToString() == "FunctionsUserControl" || 
+                                                   item.Tag?.ToString() == "PresetsUserControl" || 
+                                                   item.Tag?.ToString() == "SettingsUserControl")
                                     .ToList();
                                 
                                 nvSample.FooterMenuItems.Clear();
@@ -295,12 +306,12 @@ namespace FlairX_Mod_Manager
         private void EnsurePresetsMenuItemExists()
         {
             // Ensure Presets menu item exists in FooterMenuItems
-            if (nvSample?.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "PresetsPage") == null)
+            if (nvSample?.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "PresetsUserControl") == null)
             {
                 var presets = new NavigationViewItem
                 {
                     Content = SharedUtilities.GetTranslation(_lang, "Presets"),
-                    Tag = "PresetsPage",
+                    Tag = "PresetsUserControl",
                     Icon = new FontIcon { Glyph = "\uE728" } // Presets icon
                 };
                 
@@ -402,6 +413,11 @@ namespace FlairX_Mod_Manager
 
         public void RefreshUIAfterLanguageChange()
         {
+            RefreshUIAfterLanguageChange(true);
+        }
+
+        public void RefreshUIAfterLanguageChange(bool regenerateMenu = true)
+        {
             // First reload our own language dictionary
             LoadLanguage();
             
@@ -411,27 +427,16 @@ namespace FlairX_Mod_Manager
             SetPaneButtonTooltips();
             SetCategoryTitles();
             UpdateAllModsButtonState();
-            // Only generate menu if a game is selected
-            if (SettingsManager.Current?.SelectedGameIndex > 0)
+            // Only generate menu if a game is selected and regenerateMenu is true
+            if (regenerateMenu && SettingsManager.Current?.SelectedGameIndex > 0)
             {
                 _ = GenerateModCharacterMenuAsync();
             }
-            // Refresh page if it's ModGridPage or PresetsPage
+            
+            // Refresh page if it's ModGridPage or UserControls
             if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
             {
                 modGridPage.RefreshUIAfterLanguageChange();
-            }
-            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.PresetsPage presetsPage)
-            {
-                var updateTexts = presetsPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                updateTexts?.Invoke(presetsPage, null);
-            }
-            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.SettingsPage settingsPage)
-            {
-                var loadLanguageMethod = settingsPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var updateTextsMethod = settingsPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                loadLanguageMethod?.Invoke(settingsPage, null);
-                updateTextsMethod?.Invoke(settingsPage, null);
             }
             else if (contentFrame.Content is FlairX_Mod_Manager.Pages.StatusKeeperSyncPage statusKeeperSyncPage)
             {

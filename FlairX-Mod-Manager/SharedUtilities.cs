@@ -241,6 +241,9 @@ namespace FlairX_Mod_Manager
                     langPath = PathManager.GetLanguagePath(langFile);
                 }
                 
+                // Add debug logging to track when this is called
+                Logger.LogDebug($"LoadLanguageDictionary called - Path: {PathManager.GetRelativePath(langPath)}, Subfolder: {subfolder ?? "main"}");
+                
                 // Load the specified file
                 if (File.Exists(langPath))
                 {

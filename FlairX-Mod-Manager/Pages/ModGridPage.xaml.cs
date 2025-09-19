@@ -1104,18 +1104,20 @@ namespace FlairX_Mod_Manager.Pages
         // Instance method for UI refresh (already present, but ensure public)
         public void RefreshUIAfterLanguageChange()
         {
-            // Odświeżenie listy kategorii modów w menu nawigacji
-            var mainWindow = ((App)Application.Current).MainWindow as FlairX_Mod_Manager.MainWindow;
-            if (mainWindow != null)
-            {
-                _ = mainWindow.GenerateModCharacterMenuAsync();
-            }
-            // Check mod directories and create mod.json in level 1 directories
+            // Menu regeneration removed - unnecessary when using sliding panels instead of page navigation
+            // var mainWindow = ((App)Application.Current).MainWindow as FlairX_Mod_Manager.MainWindow;
+            // if (mainWindow != null)
+            // {
+            //     _ = mainWindow.GenerateModCharacterMenuAsync();
+            // }
+            
+            // Check mod directories and create mod.json in level 1 directories - CRITICAL for mod integrity
             (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary();
             
-            // Reload active mods state before refreshing UI to ensure heart icons are updated
-            LoadActiveMods();
-            LoadAllMods();
+            // LoadActiveMods() removed - this was likely causing the grid reload during language changes
+            // Active mod state doesn't change when switching languages, no need to reload from disk
+            
+            // LoadAllMods() removed - unnecessary when just changing language, mods are already loaded
         }
 
         // Add function to display path with single slashes moved to ModGridPage.StaticUtilities.cs

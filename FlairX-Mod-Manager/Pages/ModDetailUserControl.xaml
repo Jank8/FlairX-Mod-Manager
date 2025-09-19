@@ -8,7 +8,7 @@
     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     mc:Ignorable="d">
     
-    <Grid Margin="24" x:Name="MainGrid" PointerPressed="MainGrid_PointerPressed" PointerReleased="MainGrid_PointerReleased" Background="Transparent">
+    <Grid Margin="24" x:Name="MainGrid" PointerPressed="MainGrid_PointerPressed" PointerReleased="MainGrid_PointerReleased" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -37,7 +37,7 @@
         </StackPanel>
         
         <!-- Content exactly copied from ModDetailPage -->
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" MinWidth="0"/>
                 <ColumnDefinition Width="32"/>

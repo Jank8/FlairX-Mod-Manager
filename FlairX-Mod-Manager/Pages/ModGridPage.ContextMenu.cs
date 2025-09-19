@@ -890,9 +890,7 @@ namespace FlairX_Mod_Manager.Pages
                             VerticalAlignment = VerticalAlignment.Stretch
                         };
 
-                        // Set maximum size but allow shrinking - no fixed sizes
-                        double maxDialogWidth = 1400;
-                        double maxDialogHeight = 900;
+                        // No size restrictions - UserControl will auto-size
                         
                         // Create dialog with acrylic background for blur effect
                         Microsoft.UI.Xaml.Media.AcrylicBrush dialogAcrylicBrush;
@@ -931,20 +929,24 @@ namespace FlairX_Mod_Manager.Pages
                             BorderThickness = new Thickness(1, 0, 0, 0) // Only left border
                         };
 
-                        // Create main grid for content
-                        var mainGrid = new Grid();
+                        // Create main grid for content - fill entire container
+                        var mainGrid = new Grid
+                        {
+                            HorizontalAlignment = HorizontalAlignment.Stretch,
+                            VerticalAlignment = VerticalAlignment.Stretch
+                        };
                         
                         // No close button - will be handled by back button in ModDetailUserControl
 
-                        // Set UserControl to fill available space
+                        // Set UserControl to fill available space completely
                         modDetailControl.HorizontalAlignment = HorizontalAlignment.Stretch;
                         modDetailControl.VerticalAlignment = VerticalAlignment.Stretch;
-                        modDetailControl.Margin = new Thickness(20); // Równe marginesy ze wszystkich stron
+                        modDetailControl.Margin = new Thickness(12); // Smaller margins for more space
                         // No RequestedTheme - let it inherit naturally
                         
-                        // Allow UserControl to shrink with window
-                        modDetailControl.MaxWidth = maxDialogWidth - 80; // Account for margins
-                        modDetailControl.MaxHeight = maxDialogHeight - 80;
+                        // Remove size restrictions to allow full height usage
+                        modDetailControl.Width = double.NaN; // Auto width
+                        modDetailControl.Height = double.NaN; // Auto height - fill container
 
                         mainGrid.Children.Add(modDetailControl);
                         

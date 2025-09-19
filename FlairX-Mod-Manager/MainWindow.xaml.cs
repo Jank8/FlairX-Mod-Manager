@@ -260,7 +260,7 @@ namespace FlairX_Mod_Manager
             if (SettingsPageItem is NavigationViewItem settings)
                 settings.Content = SharedUtilities.GetTranslation(_lang, "SettingsPage_Title");
             
-            var presetsItem = nvSample.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "PresetsPage");
+            var presetsItem = nvSample.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x.Tag as string == "PresetsUserControl");
             if (presetsItem != null)
                 presetsItem.Content = SharedUtilities.GetTranslation(_lang, "Presets");
             if (AllModsButton != null)
@@ -450,18 +450,13 @@ namespace FlairX_Mod_Manager
                 // Navigate to All Categories view
                 contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Categories", new DrillInNavigationTransitionInfo());
             }
-            else if (lastPage == "FunctionsPage")
+            else if (lastPage == "FunctionsUserControl")
             {
-                // Navigate to Functions page
-                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.FunctionsPage), null, new DrillInNavigationTransitionInfo());
-                var functionsMenuItem = nvSample.FooterMenuItems.OfType<NavigationViewItem>()
-                    .FirstOrDefault(item => item.Tag?.ToString() == "FunctionsPage");
-                if (functionsMenuItem != null)
-                {
-                    nvSample.SelectedItem = functionsMenuItem;
-                }
+                // Don't auto-open Functions panel on startup
+                // Instead, navigate to default page and let user open Functions manually
+                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
             }
-            else if (lastPage == "SettingsPage")
+            else if (lastPage == "SettingsUserControl")
             {
                 // Don't start on Settings page to avoid category list duplicates
                 // Instead, navigate to All Mods based on current view mode

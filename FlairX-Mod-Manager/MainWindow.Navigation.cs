@@ -70,21 +70,26 @@ namespace FlairX_Mod_Manager
                             contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Category:Other", new DrillInNavigationTransitionInfo());
                         }
                     }
-                    else if (selectedTag == "FunctionsPage")
+                    else if (selectedTag == "FunctionsUserControl")
                     {
-                        // Save position for reload
-                        SettingsManager.SaveLastPosition(null, "FunctionsPage", null);
-                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.FunctionsPage), null, new DrillInNavigationTransitionInfo());
+                        // Show Functions sliding panel instead of navigating to page
+                        ShowFunctionsPanel();
+                        // Clear navigation selection to prevent highlighting
+                        nvSample.SelectedItem = null;
                     }
-                    else if (selectedTag == "SettingsPage")
+                    else if (selectedTag == "SettingsUserControl")
                     {
-                        // Save position for reload
-                        SettingsManager.SaveLastPosition(null, "SettingsPage", null);
-                        contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.SettingsPage), null, new DrillInNavigationTransitionInfo());
-                        // Force restore view mode from settings when entering settings
-                        RestoreViewModeButtonFromSettings();
-                        // Also force update button state
-                        UpdateAllModsButtonState();
+                        // Show Settings sliding panel instead of navigating to page
+                        ShowSettingsPanel();
+                        // Clear navigation selection to prevent highlighting
+                        nvSample.SelectedItem = null;
+                    }
+                    else if (selectedTag == "PresetsUserControl")
+                    {
+                        // Show Presets sliding panel instead of navigating to page
+                        ShowPresetsPanel();
+                        // Clear navigation selection to prevent highlighting
+                        nvSample.SelectedItem = null;
                     }
                     else
                     {
@@ -196,7 +201,7 @@ namespace FlairX_Mod_Manager
                     {
                         var tag = item.Tag?.ToString();
                         // Skip footer items - they should only be in footer, not main menu
-                        if (tag == "OtherModsPage" || tag == "FunctionsPage" || tag == "PresetsPage" || tag == "SettingsPage")
+                        if (tag == "OtherModsPage" || tag == "FunctionsUserControl" || tag == "PresetsUserControl" || tag == "SettingsUserControl")
                         {
                             continue;
                         }
@@ -210,7 +215,7 @@ namespace FlairX_Mod_Manager
                     foreach (var item in currentFooterItems)
                     {
                         var tag = item.Tag?.ToString();
-                        if (tag == "OtherModsPage" || tag == "FunctionsPage" || tag == "PresetsPage" || tag == "SettingsPage")
+                        if (tag == "OtherModsPage" || tag == "FunctionsUserControl" || tag == "PresetsUserControl" || tag == "SettingsUserControl")
                         {
                             if (!nvSample.FooterMenuItems.Contains(item))
                                 nvSample.FooterMenuItems.Add(item);

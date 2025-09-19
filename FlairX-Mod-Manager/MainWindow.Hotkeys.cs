@@ -89,30 +89,33 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogInfo("Optimize previews hotkey triggered");
                 
-                // Navigate to settings page if not already there
-                if (!(contentFrame.Content is FlairX_Mod_Manager.Pages.SettingsPage))
-                {
-                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.SettingsPage), null, new DrillInNavigationTransitionInfo());
-                    // Wait a moment for navigation to complete
-                    await Task.Delay(100);
-                }
-
-                // Get the settings page and trigger optimize previews
-                if (contentFrame.Content is FlairX_Mod_Manager.Pages.SettingsPage settingsPage)
+                // Show settings panel and trigger optimize previews
+                var settingsControl = new FlairX_Mod_Manager.Pages.SettingsUserControl();
+                ShowSlidingPanel(settingsControl, "Settings");
+                
+                // Wait a moment for panel to load
+                await Task.Delay(200);
+                
+                // Trigger optimize previews on the settings control
+                try
                 {
                     // Use reflection to call the private OptimizePreviewsButton_Click method
-                    var optimizeMethod = settingsPage.GetType().GetMethod("OptimizePreviewsButton_Click", 
+                    var optimizeMethod = settingsControl.GetType().GetMethod("OptimizePreviewsButton_Click", 
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     
                     if (optimizeMethod != null)
                     {
-                        optimizeMethod.Invoke(settingsPage, new object[] { settingsPage, new RoutedEventArgs() });
+                        optimizeMethod.Invoke(settingsControl, new object[] { settingsControl, new RoutedEventArgs() });
                         Logger.LogInfo("Optimize previews started via hotkey");
                     }
                     else
                     {
-                        Logger.LogError("Could not find OptimizePreviewsButton_Click method");
+                        Logger.LogError("Could not find OptimizePreviewsButton_Click method in SettingsUserControl");
                     }
+                }
+                catch (Exception innerEx)
+                {
+                    Logger.LogError("Error triggering optimize previews via hotkey", innerEx);
                 }
             }
             catch (Exception ex)
