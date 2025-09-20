@@ -586,6 +586,44 @@ namespace FlairX_Mod_Manager
             }
         }
 
+        // Enhanced InfoBar methods for better user feedback
+        public void ShowInfoBar(string title, string message, Microsoft.UI.Xaml.Controls.InfoBarSeverity severity = Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational, int autoCloseDelayMs = 0)
+        {
+            Logger.LogInfo($"Showing InfoBar: {severity} - {title}: {message}");
+            
+            if (MainInfoBar != null)
+            {
+                MainInfoBar.Title = title;
+                MainInfoBar.Message = message;
+                MainInfoBar.Severity = severity;
+                MainInfoBar.IsOpen = true;
+                
+                // Auto-close after delay if specified
+                if (autoCloseDelayMs > 0)
+                {
+                    var timer = new System.Threading.Timer(_ => 
+                    {
+                        DispatcherQueue.TryEnqueue(() => MainInfoBar.IsOpen = false);
+                    }, null, autoCloseDelayMs, System.Threading.Timeout.Infinite);
+                }
+            }
+        }
+
+        public void ShowSuccessInfo(string message, int autoCloseDelayMs = 3000)
+        {
+            ShowInfoBar("Success", message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Success, autoCloseDelayMs);
+        }
+
+        public void ShowWarningInfo(string message, int autoCloseDelayMs = 5000)
+        {
+            ShowInfoBar("Warning", message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning, autoCloseDelayMs);
+        }
+
+        public void ShowErrorInfo(string message, int autoCloseDelayMs = 0)
+        {
+            ShowInfoBar("Error", message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Error, autoCloseDelayMs);
+        }
+
 
 
         // GenerateModCharacterMenuAsync method moved to MainWindow.UIManagement.cs

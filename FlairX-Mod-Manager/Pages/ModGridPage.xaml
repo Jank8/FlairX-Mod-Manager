@@ -533,7 +533,6 @@
                                                Text="{Binding LastCheckedFormatted}" 
                                                VerticalAlignment="Center"
                                                Padding="8,0"
-                                               FontSize="12"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                     
                                     <!-- Last Updated -->
@@ -541,7 +540,6 @@
                                                Text="{Binding LastUpdatedFormatted}" 
                                                VerticalAlignment="Center"
                                                Padding="8,0"
-                                               FontSize="12"
                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                                 </Grid>
                             </Border>

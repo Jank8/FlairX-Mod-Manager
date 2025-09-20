@@ -108,7 +108,14 @@
             <NavigationView.PaneCustomContent>
                 <StackPanel x:Name="PaneStackPanel" HorizontalAlignment="Stretch" Padding="16,20,16,0">
                     <TextBlock x:Name="PaneTitleText" Text="FlairX Mod Manager" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontSize="25" Margin="0,0,0,8"/>
-                    <ProgressBar x:Name="OrangeAnimationProgressBar" Width="200" IsIndeterminate="True" Margin="0,0,0,16" Visibility="Visible" Opacity="1" />
+                    <ProgressBar x:Name="OrangeAnimationProgressBar" 
+                                 Width="200" 
+                                 IsIndeterminate="True" 
+                                 Margin="0,0,0,16" 
+                                 Visibility="Visible" 
+                                 Opacity="1"
+                                 ShowPaused="False"
+                                 ShowError="False" />
                     <Grid x:Name="PaneContentGrid" Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
@@ -200,6 +207,17 @@
 
             <Frame x:Name="contentFrame" />
         </NavigationView>
+
+        <!-- InfoBar for user notifications -->
+        <InfoBar x:Name="MainInfoBar"
+                 HorizontalAlignment="Center"
+                 VerticalAlignment="Top"
+                 Margin="0,10,0,0"
+                 IsOpen="False"
+                 Severity="Informational"
+                 Title=""
+                 Message=""
+                 IsClosable="True" />
 
         <!-- Zoom Indicator in top right corner -->
         <Border x:Name="ZoomIndicatorBorder"

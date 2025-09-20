@@ -213,6 +213,13 @@ namespace FlairX_Mod_Manager
                 }
                 
                 Logger.LogInfo("Application launch completed successfully");
+                Logger.LogInfo("Running on WinUI 3 SDK 1.8.0 (1.8.250907003)");
+                
+                // Show success notification using new InfoBar
+                if (_window is MainWindow mainWindow)
+                {
+                    mainWindow.ShowSuccessInfo("FlairX Mod Manager loaded successfully", 2000);
+                }
             }
             catch (Exception ex)
             {
