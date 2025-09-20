@@ -20,6 +20,7 @@ namespace FlairX_Mod_Manager.Pages
     public sealed partial class SettingsUserControl : UserControl
     {
         private readonly string LanguageFolderPath = PathManager.GetAbsolutePath("Language");
+        private Microsoft.UI.Xaml.DispatcherTimer? _windowSizeUpdateTimer;
         
         // Constants and structures for MoveToRecycleBin
         private const int FO_DELETE = 0x0003;
@@ -72,8 +73,17 @@ namespace FlairX_Mod_Manager.Pages
             LoadLanguages();
             InitializeUIState();
             
+            // Initialize timer for delayed window size updates
+            _windowSizeUpdateTimer = new Microsoft.UI.Xaml.DispatcherTimer();
+            _windowSizeUpdateTimer.Interval = TimeSpan.FromMilliseconds(200); // 200ms delay
+            _windowSizeUpdateTimer.Tick += WindowSizeUpdateTimer_Tick;
+            
+            // Subscribe to window size changes
+            MainWindow.WindowSizeChanged += OnWindowSizeChanged;
+            
             // Add slide-in animation for content
             this.Loaded += SettingsUserControl_Loaded;
+            this.Unloaded += SettingsUserControl_Unloaded;
         }
         
         private void SettingsUserControl_Loaded(object sender, RoutedEventArgs e)
@@ -181,6 +191,9 @@ namespace FlairX_Mod_Manager.Pages
             // Load current settings first
             LoadCurrentSettings();
             
+            // Disable Mica options on Windows 10
+            DisableMicaOptionsOnWindows10();
+            
             // Load language dictionary once and reuse it
             var lang = SharedUtilities.LoadLanguageDictionary();
             
@@ -206,6 +219,47 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
         
+        private void DisableMicaOptionsOnWindows10()
+        {
+            // Check if running on Windows 10 (build < 22000 = Windows 11)
+            bool isWindows10 = Environment.OSVersion.Version.Build < 22000;
+            
+            if (isWindows10)
+            {
+                // Disable Mica and MicaAlt options
+                if (BackdropSelectorMica != null)
+                {
+                    BackdropSelectorMica.IsEnabled = false;
+                    BackdropSelectorMica.Opacity = 0.5;
+                }
+                
+                if (BackdropSelectorMicaAlt != null)
+                {
+                    BackdropSelectorMicaAlt.IsEnabled = false;
+                    BackdropSelectorMicaAlt.Opacity = 0.5;
+                }
+                
+                // If current setting is Mica or MicaAlt, switch to AcrylicThin
+                string currentBackdrop = SettingsManager.Current.BackdropEffect ?? "AcrylicThin";
+                if (currentBackdrop == "Mica" || currentBackdrop == "MicaAlt")
+                {
+                    SettingsManager.Current.BackdropEffect = "AcrylicThin";
+                    SettingsManager.Save();
+                    
+                    // Update selection without triggering event
+                    BackdropSelectorBar.SelectionChanged -= BackdropSelectorBar_SelectionChanged;
+                    BackdropSelectorBar.SelectedItem = BackdropSelectorAcrylicThin;
+                    BackdropSelectorBar.SelectionChanged += BackdropSelectorBar_SelectionChanged;
+                    
+                    // Apply the new backdrop effect
+                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                    {
+                        mainWindow.ApplyBackdropEffect("AcrylicThin");
+                    }
+                }
+            }
+        }
+        
         private void UpdateTexts(Dictionary<string, string>? lang = null)
         {
             // Load language dictionary only if not provided
@@ -217,6 +271,8 @@ namespace FlairX_Mod_Manager.Pages
             if (BackdropLabel != null) BackdropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop");
             if (LanguageLabel != null) LanguageLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language");
             if (OptimizePreviewsLabel != null) OptimizePreviewsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
+            if (DefaultResolutionOnStartLabel != null) DefaultResolutionOnStartLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultResolutionOnStart_Label");
+            if (DefaultStartResolutionLabel != null) DefaultStartResolutionLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Label");
             if (XXMIRootDirectoryLabel != null) XXMIRootDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory");
             if (ModLibraryDirectoryLabel != null) ModLibraryDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModLibraryDirectory");
             if (ActiveModsToTopLabel != null) ActiveModsToTopLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Label");
@@ -231,6 +287,8 @@ namespace FlairX_Mod_Manager.Pages
             if (BackdropDescription != null) BackdropDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_Description") ?? string.Empty;
             if (LanguageDescription != null) LanguageDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language_Description") ?? string.Empty;
             if (OptimizePreviewsDescription != null) OptimizePreviewsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Description") ?? string.Empty;
+            if (DefaultResolutionOnStartDescription != null) DefaultResolutionOnStartDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultResolutionOnStart_Description") ?? string.Empty;
+            if (DefaultStartResolutionDescription != null) DefaultStartResolutionDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Description") ?? string.Empty;
             if (XXMIRootDirectoryDescription != null) XXMIRootDirectoryDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory_Description") ?? string.Empty;
             if (ModLibraryDirectoryDescription != null) ModLibraryDirectoryDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModLibraryDirectory_Description") ?? string.Empty;
             if (ActiveModsToTopDescription != null) ActiveModsToTopDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Description") ?? string.Empty;
@@ -388,6 +446,40 @@ namespace FlairX_Mod_Manager.Pages
             ReloadManagerHotkeyTextBox.Text = SettingsManager.Current.ReloadManagerHotkey;
             ShuffleActiveModsHotkeyTextBox.Text = SettingsManager.Current.ShuffleActiveModsHotkey;
             DeactivateAllModsHotkeyTextBox.Text = SettingsManager.Current.DeactivateAllModsHotkey;
+            
+            // Set default resolution on start settings
+            DefaultResolutionOnStartToggle.IsOn = SettingsManager.Current.UseDefaultResolutionOnStart;
+            
+            // Show current window size instead of stored values
+            var mainWindow = (App.Current as App)?.MainWindow;
+            if (mainWindow != null)
+            {
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+                var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                
+                if (appWindow != null)
+                {
+                    DefaultStartWidthTextBox.Text = appWindow.Size.Width.ToString();
+                    DefaultStartHeightTextBox.Text = appWindow.Size.Height.ToString();
+                }
+                else
+                {
+                    // Fallback to stored values if can't get current size
+                    DefaultStartWidthTextBox.Text = SettingsManager.Current.DefaultStartWidth.ToString();
+                    DefaultStartHeightTextBox.Text = SettingsManager.Current.DefaultStartHeight.ToString();
+                }
+            }
+            else
+            {
+                // Fallback to stored values if can't access MainWindow
+                DefaultStartWidthTextBox.Text = SettingsManager.Current.DefaultStartWidth.ToString();
+                DefaultStartHeightTextBox.Text = SettingsManager.Current.DefaultStartHeight.ToString();
+            }
+            
+            // Enable/disable resolution input boxes based on toggle state
+            DefaultStartWidthTextBox.IsEnabled = SettingsManager.Current.UseDefaultResolutionOnStart;
+            DefaultStartHeightTextBox.IsEnabled = SettingsManager.Current.UseDefaultResolutionOnStart;
         }
 
         // Event handlers - copying from original SettingsPage
@@ -1457,11 +1549,109 @@ namespace FlairX_Mod_Manager.Pages
             await dialog.ShowAsync();
         }
 
+        private void DefaultResolutionOnStartToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.UseDefaultResolutionOnStart = DefaultResolutionOnStartToggle.IsOn;
+            SettingsManager.Save();
+            
+            // Enable/disable the resolution input boxes
+            DefaultStartWidthTextBox.IsEnabled = DefaultResolutionOnStartToggle.IsOn;
+            DefaultStartHeightTextBox.IsEnabled = DefaultResolutionOnStartToggle.IsOn;
+        }
+
+        private void DefaultStartWidthTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox textBox && int.TryParse(textBox.Text, out int width))
+            {
+                // Get full screen resolution (not just work area)
+                var bounds = Microsoft.UI.Windowing.DisplayArea.Primary.OuterBounds;
+                int maxWidth = bounds.Width;
+                int minWidth = 1300; // Use MainWindow MIN_WIDTH constant
+                
+                if (width >= minWidth && width <= maxWidth)
+                {
+                    SettingsManager.Current.DefaultStartWidth = width;
+                    SettingsManager.Save();
+                    textBox.BorderBrush = null; // Reset border color
+                }
+                else
+                {
+                    // Set red border to indicate invalid value
+                    textBox.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red);
+                }
+            }
+        }
+
+        private void DefaultStartHeightTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (sender is TextBox textBox && int.TryParse(textBox.Text, out int height))
+            {
+                // Get full screen resolution (not just work area)
+                var bounds = Microsoft.UI.Windowing.DisplayArea.Primary.OuterBounds;
+                int maxHeight = bounds.Height;
+                int minHeight = 720; // Use MainWindow MIN_HEIGHT constant
+                
+                if (height >= minHeight && height <= maxHeight)
+                {
+                    SettingsManager.Current.DefaultStartHeight = height;
+                    SettingsManager.Save();
+                    textBox.BorderBrush = null; // Reset border color
+                }
+                else
+                {
+                    // Set red border to indicate invalid value
+                    textBox.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red);
+                }
+            }
+        }
+
         public void RefreshContent()
         {
             LoadLanguages();
             LoadCurrentSettings();
             UpdateTexts();
+        }
+
+        private void OnWindowSizeChanged(object? sender, EventArgs e)
+        {
+            // Restart the timer - this will delay the update by 200ms
+            _windowSizeUpdateTimer?.Stop();
+            _windowSizeUpdateTimer?.Start();
+        }
+
+        private void WindowSizeUpdateTimer_Tick(object? sender, object e)
+        {
+            // Stop the timer and update the resolution fields
+            _windowSizeUpdateTimer?.Stop();
+            UpdateResolutionFields();
+        }
+
+        private void UpdateResolutionFields()
+        {
+            // Only update if toggle is OFF (when it's ON, user controls the values)
+            if (!SettingsManager.Current.UseDefaultResolutionOnStart)
+            {
+                var mainWindow = (App.Current as App)?.MainWindow;
+                if (mainWindow != null)
+                {
+                    var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
+                    var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+                    var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                    
+                    if (appWindow != null)
+                    {
+                        DefaultStartWidthTextBox.Text = appWindow.Size.Width.ToString();
+                        DefaultStartHeightTextBox.Text = appWindow.Size.Height.ToString();
+                    }
+                }
+            }
+        }
+
+        // Clean up event subscription when control is unloaded
+        private void SettingsUserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            MainWindow.WindowSizeChanged -= OnWindowSizeChanged;
+            _windowSizeUpdateTimer?.Stop();
         }
     }
 }

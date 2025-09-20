@@ -146,6 +146,48 @@
                         <ComboBox Grid.Column="3" x:Name="LanguageComboBox" Width="200" SelectionChanged="LanguageComboBox_SelectionChanged" VerticalAlignment="Center"/>
                     </Grid>
                     
+                    <!-- Default Resolution on Start Setting -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE7F4;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock x:Name="DefaultResolutionOnStartLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="DefaultResolutionOnStartDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        
+                        <ToggleSwitch Grid.Column="3" x:Name="DefaultResolutionOnStartToggle" Toggled="DefaultResolutionOnStartToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
+                    </Grid>
+                    
+                    <!-- Default Start Resolution Values -->
+                    <Grid x:Name="DefaultStartResolutionGrid">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE8A9;" FontSize="20" VerticalAlignment="Center" Opacity="0.7"/>
+                        
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock x:Name="DefaultStartResolutionLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="DefaultStartResolutionDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                            <TextBox x:Name="DefaultStartWidthTextBox" Width="80" TextChanged="DefaultStartWidthTextBox_TextChanged" VerticalAlignment="Center" InputScope="Number"/>
+                            <TextBlock Text="×" VerticalAlignment="Center" FontSize="14" Opacity="0.7"/>
+                            <TextBox x:Name="DefaultStartHeightTextBox" Width="80" TextChanged="DefaultStartHeightTextBox_TextChanged" VerticalAlignment="Center" InputScope="Number"/>
+                        </StackPanel>
+                    </Grid>
+                    
                     <!-- Optimize Previews Setting -->
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -169,6 +211,8 @@
                             <ProgressBar x:Name="OptimizePreviewsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="8,0,0,0" />
                         </StackPanel>
                     </Grid>
+                    
+
                     <!-- XXMI Root Directory -->
                     <Grid>
                         <Grid.ColumnDefinitions>

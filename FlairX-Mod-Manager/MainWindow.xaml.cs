@@ -29,6 +29,9 @@ namespace FlairX_Mod_Manager
         private const int MIN_WIDTH = 1300;
         private const int MIN_HEIGHT = 720;
         private Dictionary<string, string> _lang = new();
+        
+        // Event for notifying about window size changes
+        public static event EventHandler? WindowSizeChanged;
 
         private void LoadLanguage()
         {
@@ -138,6 +141,10 @@ namespace FlairX_Mod_Manager
 
             // Initialize backdrop from settings AFTER theme is applied
             string backdropEffect = SettingsManager.Current.BackdropEffect ?? "AcrylicThin";
+            
+            // Check Windows 10 compatibility and fix incompatible backdrop effects
+            backdropEffect = EnsureBackdropCompatibility(backdropEffect);
+            
             ApplyBackdropEffect(backdropEffect);
             
             // Ensure settings are loaded before restoring window state
@@ -154,6 +161,12 @@ namespace FlairX_Mod_Manager
                     if (args.DidSizeChange || args.DidPositionChange || args.DidPresenterChange)
                     {
                         SaveWindowState();
+                        
+                        // Notify about window size change
+                        if (args.DidSizeChange)
+                        {
+                            WindowSizeChanged?.Invoke(this, EventArgs.Empty);
+                        }
                     }
                 };
             }

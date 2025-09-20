@@ -53,14 +53,26 @@ namespace FlairX_Mod_Manager
                     int targetWidth = MIN_WIDTH;
                     int targetHeight = MIN_HEIGHT;
                     
-                    if (settings.WindowWidth >= MIN_WIDTH && settings.WindowHeight >= MIN_HEIGHT)
+                    // Get current monitor resolution for validation
+                    var displayBounds = Microsoft.UI.Windowing.DisplayArea.Primary.OuterBounds;
+                    int maxMonitorWidth = displayBounds.Width;
+                    int maxMonitorHeight = displayBounds.Height;
+                    
+                    // Use default resolution if enabled, otherwise use saved window size
+                    if (settings.UseDefaultResolutionOnStart)
+                    {
+                        targetWidth = Math.Max(MIN_WIDTH, Math.Min(settings.DefaultStartWidth, Math.Min(MAX_WIDTH, maxMonitorWidth)));
+                        targetHeight = Math.Max(MIN_HEIGHT, Math.Min(settings.DefaultStartHeight, Math.Min(MAX_HEIGHT, maxMonitorHeight)));
+                    }
+                    else if (settings.WindowWidth >= MIN_WIDTH && settings.WindowHeight >= MIN_HEIGHT && 
+                             settings.WindowWidth <= maxMonitorWidth && settings.WindowHeight <= maxMonitorHeight)
                     {
                         targetWidth = (int)settings.WindowWidth;
                         targetHeight = (int)settings.WindowHeight;
                     }
                     else
                     {
-                        // Reset corrupted values to defaults
+                        // Reset corrupted values or values larger than current monitor to defaults
                         settings.WindowWidth = MIN_WIDTH;
                         settings.WindowHeight = MIN_HEIGHT;
                         SettingsManager.Save();
@@ -151,9 +163,12 @@ namespace FlairX_Mod_Manager
                 {
                     var settings = SettingsManager.Current;
                     
-                    // Save window size and position
-                    settings.WindowWidth = appWindow.Size.Width;
-                    settings.WindowHeight = appWindow.Size.Height;
+                    // Save window size and position (only if not using default resolution)
+                    if (!settings.UseDefaultResolutionOnStart)
+                    {
+                        settings.WindowWidth = appWindow.Size.Width;
+                        settings.WindowHeight = appWindow.Size.Height;
+                    }
                     settings.WindowX = appWindow.Position.X;
                     settings.WindowY = appWindow.Position.Y;
                     
@@ -218,6 +233,25 @@ namespace FlairX_Mod_Manager
                     appWindow.TitleBar.ButtonPressedBackgroundColor = null;
                 }
             }
+        }
+
+        private string EnsureBackdropCompatibility(string backdropEffect)
+        {
+            // Check if running on Windows 10 (build < 22000 = Windows 11)
+            bool isWindows10 = Environment.OSVersion.Version.Build < 22000;
+            
+            if (isWindows10 && (backdropEffect == "Mica" || backdropEffect == "MicaAlt"))
+            {
+                Logger.LogInfo($"Windows 10 detected - switching from {backdropEffect} to AcrylicThin for compatibility");
+                
+                // Update settings to compatible backdrop
+                SettingsManager.Current.BackdropEffect = "AcrylicThin";
+                SettingsManager.Save();
+                
+                return "AcrylicThin";
+            }
+            
+            return backdropEffect;
         }
 
         public void ApplyBackdropEffect(string backdropEffect)

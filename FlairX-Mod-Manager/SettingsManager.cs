@@ -32,6 +32,11 @@ namespace FlairX_Mod_Manager
         public double WindowY { get; set; } = -1; // -1 means center on screen
         public bool WindowMaximized { get; set; } = false;
         
+        // Default resolution on start settings
+        public bool UseDefaultResolutionOnStart { get; set; } = false;
+        public int DefaultStartWidth { get; set; } = 1650;
+        public int DefaultStartHeight { get; set; } = 820;
+        
         // StatusKeeper settings
         public string StatusKeeperD3dxUserIniPath { get; set; } = AppConstants.DEFAULT_D3DX_USER_INI_PATH;
         public bool StatusKeeperDynamicSyncEnabled { get; set; } = false;

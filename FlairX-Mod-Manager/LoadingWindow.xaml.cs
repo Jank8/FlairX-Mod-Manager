@@ -41,6 +41,10 @@ namespace FlairX_Mod_Manager
             
             // Apply backdrop effect from settings AFTER theme is set
             string backdropEffect = SettingsManager.Current.BackdropEffect ?? "AcrylicThin";
+            
+            // Check Windows 10 compatibility and fix incompatible backdrop effects
+            backdropEffect = EnsureBackdropCompatibility(backdropEffect);
+            
             ApplyBackdropEffect(backdropEffect);
             
             // Configure window
@@ -98,6 +102,22 @@ namespace FlairX_Mod_Manager
             {
                 LoadingProgressBar.IsIndeterminate = isIndeterminate;
             });
+        }
+
+        private string EnsureBackdropCompatibility(string backdropEffect)
+        {
+            // Check if running on Windows 10 (build < 22000 = Windows 11)
+            bool isWindows10 = Environment.OSVersion.Version.Build < 22000;
+            
+            if (isWindows10 && (backdropEffect == "Mica" || backdropEffect == "MicaAlt"))
+            {
+                Logger.LogInfo($"Windows 10 detected in LoadingWindow - switching from {backdropEffect} to AcrylicThin for compatibility");
+                
+                // Update settings to compatible backdrop (but don't save here to avoid conflicts)
+                return "AcrylicThin";
+            }
+            
+            return backdropEffect;
         }
 
         public void ApplyBackdropEffect(string backdropEffect)
