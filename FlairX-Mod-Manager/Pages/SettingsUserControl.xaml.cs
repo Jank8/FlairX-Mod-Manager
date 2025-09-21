@@ -407,6 +407,7 @@ namespace FlairX_Mod_Manager.Pages
                 
             // Set theme SelectorBar to selected from settings
             string theme = SettingsManager.Current.Theme ?? "Auto";
+            ThemeSelectorBar.SelectionChanged -= ThemeSelectorBar_SelectionChanged; // Temporarily unsubscribe
             foreach (SelectorBarItem item in ThemeSelectorBar.Items)
             {
                 if ((string)item.Tag == theme)
@@ -415,10 +416,11 @@ namespace FlairX_Mod_Manager.Pages
                     break;
                 }
             }
+            ThemeSelectorBar.SelectionChanged += ThemeSelectorBar_SelectionChanged; // Re-subscribe
             
-            // Set backdrop SelectorBar to selected from settings without triggering event
+            // Set backdrop SelectorBar to selected from settings
             string backdrop = SettingsManager.Current.BackdropEffect ?? "AcrylicThin";
-            BackdropSelectorBar.SelectionChanged -= BackdropSelectorBar_SelectionChanged;
+            BackdropSelectorBar.SelectionChanged -= BackdropSelectorBar_SelectionChanged; // Temporarily unsubscribe
             foreach (SelectorBarItem item in BackdropSelectorBar.Items)
             {
                 if ((string)item.Tag == backdrop)
@@ -427,7 +429,7 @@ namespace FlairX_Mod_Manager.Pages
                     break;
                 }
             }
-            BackdropSelectorBar.SelectionChanged += BackdropSelectorBar_SelectionChanged;
+            BackdropSelectorBar.SelectionChanged += BackdropSelectorBar_SelectionChanged; // Re-subscribe
             
             // Set toggle states from settings
             DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
