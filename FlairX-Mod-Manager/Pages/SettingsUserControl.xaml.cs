@@ -1025,6 +1025,30 @@ namespace FlairX_Mod_Manager.Pages
         {
             SettingsManager.Current.ModGridZoomEnabled = ModGridZoomToggle.IsOn;
             SettingsManager.Save();
+
+            // If the user disabled zooming, reset zoom to 100% immediately
+            if (!ModGridZoomToggle.IsOn)
+            {
+                try
+                {
+                    var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                    if (mainWindow != null)
+                    {
+                        // contentFrame is a private field on MainWindow; use reflection to access it safely
+                        var field = mainWindow.GetType().GetField("contentFrame", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (field != null)
+                        {
+                            var frame = field.GetValue(mainWindow) as Microsoft.UI.Xaml.Controls.Frame;
+                            var modGridPage = frame?.Content as FlairX_Mod_Manager.Pages.ModGridPage;
+                            modGridPage?.ResetZoom();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to reset mod grid zoom after disabling zoom setting", ex);
+                }
+            }
         }
 
         private void GridLoggingToggle_Toggled(object sender, RoutedEventArgs e)
