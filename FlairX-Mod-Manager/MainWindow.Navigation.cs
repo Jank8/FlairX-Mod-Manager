@@ -133,7 +133,7 @@ namespace FlairX_Mod_Manager
                 PaneButtonsGrid.Visibility = Visibility.Visible;
         }
 
-        private async void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             string query = sender.Text.Trim().ToLower();
 
@@ -146,36 +146,14 @@ namespace FlairX_Mod_Manager
                 {
                     modGridPage.FilterMods("");
                 }
-
-                // Restore menu from cached items if available, otherwise regenerate once
-                if (_allMenuItems == null || _allMenuItems.Count == 0)
+                
+                // Then regenerate the menu on the UI thread (not in Task.Run)
+                // Only generate menu if a game is selected
+                if (SettingsManager.Current?.SelectedGameIndex > 0)
                 {
-                    // Only generate menu if a game is selected
-                    if (SettingsManager.Current?.SelectedGameIndex > 0)
-                    {
-                        await GenerateModCharacterMenuAsync();
-                    }
+                    _ = GenerateModCharacterMenuAsync();
                 }
-                else
-                {
-                    // Restore menu and footer
-                    DispatcherQueue.TryEnqueue(() =>
-                    {
-                        nvSample.MenuItems.Clear();
-                        foreach (var item in _allMenuItems)
-                        {
-                            if (!nvSample.MenuItems.Contains(item))
-                                nvSample.MenuItems.Add(item);
-                        }
-                        nvSample.FooterMenuItems.Clear();
-                        foreach (var f in _allFooterItems)
-                        {
-                            if (!nvSample.FooterMenuItems.Contains(f))
-                                nvSample.FooterMenuItems.Add(f);
-                        }
-                    });
-                }
-
+                
                 // Navigate to appropriate page based on view mode
                 if (IsCurrentlyInCategoryMode())
                 {
@@ -201,23 +179,19 @@ namespace FlairX_Mod_Manager
                 return;
             }
 
-            // For any non-empty search, filter from cached menu items instead of regenerating each time
-            // Ensure we have a master copy of the full menu
-            if (_allMenuItems == null || _allMenuItems.Count == 0)
+            // For any non-empty search, we need to regenerate the full menu first
+            // then filter it, to ensure we're always filtering from the complete menu
+            Task.Run(async () =>
             {
-                // Generate once to populate cache
+                // First regenerate the complete menu
                 await GenerateModCharacterMenuAsync();
-                // Cache current menu items
-                _allMenuItems = nvSample.MenuItems.OfType<NavigationViewItem>().ToList();
-                _allFooterItems = nvSample.FooterMenuItems.OfType<NavigationViewItem>().ToList();
-            }
-
-            // Apply filter on UI thread
-            DispatcherQueue.TryEnqueue(() =>
-            {
-                try
+                
+                // Then apply the filter on the UI thread
+                DispatcherQueue.TryEnqueue(() =>
                 {
-                    var currentMenuItems = _allMenuItems.ToList();
+                    // Get current menu items (now the complete character categories)
+                    var currentMenuItems = nvSample.MenuItems.OfType<NavigationViewItem>().ToList();
+                    var currentFooterItems = nvSample.FooterMenuItems.OfType<NavigationViewItem>().ToList();
 
                     nvSample.MenuItems.Clear();
                     nvSample.FooterMenuItems.Clear();
@@ -236,9 +210,9 @@ namespace FlairX_Mod_Manager
                             nvSample.MenuItems.Add(item);
                         }
                     }
-
+                    
                     // Always add footer items
-                    foreach (var item in _allFooterItems)
+                    foreach (var item in currentFooterItems)
                     {
                         var tag = item.Tag?.ToString();
                         if (tag == "OtherModsPage" || tag == "FunctionsUserControl" || tag == "PresetsUserControl" || tag == "SettingsUserControl")
@@ -247,11 +221,7 @@ namespace FlairX_Mod_Manager
                                 nvSample.FooterMenuItems.Add(item);
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Search filtering error: {ex.Message}");
-                }
+                });
             });
 
             // Dynamic mod filtering only if enabled in settings and query has at least 3 characters

@@ -165,7 +165,7 @@ namespace FlairX_Mod_Manager
                     return;
                 }
 
-                await Task.Run(async () =>
+                await Task.Run(() =>
                 {
                     var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
                     if (!Directory.Exists(modLibraryPath))
@@ -190,7 +190,6 @@ namespace FlairX_Mod_Manager
                     categories.Sort(StringComparer.OrdinalIgnoreCase);
                     
                     // Update UI on main thread
-                    var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
                     DispatcherQueue.TryEnqueue(async () =>
                     {
                         try
@@ -248,20 +247,7 @@ namespace FlairX_Mod_Manager
                         {
                             Logger.LogError("Error updating menu UI", ex);
                         }
-                        finally
-                        {
-                            // Signal completion so callers can rely on menu being populated
-                            tcs.TrySetResult(true);
-                        }
                     });
-
-                    // Wait for the UI update to complete (or timeout after a short interval)
-                    var delayTask = Task.Delay(2000);
-                    var completed = await Task.WhenAny(tcs.Task, delayTask);
-                    if (completed != tcs.Task)
-                    {
-                        System.Diagnostics.Debug.WriteLine("[MENU DEBUG] Warning: UI update for menu generation timed out");
-                    }
                 });
             }
             catch (Exception ex)
