@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -692,6 +693,235 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        // MAIN HOVER TILT EFFECT - 6 degrees for entire preview area
+        private void ModImageCoordinateField_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            try
+            {
+                // Only process if sender is the main coordinate field, ignore buttons
+                if (!ReferenceEquals(sender, ModImageCoordinateField)) return;
+                
+                // Subscribe to pointer moved events for dynamic tilt
+                ModImageCoordinateField.PointerMoved += ModImageCoordinateField_PointerMoved;
+                
+                // Apply initial tilt with smooth animation - animate the entire container
+                UpdateMainTiltEffect(e, useAnimation: true);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in ModImageCoordinateField_PointerEntered", ex);
+            }
+        }
 
+        private void ModImageCoordinateField_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            try
+            {
+                // Only process if sender is the main coordinate field, ignore buttons
+                if (!ReferenceEquals(sender, ModImageCoordinateField)) return;
+                
+                // Check if mouse is still within the entire preview area (including buttons)
+                var position = e.GetCurrentPoint(ModImageCoordinateField.Parent as FrameworkElement);
+                var container = ModImageCoordinateField.Parent as FrameworkElement;
+                
+                if (container != null)
+                {
+                    var bounds = new Windows.Foundation.Rect(0, 0, container.ActualWidth, container.ActualHeight);
+                    
+                    // Only reset tilt if mouse truly left the entire preview area
+                    if (!bounds.Contains(position.Position))
+                    {
+                        // Unsubscribe from pointer moved events
+                        ModImageCoordinateField.PointerMoved -= ModImageCoordinateField_PointerMoved;
+                        
+                        // Reset tilt projection with smooth animation - reset entire container
+                        ResetMainTiltEffect();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in ModImageCoordinateField_PointerExited", ex);
+            }
+        }
+
+        private void ModImageCoordinateField_PointerMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            try
+            {
+                // Only process if sender is the main coordinate field, ignore buttons
+                if (!ReferenceEquals(sender, ModImageCoordinateField)) return;
+                
+                // No animation on move - instant response
+                UpdateMainTiltEffect(e, useAnimation: false);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in ModImageCoordinateField_PointerMoved", ex);
+            }
+        }
+
+        private void UpdateMainTiltEffect(Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e, bool useAnimation = false)
+        {
+            try
+            {
+                // Get the pointer position relative to the coordinate field
+                var position = e.GetCurrentPoint(ModImageCoordinateField);
+                var fieldWidth = ModImageCoordinateField.ActualWidth;
+                var fieldHeight = ModImageCoordinateField.ActualHeight;
+                
+                if (fieldWidth > 0 && fieldHeight > 0)
+                {
+                    // Calculate tilt angles based on pointer position
+                    var centerX = fieldWidth / 2;
+                    var centerY = fieldHeight / 2;
+                    var offsetX = (position.Position.X - centerX) / centerX; // -1 to 1
+                    var offsetY = (position.Position.Y - centerY) / centerY; // -1 to 1
+                    
+                    // Main tilt for entire area (max 6 degrees)
+                    var maxTilt = 6.0;
+                    var tiltX = offsetY * maxTilt; // Y offset affects X rotation
+                    var tiltY = -offsetX * maxTilt; // X offset affects Y rotation (inverted)
+                    
+                    if (useAnimation)
+                    {
+                        // Smooth animation for entry
+                        AnimateMainTilt(tiltX, tiltY);
+                    }
+                    else
+                    {
+                        // Instant response for movement
+                        SetMainTilt(tiltX, tiltY);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in UpdateMainTiltEffect", ex);
+            }
+        }
+
+        private void AnimateMainTilt(double tiltX, double tiltY)
+        {
+            try
+            {
+                var container = ModImageCoordinateField.Parent as Grid;
+                var projection = GetOrCreateProjection(container);
+                if (projection == null) return;
+                
+                // Create optimized storyboard
+                var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                var easing = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase 
+                { 
+                    EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut 
+                };
+                var duration = TimeSpan.FromMilliseconds(150);
+                
+                // X rotation animation
+                var rotXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = tiltX,
+                    Duration = duration,
+                    EasingFunction = easing
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotXAnim, projection);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotXAnim, "RotationX");
+                storyboard.Children.Add(rotXAnim);
+                
+                // Y rotation animation
+                var rotYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = tiltY,
+                    Duration = duration,
+                    EasingFunction = easing
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotYAnim, projection);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotYAnim, "RotationY");
+                storyboard.Children.Add(rotYAnim);
+                
+                storyboard.Begin();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in AnimateMainTilt", ex);
+            }
+        }
+
+        private void SetMainTilt(double tiltX, double tiltY)
+        {
+            try
+            {
+                var container = ModImageCoordinateField.Parent as Grid;
+                var projection = GetOrCreateProjection(container);
+                if (projection == null) return;
+                
+                // Set immediately - no animation
+                projection.RotationX = tiltX;
+                projection.RotationY = tiltY;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in SetMainTilt", ex);
+            }
+        }
+
+        private void ResetMainTiltEffect()
+        {
+            try
+            {
+                var container = ModImageCoordinateField.Parent as Grid;
+                if (container?.Projection is not Microsoft.UI.Xaml.Media.PlaneProjection projection) return;
+                
+                var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                var easing = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase();
+                var duration = TimeSpan.FromMilliseconds(250);
+                
+                // X rotation reset
+                var rotXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = 0,
+                    Duration = duration,
+                    EasingFunction = easing
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotXAnim, projection);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotXAnim, "RotationX");
+                storyboard.Children.Add(rotXAnim);
+                
+                // Y rotation reset
+                var rotYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = 0,
+                    Duration = duration,
+                    EasingFunction = easing
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotYAnim, projection);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotYAnim, "RotationY");
+                storyboard.Children.Add(rotYAnim);
+                
+                storyboard.Begin();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in ResetMainTiltEffect", ex);
+            }
+        }
+
+        // Helper method to get or create PlaneProjection
+        private Microsoft.UI.Xaml.Media.PlaneProjection? GetOrCreateProjection(Grid? container)
+        {
+            if (container == null) return null;
+            
+            if (container.Projection is not Microsoft.UI.Xaml.Media.PlaneProjection projection)
+            {
+                projection = new Microsoft.UI.Xaml.Media.PlaneProjection
+                {
+                    CenterOfRotationX = 0.5,
+                    CenterOfRotationY = 0.5
+                };
+                container.Projection = projection;
+            }
+            
+            return projection;
+        }
     }
 }

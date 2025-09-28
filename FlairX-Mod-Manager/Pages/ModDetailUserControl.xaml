@@ -45,20 +45,36 @@
             </Grid.ColumnDefinitions>
             <!-- Image Container with overlay buttons -->
             <Viewbox Grid.Column="0" MaxWidth="700" MaxHeight="700" Stretch="Uniform" VerticalAlignment="Top" HorizontalAlignment="Left">
+                <!-- Main container -->
                 <Grid Width="700" Height="700">
-                    <Border x:Name="ModImageBorder" Width="700" Height="700" CornerRadius="12" BorderThickness="15" BorderBrush="{ThemeResource TileBorderBrush}">
+                    <!-- Coordinate field for tilt calculation - behind content -->
+                    <Grid x:Name="ModImageCoordinateField" 
+                          Width="700" Height="700" 
+                          Background="Transparent"
+                          PointerEntered="ModImageCoordinateField_PointerEntered"
+                          PointerExited="ModImageCoordinateField_PointerExited" />
+                    
+                    <!-- Content root with larger margin for stable hover - this gets animated -->
+                    <Grid x:Name="ModImageContentRoot" Margin="25" IsHitTestVisible="False">
+                        <Border x:Name="ModImageBorder" CornerRadius="12" BorderThickness="15" BorderBrush="{ThemeResource TileBorderBrush}">
                         <Border CornerRadius="8">
                             <Image x:Name="ModImage" Stretch="Uniform"/>
                         </Border>
                     </Border>
                     
+                    </Grid>
+                    
+                    <!-- Navigation buttons - outside content root but positioned to look like they're inside -->
                     <!-- Left Navigation Button - Overlay (XXMI Launcher Style) -->
                     <Border x:Name="PrevImageButton" Width="48" Height="48" 
                             VerticalAlignment="Bottom" HorizontalAlignment="Left"
-                            Margin="25,0,0,25" Visibility="Collapsed"
+                            Margin="50,0,0,50" Visibility="Collapsed"
                             CornerRadius="12"
                             Background="{ThemeResource LauncherAcrylicBrush}"
-                            PointerPressed="PrevImageButton_Click">
+                            PointerPressed="PrevImageButton_Click"
+                            PointerEntered="ModImageCoordinateField_PointerEntered"
+                            PointerExited="ModImageCoordinateField_PointerExited"
+                            PointerMoved="ModImageCoordinateField_PointerMoved">
                         <FontIcon Glyph="&#xE76B;" FontSize="20" 
                                   Foreground="{ThemeResource ButtonForeground}" 
                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -67,10 +83,13 @@
                     <!-- Right Navigation Button - Overlay (XXMI Launcher Style) -->
                     <Border x:Name="NextImageButton" Width="48" Height="48" 
                             VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                            Margin="0,0,25,25" Visibility="Collapsed"
+                            Margin="0,0,50,50" Visibility="Collapsed"
                             CornerRadius="12"
                             Background="{ThemeResource LauncherAcrylicBrush}"
-                            PointerPressed="NextImageButton_Click">
+                            PointerPressed="NextImageButton_Click"
+                            PointerEntered="ModImageCoordinateField_PointerEntered"
+                            PointerExited="ModImageCoordinateField_PointerExited"
+                            PointerMoved="ModImageCoordinateField_PointerMoved">
                         <FontIcon Glyph="&#xE76C;" FontSize="20" 
                                   Foreground="{ThemeResource ButtonForeground}" 
                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -78,12 +97,17 @@
                     
                     <!-- Image Counter - Centered (XXMI Launcher Style) -->
                     <Border Background="{ThemeResource LauncherAcrylicBrush}" 
-                            CornerRadius="12" Padding="8,4" Margin="0,0,0,25" 
+                            CornerRadius="12" Padding="8,4" Margin="0,0,0,50" 
                             VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                            x:Name="ImageCounterBorder" Visibility="Collapsed">
+                            x:Name="ImageCounterBorder" Visibility="Collapsed"
+                            PointerEntered="ModImageCoordinateField_PointerEntered"
+                            PointerExited="ModImageCoordinateField_PointerExited"
+                            PointerMoved="ModImageCoordinateField_PointerMoved">
                         <TextBlock x:Name="ImageCounterText" Text="1 / 1" FontSize="12" 
                                    Foreground="{ThemeResource ButtonForeground}"/>
                     </Border>
+                    
+
                 </Grid>
             </Viewbox>
             <Grid Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Stretch">
