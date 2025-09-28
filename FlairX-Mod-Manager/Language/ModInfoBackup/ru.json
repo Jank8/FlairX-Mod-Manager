@@ -1,0 +1,22 @@
+{
+  "Title": "Резервное копирование ModInfo",
+  "ModInfoBackup_Function": "Резервное копирование ModInfo",
+  "ModInfoBackup_BackupAll": "Создать копию информации о модах",
+  "ModInfoBackup_Restore1": "Восст. копию 1 (новую)",
+  "ModInfoBackup_Restore2": "Восст. копию 2 (среднюю)",
+  "ModInfoBackup_Restore3": "Восст. копию 3 (старую)",
+  "ModInfoBackup_Delete": "Удалить резервную копию",
+  "ModInfoBackup_BackupComplete": "Резервное копирование завершено! Создан {0}mod.json.",
+  "ModInfoBackup_RestoreComplete": "Восстановление завершено! Восстановлено {0} резервных копий из набора{1}.",
+  "ModInfoBackup_DeleteComplete": "Удаление завершено! Удалено {1} резервных копий из набора {0}.",
+  "ModInfoBackup_BackupInfo": "Создано: {0}, Файл: {1}",
+  "ModInfoBackup_NoBackup": "Нет точек восст.{0} в {1}",
+  "OK": "OK",
+  "ModInfoBackup_RestoreConfirm_Title": "Подтвердить восстановление",
+  "ModInfoBackup_RestoreConfirm_Message": "Вы уверены, что хотите восстановить набор резервных копий {0}? Это приведет к перезаписи текущих файлов mod.json.",
+  "ModInfoBackup_DeleteConfirm_Title": "Удаление завершно",
+  "ModInfoBackup_DeleteConfirm_Message": "Вы уверены, что хотите удалить набор резервной копии {0}? Эта операция не может быть отменена.",
+  "Yes": "Да",
+  "No": "Нет",
+  "Error": "Ошибка"
+}

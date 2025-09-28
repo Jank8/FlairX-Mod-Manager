@@ -83,40 +83,16 @@ namespace FlairX_Mod_Manager
         }
 
         // Execute optimize previews hotkey action
-        private async Task ExecuteOptimizePreviewsHotkey()
+        public async Task ExecuteOptimizePreviewsHotkey()
         {
             try
             {
-                Logger.LogInfo("Optimize previews hotkey triggered");
+                Logger.LogInfo("Optimize previews hotkey triggered - running directly without UI");
                 
-                // Show settings panel and trigger optimize previews
-                var settingsControl = new FlairX_Mod_Manager.Pages.SettingsUserControl();
-                ShowSlidingPanel(settingsControl, "Settings");
+                // Run optimize previews directly without opening settings or showing confirmation
+                await FlairX_Mod_Manager.Pages.SettingsUserControl.OptimizePreviewsDirectAsync();
                 
-                // Wait a moment for panel to load
-                await Task.Delay(200);
-                
-                // Trigger optimize previews on the settings control
-                try
-                {
-                    // Use reflection to call the private OptimizePreviewsButton_Click method
-                    var optimizeMethod = settingsControl.GetType().GetMethod("OptimizePreviewsButton_Click", 
-                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    
-                    if (optimizeMethod != null)
-                    {
-                        optimizeMethod.Invoke(settingsControl, new object[] { settingsControl, new RoutedEventArgs() });
-                        Logger.LogInfo("Optimize previews started via hotkey");
-                    }
-                    else
-                    {
-                        Logger.LogError("Could not find OptimizePreviewsButton_Click method in SettingsUserControl");
-                    }
-                }
-                catch (Exception innerEx)
-                {
-                    Logger.LogError("Error triggering optimize previews via hotkey", innerEx);
-                }
+                Logger.LogInfo("Optimize previews hotkey completed");
             }
             catch (Exception ex)
             {
@@ -125,7 +101,7 @@ namespace FlairX_Mod_Manager
         }
 
         // Execute reload manager hotkey action
-        private async Task ExecuteReloadManagerHotkey()
+        public async Task ExecuteReloadManagerHotkey()
         {
             try
             {
@@ -140,7 +116,7 @@ namespace FlairX_Mod_Manager
         }
 
         // Execute shuffle active mods hotkey action
-        private void ExecuteShuffleActiveModsHotkey()
+        public void ExecuteShuffleActiveModsHotkey()
         {
             try
             {
@@ -271,7 +247,7 @@ namespace FlairX_Mod_Manager
         }
 
         // Execute deactivate all mods hotkey action
-        private void ExecuteDeactivateAllModsHotkey()
+        public void ExecuteDeactivateAllModsHotkey()
         {
             try
             {

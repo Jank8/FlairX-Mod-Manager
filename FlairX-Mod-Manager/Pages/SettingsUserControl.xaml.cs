@@ -81,47 +81,15 @@ namespace FlairX_Mod_Manager.Pages
             // Subscribe to window size changes
             MainWindow.WindowSizeChanged += OnWindowSizeChanged;
             
-            // Add slide-in animation for content
+            // Subscribe to loaded/unloaded events
             this.Loaded += SettingsUserControl_Loaded;
             this.Unloaded += SettingsUserControl_Unloaded;
         }
         
         private void SettingsUserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            // Animate content sliding in from right with fade
-            var slideTransform = new Microsoft.UI.Xaml.Media.TranslateTransform();
-            MainGrid.RenderTransform = slideTransform;
-            
-            // Start off-screen to the right and invisible
-            slideTransform.X = 300;
-            MainGrid.Opacity = 0;
-            
-            var slideAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                From = 300,
-                To = 0,
-                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
-            };
-            
-            var fadeAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
-            };
-            
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideAnimation, slideTransform);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideAnimation, "X");
-            
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeAnimation, MainGrid);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeAnimation, "Opacity");
-            
-            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-            storyboard.Children.Add(slideAnimation);
-            storyboard.Children.Add(fadeAnimation);
-            storyboard.Begin();
+            // Refresh settings when page is loaded to ensure SelectorBars display correctly
+            LoadCurrentSettings();
         }
         
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -388,7 +356,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void LoadCurrentSettings()
+        private async void LoadCurrentSettings()
         {
             // Set ComboBox to selected language from settings
             string? selectedFile = SettingsManager.Current.LanguageFile;
@@ -405,9 +373,17 @@ namespace FlairX_Mod_Manager.Pages
             else if (LanguageComboBox.Items.Count > 0)
                 LanguageComboBox.SelectedIndex = 0;
                 
+            // Small delay to ensure SelectorBar controls are fully loaded
+            await Task.Delay(100);
+                
             // Set theme SelectorBar to selected from settings
             string theme = SettingsManager.Current.Theme ?? "Auto";
             ThemeSelectorBar.SelectionChanged -= ThemeSelectorBar_SelectionChanged; // Temporarily unsubscribe
+            
+            // Force layout update to ensure all items are rendered
+            ThemeSelectorBar.UpdateLayout();
+            ThemeSelectorBar.InvalidateArrange();
+            
             foreach (SelectorBarItem item in ThemeSelectorBar.Items)
             {
                 if ((string)item.Tag == theme)
@@ -421,6 +397,11 @@ namespace FlairX_Mod_Manager.Pages
             // Set backdrop SelectorBar to selected from settings
             string backdrop = SettingsManager.Current.BackdropEffect ?? "AcrylicThin";
             BackdropSelectorBar.SelectionChanged -= BackdropSelectorBar_SelectionChanged; // Temporarily unsubscribe
+            
+            // Force layout update to ensure all items are rendered
+            BackdropSelectorBar.UpdateLayout();
+            BackdropSelectorBar.InvalidateArrange();
+            
             foreach (SelectorBarItem item in BackdropSelectorBar.Items)
             {
                 if ((string)item.Tag == backdrop)
@@ -430,6 +411,13 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             BackdropSelectorBar.SelectionChanged += BackdropSelectorBar_SelectionChanged; // Re-subscribe
+            
+            // Small delay to let SelectorBars fully render
+            await Task.Delay(50);
+            
+            // Force final layout update
+            ThemeSelectorBar.UpdateLayout();
+            BackdropSelectorBar.UpdateLayout();
             
             // Set toggle states from settings
             DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
@@ -483,6 +471,8 @@ namespace FlairX_Mod_Manager.Pages
             DefaultStartWidthTextBox.IsEnabled = SettingsManager.Current.UseDefaultResolutionOnStart;
             DefaultStartHeightTextBox.IsEnabled = SettingsManager.Current.UseDefaultResolutionOnStart;
         }
+
+
 
         // Event handlers - copying from original SettingsPage
         private async void ThemeSelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
@@ -645,6 +635,317 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
             }, token);
+        }
+
+        // Public method for hotkey - runs optimization without confirmation dialog
+        public static async Task OptimizePreviewsDirectAsync()
+        {
+            try
+            {
+                Logger.LogInfo("Starting optimize previews via hotkey (no confirmation)");
+                
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                if (string.IsNullOrEmpty(modLibraryPath) || !Directory.Exists(modLibraryPath))
+                {
+                    Logger.LogWarning("Mod library path not found for optimize previews hotkey");
+                    return;
+                }
+
+                await Task.Run(() =>
+                {
+                    foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                    {
+                        if (!Directory.Exists(categoryDir)) continue;
+                        
+                        // Process category preview (if exists) to create category minitile
+                        ProcessCategoryPreviewStatic(categoryDir);
+                        
+                        foreach (var modDir in Directory.GetDirectories(categoryDir))
+                        {
+                            ProcessModPreviewImagesStatic(modDir);
+                        }
+                    }
+                });
+
+                Logger.LogInfo("Optimize previews completed via hotkey");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error during optimize previews hotkey execution", ex);
+            }
+        }
+
+        // Static versions of processing methods for hotkey use
+        private static void ProcessCategoryPreviewStatic(string categoryDir)
+        {
+            var catprevJpgPath = Path.Combine(categoryDir, "catprev.jpg");
+            
+            // Look for existing catprev files (catprev.png, catprev.jpg) and other preview files
+            var catprevFiles = Directory.GetFiles(categoryDir)
+                .Where(f => 
+                {
+                    var fileName = Path.GetFileName(f).ToLower();
+                    return fileName.StartsWith("catprev") &&
+                           (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                            f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                            f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                })
+                .ToArray();
+            
+            // Look for other preview files in category directory (catpreview.*, preview.*, etc.)
+            var otherPreviewFiles = Directory.GetFiles(categoryDir)
+                .Where(f => 
+                {
+                    var fileName = Path.GetFileName(f).ToLower();
+                    return (fileName.StartsWith("catpreview") || fileName.StartsWith("preview")) &&
+                           !fileName.StartsWith("catprev") &&
+                           (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                            f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                            f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                })
+                .ToArray();
+            
+            // Combine all preview files, prioritizing catprev files
+            var allPreviewFiles = catprevFiles.Concat(otherPreviewFiles).ToArray();
+            
+            if (allPreviewFiles.Length == 0) return;
+            
+            // Check if we need to optimize existing catprev.jpg
+            bool needsOptimization = true;
+            if (File.Exists(catprevJpgPath))
+            {
+                try
+                {
+                    using (var img = System.Drawing.Image.FromFile(catprevJpgPath))
+                    {
+                        // Consider optimized if it's square and 600x600
+                        needsOptimization = !(img.Width == 600 && img.Height == 600);
+                    }
+                }
+                catch
+                {
+                    needsOptimization = true;
+                }
+            }
+            
+            // Skip if catprev.jpg already exists and is optimized, and no other catprev files to process
+            if (!needsOptimization && catprevFiles.Length <= 1 && catprevFiles.All(f => f.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase)))
+                return;
+            
+            var previewPath = allPreviewFiles[0]; // Take first preview file found
+            
+            try
+            {
+                // Create temporary path if we're optimizing existing catprev.jpg
+                var tempPath = catprevJpgPath;
+                if (previewPath.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    tempPath = Path.Combine(categoryDir, "catprev_temp.jpg");
+                }
+                
+                using (var img = System.Drawing.Image.FromFile(previewPath))
+                {
+                    // Create catprev.jpg (600x600 for category tiles)
+                    using (var thumbBmp = new System.Drawing.Bitmap(600, 600))
+                    using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
+                    {
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                        
+                        // Calculate crop rectangle to make it square (center crop)
+                        int size = Math.Min(img.Width, img.Height);
+                        int x = (img.Width - size) / 2;
+                        int y = (img.Height - size) / 2;
+                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        
+                        g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
+                        
+                        // Save as JPEG catprev
+                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                        if (jpegEncoder != null)
+                        {
+                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                            thumbBmp.Save(tempPath, jpegEncoder, jpegParams);
+                        }
+                    }
+                }
+                
+                // Handle file replacement if we used temp path
+                if (!tempPath.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (File.Exists(catprevJpgPath))
+                        File.Delete(catprevJpgPath);
+                    File.Move(tempPath, catprevJpgPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to process category preview in {categoryDir}", ex);
+            }
+        }
+
+        private static void ProcessModPreviewImagesStatic(string modDir)
+        {
+            try
+            {
+                // Find all preview*.png and preview*.jpg files
+                var previewFiles = Directory.GetFiles(modDir)
+                    .Where(f => 
+                    {
+                        var fileName = Path.GetFileName(f).ToLower();
+                        return fileName.StartsWith("preview") &&
+                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                    })
+                    .OrderBy(f => f) // Sort to ensure consistent ordering
+                    .ToList();
+
+                if (previewFiles.Count == 0) return;
+
+                var minitileJpgPath = Path.Combine(modDir, "minitile.jpg");
+                bool needsMinitile = !File.Exists(minitileJpgPath);
+
+                // Process each preview file
+                for (int i = 0; i < previewFiles.Count && i < 100; i++) // Max 100 images
+                {
+                    var sourceFile = previewFiles[i];
+                    string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
+                    var targetPath = Path.Combine(modDir, targetFileName);
+
+                    // Skip if target already exists and is optimized
+                    if (File.Exists(targetPath) && IsImageOptimizedStatic(targetPath))
+                    {
+                        // Only create minitile for main preview if missing
+                        if (i == 0 && needsMinitile)
+                        {
+                            CreateMinitileStatic(targetPath, minitileJpgPath);
+                        }
+                        continue;
+                    }
+
+                    // Optimize and save the image
+                    OptimizePreviewImageStatic(sourceFile, targetPath);
+
+                    // Create minitile only for the main preview (index 0)
+                    if (i == 0)
+                    {
+                        CreateMinitileStatic(targetPath, minitileJpgPath);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to process preview images in {modDir}", ex);
+            }
+        }
+
+        private static bool IsImageOptimizedStatic(string imagePath)
+        {
+            try
+            {
+                using (var img = System.Drawing.Image.FromFile(imagePath))
+                {
+                    // Consider optimized if it's square and not larger than 1000x1000
+                    return img.Width == img.Height && img.Width <= 1000;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static void OptimizePreviewImageStatic(string sourcePath, string targetPath)
+        {
+            using (var src = System.Drawing.Image.FromFile(sourcePath))
+            {
+                // Step 1: Crop to square (1:1 ratio) if needed
+                int originalSize = Math.Min(src.Width, src.Height);
+                int x = (src.Width - originalSize) / 2;
+                int y = (src.Height - originalSize) / 2;
+                bool needsCrop = src.Width != src.Height;
+                
+                System.Drawing.Image squareImage = src;
+                if (needsCrop)
+                {
+                    var cropped = new System.Drawing.Bitmap(originalSize, originalSize);
+                    using (var g = System.Drawing.Graphics.FromImage(cropped))
+                    {
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                        var srcRect = new System.Drawing.Rectangle(x, y, originalSize, originalSize);
+                        var destRect = new System.Drawing.Rectangle(0, 0, originalSize, originalSize);
+                        g.DrawImage(src, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
+                    }
+                    squareImage = cropped;
+                }
+
+                // Step 2: Resize if larger than 1000x1000
+                int targetSize = Math.Min(originalSize, 1000);
+                System.Drawing.Image finalImage = squareImage;
+                
+                if (originalSize > 1000)
+                {
+                    var resized = new System.Drawing.Bitmap(targetSize, targetSize);
+                    using (var g = System.Drawing.Graphics.FromImage(resized))
+                    {
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                        g.DrawImage(squareImage, 0, 0, targetSize, targetSize);
+                    }
+                    finalImage = resized;
+                    if (squareImage != src) squareImage.Dispose();
+                }
+
+                // Step 3: Save as JPEG
+                var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                if (jpegEncoder != null)
+                {
+                    var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                    jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 85L);
+                    finalImage.Save(targetPath, jpegEncoder, jpegParams);
+                }
+
+                if (finalImage != src) finalImage.Dispose();
+            }
+        }
+
+        private static void CreateMinitileStatic(string sourcePath, string minitilePath)
+        {
+            try
+            {
+                using (var src = System.Drawing.Image.FromFile(sourcePath))
+                using (var minitile = new System.Drawing.Bitmap(200, 200))
+                using (var g = System.Drawing.Graphics.FromImage(minitile))
+                {
+                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                    g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                    g.DrawImage(src, 0, 0, 200, 200);
+                    
+                    var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                    if (jpegEncoder != null)
+                    {
+                        var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                        jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                        minitile.Save(minitilePath, jpegEncoder, jpegParams);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to create minitile: {minitilePath}", ex);
+            }
         }
 
         private async void OptimizePreviewsButton_Click(object sender, RoutedEventArgs e)
@@ -1065,6 +1366,12 @@ namespace FlairX_Mod_Manager.Pages
             {
                 SettingsManager.Current.OptimizePreviewsHotkey = textBox.Text;
                 SettingsManager.Save();
+                
+                // Refresh global hotkeys
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.RefreshGlobalHotkeys();
+                }
             }
         }
 
@@ -1074,6 +1381,12 @@ namespace FlairX_Mod_Manager.Pages
             {
                 SettingsManager.Current.ReloadManagerHotkey = textBox.Text;
                 SettingsManager.Save();
+                
+                // Refresh global hotkeys
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.RefreshGlobalHotkeys();
+                }
             }
         }
 
@@ -1083,6 +1396,12 @@ namespace FlairX_Mod_Manager.Pages
             {
                 SettingsManager.Current.ShuffleActiveModsHotkey = textBox.Text;
                 SettingsManager.Save();
+                
+                // Refresh global hotkeys
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.RefreshGlobalHotkeys();
+                }
             }
         }
 
@@ -1092,6 +1411,12 @@ namespace FlairX_Mod_Manager.Pages
             {
                 SettingsManager.Current.DeactivateAllModsHotkey = textBox.Text;
                 SettingsManager.Save();
+                
+                // Refresh global hotkeys
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.RefreshGlobalHotkeys();
+                }
             }
         }
 
@@ -1568,9 +1893,23 @@ namespace FlairX_Mod_Manager.Pages
                 }
             });
             stackPanel.Children.Add(thanksPanel);
+            
             var gplPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,16,0,0) };
             gplPanel.Children.Add(new HyperlinkButton { Content = SharedUtilities.GetTranslation(lang, "AboutDialog_License"), NavigateUri = new Uri("https://www.gnu.org/licenses/gpl-3.0.html#license-text") });
             stackPanel.Children.Add(gplPanel);
+            
+            // Add version information at the bottom
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "2.6.5";
+            var versionBlock = new TextBlock
+            {
+                Text = $"{SharedUtilities.GetTranslation(lang, "AboutDialog_Version")}: {version}",
+                FontSize = 12,
+                Opacity = 0.7,
+                TextAlignment = TextAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Microsoft.UI.Xaml.Thickness(0, 12, 0, 0)
+            };
+            stackPanel.Children.Add(versionBlock);
             dialog.Content = stackPanel;
             await dialog.ShowAsync();
         }

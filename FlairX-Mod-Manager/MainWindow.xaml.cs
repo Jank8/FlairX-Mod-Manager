@@ -52,6 +52,50 @@ namespace FlairX_Mod_Manager
         MicaController? micaController;
         SystemBackdropConfiguration? configurationSource;
 
+        // Global hotkey manager
+        private GlobalHotkeyManager? _globalHotkeyManager;
+
+        // Win32 API for subclassing window
+        [DllImport("user32.dll")]
+        private static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        private const int GWL_WNDPROC = -4;
+        private const int WM_HOTKEY = 0x0312;
+
+        private IntPtr _originalWndProc;
+        private delegate IntPtr WndProcDelegate(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+        private WndProcDelegate? _wndProcDelegate;
+
+        // Method to refresh global hotkeys when settings change
+        public void RefreshGlobalHotkeys()
+        {
+            try
+            {
+                _globalHotkeyManager?.RefreshHotkeys();
+                Logger.LogInfo("Global hotkeys refreshed");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to refresh global hotkeys", ex);
+            }
+        }
+
+        // Window procedure for handling hotkey messages
+        private IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
+        {
+            if (msg == WM_HOTKEY)
+            {
+                int id = wParam.ToInt32();
+                _globalHotkeyManager?.OnHotkeyPressed(id);
+                return IntPtr.Zero;
+            }
+            
+            return CallWindowProc(_originalWndProc, hWnd, msg, wParam, lParam);
+        }
+
         public MainWindow()
         {
             Logger.LogMethodEntry("MainWindow constructor starting");
@@ -98,7 +142,27 @@ namespace FlairX_Mod_Manager
             var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
             var appWindow = AppWindow.GetFromWindowId(windowId);
             // Set window icon on taskbar
-            appWindow.SetIcon("Assets\\appicon.png");
+            try
+            {
+                // Try relative path first
+                appWindow.SetIcon("app.ico");
+            }
+            catch
+            {
+                try
+                {
+                    // Fallback to full path
+                    var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
+                    if (File.Exists(iconPath))
+                    {
+                        appWindow.SetIcon(iconPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to set window icon", ex);
+                }
+            }
             
             // Disable maximize on double-click title bar
             DisableMaximizeOnDoubleClick(hwnd);
@@ -172,7 +236,11 @@ namespace FlairX_Mod_Manager
             }
             
             // Save window state when closing
-            this.Closed += (sender, args) => SaveWindowState();
+            this.Closed += (sender, args) => 
+            {
+                SaveWindowState();
+                _globalHotkeyManager?.Dispose();
+            };
 
             nvSample.Loaded += NvSample_Loaded;
             nvSample.Loaded += (s, e) =>
@@ -248,6 +316,24 @@ namespace FlairX_Mod_Manager
             if (this.Content is FrameworkElement contentElement)
             {
                 contentElement.KeyDown += MainWindow_KeyDown;
+            }
+
+            // Initialize global hotkey manager for system-wide hotkeys
+            try
+            {
+                _globalHotkeyManager = new GlobalHotkeyManager(this);
+                
+                // Subclass the window to handle WM_HOTKEY messages
+                var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                _wndProcDelegate = WndProc;
+                _originalWndProc = SetWindowLongPtr(windowHandle, GWL_WNDPROC, Marshal.GetFunctionPointerForDelegate(_wndProcDelegate));
+                
+                _globalHotkeyManager.RegisterAllHotkeys();
+                Logger.LogInfo("Global hotkey manager initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to initialize global hotkey manager", ex);
             }
         }
 

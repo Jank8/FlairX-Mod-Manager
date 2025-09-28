@@ -16,6 +16,16 @@
     <ApplicationIcon>app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     
+    <!-- Version Information -->
+    <Version>2.6.5</Version>
+    <AssemblyVersion>2.6.5.0</AssemblyVersion>
+    <FileVersion>2.6.5.0</FileVersion>
+    <AssemblyTitle>FlairX Mod Manager</AssemblyTitle>
+    <AssemblyDescription>Advanced mod manager for games with global hotkey support and WinUI3 1.8 compatibility</AssemblyDescription>
+    <AssemblyCompany>FlairX</AssemblyCompany>
+    <AssemblyProduct>FlairX Mod Manager</AssemblyProduct>
+    <AssemblyCopyright>Copyright © 2025 FlairX</AssemblyCopyright>
+    
     <!-- Platform Configuration -->
     <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
@@ -46,6 +56,8 @@
     <!-- Graphics & Scripting -->
     <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
     <PackageReference Include="NLua" Version="1.7.5" />
+    
+
   </ItemGroup>
 
   <!-- ========================================
@@ -53,7 +65,9 @@
        ======================================== -->
   <ItemGroup>
     <!-- Application Icons -->
-    <Resource Include="app.ico" />
+    <Content Include="app.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Assets\appicon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
@@ -82,6 +96,7 @@
       <LooseXbfFiles Include="$(OutputPath)*.xbf" />
       <PagesDirectory Include="$(OutputPath)Pages" Condition="Exists('$(OutputPath)Pages')" />
       <RuntimeFilesToDelete Include="$(OutputPath)createdump.exe" />
+      <IconFilesToDelete Include="$(OutputPath)app.ico" />
     </ItemGroup>
     
     <!-- Create Settings directory -->
@@ -105,6 +120,7 @@
     <Delete Files="@(LooseXbfFiles)" ContinueOnError="true" />
     <RemoveDir Directories="@(PagesDirectory)" ContinueOnError="true" />
     <Delete Files="@(RuntimeFilesToDelete)" ContinueOnError="true" />
+    <Delete Files="@(IconFilesToDelete)" ContinueOnError="true" />
   </Target>
 
 </Project>
