@@ -67,7 +67,7 @@ namespace FlairX_Mod_Manager
                 }
                 
                 // Set window properties
-                appWindow.SetIcon("app.ico");
+                appWindow.SetIcon("Assets/app.ico");
                 
                 // Configure title bar
                 if (appWindow.TitleBar != null)

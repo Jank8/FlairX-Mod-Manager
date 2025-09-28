@@ -30,6 +30,50 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <Style x:Key="NoHoverTileButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FocusVisualPrimaryBrush" Value="Transparent"/>
+            <Setter Property="FocusVisualSecondaryBrush" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="RootGrid" Background="{TemplateBinding Background}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <Storyboard>
+                                            <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="PointerOver">
+                                        <Storyboard>
+                                            <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <PointerDownThemeAnimation Storyboard.TargetName="RootGrid" />
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled"/>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <ContentPresenter x:Name="ContentPresenter"
+                                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                            Content="{TemplateBinding Content}"
+                                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                                            ContentTransitions="{TemplateBinding ContentTransitions}"
+                                            Padding="{TemplateBinding Padding}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
     <Grid Padding="24,24,4,24">
         <Grid.RowDefinitions>
@@ -176,9 +220,7 @@
                 <GridView.ItemTemplate>
                     <DataTemplate>
                         <Button x:Name="TileButton" 
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Padding="0"
+                                Style="{StaticResource NoHoverTileButtonStyle}"
                                 Margin="12"
                                 Click="ModName_Click"
                                 Tag="{Binding}"
@@ -186,7 +228,9 @@
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
                                 HorizontalContentAlignment="Stretch"
-                                VerticalContentAlignment="Stretch">
+                                VerticalContentAlignment="Stretch"
+                                PointerEntered="TileButton_PointerEntered"
+                                PointerExited="TileButton_PointerExited">
                             <Button.ContextFlyout>
                                 <MenuFlyout Opening="ContextMenu_Opening">
                                     <!-- Dynamic menu items will be populated in code-behind -->

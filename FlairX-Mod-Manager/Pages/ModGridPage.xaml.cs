@@ -24,6 +24,7 @@ using Windows.UI;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml.Hosting;
 using System.Numerics;
+using Microsoft.UI.Xaml.Media.Animation;
 
 namespace FlairX_Mod_Manager.Pages
 {
@@ -1188,7 +1189,7 @@ namespace FlairX_Mod_Manager.Pages
             return null;
         }
 
-        private void TileButton_PointerEntered(object sender, PointerRoutedEventArgs e)
+        private void TileButton_PointerEntered_Shadow(object sender, PointerRoutedEventArgs e)
         {
             try
             {
@@ -1214,7 +1215,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"TileButton_PointerEntered error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"TileButton_PointerEntered_Shadow error: {ex.Message}");
             }
         }
 
@@ -1270,7 +1271,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async void TileButton_PointerExited(object sender, PointerRoutedEventArgs e)
+        private async void TileButton_PointerExited_Shadow(object sender, PointerRoutedEventArgs e)
         {
             try
             {
@@ -1314,7 +1315,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"TileButton_PointerExited error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"TileButton_PointerExited_Shadow error: {ex.Message}");
             }
         }
 

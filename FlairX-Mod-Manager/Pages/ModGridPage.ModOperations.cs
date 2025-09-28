@@ -184,6 +184,130 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        // Tile hover effects - dynamic tilt animation that follows cursor
+        private void TileButton_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                try
+                {
+                    // Subscribe to pointer moved events for dynamic tilt
+                    button.PointerMoved += TileButton_PointerMoved;
+                    
+                    // Apply initial tilt based on entry position
+                    UpdateTiltEffect(button, e);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in TileButton_PointerEntered", ex);
+                }
+            }
+        }
+
+        private void TileButton_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                try
+                {
+                    // Unsubscribe from pointer moved events
+                    button.PointerMoved -= TileButton_PointerMoved;
+                    
+                    // Reset tilt projection on content root with smooth animation
+                    if (button.ContentTemplateRoot is FrameworkElement contentRoot && 
+                        contentRoot.Projection is Microsoft.UI.Xaml.Media.PlaneProjection projection)
+                    {
+                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        
+                        var rotXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            To = 0,
+                            Duration = TimeSpan.FromMilliseconds(200),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+                        };
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotXAnim, projection);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotXAnim, "RotationX");
+                        storyboard.Children.Add(rotXAnim);
+                        
+                        var rotYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            To = 0,
+                            Duration = TimeSpan.FromMilliseconds(200),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+                        };
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotYAnim, projection);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotYAnim, "RotationY");
+                        storyboard.Children.Add(rotYAnim);
+                        
+                        storyboard.Begin();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in TileButton_PointerExited", ex);
+                }
+            }
+        }
+
+        private void TileButton_PointerMoved(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                try
+                {
+                    UpdateTiltEffect(button, e);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in TileButton_PointerMoved", ex);
+                }
+            }
+        }
+
+        private void UpdateTiltEffect(Button button, PointerRoutedEventArgs e)
+        {
+            try
+            {
+                // Find the content root (which has zoom applied)
+                if (button.ContentTemplateRoot is FrameworkElement contentRoot)
+                {
+                    // Get the pointer position relative to the content root
+                    var position = e.GetCurrentPoint(contentRoot);
+                    var rootWidth = contentRoot.ActualWidth;
+                    var rootHeight = contentRoot.ActualHeight;
+                    
+                    if (rootWidth > 0 && rootHeight > 0)
+                    {
+                        // Calculate tilt angles based on pointer position
+                        var centerX = rootWidth / 2;
+                        var centerY = rootHeight / 2;
+                        var offsetX = (position.Position.X - centerX) / centerX; // -1 to 1
+                        var offsetY = (position.Position.Y - centerY) / centerY; // -1 to 1
+                        
+                        // Limit tilt to reasonable angles (max 8 degrees)
+                        var maxTilt = 8.0;
+                        var tiltX = offsetY * maxTilt; // Y offset affects X rotation
+                        var tiltY = -offsetX * maxTilt; // X offset affects Y rotation (inverted)
+                        
+                        // Apply tilt transform to content root (which already has zoom)
+                        var transform = new Microsoft.UI.Xaml.Media.PlaneProjection
+                        {
+                            RotationX = tiltX,
+                            RotationY = tiltY,
+                            CenterOfRotationX = 0.5,
+                            CenterOfRotationY = 0.5
+                        };
+                        
+                        contentRoot.Projection = transform;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in UpdateTiltEffect", ex);
+            }
+        }
+
         /// <summary>
         /// Finds the full path to a mod folder in the category-based structure
         /// </summary>

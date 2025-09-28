@@ -13,7 +13,7 @@
     <!-- Application Identity -->
     <AssemblyName>FlairX Mod Manager</AssemblyName>
     <RootNamespace>FlairX_Mod_Manager</RootNamespace>
-    <ApplicationIcon>app.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     
     <!-- Version Information -->
@@ -65,12 +65,10 @@
        ======================================== -->
   <ItemGroup>
     <!-- Application Icons -->
-    <Content Include="app.ico">
+    <Content Include="Assets\app.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Resource Include="Assets\appicon.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+
     
     <!-- Application Fonts -->
     <Content Include="Assets\Fonts\**\*.*">
@@ -96,7 +94,6 @@
       <LooseXbfFiles Include="$(OutputPath)*.xbf" />
       <PagesDirectory Include="$(OutputPath)Pages" Condition="Exists('$(OutputPath)Pages')" />
       <RuntimeFilesToDelete Include="$(OutputPath)createdump.exe" />
-      <IconFilesToDelete Include="$(OutputPath)app.ico" />
     </ItemGroup>
     
     <!-- Create Settings directory -->
