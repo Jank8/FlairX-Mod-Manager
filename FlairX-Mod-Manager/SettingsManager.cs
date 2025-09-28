@@ -19,6 +19,8 @@ namespace FlairX_Mod_Manager
         public string? BackdropEffect { get; set; } = "AcrylicThin";
         public bool DynamicModSearchEnabled { get; set; } = true;
         public bool GridLoggingEnabled { get; set; } = false;
+        public bool MinimizeToTrayEnabled { get; set; } = false;
+        public bool HotkeysEnabled { get; set; } = true;
         public bool ShowOrangeAnimation { get; set; } = true;
         public int SelectedPresetIndex { get; set; } = 0; // 0 = default
         

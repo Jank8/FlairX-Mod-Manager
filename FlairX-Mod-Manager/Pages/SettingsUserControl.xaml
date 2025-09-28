@@ -362,8 +362,35 @@
                         <ToggleSwitch Grid.Column="3" x:Name="GridLoggingToggle" Toggled="GridLoggingToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
                     </Grid>
                     
-                    <!-- Hotkeys Section Header -->
-                    <TextBlock x:Name="HotkeysHeader" Text="" FontSize="18" FontWeight="SemiBold" Margin="0,35,0,0"/>
+                    <!-- Minimize to Tray -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE921;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock x:Name="MinimizeToTrayLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="MinimizeToTrayDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        
+                        <ToggleSwitch Grid.Column="3" x:Name="MinimizeToTrayToggle" Toggled="MinimizeToTrayToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
+                    </Grid>
+                    
+                    <!-- Hotkeys Section Header with Toggle -->
+                    <Grid Margin="0,35,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock x:Name="HotkeysHeader" Grid.Column="0" Text="" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <ToggleSwitch x:Name="HotkeysEnabledToggle" Grid.Column="1" Toggled="HotkeysEnabledToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
+                    </Grid>
                     
                     <!-- Optimize Previews Hotkey -->
                     <Grid>

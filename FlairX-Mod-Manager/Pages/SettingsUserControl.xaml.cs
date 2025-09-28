@@ -248,6 +248,7 @@ namespace FlairX_Mod_Manager.Pages
             if (ShowOrangeAnimationLabel != null) ShowOrangeAnimationLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Label");
             if (ModGridZoomLabel != null) ModGridZoomLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Label");
             if (GridLoggingLabel != null) GridLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Label");
+            if (MinimizeToTrayLabel != null) MinimizeToTrayLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Label");
             if (HotkeysHeader != null) HotkeysHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Hotkeys_Header");
 
             // Description texts - use null checks and fallback to empty string if missing
@@ -264,6 +265,7 @@ namespace FlairX_Mod_Manager.Pages
             if (ShowOrangeAnimationDescription != null) ShowOrangeAnimationDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Description") ?? string.Empty;
             if (ModGridZoomDescription != null) ModGridZoomDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Description") ?? string.Empty;
             if (GridLoggingDescription != null) GridLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Description") ?? string.Empty;
+            if (MinimizeToTrayDescription != null) MinimizeToTrayDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Description") ?? string.Empty;
             
             // Hotkey labels and descriptions - use null checks
             if (OptimizePreviewsHotkeyLabel != null) OptimizePreviewsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
@@ -422,6 +424,11 @@ namespace FlairX_Mod_Manager.Pages
             // Set toggle states from settings
             DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
             GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
+            MinimizeToTrayToggle.IsOn = SettingsManager.Current.MinimizeToTrayEnabled;
+            HotkeysEnabledToggle.IsOn = SettingsManager.Current.HotkeysEnabled;
+            
+            // Update hotkeys section state
+            UpdateHotkeysSectionState(SettingsManager.Current.HotkeysEnabled);
 
             ShowOrangeAnimationToggle.IsOn = SettingsManager.Current.ShowOrangeAnimation;
             ModGridZoomToggle.IsOn = SettingsManager.Current.ModGridZoomEnabled;
@@ -1360,6 +1367,27 @@ namespace FlairX_Mod_Manager.Pages
             SettingsManager.Save();
         }
 
+        private void MinimizeToTrayToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.MinimizeToTrayEnabled = MinimizeToTrayToggle.IsOn;
+            SettingsManager.Save();
+        }
+
+        private void HotkeysEnabledToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.HotkeysEnabled = HotkeysEnabledToggle.IsOn;
+            SettingsManager.Save();
+            
+            // Update hotkey section UI state
+            UpdateHotkeysSectionState(HotkeysEnabledToggle.IsOn);
+            
+            // Refresh global hotkeys in MainWindow
+            if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow.RefreshGlobalHotkeys();
+            }
+        }
+
         private void OptimizePreviewsHotkeyTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (sender is TextBox textBox)
@@ -2009,6 +2037,49 @@ namespace FlairX_Mod_Manager.Pages
                         DefaultStartHeightTextBox.Text = appWindow.Size.Height.ToString();
                     }
                 }
+            }
+        }
+
+
+
+        private void UpdateHotkeysSectionState(bool enabled)
+        {
+            try
+            {
+                // Find all hotkey-related UI elements and update their state
+                var hotkeyElements = new List<Control>();
+                
+                // Add all hotkey TextBoxes
+                if (OptimizePreviewsHotkeyTextBox != null) hotkeyElements.Add(OptimizePreviewsHotkeyTextBox);
+                if (ReloadManagerHotkeyTextBox != null) hotkeyElements.Add(ReloadManagerHotkeyTextBox);
+                if (ShuffleActiveModsHotkeyTextBox != null) hotkeyElements.Add(ShuffleActiveModsHotkeyTextBox);
+                if (DeactivateAllModsHotkeyTextBox != null) hotkeyElements.Add(DeactivateAllModsHotkeyTextBox);
+                
+                // Update opacity and IsEnabled for all hotkey elements
+                foreach (var element in hotkeyElements)
+                {
+                    element.Opacity = enabled ? 1.0 : 0.5;
+                    element.IsEnabled = enabled;
+                }
+                
+                // Update hotkey labels opacity
+                if (OptimizePreviewsHotkeyLabel != null) OptimizePreviewsHotkeyLabel.Opacity = enabled ? 1.0 : 0.5;
+                if (ReloadManagerHotkeyLabel != null) ReloadManagerHotkeyLabel.Opacity = enabled ? 1.0 : 0.5;
+                if (ShuffleActiveModsHotkeyLabel != null) ShuffleActiveModsHotkeyLabel.Opacity = enabled ? 1.0 : 0.5;
+                if (DeactivateAllModsHotkeyLabel != null) DeactivateAllModsHotkeyLabel.Opacity = enabled ? 1.0 : 0.5;
+                
+                // Update hotkey descriptions opacity
+                if (OptimizePreviewsHotkeyDescription != null) OptimizePreviewsHotkeyDescription.Opacity = enabled ? 0.7 : 0.3;
+                if (ReloadManagerHotkeyDescription != null) ReloadManagerHotkeyDescription.Opacity = enabled ? 0.7 : 0.3;
+                if (ShuffleActiveModsHotkeyDescription != null) ShuffleActiveModsHotkeyDescription.Opacity = enabled ? 0.7 : 0.3;
+                if (DeactivateAllModsHotkeyDescription != null) DeactivateAllModsHotkeyDescription.Opacity = enabled ? 0.7 : 0.3;
+                
+                // Update hotkeys header opacity
+                if (HotkeysHeader != null) HotkeysHeader.Opacity = enabled ? 1.0 : 0.5;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error updating hotkeys section state", ex);
             }
         }
 
