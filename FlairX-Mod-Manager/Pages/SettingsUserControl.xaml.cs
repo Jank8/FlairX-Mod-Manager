@@ -1998,7 +1998,7 @@ namespace FlairX_Mod_Manager.Pages
             stackPanel.Children.Add(gplPanel);
             
             // Add version information at the bottom
-            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "2.6.5";
+            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "2.6.7";
             var versionBlock = new TextBlock
             {
                 Text = $"{SharedUtilities.GetTranslation(lang, "AboutDialog_Version")}: {version}",

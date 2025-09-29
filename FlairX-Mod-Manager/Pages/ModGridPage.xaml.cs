@@ -127,8 +127,8 @@ namespace FlairX_Mod_Manager.Pages
             public DateTime LastChecked { get; set; } = DateTime.MinValue;
             public DateTime LastUpdated { get; set; } = DateTime.MinValue;
             
-            public string LastCheckedFormatted => LastChecked == DateTime.MinValue ? "Never" : LastChecked.ToString("MM/dd/yyyy");
-            public string LastUpdatedFormatted => LastUpdated == DateTime.MinValue ? "Never" : LastUpdated.ToString("MM/dd/yyyy");
+            public string LastCheckedFormatted => LastChecked == DateTime.MinValue ? "Never" : LastChecked.ToShortDateString();
+            public string LastUpdatedFormatted => LastUpdated == DateTime.MinValue ? "Never" : LastUpdated.ToShortDateString();
             private BitmapImage? _imageSource;
             public BitmapImage? ImageSource
             {
