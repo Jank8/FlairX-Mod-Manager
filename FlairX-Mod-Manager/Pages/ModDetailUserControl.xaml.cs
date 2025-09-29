@@ -28,11 +28,32 @@ namespace FlairX_Mod_Manager.Pages
         private int _currentImageIndex = 0;
         public event EventHandler? CloseRequested; // Event to notify parent to close
 
+        // Animation throttling
+        private DateTime _lastAnimationUpdate = DateTime.MinValue;
+        private const int ANIMATION_THROTTLE_MS = 16; // ~60 FPS
+        private Microsoft.UI.Xaml.DispatcherTimer? _animationTimer;
+        private double _targetTiltX = 0;
+        private double _targetTiltY = 0;
+
         public ModDetailUserControl()
         {
             this.InitializeComponent();
             this.Loaded += ModDetailUserControl_Loaded;
             this.ActualThemeChanged += ModDetailUserControl_ActualThemeChanged;
+            this.Unloaded += ModDetailUserControl_Unloaded;
+        }
+
+        private void ModDetailUserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            // Cleanup animation timer
+            _animationTimer?.Stop();
+            _animationTimer = null;
+            
+            // Unsubscribe from pointer events
+            if (ModImageCoordinateField != null)
+            {
+                ModImageCoordinateField.PointerMoved -= ModImageCoordinateField_PointerMoved;
+            }
         }
         
         public void LoadModDetails(string modDirectory, string category = "", string viewMode = "")
@@ -704,8 +725,11 @@ namespace FlairX_Mod_Manager.Pages
                 // Subscribe to pointer moved events for dynamic tilt
                 ModImageCoordinateField.PointerMoved += ModImageCoordinateField_PointerMoved;
                 
-                // Apply initial tilt with smooth animation - animate the entire container
-                UpdateMainTiltEffect(e, useAnimation: true);
+                // Calculate initial target tilt
+                CalculateTargetTilt(e);
+                
+                // Apply initial tilt with smooth animation
+                AnimateMainTilt(_targetTiltX, _targetTiltY);
             }
             catch (Exception ex)
             {
@@ -734,6 +758,10 @@ namespace FlairX_Mod_Manager.Pages
                         // Unsubscribe from pointer moved events
                         ModImageCoordinateField.PointerMoved -= ModImageCoordinateField_PointerMoved;
                         
+                        // Reset target values
+                        _targetTiltX = 0;
+                        _targetTiltY = 0;
+                        
                         // Reset tilt projection with smooth animation - reset entire container
                         ResetMainTiltEffect();
                     }
@@ -752,12 +780,78 @@ namespace FlairX_Mod_Manager.Pages
                 // Only process if sender is the main coordinate field, ignore buttons
                 if (!ReferenceEquals(sender, ModImageCoordinateField)) return;
                 
-                // No animation on move - instant response
-                UpdateMainTiltEffect(e, useAnimation: false);
+                // Throttle animation updates for smoother performance
+                var now = DateTime.Now;
+                if ((now - _lastAnimationUpdate).TotalMilliseconds < ANIMATION_THROTTLE_MS)
+                    return;
+                
+                _lastAnimationUpdate = now;
+                
+                // Calculate target tilt values
+                CalculateTargetTilt(e);
+                
+                // Use smooth interpolation instead of instant response
+                UpdateMainTiltEffectSmooth();
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error in ModImageCoordinateField_PointerMoved", ex);
+            }
+        }
+
+        private void CalculateTargetTilt(Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            try
+            {
+                // Get the pointer position relative to the coordinate field
+                var position = e.GetCurrentPoint(ModImageCoordinateField);
+                var fieldWidth = ModImageCoordinateField.ActualWidth;
+                var fieldHeight = ModImageCoordinateField.ActualHeight;
+                
+                if (fieldWidth > 0 && fieldHeight > 0)
+                {
+                    // Calculate tilt angles based on pointer position
+                    var centerX = fieldWidth / 2;
+                    var centerY = fieldHeight / 2;
+                    var offsetX = (position.Position.X - centerX) / centerX; // -1 to 1
+                    var offsetY = (position.Position.Y - centerY) / centerY; // -1 to 1
+                    
+                    // Main tilt for entire area (max 6 degrees)
+                    var maxTilt = 6.0;
+                    _targetTiltX = offsetY * maxTilt; // Y offset affects X rotation
+                    _targetTiltY = -offsetX * maxTilt; // X offset affects Y rotation (inverted)
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in CalculateTargetTilt", ex);
+            }
+        }
+
+        private void UpdateMainTiltEffectSmooth()
+        {
+            try
+            {
+                var container = ModImageCoordinateField.Parent as Grid;
+                var projection = GetOrCreateProjection(container);
+                if (projection == null) return;
+                
+                // Use smooth interpolation instead of instant change
+                var currentTiltX = projection.RotationX;
+                var currentTiltY = projection.RotationY;
+                
+                // Interpolation factor (0.2 = 20% towards target each frame)
+                var lerpFactor = 0.2;
+                var newTiltX = currentTiltX + ((_targetTiltX - currentTiltX) * lerpFactor);
+                var newTiltY = currentTiltY + ((_targetTiltY - currentTiltY) * lerpFactor);
+                
+                // Set new values directly (no animation needed as we're interpolating)
+                projection.RotationX = newTiltX;
+                projection.RotationY = newTiltY;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in UpdateMainTiltEffectSmooth", ex);
             }
         }
 

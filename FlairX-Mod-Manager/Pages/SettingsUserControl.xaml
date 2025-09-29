@@ -267,6 +267,25 @@
                         </StackPanel>
                     </Grid>
 
+                    <!-- Skip XXMI Launcher -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xEB9D;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock x:Name="SkipXXMILauncherLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="SkipXXMILauncherDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        
+                        <ToggleSwitch Grid.Column="3" x:Name="SkipXXMILauncherToggle" Toggled="SkipXXMILauncherToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
+                    </Grid>
+
                     <!-- Active Mods to Top -->
                     <Grid>
                         <Grid.ColumnDefinitions>

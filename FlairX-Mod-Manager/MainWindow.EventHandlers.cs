@@ -313,41 +313,7 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        private void LauncherFabBorder_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
-        {
-            try
-            {
-                string exePath = GetXXMILauncherPath();
-                
-                if (File.Exists(exePath))
-                {
-                    var psi = new ProcessStartInfo
-                    {
-                        FileName = exePath,
-                        UseShellExecute = true,
-                        WorkingDirectory = Path.GetDirectoryName(exePath) ?? PathManager.GetAbsolutePath(".")
-                    };
-                    Process.Start(psi);
-                }
-                else
-                {
-                    // Show download info dialog
-                    var lang = SharedUtilities.LoadLanguageDictionary();
-                    var dialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "XXMI_Launcher_Not_Found"),
-                        Content = CreateXXMIDownloadContent(exePath),
-                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    _ = dialog.ShowAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error launching XXMI Launcher", ex);
-            }
-        }
+
 
         private void OpenModLibraryButton_Click(object sender, RoutedEventArgs e)
         {
@@ -423,6 +389,7 @@ namespace FlairX_Mod_Manager
 
         private void LauncherFabBorder_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
+            Logger.LogInfo("LauncherFabBorder_PointerPressed called");
             try
             {
                 var exePath = GetXXMILauncherPath();
@@ -434,6 +401,23 @@ namespace FlairX_Mod_Manager
                         UseShellExecute = true,
                         WorkingDirectory = Path.GetDirectoryName(exePath) ?? PathManager.GetAbsolutePath(".")
                     };
+
+                    // Check if Skip XXMI Launcher is enabled
+                    Logger.LogInfo($"Skip XXMI Launcher setting: {SettingsManager.Current.SkipXXMILauncherEnabled}");
+                    Logger.LogInfo($"Selected game index: {SettingsManager.Current.SelectedGameIndex}");
+                    
+                    if (SettingsManager.Current.SkipXXMILauncherEnabled)
+                    {
+                        // Get current game tag (button is only active when game is selected)
+                        string gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                        psi.Arguments = $"--nogui --xxmi {gameTag}";
+                        Logger.LogInfo($"Launching XXMI Launcher with arguments: {psi.Arguments}");
+                    }
+                    else
+                    {
+                        Logger.LogInfo("Launching XXMI Launcher without arguments (normal GUI mode)");
+                    }
+
                     using var process = System.Diagnostics.Process.Start(psi);
                 }
                 else

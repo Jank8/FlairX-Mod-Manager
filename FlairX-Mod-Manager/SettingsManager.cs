@@ -55,6 +55,9 @@ namespace FlairX_Mod_Manager
         // Mod sorting settings
         public bool ActiveModsToTopEnabled { get; set; } = true;
         
+        // XXMI Launcher settings
+        public bool SkipXXMILauncherEnabled { get; set; } = false;
+        
         // View mode settings
         public string ViewMode { get; set; } = "Mods"; // "Mods" or "Categories"
         

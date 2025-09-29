@@ -16,6 +16,9 @@ namespace FlairX_Mod_Manager.Pages
     /// </summary>
     public sealed partial class ModGridPage : Page
     {
+        // Animation throttling for tiles
+        private readonly Dictionary<Button, DateTime> _lastTileAnimationUpdate = new Dictionary<Button, DateTime>();
+        private const int TILE_ANIMATION_THROTTLE_MS = 16; // ~60 FPS
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         private static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, int dwFlags);
 
@@ -184,7 +187,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        // Tile hover effects - dynamic tilt animation that follows cursor
+        // Tile hover effects - dynamic tilt animation that follows cursor + shadow effects
         private void TileButton_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             if (sender is Button button)
@@ -194,8 +197,9 @@ namespace FlairX_Mod_Manager.Pages
                     // Subscribe to pointer moved events for dynamic tilt
                     button.PointerMoved += TileButton_PointerMoved;
                     
-                    // Apply initial tilt based on entry position
-                    UpdateTiltEffect(button, e);
+                    // Apply initial tilt based on entry position using optimized system
+                    CalculateTileTiltTarget(button, e);
+                    UpdateTileTiltSmooth(button);
                 }
                 catch (Exception ex)
                 {
@@ -222,7 +226,7 @@ namespace FlairX_Mod_Manager.Pages
                         var rotXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
                         {
                             To = 0,
-                            Duration = TimeSpan.FromMilliseconds(200),
+                            Duration = TimeSpan.FromMilliseconds(250),
                             EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
                         };
                         Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotXAnim, projection);
@@ -232,7 +236,7 @@ namespace FlairX_Mod_Manager.Pages
                         var rotYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
                         {
                             To = 0,
-                            Duration = TimeSpan.FromMilliseconds(200),
+                            Duration = TimeSpan.FromMilliseconds(250),
                             EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
                         };
                         Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotYAnim, projection);
@@ -255,56 +259,22 @@ namespace FlairX_Mod_Manager.Pages
             {
                 try
                 {
-                    UpdateTiltEffect(button, e);
+                    // Throttle animation updates for smoother performance
+                    var now = DateTime.Now;
+                    var lastUpdate = _lastTileAnimationUpdate.GetValueOrDefault(button, DateTime.MinValue);
+                    if ((now - lastUpdate).TotalMilliseconds < TILE_ANIMATION_THROTTLE_MS)
+                        return;
+                    
+                    _lastTileAnimationUpdate[button] = now;
+                    
+                    // Use optimized tilt system with smooth interpolation
+                    CalculateTileTiltTarget(button, e);
+                    UpdateTileTiltSmooth(button);
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError("Error in TileButton_PointerMoved", ex);
                 }
-            }
-        }
-
-        private void UpdateTiltEffect(Button button, PointerRoutedEventArgs e)
-        {
-            try
-            {
-                // Find the content root (which has zoom applied)
-                if (button.ContentTemplateRoot is FrameworkElement contentRoot)
-                {
-                    // Get the pointer position relative to the content root
-                    var position = e.GetCurrentPoint(contentRoot);
-                    var rootWidth = contentRoot.ActualWidth;
-                    var rootHeight = contentRoot.ActualHeight;
-                    
-                    if (rootWidth > 0 && rootHeight > 0)
-                    {
-                        // Calculate tilt angles based on pointer position
-                        var centerX = rootWidth / 2;
-                        var centerY = rootHeight / 2;
-                        var offsetX = (position.Position.X - centerX) / centerX; // -1 to 1
-                        var offsetY = (position.Position.Y - centerY) / centerY; // -1 to 1
-                        
-                        // Limit tilt to reasonable angles (max 8 degrees)
-                        var maxTilt = 8.0;
-                        var tiltX = offsetY * maxTilt; // Y offset affects X rotation
-                        var tiltY = -offsetX * maxTilt; // X offset affects Y rotation (inverted)
-                        
-                        // Apply tilt transform to content root (which already has zoom)
-                        var transform = new Microsoft.UI.Xaml.Media.PlaneProjection
-                        {
-                            RotationX = tiltX,
-                            RotationY = tiltY,
-                            CenterOfRotationX = 0.5,
-                            CenterOfRotationY = 0.5
-                        };
-                        
-                        contentRoot.Projection = transform;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in UpdateTiltEffect", ex);
             }
         }
 
