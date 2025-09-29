@@ -112,11 +112,7 @@
   "SettingsPage_ActiveModsToTop_Label": "Aktif modları üste taşı",
   "SettingsPage_ShuffleActiveMods_Label": "Aktif modları karıştır",
   "SettingsPage_DeactivateAllMods_Label": "Tüm modları devre dışı bırak",
-  "ShuffleActiveMods_Title": "Rastgele Modlar Seçildi",
-  "ShuffleActiveMods_Message": "{0} rastgele mod seçildi (kategori başına 1):",
-  "ShuffleActiveMods_NoCategories": "Karıştırılacak mod kategorisi bulunamadı.",
-  "DeactivateAllMods_Title": "Modlar Devre Dışı Bırakıldı",
-  "DeactivateAllMods_Message": "{0} mod devre dışı bırakıldı.\n\n'Other' kategorisindeki modlar korundu.",
+
   "Information": "Bilgi",
   "XXMI_Download_Instructions": "İndirdikten sonra, XXMI klasörünü APP dizinine çıkarın veya Ayarlar'da XXMI Modları Dizini yolunu güncelleyin.",
   "XXMI_Download_Required": "Modları başlatmak için XXMI Başlatıcısı gereklidir. GitHub'dan taşınabilir sürümü indirin:",

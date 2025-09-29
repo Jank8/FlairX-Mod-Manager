@@ -177,25 +177,25 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        // Execute shuffle active mods hotkey action (for global hotkeys - off-focus)
+        // Execute shuffle active mods hotkey action
         public async void ExecuteShuffleActiveModsHotkey()
         {
-            await ExecuteShuffleActiveModsHotkeyInternal(false);
+            await ExecuteShuffleActiveModsHotkeyInternal();
         }
 
         // Execute shuffle active mods hotkey action (for in-focus hotkeys)
         public async void ExecuteShuffleActiveModsHotkeyInFocus()
         {
-            Logger.LogInfo("ExecuteShuffleActiveModsHotkeyInFocus called - should show dialogs");
-            await ExecuteShuffleActiveModsHotkeyInternal(true);
+            Logger.LogInfo("ExecuteShuffleActiveModsHotkeyInFocus called");
+            await ExecuteShuffleActiveModsHotkeyInternal();
         }
 
         // Internal method for shuffle active mods hotkey
-        private async Task ExecuteShuffleActiveModsHotkeyInternal(bool showDialogs)
+        private async Task ExecuteShuffleActiveModsHotkeyInternal()
         {
             try
             {
-                Logger.LogInfo($"Shuffle active mods hotkey triggered - showDialogs: {showDialogs}");
+                Logger.LogInfo("Shuffle active mods hotkey triggered");
                 
                 // Get mod library path
                 var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
@@ -217,24 +217,6 @@ namespace FlairX_Mod_Manager
                 if (categories.Count == 0)
                 {
                     Logger.LogInfo("No categories found for shuffling");
-                    
-                    // Only show dialog if requested
-                    if (showDialogs)
-                    {
-                        // Ensure we're on the UI thread
-                        DispatcherQueue.TryEnqueue(() =>
-                        {
-                            var lang = SharedUtilities.LoadLanguageDictionary();
-                            var dialog = new ContentDialog
-                            {
-                                Title = SharedUtilities.GetTranslation(lang, "Information"),
-                                Content = SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_NoCategories"),
-                                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                                XamlRoot = this.Content.XamlRoot
-                            };
-                            _ = dialog.ShowAsync();
-                        });
-                    }
                     return;
                 }
                 
@@ -291,32 +273,6 @@ namespace FlairX_Mod_Manager
                     
                     Logger.LogInfo($"Shuffle completed - activated {selectedMods.Count} random mods");
                     
-                    // Only show success dialog if requested
-                    if (showDialogs)
-                    {
-                        Logger.LogInfo("Attempting to show shuffle success dialog");
-                        // Ensure we're on the UI thread
-                        DispatcherQueue.TryEnqueue(() =>
-                        {
-                            Logger.LogInfo("Inside DispatcherQueue for shuffle dialog");
-                            var lang = SharedUtilities.LoadLanguageDictionary();
-                            var selectedModsText = string.Join("\n", selectedMods);
-                            var dialog = new ContentDialog
-                            {
-                                Title = SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_Title"),
-                                Content = string.Format(SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_Message"), selectedMods.Count) + "\n\n" + selectedModsText,
-                                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                                XamlRoot = this.Content.XamlRoot
-                            };
-                            Logger.LogInfo("About to show shuffle dialog");
-                            _ = dialog.ShowAsync();
-                        });
-                    }
-                    else
-                    {
-                        Logger.LogInfo("showDialogs is false - not showing shuffle dialog");
-                    }
-                    
                     // Reload manager to refresh the view
                     Logger.LogInfo("About to call ReloadModsAsync for shuffle");
                     DispatcherQueue.TryEnqueue(async () =>
@@ -328,24 +284,6 @@ namespace FlairX_Mod_Manager
                 catch (Exception ex)
                 {
                     Logger.LogError("Failed to save shuffled active mods", ex);
-                    
-                    // Only show error dialog if requested
-                    if (showDialogs)
-                    {
-                        // Ensure we're on the UI thread
-                        DispatcherQueue.TryEnqueue(() =>
-                        {
-                            var lang = SharedUtilities.LoadLanguageDictionary();
-                            var errorDialog = new ContentDialog
-                            {
-                                Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
-                                Content = SharedUtilities.GetTranslation(lang, "Error_Generic"),
-                                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                                XamlRoot = this.Content.XamlRoot
-                            };
-                            _ = errorDialog.ShowAsync();
-                        });
-                    }
                 }
             }
             catch (Exception ex)
@@ -356,25 +294,25 @@ namespace FlairX_Mod_Manager
             await Task.CompletedTask;
         }
 
-        // Execute deactivate all mods hotkey action (for global hotkeys - off-focus)
+        // Execute deactivate all mods hotkey action
         public async void ExecuteDeactivateAllModsHotkey()
         {
-            await ExecuteDeactivateAllModsHotkeyInternal(false);
+            await ExecuteDeactivateAllModsHotkeyInternal();
         }
 
         // Execute deactivate all mods hotkey action (for in-focus hotkeys)
         public async void ExecuteDeactivateAllModsHotkeyInFocus()
         {
-            Logger.LogInfo("ExecuteDeactivateAllModsHotkeyInFocus called - should show dialogs");
-            await ExecuteDeactivateAllModsHotkeyInternal(true);
+            Logger.LogInfo("ExecuteDeactivateAllModsHotkeyInFocus called");
+            await ExecuteDeactivateAllModsHotkeyInternal();
         }
 
         // Internal method for deactivate all mods hotkey
-        private async Task ExecuteDeactivateAllModsHotkeyInternal(bool showDialogs)
+        private async Task ExecuteDeactivateAllModsHotkeyInternal()
         {
             try
             {
-                Logger.LogInfo($"Deactivate all mods hotkey triggered - showDialogs: {showDialogs}");
+                Logger.LogInfo("Deactivate all mods hotkey triggered");
                 
                 // Get mod library path
                 var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
@@ -448,31 +386,6 @@ namespace FlairX_Mod_Manager
                     
                     Logger.LogInfo($"Deactivate all completed - deactivated {deactivatedMods.Count} mods (excluding Other category)");
                     
-                    // Only show success dialog if requested
-                    if (showDialogs)
-                    {
-                        Logger.LogInfo("Attempting to show deactivate success dialog");
-                        // Ensure we're on the UI thread
-                        DispatcherQueue.TryEnqueue(() =>
-                        {
-                            Logger.LogInfo("Inside DispatcherQueue for deactivate dialog");
-                            var lang = SharedUtilities.LoadLanguageDictionary();
-                            var dialog = new ContentDialog
-                            {
-                                Title = SharedUtilities.GetTranslation(lang, "DeactivateAllMods_Title"),
-                                Content = string.Format(SharedUtilities.GetTranslation(lang, "DeactivateAllMods_Message"), deactivatedMods.Count),
-                                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                                XamlRoot = this.Content.XamlRoot
-                            };
-                            Logger.LogInfo("About to show deactivate dialog");
-                            _ = dialog.ShowAsync();
-                        });
-                    }
-                    else
-                    {
-                        Logger.LogInfo("showDialogs is false - not showing deactivate dialog");
-                    }
-                    
                     // Reload manager to refresh the view
                     Logger.LogInfo("About to call ReloadModsAsync for deactivate");
                     DispatcherQueue.TryEnqueue(async () =>
@@ -484,24 +397,6 @@ namespace FlairX_Mod_Manager
                 catch (Exception ex)
                 {
                     Logger.LogError("Failed to save deactivated mods configuration", ex);
-                    
-                    // Only show error dialog if requested
-                    if (showDialogs)
-                    {
-                        // Ensure we're on the UI thread
-                        DispatcherQueue.TryEnqueue(() =>
-                        {
-                            var lang = SharedUtilities.LoadLanguageDictionary();
-                            var errorDialog = new ContentDialog
-                            {
-                                Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
-                                Content = SharedUtilities.GetTranslation(lang, "Error_Generic"),
-                                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                                XamlRoot = this.Content.XamlRoot
-                            };
-                            _ = errorDialog.ShowAsync();
-                        });
-                    }
                 }
             }
             catch (Exception ex)

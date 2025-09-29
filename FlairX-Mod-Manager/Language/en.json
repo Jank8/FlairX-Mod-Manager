@@ -122,11 +122,7 @@
   "SettingsPage_ActiveModsToTop_Label": "Move active mods to top",
   "SettingsPage_ShuffleActiveMods_Label": "Shuffle active mods",
   "SettingsPage_DeactivateAllMods_Label": "Deactivate all mods",
-  "ShuffleActiveMods_Title": "Random Mods Selected",
-  "ShuffleActiveMods_Message": "Selected {0} random mods (1 per category):",
-  "ShuffleActiveMods_NoCategories": "No mod categories found for shuffling.",
-  "DeactivateAllMods_Title": "Mods Deactivated",
-  "DeactivateAllMods_Message": "Deactivated {0} mods.\n\nMods in 'Other' category were preserved.",
+
   "Information": "Information",
   "XXMI_Download_Instructions": "After downloading, extract the XXMI folder to APP direvtory or update the XXMI Mods Directory path in Settings.",
   "XXMI_Download_Required": "XXMI Launcher is required to launch mods. Download the portable version from GitHub:",

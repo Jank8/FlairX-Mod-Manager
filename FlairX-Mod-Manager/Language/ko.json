@@ -122,11 +122,7 @@
   "SettingsPage_ActiveModsToTop_Label": "활성 모드를 위로 이동",
   "SettingsPage_ShuffleActiveMods_Label": "활성 모드 섞기",
   "SettingsPage_DeactivateAllMods_Label": "모든 모드 비활성화",
-  "ShuffleActiveMods_Title": "무작위 모드 선택됨",
-  "ShuffleActiveMods_Message": "{0}개의 무작위 모드 선택됨 (카테고리당 1개):",
-  "ShuffleActiveMods_NoCategories": "섞을 모드 카테고리를 찾을 수 없습니다.",
-  "DeactivateAllMods_Title": "모드 비활성화됨",
-  "DeactivateAllMods_Message": "{0}개의 모드가 비활성화되었습니다.\n\n'Other' 카테고리의 모드는 보존되었습니다.",
+
   "Information": "정보",
   "XXMI_Download_Instructions": "다운로드 후 XXMI 폴더를 APP 디렉토리에 압축 해제하거나 설정에서 XXMI 모드 디렉토리 경로를 업데이트하세요.",
   "XXMI_Download_Required": "모드를 실행하려면 XXMI 런처가 필요합니다. GitHub에서 포터블 버전을 다운로드하세요:",

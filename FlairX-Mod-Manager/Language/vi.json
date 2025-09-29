@@ -112,11 +112,7 @@
   "SettingsPage_ActiveModsToTop_Label": "Di chuyển mod đang hoạt động lên trên",
   "SettingsPage_ShuffleActiveMods_Label": "Xáo trộn mod đang hoạt động",
   "SettingsPage_DeactivateAllMods_Label": "Vô hiệu hóa tất cả mod",
-  "ShuffleActiveMods_Title": "Mod ngẫu nhiên đã được chọn",
-  "ShuffleActiveMods_Message": "Đã chọn {0} mod ngẫu nhiên (1 mỗi danh mục):",
-  "ShuffleActiveMods_NoCategories": "Không tìm thấy danh mục mod để xáo trộn.",
-  "DeactivateAllMods_Title": "Mod đã được vô hiệu hóa",
-  "DeactivateAllMods_Message": "Đã vô hiệu hóa {0} mod.\n\nMod trong danh mục 'Other' đã được bảo tồn.",
+
   "Information": "Thông tin",
   "XXMI_Download_Instructions": "Sau khi tải xuống, giải nén thư mục XXMI vào thư mục APP hoặc cập nhật đường dẫn thư mục XXMI Mods trong Cài đặt.",
   "XXMI_Download_Required": "Cần XXMI Launcher để khởi chạy mod. Tải xuống phiên bản di động từ GitHub:",

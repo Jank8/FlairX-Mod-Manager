@@ -112,11 +112,7 @@
   "SettingsPage_ActiveModsToTop_Label": "Mover mods activos para o topo",
   "SettingsPage_ShuffleActiveMods_Label": "Baralhar mods activos",
   "SettingsPage_DeactivateAllMods_Label": "Desactivar todos os mods",
-  "ShuffleActiveMods_Title": "Mods Aleatórios Seleccionados",
-  "ShuffleActiveMods_Message": "Seleccionados {0} mods aleatórios (1 por categoria):",
-  "ShuffleActiveMods_NoCategories": "Nenhuma categoria de mods encontrada para baralhar.",
-  "DeactivateAllMods_Title": "Mods Desactivados",
-  "DeactivateAllMods_Message": "Desactivados {0} mods.\n\nOs mods na categoria 'Other' foram preservados.",
+
   "Information": "Informação",
   "XXMI_Download_Instructions": "Após descarregar, extraia a pasta XXMI para o directório da APP ou actualize o caminho do Directório de Mods XXMI nas Definições.",
   "XXMI_Download_Required": "O Lançador XXMI é necessário para executar mods. Descarregue a versão portátil do GitHub:",

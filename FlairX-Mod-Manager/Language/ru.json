@@ -121,11 +121,7 @@
   "SettingsPage_ActiveModsToTop_Label": "Сначала активные моды",
   "SettingsPage_ShuffleActiveMods_Label": "Перемешать активные моды",
   "SettingsPage_DeactivateAllMods_Label": "Деактивировать все моды",
-  "ShuffleActiveMods_Title": "Выбраны случайные моды",
-  "ShuffleActiveMods_Message": "Выбраны {0} случайных модов (1 на категорию):",
-  "ShuffleActiveMods_NoCategories": "Категория модов для перемешивания не найдена.",
-  "DeactivateAllMods_Title": "Все моды деактивированны",
-  "DeactivateAllMods_Message": "Деактивировано {0} модов.\n\nмоды в категории 'Другие' были сохранены.",
+
   "Information": "Информация",
   "Welcome_Title": "ДОБРО ПОЖАЛОВАТЬ!",
   "XXMI_Download_Instructions": "После загрузки разархивируйте папку XXMI в каталог APP или обновите путь к каталогу модов XXMI в настройках.",

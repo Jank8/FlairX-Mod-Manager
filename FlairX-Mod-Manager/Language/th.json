@@ -112,11 +112,7 @@
   "SettingsPage_ActiveModsToTop_Label": "ย้าย mod ที่ใช้งานไปด้านบน",
   "SettingsPage_ShuffleActiveMods_Label": "สลับ mod ที่ใช้งาน",
   "SettingsPage_DeactivateAllMods_Label": "ปิดใช้งาน mod ทั้งหมด",
-  "ShuffleActiveMods_Title": "เลือก Mod แบบสุ่ม",
-  "ShuffleActiveMods_Message": "เลือก {0} mod แบบสุ่ม (1 ต่อหมวดหมู่):",
-  "ShuffleActiveMods_NoCategories": "ไม่พบหมวดหมู่ mod สำหรับการสลับ",
-  "DeactivateAllMods_Title": "ปิดใช้งาน Mod แล้ว",
-  "DeactivateAllMods_Message": "ปิดใช้งาน {0} mod แล้ว\n\nMod ในหมวดหมู่ 'Other' ได้รับการรักษาไว้",
+
   "Information": "ข้อมูล",
   "XXMI_Download_Instructions": "หลังจากดาวน์โหลด ให้แตกไฟล์โฟลเดอร์ XXMI ไปยังไดเรกทอรี APP หรืออัปเดตเส้นทางไดเรกทอรี XXMI Mods ในการตั้งค่า",
   "XXMI_Download_Required": "ต้องใช้ XXMI Launcher เพื่อเปิดใช้งาน mod ดาวน์โหลดเวอร์ชันพกพาจาก GitHub:",
