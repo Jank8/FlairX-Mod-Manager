@@ -47,7 +47,7 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        private async Task ReloadModsAsync()
+        public async Task ReloadModsAsync()
         {
             // Show loading window during refresh
             var loadingWindow = new LoadingWindow();

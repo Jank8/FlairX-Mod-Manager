@@ -141,6 +141,13 @@ namespace FlairX_Mod_Manager
             {
                 var settings = SettingsManager.Current;
 
+                // Check if hotkeys are enabled
+                if (!settings.HotkeysEnabled)
+                {
+                    Logger.LogInfo("Hotkeys are disabled - skipping registration");
+                    return;
+                }
+
                 // Register optimize previews hotkey
                 if (!string.IsNullOrEmpty(settings.OptimizePreviewsHotkey))
                 {
@@ -289,6 +296,13 @@ namespace FlairX_Mod_Manager
         {
             try
             {
+                // Check if hotkeys are enabled before executing
+                if (!SettingsManager.Current.HotkeysEnabled)
+                {
+                    Logger.LogInfo($"Hotkey {id} pressed but hotkeys are disabled - ignoring");
+                    return;
+                }
+
                 if (_hotkeyActions.TryGetValue(id, out var action))
                 {
                     await action();

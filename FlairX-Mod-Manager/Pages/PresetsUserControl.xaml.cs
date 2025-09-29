@@ -248,6 +248,13 @@ namespace FlairX_Mod_Manager.Pages
                 try
                 {
                     FlairX_Mod_Manager.Pages.ModGridPage.ApplyPreset(fileName);
+                    
+                    // Reload manager to refresh the view
+                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                    {
+                        await mainWindow.ReloadModsAsync();
+                    }
+                    
                     var langDict = SharedUtilities.LoadLanguageDictionary();
                     await ShowDialog(SharedUtilities.GetTranslation(langDict, "Success_Title"), SharedUtilities.GetTranslation(langDict, "Preset_Loaded"));
                 }

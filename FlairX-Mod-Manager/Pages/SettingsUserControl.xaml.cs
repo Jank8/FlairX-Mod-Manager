@@ -644,6 +644,74 @@ namespace FlairX_Mod_Manager.Pages
             }, token);
         }
 
+        // Public method for hotkey when on settings page - runs optimization with UI but without confirmation dialog
+        public async Task ExecuteOptimizePreviewsWithUI()
+        {
+            if (_isOptimizingPreviews)
+            {
+                Logger.LogInfo("Optimization already in progress - ignoring hotkey");
+                return;
+            }
+
+            _isOptimizingPreviews = true;
+            _wasPreviewCancelled = false;
+            _previewCts = new CancellationTokenSource();
+            
+            OptimizePreviewsButton.IsEnabled = true;
+            OptimizePreviewsProgressBar.Visibility = Visibility.Visible;
+            
+            if (_optimizePreviewsButtonIcon != null)
+            {
+                _optimizePreviewsButtonIcon.Glyph = "\uE711"; // Cancel icon
+            }
+
+            try
+            {
+                await OptimizePreviewsAsync(_previewCts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Operation was cancelled
+            }
+            finally
+            {
+                _isOptimizingPreviews = false;
+                _previewCts = null;
+                OptimizePreviewsButton.IsEnabled = true;
+                OptimizePreviewsProgressBar.Visibility = Visibility.Collapsed;
+                
+                if (_optimizePreviewsButtonIcon != null)
+                {
+                    _optimizePreviewsButtonIcon.Glyph = "\uE89E"; // Original icon
+                }
+            }
+            
+            // Show completion or cancellation message
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            if (_wasPreviewCancelled)
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
+                    Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Cancelled"),
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+            else
+            {
+                var dialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "Success_Title"),
+                    Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"),
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+        }
+
         // Public method for hotkey - runs optimization without confirmation dialog
         public static async Task OptimizePreviewsDirectAsync()
         {

@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media.Animation;
+using WinRT.Interop;
 
 namespace FlairX_Mod_Manager
 {
@@ -16,13 +18,33 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        // Win32 API for checking window focus
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        // Helper method to check if this window is currently in focus
+        private bool IsWindowInFocus()
+        {
+            try
+            {
+                var currentWindowHandle = WindowNative.GetWindowHandle(this);
+                var foregroundWindow = GetForegroundWindow();
+                return currentWindowHandle == foregroundWindow;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error checking window focus state", ex);
+                // If we can't determine focus state, assume it's in focus to show dialogs
+                return true;
+            }
+        }
         // Global keyboard handler for hotkeys
         private async void MainWindow_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             try
             {
-                // Only handle hotkeys if a game is selected
-                if (SettingsManager.Current.SelectedGameIndex <= 0)
+                // Only handle hotkeys if they are enabled and a game is selected
+                if (!SettingsManager.Current.HotkeysEnabled || SettingsManager.Current.SelectedGameIndex <= 0)
                     return;
 
                 // Get current modifier keys
@@ -58,12 +80,12 @@ namespace FlairX_Mod_Manager
                     return;
                 }
 
-                // Shuffle active mods hotkey (placeholder for future implementation)
+                // Shuffle active mods hotkey
                 if (!string.IsNullOrEmpty(settings.ShuffleActiveModsHotkey) && 
                     string.Equals(currentHotkey, settings.ShuffleActiveModsHotkey, StringComparison.OrdinalIgnoreCase))
                 {
                     e.Handled = true;
-                    ExecuteShuffleActiveModsHotkey();
+                    ExecuteShuffleActiveModsHotkeyInFocus();
                     return;
                 }
 
@@ -72,7 +94,7 @@ namespace FlairX_Mod_Manager
                     string.Equals(currentHotkey, settings.DeactivateAllModsHotkey, StringComparison.OrdinalIgnoreCase))
                 {
                     e.Handled = true;
-                    ExecuteDeactivateAllModsHotkey();
+                    ExecuteDeactivateAllModsHotkeyInFocus();
                     return;
                 }
             }
@@ -87,16 +109,56 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                Logger.LogInfo("Optimize previews hotkey triggered - running directly without UI");
+                Logger.LogInfo("Optimize previews hotkey triggered");
                 
-                // Run optimize previews directly without opening settings or showing confirmation
-                await FlairX_Mod_Manager.Pages.SettingsUserControl.OptimizePreviewsDirectAsync();
+                // Check if we're currently on the settings page
+                if (contentFrame.Content is FlairX_Mod_Manager.Pages.SettingsUserControl settingsControl)
+                {
+                    // If we're on settings page, trigger the button click to show progress bar
+                    Logger.LogInfo("On settings page - triggering button click with UI");
+                    await settingsControl.ExecuteOptimizePreviewsWithUI();
+                }
+                else
+                {
+                    // Check if window is in focus to decide whether to show notifications
+                    bool isWindowInFocus = IsWindowInFocus();
+                    
+                    if (isWindowInFocus)
+                    {
+                        // If we're not on settings page but window is in focus, show progress indication
+                        Logger.LogInfo("Not on settings page but window in focus - showing progress indication");
+                        
+                        // Show info that optimization started
+                        var lang = SharedUtilities.LoadLanguageDictionary();
+                        ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Confirm_Title") + " - " + 
+                                      SharedUtilities.GetTranslation(lang, "Continue"), 2000);
+                        
+                        // Run optimize previews directly
+                        await FlairX_Mod_Manager.Pages.SettingsUserControl.OptimizePreviewsDirectAsync();
+                        
+                        // Show completion message
+                        ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"), 3000);
+                    }
+                    else
+                    {
+                        // Window not in focus - run silently without notifications
+                        Logger.LogInfo("Window not in focus - running optimize previews silently");
+                        await FlairX_Mod_Manager.Pages.SettingsUserControl.OptimizePreviewsDirectAsync();
+                    }
+                }
                 
                 Logger.LogInfo("Optimize previews hotkey completed");
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error executing optimize previews hotkey", ex);
+                
+                // Only show error notification if window is in focus
+                if (IsWindowInFocus())
+                {
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    ShowErrorInfo(SharedUtilities.GetTranslation(lang, "Error_Generic"), 3000);
+                }
             }
         }
 
@@ -115,12 +177,25 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        // Execute shuffle active mods hotkey action
-        public void ExecuteShuffleActiveModsHotkey()
+        // Execute shuffle active mods hotkey action (for global hotkeys - off-focus)
+        public async void ExecuteShuffleActiveModsHotkey()
+        {
+            await ExecuteShuffleActiveModsHotkeyInternal(false);
+        }
+
+        // Execute shuffle active mods hotkey action (for in-focus hotkeys)
+        public async void ExecuteShuffleActiveModsHotkeyInFocus()
+        {
+            Logger.LogInfo("ExecuteShuffleActiveModsHotkeyInFocus called - should show dialogs");
+            await ExecuteShuffleActiveModsHotkeyInternal(true);
+        }
+
+        // Internal method for shuffle active mods hotkey
+        private async Task ExecuteShuffleActiveModsHotkeyInternal(bool showDialogs)
         {
             try
             {
-                Logger.LogInfo("Shuffle active mods hotkey triggered");
+                Logger.LogInfo($"Shuffle active mods hotkey triggered - showDialogs: {showDialogs}");
                 
                 // Get mod library path
                 var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
@@ -142,15 +217,24 @@ namespace FlairX_Mod_Manager
                 if (categories.Count == 0)
                 {
                     Logger.LogInfo("No categories found for shuffling");
-                    var lang = SharedUtilities.LoadLanguageDictionary();
-                    var dialog = new ContentDialog
+                    
+                    // Only show dialog if requested
+                    if (showDialogs)
                     {
-                        Title = SharedUtilities.GetTranslation(lang, "Information"),
-                        Content = SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_NoCategories"),
-                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    _ = dialog.ShowAsync();
+                        // Ensure we're on the UI thread
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            var lang = SharedUtilities.LoadLanguageDictionary();
+                            var dialog = new ContentDialog
+                            {
+                                Title = SharedUtilities.GetTranslation(lang, "Information"),
+                                Content = SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_NoCategories"),
+                                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                                XamlRoot = this.Content.XamlRoot
+                            };
+                            _ = dialog.ShowAsync();
+                        });
+                    }
                     return;
                 }
                 
@@ -207,51 +291,90 @@ namespace FlairX_Mod_Manager
                     
                     Logger.LogInfo($"Shuffle completed - activated {selectedMods.Count} random mods");
                     
-                    // Show success dialog with selected mods
-                    var lang = SharedUtilities.LoadLanguageDictionary();
-                    var selectedModsText = string.Join("\n", selectedMods);
-                    var dialog = new ContentDialog
+                    // Only show success dialog if requested
+                    if (showDialogs)
                     {
-                        Title = SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_Title"),
-                        Content = string.Format(SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_Message"), selectedMods.Count) + "\n\n" + selectedModsText,
-                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    _ = dialog.ShowAsync();
-                    
-                    // Refresh the current view if we're on ModGridPage
-                    if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
-                    {
-                        // Force refresh to show new active states
-                        modGridPage.RefreshUIAfterLanguageChange();
+                        Logger.LogInfo("Attempting to show shuffle success dialog");
+                        // Ensure we're on the UI thread
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            Logger.LogInfo("Inside DispatcherQueue for shuffle dialog");
+                            var lang = SharedUtilities.LoadLanguageDictionary();
+                            var selectedModsText = string.Join("\n", selectedMods);
+                            var dialog = new ContentDialog
+                            {
+                                Title = SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_Title"),
+                                Content = string.Format(SharedUtilities.GetTranslation(lang, "ShuffleActiveMods_Message"), selectedMods.Count) + "\n\n" + selectedModsText,
+                                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                                XamlRoot = this.Content.XamlRoot
+                            };
+                            Logger.LogInfo("About to show shuffle dialog");
+                            _ = dialog.ShowAsync();
+                        });
                     }
+                    else
+                    {
+                        Logger.LogInfo("showDialogs is false - not showing shuffle dialog");
+                    }
+                    
+                    // Reload manager to refresh the view
+                    Logger.LogInfo("About to call ReloadModsAsync for shuffle");
+                    DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        await ReloadModsAsync();
+                        Logger.LogInfo("ReloadModsAsync completed for shuffle");
+                    });
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError("Failed to save shuffled active mods", ex);
-                    var lang = SharedUtilities.LoadLanguageDictionary();
-                    var errorDialog = new ContentDialog
+                    
+                    // Only show error dialog if requested
+                    if (showDialogs)
                     {
-                        Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
-                        Content = SharedUtilities.GetTranslation(lang, "Error_Generic"),
-                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    _ = errorDialog.ShowAsync();
+                        // Ensure we're on the UI thread
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            var lang = SharedUtilities.LoadLanguageDictionary();
+                            var errorDialog = new ContentDialog
+                            {
+                                Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
+                                Content = SharedUtilities.GetTranslation(lang, "Error_Generic"),
+                                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                                XamlRoot = this.Content.XamlRoot
+                            };
+                            _ = errorDialog.ShowAsync();
+                        });
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error executing shuffle active mods hotkey", ex);
             }
+            
+            await Task.CompletedTask;
         }
 
-        // Execute deactivate all mods hotkey action
-        public void ExecuteDeactivateAllModsHotkey()
+        // Execute deactivate all mods hotkey action (for global hotkeys - off-focus)
+        public async void ExecuteDeactivateAllModsHotkey()
+        {
+            await ExecuteDeactivateAllModsHotkeyInternal(false);
+        }
+
+        // Execute deactivate all mods hotkey action (for in-focus hotkeys)
+        public async void ExecuteDeactivateAllModsHotkeyInFocus()
+        {
+            Logger.LogInfo("ExecuteDeactivateAllModsHotkeyInFocus called - should show dialogs");
+            await ExecuteDeactivateAllModsHotkeyInternal(true);
+        }
+
+        // Internal method for deactivate all mods hotkey
+        private async Task ExecuteDeactivateAllModsHotkeyInternal(bool showDialogs)
         {
             try
             {
-                Logger.LogInfo("Deactivate all mods hotkey triggered");
+                Logger.LogInfo($"Deactivate all mods hotkey triggered - showDialogs: {showDialogs}");
                 
                 // Get mod library path
                 var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
@@ -325,42 +448,68 @@ namespace FlairX_Mod_Manager
                     
                     Logger.LogInfo($"Deactivate all completed - deactivated {deactivatedMods.Count} mods (excluding Other category)");
                     
-                    // Show success dialog
-                    var lang = SharedUtilities.LoadLanguageDictionary();
-                    var dialog = new ContentDialog
+                    // Only show success dialog if requested
+                    if (showDialogs)
                     {
-                        Title = SharedUtilities.GetTranslation(lang, "DeactivateAllMods_Title"),
-                        Content = string.Format(SharedUtilities.GetTranslation(lang, "DeactivateAllMods_Message"), deactivatedMods.Count),
-                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    _ = dialog.ShowAsync();
-                    
-                    // Refresh the current view if we're on ModGridPage
-                    if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
-                    {
-                        // Force refresh to show new active states
-                        modGridPage.RefreshUIAfterLanguageChange();
+                        Logger.LogInfo("Attempting to show deactivate success dialog");
+                        // Ensure we're on the UI thread
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            Logger.LogInfo("Inside DispatcherQueue for deactivate dialog");
+                            var lang = SharedUtilities.LoadLanguageDictionary();
+                            var dialog = new ContentDialog
+                            {
+                                Title = SharedUtilities.GetTranslation(lang, "DeactivateAllMods_Title"),
+                                Content = string.Format(SharedUtilities.GetTranslation(lang, "DeactivateAllMods_Message"), deactivatedMods.Count),
+                                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                                XamlRoot = this.Content.XamlRoot
+                            };
+                            Logger.LogInfo("About to show deactivate dialog");
+                            _ = dialog.ShowAsync();
+                        });
                     }
+                    else
+                    {
+                        Logger.LogInfo("showDialogs is false - not showing deactivate dialog");
+                    }
+                    
+                    // Reload manager to refresh the view
+                    Logger.LogInfo("About to call ReloadModsAsync for deactivate");
+                    DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        await ReloadModsAsync();
+                        Logger.LogInfo("ReloadModsAsync completed for deactivate");
+                    });
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError("Failed to save deactivated mods configuration", ex);
-                    var lang = SharedUtilities.LoadLanguageDictionary();
-                    var errorDialog = new ContentDialog
+                    
+                    // Only show error dialog if requested
+                    if (showDialogs)
                     {
-                        Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
-                        Content = SharedUtilities.GetTranslation(lang, "Error_Generic"),
-                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    _ = errorDialog.ShowAsync();
+                        // Ensure we're on the UI thread
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            var lang = SharedUtilities.LoadLanguageDictionary();
+                            var errorDialog = new ContentDialog
+                            {
+                                Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
+                                Content = SharedUtilities.GetTranslation(lang, "Error_Generic"),
+                                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                                XamlRoot = this.Content.XamlRoot
+                            };
+                            _ = errorDialog.ShowAsync();
+                        });
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error executing deactivate all mods hotkey", ex);
             }
+            
+            await Task.CompletedTask;
         }
     }
 }
