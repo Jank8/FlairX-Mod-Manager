@@ -16,17 +16,8 @@ namespace FlairX_Mod_Manager.Pages
     {
         private static readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
         
-        // Compiled regex patterns for better performance
-        private static readonly Regex[] _authorPatterns = new[]
-        {
-            new Regex("<a class=\"Uploader[^\"]*\" href=\"[^\"]+\">([^<]+)</a>", RegexOptions.Compiled),
-            new Regex("<span class=\"UserName[^\"]*\">([^<]+)</span>", RegexOptions.Compiled),
-            new Regex("<a class=\"UserName[^\"]*\" href=\"[^\"]+\">([^<]+)</a>", RegexOptions.Compiled),
-            new Regex("<meta name=\"author\" content=\"([^\"]+)\"", RegexOptions.Compiled),
-            new Regex("\\\"author\\\":\\\"([^\\\"]+)\\\"", RegexOptions.Compiled)
-        };
-        
-        private static readonly Regex _jsonLdPattern = new("<script type=\"application/ld\\+json\">(.*?)</script>", RegexOptions.Compiled | RegexOptions.Singleline);
+        // Regex pattern to parse GameBanana URLs
+        private static readonly Regex _urlPattern = new Regex(@"gamebanana\.com/(\w+)/(\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         private void UpdateTexts()
         {
@@ -240,11 +231,25 @@ namespace FlairX_Mod_Manager.Pages
                         return;
                     }
                     var modJsonPath = Path.Combine(dir, "mod.json");
-                    var modName = Path.GetFileName(dir);
-                    if (!File.Exists(modJsonPath)) { SafeIncrementSkip(); SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "NoModJson")}"); processed++; lock (_lockObject) { _progressValue = (double)processed / _totalMods; } NotifyProgressChanged(); continue; }
+                    var modFolderName = Path.GetFileName(dir);
+                    
+                    // Skip directories without mod.json - don't count them
+                    if (!File.Exists(modJsonPath)) 
+                    { 
+                        processed++; 
+                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; } 
+                        NotifyProgressChanged(); 
+                        continue; 
+                    }
+                    
                     var json = File.ReadAllText(modJsonPath);
                     using var doc = JsonDocument.Parse(json);
                     var root = doc.RootElement;
+                    
+                    // Get mod name from mod.json, fallback to folder name
+                    string modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString()) 
+                        ? nameProp.GetString()! 
+                        : modFolderName;
                     if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) { SafeIncrementSkip(); SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); processed++; lock (_lockObject) { _progressValue = (double)processed / _totalMods; } NotifyProgressChanged(); continue; }
                     string currentAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? string.Empty : string.Empty;
                     bool shouldUpdate = string.IsNullOrWhiteSpace(currentAuthor) || currentAuthor.Equals("unknown", StringComparison.OrdinalIgnoreCase);
@@ -277,8 +282,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (!urlWorks) { _fail++; _failedMods.Add($"{modName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}"); processed++; _progressValue = (double)processed / _totalMods; NotifyProgressChanged(); continue; }
                     try
                     {
-                        var html = await FetchHtml(url, token);
-                        var author = GetAuthorFromHtml(html);
+                        var author = await FetchAuthorFromApi(url, token);
                         if (!string.IsNullOrWhiteSpace(author))
                         {
                             if (IsFullUpdate)
@@ -288,11 +292,13 @@ namespace FlairX_Mod_Manager.Pages
                                 if (!author.Equals(currentAuthor, StringComparison.Ordinal))
                                 {
                                     // Add path validation for security
-                                    var modDirName = Path.GetFileName(dir);
-                                    if (!SecurityValidator.IsValidModDirectoryName(modDirName))
+                                    if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
                                     {
                                         SafeIncrementSkip();
                                         SafeAddSkippedMod($"{modName}: Invalid directory name");
+                                        processed++;
+                                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                        NotifyProgressChanged();
                                         continue;
                                     }
                                     
@@ -439,44 +445,48 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async Task<string> FetchHtml(string url, CancellationToken token)
+        private async Task<string?> FetchAuthorFromApi(string url, CancellationToken token)
         {
-            _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-            return await _httpClient.GetStringAsync(url, token);
-        }
+            try
+            {
+                // Parse GameBanana URL to extract item type and ID
+                var match = _urlPattern.Match(url);
+                if (!match.Success)
+                {
+                    Logger.LogError($"Failed to parse GameBanana URL: {url}");
+                    return null;
+                }
 
-        private string? GetAuthorFromHtml(string html)
-        {
-            // Use compiled regex patterns for better performance
-            foreach (var pattern in _authorPatterns)
-            {
-                var match = pattern.Match(html);
-                if (match.Success) return match.Groups[1].Value.Trim();
-            }
-            
-            // JSON-LD parsing using compiled regex
-            var jsonLdMatch = _jsonLdPattern.Match(html);
-            if (jsonLdMatch.Success)
-            {
-                try
+                string itemType = match.Groups[1].Value; // e.g., "mods", "tools"
+                string itemId = match.Groups[2].Value;   // e.g., "574763"
+
+                // Capitalize first letter for API (Mod, Tool, etc.)
+                itemType = char.ToUpper(itemType[0]) + itemType.Substring(1).TrimEnd('s');
+
+                // Build API URL
+                string apiUrl = $"https://gamebanana.com/apiv11/{itemType}/{itemId}?_csvProperties=_aSubmitter";
+
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+
+                var response = await _httpClient.GetStringAsync(apiUrl, token);
+                using var doc = JsonDocument.Parse(response);
+                var root = doc.RootElement;
+
+                // Extract author name from _aSubmitter._sName
+                if (root.TryGetProperty("_aSubmitter", out var submitter) &&
+                    submitter.TryGetProperty("_sName", out var authorName))
                 {
-                    var json = jsonLdMatch.Groups[1].Value;
-                    using var doc = JsonDocument.Parse(json);
-                    if (doc.RootElement.TryGetProperty("author", out var authorProp))
-                    {
-                        if (authorProp.ValueKind == JsonValueKind.Object && authorProp.TryGetProperty("name", out var nameProp))
-                            return nameProp.GetString();
-                        if (authorProp.ValueKind == JsonValueKind.String)
-                            return authorProp.GetString();
-                    }
+                    return authorName.GetString();
                 }
-                catch (Exception ex)
-                {
-                    Logger.LogError("JSON-LD parsing failed", ex);
-                }
+
+                return null;
             }
-            return null;
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to fetch author from API for URL: {url}", ex);
+                return null;
+            }
         }
 
         private void UpdateProgressBarUI()
