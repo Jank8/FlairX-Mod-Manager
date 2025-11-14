@@ -35,6 +35,7 @@ namespace FlairX_Mod_Manager.Pages
             SortByLastUpdatedSubItem.Text = SharedUtilities.GetTranslation(langDict, "SortByLastUpdated");
             SortByLastUpdatedNewestItem.Text = SharedUtilities.GetTranslation(langDict, "SortNewest");
             SortByLastUpdatedOldestItem.Text = SharedUtilities.GetTranslation(langDict, "SortOldest");
+            ShowOutdatedItem.Text = SharedUtilities.GetTranslation(langDict, "ShowOutdated");
             ShowActiveItem.Text = SharedUtilities.GetTranslation(langDict, "ShowActive");
         }
 
@@ -55,6 +56,7 @@ namespace FlairX_Mod_Manager.Pages
                 SortByLastCheckedSubItem.Visibility = Visibility.Collapsed;
                 SortByLastUpdatedSubItem.Visibility = Visibility.Collapsed;
                 SortByNameSubItem.Visibility = Visibility.Visible;
+                ShowOutdatedItem.Visibility = Visibility.Visible;
                 ShowActiveItem.Visibility = Visibility.Visible;
             }
             else if (isInSpecificCategory)
@@ -64,6 +66,7 @@ namespace FlairX_Mod_Manager.Pages
                 SortByLastCheckedSubItem.Visibility = Visibility.Visible;
                 SortByLastUpdatedSubItem.Visibility = Visibility.Visible;
                 SortByNameSubItem.Visibility = Visibility.Visible;
+                ShowOutdatedItem.Visibility = Visibility.Visible;
                 ShowActiveItem.Visibility = Visibility.Visible;
             }
             else
@@ -73,9 +76,28 @@ namespace FlairX_Mod_Manager.Pages
                 SortByLastCheckedSubItem.Visibility = Visibility.Visible;
                 SortByLastUpdatedSubItem.Visibility = Visibility.Visible;
                 SortByNameSubItem.Visibility = Visibility.Visible;
+                ShowOutdatedItem.Visibility = Visibility.Visible;
                 ShowActiveItem.Visibility = Visibility.Visible;
             }
         }
+        
+        private void ShowOutdated_Click(object sender, RoutedEventArgs e)
+        {
+            // Exit table view if active and clear sorting
+            if (CurrentViewMode == ViewMode.Table)
+            {
+                _currentSortMode = SortMode.None;
+                CurrentViewMode = ViewMode.Mods;
+            }
+            
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Outdated_Mods");
+            _currentCategory = "Outdated";
+            LoadOutdatedModsOnly();
+            CategoryBackButton.Visibility = Visibility.Visible;
+            CategoryOpenFolderButton.Visibility = Visibility.Collapsed;
+        }
+        
         private void ShowActive_Click(object sender, RoutedEventArgs e)
         {
             // Exit table view if active and clear sorting
@@ -336,6 +358,7 @@ namespace FlairX_Mod_Manager.Pages
                         Url = modData.Url,
                         LastChecked = modData.LastChecked,
                         LastUpdated = modData.LastUpdated,
+                        HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
                         ImageSource = null // Lazy load when visible
                     };

@@ -21,5 +21,7 @@
   "TotalChecked": "總計檢查: {0}",
   "CancelButton": "取消",
   "CancelledTitle": "更新已取消",
-  "CancelledContent": "更新操作已被使用者取消。"
+  "CancelledContent": "更新操作已被使用者取消。",
+  "FetchDatesButton": "從伺服器取得日期",
+  "FetchDatesButton_Tooltip": "取得模組的發布/更新日期"
 }

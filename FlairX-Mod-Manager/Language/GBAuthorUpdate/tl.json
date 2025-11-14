@@ -21,5 +21,7 @@
   "TotalChecked": "Kabuuang nasuri: {0}",
   "CancelButton": "Kanselahin",
   "CancelledTitle": "Nakansela ang update",
-  "CancelledContent": "Ang operasyon ng update ay kinansela ng user."
+  "CancelledContent": "Ang operasyon ng update ay kinansela ng user.",
+  "FetchDatesButton": "Kunin ang mga petsa mula sa server",
+  "FetchDatesButton_Tooltip": "Kinukuha ang mga petsa ng paglalabas/pag-update para sa mga mod"
 }

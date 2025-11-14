@@ -21,5 +21,7 @@
   "TotalChecked": "Всего проверенно: {0}",
   "CancelButton": "Отменить",
   "CancelledTitle": "Обновление отменено",
-  "CancelledContent": "Обновленин было отменено пользователем."
+  "CancelledContent": "Обновленин было отменено пользователем.",
+  "FetchDatesButton": "Получить даты с сервера",
+  "FetchDatesButton_Tooltip": "Получает даты публикации/обновления для модов"
 }

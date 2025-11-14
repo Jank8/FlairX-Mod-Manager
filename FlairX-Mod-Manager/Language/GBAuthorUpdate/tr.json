@@ -21,5 +21,7 @@
   "TotalChecked": "Toplam kontrol edilen: {0}",
   "CancelButton": "İptal",
   "CancelledTitle": "Güncelleme iptal edildi",
-  "CancelledContent": "Güncelleme işlemi kullanıcı tarafından iptal edildi."
+  "CancelledContent": "Güncelleme işlemi kullanıcı tarafından iptal edildi.",
+  "FetchDatesButton": "Sunucudan tarihleri al",
+  "FetchDatesButton_Tooltip": "Modlar için yayın/güncelleme tarihlerini alır"
 }

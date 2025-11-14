@@ -21,5 +21,7 @@
   "TotalChecked": "Total verificado: {0}",
   "CancelButton": "Cancelar",
   "CancelledTitle": "Atualização cancelada",
-  "CancelledContent": "A operação de atualização foi cancelada pelo usuário."
+  "CancelledContent": "A operação de atualização foi cancelada pelo usuário.",
+  "FetchDatesButton": "Buscar datas do servidor",
+  "FetchDatesButton_Tooltip": "Busca datas de publicação/atualização para mods"
 }

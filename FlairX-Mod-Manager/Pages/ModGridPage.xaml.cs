@@ -127,6 +127,13 @@ namespace FlairX_Mod_Manager.Pages
             public DateTime LastChecked { get; set; } = DateTime.MinValue;
             public DateTime LastUpdated { get; set; } = DateTime.MinValue;
             
+            private bool _hasUpdate = false;
+            public bool HasUpdate
+            {
+                get => _hasUpdate;
+                set { if (_hasUpdate != value) { _hasUpdate = value; OnPropertyChanged(nameof(HasUpdate)); } }
+            }
+            
             public string LastCheckedFormatted => LastChecked == DateTime.MinValue ? "Never" : LastChecked.ToShortDateString();
             public string LastUpdatedFormatted => LastUpdated == DateTime.MinValue ? "Never" : LastUpdated.ToShortDateString();
             private BitmapImage? _imageSource;
@@ -337,6 +344,7 @@ namespace FlairX_Mod_Manager.Pages
                         Url = modData.Url,
                         LastChecked = modData.LastChecked,
                         LastUpdated = modData.LastUpdated,
+                        HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
                         ImageSource = null // Will be loaded immediately below
                     };
@@ -1020,6 +1028,55 @@ namespace FlairX_Mod_Manager.Pages
             public string Category { get; set; } = "";
             public DateTime LastChecked { get; set; } = DateTime.MinValue;
             public DateTime LastUpdated { get; set; } = DateTime.MinValue;
+            public bool HasUpdate { get; set; } = false;
+        }
+
+        // Check for updates without cache - always reads fresh from mod.json
+        private static bool CheckForUpdateLive(string modDirectory)
+        {
+            try
+            {
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                if (string.IsNullOrEmpty(modLibraryPath))
+                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+
+                // Find the mod.json file
+                string? modJsonPath = null;
+                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                {
+                    var potentialPath = Path.Combine(categoryDir, modDirectory, "mod.json");
+                    if (File.Exists(potentialPath))
+                    {
+                        modJsonPath = potentialPath;
+                        break;
+                    }
+                }
+
+                if (string.IsNullOrEmpty(modJsonPath) || !File.Exists(modJsonPath))
+                    return false;
+
+                // Read fresh data from mod.json (no cache)
+                var json = File.ReadAllText(modJsonPath);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+
+                // Check if gbChangeDate > dateUpdated
+                if (root.TryGetProperty("gbChangeDate", out var gbChangeProp) && gbChangeProp.ValueKind == JsonValueKind.String &&
+                    root.TryGetProperty("dateUpdated", out var dateUpdProp) && dateUpdProp.ValueKind == JsonValueKind.String)
+                {
+                    if (DateTime.TryParse(gbChangeProp.GetString(), out var gbDate) &&
+                        DateTime.TryParse(dateUpdProp.GetString(), out var updatedDate))
+                    {
+                        return gbDate > updatedDate;
+                    }
+                }
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void CategoryBackButton_Click(object sender, RoutedEventArgs e)

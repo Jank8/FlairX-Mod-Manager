@@ -21,5 +21,7 @@
   "TotalChecked": "確認済みの合計: {0}",
   "CancelButton": "キャンセル",
   "CancelledTitle": "更新をキャンセルしました",
-  "CancelledContent": "更新の操作はユーザーによってキャンセルされました。"
+  "CancelledContent": "更新の操作はユーザーによってキャンセルされました。",
+  "FetchDatesButton": "サーバーから日付を取得",
+  "FetchDatesButton_Tooltip": "Modの公開/更新日を取得します"
 }

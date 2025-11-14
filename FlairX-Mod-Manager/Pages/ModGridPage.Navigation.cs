@@ -305,6 +305,7 @@ namespace FlairX_Mod_Manager.Pages
                         Url = modData.Url,
                         LastChecked = modData.LastChecked,
                         LastUpdated = modData.LastUpdated,
+                        HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
                         ImageSource = null // Start with no image - lazy load when visible
                     };

@@ -196,6 +196,11 @@
                         </MenuFlyoutItem>
                     </MenuFlyoutSubItem>
                     <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem x:Name="ShowOutdatedItem" Click="ShowOutdated_Click">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE7BA;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
                     <MenuFlyoutItem x:Name="ShowActiveItem" Click="ShowActive_Click">
                         <MenuFlyoutItem.Icon>
                             <FontIcon Glyph="&#xEB52;"/>
@@ -269,6 +274,16 @@
                                                 </interactivity:EventTriggerBehavior>
                                             </interactivity:Interaction.Behaviors>
                                         </Image>
+                                        
+                                        <!-- Update Available Indicator -->
+                                        <Ellipse Width="16" Height="16"
+                                                 Fill="{ThemeResource SystemAccentColor}"
+                                                 Stroke="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                                 StrokeThickness="3"
+                                                 VerticalAlignment="Top"
+                                                 HorizontalAlignment="Left"
+                                                 Margin="8,8,0,0"
+                                                 Visibility="{Binding HasUpdate, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                         
                                         <!-- Action Buttons Panel -->
                                         <Grid VerticalAlignment="Top" 

@@ -21,5 +21,7 @@
   "TotalChecked": "ตรวจสอบทั้งหมด: {0}",
   "CancelButton": "ยกเลิก",
   "CancelledTitle": "ยกเลิกการอัปเดต",
-  "CancelledContent": "การดำเนินการอัปเดตถูกยกเลิกโดยผู้ใช้"
+  "CancelledContent": "การดำเนินการอัปเดตถูกยกเลิกโดยผู้ใช้",
+  "FetchDatesButton": "ดึงวันที่จากเซิร์ฟเวอร์",
+  "FetchDatesButton_Tooltip": "ดึงวันที่เผยแพร่/อัปเดตสำหรับ mod"
 }

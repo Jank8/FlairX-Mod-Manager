@@ -187,6 +187,8 @@ namespace FlairX_Mod_Manager.Pages
                         var lastChecked = DateTime.MinValue;
                         var lastUpdated = DateTime.MinValue;
                         
+                        bool hasUpdate = false;
+                        
                         try
                         {
                             var json = File.ReadAllText(modJsonPath);
@@ -205,6 +207,17 @@ namespace FlairX_Mod_Manager.Pages
                             if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && dateUpdatedProp.ValueKind == JsonValueKind.String)
                             {
                                 DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
+                            }
+                            
+                            // Check for available updates
+                            if (root.TryGetProperty("gbChangeDate", out var gbChangeProp) && gbChangeProp.ValueKind == JsonValueKind.String &&
+                                root.TryGetProperty("dateUpdated", out var dateUpdProp) && dateUpdProp.ValueKind == JsonValueKind.String)
+                            {
+                                if (DateTime.TryParse(gbChangeProp.GetString(), out var gbDate) && 
+                                    DateTime.TryParse(dateUpdProp.GetString(), out var updatedDate))
+                                {
+                                    hasUpdate = gbDate > updatedDate;
+                                }
                             }
                         }
                         catch
@@ -234,7 +247,8 @@ namespace FlairX_Mod_Manager.Pages
                             Url = modUrl,
                             Category = category,
                             LastChecked = lastChecked,
-                            LastUpdated = lastUpdated
+                            LastUpdated = lastUpdated,
+                            HasUpdate = hasUpdate
                         };
                         
                         _allModData.Add(modData);
@@ -287,6 +301,7 @@ namespace FlairX_Mod_Manager.Pages
                     Url = modData.Url,
                     LastChecked = modData.LastChecked,
                     LastUpdated = modData.LastUpdated,
+                    HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                     IsVisible = true,
                     ImageSource = null // Start with no image - lazy load when visible
                 };
@@ -507,6 +522,7 @@ namespace FlairX_Mod_Manager.Pages
                     Url = modData.Url,
                     LastChecked = modData.LastChecked,
                     LastUpdated = modData.LastUpdated,
+                    HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                     IsVisible = true,
                     ImageSource = null // Start with no image - lazy load when visible
                 };
@@ -593,6 +609,7 @@ namespace FlairX_Mod_Manager.Pages
                         Url = modData.Url,
                         LastChecked = modData.LastChecked,
                         LastUpdated = modData.LastUpdated,
+                        HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
                         ImageSource = null // Start with no image - lazy load when visible
                     };
@@ -607,6 +624,60 @@ namespace FlairX_Mod_Manager.Pages
             
             LogToGridLog($"Found {sortedActiveMods.Count} active mods");
             ModsGrid.ItemsSource = sortedActiveMods;
+            
+            // Load visible images after setting new data source
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100); // Small delay to let the grid update
+                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+            });
+        }
+
+        private void LoadOutdatedModsOnly()
+        {
+            LogToGridLog("LoadOutdatedModsOnly() called");
+            
+            // Load from ALL categories
+            LoadActiveModData();
+            
+            // Filter to show only outdated mods from _allModData
+            var outdatedModTiles = new List<ModTile>();
+            foreach (var modData in _allModData)
+            {
+                // Update active state
+                modData.IsActive = _activeMods.TryGetValue(modData.Directory, out var active) && active;
+                
+                // Check if mod has update (live check)
+                bool hasUpdate = CheckForUpdateLive(modData.Directory);
+                
+                if (hasUpdate)
+                {
+                    var modTile = new ModTile 
+                    { 
+                        Name = modData.Name, 
+                        ImagePath = modData.ImagePath, 
+                        Directory = modData.Directory, 
+                        IsActive = modData.IsActive,
+                        Category = modData.Category,
+                        Author = modData.Author,
+                        Url = modData.Url,
+                        LastChecked = modData.LastChecked,
+                        LastUpdated = modData.LastUpdated,
+                        HasUpdate = hasUpdate,
+                        IsVisible = true,
+                        ImageSource = null // Start with no image - lazy load when visible
+                    };
+                    outdatedModTiles.Add(modTile);
+                }
+            }
+            
+            // Sort outdated mods alphabetically
+            var sortedOutdatedMods = outdatedModTiles
+                .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            
+            LogToGridLog($"Found {sortedOutdatedMods.Count} outdated mods");
+            ModsGrid.ItemsSource = sortedOutdatedMods;
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>

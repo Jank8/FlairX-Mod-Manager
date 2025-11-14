@@ -121,6 +121,18 @@ namespace FlairX_Mod_Manager.Pages
                                 DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
                             }
                             
+                            // Check for available updates
+                            bool hasUpdate = false;
+                            if (root.TryGetProperty("gbChangeDate", out var gbChangeProp) && gbChangeProp.ValueKind == JsonValueKind.String &&
+                                root.TryGetProperty("dateUpdated", out var dateUpdProp) && dateUpdProp.ValueKind == JsonValueKind.String)
+                            {
+                                if (DateTime.TryParse(gbChangeProp.GetString(), out var gbDate) && 
+                                    DateTime.TryParse(dateUpdProp.GetString(), out var updatedDate))
+                                {
+                                    hasUpdate = gbDate > updatedDate;
+                                }
+                            }
+                            
                             // If dates are not in JSON, use file system dates as fallback
                             if (lastChecked == DateTime.MinValue)
                             {
@@ -146,7 +158,8 @@ namespace FlairX_Mod_Manager.Pages
                                 Url = modUrl,
                                 Category = categoryName,
                                 LastChecked = lastChecked,
-                                LastUpdated = lastUpdated
+                                LastUpdated = lastUpdated,
+                                HasUpdate = hasUpdate
                             };
                             
                             // Cache the data
@@ -326,6 +339,7 @@ namespace FlairX_Mod_Manager.Pages
                     Url = modData.Url,
                     LastChecked = modData.LastChecked,
                     LastUpdated = modData.LastUpdated,
+                    HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                     IsVisible = true,
                     ImageSource = null // Start with no image - lazy load when visible
                 };

@@ -21,5 +21,7 @@
   "TotalChecked": "총 확인됨: {0}",
   "CancelButton": "취소",
   "CancelledTitle": "업데이트 취소됨",
-  "CancelledContent": "업데이트 작업이 사용자에 의해 취소되었습니다."
+  "CancelledContent": "업데이트 작업이 사용자에 의해 취소되었습니다.",
+  "FetchDatesButton": "서버에서 날짜 가져오기",
+  "FetchDatesButton_Tooltip": "모드의 게시/업데이트 날짜를 가져옵니다"
 }

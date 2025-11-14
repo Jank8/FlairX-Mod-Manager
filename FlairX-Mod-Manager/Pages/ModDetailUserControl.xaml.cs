@@ -70,6 +70,7 @@ namespace FlairX_Mod_Manager.Pages
                 ModAuthorLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Author");
                 ModHotkeysLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Hotkeys");
                 ModUrlLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_URL");
+                UpdateAvailableNotification.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_UpdateAvailable");
 
                 // Set tooltip for OpenUrlButton
                 ToolTipService.SetToolTip(OpenUrlButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_OpenURL_Tooltip"));
@@ -226,6 +227,9 @@ namespace FlairX_Mod_Manager.Pages
                 ModAuthorTextBox.Text = author;
                 ModUrlTextBox.Text = url;
                 ModVersionTextBox.Text = version;
+                
+                // Check for available updates
+                CheckForUpdates(root);
                 
                 // Load hotkeys
                 if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
@@ -597,6 +601,37 @@ namespace FlairX_Mod_Manager.Pages
             ModDateUpdatedPicker.Date = DateTimeOffset.Now;
         }
 
+        private void CheckForUpdates(JsonElement root)
+        {
+            try
+            {
+                // Get gbChangeDate and dateUpdated from mod.json
+                string? gbChangeDate = root.TryGetProperty("gbChangeDate", out var gbChangeProp) ? gbChangeProp.GetString() : null;
+                string? dateUpdated = root.TryGetProperty("dateUpdated", out var dateUpdatedProp) ? dateUpdatedProp.GetString() : null;
+
+                // Check if both dates exist and gbChangeDate is newer than dateUpdated
+                if (!string.IsNullOrWhiteSpace(gbChangeDate) && !string.IsNullOrWhiteSpace(dateUpdated))
+                {
+                    if (DateTime.TryParse(gbChangeDate, out var gbDate) && DateTime.TryParse(dateUpdated, out var updatedDate))
+                    {
+                        if (gbDate > updatedDate)
+                        {
+                            UpdateAvailableNotification.Visibility = Visibility.Visible;
+                            return;
+                        }
+                    }
+                }
+
+                // Hide notification if no update available
+                UpdateAvailableNotification.Visibility = Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error checking for updates", ex);
+                UpdateAvailableNotification.Visibility = Visibility.Collapsed;
+            }
+        }
+
         private async Task UpdateModJsonField(string field, string value)
         {
             if (string.IsNullOrEmpty(_modJsonPath)) return;
@@ -631,6 +666,13 @@ namespace FlairX_Mod_Manager.Pages
                     dict[field] = value;
                 var newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(_modJsonPath, newJson);
+                
+                // Re-check for updates after saving dateUpdated
+                if (field == "dateUpdated")
+                {
+                    var updatedDoc = JsonDocument.Parse(newJson);
+                    CheckForUpdates(updatedDoc.RootElement);
+                }
             }
             catch (Exception ex)
             {

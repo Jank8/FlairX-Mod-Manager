@@ -21,5 +21,7 @@
   "TotalChecked": "Tổng đã kiểm tra: {0}",
   "CancelButton": "Hủy",
   "CancelledTitle": "Cập nhật đã bị hủy",
-  "CancelledContent": "Thao tác cập nhật đã bị người dùng hủy."
+  "CancelledContent": "Thao tác cập nhật đã bị người dùng hủy.",
+  "FetchDatesButton": "Lấy ngày từ máy chủ",
+  "FetchDatesButton_Tooltip": "Lấy ngày phát hành/cập nhật cho mod"
 }

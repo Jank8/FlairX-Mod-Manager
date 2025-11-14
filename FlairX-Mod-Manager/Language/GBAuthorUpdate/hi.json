@@ -21,5 +21,7 @@
   "TotalChecked": "कुल जांचे गए: {0}",
   "CancelButton": "रद्द करें",
   "CancelledTitle": "अपडेट रद्द किया गया",
-  "CancelledContent": "अपडेट ऑपरेशन उपयोगकर्ता द्वारा रद्द किया गया।"
+  "CancelledContent": "अपडेट ऑपरेशन उपयोगकर्ता द्वारा रद्द किया गया।",
+  "FetchDatesButton": "सर्वर से तारीखें प्राप्त करें",
+  "FetchDatesButton_Tooltip": "मॉड्स के लिए प्रकाशन/अपडेट तारीखें प्राप्त करता है"
 }

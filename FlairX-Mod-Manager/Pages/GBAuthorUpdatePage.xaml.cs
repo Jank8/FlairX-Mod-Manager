@@ -28,6 +28,11 @@ namespace FlairX_Mod_Manager.Pages
             // Set constant button width to prevent resizing when text changes
             UpdateButtonText.Text = _isUpdatingAuthors ? SharedUtilities.GetTranslation(lang, "CancelButton") : SharedUtilities.GetTranslation(lang, "UpdateButton");
             UpdateButton.MinWidth = 160;
+            
+            // Set fetch dates button text and tooltip
+            FetchDatesButtonText.Text = _isFetchingDates ? SharedUtilities.GetTranslation(lang, "CancelButton") : SharedUtilities.GetTranslation(lang, "FetchDatesButton");
+            FetchDatesButton.MinWidth = 160;
+            FetchDatesButtonTooltip.Content = SharedUtilities.GetTranslation(lang, "FetchDatesButton_Tooltip");
         }
 
         // Thread-safe progress reporting
@@ -66,6 +71,7 @@ namespace FlairX_Mod_Manager.Pages
 
         // Thread-safe static fields with proper locking
         private static volatile bool _isUpdatingAuthors = false;
+        private static volatile bool _isFetchingDates = false;
         private static int _success = 0, _fail = 0, _skip = 0;
         private static List<string> _skippedMods = new();
         private static List<string> _failedMods = new();
@@ -518,6 +524,34 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
             }
+            
+            if (FetchDatesProgressBar != null)
+            {
+                if (_isFetchingDates)
+                {
+                    FetchDatesProgressBar.Visibility = Visibility.Visible;
+                    FetchDatesProgressBar.IsIndeterminate = false;
+                    FetchDatesProgressBar.Value = _progressValue * 100;
+                    // Ensure icons are in correct state during fetch
+                    if (FetchDatesIcon != null && CancelDatesIcon != null)
+                    {
+                        FetchDatesIcon.Visibility = Visibility.Collapsed;
+                        CancelDatesIcon.Visibility = Visibility.Visible;
+                    }
+                }
+                else
+                {
+                    FetchDatesProgressBar.Value = 0;
+                    FetchDatesProgressBar.IsIndeterminate = false;
+                    FetchDatesProgressBar.Visibility = Visibility.Collapsed;
+                    // Ensure icons are reset to default state when not fetching
+                    if (FetchDatesIcon != null && CancelDatesIcon != null)
+                    {
+                        FetchDatesIcon.Visibility = Visibility.Visible;
+                        CancelDatesIcon.Visibility = Visibility.Collapsed;
+                    }
+                }
+            }
         }
 
         protected override void OnNavigatedTo(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
@@ -575,9 +609,300 @@ namespace FlairX_Mod_Manager.Pages
         public bool IsSmartUpdate => CurrentUpdateMode == UpdateMode.Smart;
         public bool IsFullUpdate => CurrentUpdateMode == UpdateMode.Full;
 
+        // Fetch Dates functionality
+        private CancellationTokenSource? _ctsDates;
 
+        private async void FetchDatesButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await FetchDatesButtonClickAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in FetchDatesButton_Click", ex);
+                ResetDatesButtonToFetchState();
+            }
+        }
 
+        private async Task FetchDatesButtonClickAsync()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
 
+            if (_isFetchingDates)
+            {
+                _ctsDates?.Cancel();
+                _isFetchingDates = false;
+                ResetDatesButtonToFetchState();
+                var cancelDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await cancelDialog.ShowAsync();
+                return;
+            }
+
+            _ctsDates = new CancellationTokenSource();
+            SetDatesButtonToCancelState();
+            _isFetchingDates = true;
+            lock (_lockObject)
+            {
+                _success = 0; _fail = 0; _skip = 0;
+                _skippedMods.Clear();
+                _failedMods.Clear();
+                _progressValue = 0;
+                _totalMods = 0;
+            }
+            NotifyProgressChanged();
+            await FetchDatesAsync(_ctsDates.Token);
+            ResetDatesButtonToFetchState();
+        }
+
+        private void SetDatesButtonToCancelState()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            FetchDatesButtonText.Text = SharedUtilities.GetTranslation(lang, "CancelButton");
+            FetchDatesIcon.Visibility = Visibility.Collapsed;
+            CancelDatesIcon.Visibility = Visibility.Visible;
+            FetchDatesButton.IsEnabled = true;
+            FetchDatesProgressBar.Visibility = Visibility.Visible;
+        }
+
+        private void ResetDatesButtonToFetchState()
+        {
+            _isFetchingDates = false;
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            FetchDatesButtonText.Text = SharedUtilities.GetTranslation(lang, "FetchDatesButton");
+            FetchDatesIcon.Visibility = Visibility.Visible;
+            CancelDatesIcon.Visibility = Visibility.Collapsed;
+            FetchDatesButton.IsEnabled = true;
+            FetchDatesProgressBar.Visibility = Visibility.Collapsed;
+        }
+
+        private async Task FetchDatesAsync(CancellationToken token)
+        {
+            try
+            {
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+                string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
+
+                var allModDirs = new List<string>();
+                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                {
+                    if (Directory.Exists(categoryDir))
+                    {
+                        allModDirs.AddRange(Directory.GetDirectories(categoryDir));
+                    }
+                }
+
+                _totalMods = allModDirs.Count;
+                int processed = 0;
+
+                foreach (var dir in allModDirs)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        ResetDatesButtonToFetchState();
+                        var cancelDialog = new ContentDialog
+                        {
+                            Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                            Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        };
+                        await cancelDialog.ShowAsync();
+                        return;
+                    }
+
+                    var modJsonPath = Path.Combine(dir, "mod.json");
+                    var modFolderName = Path.GetFileName(dir);
+
+                    if (!File.Exists(modJsonPath))
+                    {
+                        processed++;
+                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                        NotifyProgressChanged();
+                        continue;
+                    }
+
+                    var json = File.ReadAllText(modJsonPath);
+                    using var doc = JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+
+                    string modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
+                        ? nameProp.GetString()!
+                        : modFolderName;
+
+                    if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
+                        string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
+                    {
+                        SafeIncrementSkip();
+                        SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
+                        processed++;
+                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                        NotifyProgressChanged();
+                        continue;
+                    }
+
+                    string url = urlProp.GetString()!;
+
+                    try
+                    {
+                        var dateUpdated = await FetchDateFromApi(url, token);
+                        if (!string.IsNullOrWhiteSpace(dateUpdated))
+                        {
+                            if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
+                            {
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{modName}: Invalid directory name");
+                                processed++;
+                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                NotifyProgressChanged();
+                                continue;
+                            }
+
+                            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
+                            dict["gbChangeDate"] = dateUpdated;
+                            File.WriteAllText(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
+                            SafeIncrementSuccess();
+                        }
+                        else
+                        {
+                            SafeIncrementSkip();
+                            SafeAddSkippedMod($"{modName}: Nie udało się pobrać daty");
+                        }
+                    }
+                    catch (OperationCanceledException) { return; }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to fetch date for {modName}", ex);
+                        SafeIncrementFail();
+                        SafeAddFailedMod($"{modName}: Błąd pobierania daty");
+                    }
+
+                    processed++;
+                    lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                    NotifyProgressChanged();
+                }
+
+                ResetDatesButtonToFetchState();
+                string summary = $"Łącznie sprawdzono: {_totalMods}\n" +
+                                $"Pomyślnie zaktualizowano: {_success}\n" +
+                                $"Pominięto: {_skip}";
+
+                if (_failedMods.Count > 0 || _skippedMods.Count > 0)
+                {
+                    var allIssues = new List<string>();
+                    allIssues.AddRange(_skippedMods);
+                    allIssues.AddRange(_failedMods);
+                    summary += "\n\nMody z problemami:\n" + string.Join("\n", allIssues);
+                }
+
+                var textBlock = new TextBlock
+                {
+                    Text = summary,
+                    TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap,
+                    IsTextSelectionEnabled = true,
+                    Width = 500
+                };
+
+                var scrollViewer = new ScrollViewer
+                {
+                    Content = textBlock,
+                    VerticalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Auto,
+                    HorizontalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Disabled,
+                    MaxHeight = 400,
+                    Padding = new Microsoft.UI.Xaml.Thickness(10)
+                };
+
+                var dialog = new ContentDialog
+                {
+                    Title = "Podsumowanie pobierania dat",
+                    Content = scrollViewer,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                ResetDatesButtonToFetchState();
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+                var dialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                ResetDatesButtonToFetchState();
+                var dialog = new ContentDialog
+                {
+                    Title = "Błąd",
+                    Content = ex.Message,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+        }
+
+        private async Task<string?> FetchDateFromApi(string url, CancellationToken token)
+        {
+            try
+            {
+                var match = _urlPattern.Match(url);
+                if (!match.Success)
+                {
+                    Logger.LogError($"Failed to parse GameBanana URL: {url}");
+                    return null;
+                }
+
+                string itemType = match.Groups[1].Value;
+                string itemId = match.Groups[2].Value;
+                itemType = char.ToUpper(itemType[0]) + itemType.Substring(1).TrimEnd('s');
+
+                string apiUrl = $"https://gamebanana.com/apiv11/{itemType}/{itemId}?_csvProperties=_tsDateUpdated,_tsDateAdded";
+
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+
+                var response = await _httpClient.GetStringAsync(apiUrl, token);
+                using var doc = JsonDocument.Parse(response);
+                var root = doc.RootElement;
+
+                // Try _tsDateUpdated first, fallback to _tsDateAdded
+                long timestamp = 0;
+                if (root.TryGetProperty("_tsDateUpdated", out var dateUpdated))
+                {
+                    timestamp = dateUpdated.GetInt64();
+                }
+                else if (root.TryGetProperty("_tsDateAdded", out var dateAdded))
+                {
+                    timestamp = dateAdded.GetInt64();
+                }
+
+                if (timestamp > 0)
+                {
+                    var date = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime;
+                    return date.ToString("yyyy-MM-dd");
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to fetch date from API for URL: {url}", ex);
+                return null;
+            }
+        }
 
         public class ModJson
         {

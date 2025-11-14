@@ -21,5 +21,7 @@
   "TotalChecked": "Total vérifié : {0}",
   "CancelButton": "Annuler",
   "CancelledTitle": "Mise à jour annulée",
-  "CancelledContent": "L'opération de mise à jour a été annulée par l'utilisateur."
+  "CancelledContent": "L'opération de mise à jour a été annulée par l'utilisateur.",
+  "FetchDatesButton": "Récupérer les dates du serveur",
+  "FetchDatesButton_Tooltip": "Récupère les dates de publication/mise à jour pour les mods"
 }
