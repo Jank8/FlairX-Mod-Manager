@@ -1198,10 +1198,48 @@ namespace FlairX_Mod_Manager.Pages
             // Check mod directories and create mod.json in level 1 directories - CRITICAL for mod integrity
             (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary();
             
+            // Update translations for UI elements
+            UpdateTranslations();
+            UpdateContextMenuTranslations();
+            
+            // Update CategoryTitle based on current view
+            UpdateCategoryTitle();
+            
             // LoadActiveMods() removed - this was likely causing the grid reload during language changes
             // Active mod state doesn't change when switching languages, no need to reload from disk
             
             // LoadAllMods() removed - unnecessary when just changing language, mods are already loaded
+        }
+        
+        private void UpdateCategoryTitle()
+        {
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            
+            if (string.IsNullOrEmpty(_currentCategory))
+            {
+                // All Mods view
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
+            }
+            else if (_currentCategory == "Active")
+            {
+                // Active Mods view
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
+            }
+            else if (_currentCategory == "Outdated")
+            {
+                // Outdated Mods view
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Outdated_Mods");
+            }
+            else if (_currentCategory.Equals("other", StringComparison.OrdinalIgnoreCase))
+            {
+                // Other Mods view
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Other_Mods");
+            }
+            else
+            {
+                // Specific category - keep the category name as is
+                CategoryTitle.Text = _currentCategory;
+            }
         }
 
         // Add function to display path with single slashes moved to ModGridPage.StaticUtilities.cs
