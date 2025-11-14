@@ -14,7 +14,6 @@
   "StatusKeeper_CreateBackup_Label": "Utwórz kopię zapasową",
   "StatusKeeper_CreateBackup_Button": "Utwórz",
   "StatusKeeper_Creating_Backup": "Tworzenie...",
-  "StatusKeeper_SafetyOverride_Label": "Nadpisanie bezpieczeństwa",
   "StatusKeeper_RestoreBackup_Label": "Przywróć kopię zapasową",
   "StatusKeeper_RestoreBackup_Button": "Przywróć",
   "StatusKeeper_Restoring": "Przywracanie...",
@@ -42,6 +41,10 @@
   "StatusKeeper_Tooltip_RestoreDefault": "Przywróć domyślną ścieżkę",
   "StatusKeeper_Tooltip_DynamicSync": "Monitoruje plik d3dx_user.ini pod kątem zmian i aktualizuje wartości w plikach modów",
   "StatusKeeper_Tooltip_ManualSync": "Rozpocznij synchronizację ręcznie",
+  "StatusKeeper_ConfirmRestore_Title": "Potwierdź przywracanie",
+  "StatusKeeper_ConfirmRestore_Message": "Spowoduje to przywrócenie wszystkich plików INI modów z kopii zapasowej. Kontynuować?",
+  "StatusKeeper_ConfirmDelete_Title": "Potwierdź usunięcie",
+  "StatusKeeper_ConfirmDelete_Message": "Spowoduje to usunięcie wszystkich plików kopii zapasowych. Kontynuować?",
   "Error_Generic": "Błąd",
   "OK": "OK",
   "PickFolderDialog_Title": "Wybierz folder"

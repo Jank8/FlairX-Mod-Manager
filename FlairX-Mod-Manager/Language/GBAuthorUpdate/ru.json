@@ -2,11 +2,11 @@
   "Title": "Обновление авторов GameBanana",
   "GameBananaAuthorUpdate_Function": "Обновление авторов GameBanana",
   "UpdateAuthorsLabel": "Обновление авторов GameBanana",
-  "SmartUpdateLabel": "Только неизвестные значения (Умное обновление)",
-  "SafetyLockLabel": "Блокировка",
-  "UpdateButton": "Начать обновление",
-  "SafetyLockTitle": "Блокировка",
-  "SafetyLockContent": "Сперва снимите блокировку.",
+  "SmartUpdateLabel": "Только неизвестные авторы (Умное обновление)",
+  "FetchAuthorsButton": "Получить авторов с сервера",
+  "ConfirmFetchAuthors": "Это получит и обновит информацию об авторах с GameBanana для всех модов. Хотите продолжить?",
+  "ConfirmFetchDates": "Это получит и обновит информацию о датах с GameBanana для всех модов. Хотите продолжить?",
+  "ConfirmFetchVersions": "Это получит и обновит информацию о версиях с GameBanana для всех модов. Хотите продолжить?",
   "SummaryTitle": "Краткое содержание обновления авторов",
   "SuccessCount": "Успешно обновлено: {0}",
   "SkippedCount": "Пропущено: {0}",
@@ -23,5 +23,10 @@
   "CancelledTitle": "Обновление отменено",
   "CancelledContent": "Обновленин было отменено пользователем.",
   "FetchDatesButton": "Получить даты с сервера",
-  "FetchDatesButton_Tooltip": "Получает даты публикации/обновления для модов"
+  "FetchDatesButton_Tooltip": "Получает даты публикации/обновления для модов",
+  "FetchVersionsButton": "Получить версии с сервера",
+  "FetchVersionsButton_Tooltip": "Получает информацию о версиях для модов",
+  "VersionFetchError": "Ошибка получения версии",
+  "VersionSummaryTitle": "Краткое содержание обновления версий",
+  "ModsWithIssues": "Моды с проблемами:"
 }

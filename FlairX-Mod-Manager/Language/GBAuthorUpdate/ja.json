@@ -2,11 +2,11 @@
   "Title": "GameBanana から作者を更新",
   "GameBananaAuthorUpdate_Function": "GameBanana の作者を更新",
   "UpdateAuthorsLabel": "GameBanana の作者を更新",
-  "SmartUpdateLabel": "不明な値のみ (スマートアップデート)",
-  "SafetyLockLabel": "セーフティーロック",
-  "UpdateButton": "更新を開始",
-  "SafetyLockTitle": "セーフティーロック",
-  "SafetyLockContent": "最初にセーフティーロックを有効化してください。",
+  "SmartUpdateLabel": "不明な作者のみ (スマートアップデート)",
+  "FetchAuthorsButton": "サーバーから作者を取得",
+  "ConfirmFetchAuthors": "GameBananaからすべてのModの作者情報を取得して更新します。続行しますか？",
+  "ConfirmFetchDates": "GameBananaからすべてのModの日付情報を取得して更新します。続行しますか？",
+  "ConfirmFetchVersions": "GameBananaからすべてのModのバージョン情報を取得して更新します。続行しますか？",
   "SummaryTitle": "作者の更新概要",
   "SuccessCount": "更新に成功: {0}",
   "SkippedCount": "スキップ: {0}",
@@ -23,5 +23,10 @@
   "CancelledTitle": "更新をキャンセルしました",
   "CancelledContent": "更新の操作はユーザーによってキャンセルされました。",
   "FetchDatesButton": "サーバーから日付を取得",
-  "FetchDatesButton_Tooltip": "Modの公開/更新日を取得します"
+  "FetchDatesButton_Tooltip": "Modの公開/更新日を取得します",
+  "FetchVersionsButton": "サーバーからバージョンを取得",
+  "FetchVersionsButton_Tooltip": "Modのバージョン情報を取得します",
+  "VersionFetchError": "バージョンの取得中にエラーが発生しました",
+  "VersionSummaryTitle": "バージョンの更新概要",
+  "ModsWithIssues": "問題のあるMod:"
 }

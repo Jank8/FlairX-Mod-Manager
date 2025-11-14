@@ -14,7 +14,6 @@
   "StatusKeeper_CreateBackup_Label": "バックアップを作成",
   "StatusKeeper_CreateBackup_Button": "作成",
   "StatusKeeper_Creating_Backup": "作成中...",
-  "StatusKeeper_SafetyOverride_Label": "安全な上書き",
   "StatusKeeper_RestoreBackup_Label": "バックアップを復元",
   "StatusKeeper_RestoreBackup_Button": "復元",
   "StatusKeeper_Restoring": "復元中...",
@@ -42,6 +41,10 @@
   "StatusKeeper_Tooltip_RestoreDefault": "既定のパスに復元",
   "StatusKeeper_Tooltip_DynamicSync": "d3dx_user.ini ファイルの変更を監視し、Mod ファイルの値を更新します",
   "StatusKeeper_Tooltip_ManualSync": "手動で同期を開始",
+  "StatusKeeper_ConfirmRestore_Title": "復元の確認",
+  "StatusKeeper_ConfirmRestore_Message": "これにより、すべてのMod INIファイルがバックアップから復元されます。続行しますか？",
+  "StatusKeeper_ConfirmDelete_Title": "削除の確認",
+  "StatusKeeper_ConfirmDelete_Message": "これにより、すべてのバックアップファイルが削除されます。続行しますか？",
   "Error_Generic": "エラー",
   "OK": "OK",
   "PickFolderDialog_Title": "フォルダーを選択"

@@ -2,11 +2,11 @@
   "Title": "Actualizar Autor do GameBanana",
   "GameBananaAuthorUpdate_Function": "Actualização de Autor GameBanana",
   "UpdateAuthorsLabel": "Actualizar autores GameBanana",
-  "SmartUpdateLabel": "Apenas valores desconhecidos (Actualização Inteligente)",
-  "SafetyLockLabel": "Bloqueio de segurança",
-  "UpdateButton": "Iniciar actualização",
-  "SafetyLockTitle": "Bloqueio de segurança",
-  "SafetyLockContent": "Por favor active o bloqueio de segurança primeiro.",
+  "SmartUpdateLabel": "Apenas autores desconhecidos (Actualização Inteligente)",
+  "FetchAuthorsButton": "Obter autores do servidor",
+  "ConfirmFetchAuthors": "Isto irá obter e actualizar informações de autores do GameBanana para todos os mods. Deseja continuar?",
+  "ConfirmFetchDates": "Isto irá obter e actualizar informações de datas do GameBanana para todos os mods. Deseja continuar?",
+  "ConfirmFetchVersions": "Isto irá obter e actualizar informações de versões do GameBanana para todos os mods. Deseja continuar?",
   "SummaryTitle": "Resumo de actualização de autores",
   "SuccessCount": "Actualizados com sucesso: {0}",
   "SkippedCount": "Ignorados: {0}",
@@ -23,5 +23,10 @@
   "CancelledTitle": "Actualização cancelada",
   "CancelledContent": "A operação de actualização foi cancelada pelo utilizador.",
   "FetchDatesButton": "Obter datas do servidor",
-  "FetchDatesButton_Tooltip": "Obtém datas de publicação/actualização para mods"
+  "FetchDatesButton_Tooltip": "Obtém datas de publicação/actualização para mods",
+  "FetchVersionsButton": "Obter versões do servidor",
+  "FetchVersionsButton_Tooltip": "Obtém informações de versão para mods",
+  "VersionFetchError": "Erro ao obter versão",
+  "VersionSummaryTitle": "Resumo de actualização de versões",
+  "ModsWithIssues": "Mods com problemas:"
 }

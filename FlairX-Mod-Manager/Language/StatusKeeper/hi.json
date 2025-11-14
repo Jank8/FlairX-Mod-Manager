@@ -14,7 +14,6 @@
   "StatusKeeper_CreateBackup_Label": "बैकअप बनाएं",
   "StatusKeeper_CreateBackup_Button": "बनाएं",
   "StatusKeeper_Creating_Backup": "बना रहे हैं...",
-  "StatusKeeper_SafetyOverride_Label": "सुरक्षा ओवरराइड",
   "StatusKeeper_RestoreBackup_Label": "बैकअप पुनर्स्थापित करें",
   "StatusKeeper_RestoreBackup_Button": "पुनर्स्थापित करें",
   "StatusKeeper_Restoring": "पुनर्स्थापित कर रहे हैं...",
@@ -42,6 +41,10 @@
   "StatusKeeper_Tooltip_RestoreDefault": "डिफ़ॉल्ट पथ पुनर्स्थापित करें",
   "StatusKeeper_Tooltip_DynamicSync": "d3dx_user.ini फ़ाइल में परिवर्तनों की निगरानी करता है और मॉड फ़ाइलों में मान अपडेट करता है",
   "StatusKeeper_Tooltip_ManualSync": "मैन्युअल रूप से सिंक्रोनाइज़ेशन शुरू करें",
+  "StatusKeeper_ConfirmRestore_Title": "पुनर्स्थापना की पुष्टि करें",
+  "StatusKeeper_ConfirmRestore_Message": "यह बैकअप से सभी मॉड INI फ़ाइलों को पुनर्स्थापित करेगा। जारी रखें?",
+  "StatusKeeper_ConfirmDelete_Title": "हटाने की पुष्टि करें",
+  "StatusKeeper_ConfirmDelete_Message": "यह सभी बैकअप फ़ाइलों को हटा देगा। जारी रखें?",
   "Error_Generic": "त्रुटि",
   "OK": "ठीक है",
   "PickFolderDialog_Title": "फ़ोल्डर चुनें"

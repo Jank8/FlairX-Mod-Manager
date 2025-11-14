@@ -14,7 +14,6 @@
   "StatusKeeper_CreateBackup_Label": "백업 생성",
   "StatusKeeper_CreateBackup_Button": "생성",
   "StatusKeeper_Creating_Backup": "생성 중...",
-  "StatusKeeper_SafetyOverride_Label": "안전 재정의",
   "StatusKeeper_RestoreBackup_Label": "백업 복원",
   "StatusKeeper_RestoreBackup_Button": "복원",
   "StatusKeeper_Restoring": "복원 중...",
@@ -42,6 +41,10 @@
   "StatusKeeper_Tooltip_RestoreDefault": "기본 경로 복원",
   "StatusKeeper_Tooltip_DynamicSync": "d3dx_user.ini 파일의 변경사항을 모니터링하고 모드 파일의 값을 업데이트",
   "StatusKeeper_Tooltip_ManualSync": "수동으로 동기화 시작",
+  "StatusKeeper_ConfirmRestore_Title": "복원 확인",
+  "StatusKeeper_ConfirmRestore_Message": "모든 모드 INI 파일을 백업에서 복원합니다. 계속하시겠습니까?",
+  "StatusKeeper_ConfirmDelete_Title": "삭제 확인",
+  "StatusKeeper_ConfirmDelete_Message": "모든 백업 파일을 삭제합니다. 계속하시겠습니까?",
   "Error_Generic": "오류",
   "OK": "확인",
   "PickFolderDialog_Title": "폴더 선택"

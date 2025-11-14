@@ -2,11 +2,11 @@
   "Title": "อัปเดตผู้เขียนจาก GameBanana",
   "GameBananaAuthorUpdate_Function": "อัปเดตผู้เขียน GameBanana",
   "UpdateAuthorsLabel": "อัปเดตผู้เขียน GameBanana",
-  "SmartUpdateLabel": "เฉพาะค่าที่ไม่ทราบ (Smart Update)",
-  "SafetyLockLabel": "ล็อกความปลอดภัย",
-  "UpdateButton": "เริ่มอัปเดต",
-  "SafetyLockTitle": "ล็อกความปลอดภัย",
-  "SafetyLockContent": "กรุณาเปิดใช้งานล็อกความปลอดภัยก่อน",
+  "SmartUpdateLabel": "เฉพาะผู้เขียนที่ไม่ทราบ (Smart Update)",
+  "FetchAuthorsButton": "ดึงผู้เขียนจากเซิร์ฟเวอร์",
+  "ConfirmFetchAuthors": "การดำเนินการนี้จะดึงและอัปเดตข้อมูลผู้เขียนจาก GameBanana สำหรับมอดทั้งหมด คุณต้องการดำเนินการต่อหรือไม่?",
+  "ConfirmFetchDates": "การดำเนินการนี้จะดึงและอัปเดตข้อมูลวันที่จาก GameBanana สำหรับมอดทั้งหมด คุณต้องการดำเนินการต่อหรือไม่?",
+  "ConfirmFetchVersions": "การดำเนินการนี้จะดึงและอัปเดตข้อมูลเวอร์ชันจาก GameBanana สำหรับมอดทั้งหมด คุณต้องการดำเนินการต่อหรือไม่?",
   "SummaryTitle": "สรุปการอัปเดตผู้เขียน",
   "SuccessCount": "อัปเดตสำเร็จ: {0}",
   "SkippedCount": "ข้าม: {0}",
@@ -23,5 +23,10 @@
   "CancelledTitle": "ยกเลิกการอัปเดต",
   "CancelledContent": "การดำเนินการอัปเดตถูกยกเลิกโดยผู้ใช้",
   "FetchDatesButton": "ดึงวันที่จากเซิร์ฟเวอร์",
-  "FetchDatesButton_Tooltip": "ดึงวันที่เผยแพร่/อัปเดตสำหรับ mod"
+  "FetchDatesButton_Tooltip": "ดึงวันที่เผยแพร่/อัปเดตสำหรับ mod",
+  "FetchVersionsButton": "ดึงเวอร์ชันจากเซิร์ฟเวอร์",
+  "FetchVersionsButton_Tooltip": "ดึงข้อมูลเวอร์ชันสำหรับ mod",
+  "VersionFetchError": "ข้อผิดพลาดขณะดึงข้อมูลเวอร์ชัน",
+  "VersionSummaryTitle": "สรุปการอัปเดตเวอร์ชัน",
+  "ModsWithIssues": "มอดที่มีปัญหา:"
 }

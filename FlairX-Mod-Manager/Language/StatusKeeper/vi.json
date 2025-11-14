@@ -14,7 +14,6 @@
   "StatusKeeper_CreateBackup_Label": "Tạo sao lưu",
   "StatusKeeper_CreateBackup_Button": "Tạo",
   "StatusKeeper_Creating_Backup": "Đang tạo...",
-  "StatusKeeper_SafetyOverride_Label": "Ghi đè an toàn",
   "StatusKeeper_RestoreBackup_Label": "Khôi phục sao lưu",
   "StatusKeeper_RestoreBackup_Button": "Khôi phục",
   "StatusKeeper_Restoring": "Đang khôi phục...",
@@ -42,6 +41,10 @@
   "StatusKeeper_Tooltip_RestoreDefault": "Khôi phục đường dẫn mặc định",
   "StatusKeeper_Tooltip_DynamicSync": "Giám sát tệp d3dx_user.ini để phát hiện thay đổi và cập nhật giá trị trong tệp mod",
   "StatusKeeper_Tooltip_ManualSync": "Bắt đầu đồng bộ thủ công",
+  "StatusKeeper_ConfirmRestore_Title": "Xác nhận Khôi phục",
+  "StatusKeeper_ConfirmRestore_Message": "Điều này sẽ khôi phục tất cả các tệp INI mod từ bản sao lưu. Tiếp tục?",
+  "StatusKeeper_ConfirmDelete_Title": "Xác nhận Xóa",
+  "StatusKeeper_ConfirmDelete_Message": "Điều này sẽ xóa tất cả các tệp sao lưu. Tiếp tục?",
   "Error_Generic": "Lỗi",
   "OK": "OK",
   "PickFolderDialog_Title": "Chọn thư mục"

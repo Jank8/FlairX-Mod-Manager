@@ -26,7 +26,6 @@ namespace FlairX_Mod_Manager.Pages
             var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
             CreateBackupLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Label");
             CreateBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Button");
-            SafetyOverrideLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_SafetyOverride_Label");
             RestoreBackupLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Label");
             RestoreBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Button");
             DeleteBackupsLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Label");
@@ -42,28 +41,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void LoadSettingsToUI()
-        {
-            // Load from SettingsManager instead of local _settings
-            SafetyOverride1Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride1Enabled;
-            SafetyOverride2Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride2Enabled;
-            SafetyOverride3Toggle.IsOn = SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
-            
-            // Update _settings to match
-            _settings.BackupOverride1Enabled = SettingsManager.Current.StatusKeeperBackupOverride1Enabled;
-            _settings.BackupOverride2Enabled = SettingsManager.Current.StatusKeeperBackupOverride2Enabled;
-            _settings.BackupOverride3Enabled = SettingsManager.Current.StatusKeeperBackupOverride3Enabled;
-            
-            // Enable/disable buttons based on safety toggles
-            UpdateButtonStates();
-        }
 
-        private void UpdateButtonStates()
-        {
-            bool allSafetyTogglesOn = SafetyOverride1Toggle.IsOn && SafetyOverride2Toggle.IsOn && SafetyOverride3Toggle.IsOn;
-            RestoreBackupButton.IsEnabled = allSafetyTogglesOn;
-            DeleteBackupsButton.IsEnabled = allSafetyTogglesOn;
-        }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -71,7 +49,6 @@ namespace FlairX_Mod_Manager.Pages
             if (e.Parameter is StatusKeeperSettings settings)
             {
                 _settings = settings;
-                LoadSettingsToUI();
             }
         }
 
@@ -138,15 +115,28 @@ namespace FlairX_Mod_Manager.Pages
 
         private async void RestoreBackupButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!_settings.BackupOverrideEnabled)
-            {
-                Debug.WriteLine("Please enable all safety toggles first");
-                return;
-            }
-
             try
             {
+                Debug.WriteLine("RestoreBackupButton clicked");
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                var mainLang = SharedUtilities.LoadLanguageDictionary();
+
+                Debug.WriteLine("Showing confirmation dialog");
+                // Show confirmation dialog
+                var confirmDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "StatusKeeper_ConfirmRestore_Title"),
+                    Content = SharedUtilities.GetTranslation(lang, "StatusKeeper_ConfirmRestore_Message"),
+                    PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
+                    CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
+                    XamlRoot = this.XamlRoot
+                };
+
+                var result = await confirmDialog.ShowAsync();
+                Debug.WriteLine($"Dialog result: {result}");
+                if (result != ContentDialogResult.Primary)
+                    return;
+
                 RestoreBackupButton.IsEnabled = false;
                 RestoreBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Restoring");
 
@@ -159,20 +149,6 @@ namespace FlairX_Mod_Manager.Pages
 
                 await Task.Run(() => RestoreFromBackups(modLibraryPath, ref restoreCount, ref skipCount));
 
-                // Auto-disable safety toggles after successful operation
-                SafetyOverride1Toggle.IsOn = false;
-                SafetyOverride2Toggle.IsOn = false;
-                SafetyOverride3Toggle.IsOn = false;
-                _settings.BackupOverride1Enabled = false;
-                _settings.BackupOverride2Enabled = false;
-                _settings.BackupOverride3Enabled = false;
-                // Reset in SettingsManager as well
-                SettingsManager.Current.StatusKeeperBackupOverride1Enabled = false;
-                SettingsManager.Current.StatusKeeperBackupOverride2Enabled = false;
-                SettingsManager.Current.StatusKeeperBackupOverride3Enabled = false;
-                SettingsManager.Save();
-                UpdateButtonStates();
-
                 Debug.WriteLine($"Restore complete! Restored {restoreCount} files, failed {skipCount} files");
             }
             catch (Exception error)
@@ -182,22 +158,35 @@ namespace FlairX_Mod_Manager.Pages
             finally
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                // Don't re-enable button here - UpdateButtonStates() handles this based on safety toggles
+                RestoreBackupButton.IsEnabled = true;
                 RestoreBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Button");
             }
         }
 
         private async void DeleteBackupsButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!_settings.BackupOverrideEnabled)
-            {
-                Debug.WriteLine("Please enable all safety toggles first");
-                return;
-            }
-
             try
             {
+                Debug.WriteLine("DeleteBackupsButton clicked");
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+                var mainLang = SharedUtilities.LoadLanguageDictionary();
+
+                Debug.WriteLine("Showing confirmation dialog");
+                // Show confirmation dialog
+                var confirmDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "StatusKeeper_ConfirmDelete_Title"),
+                    Content = SharedUtilities.GetTranslation(lang, "StatusKeeper_ConfirmDelete_Message"),
+                    PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
+                    CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
+                    XamlRoot = this.XamlRoot
+                };
+
+                var result = await confirmDialog.ShowAsync();
+                Debug.WriteLine($"Dialog result: {result}");
+                if (result != ContentDialogResult.Primary)
+                    return;
+
                 DeleteBackupsButton.IsEnabled = false;
                 DeleteBackupsButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Deleting");
 
@@ -209,20 +198,6 @@ namespace FlairX_Mod_Manager.Pages
 
                 await Task.Run(() => DeleteBackups(modLibraryPath, ref deleteCount));
 
-                // Auto-disable safety toggles after successful operation
-                SafetyOverride1Toggle.IsOn = false;
-                SafetyOverride2Toggle.IsOn = false;
-                SafetyOverride3Toggle.IsOn = false;
-                _settings.BackupOverride1Enabled = false;
-                _settings.BackupOverride2Enabled = false;
-                _settings.BackupOverride3Enabled = false;
-                // Reset in SettingsManager as well
-                SettingsManager.Current.StatusKeeperBackupOverride1Enabled = false;
-                SettingsManager.Current.StatusKeeperBackupOverride2Enabled = false;
-                SettingsManager.Current.StatusKeeperBackupOverride3Enabled = false;
-                SettingsManager.Save();
-                UpdateButtonStates();
-
                 Debug.WriteLine($"Deletion complete! Deleted {deleteCount} backup files");
             }
             catch (Exception error)
@@ -232,7 +207,7 @@ namespace FlairX_Mod_Manager.Pages
             finally
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                // Don't re-enable button here - UpdateButtonStates() handles this based on safety toggles
+                DeleteBackupsButton.IsEnabled = true;
                 DeleteBackupsButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Button");
             }
         }
@@ -434,28 +409,6 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void SafetyOverride1Toggle_Toggled(object sender, RoutedEventArgs e)
-        {
-            _settings.BackupOverride1Enabled = SafetyOverride1Toggle.IsOn;
-            SettingsManager.Current.StatusKeeperBackupOverride1Enabled = SafetyOverride1Toggle.IsOn;
-            SettingsManager.Save();
-            UpdateButtonStates();
-        }
 
-        private void SafetyOverride2Toggle_Toggled(object sender, RoutedEventArgs e)
-        {
-            _settings.BackupOverride2Enabled = SafetyOverride2Toggle.IsOn;
-            SettingsManager.Current.StatusKeeperBackupOverride2Enabled = SafetyOverride2Toggle.IsOn;
-            SettingsManager.Save();
-            UpdateButtonStates();
-        }
-
-        private void SafetyOverride3Toggle_Toggled(object sender, RoutedEventArgs e)
-        {
-            _settings.BackupOverride3Enabled = SafetyOverride3Toggle.IsOn;
-            SettingsManager.Current.StatusKeeperBackupOverride3Enabled = SafetyOverride3Toggle.IsOn;
-            SettingsManager.Save();
-            UpdateButtonStates();
-        }
     }
 }

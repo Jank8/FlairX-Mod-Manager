@@ -15,7 +15,6 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="300"/>
@@ -26,8 +25,6 @@
                 <ToggleSwitch x:Name="UpdateAuthorsSwitch" Grid.Row="0" Grid.Column="2" Width="44" MinWidth="0" VerticalAlignment="Center" IsOn="True" OffContent="" OnContent=""/>
                 <TextBlock x:Name="SmartUpdateLabel" Text="" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" TextWrapping="WrapWholeWords" FontSize="14"/>
                 <ToggleSwitch x:Name="SmartUpdateSwitch" Grid.Row="1" Grid.Column="2" Width="44" MinWidth="0" VerticalAlignment="Center" IsOn="False" OffContent="" OnContent=""/>
-                <TextBlock x:Name="SafetyLockLabel" Text="" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" TextWrapping="WrapWholeWords" FontSize="14"/>
-                <ToggleSwitch x:Name="SafetyLockSwitch" Grid.Row="2" Grid.Column="2" Width="44" MinWidth="0" VerticalAlignment="Center" IsOn="False" OffContent="" OnContent=""/>
             </Grid>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,24,0,0">
                 <Button x:Name="UpdateButton" Height="32" MinWidth="160" HorizontalAlignment="Stretch" VerticalAlignment="Center" Click="UpdateButton_Click">
@@ -51,6 +48,19 @@
                     </ToolTipService.ToolTip>
                 </Button>
                 <ProgressBar x:Name="FetchDatesProgressBar" Width="130" Height="32" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="20,0,0,0" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,8,0,0">
+                <Button x:Name="FetchVersionsButton" Height="32" MinWidth="160" HorizontalAlignment="Stretch" VerticalAlignment="Center" Click="FetchVersionsButton_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon x:Name="FetchVersionsIcon" Glyph="&#xE895;" FontSize="16" Visibility="Visible"/>
+                        <FontIcon x:Name="CancelVersionsIcon" Glyph="&#xE711;" FontSize="16" Visibility="Collapsed"/>
+                        <TextBlock x:Name="FetchVersionsButtonText" Text=""/>
+                    </StackPanel>
+                    <ToolTipService.ToolTip>
+                        <ToolTip x:Name="FetchVersionsButtonTooltip" Content=""/>
+                    </ToolTipService.ToolTip>
+                </Button>
+                <ProgressBar x:Name="FetchVersionsProgressBar" Width="130" Height="32" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="20,0,0,0" />
             </StackPanel>
         </StackPanel>
     </Grid>

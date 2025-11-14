@@ -14,7 +14,6 @@
   "StatusKeeper_CreateBackup_Label": "创建备份",
   "StatusKeeper_CreateBackup_Button": "创建",
   "StatusKeeper_Creating_Backup": "创建中...",
-  "StatusKeeper_SafetyOverride_Label": "安全覆盖",
   "StatusKeeper_RestoreBackup_Label": "恢复备份",
   "StatusKeeper_RestoreBackup_Button": "恢复",
   "StatusKeeper_Restoring": "恢复中...",
@@ -42,6 +41,10 @@
   "StatusKeeper_Tooltip_RestoreDefault": "恢复默认路径",
   "StatusKeeper_Tooltip_DynamicSync": "监控d3dx_user.ini文件的更改并更新模组文件中的值",
   "StatusKeeper_Tooltip_ManualSync": "手动开始同步",
+  "StatusKeeper_ConfirmRestore_Title": "确认恢复",
+  "StatusKeeper_ConfirmRestore_Message": "这将从备份恢复所有模组INI文件。继续？",
+  "StatusKeeper_ConfirmDelete_Title": "确认删除",
+  "StatusKeeper_ConfirmDelete_Message": "这将删除所有备份文件。继续？",
   "Error_Generic": "错误",
   "OK": "确定",
   "PickFolderDialog_Title": "选择文件夹"

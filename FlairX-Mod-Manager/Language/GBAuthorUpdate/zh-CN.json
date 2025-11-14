@@ -2,11 +2,11 @@
   "Title": "从GameBanana更新作者",
   "GameBananaAuthorUpdate_Function": "GameBanana作者更新",
   "UpdateAuthorsLabel": "更新GameBanana作者",
-  "SmartUpdateLabel": "仅未知值（智能更新）",
-  "SafetyLockLabel": "安全锁",
-  "UpdateButton": "开始更新",
-  "SafetyLockTitle": "安全锁",
-  "SafetyLockContent": "请先启用安全锁。",
+  "SmartUpdateLabel": "仅未知作者（智能更新）",
+  "FetchAuthorsButton": "从服务器获取作者",
+  "ConfirmFetchAuthors": "这将从GameBanana获取并更新所有模组的作者信息。是否继续？",
+  "ConfirmFetchDates": "这将从GameBanana获取并更新所有模组的日期信息。是否继续？",
+  "ConfirmFetchVersions": "这将从GameBanana获取并更新所有模组的版本信息。是否继续？",
   "SummaryTitle": "作者更新摘要",
   "SuccessCount": "成功更新: {0}",
   "SkippedCount": "跳过: {0}",
@@ -23,5 +23,10 @@
   "CancelledTitle": "更新已取消",
   "CancelledContent": "更新操作已被用户取消。",
   "FetchDatesButton": "从服务器获取日期",
-  "FetchDatesButton_Tooltip": "获取模组的发布/更新日期"
+  "FetchDatesButton_Tooltip": "获取模组的发布/更新日期",
+  "FetchVersionsButton": "从服务器获取版本",
+  "FetchVersionsButton_Tooltip": "获取模组的版本信息",
+  "VersionFetchError": "获取版本时出错",
+  "VersionSummaryTitle": "版本更新摘要",
+  "ModsWithIssues": "有问题的模组:"
 }

@@ -2,11 +2,11 @@
   "Title": "GameBanana'dan Yazar Güncelle",
   "GameBananaAuthorUpdate_Function": "GameBanana Yazar Güncellemesi",
   "UpdateAuthorsLabel": "GameBanana yazarlarını güncelle",
-  "SmartUpdateLabel": "Sadece bilinmeyen değerler (Akıllı Güncelleme)",
-  "SafetyLockLabel": "Güvenlik kilidi",
-  "UpdateButton": "Güncellemeyi başlat",
-  "SafetyLockTitle": "Güvenlik kilidi",
-  "SafetyLockContent": "Lütfen önce güvenlik kilidini etkinleştirin.",
+  "SmartUpdateLabel": "Sadece bilinmeyen yazarlar (Akıllı Güncelleme)",
+  "FetchAuthorsButton": "Sunucudan yazarları al",
+  "ConfirmFetchAuthors": "Bu, tüm modlar için GameBanana'dan yazar bilgilerini alacak ve güncelleyecektir. Devam etmek istiyor musunuz?",
+  "ConfirmFetchDates": "Bu, tüm modlar için GameBanana'dan tarih bilgilerini alacak ve güncelleyecektir. Devam etmek istiyor musunuz?",
+  "ConfirmFetchVersions": "Bu, tüm modlar için GameBanana'dan sürüm bilgilerini alacak ve güncelleyecektir. Devam etmek istiyor musunuz?",
   "SummaryTitle": "Yazar güncelleme özeti",
   "SuccessCount": "Başarıyla güncellendi: {0}",
   "SkippedCount": "Atlandı: {0}",
@@ -23,5 +23,10 @@
   "CancelledTitle": "Güncelleme iptal edildi",
   "CancelledContent": "Güncelleme işlemi kullanıcı tarafından iptal edildi.",
   "FetchDatesButton": "Sunucudan tarihleri al",
-  "FetchDatesButton_Tooltip": "Modlar için yayın/güncelleme tarihlerini alır"
+  "FetchDatesButton_Tooltip": "Modlar için yayın/güncelleme tarihlerini alır",
+  "FetchVersionsButton": "Sunucudan sürümleri al",
+  "FetchVersionsButton_Tooltip": "Modlar için sürüm bilgilerini alır",
+  "VersionFetchError": "Sürüm alınırken hata",
+  "VersionSummaryTitle": "Sürüm güncelleme özeti",
+  "ModsWithIssues": "Sorunlu modlar:"
 }

@@ -14,7 +14,6 @@
   "StatusKeeper_CreateBackup_Label": "Создать точку восстановления",
   "StatusKeeper_CreateBackup_Button": "Создать",
   "StatusKeeper_Creating_Backup": "Создание...",
-  "StatusKeeper_SafetyOverride_Label": "Переопределение системы безопасности",
   "StatusKeeper_RestoreBackup_Label": "Восстановить из резерв. копии",
   "StatusKeeper_RestoreBackup_Button": "Восстановить",
   "StatusKeeper_Restoring": "Восстановление...",
@@ -42,6 +41,10 @@
   "StatusKeeper_Tooltip_RestoreDefault": "Восстановить путь по умолчанию",
   "StatusKeeper_Tooltip_DynamicSync": "Проверять файл d3dx_user.ini на предмет изменений и обновлений значений в файлах модов",
   "StatusKeeper_Tooltip_ManualSync": "Начать ручную синхронизацию",
+  "StatusKeeper_ConfirmRestore_Title": "Подтвердить восстановление",
+  "StatusKeeper_ConfirmRestore_Message": "Это восстановит все INI-файлы модов из резервной копии. Продолжить?",
+  "StatusKeeper_ConfirmDelete_Title": "Подтвердить удаление",
+  "StatusKeeper_ConfirmDelete_Message": "Это удалит все файлы резервных копий. Продолжить?",
   "Error_Generic": "Ошибка",
   "OK": "OK",
   "PickFolderDialog_Title": "Выбрать папку"

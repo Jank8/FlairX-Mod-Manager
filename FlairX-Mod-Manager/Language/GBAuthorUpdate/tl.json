@@ -2,11 +2,11 @@
   "Title": "I-update ang Author mula sa GameBanana",
   "GameBananaAuthorUpdate_Function": "GameBanana Author Update",
   "UpdateAuthorsLabel": "I-update ang mga GameBanana author",
-  "SmartUpdateLabel": "Hindi kilalang mga halaga lang (Smart Update)",
-  "SafetyLockLabel": "Safety lock",
-  "UpdateButton": "Simulan ang update",
-  "SafetyLockTitle": "Safety lock",
-  "SafetyLockContent": "Mangyaring i-enable muna ang safety lock.",
+  "SmartUpdateLabel": "Hindi kilalang mga author lang (Smart Update)",
+  "FetchAuthorsButton": "Kunin ang mga author mula sa server",
+  "ConfirmFetchAuthors": "Kukunin at ia-update nito ang impormasyon ng author mula sa GameBanana para sa lahat ng mod. Gusto mo bang magpatuloy?",
+  "ConfirmFetchDates": "Kukunin at ia-update nito ang impormasyon ng petsa mula sa GameBanana para sa lahat ng mod. Gusto mo bang magpatuloy?",
+  "ConfirmFetchVersions": "Kukunin at ia-update nito ang impormasyon ng bersyon mula sa GameBanana para sa lahat ng mod. Gusto mo bang magpatuloy?",
   "SummaryTitle": "Buod ng pag-update ng mga author",
   "SuccessCount": "Matagumpay na na-update: {0}",
   "SkippedCount": "Na-skip: {0}",
@@ -23,5 +23,10 @@
   "CancelledTitle": "Nakansela ang update",
   "CancelledContent": "Ang operasyon ng update ay kinansela ng user.",
   "FetchDatesButton": "Kunin ang mga petsa mula sa server",
-  "FetchDatesButton_Tooltip": "Kinukuha ang mga petsa ng paglalabas/pag-update para sa mga mod"
+  "FetchDatesButton_Tooltip": "Kinukuha ang mga petsa ng paglalabas/pag-update para sa mga mod",
+  "FetchVersionsButton": "Kunin ang mga bersyon mula sa server",
+  "FetchVersionsButton_Tooltip": "Kinukuha ang impormasyon ng bersyon para sa mga mod",
+  "VersionFetchError": "Error habang kinukuha ang bersyon",
+  "VersionSummaryTitle": "Buod ng pag-update ng mga bersyon",
+  "ModsWithIssues": "Mga mod na may problema:"
 }

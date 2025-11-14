@@ -14,7 +14,6 @@
   "StatusKeeper_CreateBackup_Label": "Yedek oluştur",
   "StatusKeeper_CreateBackup_Button": "Oluştur",
   "StatusKeeper_Creating_Backup": "Oluşturuluyor...",
-  "StatusKeeper_SafetyOverride_Label": "Güvenlik geçersiz kılma",
   "StatusKeeper_RestoreBackup_Label": "Yedeği geri yükle",
   "StatusKeeper_RestoreBackup_Button": "Geri Yükle",
   "StatusKeeper_Restoring": "Geri yükleniyor...",
@@ -42,6 +41,10 @@
   "StatusKeeper_Tooltip_RestoreDefault": "Varsayılan yolu geri yükle",
   "StatusKeeper_Tooltip_DynamicSync": "d3dx_user.ini dosyasını değişiklikler için izler ve mod dosyalarındaki değerleri günceller",
   "StatusKeeper_Tooltip_ManualSync": "Senkronizasyonu manuel olarak başlat",
+  "StatusKeeper_ConfirmRestore_Title": "Geri Yüklemeyi Onayla",
+  "StatusKeeper_ConfirmRestore_Message": "Bu, tüm mod INI dosyalarını yedekten geri yükleyecektir. Devam edilsin mi?",
+  "StatusKeeper_ConfirmDelete_Title": "Silmeyi Onayla",
+  "StatusKeeper_ConfirmDelete_Message": "Bu, tüm yedek dosyalarını silecektir. Devam edilsin mi?",
   "Error_Generic": "Hata",
   "OK": "Tamam",
   "PickFolderDialog_Title": "Klasör Seç"

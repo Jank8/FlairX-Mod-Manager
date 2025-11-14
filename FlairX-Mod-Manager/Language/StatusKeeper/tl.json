@@ -14,7 +14,6 @@
   "StatusKeeper_CreateBackup_Label": "Gumawa ng backup",
   "StatusKeeper_CreateBackup_Button": "Gumawa",
   "StatusKeeper_Creating_Backup": "Ginagawa...",
-  "StatusKeeper_SafetyOverride_Label": "Safety override",
   "StatusKeeper_RestoreBackup_Label": "I-restore ang backup",
   "StatusKeeper_RestoreBackup_Button": "I-restore",
   "StatusKeeper_Restoring": "Nire-restore...",
@@ -42,6 +41,10 @@
   "StatusKeeper_Tooltip_RestoreDefault": "Ibalik sa default na path",
   "StatusKeeper_Tooltip_DynamicSync": "Sumusubaybay sa d3dx_user.ini file para sa mga pagbabago at nag-aupdate ng mga value sa mod files",
   "StatusKeeper_Tooltip_ManualSync": "Simulan ang synchronization nang manual",
+  "StatusKeeper_ConfirmRestore_Title": "Kumpirmahin ang Pag-restore",
+  "StatusKeeper_ConfirmRestore_Message": "Ire-restore nito ang lahat ng mod INI files mula sa backup. Magpatuloy?",
+  "StatusKeeper_ConfirmDelete_Title": "Kumpirmahin ang Pagtanggal",
+  "StatusKeeper_ConfirmDelete_Message": "Tatanggalin nito ang lahat ng backup files. Magpatuloy?",
   "Error_Generic": "Error",
   "OK": "OK",
   "PickFolderDialog_Title": "Pumili ng Folder"

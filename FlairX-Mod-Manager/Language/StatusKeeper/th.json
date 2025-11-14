@@ -14,7 +14,6 @@
   "StatusKeeper_CreateBackup_Label": "สร้างข้อมูลสำรอง",
   "StatusKeeper_CreateBackup_Button": "สร้าง",
   "StatusKeeper_Creating_Backup": "กำลังสร้าง...",
-  "StatusKeeper_SafetyOverride_Label": "การแทนที่ความปลอดภัย",
   "StatusKeeper_RestoreBackup_Label": "คืนค่าข้อมูลสำรอง",
   "StatusKeeper_RestoreBackup_Button": "คืนค่า",
   "StatusKeeper_Restoring": "กำลังคืนค่า...",
@@ -42,6 +41,10 @@
   "StatusKeeper_Tooltip_RestoreDefault": "คืนค่าเส้นทางเริ่มต้น",
   "StatusKeeper_Tooltip_DynamicSync": "ตรวจสอบไฟล์ d3dx_user.ini เพื่อหาการเปลี่ยนแปลงและอัปเดตค่าในไฟล์ mod",
   "StatusKeeper_Tooltip_ManualSync": "เริ่มการซิงค์แบบแมนนวล",
+  "StatusKeeper_ConfirmRestore_Title": "ยืนยันการคืนค่า",
+  "StatusKeeper_ConfirmRestore_Message": "การดำเนินการนี้จะคืนค่าไฟล์ INI ของ mod ทั้งหมดจากข้อมูลสำรอง ดำเนินการต่อหรือไม่?",
+  "StatusKeeper_ConfirmDelete_Title": "ยืนยันการลบ",
+  "StatusKeeper_ConfirmDelete_Message": "การดำเนินการนี้จะลบไฟล์ข้อมูลสำรองทั้งหมด ดำเนินการต่อหรือไม่?",
   "Error_Generic": "ข้อผิดพลาด",
   "OK": "ตกลง",
   "PickFolderDialog_Title": "เลือกโฟลเดอร์"

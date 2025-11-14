@@ -14,7 +14,6 @@
   "StatusKeeper_CreateBackup_Label": "Criar backup",
   "StatusKeeper_CreateBackup_Button": "Criar",
   "StatusKeeper_Creating_Backup": "Criando...",
-  "StatusKeeper_SafetyOverride_Label": "Substituição de segurança",
   "StatusKeeper_RestoreBackup_Label": "Restaurar backup",
   "StatusKeeper_RestoreBackup_Button": "Restaurar",
   "StatusKeeper_Restoring": "Restaurando...",
@@ -42,6 +41,10 @@
   "StatusKeeper_Tooltip_RestoreDefault": "Restaurar caminho padrão",
   "StatusKeeper_Tooltip_DynamicSync": "Monitora o arquivo d3dx_user.ini para mudanças e atualiza valores nos arquivos de mod",
   "StatusKeeper_Tooltip_ManualSync": "Iniciar sincronização manualmente",
+  "StatusKeeper_ConfirmRestore_Title": "Confirmar Restauração",
+  "StatusKeeper_ConfirmRestore_Message": "Isso restaurará todos os arquivos INI de mod do backup. Continuar?",
+  "StatusKeeper_ConfirmDelete_Title": "Confirmar Exclusão",
+  "StatusKeeper_ConfirmDelete_Message": "Isso excluirá todos os arquivos de backup. Continuar?",
   "Error_Generic": "Erro",
   "OK": "OK",
   "PickFolderDialog_Title": "Selecionar Pasta"
