@@ -36,6 +36,23 @@ namespace FlairX_Mod_Manager
             ShowSlidingPanel(presetsControl, "Presets");
         }
 
+        public void ShowGameBananaBrowserPanel(string gameTag)
+        {
+            var browserControl = new GameBananaBrowserUserControl(gameTag);
+            var lang = SharedUtilities.LoadLanguageDictionary("GameBananaBrowser");
+            var gameName = gameTag switch
+            {
+                "ZZMI" => "Zenless Zone Zero",
+                "GIMI" => "Genshin Impact",
+                "HIMI" => "Honkai Impact 3rd",
+                "WWMI" => "Wuthering Waves",
+                "SRMI" => "Honkai Star Rail",
+                _ => "Game"
+            };
+            var title = string.Format(SharedUtilities.GetTranslation(lang, "BrowseTitle"), gameName);
+            ShowSlidingPanel(browserControl, title);
+        }
+
         // Method to update panel background when theme changes
         public void UpdateSlidingPanelTheme()
         {
@@ -234,7 +251,7 @@ namespace FlairX_Mod_Manager
                 {
                     Background = dialogAcrylicBrush,
                     CornerRadius = new CornerRadius(12, 0, 0, 0), // Rounded only on top-left
-                    HorizontalAlignment = HorizontalAlignment.Right,
+                    HorizontalAlignment = userControl is Pages.GameBananaBrowserUserControl ? HorizontalAlignment.Stretch : HorizontalAlignment.Right,
                     VerticalAlignment = VerticalAlignment.Stretch,
                     Margin = new Thickness(320, 0, 0, 0), // Start after menu (320px menu width)
                     BorderBrush = borderBrush,
@@ -253,8 +270,8 @@ namespace FlairX_Mod_Manager
                 userControl.VerticalAlignment = VerticalAlignment.Stretch;
                 userControl.Margin = new Thickness(12); // Smaller margins for more space
                 
-                // Remove size restrictions to allow full height usage
-                userControl.Width = double.NaN; // Auto width
+                // Set sizing for all controls
+                userControl.Width = double.NaN; // Auto width - fill available space
                 userControl.Height = double.NaN; // Auto height - fill container
 
                 mainGrid.Children.Add(userControl);
@@ -358,6 +375,10 @@ namespace FlairX_Mod_Manager
                     else if (userControl is FunctionsUserControl functionsControl)
                     {
                         functionsControl.CloseRequested += (s, args) => closeWithAnimation();
+                    }
+                    else if (userControl is Pages.GameBananaBrowserUserControl gameBananaControl)
+                    {
+                        gameBananaControl.CloseRequested += (s, args) => closeWithAnimation();
                     }
                     
                     // Click outside to close

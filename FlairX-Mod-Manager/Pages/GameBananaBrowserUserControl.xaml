@@ -1,0 +1,273 @@
+<UserControl
+    x:Class="FlairX_Mod_Manager.Pages.GameBananaBrowserUserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid x:Name="RootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header with Back button (always visible) -->
+        <Grid Grid.Row="0" Padding="16" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button x:Name="BackButton" Width="48" Height="48" Click="BackButton_Click" VerticalAlignment="Center"
+                        PointerEntered="BackButton_PointerEntered" PointerExited="BackButton_PointerExited">
+                    <FontIcon x:Name="BackIcon" Glyph="&#xE72A;" FontSize="20">
+                        <FontIcon.RenderTransform>
+                            <ScaleTransform x:Name="BackIconScale" ScaleX="1" ScaleY="1"/>
+                        </FontIcon.RenderTransform>
+                    </FontIcon>
+                </Button>
+                <TextBlock x:Name="TitleText" Text="Browse GameBanana Mods" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+        
+        <!-- Content area -->
+        <Grid Grid.Row="1">
+            <!-- Main content (mods list) -->
+            <Grid x:Name="ModsListGrid">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+            <!-- Search and filters -->
+            <Grid Grid.Row="0" Padding="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <AutoSuggestBox x:Name="SearchBox"
+                                Grid.Column="0"
+                                PlaceholderText="Search mods..."
+                                QueryIcon="Find"
+                                QuerySubmitted="SearchBox_QuerySubmitted"
+                                TextChanged="SearchBox_TextChanged"
+                                Margin="0,0,12,0"/>
+
+                <ComboBox x:Name="SortComboBox"
+                          Grid.Column="1"
+                          Width="180"
+                          Margin="0,0,12,0"
+                          SelectionChanged="SortComboBox_SelectionChanged"
+                          Loaded="SortComboBox_Loaded">
+                    <ComboBoxItem x:Name="SortMostRecentItem" Tag="date_added" IsSelected="True"/>
+                    <ComboBoxItem x:Name="SortLastUpdatedItem" Tag="date_modified"/>
+                    <ComboBoxItem x:Name="SortMostDownloadedItem" Tag="downloads"/>
+                    <ComboBoxItem x:Name="SortMostLikedItem" Tag="likes"/>
+                    <ComboBoxItem x:Name="SortMostViewedItem" Tag="views"/>
+                </ComboBox>
+
+                <Button x:Name="RefreshButton"
+                        Grid.Column="2"
+                        Content="&#xE72C;"
+                        FontFamily="Segoe MDL2 Assets"
+                        Click="RefreshButton_Click"
+                        Loaded="RefreshButton_Loaded"/>
+            </Grid>
+
+        <!-- Mods grid -->
+        <ScrollViewer Grid.Row="1" Padding="16">
+            <Grid>
+                <!-- Loading indicator -->
+                <StackPanel x:Name="LoadingPanel" 
+                            HorizontalAlignment="Center" 
+                            VerticalAlignment="Center"
+                            Spacing="12"
+                            Visibility="Collapsed">
+                    <ProgressRing IsActive="True" Width="48" Height="48"/>
+                    <TextBlock Text="Loading mods..." FontSize="14" Opacity="0.7"/>
+                </StackPanel>
+
+                <!-- Empty state -->
+                <StackPanel x:Name="EmptyPanel"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="12"
+                            Visibility="Collapsed">
+                    <FontIcon Glyph="&#xE8B0;" FontSize="48" Opacity="0.5"/>
+                    <TextBlock x:Name="EmptyText" Text="No mods found" FontSize="16" Opacity="0.7"/>
+                </StackPanel>
+
+                <!-- Mods list -->
+                <GridView x:Name="ModsGridView"
+                          SelectionMode="None"
+                          IsItemClickEnabled="True"
+                          ItemClick="ModsGridView_ItemClick"
+                          Padding="0,0,0,80">
+                    <GridView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Width="280" Height="320" 
+                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                  CornerRadius="8"
+                                  Padding="12">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="180"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- Preview image -->
+                                <Border Grid.Row="0" 
+                                        CornerRadius="4"
+                                        Background="{ThemeResource LayerFillColorDefaultBrush}">
+                                    <Image x:Name="PreviewImage" 
+                                           Stretch="UniformToFill"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                                </Border>
+
+                                <!-- Mod info -->
+                                <StackPanel Grid.Row="1" Margin="0,12,0,0" Spacing="4">
+                                    <TextBlock Text="{Binding Name}" 
+                                               FontWeight="SemiBold"
+                                               TextWrapping="Wrap"
+                                               MaxLines="2"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding AuthorName}" 
+                                               FontSize="12"
+                                               Opacity="0.7"/>
+                                </StackPanel>
+
+                                <!-- Stats -->
+                                <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12">
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <FontIcon Glyph="&#xE896;" FontSize="12" Opacity="0.7"/>
+                                        <TextBlock Text="{Binding DownloadCountFormatted}" FontSize="12" Opacity="0.7"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <FontIcon Glyph="&#xE8E1;" FontSize="12" Opacity="0.7"/>
+                                        <TextBlock Text="{Binding LikeCountFormatted}" FontSize="12" Opacity="0.7"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+            </Grid>
+        </ScrollViewer>
+
+        <!-- Pagination -->
+        <Grid Grid.Row="2" 
+              Padding="16"
+              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+              BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" 
+                        HorizontalAlignment="Center" 
+                        Spacing="12">
+                <Button x:Name="PrevPageButton"
+                        Content="&#xE76B;"
+                        FontFamily="Segoe MDL2 Assets"
+                        Click="PrevPageButton_Click"
+                        IsEnabled="False"/>
+                <TextBlock x:Name="PageText" 
+                           Text="Page 1" 
+                           VerticalAlignment="Center"
+                           MinWidth="80"
+                           TextAlignment="Center"/>
+                <Button x:Name="NextPageButton"
+                        Content="&#xE76C;"
+                        FontFamily="Segoe MDL2 Assets"
+                        Click="NextPageButton_Click"/>
+            </StackPanel>
+        </Grid>
+            </Grid>
+        
+            <!-- Details panel (full view) -->
+            <Grid x:Name="DetailsPanel" 
+                  Visibility="Collapsed">
+            <ScrollViewer>
+                <StackPanel Padding="24" Spacing="16">
+                    <!-- Author -->
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE77B;" FontSize="16" Opacity="0.7"/>
+                        <TextBlock x:Name="DetailAuthor" FontSize="14" Opacity="0.7"/>
+                    </StackPanel>
+                    
+                    <!-- Preview images -->
+                    <StackPanel x:Name="DetailPreviewPanel" Spacing="12" Visibility="Collapsed">
+                        <TextBlock x:Name="DetailPreviewTitle" Text="Preview" FontSize="16" FontWeight="SemiBold"/>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                            <StackPanel x:Name="DetailPreviewImages" Orientation="Horizontal" Spacing="12"/>
+                        </ScrollViewer>
+                    </StackPanel>
+                    
+                    <!-- Description -->
+                    <StackPanel Spacing="8">
+                        <TextBlock x:Name="DetailDescriptionTitle" Text="Description" FontSize="16" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="DetailDescription" TextWrapping="Wrap" Opacity="0.8"/>
+                    </StackPanel>
+                    
+                    <!-- Files -->
+                    <StackPanel Spacing="12">
+                        <TextBlock x:Name="DetailFilesTitle" Text="Files" FontSize="16" FontWeight="SemiBold"/>
+                        <ListView x:Name="DetailFilesList" 
+                                  SelectionMode="Multiple"
+                                  MaxHeight="400">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="8">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        
+                                        <TextBlock Grid.Row="0" Text="{Binding FileName}" FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Row="1" Text="{Binding Description}" 
+                                                   TextWrapping="Wrap" 
+                                                   Opacity="0.7" 
+                                                   FontSize="12"
+                                                   Margin="0,4,0,0"
+                                                   Visibility="{Binding HasDescription}"/>
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
+                                            <TextBlock FontSize="12" Opacity="0.6">
+                                                <Run Text="Size: "/>
+                                                <Run Text="{Binding FileSizeFormatted}"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="12" Opacity="0.6">
+                                                <Run Text="Downloads: "/>
+                                                <Run Text="{Binding DownloadCountFormatted}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+                    
+                    <!-- Action buttons -->
+                    <StackPanel Spacing="12">
+                        <Button x:Name="DetailDownloadButton" 
+                                Content="Download and Install" 
+                                Style="{StaticResource AccentButtonStyle}"
+                                HorizontalAlignment="Stretch"
+                                Click="DetailDownloadButton_Click"/>
+                        <Button x:Name="DetailOpenBrowserButton" 
+                                Content="Open in GameBanana" 
+                                HorizontalAlignment="Stretch"
+                                Click="DetailOpenBrowserButton_Click"/>
+                    </StackPanel>
+                    
+                    <!-- Loading indicator -->
+                    <StackPanel x:Name="DetailLoadingPanel" 
+                                HorizontalAlignment="Center" 
+                                Spacing="12"
+                                Visibility="Collapsed">
+                        <ProgressRing IsActive="True" Width="48" Height="48"/>
+                        <TextBlock Text="Loading details..." FontSize="14" Opacity="0.7"/>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -524,6 +524,9 @@ namespace FlairX_Mod_Manager.Pages
                             mainWindow.ApplyBackdropEffect("None");
                         }
                         
+                        // Notify other windows about theme change
+                        WindowStyleHelper.NotifySettingsChanged();
+                        
                         // Only update panel theme if the effective theme actually changed
                         if (currentEffectiveTheme != newEffectiveTheme)
                         {
@@ -591,6 +594,9 @@ namespace FlairX_Mod_Manager.Pages
                 if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                 {
                     mainWindow.ApplyBackdropEffect(backdrop);
+                    
+                    // Notify other windows about settings change
+                    WindowStyleHelper.NotifySettingsChanged();
                 }
             }
         }

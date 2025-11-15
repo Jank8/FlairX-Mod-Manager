@@ -16,7 +16,7 @@ namespace FlairX_Mod_Manager.Dialogs
 {
     public class GameBananaFileExtractionDialog : ContentDialog
     {
-        private List<GameBananaModDetailsWindow.FileViewModel> _selectedFiles;
+        private List<Models.GameBananaFileViewModel> _selectedFiles;
         private string _modName;
         private string _gameTag;
         private ListView _archiveContentsListView;
@@ -69,7 +69,7 @@ namespace FlairX_Mod_Manager.Dialogs
         }
 
         public GameBananaFileExtractionDialog(
-            List<GameBananaModDetailsWindow.FileViewModel> selectedFiles,
+            List<Models.GameBananaFileViewModel> selectedFiles,
             string modName,
             string gameTag,
             string? modProfileUrl = null)

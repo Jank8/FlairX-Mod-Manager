@@ -26,6 +26,7 @@ namespace FlairX_Mod_Manager.Dialogs
         private ListView _archiveContentsListView;
         private string? _downloadedArchivePath;
         private string? _modFolderPath;
+        private System.Collections.Generic.Dictionary<string, string> _lang = new();
 
         public class FileViewModel : INotifyPropertyChanged
         {
@@ -116,9 +117,12 @@ namespace FlairX_Mod_Manager.Dialogs
             _modTile = modTile;
             _gameTag = gameTag;
 
-            Title = "Check for Updates";
-            PrimaryButtonText = "Download Selected";
-            CloseButtonText = "Cancel";
+            // Load language
+            _lang = SharedUtilities.LoadLanguageDictionary("GameBananaBrowser");
+
+            Title = SharedUtilities.GetTranslation(_lang, "CheckForUpdates");
+            PrimaryButtonText = SharedUtilities.GetTranslation(_lang, "DownloadSelected");
+            CloseButtonText = SharedUtilities.GetTranslation(_lang, "Cancel");
             DefaultButton = ContentDialogButton.Primary;
             IsPrimaryButtonEnabled = false;
 

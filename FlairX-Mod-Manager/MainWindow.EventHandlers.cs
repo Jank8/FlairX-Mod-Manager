@@ -332,9 +332,8 @@ namespace FlairX_Mod_Manager
                     return;
                 }
 
-                // Open GameBanana browser window
-                var browserWindow = new FlairX_Mod_Manager.Dialogs.GameBananaBrowserWindow(gameTag);
-                browserWindow.Activate();
+                // Open GameBanana browser as sliding panel
+                ShowGameBananaBrowserPanel(gameTag);
             }
             catch (Exception ex)
             {
