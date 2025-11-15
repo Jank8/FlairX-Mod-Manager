@@ -53,5 +53,15 @@
   "CheckForUpdates": "Check for Updates",
   "Error": "Error",
   "Cancel": "Cancel",
-  "Close": "Close"
+  "Close": "Close",
+  "FeedAll": "All",
+  "FeedRipe": "Ripe",
+  "FeedNew": "New",
+  "FeedUpdated": "Updated",
+  "AdvancedFilters": "Advanced Filters",
+  "IncludeSections": "Include Sections",
+  "ExcludeSections": "Exclude Sections",
+  "IncludeTags": "Include Tags",
+  "ExcludeTags": "Exclude Tags",
+  "Page": "Page"
 }

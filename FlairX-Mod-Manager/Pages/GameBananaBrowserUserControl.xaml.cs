@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -16,8 +17,14 @@ namespace FlairX_Mod_Manager.Pages
         private int _currentPage = 1;
         private string? _currentSearch = null;
         private string _currentSort = "date_added";
+        private string? _currentFeedType = null;
+        private System.Collections.Generic.List<string>? _includeSections = null;
+        private System.Collections.Generic.List<string>? _excludeSections = null;
+        private System.Collections.Generic.List<string>? _includeTags = null;
+        private System.Collections.Generic.List<string>? _excludeTags = null;
         private ObservableCollection<ModViewModel> _mods = new();
         private System.Collections.Generic.Dictionary<string, string> _lang = new();
+        private System.Collections.Generic.List<string>? _availableSections = null;
         private GameBananaService.ModDetailsResponse? _currentModDetails;
         private ObservableCollection<Models.GameBananaFileViewModel> _detailFiles = new();
         
@@ -39,10 +46,14 @@ namespace FlairX_Mod_Manager.Pages
             public int DownloadCount { get; set; }
             public int LikeCount { get; set; }
             public int ViewCount { get; set; }
+            public long DateAdded { get; set; }
+            public long DateModified { get; set; }
             
             public string DownloadCountFormatted => FormatCount(DownloadCount);
             public string LikeCountFormatted => FormatCount(LikeCount);
             public string ViewCountFormatted => FormatCount(ViewCount);
+            public string DateAddedFormatted => FormatDate(DateAdded);
+            public string DateModifiedFormatted => FormatDate(DateModified);
 
             private BitmapImage? _imageSource;
             public BitmapImage? ImageSource
@@ -65,6 +76,27 @@ namespace FlairX_Mod_Manager.Pages
                 if (count >= 1000)
                     return $"{count / 1000.0:F1}K";
                 return count.ToString();
+            }
+
+            private static string FormatDate(long timestamp)
+            {
+                if (timestamp == 0) return "";
+                
+                var date = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime;
+                var now = DateTime.Now;
+                var diff = now - date;
+                
+                if (diff.TotalDays < 1)
+                    return "Today";
+                if (diff.TotalDays < 2)
+                    return "Yesterday";
+                if (diff.TotalDays < 7)
+                    return $"{(int)diff.TotalDays}d ago";
+                if (diff.TotalDays < 30)
+                    return $"{(int)(diff.TotalDays / 7)}w ago";
+                if (diff.TotalDays < 365)
+                    return $"{(int)(diff.TotalDays / 30)}mo ago";
+                return $"{(int)(diff.TotalDays / 365)}y ago";
             }
 
             public event PropertyChangedEventHandler? PropertyChanged;
@@ -92,8 +124,17 @@ namespace FlairX_Mod_Manager.Pages
 
             // Set UI text
             SearchBox.PlaceholderText = SharedUtilities.GetTranslation(_lang, "SearchPlaceholder");
+            IncludeSectionsLabel.Text = SharedUtilities.GetTranslation(_lang, "IncludeSections");
+            ExcludeSectionsLabel.Text = SharedUtilities.GetTranslation(_lang, "ExcludeSections");
+            IncludeTagsLabel.Text = SharedUtilities.GetTranslation(_lang, "IncludeTags");
+            ExcludeTagsLabel.Text = SharedUtilities.GetTranslation(_lang, "ExcludeTags");
+            PageLabel.Text = SharedUtilities.GetTranslation(_lang, "Page");
+            FiltersExpanderHeader.Text = SharedUtilities.GetTranslation(_lang, "AdvancedFilters");
             
             ModsGridView.ItemsSource = _mods;
+            
+            // Load sections
+            _ = LoadSectionsAsync();
             
             // Load mods
             _ = LoadModsAsync();
@@ -120,7 +161,16 @@ namespace FlairX_Mod_Manager.Pages
                 EmptyPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Collapsed;
 
-                var response = await GameBananaService.GetModsAsync(_gameTag, _currentPage, _currentSearch, _currentSort);
+                var response = await GameBananaService.GetModsAsync(
+                    _gameTag, 
+                    _currentPage, 
+                    _currentSearch, 
+                    _currentSort,
+                    _currentFeedType,
+                    _includeSections,
+                    _excludeSections,
+                    _includeTags,
+                    _excludeTags);
 
                 if (response?.Records == null || response.Records.Count == 0)
                 {
@@ -143,9 +193,10 @@ namespace FlairX_Mod_Manager.Pages
                         Name = record.Name,
                         AuthorName = record.Submitter?.Name ?? "Unknown",
                         ProfileUrl = record.ProfileUrl,
-                        DownloadCount = record.DownloadCount,
-                        LikeCount = record.LikeCount,
-                        ViewCount = record.ViewCount
+                        LikeCount = record.GetLikeCount(),
+                        ViewCount = record.GetViewCount(),
+                        DateAdded = record.DateAdded,
+                        DateModified = record.DateModified
                     };
 
                     // Get preview image
@@ -165,7 +216,7 @@ namespace FlairX_Mod_Manager.Pages
                 ModsGridView.Visibility = Visibility.Visible;
 
                 // Update pagination
-                PageText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "PageText"), _currentPage);
+                PageNumberTextBox.Text = _currentPage.ToString();
                 PrevPageButton.IsEnabled = _currentPage > 1;
                 NextPageButton.IsEnabled = response.Records.Count >= response.PerPage;
             }
@@ -516,6 +567,133 @@ namespace FlairX_Mod_Manager.Pages
             if (_currentModDetails != null && !string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
             {
                 await Windows.System.Launcher.LaunchUriAsync(new Uri(_currentModDetails.ProfileUrl));
+            }
+        }
+
+        private async Task LoadSectionsAsync()
+        {
+            try
+            {
+                _availableSections = await GameBananaService.GetGameSectionsAsync(_gameTag);
+                
+                if (_availableSections != null && _availableSections.Count > 0)
+                {
+                    IncludeSectionsComboBox.Items.Clear();
+                    ExcludeSectionsComboBox.Items.Clear();
+                    
+                    IncludeSectionsComboBox.Items.Add(new ComboBoxItem { Content = "None", Tag = null });
+                    ExcludeSectionsComboBox.Items.Add(new ComboBoxItem { Content = "None", Tag = null });
+                    
+                    foreach (var section in _availableSections)
+                    {
+                        IncludeSectionsComboBox.Items.Add(new ComboBoxItem { Content = section, Tag = section });
+                        ExcludeSectionsComboBox.Items.Add(new ComboBoxItem { Content = section, Tag = section });
+                    }
+                    
+                    IncludeSectionsComboBox.SelectedIndex = 0;
+                    ExcludeSectionsComboBox.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to load sections", ex);
+            }
+        }
+
+        private void FeedTypeComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            FeedAllItem.Content = SharedUtilities.GetTranslation(_lang, "FeedAll");
+            FeedRipeItem.Content = SharedUtilities.GetTranslation(_lang, "FeedRipe");
+            FeedNewItem.Content = SharedUtilities.GetTranslation(_lang, "FeedNew");
+            FeedUpdatedItem.Content = SharedUtilities.GetTranslation(_lang, "FeedUpdated");
+        }
+
+        private void FeedTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (FeedTypeComboBox.SelectedItem is ComboBoxItem item && item.Tag is string feedType)
+            {
+                _currentFeedType = string.IsNullOrEmpty(feedType) ? null : feedType;
+                _currentPage = 1;
+                _ = LoadModsAsync();
+            }
+        }
+
+        private void FiltersButton_Loaded(object sender, RoutedEventArgs e)
+        {
+            ToolTipService.SetToolTip(FiltersButton, SharedUtilities.GetTranslation(_lang, "AdvancedFilters"));
+        }
+
+        private void FiltersButton_Click(object sender, RoutedEventArgs e)
+        {
+            FiltersExpander.IsExpanded = !FiltersExpander.IsExpanded;
+        }
+
+        private void IncludeSectionsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IncludeSectionsComboBox.SelectedItem is ComboBoxItem item)
+            {
+                _includeSections = item.Tag as string != null ? new System.Collections.Generic.List<string> { (string)item.Tag } : null;
+                _currentPage = 1;
+                _ = LoadModsAsync();
+            }
+        }
+
+        private void ExcludeSectionsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ExcludeSectionsComboBox.SelectedItem is ComboBoxItem item)
+            {
+                _excludeSections = item.Tag as string != null ? new System.Collections.Generic.List<string> { (string)item.Tag } : null;
+                _currentPage = 1;
+                _ = LoadModsAsync();
+            }
+        }
+
+        private System.Threading.CancellationTokenSource? _tagsDebounceToken;
+
+        private async void TagsTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Debounce - wait 500ms after user stops typing
+            _tagsDebounceToken?.Cancel();
+            _tagsDebounceToken = new System.Threading.CancellationTokenSource();
+            
+            try
+            {
+                await Task.Delay(500, _tagsDebounceToken.Token);
+                
+                // Parse tags
+                var includeText = IncludeTagsTextBox.Text?.Trim();
+                var excludeText = ExcludeTagsTextBox.Text?.Trim();
+                
+                _includeTags = string.IsNullOrEmpty(includeText) 
+                    ? null 
+                    : includeText.Split(',').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t)).ToList() as System.Collections.Generic.List<string>;
+                    
+                _excludeTags = string.IsNullOrEmpty(excludeText) 
+                    ? null 
+                    : excludeText.Split(',').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t)).ToList() as System.Collections.Generic.List<string>;
+                
+                _currentPage = 1;
+                await LoadModsAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                // Debounce cancelled, ignore
+            }
+        }
+
+        private void PageNumberTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                if (int.TryParse(PageNumberTextBox.Text, out var page) && page > 0)
+                {
+                    _currentPage = page;
+                    _ = LoadModsAsync();
+                }
+                else
+                {
+                    PageNumberTextBox.Text = _currentPage.ToString();
+                }
             }
         }
     }

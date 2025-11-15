@@ -53,5 +53,15 @@
   "CheckForUpdates": "Sprawdź aktualizacje",
   "Error": "Błąd",
   "Cancel": "Anuluj",
-  "Close": "Zamknij"
+  "Close": "Zamknij",
+  "FeedAll": "Wszystkie",
+  "FeedRipe": "Polecane",
+  "FeedNew": "Nowe",
+  "FeedUpdated": "Zaktualizowane",
+  "AdvancedFilters": "Zaawansowane filtry",
+  "IncludeSections": "Uwzględnij sekcje",
+  "ExcludeSections": "Wyklucz sekcje",
+  "IncludeTags": "Uwzględnij tagi",
+  "ExcludeTags": "Wyklucz tagi",
+  "Page": "Strona"
 }

@@ -66,6 +66,9 @@ namespace FlairX_Mod_Manager.Services
             [JsonPropertyName("_nDownloadCount")]
             public int DownloadCount { get; set; }
             
+            [JsonPropertyName("_nPostCount")]
+            public int PostCount { get; set; }
+            
             [JsonPropertyName("_aPreviewMedia")]
             public PreviewMedia? PreviewMedia { get; set; }
             
@@ -74,6 +77,43 @@ namespace FlairX_Mod_Manager.Services
             
             [JsonPropertyName("_sText")]
             public string? Description { get; set; }
+            
+            [JsonPropertyName("_aMetadata")]
+            public Dictionary<string, object>? Metadata { get; set; }
+            
+            // Helper properties to get stats from metadata if main properties are 0
+            public int GetDownloadCount()
+            {
+                if (DownloadCount > 0) return DownloadCount;
+                if (Metadata != null && Metadata.TryGetValue("_nDownloadCount", out var value))
+                {
+                    if (value is JsonElement element && element.ValueKind == JsonValueKind.Number)
+                        return element.GetInt32();
+                }
+                return 0;
+            }
+            
+            public int GetViewCount()
+            {
+                if (ViewCount > 0) return ViewCount;
+                if (Metadata != null && Metadata.TryGetValue("_nViewCount", out var value))
+                {
+                    if (value is JsonElement element && element.ValueKind == JsonValueKind.Number)
+                        return element.GetInt32();
+                }
+                return 0;
+            }
+            
+            public int GetLikeCount()
+            {
+                if (LikeCount > 0) return LikeCount;
+                if (Metadata != null && Metadata.TryGetValue("_nLikeCount", out var value))
+                {
+                    if (value is JsonElement element && element.ValueKind == JsonValueKind.Number)
+                        return element.GetInt32();
+                }
+                return 0;
+            }
         }
 
         public class PreviewMedia
@@ -173,7 +213,16 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Get list of mods for a specific game
         /// </summary>
-        public static async Task<ModListResponse?> GetModsAsync(string gameTag, int page = 1, string? search = null, string? sort = null)
+        public static async Task<ModListResponse?> GetModsAsync(
+            string gameTag, 
+            int page = 1, 
+            string? search = null, 
+            string? sort = null,
+            string? feedType = null,
+            List<string>? includeSections = null,
+            List<string>? excludeSections = null,
+            List<string>? includeTags = null,
+            List<string>? excludeTags = null)
         {
             try
             {
@@ -184,8 +233,8 @@ namespace FlairX_Mod_Manager.Services
                     return null;
                 }
 
-                // Build API URL
-                var url = $"https://gamebanana.com/apiv11/Game/{gameId}/Subfeed?_nPage={page}&_nPerpage=50&_csvModelInclusions=Mod";
+                // Build API URL - explicitly request fields we need
+                var url = $"https://gamebanana.com/apiv11/Game/{gameId}/Subfeed?_nPage={page}&_nPerpage=50&_csvModelInclusions=Mod&_csvProperties=_idRow,_sName,_sProfileUrl,_tsDateAdded,_tsDateModified,_nViewCount,_nLikeCount,_nDownloadCount,_aPreviewMedia,_aSubmitter";
                 
                 if (!string.IsNullOrEmpty(search))
                 {
@@ -196,6 +245,36 @@ namespace FlairX_Mod_Manager.Services
                 if (!string.IsNullOrEmpty(sort))
                 {
                     url += $"&_sOrderBy={sort}";
+                }
+                
+                // Feed type: featured (Ripe), new, updated
+                if (!string.IsNullOrEmpty(feedType))
+                {
+                    url += $"&_sRecordFeedStyle={feedType}";
+                }
+                
+                // Include sections
+                if (includeSections != null && includeSections.Count > 0)
+                {
+                    url += $"&_aFilters[Generic_Category]={string.Join(",", includeSections)}";
+                }
+                
+                // Exclude sections
+                if (excludeSections != null && excludeSections.Count > 0)
+                {
+                    url += $"&_aExcludeFilters[Generic_Category]={string.Join(",", excludeSections)}";
+                }
+                
+                // Include tags
+                if (includeTags != null && includeTags.Count > 0)
+                {
+                    url += $"&_csvTags={string.Join(",", includeTags.Select(Uri.EscapeDataString))}";
+                }
+                
+                // Exclude tags
+                if (excludeTags != null && excludeTags.Count > 0)
+                {
+                    url += $"&_csvExcludeTags={string.Join(",", excludeTags.Select(Uri.EscapeDataString))}";
                 }
 
                 _httpClient.DefaultRequestHeaders.Clear();
@@ -212,6 +291,36 @@ namespace FlairX_Mod_Manager.Services
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to fetch mods from GameBanana: {ex.Message}", ex);
+                return null;
+            }
+        }
+        
+        /// <summary>
+        /// Get available sections/categories for a game
+        /// </summary>
+        public static async Task<List<string>?> GetGameSectionsAsync(string gameTag)
+        {
+            try
+            {
+                var gameId = GetGameId(gameTag);
+                if (gameId == 0) return null;
+
+                var url = $"https://gamebanana.com/apiv11/Game/{gameId}/CategoryList";
+                
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/2.6.8");
+
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<List<string>>(content);
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to fetch game sections: {ex.Message}", ex);
                 return null;
             }
         }

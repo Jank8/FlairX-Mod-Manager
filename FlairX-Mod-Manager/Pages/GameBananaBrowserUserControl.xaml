@@ -39,39 +39,120 @@
 
             <!-- Search and filters -->
             <Grid Grid.Row="0" Padding="16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <!-- First row: Search, Sort, Feed Type, Filters button, Refresh -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <AutoSuggestBox x:Name="SearchBox"
-                                Grid.Column="0"
-                                PlaceholderText="Search mods..."
-                                QueryIcon="Find"
-                                QuerySubmitted="SearchBox_QuerySubmitted"
-                                TextChanged="SearchBox_TextChanged"
-                                Margin="0,0,12,0"/>
+                    <AutoSuggestBox x:Name="SearchBox"
+                                    Grid.Column="0"
+                                    PlaceholderText="Search mods..."
+                                    QueryIcon="Find"
+                                    QuerySubmitted="SearchBox_QuerySubmitted"
+                                    TextChanged="SearchBox_TextChanged"
+                                    Margin="0,0,12,0"/>
 
-                <ComboBox x:Name="SortComboBox"
-                          Grid.Column="1"
-                          Width="180"
-                          Margin="0,0,12,0"
-                          SelectionChanged="SortComboBox_SelectionChanged"
-                          Loaded="SortComboBox_Loaded">
-                    <ComboBoxItem x:Name="SortMostRecentItem" Tag="date_added" IsSelected="True"/>
-                    <ComboBoxItem x:Name="SortLastUpdatedItem" Tag="date_modified"/>
-                    <ComboBoxItem x:Name="SortMostDownloadedItem" Tag="downloads"/>
-                    <ComboBoxItem x:Name="SortMostLikedItem" Tag="likes"/>
-                    <ComboBoxItem x:Name="SortMostViewedItem" Tag="views"/>
-                </ComboBox>
+                    <ComboBox x:Name="SortComboBox"
+                              Grid.Column="1"
+                              Width="180"
+                              Margin="0,0,12,0"
+                              SelectionChanged="SortComboBox_SelectionChanged"
+                              Loaded="SortComboBox_Loaded">
+                        <ComboBoxItem x:Name="SortMostRecentItem" Tag="date_added" IsSelected="True"/>
+                        <ComboBoxItem x:Name="SortLastUpdatedItem" Tag="date_modified"/>
+                        <ComboBoxItem x:Name="SortMostDownloadedItem" Tag="downloads"/>
+                        <ComboBoxItem x:Name="SortMostLikedItem" Tag="likes"/>
+                        <ComboBoxItem x:Name="SortMostViewedItem" Tag="views"/>
+                    </ComboBox>
 
-                <Button x:Name="RefreshButton"
-                        Grid.Column="2"
-                        Content="&#xE72C;"
-                        FontFamily="Segoe MDL2 Assets"
-                        Click="RefreshButton_Click"
-                        Loaded="RefreshButton_Loaded"/>
+                    <ComboBox x:Name="FeedTypeComboBox"
+                              Grid.Column="2"
+                              Width="120"
+                              Margin="0,0,12,0"
+                              SelectionChanged="FeedTypeComboBox_SelectionChanged"
+                              Loaded="FeedTypeComboBox_Loaded">
+                        <ComboBoxItem x:Name="FeedAllItem" Tag="" IsSelected="True"/>
+                        <ComboBoxItem x:Name="FeedRipeItem" Tag="featured"/>
+                        <ComboBoxItem x:Name="FeedNewItem" Tag="new"/>
+                        <ComboBoxItem x:Name="FeedUpdatedItem" Tag="updated"/>
+                    </ComboBox>
+
+                    <Button x:Name="FiltersButton"
+                            Grid.Column="3"
+                            Content="&#xE71C;"
+                            FontFamily="Segoe MDL2 Assets"
+                            Click="FiltersButton_Click"
+                            Margin="0,0,12,0"
+                            Loaded="FiltersButton_Loaded"/>
+
+                    <Button x:Name="RefreshButton"
+                            Grid.Column="4"
+                            Content="&#xE72C;"
+                            FontFamily="Segoe MDL2 Assets"
+                            Click="RefreshButton_Click"
+                            Loaded="RefreshButton_Loaded"/>
+                </Grid>
+                
+                <!-- Second row: Advanced filters panel (collapsed by default) -->
+                <Expander x:Name="FiltersExpander"
+                          Grid.Row="1"
+                          HorizontalAlignment="Stretch"
+                          Margin="0,12,0,0"
+                          IsExpanded="False">
+                    <Expander.Header>
+                        <TextBlock x:Name="FiltersExpanderHeader" Text="Advanced Filters" FontWeight="SemiBold"/>
+                    </Expander.Header>
+                    <Grid Padding="12" Background="{ThemeResource LayerFillColorDefaultBrush}" CornerRadius="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Include Sections -->
+                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                            <TextBlock x:Name="IncludeSectionsLabel" Text="Include Sections" FontSize="12" Opacity="0.7" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="IncludeSectionsComboBox" 
+                                      HorizontalAlignment="Stretch"
+                                      SelectionChanged="IncludeSectionsComboBox_SelectionChanged"/>
+                        </StackPanel>
+                        
+                        <!-- Exclude Sections -->
+                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
+                            <TextBlock x:Name="ExcludeSectionsLabel" Text="Exclude Sections" FontSize="12" Opacity="0.7" Margin="0,0,0,4"/>
+                            <ComboBox x:Name="ExcludeSectionsComboBox" 
+                                      HorizontalAlignment="Stretch"
+                                      SelectionChanged="ExcludeSectionsComboBox_SelectionChanged"/>
+                        </StackPanel>
+                        
+                        <!-- Include Tags -->
+                        <StackPanel Grid.Column="2" Margin="0,0,12,0">
+                            <TextBlock x:Name="IncludeTagsLabel" Text="Include Tags" FontSize="12" Opacity="0.7" Margin="0,0,0,4"/>
+                            <TextBox x:Name="IncludeTagsTextBox" 
+                                     PlaceholderText="e.g. character, weapon"
+                                     TextChanged="TagsTextBox_TextChanged"/>
+                        </StackPanel>
+                        
+                        <!-- Exclude Tags -->
+                        <StackPanel Grid.Column="3">
+                            <TextBlock x:Name="ExcludeTagsLabel" Text="Exclude Tags" FontSize="12" Opacity="0.7" Margin="0,0,0,4"/>
+                            <TextBox x:Name="ExcludeTagsTextBox" 
+                                     PlaceholderText="e.g. nsfw, wip"
+                                     TextChanged="TagsTextBox_TextChanged"/>
+                        </StackPanel>
+                    </Grid>
+                </Expander>
             </Grid>
 
         <!-- Mods grid -->
@@ -120,6 +201,7 @@
                                         CornerRadius="4"
                                         Background="{ThemeResource LayerFillColorDefaultBrush}">
                                     <Image x:Name="PreviewImage" 
+                                           Source="{Binding ImageSource}"
                                            Stretch="UniformToFill"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
@@ -135,17 +217,27 @@
                                     <TextBlock Text="{Binding AuthorName}" 
                                                FontSize="12"
                                                Opacity="0.7"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                                        <TextBlock FontSize="11" Opacity="0.6">
+                                            <Run Text="📅"/>
+                                            <Run Text="{Binding DateAddedFormatted}"/>
+                                        </TextBlock>
+                                        <TextBlock FontSize="11" Opacity="0.6">
+                                            <Run Text="🔄"/>
+                                            <Run Text="{Binding DateModifiedFormatted}"/>
+                                        </TextBlock>
+                                    </StackPanel>
                                 </StackPanel>
 
                                 <!-- Stats -->
                                 <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="12">
                                     <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <FontIcon Glyph="&#xE896;" FontSize="12" Opacity="0.7"/>
-                                        <TextBlock Text="{Binding DownloadCountFormatted}" FontSize="12" Opacity="0.7"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="4">
                                         <FontIcon Glyph="&#xE8E1;" FontSize="12" Opacity="0.7"/>
                                         <TextBlock Text="{Binding LikeCountFormatted}" FontSize="12" Opacity="0.7"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                        <FontIcon Glyph="&#xE890;" FontSize="12" Opacity="0.7"/>
+                                        <TextBlock Text="{Binding ViewCountFormatted}" FontSize="12" Opacity="0.7"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Grid>
@@ -168,11 +260,15 @@
                         FontFamily="Segoe MDL2 Assets"
                         Click="PrevPageButton_Click"
                         IsEnabled="False"/>
-                <TextBlock x:Name="PageText" 
-                           Text="Page 1" 
-                           VerticalAlignment="Center"
-                           MinWidth="80"
-                           TextAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock x:Name="PageLabel" Text="Page" VerticalAlignment="Center"/>
+                    <TextBox x:Name="PageNumberTextBox"
+                             Width="80"
+                             Text="1"
+                             TextAlignment="Center"
+                             Padding="8,4"
+                             KeyDown="PageNumberTextBox_KeyDown"/>
+                </StackPanel>
                 <Button x:Name="NextPageButton"
                         Content="&#xE76C;"
                         FontFamily="Segoe MDL2 Assets"
