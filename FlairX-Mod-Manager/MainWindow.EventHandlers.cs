@@ -319,20 +319,26 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                string modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrWhiteSpace(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-                
-                if (!Directory.Exists(modLibraryPath))
+                // Check if a game is selected
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                if (string.IsNullOrEmpty(gameTag))
                 {
-                    Directory.CreateDirectory(modLibraryPath);
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    ShowInfoBar(
+                        SharedUtilities.GetTranslation(lang, "Error"),
+                        "Please select a game first.",
+                        InfoBarSeverity.Warning
+                    );
+                    return;
                 }
-                
-                Process.Start("explorer.exe", modLibraryPath);
+
+                // Open GameBanana browser window
+                var browserWindow = new FlairX_Mod_Manager.Dialogs.GameBananaBrowserWindow(gameTag);
+                browserWindow.Activate();
             }
             catch (Exception ex)
             {
-                Logger.LogError("Error opening mod library", ex);
+                Logger.LogError("Error opening GameBanana browser", ex);
             }
         }
 

@@ -1,0 +1,166 @@
+<Window
+    x:Class="FlairX_Mod_Manager.Dialogs.GameBananaModDetailsWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Mod Details">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Loading indicator -->
+        <StackPanel x:Name="LoadingPanel"
+                    Grid.Row="0"
+                    Grid.RowSpan="2"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="12"
+                    Visibility="Visible">
+            <ProgressRing IsActive="True" Width="48" Height="48"/>
+            <TextBlock Text="Loading mod details..." FontSize="14" Opacity="0.7"/>
+        </StackPanel>
+
+        <!-- Content -->
+        <Grid x:Name="ContentGrid" Grid.Row="0" Grid.RowSpan="2" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Padding="20" Background="{ThemeResource LayerFillColorDefaultBrush}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Title and close -->
+                <Grid Grid.Row="0">
+                    <TextBlock x:Name="ModNameText" 
+                               Text="Mod Name" 
+                               FontSize="24" 
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"/>
+                    <Button x:Name="CloseButton"
+                            Content="&#xE8BB;"
+                            FontFamily="Segoe MDL2 Assets"
+                            Click="CloseButton_Click"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Top"/>
+                </Grid>
+
+                <!-- Author and stats -->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="16" Margin="0,8,0,0">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE77B;" FontSize="14" Opacity="0.7"/>
+                        <TextBlock x:Name="AuthorText" Text="Author" FontSize="14" Opacity="0.7"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE896;" FontSize="14" Opacity="0.7"/>
+                        <TextBlock x:Name="DownloadsText" Text="0" FontSize="14" Opacity="0.7"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE8E1;" FontSize="14" Opacity="0.7"/>
+                        <TextBlock x:Name="LikesText" Text="0" FontSize="14" Opacity="0.7"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <!-- Scrollable content -->
+            <ScrollViewer Grid.Row="1" Padding="20">
+                <StackPanel Spacing="20">
+                    <!-- Preview images -->
+                    <Grid x:Name="PreviewGrid" Height="300" Visibility="Collapsed">
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                            <StackPanel x:Name="PreviewImagesPanel" Orientation="Horizontal" Spacing="12"/>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <!-- Description -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Description" FontSize="16" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="DescriptionText" 
+                                   Text="Loading..." 
+                                   TextWrapping="Wrap"
+                                   Opacity="0.8"/>
+                    </StackPanel>
+
+                    <!-- Files section -->
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Available Files" FontSize="16" FontWeight="SemiBold"/>
+                        <TextBlock Text="Select files to download and install:" 
+                                   FontSize="12" 
+                                   Opacity="0.7"
+                                   Margin="0,0,0,8"/>
+                        
+                        <ListView x:Name="FilesListView"
+                                  SelectionMode="Multiple"
+                                  MaxHeight="300"
+                                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                  BorderThickness="1"
+                                  CornerRadius="4">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Spacing="4">
+                                            <TextBlock Text="{Binding FileName}" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Description}" 
+                                                       FontSize="12" 
+                                                       Opacity="0.7"
+                                                       TextWrapping="Wrap"
+                                                       Visibility="{Binding HasDescription}"/>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="1" 
+                                                   Text="{Binding FileSizeFormatted}" 
+                                                   FontSize="12" 
+                                                   Opacity="0.7"
+                                                   VerticalAlignment="Center"
+                                                   Margin="12,0"/>
+
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                            <FontIcon Glyph="&#xE896;" FontSize="12" Opacity="0.7"/>
+                                            <TextBlock Text="{Binding DownloadCountFormatted}" FontSize="12" Opacity="0.7"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <!-- Download button -->
+                        <Button x:Name="DownloadButton"
+                                Content="Download and Install Selected"
+                                HorizontalAlignment="Stretch"
+                                Click="DownloadButton_Click"/>
+
+                        <!-- Progress -->
+                        <StackPanel x:Name="DownloadProgressPanel" Spacing="8" Visibility="Collapsed">
+                            <TextBlock x:Name="DownloadStatusText" Text="Downloading..." FontSize="12"/>
+                            <ProgressBar x:Name="DownloadProgressBar" 
+                                         IsIndeterminate="False"
+                                         Value="0"
+                                         Maximum="100"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Open in browser -->
+                    <HyperlinkButton x:Name="OpenInBrowserButton"
+                                     Content="Open in GameBanana"
+                                     Click="OpenInBrowserButton_Click"
+                                     Margin="0,8,0,0"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Window>

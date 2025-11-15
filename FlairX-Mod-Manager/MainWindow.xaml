@@ -196,9 +196,9 @@
                                 VerticalAlignment="Center"
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center"
-                                ToolTipService.ToolTip=""
+                                ToolTipService.ToolTip="Browse GameBanana Mods"
                                 Click="OpenModLibraryButton_Click">
-                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                            <FontIcon Glyph="&#xE8B0;" FontSize="16"/>
                         </Button>
 
                     </Grid>

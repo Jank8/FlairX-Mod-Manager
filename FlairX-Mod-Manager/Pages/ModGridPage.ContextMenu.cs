@@ -500,6 +500,20 @@ namespace FlairX_Mod_Manager.Pages
                     openUrlItem.Click += ContextMenu_OpenUrl_Click;
                     menuFlyout.Items.Add(openUrlItem);
                     
+                    // Check for Updates option (only if mod has GameBanana URL)
+                    var modId = FlairX_Mod_Manager.Services.GameBananaService.ExtractModIdFromUrl(modUrl ?? "");
+                    if (modId.HasValue)
+                    {
+                        var checkUpdatesItem = new MenuFlyoutItem
+                        {
+                            Text = SharedUtilities.GetTranslation(lang, "ContextMenu_CheckUpdates"),
+                            Icon = new FontIcon { Glyph = "\uE895" },
+                            Tag = modTile
+                        };
+                        checkUpdatesItem.Click += ContextMenu_CheckUpdates_Click;
+                        menuFlyout.Items.Add(checkUpdatesItem);
+                    }
+                    
                     menuFlyout.Items.Add(new MenuFlyoutSeparator());
                     
                     menuFlyout.Items.Add(new MenuFlyoutItem
@@ -508,7 +522,8 @@ namespace FlairX_Mod_Manager.Pages
                         Icon = new SymbolIcon(Symbol.Copy),
                         Tag = modTile
                     });
-                    ((MenuFlyoutItem)menuFlyout.Items[5]).Click += ContextMenu_CopyName_Click;
+                    var copyNameIndex = menuFlyout.Items.Count - 1;
+                    ((MenuFlyoutItem)menuFlyout.Items[copyNameIndex]).Click += ContextMenu_CopyName_Click;
                     
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
@@ -516,7 +531,8 @@ namespace FlairX_Mod_Manager.Pages
                         Icon = new SymbolIcon(Symbol.Rename),
                         Tag = modTile
                     });
-                    ((MenuFlyoutItem)menuFlyout.Items[6]).Click += ContextMenu_Rename_Click;
+                    var renameIndex = menuFlyout.Items.Count - 1;
+                    ((MenuFlyoutItem)menuFlyout.Items[renameIndex]).Click += ContextMenu_Rename_Click;
                     
                     menuFlyout.Items.Add(new MenuFlyoutSeparator());
                     
@@ -1089,6 +1105,54 @@ namespace FlairX_Mod_Manager.Pages
                 var fakeButton = new Button { Tag = modTile };
                 DeleteModButton_Click(fakeButton, e);
             }
+        }
+
+        private async void ContextMenu_CheckUpdates_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
+            {
+                try
+                {
+                    var modUrl = GetModUrl(modTile);
+                    var modId = FlairX_Mod_Manager.Services.GameBananaService.ExtractModIdFromUrl(modUrl ?? "");
+                    
+                    if (!modId.HasValue)
+                    {
+                        await ShowErrorDialog("Could not extract mod ID from URL.");
+                        return;
+                    }
+
+                    // Get current game tag
+                    var gameTag = FlairX_Mod_Manager.SettingsManager.CurrentSelectedGame;
+                    if (string.IsNullOrEmpty(gameTag))
+                    {
+                        await ShowErrorDialog("No game selected.");
+                        return;
+                    }
+
+                    // Show update dialog
+                    var updateDialog = new FlairX_Mod_Manager.Dialogs.GameBananaUpdateDialog(modId.Value, modTile, gameTag);
+                    updateDialog.XamlRoot = this.XamlRoot;
+                    await updateDialog.ShowAsync();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to check for updates", ex);
+                    await ShowErrorDialog($"Failed to check for updates: {ex.Message}");
+                }
+            }
+        }
+
+        private async System.Threading.Tasks.Task ShowErrorDialog(string message)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Error",
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+            await dialog.ShowAsync();
         }
     }
 }
