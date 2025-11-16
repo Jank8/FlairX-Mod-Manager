@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Hosting;
 using System;
@@ -21,6 +22,12 @@ namespace FlairX_Mod_Manager.Pages
         private System.Collections.Generic.Dictionary<string, string> _lang = new();
         private GameBananaService.ModDetailsResponse? _currentModDetails;
         private ObservableCollection<Models.GameBananaFileViewModel> _detailFiles = new();
+        
+        // Infinite scroll
+        private bool _isLoadingMore = false;
+        private bool _hasMorePages = true;
+        private ScrollViewer? _modsScrollViewer = null;
+        private DateTime _lastScrollTime = DateTime.MinValue;
         
         // Tilt animation system
         private readonly System.Collections.Generic.Dictionary<Button, (double tiltX, double tiltY)> _tileTiltTargets = new();
@@ -118,12 +125,74 @@ namespace FlairX_Mod_Manager.Pages
 
             // Set UI text
             SearchBox.PlaceholderText = SharedUtilities.GetTranslation(_lang, "SearchPlaceholder");
-            PageLabel.Text = SharedUtilities.GetTranslation(_lang, "Page");
             
             ModsGridView.ItemsSource = _mods;
             
+            // Attach to the named ScrollViewer directly
+            ModsScrollViewer.ViewChanged += ModsScrollViewer_ViewChanged;
+            _modsScrollViewer = ModsScrollViewer;
+            Logger.LogInfo("ScrollViewer attached directly from XAML");
+            
             // Load mods (sections will be extracted from loaded mods)
             _ = LoadModsAsync();
+        }
+
+        private void ModsScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
+        {
+            var now = DateTime.Now;
+            
+            // Throttle during rapid scrolling - only process every 100ms
+            if ((now - _lastScrollTime).TotalMilliseconds < 100)
+            {
+                return;
+            }
+            
+            _lastScrollTime = now;
+            
+            Logger.LogInfo($"Scroll detected - Offset: {_modsScrollViewer?.VerticalOffset}, Scrollable: {_modsScrollViewer?.ScrollableHeight}");
+            
+            // Load more mods if user is scrolling near the end
+            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+            {
+                LoadMoreModsIfNeeded();
+            });
+        }
+
+        private void LoadMoreModsIfNeeded()
+        {
+            if (_modsScrollViewer == null)
+            {
+                Logger.LogWarning("ScrollViewer is null");
+                return;
+            }
+            
+            if (_isLoadingMore)
+            {
+                Logger.LogInfo("Already loading more mods");
+                return;
+            }
+            
+            if (!_hasMorePages)
+            {
+                Logger.LogInfo("No more pages available");
+                return;
+            }
+            
+            // Check if we're near the bottom
+            var scrollableHeight = _modsScrollViewer.ScrollableHeight;
+            var currentVerticalOffset = _modsScrollViewer.VerticalOffset;
+            var viewportHeight = _modsScrollViewer.ViewportHeight;
+            
+            // Load more when we're within 2 viewport heights of the bottom
+            var loadMoreThreshold = scrollableHeight - (viewportHeight * 2);
+            
+            Logger.LogInfo($"Checking load threshold: {currentVerticalOffset} >= {loadMoreThreshold} (scrollable: {scrollableHeight}, viewport: {viewportHeight})");
+            
+            if (currentVerticalOffset >= loadMoreThreshold)
+            {
+                Logger.LogInfo("Loading more mods...");
+                _ = LoadMoreModsAsync();
+            }
         }
 
         private string GetGameName(string gameTag)
@@ -168,20 +237,18 @@ namespace FlairX_Mod_Manager.Pages
                     EmptyText.Text = string.IsNullOrEmpty(_currentSearch) 
                         ? SharedUtilities.GetTranslation(_lang, "NoModsFound")
                         : SharedUtilities.GetTranslation(_lang, "NoModsMatchSearch");
-                    PrevPageButton.IsEnabled = _currentPage > 1;
-                    NextPageButton.IsEnabled = false;
+                    _hasMorePages = false;
                     return;
                 }
 
                 // Check if there are more pages
-                bool hasMore = true;
                 if (response.Metadata != null)
                 {
-                    hasMore = !response.Metadata.IsComplete;
+                    _hasMorePages = !response.Metadata.IsComplete;
                 }
                 else
                 {
-                    hasMore = response.Records.Count >= 50;
+                    _hasMorePages = response.Records.Count >= 50;
                 }
 
                 foreach (var record in response.Records)
@@ -223,8 +290,6 @@ namespace FlairX_Mod_Manager.Pages
                     EmptyText.Text = string.IsNullOrEmpty(_currentSearch) 
                         ? SharedUtilities.GetTranslation(_lang, "NoModsFound")
                         : SharedUtilities.GetTranslation(_lang, "NoModsMatchSearch");
-                    PrevPageButton.IsEnabled = _currentPage > 1;
-                    NextPageButton.IsEnabled = false;
                     return;
                 }
 
@@ -233,11 +298,13 @@ namespace FlairX_Mod_Manager.Pages
 
                 LoadingPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Visible;
-
-                // Update pagination
-                PageNumberTextBox.Text = _currentPage.ToString();
-                PrevPageButton.IsEnabled = _currentPage > 1;
-                NextPageButton.IsEnabled = hasMore;
+                
+                // If we have very few mods (likely due to NSFW filtering), load more automatically
+                if (_mods.Count < 20 && _hasMorePages)
+                {
+                    Logger.LogInfo($"Only {_mods.Count} mods loaded, auto-loading more pages...");
+                    _ = AutoLoadMorePagesAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -245,6 +312,123 @@ namespace FlairX_Mod_Manager.Pages
                 LoadingPanel.Visibility = Visibility.Collapsed;
                 EmptyPanel.Visibility = Visibility.Visible;
                 EmptyText.Text = SharedUtilities.GetTranslation(_lang, "FailedToLoadMods");
+            }
+        }
+
+        private async Task AutoLoadMorePagesAsync()
+        {
+            // Auto-load up to 3 more pages if we have too few mods
+            int pagesLoaded = 0;
+            while (_mods.Count < 30 && _hasMorePages && pagesLoaded < 3)
+            {
+                await LoadMoreModsAsync();
+                pagesLoaded++;
+                await Task.Delay(100); // Small delay between requests
+            }
+        }
+
+        private async Task LoadMoreModsAsync()
+        {
+            if (_isLoadingMore || !_hasMorePages) return;
+            
+            _isLoadingMore = true;
+            LoadingMorePanel.Visibility = Visibility.Visible;
+            
+            try
+            {
+                _currentPage++;
+                
+                var response = await GameBananaService.GetModsAsync(
+                    _gameTag, 
+                    _currentPage, 
+                    _currentSearch, 
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
+
+                if (response?.Records == null || response.Records.Count == 0)
+                {
+                    _hasMorePages = false;
+                    return;
+                }
+
+                // Check if there are more pages
+                if (response.Metadata != null)
+                {
+                    _hasMorePages = !response.Metadata.IsComplete;
+                }
+                else
+                {
+                    _hasMorePages = response.Records.Count >= 50;
+                }
+
+                foreach (var record in response.Records)
+                {
+                    // Skip NSFW content if setting is enabled
+                    if (record.HasContentRatings && SettingsManager.Current.BlurNSFWThumbnails)
+                    {
+                        continue;
+                    }
+
+                    var viewModel = new ModViewModel
+                    {
+                        Id = record.Id,
+                        Name = record.Name,
+                        AuthorName = record.Submitter?.Name ?? "Unknown",
+                        ProfileUrl = record.ProfileUrl,
+                        LikeCount = record.GetLikeCount(),
+                        ViewCount = record.GetViewCount(),
+                        DateAdded = record.DateAdded,
+                        DateModified = record.DateModified,
+                        DateUpdated = record.DateUpdated,
+                        IsRated = record.HasContentRatings
+                    };
+
+                    // Get preview image
+                    var image = record.PreviewMedia?.Images?.FirstOrDefault();
+                    if (image != null)
+                    {
+                        viewModel.ImageUrl = $"{image.BaseUrl}/{image.File220 ?? image.File100 ?? image.File}";
+                    }
+
+                    _mods.Add(viewModel);
+                }
+
+                // Load images for new mods
+                _ = LoadImagesAsync();
+                
+                // Check if we still need more content after loading
+                await Task.Delay(200); // Wait for layout to update
+                CheckIfNeedMoreContent();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to load more mods from GameBanana", ex);
+                _hasMorePages = false;
+            }
+            finally
+            {
+                _isLoadingMore = false;
+                LoadingMorePanel.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void CheckIfNeedMoreContent()
+        {
+            // If ScrollViewer doesn't have enough content to scroll, load more
+            if (_modsScrollViewer != null && _hasMorePages && !_isLoadingMore)
+            {
+                var scrollableHeight = _modsScrollViewer.ScrollableHeight;
+                
+                // If there's no scrollable content (everything fits on screen), load more
+                if (scrollableHeight <= 0)
+                {
+                    Logger.LogInfo("No scrollable content, loading more mods automatically");
+                    _ = LoadMoreModsAsync();
+                }
             }
         }
 
@@ -648,21 +832,7 @@ namespace FlairX_Mod_Manager.Pages
 
 
 
-        private void PageNumberTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
-        {
-            if (e.Key == Windows.System.VirtualKey.Enter)
-            {
-                if (int.TryParse(PageNumberTextBox.Text, out var page) && page > 0)
-                {
-                    _currentPage = page;
-                    _ = LoadModsAsync();
-                }
-                else
-                {
-                    PageNumberTextBox.Text = _currentPage.ToString();
-                }
-            }
-        }
+
 
         // Tilt animation methods
         private void ModTile_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)

@@ -226,6 +226,36 @@ namespace FlairX_Mod_Manager.Services
             
             [JsonPropertyName("_tsDateModified")]
             public long DateModified { get; set; }
+            
+            [JsonPropertyName("_tsDateUpdated")]
+            public long DateUpdated { get; set; }
+            
+            [JsonPropertyName("_nViewCount")]
+            public int ViewCount { get; set; }
+            
+            [JsonPropertyName("_nLikeCount")]
+            public int LikeCount { get; set; }
+            
+            [JsonPropertyName("_nDownloadCount")]
+            public int DownloadCount { get; set; }
+            
+            [JsonPropertyName("_nPostCount")]
+            public int PostCount { get; set; }
+            
+            [JsonPropertyName("_aCategory")]
+            public object? Category { get; set; }
+            
+            [JsonPropertyName("_aGame")]
+            public object? Game { get; set; }
+            
+            [JsonPropertyName("_sVersion")]
+            public string? Version { get; set; }
+            
+            [JsonPropertyName("_bIsObsolete")]
+            public bool IsObsolete { get; set; }
+            
+            [JsonPropertyName("_aRootCategory")]
+            public RootCategory? RootCategory { get; set; }
         }
 
         public class ModFile
@@ -330,7 +360,7 @@ namespace FlairX_Mod_Manager.Services
         {
             try
             {
-                var url = $"https://gamebanana.com/apiv11/Mod/{modId}?_csvProperties=_idRow,_sName,_sText,_sProfileUrl,_aSubmitter,_aFiles,_aPreviewMedia,_tsDateAdded,_tsDateModified";
+                var url = $"https://gamebanana.com/apiv11/Mod/{modId}?_csvProperties=_idRow,_sName,_sText,_sProfileUrl,_aSubmitter,_aFiles,_aPreviewMedia,_tsDateAdded,_tsDateModified,_tsDateUpdated,_nViewCount,_nLikeCount,_nDownloadCount,_nPostCount,_aCategory,_aGame,_sVersion,_bIsObsolete,_aRootCategory";
 
                 _httpClient.DefaultRequestHeaders.Clear();
                 _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/2.6.8");
