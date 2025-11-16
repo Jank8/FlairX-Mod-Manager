@@ -33,11 +33,26 @@ namespace FlairX_Mod_Manager.Services
             [JsonPropertyName("_aRecords")]
             public List<ModRecord>? Records { get; set; }
             
+            [JsonPropertyName("_aMetadata")]
+            public ResponseMetadata? Metadata { get; set; }
+            
             [JsonPropertyName("_nRecordCount")]
             public int RecordCount { get; set; }
             
             [JsonPropertyName("_nPerpage")]
             public int PerPage { get; set; }
+        }
+
+        public class ResponseMetadata
+        {
+            [JsonPropertyName("_nRecordCount")]
+            public int RecordCount { get; set; }
+            
+            [JsonPropertyName("_nPerpage")]
+            public int PerPage { get; set; }
+            
+            [JsonPropertyName("_bIsComplete")]
+            public bool IsComplete { get; set; }
         }
 
         public class ModRecord
@@ -56,6 +71,9 @@ namespace FlairX_Mod_Manager.Services
             
             [JsonPropertyName("_tsDateModified")]
             public long DateModified { get; set; }
+            
+            [JsonPropertyName("_tsDateUpdated")]
+            public long DateUpdated { get; set; }
             
             [JsonPropertyName("_nViewCount")]
             public int ViewCount { get; set; }
@@ -83,6 +101,12 @@ namespace FlairX_Mod_Manager.Services
             
             [JsonPropertyName("_aRootCategory")]
             public RootCategory? RootCategory { get; set; }
+            
+            [JsonPropertyName("_bHasContentRatings")]
+            public bool HasContentRatings { get; set; }
+            
+            [JsonPropertyName("_bHasRipe")]
+            public bool HasRipe { get; set; }
             
             // Helper properties to get stats from metadata if main properties are 0
             public int GetDownloadCount()
@@ -156,6 +180,9 @@ namespace FlairX_Mod_Manager.Services
             
             [JsonPropertyName("_sProfileUrl")]
             public string ProfileUrl { get; set; } = "";
+            
+            [JsonPropertyName("_sAvatarUrl")]
+            public string? AvatarUrl { get; set; }
         }
 
         public class RootCategory
@@ -226,7 +253,7 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
-        /// Get list of mods for a specific game
+        /// Get list of mods for a specific game using proper API endpoints
         /// </summary>
         public static async Task<ModListResponse?> GetModsAsync(
             string gameTag, 
@@ -248,49 +275,30 @@ namespace FlairX_Mod_Manager.Services
                     return null;
                 }
 
-                // Build API URL - explicitly request fields we need
-                var url = $"https://gamebanana.com/apiv11/Game/{gameId}/Subfeed?_nPage={page}&_nPerpage=50&_csvModelInclusions=Mod&_csvProperties=_idRow,_sName,_sProfileUrl,_tsDateAdded,_tsDateModified,_nViewCount,_nLikeCount,_nDownloadCount,_aPreviewMedia,_aSubmitter";
+                // Build API URL - use Subfeed with proper properties
+                var url = $"https://gamebanana.com/apiv11/Game/{gameId}/Subfeed?_nPage={page}&_nPerpage=50&_csvModelInclusions=Mod&_csvProperties=_idRow,_sName,_sProfileUrl,_tsDateAdded,_tsDateModified,_tsDateUpdated,_nViewCount,_nLikeCount,_nDownloadCount,_aPreviewMedia,_aSubmitter,_bHasContentRatings";
                 
                 if (!string.IsNullOrEmpty(search))
                 {
                     url += $"&_sName={Uri.EscapeDataString(search)}";
                 }
                 
-                // Sort options: date_added, date_modified, views, likes, downloads
-                if (!string.IsNullOrEmpty(sort))
-                {
-                    url += $"&_sOrderBy={sort}";
-                }
-                
-                // Feed type: featured (Ripe), new, updated
+                // Sort by feed type
                 if (!string.IsNullOrEmpty(feedType))
                 {
-                    url += $"&_sRecordFeedStyle={feedType}";
+                    switch (feedType)
+                    {
+                        case "new":
+                            url += "&_sOrderBy=_tsDateAdded,DESC";
+                            break;
+                        case "updated":
+                            url += "&_sOrderBy=_tsDateUpdated,DESC";
+                            break;
+                    }
                 }
-                
-                // Include sections
-                if (includeSections != null && includeSections.Count > 0)
-                {
-                    url += $"&_aFilters[Generic_Category]={string.Join(",", includeSections)}";
-                }
-                
-                // Exclude sections
-                if (excludeSections != null && excludeSections.Count > 0)
-                {
-                    url += $"&_aExcludeFilters[Generic_Category]={string.Join(",", excludeSections)}";
-                }
-                
-                // Include tags
-                if (includeTags != null && includeTags.Count > 0)
-                {
-                    url += $"&_csvTags={string.Join(",", includeTags.Select(Uri.EscapeDataString))}";
-                }
-                
-                // Exclude tags
-                if (excludeTags != null && excludeTags.Count > 0)
-                {
-                    url += $"&_csvExcludeTags={string.Join(",", excludeTags.Select(Uri.EscapeDataString))}";
-                }
+
+                // Log the URL for debugging
+                Logger.LogInfo($"GameBanana API URL: {url}");
 
                 _httpClient.DefaultRequestHeaders.Clear();
                 _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/2.6.8");
@@ -300,7 +308,6 @@ namespace FlairX_Mod_Manager.Services
 
                 var content = await response.Content.ReadAsStringAsync();
                 var result = JsonSerializer.Deserialize<ModListResponse>(content);
-
                 return result;
             }
             catch (Exception ex)
@@ -309,7 +316,11 @@ namespace FlairX_Mod_Manager.Services
                 return null;
             }
         }
+
+
         
+
+
 
 
         /// <summary>

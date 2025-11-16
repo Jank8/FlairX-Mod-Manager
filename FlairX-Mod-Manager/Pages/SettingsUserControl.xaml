@@ -400,6 +400,25 @@
                         <ToggleSwitch Grid.Column="3" x:Name="MinimizeToTrayToggle" Toggled="MinimizeToTrayToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
                     </Grid>
                     
+                    <!-- Blur NSFW Thumbnails -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE7B3;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock x:Name="BlurNSFWLabel" Text="Hide NSFW Content" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="BlurNSFWDescription" Text="Hide mods marked as 'rated' in GameBanana browser" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        
+                        <ToggleSwitch Grid.Column="3" x:Name="BlurNSFWToggle" Toggled="BlurNSFWToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
+                    </Grid>
+                    
                     <!-- Hotkeys Section Header with Toggle -->
                     <Grid Margin="0,35,0,0">
                         <Grid.ColumnDefinitions>

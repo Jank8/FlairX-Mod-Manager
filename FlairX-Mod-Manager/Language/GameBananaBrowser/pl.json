@@ -49,11 +49,12 @@
   "Error": "Błąd",
   "Cancel": "Anuluj",
   "Close": "Zamknij",
-  "FeedRipe": "Polecane",
   "FeedNew": "Nowe",
   "FeedUpdated": "Zaktualizowane",
-  "AdvancedFilters": "Zaawansowane filtry",
-  "IncludeTags": "Uwzględnij tagi",
-  "ExcludeTags": "Wyklucz tagi",
+  "FeedNewAndUpdated": "Nowe i zaktualizowane",
+  "FeedRipe": "Najlepsze",
+  "FeedPopular": "Popularne",
+  "FeedFeatured": "Wyróżnione",
+  "FeedHallOfFame": "Galeria sław",
   "Page": "Strona"
 }

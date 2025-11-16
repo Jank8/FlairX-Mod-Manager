@@ -72,6 +72,9 @@ namespace FlairX_Mod_Manager
         public string? LastSelectedPage { get; set; } = "ModGridPage";
         public string? LastViewMode { get; set; } // "Mods" or "Categories"
         public bool RememberLastPosition { get; set; } = true;
+        
+        // GameBanana settings
+        public bool BlurNSFWThumbnails { get; set; } = true;
     }
 
     public static class SettingsManager

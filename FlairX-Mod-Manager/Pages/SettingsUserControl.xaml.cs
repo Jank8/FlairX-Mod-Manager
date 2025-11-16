@@ -427,6 +427,7 @@ namespace FlairX_Mod_Manager.Pages
             DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
             GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
             MinimizeToTrayToggle.IsOn = SettingsManager.Current.MinimizeToTrayEnabled;
+            BlurNSFWToggle.IsOn = SettingsManager.Current.BlurNSFWThumbnails;
             HotkeysEnabledToggle.IsOn = SettingsManager.Current.HotkeysEnabled;
             
             // Update hotkeys section state
@@ -1447,6 +1448,12 @@ namespace FlairX_Mod_Manager.Pages
         private void MinimizeToTrayToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.MinimizeToTrayEnabled = MinimizeToTrayToggle.IsOn;
+            SettingsManager.Save();
+        }
+
+        private void BlurNSFWToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.BlurNSFWThumbnails = BlurNSFWToggle.IsOn;
             SettingsManager.Save();
         }
 

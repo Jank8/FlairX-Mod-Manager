@@ -49,11 +49,12 @@
   "Error": "Error",
   "Cancel": "Cancel",
   "Close": "Close",
-  "FeedRipe": "Ripe",
   "FeedNew": "New",
   "FeedUpdated": "Updated",
-  "AdvancedFilters": "Advanced Filters",
-  "IncludeTags": "Include Tags",
-  "ExcludeTags": "Exclude Tags",
+  "FeedNewAndUpdated": "New & Updated",
+  "FeedRipe": "Ripe",
+  "FeedPopular": "Popular",
+  "FeedFeatured": "Featured",
+  "FeedHallOfFame": "Hall of Fame",
   "Page": "Page"
 }

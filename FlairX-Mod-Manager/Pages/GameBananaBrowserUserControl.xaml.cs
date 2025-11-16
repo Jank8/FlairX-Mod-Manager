@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,9 +17,6 @@ namespace FlairX_Mod_Manager.Pages
         private string _gameTag = "";
         private int _currentPage = 1;
         private string? _currentSearch = null;
-        private string? _currentFeedType = "featured";
-        private System.Collections.Generic.List<string>? _includeTags = null;
-        private System.Collections.Generic.List<string>? _excludeTags = null;
         private ObservableCollection<ModViewModel> _mods = new();
         private System.Collections.Generic.Dictionary<string, string> _lang = new();
         private GameBananaService.ModDetailsResponse? _currentModDetails;
@@ -27,6 +25,10 @@ namespace FlairX_Mod_Manager.Pages
         // Tilt animation system
         private readonly System.Collections.Generic.Dictionary<Button, (double tiltX, double tiltY)> _tileTiltTargets = new();
         private readonly System.Collections.Generic.Dictionary<Button, DateTime> _lastTileAnimationUpdate = new();
+        
+        // Image slider for details
+        private System.Collections.Generic.List<string> _detailPreviewImages = new();
+        private int _currentDetailImageIndex = 0;
         
         private enum NavigationState
         {
@@ -48,12 +50,16 @@ namespace FlairX_Mod_Manager.Pages
             public int ViewCount { get; set; }
             public long DateAdded { get; set; }
             public long DateModified { get; set; }
+            public long DateUpdated { get; set; }
+            public bool IsRated { get; set; } = false;
             
             public string DownloadCountFormatted => FormatCount(DownloadCount);
             public string LikeCountFormatted => FormatCount(LikeCount);
             public string ViewCountFormatted => FormatCount(ViewCount);
             public string DateAddedFormatted => FormatDate(DateAdded);
             public string DateModifiedFormatted => FormatDate(DateModified);
+            public string DateUpdatedFormatted => FormatDate(DateUpdated);
+            public Visibility HasUpdate => (DateUpdated > 0 && DateUpdated != DateAdded) ? Visibility.Visible : Visibility.Collapsed;
 
             private BitmapImage? _imageSource;
             public BitmapImage? ImageSource
@@ -83,20 +89,8 @@ namespace FlairX_Mod_Manager.Pages
                 if (timestamp == 0) return "";
                 
                 var date = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime;
-                var now = DateTime.Now;
-                var diff = now - date;
-                
-                if (diff.TotalDays < 1)
-                    return "Today";
-                if (diff.TotalDays < 2)
-                    return "Yesterday";
-                if (diff.TotalDays < 7)
-                    return $"{(int)diff.TotalDays}d ago";
-                if (diff.TotalDays < 30)
-                    return $"{(int)(diff.TotalDays / 7)}w ago";
-                if (diff.TotalDays < 365)
-                    return $"{(int)(diff.TotalDays / 30)}mo ago";
-                return $"{(int)(diff.TotalDays / 365)}y ago";
+                // Return date in local format (e.g., "16.11.2024" or "11/16/2024" depending on locale)
+                return date.ToShortDateString();
             }
 
             public event PropertyChangedEventHandler? PropertyChanged;
@@ -124,16 +118,7 @@ namespace FlairX_Mod_Manager.Pages
 
             // Set UI text
             SearchBox.PlaceholderText = SharedUtilities.GetTranslation(_lang, "SearchPlaceholder");
-            IncludeTagsLabel.Text = SharedUtilities.GetTranslation(_lang, "IncludeTags");
-            ExcludeTagsLabel.Text = SharedUtilities.GetTranslation(_lang, "ExcludeTags");
             PageLabel.Text = SharedUtilities.GetTranslation(_lang, "Page");
-            FiltersExpanderHeader.Text = SharedUtilities.GetTranslation(_lang, "AdvancedFilters");
-            
-            // Set FeedType translations and select default
-            FeedRipeItem.Content = SharedUtilities.GetTranslation(_lang, "FeedRipe");
-            FeedNewItem.Content = SharedUtilities.GetTranslation(_lang, "FeedNew");
-            FeedUpdatedItem.Content = SharedUtilities.GetTranslation(_lang, "FeedUpdated");
-            FeedTypeComboBox.SelectedItem = FeedRipeItem;
             
             ModsGridView.ItemsSource = _mods;
             
@@ -162,16 +147,19 @@ namespace FlairX_Mod_Manager.Pages
                 EmptyPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Collapsed;
 
+                _mods.Clear();
+                
+                // Fetch single page from API
                 var response = await GameBananaService.GetModsAsync(
                     _gameTag, 
                     _currentPage, 
                     _currentSearch, 
                     null,
-                    _currentFeedType,
                     null,
                     null,
-                    _includeTags,
-                    _excludeTags);
+                    null,
+                    null,
+                    null);
 
                 if (response?.Records == null || response.Records.Count == 0)
                 {
@@ -185,9 +173,25 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
 
-                _mods.Clear();
+                // Check if there are more pages
+                bool hasMore = true;
+                if (response.Metadata != null)
+                {
+                    hasMore = !response.Metadata.IsComplete;
+                }
+                else
+                {
+                    hasMore = response.Records.Count >= 50;
+                }
+
                 foreach (var record in response.Records)
                 {
+                    // Skip NSFW content if setting is enabled
+                    if (record.HasContentRatings && SettingsManager.Current.BlurNSFWThumbnails)
+                    {
+                        continue;
+                    }
+
                     var viewModel = new ModViewModel
                     {
                         Id = record.Id,
@@ -197,7 +201,9 @@ namespace FlairX_Mod_Manager.Pages
                         LikeCount = record.GetLikeCount(),
                         ViewCount = record.GetViewCount(),
                         DateAdded = record.DateAdded,
-                        DateModified = record.DateModified
+                        DateModified = record.DateModified,
+                        DateUpdated = record.DateUpdated,
+                        IsRated = record.HasContentRatings
                     };
 
                     // Get preview image
@@ -210,6 +216,18 @@ namespace FlairX_Mod_Manager.Pages
                     _mods.Add(viewModel);
                 }
 
+                if (_mods.Count == 0)
+                {
+                    LoadingPanel.Visibility = Visibility.Collapsed;
+                    EmptyPanel.Visibility = Visibility.Visible;
+                    EmptyText.Text = string.IsNullOrEmpty(_currentSearch) 
+                        ? SharedUtilities.GetTranslation(_lang, "NoModsFound")
+                        : SharedUtilities.GetTranslation(_lang, "NoModsMatchSearch");
+                    PrevPageButton.IsEnabled = _currentPage > 1;
+                    NextPageButton.IsEnabled = false;
+                    return;
+                }
+
                 // Load images asynchronously
                 _ = LoadImagesAsync();
 
@@ -219,7 +237,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Update pagination
                 PageNumberTextBox.Text = _currentPage.ToString();
                 PrevPageButton.IsEnabled = _currentPage > 1;
-                NextPageButton.IsEnabled = response.Records.Count >= response.PerPage;
+                NextPageButton.IsEnabled = hasMore;
             }
             catch (Exception ex)
             {
@@ -258,11 +276,7 @@ namespace FlairX_Mod_Manager.Pages
             _currentSearch = string.IsNullOrWhiteSpace(args.QueryText) ? null : args.QueryText;
             _currentPage = 1;
             _ = LoadModsAsync();
-        }
-
-
-
-        private void RefreshButton_Loaded(object sender, RoutedEventArgs e)
+        }        private void RefreshButton_Loaded(object sender, RoutedEventArgs e)
         {
             ToolTipService.SetToolTip(RefreshButton, SharedUtilities.GetTranslation(_lang, "RefreshTooltip"));
         }
@@ -375,8 +389,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Show loading state in details panel first
                 DetailLoadingPanel.Visibility = Visibility.Visible;
                 DetailAuthor.Visibility = Visibility.Collapsed;
-                DetailPreviewPanel.Visibility = Visibility.Collapsed;
-                DetailDescription.Visibility = Visibility.Collapsed;
+                DetailImage.Visibility = Visibility.Collapsed;
                 DetailDescriptionTitle.Visibility = Visibility.Collapsed;
                 DetailFilesTitle.Visibility = Visibility.Collapsed;
                 DetailFilesList.Visibility = Visibility.Collapsed;
@@ -399,27 +412,44 @@ namespace FlairX_Mod_Manager.Pages
                 // Update UI
                 TitleText.Text = _currentModDetails.Name;
                 DetailAuthor.Text = _currentModDetails.Submitter?.Name ?? "Unknown";
-                DetailDescription.Text = string.IsNullOrWhiteSpace(_currentModDetails.Description) 
-                    ? "No description available." 
-                    : _currentModDetails.Description;
+                
+                // Load description in MarkdownTextBlock
+                LoadDescriptionInMarkdown(_currentModDetails.Description);
+                
+                // Load author avatar
+                if (!string.IsNullOrEmpty(_currentModDetails.Submitter?.AvatarUrl))
+                {
+                    try
+                    {
+                        DetailAuthorAvatar.Source = new BitmapImage(new Uri(_currentModDetails.Submitter.AvatarUrl));
+                    }
+                    catch
+                    {
+                        DetailAuthorAvatar.Source = null;
+                    }
+                }
+                else
+                {
+                    DetailAuthorAvatar.Source = null;
+                }
+                
+                // Set profile link
+                DetailAuthorProfileLink.Tag = _currentModDetails.Submitter?.ProfileUrl;
 
-                // Load preview images
-                DetailPreviewImages.Children.Clear();
+                // Load preview images into slider
+                _detailPreviewImages.Clear();
+                _currentDetailImageIndex = 0;
+                
                 if (_currentModDetails.PreviewMedia?.Images != null && _currentModDetails.PreviewMedia.Images.Count > 0)
                 {
-                    DetailPreviewPanel.Visibility = Visibility.Visible;
-                    foreach (var image in _currentModDetails.PreviewMedia.Images.Take(5))
+                    foreach (var image in _currentModDetails.PreviewMedia.Images)
                     {
                         var imageUrl = $"{image.BaseUrl}/{image.File530 ?? image.File}";
-                        var img = new Image
-                        {
-                            Width = 400,
-                            Height = 300,
-                            Stretch = Microsoft.UI.Xaml.Media.Stretch.UniformToFill,
-                            Source = new BitmapImage(new Uri(imageUrl))
-                        };
-                        DetailPreviewImages.Children.Add(img);
+                        _detailPreviewImages.Add(imageUrl);
                     }
+                    
+                    LoadCurrentDetailImage();
+                    UpdateDetailImageNavigation();
                 }
 
                 // Load files
@@ -435,7 +465,8 @@ namespace FlairX_Mod_Manager.Pages
                             FileSize = file.FileSize,
                             Description = file.Description,
                             DownloadUrl = file.DownloadUrl,
-                            DownloadCount = file.DownloadCount
+                            DownloadCount = file.DownloadCount,
+                            DateAdded = file.DateAdded
                         });
                     }
 
@@ -455,10 +486,10 @@ namespace FlairX_Mod_Manager.Pages
                     DetailDownloadButton.Content = SharedUtilities.GetTranslation(_lang, "NoFilesAvailable");
                 }
 
-                // Show content
+                // Show content (WebView/TextBlock visibility is set in LoadDescriptionInWebView)
                 DetailLoadingPanel.Visibility = Visibility.Collapsed;
                 DetailAuthor.Visibility = Visibility.Visible;
-                DetailDescription.Visibility = Visibility.Visible;
+                DetailImage.Visibility = Visibility.Visible;
                 DetailDescriptionTitle.Visibility = Visibility.Visible;
                 DetailFilesTitle.Visibility = Visibility.Visible;
                 DetailFilesList.Visibility = Visibility.Visible;
@@ -562,63 +593,60 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-
-
-        private void FeedTypeComboBox_Loaded(object sender, RoutedEventArgs e)
+        private void DetailCopyLinkButton_Click(object sender, RoutedEventArgs e)
         {
-            // Translations are set in constructor, just ensure selection
-            if (FeedTypeComboBox.SelectedItem == null)
+            if (_currentModDetails != null && !string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
             {
-                FeedTypeComboBox.SelectedItem = FeedRipeItem;
-            }
-        }
-
-        private void FeedTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (FeedTypeComboBox.SelectedItem is ComboBoxItem item && item.Tag is string feedType)
-            {
-                _currentFeedType = feedType;
-                _currentPage = 1;
-                _ = LoadModsAsync();
-            }
-        }
-
-
-
-
-
-        private System.Threading.CancellationTokenSource? _tagsDebounceToken;
-
-        private async void TagsTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            // Debounce - wait 500ms after user stops typing
-            _tagsDebounceToken?.Cancel();
-            _tagsDebounceToken = new System.Threading.CancellationTokenSource();
-            
-            try
-            {
-                await Task.Delay(500, _tagsDebounceToken.Token);
-                
-                // Parse tags
-                var includeText = IncludeTagsTextBox.Text?.Trim();
-                var excludeText = ExcludeTagsTextBox.Text?.Trim();
-                
-                _includeTags = string.IsNullOrEmpty(includeText) 
-                    ? null 
-                    : includeText.Split(',').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t)).ToList() as System.Collections.Generic.List<string>;
+                try
+                {
+                    var dataPackage = new Windows.ApplicationModel.DataTransfer.DataPackage();
+                    dataPackage.SetText(_currentModDetails.ProfileUrl);
+                    Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
                     
-                _excludeTags = string.IsNullOrEmpty(excludeText) 
-                    ? null 
-                    : excludeText.Split(',').Select(t => t.Trim()).Where(t => !string.IsNullOrEmpty(t)).ToList() as System.Collections.Generic.List<string>;
-                
-                _currentPage = 1;
-                await LoadModsAsync();
-            }
-            catch (TaskCanceledException)
-            {
-                // Debounce cancelled, ignore
+                    Logger.LogInfo($"Copied mod link to clipboard: {_currentModDetails.ProfileUrl}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to copy mod link to clipboard", ex);
+                }
             }
         }
+
+        private async void DetailShareButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentModDetails != null && !string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
+            {
+                try
+                {
+                    var dataTransferManager = Windows.ApplicationModel.DataTransfer.DataTransferManager.GetForCurrentView();
+                    dataTransferManager.DataRequested += (sender, args) =>
+                    {
+                        args.Request.Data.Properties.Title = _currentModDetails.Name;
+                        args.Request.Data.Properties.Description = "GameBanana Mod";
+                        args.Request.Data.SetWebLink(new Uri(_currentModDetails.ProfileUrl));
+                        args.Request.Data.SetText(_currentModDetails.ProfileUrl);
+                    };
+                    
+                    Windows.ApplicationModel.DataTransfer.DataTransferManager.ShowShareUI();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to share mod link", ex);
+                    // Fallback to copying to clipboard
+                    DetailCopyLinkButton_Click(sender, e);
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+
 
         private void PageNumberTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
         {
@@ -810,6 +838,234 @@ namespace FlairX_Mod_Manager.Pages
                 if (result != null) return result;
             }
             return null;
+        }
+
+        // Detail image slider methods
+        private void LoadCurrentDetailImage()
+        {
+            try
+            {
+                if (_detailPreviewImages.Count > 0 && _currentDetailImageIndex >= 0 && _currentDetailImageIndex < _detailPreviewImages.Count)
+                {
+                    var imageUrl = _detailPreviewImages[_currentDetailImageIndex];
+                    DetailImage.Source = new BitmapImage(new Uri(imageUrl));
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error loading detail image", ex);
+            }
+        }
+
+        private void UpdateDetailImageNavigation()
+        {
+            bool hasMultipleImages = _detailPreviewImages.Count > 1;
+            
+            DetailPrevImageButton.Visibility = hasMultipleImages ? Visibility.Visible : Visibility.Collapsed;
+            DetailNextImageButton.Visibility = hasMultipleImages ? Visibility.Visible : Visibility.Collapsed;
+            DetailImageCounterBorder.Visibility = hasMultipleImages ? Visibility.Visible : Visibility.Collapsed;
+            
+            if (hasMultipleImages)
+            {
+                DetailImageCounterText.Text = $"{_currentDetailImageIndex + 1} / {_detailPreviewImages.Count}";
+            }
+        }
+
+        private void DetailPrevImageButton_Click(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (_currentDetailImageIndex > 0)
+            {
+                _currentDetailImageIndex--;
+                LoadCurrentDetailImage();
+                UpdateDetailImageNavigation();
+            }
+        }
+
+        private void DetailNextImageButton_Click(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (_currentDetailImageIndex < _detailPreviewImages.Count - 1)
+            {
+                _currentDetailImageIndex++;
+                LoadCurrentDetailImage();
+                UpdateDetailImageNavigation();
+            }
+        }
+
+        // Detail image tilt animation - DISABLED for performance
+        private void DetailImageCoordinateField_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            // Disabled for performance
+        }
+
+        private void DetailImageCoordinateField_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            // Disabled for performance
+        }
+
+        private void DetailImageCoordinateField_PointerMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            // Disabled for performance
+        }
+
+        // Author avatar hover effect
+        private void AuthorAvatar_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            var scaleAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.1,
+                Duration = new Duration(TimeSpan.FromMilliseconds(150))
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimation, DetailAuthorAvatarScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimation, "ScaleX");
+            storyboard.Children.Add(scaleAnimation);
+
+            var scaleAnimationY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.1,
+                Duration = new Duration(TimeSpan.FromMilliseconds(150))
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimationY, DetailAuthorAvatarScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimationY, "ScaleY");
+            storyboard.Children.Add(scaleAnimationY);
+
+            storyboard.Begin();
+        }
+
+        private void AuthorAvatar_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            var scaleAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(150))
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimation, DetailAuthorAvatarScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimation, "ScaleX");
+            storyboard.Children.Add(scaleAnimation);
+
+            var scaleAnimationY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(150))
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimationY, DetailAuthorAvatarScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimationY, "ScaleY");
+            storyboard.Children.Add(scaleAnimationY);
+
+            storyboard.Begin();
+        }
+
+        private async void DetailAuthorProfileLink_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is HyperlinkButton button && button.Tag is string profileUrl && !string.IsNullOrEmpty(profileUrl))
+            {
+                await Windows.System.Launcher.LaunchUriAsync(new Uri(profileUrl));
+            }
+        }
+
+        private void LoadDescriptionInMarkdown(string? htmlContent)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(htmlContent))
+                {
+                    DetailDescriptionMarkdown.Text = "No description available.";
+                    return;
+                }
+                
+                // Convert HTML to Markdown with custom config
+                var config = new ReverseMarkdown.Config
+                {
+                    UnknownTags = ReverseMarkdown.Config.UnknownTagsOption.PassThrough,
+                    GithubFlavored = true,
+                    RemoveComments = true,
+                    SmartHrefHandling = true
+                };
+                var converter = new ReverseMarkdown.Converter(config);
+                var markdown = converter.Convert(htmlContent);
+                
+                // Clean up excessive whitespace
+                // Remove more than 2 consecutive newlines
+                markdown = System.Text.RegularExpressions.Regex.Replace(markdown, @"\n{3,}", "\n\n");
+                // Remove whitespace before/after images
+                markdown = System.Text.RegularExpressions.Regex.Replace(markdown, @"\n+!\[", "\n\n![");
+                markdown = System.Text.RegularExpressions.Regex.Replace(markdown, @"\)\n+", ")\n\n");
+                // Trim each line
+                var lines = markdown.Split('\n');
+                markdown = string.Join('\n', lines.Select(l => l.Trim()));
+                
+                Logger.LogInfo($"Description converted to Markdown ({markdown.Length} chars)");
+                
+                // Just set the markdown text directly
+                DetailDescriptionMarkdown.Text = markdown;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to convert HTML to Markdown", ex);
+                DetailDescriptionMarkdown.Text = "Failed to load description.";
+            }
+        }
+
+        private void DetailDescriptionScrollViewer_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateMarkdownImages();
+        }
+
+        private void DetailDescriptionMarkdown_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Images will be resized on SizeChanged event
+        }
+
+
+
+        private void UpdateMarkdownImages()
+        {
+            try
+            {
+                var availableWidth = DetailDescriptionScrollViewer.ActualWidth;
+                if (availableWidth <= 0) return;
+
+                var maxWidth = availableWidth - 20;
+                UpdateImagesInPanel(DetailDescriptionMarkdown, maxWidth);
+            }
+            catch { }
+        }
+
+        private void UpdateImagesInPanel(DependencyObject parent, double maxWidth)
+        {
+            try
+            {
+                int childCount = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(parent);
+                for (int i = 0; i < childCount; i++)
+                {
+                    var child = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(parent, i);
+                    
+                    if (child is Image img)
+                    {
+                        img.Width = maxWidth;
+                        img.Height = double.NaN;
+                        img.Stretch = Microsoft.UI.Xaml.Media.Stretch.Uniform;
+                        img.HorizontalAlignment = HorizontalAlignment.Left;
+                        img.VerticalAlignment = VerticalAlignment.Top;
+                        img.Margin = new Thickness(0, 4, 0, 4);
+                        
+                        if (img.Parent is FrameworkElement parentElement)
+                        {
+                            parentElement.Height = double.NaN;
+                            parentElement.Margin = new Thickness(0, 4, 0, 4);
+                            parentElement.VerticalAlignment = VerticalAlignment.Top;
+                        }
+                    }
+                    else if (child is Microsoft.UI.Xaml.Documents.Paragraph paragraph)
+                    {
+                        paragraph.Margin = new Thickness(0, 4, 0, 4);
+                    }
+                    
+                    UpdateImagesInPanel(child, maxWidth);
+                }
+            }
+            catch { }
         }
     }
 }

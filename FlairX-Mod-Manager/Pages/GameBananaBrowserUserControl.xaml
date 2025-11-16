@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ctk="using:CommunityToolkit.WinUI.Controls"
     mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -69,16 +70,10 @@
 
             <!-- Search and filters -->
             <Grid Grid.Row="0" Padding="16">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                
-                <!-- First row: Search, Feed Type, Refresh -->
-                <Grid Grid.Row="0">
+                <!-- Search and Refresh -->
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
@@ -90,52 +85,14 @@
                                     TextChanged="SearchBox_TextChanged"
                                     Margin="0,0,12,0"/>
 
-                    <ComboBox x:Name="FeedTypeComboBox"
-                              Grid.Column="1"
-                              Width="120"
-                              Margin="0,0,12,0"
-                              SelectionChanged="FeedTypeComboBox_SelectionChanged"
-                              Loaded="FeedTypeComboBox_Loaded">
-                        <ComboBoxItem x:Name="FeedRipeItem" Tag="featured" IsSelected="True"/>
-                        <ComboBoxItem x:Name="FeedNewItem" Tag="new"/>
-                        <ComboBoxItem x:Name="FeedUpdatedItem" Tag="updated"/>
-                    </ComboBox>
-
                     <Button x:Name="RefreshButton"
-                            Grid.Column="2"
+                            Grid.Column="1"
                             Content="&#xE72C;"
                             FontFamily="Segoe MDL2 Assets"
                             Click="RefreshButton_Click"
                             Loaded="RefreshButton_Loaded"/>
                 </Grid>
-                
-                <!-- Second row: Advanced filters panel (collapsed by default) -->
-                <Expander x:Name="FiltersExpander"
-                          Grid.Row="1"
-                          HorizontalAlignment="Stretch"
-                          Margin="0,12,0,0"
-                          IsExpanded="False">
-                    <Expander.Header>
-                        <TextBlock x:Name="FiltersExpanderHeader" Text="Advanced Filters" FontWeight="SemiBold"/>
-                    </Expander.Header>
-                    <StackPanel Orientation="Horizontal" Spacing="24" Margin="0,12,0,0">
-                        <!-- Include Tags -->
-                        <StackPanel Width="300">
-                            <TextBlock x:Name="IncludeTagsLabel" Text="Include Tags" FontSize="12" Opacity="0.7" Margin="0,0,0,6"/>
-                            <TextBox x:Name="IncludeTagsTextBox" 
-                                     PlaceholderText="e.g. character, weapon"
-                                     TextChanged="TagsTextBox_TextChanged"/>
-                        </StackPanel>
-                        
-                        <!-- Exclude Tags -->
-                        <StackPanel Width="300">
-                            <TextBlock x:Name="ExcludeTagsLabel" Text="Exclude Tags" FontSize="12" Opacity="0.7" Margin="0,0,0,6"/>
-                            <TextBox x:Name="ExcludeTagsTextBox" 
-                                     PlaceholderText="e.g. nsfw, wip"
-                                     TextChanged="TagsTextBox_TextChanged"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Expander>
+
             </Grid>
 
         <!-- Mods grid -->
@@ -247,9 +204,9 @@
                                                         <Run Text="📅"/>
                                                         <Run Text="{Binding DateAddedFormatted}"/>
                                                     </TextBlock>
-                                                    <TextBlock FontSize="10" Opacity="0.6">
+                                                    <TextBlock FontSize="10" Opacity="0.6" Visibility="{Binding HasUpdate}">
                                                         <Run Text="🔄"/>
-                                                        <Run Text="{Binding DateModifiedFormatted}"/>
+                                                        <Run Text="{Binding DateUpdatedFormatted}"/>
                                                     </TextBlock>
                                                 </StackPanel>
                                             </StackPanel>
@@ -295,90 +252,267 @@
         
             <!-- Details panel (full view) -->
             <Grid x:Name="DetailsPanel" 
-                  Visibility="Collapsed">
-            <ScrollViewer>
-                <StackPanel Padding="24" Spacing="16">
-                    <!-- Author -->
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE77B;" FontSize="16" Opacity="0.7"/>
-                        <TextBlock x:Name="DetailAuthor" FontSize="14" Opacity="0.7"/>
-                    </StackPanel>
+                  Visibility="Collapsed"
+                  Padding="24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Top section: Image slider + Info -->
+                <Grid Grid.Row="0" Margin="0,0,0,24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="24"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
                     
-                    <!-- Preview images -->
-                    <StackPanel x:Name="DetailPreviewPanel" Spacing="12" Visibility="Collapsed">
-                        <TextBlock x:Name="DetailPreviewTitle" Text="Preview" FontSize="16" FontWeight="SemiBold"/>
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                            <StackPanel x:Name="DetailPreviewImages" Orientation="Horizontal" Spacing="12"/>
-                        </ScrollViewer>
-                    </StackPanel>
+                    <!-- Image Container with navigation -->
+                    <Viewbox Grid.Column="0" MaxWidth="600" MaxHeight="600" Stretch="Uniform" VerticalAlignment="Top">
+                        <Grid Width="500" Height="500">
+                            <!-- Coordinate field for hover -->
+                            <Grid x:Name="DetailImageCoordinateField" 
+                                  Width="500" Height="500" 
+                                  Background="Transparent"
+                                  PointerEntered="DetailImageCoordinateField_PointerEntered"
+                                  PointerExited="DetailImageCoordinateField_PointerExited"
+                                  PointerMoved="DetailImageCoordinateField_PointerMoved"/>
+                            
+                            <!-- Content with tilt animation -->
+                            <Grid x:Name="DetailImageContentRoot" Margin="25" IsHitTestVisible="False">
+                                <Border x:Name="DetailImageBorder" CornerRadius="12" BorderThickness="15" BorderBrush="{ThemeResource TileBorderBrush}">
+                                    <Border CornerRadius="8">
+                                        <Image x:Name="DetailImage" Stretch="Uniform"/>
+                                    </Border>
+                                </Border>
+                            </Grid>
+                            
+                            <!-- Previous Button -->
+                            <Border x:Name="DetailPrevImageButton" Width="48" Height="48" 
+                                    VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                                    Margin="50,0,0,50" Visibility="Collapsed"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource LauncherAcrylicBrush}"
+                                    PointerPressed="DetailPrevImageButton_Click"
+                                    PointerEntered="DetailImageCoordinateField_PointerEntered"
+                                    PointerExited="DetailImageCoordinateField_PointerExited"
+                                    PointerMoved="DetailImageCoordinateField_PointerMoved">
+                                <FontIcon Glyph="&#xE76B;" FontSize="20" 
+                                          Foreground="{ThemeResource ButtonForeground}"/>
+                            </Border>
+                            
+                            <!-- Next Button -->
+                            <Border x:Name="DetailNextImageButton" Width="48" Height="48" 
+                                    VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                    Margin="0,0,50,50" Visibility="Collapsed"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource LauncherAcrylicBrush}"
+                                    PointerPressed="DetailNextImageButton_Click"
+                                    PointerEntered="DetailImageCoordinateField_PointerEntered"
+                                    PointerExited="DetailImageCoordinateField_PointerExited"
+                                    PointerMoved="DetailImageCoordinateField_PointerMoved">
+                                <FontIcon Glyph="&#xE76C;" FontSize="20" 
+                                          Foreground="{ThemeResource ButtonForeground}"/>
+                            </Border>
+                            
+                            <!-- Image Counter -->
+                            <Border Background="{ThemeResource LauncherAcrylicBrush}" 
+                                    CornerRadius="12" Padding="8,4" Margin="0,0,0,50" 
+                                    VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                    x:Name="DetailImageCounterBorder" Visibility="Collapsed"
+                                    PointerEntered="DetailImageCoordinateField_PointerEntered"
+                                    PointerExited="DetailImageCoordinateField_PointerExited"
+                                    PointerMoved="DetailImageCoordinateField_PointerMoved">
+                                <TextBlock x:Name="DetailImageCounterText" Text="1 / 1" FontSize="12" 
+                                           Foreground="{ThemeResource ButtonForeground}"/>
+                            </Border>
+                        </Grid>
+                    </Viewbox>
                     
-                    <!-- Description -->
-                    <StackPanel Spacing="8">
-                        <TextBlock x:Name="DetailDescriptionTitle" Text="Description" FontSize="16" FontWeight="SemiBold"/>
-                        <TextBlock x:Name="DetailDescription" TextWrapping="Wrap" Opacity="0.8"/>
+                    <!-- Right side: Author + Description -->
+                    <Grid Grid.Column="2" MaxHeight="600">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Author -->
+                        <StackPanel Grid.Row="0" Spacing="8">
+                            <TextBlock Text="Author" FontSize="14" FontWeight="SemiBold" Opacity="0.7"/>
+                            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                                <!-- Avatar with hover effect -->
+                                <Border Width="48" Height="48"
+                                        CornerRadius="8"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="2"
+                                        PointerEntered="AuthorAvatar_PointerEntered"
+                                        PointerExited="AuthorAvatar_PointerExited"
+                                        Background="Transparent">
+                                    <Border.RenderTransform>
+                                        <ScaleTransform x:Name="DetailAuthorAvatarScale" 
+                                                      ScaleX="1" ScaleY="1"
+                                                      CenterX="24" CenterY="24"/>
+                                    </Border.RenderTransform>
+                                    <Border CornerRadius="6" Margin="2">
+                                        <Image x:Name="DetailAuthorAvatar" 
+                                               Stretch="UniformToFill"/>
+                                    </Border>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock x:Name="DetailAuthor" FontSize="16" FontWeight="SemiBold"/>
+                                    <HyperlinkButton x:Name="DetailAuthorProfileLink" 
+                                                    Content="View Profile"
+                                                    FontSize="12"
+                                                    Padding="0"
+                                                    Click="DetailAuthorProfileLink_Click"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        <!-- Description with Markdown -->
+                        <StackPanel Grid.Row="1" Spacing="8" Margin="0,16,0,0">
+                            <TextBlock x:Name="DetailDescriptionTitle" Text="Description" FontSize="16" FontWeight="SemiBold"/>
+                            <ScrollViewer x:Name="DetailDescriptionScrollViewer" 
+                                          Height="480" 
+                                          VerticalScrollBarVisibility="Auto"
+                                          SizeChanged="DetailDescriptionScrollViewer_SizeChanged">
+                                <ctk:MarkdownTextBlock x:Name="DetailDescriptionMarkdown"
+                                                      Loaded="DetailDescriptionMarkdown_Loaded"/>
+                            </ScrollViewer>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+                
+                <!-- Bottom section: Files + Buttons -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="16">
+                        <!-- Files -->
+                        <StackPanel Spacing="12">
+                            <TextBlock x:Name="DetailFilesTitle" Text="Files" FontSize="16" FontWeight="SemiBold"/>
+                            <ListView x:Name="DetailFilesList" 
+                                      SelectionMode="Multiple"
+                                      MaxHeight="400">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                        <Setter Property="Padding" Value="12,8"/>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.Resources>
+                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundChecked" Color="{ThemeResource SystemBaseHighColor}"/>
+                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundCheckedPointerOver" Color="{ThemeResource SystemBaseHighColor}"/>
+                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundCheckedPressed" Color="{ThemeResource SystemBaseHighColor}"/>
+                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled" Color="{ThemeResource SystemBaseMediumColor}"/>
+                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundIndeterminate" Color="{ThemeResource SystemBaseHighColor}"/>
+                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundIndeterminatePointerOver" Color="{ThemeResource SystemBaseHighColor}"/>
+                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundIndeterminatePressed" Color="{ThemeResource SystemBaseHighColor}"/>
+                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundIndeterminateDisabled" Color="{ThemeResource SystemBaseMediumColor}"/>
+                                </ListView.Resources>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Padding="8">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            
+                                            <TextBlock Grid.Row="0" Text="{Binding FileName}" FontWeight="SemiBold"/>
+                                            <TextBlock Grid.Row="1" Text="{Binding Description}" 
+                                                       TextWrapping="Wrap" 
+                                                       Opacity="0.7" 
+                                                       FontSize="12"
+                                                       Margin="0,4,0,0"
+                                                       Visibility="{Binding HasDescription}"/>
+                                            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
+                                                <TextBlock FontSize="12" Opacity="0.6">
+                                                    <Run Text="Size: "/>
+                                                    <Run Text="{Binding FileSizeFormatted}"/>
+                                                </TextBlock>
+                                                <TextBlock FontSize="12" Opacity="0.6">
+                                                    <Run Text="Downloads: "/>
+                                                    <Run Text="{Binding DownloadCountFormatted}"/>
+                                                </TextBlock>
+                                                <TextBlock FontSize="12" Opacity="0.6">
+                                                    <Run Text="Added: "/>
+                                                    <Run Text="{Binding DateAddedFormatted}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                        
+                        <!-- Action buttons -->
+                        <StackPanel Spacing="12" MaxWidth="600" HorizontalAlignment="Left">
+                            <!-- Main download button -->
+                            <Button x:Name="DetailDownloadButton" 
+                                    Style="{StaticResource AccentButtonStyle}"
+                                    HorizontalAlignment="Stretch"
+                                    Click="DetailDownloadButton_Click"
+                                    Height="48">
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <FontIcon Glyph="&#xE896;" FontSize="16"/>
+                                    <TextBlock Text="Download and Install" FontSize="14" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Button>
+                            
+                            <!-- Secondary action buttons -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <Button x:Name="DetailOpenBrowserButton" 
+                                        Grid.Column="0"
+                                        HorizontalAlignment="Stretch"
+                                        Click="DetailOpenBrowserButton_Click"
+                                        Height="40">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE774;" FontSize="14"/>
+                                        <TextBlock Text="Open in Browser" FontSize="12"/>
+                                    </StackPanel>
+                                </Button>
+                                
+                                <Button x:Name="DetailCopyLinkButton" 
+                                        Grid.Column="2"
+                                        HorizontalAlignment="Stretch"
+                                        Click="DetailCopyLinkButton_Click"
+                                        Height="40">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE8C8;" FontSize="14"/>
+                                        <TextBlock Text="Copy Link" FontSize="12"/>
+                                    </StackPanel>
+                                </Button>
+                                
+                                <Button x:Name="DetailShareButton" 
+                                        Grid.Column="4"
+                                        HorizontalAlignment="Stretch"
+                                        Click="DetailShareButton_Click"
+                                        Height="40">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE72D;" FontSize="14"/>
+                                        <TextBlock Text="Share" FontSize="12"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                        
+                        <!-- Loading indicator -->
+                        <StackPanel x:Name="DetailLoadingPanel" 
+                                    HorizontalAlignment="Center" 
+                                    Spacing="12"
+                                    Visibility="Collapsed">
+                            <ProgressRing IsActive="True" Width="48" Height="48"/>
+                            <TextBlock Text="Loading details..." FontSize="14" Opacity="0.7"/>
+                        </StackPanel>
                     </StackPanel>
-                    
-                    <!-- Files -->
-                    <StackPanel Spacing="12">
-                        <TextBlock x:Name="DetailFilesTitle" Text="Files" FontSize="16" FontWeight="SemiBold"/>
-                        <ListView x:Name="DetailFilesList" 
-                                  SelectionMode="Multiple"
-                                  MaxHeight="400">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Padding="8">
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        
-                                        <TextBlock Grid.Row="0" Text="{Binding FileName}" FontWeight="SemiBold"/>
-                                        <TextBlock Grid.Row="1" Text="{Binding Description}" 
-                                                   TextWrapping="Wrap" 
-                                                   Opacity="0.7" 
-                                                   FontSize="12"
-                                                   Margin="0,4,0,0"
-                                                   Visibility="{Binding HasDescription}"/>
-                                        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
-                                            <TextBlock FontSize="12" Opacity="0.6">
-                                                <Run Text="Size: "/>
-                                                <Run Text="{Binding FileSizeFormatted}"/>
-                                            </TextBlock>
-                                            <TextBlock FontSize="12" Opacity="0.6">
-                                                <Run Text="Downloads: "/>
-                                                <Run Text="{Binding DownloadCountFormatted}"/>
-                                            </TextBlock>
-                                        </StackPanel>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </StackPanel>
-                    
-                    <!-- Action buttons -->
-                    <StackPanel Spacing="12">
-                        <Button x:Name="DetailDownloadButton" 
-                                Content="Download and Install" 
-                                Style="{StaticResource AccentButtonStyle}"
-                                HorizontalAlignment="Stretch"
-                                Click="DetailDownloadButton_Click"/>
-                        <Button x:Name="DetailOpenBrowserButton" 
-                                Content="Open in GameBanana" 
-                                HorizontalAlignment="Stretch"
-                                Click="DetailOpenBrowserButton_Click"/>
-                    </StackPanel>
-                    
-                    <!-- Loading indicator -->
-                    <StackPanel x:Name="DetailLoadingPanel" 
-                                HorizontalAlignment="Center" 
-                                Spacing="12"
-                                Visibility="Collapsed">
-                        <ProgressRing IsActive="True" Width="48" Height="48"/>
-                        <TextBlock Text="Loading details..." FontSize="14" Opacity="0.7"/>
-                    </StackPanel>
-                </StackPanel>
-            </ScrollViewer>
+                </ScrollViewer>
             </Grid>
         </Grid>
     </Grid>
