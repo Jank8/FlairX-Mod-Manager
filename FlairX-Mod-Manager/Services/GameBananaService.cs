@@ -81,6 +81,9 @@ namespace FlairX_Mod_Manager.Services
             [JsonPropertyName("_aMetadata")]
             public Dictionary<string, object>? Metadata { get; set; }
             
+            [JsonPropertyName("_aRootCategory")]
+            public RootCategory? RootCategory { get; set; }
+            
             // Helper properties to get stats from metadata if main properties are 0
             public int GetDownloadCount()
             {
@@ -153,6 +156,18 @@ namespace FlairX_Mod_Manager.Services
             
             [JsonPropertyName("_sProfileUrl")]
             public string ProfileUrl { get; set; } = "";
+        }
+
+        public class RootCategory
+        {
+            [JsonPropertyName("_sName")]
+            public string Name { get; set; } = "";
+            
+            [JsonPropertyName("_sProfileUrl")]
+            public string ProfileUrl { get; set; } = "";
+            
+            [JsonPropertyName("_sIconUrl")]
+            public string? IconUrl { get; set; }
         }
 
         // Mod details response
@@ -295,35 +310,7 @@ namespace FlairX_Mod_Manager.Services
             }
         }
         
-        /// <summary>
-        /// Get available sections/categories for a game
-        /// </summary>
-        public static async Task<List<string>?> GetGameSectionsAsync(string gameTag)
-        {
-            try
-            {
-                var gameId = GetGameId(gameTag);
-                if (gameId == 0) return null;
 
-                var url = $"https://gamebanana.com/apiv11/Game/{gameId}/CategoryList";
-                
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/2.6.8");
-
-                var response = await _httpClient.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-
-                var content = await response.Content.ReadAsStringAsync();
-                var result = JsonSerializer.Deserialize<List<string>>(content);
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Failed to fetch game sections: {ex.Message}", ex);
-                return null;
-            }
-        }
 
         /// <summary>
         /// Get detailed information about a specific mod

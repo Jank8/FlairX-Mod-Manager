@@ -28,6 +28,10 @@ namespace FlairX_Mod_Manager.Pages
         private GameBananaService.ModDetailsResponse? _currentModDetails;
         private ObservableCollection<Models.GameBananaFileViewModel> _detailFiles = new();
         
+        // Tilt animation system
+        private readonly System.Collections.Generic.Dictionary<Button, (double tiltX, double tiltY)> _tileTiltTargets = new();
+        private readonly System.Collections.Generic.Dictionary<Button, DateTime> _lastTileAnimationUpdate = new();
+        
         private enum NavigationState
         {
             ModsList,
@@ -133,10 +137,7 @@ namespace FlairX_Mod_Manager.Pages
             
             ModsGridView.ItemsSource = _mods;
             
-            // Load sections
-            _ = LoadSectionsAsync();
-            
-            // Load mods
+            // Load mods (sections will be extracted from loaded mods)
             _ = LoadModsAsync();
         }
 
@@ -211,6 +212,9 @@ namespace FlairX_Mod_Manager.Pages
 
                 // Load images asynchronously
                 _ = LoadImagesAsync();
+                
+                // Extract unique categories from loaded mods
+                UpdateAvailableSections(response.Records);
 
                 LoadingPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Visible;
@@ -307,6 +311,15 @@ namespace FlairX_Mod_Manager.Pages
         private void ModsGridView_ItemClick(object sender, ItemClickEventArgs e)
         {
             if (e.ClickedItem is ModViewModel mod)
+            {
+                // Show details panel
+                _ = ShowModDetailsAsync(mod.Id);
+            }
+        }
+
+        private void ModTile_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is ModViewModel mod)
             {
                 // Show details panel
                 _ = ShowModDetailsAsync(mod.Id);
@@ -570,14 +583,28 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async Task LoadSectionsAsync()
+        private void UpdateAvailableSections(System.Collections.Generic.List<GameBananaService.ModRecord> records)
         {
             try
             {
-                _availableSections = await GameBananaService.GetGameSectionsAsync(_gameTag);
+                // Extract unique category names from loaded mods
+                var categories = records
+                    .Where(r => r.RootCategory != null && !string.IsNullOrEmpty(r.RootCategory.Name))
+                    .Select(r => r.RootCategory!.Name)
+                    .Distinct()
+                    .OrderBy(c => c)
+                    .ToList();
                 
-                if (_availableSections != null && _availableSections.Count > 0)
+                if (categories.Count == 0) return;
+                
+                // Only update if we have new categories
+                var currentCategories = _availableSections ?? new System.Collections.Generic.List<string>();
+                var newCategories = categories.Except(currentCategories).ToList();
+                
+                if (newCategories.Count > 0 || _availableSections == null)
                 {
+                    _availableSections = categories;
+                    
                     IncludeSectionsComboBox.Items.Clear();
                     ExcludeSectionsComboBox.Items.Clear();
                     
@@ -590,13 +617,15 @@ namespace FlairX_Mod_Manager.Pages
                         ExcludeSectionsComboBox.Items.Add(new ComboBoxItem { Content = section, Tag = section });
                     }
                     
-                    IncludeSectionsComboBox.SelectedIndex = 0;
-                    ExcludeSectionsComboBox.SelectedIndex = 0;
+                    if (IncludeSectionsComboBox.SelectedIndex == -1)
+                        IncludeSectionsComboBox.SelectedIndex = 0;
+                    if (ExcludeSectionsComboBox.SelectedIndex == -1)
+                        ExcludeSectionsComboBox.SelectedIndex = 0;
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to load sections", ex);
+                Logger.LogError("Failed to update sections", ex);
             }
         }
 
@@ -695,6 +724,182 @@ namespace FlairX_Mod_Manager.Pages
                     PageNumberTextBox.Text = _currentPage.ToString();
                 }
             }
+        }
+
+        // Tilt animation methods
+        private void ModTile_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                try
+                {
+                    button.PointerMoved += ModTile_PointerMoved;
+                    CalculateTileTiltTarget(button, e);
+                    UpdateTileTiltSmooth(button);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in ModTile_PointerEntered", ex);
+                }
+            }
+        }
+
+        private void ModTile_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                try
+                {
+                    button.PointerMoved -= ModTile_PointerMoved;
+                    
+                    var tileBorder = FindTileBorder(button);
+                    if (tileBorder?.Projection is Microsoft.UI.Xaml.Media.PlaneProjection projection)
+                    {
+                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        var easing = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase();
+                        
+                        var rotXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            To = 0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(250)),
+                            EasingFunction = easing
+                        };
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotXAnim, projection);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotXAnim, "RotationX");
+                        storyboard.Children.Add(rotXAnim);
+                        
+                        var rotYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            To = 0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(250)),
+                            EasingFunction = easing
+                        };
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotYAnim, projection);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotYAnim, "RotationY");
+                        storyboard.Children.Add(rotYAnim);
+                        
+                        storyboard.Begin();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in ModTile_PointerExited", ex);
+                }
+            }
+        }
+
+        private void ModTile_PointerMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                try
+                {
+                    var now = DateTime.Now;
+                    if (_lastTileAnimationUpdate.TryGetValue(button, out var lastUpdate) && 
+                        (now - lastUpdate).TotalMilliseconds < 16) return;
+                    
+                    _lastTileAnimationUpdate[button] = now;
+                    CalculateTileTiltTarget(button, e);
+                    UpdateTileTiltSmooth(button);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in ModTile_PointerMoved", ex);
+                }
+            }
+        }
+
+        private void CalculateTileTiltTarget(Button btn, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            try
+            {
+                var position = e.GetCurrentPoint(btn);
+                var buttonWidth = btn.ActualWidth;
+                var buttonHeight = btn.ActualHeight;
+                
+                if (buttonWidth > 0 && buttonHeight > 0)
+                {
+                    var centerX = buttonWidth / 2;
+                    var centerY = buttonHeight / 2;
+                    var offsetX = (position.Position.X - centerX) / centerX;
+                    var offsetY = (position.Position.Y - centerY) / centerY;
+                    
+                    var maxTilt = 8.0;
+                    var targetTiltX = offsetY * maxTilt;
+                    var targetTiltY = -offsetX * maxTilt;
+                    
+                    _tileTiltTargets[btn] = (targetTiltX, targetTiltY);
+                }
+            }
+            catch { }
+        }
+
+        private void UpdateTileTiltSmooth(Button btn)
+        {
+            try
+            {
+                var tileBorder = FindTileBorder(btn);
+                if (tileBorder == null) return;
+                
+                var projection = GetOrCreateTileProjection(tileBorder);
+                if (projection == null) return;
+                
+                var currentTiltX = projection.RotationX;
+                var currentTiltY = projection.RotationY;
+                
+                var (targetTiltX, targetTiltY) = _tileTiltTargets.GetValueOrDefault(btn, (0, 0));
+                
+                var lerpFactor = 0.2;
+                var newTiltX = currentTiltX + ((targetTiltX - currentTiltX) * lerpFactor);
+                var newTiltY = currentTiltY + ((targetTiltY - currentTiltY) * lerpFactor);
+                
+                projection.RotationX = newTiltX;
+                projection.RotationY = newTiltY;
+            }
+            catch { }
+        }
+
+        private Microsoft.UI.Xaml.Media.PlaneProjection? GetOrCreateTileProjection(Border tileBorder)
+        {
+            if (tileBorder.Projection is not Microsoft.UI.Xaml.Media.PlaneProjection projection)
+            {
+                projection = new Microsoft.UI.Xaml.Media.PlaneProjection
+                {
+                    CenterOfRotationX = 0.5,
+                    CenterOfRotationY = 0.5
+                };
+                tileBorder.Projection = projection;
+            }
+            return projection;
+        }
+
+        private Border? FindTileBorder(Button btn)
+        {
+            try
+            {
+                if (btn.Content is Border directBorder)
+                    return directBorder;
+
+                return FindChildBorderByName(btn, "TileBorder");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private Border? FindChildBorderByName(DependencyObject parent, string name)
+        {
+            int count = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                var child = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(parent, i);
+                if (child is Border b && b.Name == name)
+                    return b;
+                var result = FindChildBorderByName(child, name);
+                if (result != null) return result;
+            }
+            return null;
         }
     }
 }
