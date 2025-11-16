@@ -70,28 +70,11 @@
 
             <!-- Search and filters -->
             <Grid Grid.Row="0" Padding="16">
-                <!-- Search and Refresh -->
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <AutoSuggestBox x:Name="SearchBox"
-                                    Grid.Column="0"
-                                    PlaceholderText="Search mods..."
-                                    QueryIcon="Find"
-                                    QuerySubmitted="SearchBox_QuerySubmitted"
-                                    TextChanged="SearchBox_TextChanged"
-                                    Margin="0,0,12,0"/>
-
-                    <Button x:Name="RefreshButton"
-                            Grid.Column="1"
-                            Content="&#xE72C;"
-                            FontFamily="Segoe MDL2 Assets"
-                            Click="RefreshButton_Click"
-                            Loaded="RefreshButton_Loaded"/>
-                </Grid>
+                <AutoSuggestBox x:Name="SearchBox"
+                                PlaceholderText="Search mods..."
+                                QueryIcon="Find"
+                                QuerySubmitted="SearchBox_QuerySubmitted"
+                                TextChanged="SearchBox_TextChanged"/>
 
             </Grid>
 
