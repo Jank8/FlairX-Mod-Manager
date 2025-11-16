@@ -16,15 +16,11 @@ namespace FlairX_Mod_Manager.Pages
         private string _gameTag = "";
         private int _currentPage = 1;
         private string? _currentSearch = null;
-        private string _currentSort = "date_added";
-        private string? _currentFeedType = null;
-        private System.Collections.Generic.List<string>? _includeSections = null;
-        private System.Collections.Generic.List<string>? _excludeSections = null;
+        private string? _currentFeedType = "featured";
         private System.Collections.Generic.List<string>? _includeTags = null;
         private System.Collections.Generic.List<string>? _excludeTags = null;
         private ObservableCollection<ModViewModel> _mods = new();
         private System.Collections.Generic.Dictionary<string, string> _lang = new();
-        private System.Collections.Generic.List<string>? _availableSections = null;
         private GameBananaService.ModDetailsResponse? _currentModDetails;
         private ObservableCollection<Models.GameBananaFileViewModel> _detailFiles = new();
         
@@ -128,12 +124,16 @@ namespace FlairX_Mod_Manager.Pages
 
             // Set UI text
             SearchBox.PlaceholderText = SharedUtilities.GetTranslation(_lang, "SearchPlaceholder");
-            IncludeSectionsLabel.Text = SharedUtilities.GetTranslation(_lang, "IncludeSections");
-            ExcludeSectionsLabel.Text = SharedUtilities.GetTranslation(_lang, "ExcludeSections");
             IncludeTagsLabel.Text = SharedUtilities.GetTranslation(_lang, "IncludeTags");
             ExcludeTagsLabel.Text = SharedUtilities.GetTranslation(_lang, "ExcludeTags");
             PageLabel.Text = SharedUtilities.GetTranslation(_lang, "Page");
             FiltersExpanderHeader.Text = SharedUtilities.GetTranslation(_lang, "AdvancedFilters");
+            
+            // Set FeedType translations and select default
+            FeedRipeItem.Content = SharedUtilities.GetTranslation(_lang, "FeedRipe");
+            FeedNewItem.Content = SharedUtilities.GetTranslation(_lang, "FeedNew");
+            FeedUpdatedItem.Content = SharedUtilities.GetTranslation(_lang, "FeedUpdated");
+            FeedTypeComboBox.SelectedItem = FeedRipeItem;
             
             ModsGridView.ItemsSource = _mods;
             
@@ -166,10 +166,10 @@ namespace FlairX_Mod_Manager.Pages
                     _gameTag, 
                     _currentPage, 
                     _currentSearch, 
-                    _currentSort,
+                    null,
                     _currentFeedType,
-                    _includeSections,
-                    _excludeSections,
+                    null,
+                    null,
                     _includeTags,
                     _excludeTags);
 
@@ -212,9 +212,6 @@ namespace FlairX_Mod_Manager.Pages
 
                 // Load images asynchronously
                 _ = LoadImagesAsync();
-                
-                // Extract unique categories from loaded mods
-                UpdateAvailableSections(response.Records);
 
                 LoadingPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Visible;
@@ -263,25 +260,7 @@ namespace FlairX_Mod_Manager.Pages
             _ = LoadModsAsync();
         }
 
-        private void SortComboBox_Loaded(object sender, RoutedEventArgs e)
-        {
-            // Set ComboBox item text from language file
-            SortMostRecentItem.Content = SharedUtilities.GetTranslation(_lang, "SortMostRecent");
-            SortLastUpdatedItem.Content = SharedUtilities.GetTranslation(_lang, "SortLastUpdated");
-            SortMostDownloadedItem.Content = SharedUtilities.GetTranslation(_lang, "SortMostDownloaded");
-            SortMostLikedItem.Content = SharedUtilities.GetTranslation(_lang, "SortMostLiked");
-            SortMostViewedItem.Content = SharedUtilities.GetTranslation(_lang, "SortMostViewed");
-        }
 
-        private void SortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (SortComboBox.SelectedItem is ComboBoxItem item && item.Tag is string sort)
-            {
-                _currentSort = sort;
-                _currentPage = 1;
-                _ = LoadModsAsync();
-            }
-        }
 
         private void RefreshButton_Loaded(object sender, RoutedEventArgs e)
         {
@@ -583,99 +562,30 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void UpdateAvailableSections(System.Collections.Generic.List<GameBananaService.ModRecord> records)
-        {
-            try
-            {
-                // Extract unique category names from loaded mods
-                var categories = records
-                    .Where(r => r.RootCategory != null && !string.IsNullOrEmpty(r.RootCategory.Name))
-                    .Select(r => r.RootCategory!.Name)
-                    .Distinct()
-                    .OrderBy(c => c)
-                    .ToList();
-                
-                if (categories.Count == 0) return;
-                
-                // Only update if we have new categories
-                var currentCategories = _availableSections ?? new System.Collections.Generic.List<string>();
-                var newCategories = categories.Except(currentCategories).ToList();
-                
-                if (newCategories.Count > 0 || _availableSections == null)
-                {
-                    _availableSections = categories;
-                    
-                    IncludeSectionsComboBox.Items.Clear();
-                    ExcludeSectionsComboBox.Items.Clear();
-                    
-                    IncludeSectionsComboBox.Items.Add(new ComboBoxItem { Content = "None", Tag = null });
-                    ExcludeSectionsComboBox.Items.Add(new ComboBoxItem { Content = "None", Tag = null });
-                    
-                    foreach (var section in _availableSections)
-                    {
-                        IncludeSectionsComboBox.Items.Add(new ComboBoxItem { Content = section, Tag = section });
-                        ExcludeSectionsComboBox.Items.Add(new ComboBoxItem { Content = section, Tag = section });
-                    }
-                    
-                    if (IncludeSectionsComboBox.SelectedIndex == -1)
-                        IncludeSectionsComboBox.SelectedIndex = 0;
-                    if (ExcludeSectionsComboBox.SelectedIndex == -1)
-                        ExcludeSectionsComboBox.SelectedIndex = 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to update sections", ex);
-            }
-        }
+
 
         private void FeedTypeComboBox_Loaded(object sender, RoutedEventArgs e)
         {
-            FeedAllItem.Content = SharedUtilities.GetTranslation(_lang, "FeedAll");
-            FeedRipeItem.Content = SharedUtilities.GetTranslation(_lang, "FeedRipe");
-            FeedNewItem.Content = SharedUtilities.GetTranslation(_lang, "FeedNew");
-            FeedUpdatedItem.Content = SharedUtilities.GetTranslation(_lang, "FeedUpdated");
+            // Translations are set in constructor, just ensure selection
+            if (FeedTypeComboBox.SelectedItem == null)
+            {
+                FeedTypeComboBox.SelectedItem = FeedRipeItem;
+            }
         }
 
         private void FeedTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (FeedTypeComboBox.SelectedItem is ComboBoxItem item && item.Tag is string feedType)
             {
-                _currentFeedType = string.IsNullOrEmpty(feedType) ? null : feedType;
+                _currentFeedType = feedType;
                 _currentPage = 1;
                 _ = LoadModsAsync();
             }
         }
 
-        private void FiltersButton_Loaded(object sender, RoutedEventArgs e)
-        {
-            ToolTipService.SetToolTip(FiltersButton, SharedUtilities.GetTranslation(_lang, "AdvancedFilters"));
-        }
 
-        private void FiltersButton_Click(object sender, RoutedEventArgs e)
-        {
-            FiltersExpander.IsExpanded = !FiltersExpander.IsExpanded;
-        }
 
-        private void IncludeSectionsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (IncludeSectionsComboBox.SelectedItem is ComboBoxItem item)
-            {
-                _includeSections = item.Tag as string != null ? new System.Collections.Generic.List<string> { (string)item.Tag } : null;
-                _currentPage = 1;
-                _ = LoadModsAsync();
-            }
-        }
 
-        private void ExcludeSectionsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ExcludeSectionsComboBox.SelectedItem is ComboBoxItem item)
-            {
-                _excludeSections = item.Tag as string != null ? new System.Collections.Generic.List<string> { (string)item.Tag } : null;
-                _currentPage = 1;
-                _ = LoadModsAsync();
-            }
-        }
 
         private System.Threading.CancellationTokenSource? _tagsDebounceToken;
 

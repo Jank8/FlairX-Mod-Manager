@@ -74,12 +74,10 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
-                <!-- First row: Search, Sort, Feed Type, Filters button, Refresh -->
+                <!-- First row: Search, Feed Type, Refresh -->
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
@@ -92,41 +90,19 @@
                                     TextChanged="SearchBox_TextChanged"
                                     Margin="0,0,12,0"/>
 
-                    <ComboBox x:Name="SortComboBox"
-                              Grid.Column="1"
-                              Width="180"
-                              Margin="0,0,12,0"
-                              SelectionChanged="SortComboBox_SelectionChanged"
-                              Loaded="SortComboBox_Loaded">
-                        <ComboBoxItem x:Name="SortMostRecentItem" Tag="date_added" IsSelected="True"/>
-                        <ComboBoxItem x:Name="SortLastUpdatedItem" Tag="date_modified"/>
-                        <ComboBoxItem x:Name="SortMostDownloadedItem" Tag="downloads"/>
-                        <ComboBoxItem x:Name="SortMostLikedItem" Tag="likes"/>
-                        <ComboBoxItem x:Name="SortMostViewedItem" Tag="views"/>
-                    </ComboBox>
-
                     <ComboBox x:Name="FeedTypeComboBox"
-                              Grid.Column="2"
+                              Grid.Column="1"
                               Width="120"
                               Margin="0,0,12,0"
                               SelectionChanged="FeedTypeComboBox_SelectionChanged"
                               Loaded="FeedTypeComboBox_Loaded">
-                        <ComboBoxItem x:Name="FeedAllItem" Tag="" IsSelected="True"/>
-                        <ComboBoxItem x:Name="FeedRipeItem" Tag="featured"/>
+                        <ComboBoxItem x:Name="FeedRipeItem" Tag="featured" IsSelected="True"/>
                         <ComboBoxItem x:Name="FeedNewItem" Tag="new"/>
                         <ComboBoxItem x:Name="FeedUpdatedItem" Tag="updated"/>
                     </ComboBox>
 
-                    <Button x:Name="FiltersButton"
-                            Grid.Column="3"
-                            Content="&#xE71C;"
-                            FontFamily="Segoe MDL2 Assets"
-                            Click="FiltersButton_Click"
-                            Margin="0,0,12,0"
-                            Loaded="FiltersButton_Loaded"/>
-
                     <Button x:Name="RefreshButton"
-                            Grid.Column="4"
+                            Grid.Column="2"
                             Content="&#xE72C;"
                             FontFamily="Segoe MDL2 Assets"
                             Click="RefreshButton_Click"
@@ -142,52 +118,23 @@
                     <Expander.Header>
                         <TextBlock x:Name="FiltersExpanderHeader" Text="Advanced Filters" FontWeight="SemiBold"/>
                     </Expander.Header>
-                    <Grid Margin="0,12,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="1.5*"/>
-                            <ColumnDefinition Width="1.5*"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <!-- Include Sections -->
-                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                            <TextBlock x:Name="IncludeSectionsLabel" Text="Include Sections" FontSize="12" Opacity="0.7" Margin="0,0,0,6"/>
-                            <ComboBox x:Name="IncludeSectionsComboBox" 
-                                      HorizontalAlignment="Stretch"
-                                      MinWidth="150"
-                                      SelectionChanged="IncludeSectionsComboBox_SelectionChanged"/>
-                        </StackPanel>
-                        
-                        <!-- Exclude Sections -->
-                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                            <TextBlock x:Name="ExcludeSectionsLabel" Text="Exclude Sections" FontSize="12" Opacity="0.7" Margin="0,0,0,6"/>
-                            <ComboBox x:Name="ExcludeSectionsComboBox" 
-                                      HorizontalAlignment="Stretch"
-                                      MinWidth="150"
-                                      SelectionChanged="ExcludeSectionsComboBox_SelectionChanged"/>
-                        </StackPanel>
-                        
+                    <StackPanel Orientation="Horizontal" Spacing="24" Margin="0,12,0,0">
                         <!-- Include Tags -->
-                        <StackPanel Grid.Column="2" Margin="0,0,12,0">
+                        <StackPanel Width="300">
                             <TextBlock x:Name="IncludeTagsLabel" Text="Include Tags" FontSize="12" Opacity="0.7" Margin="0,0,0,6"/>
                             <TextBox x:Name="IncludeTagsTextBox" 
-                                     HorizontalAlignment="Stretch"
-                                     MinWidth="200"
                                      PlaceholderText="e.g. character, weapon"
                                      TextChanged="TagsTextBox_TextChanged"/>
                         </StackPanel>
                         
                         <!-- Exclude Tags -->
-                        <StackPanel Grid.Column="3">
+                        <StackPanel Width="300">
                             <TextBlock x:Name="ExcludeTagsLabel" Text="Exclude Tags" FontSize="12" Opacity="0.7" Margin="0,0,0,6"/>
                             <TextBox x:Name="ExcludeTagsTextBox" 
-                                     HorizontalAlignment="Stretch"
-                                     MinWidth="200"
                                      PlaceholderText="e.g. nsfw, wip"
                                      TextChanged="TagsTextBox_TextChanged"/>
                         </StackPanel>
-                    </Grid>
+                    </StackPanel>
                 </Expander>
             </Grid>
 
