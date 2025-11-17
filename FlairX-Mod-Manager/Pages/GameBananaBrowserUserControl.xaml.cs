@@ -37,6 +37,9 @@ namespace FlairX_Mod_Manager.Pages
         private System.Collections.Generic.List<string> _detailPreviewImages = new();
         private int _currentDetailImageIndex = 0;
         
+        // Markdown image resizing
+        private bool _isAttachedToSizeChanged = false;
+        
         private enum NavigationState
         {
             ModsList,
@@ -460,14 +463,6 @@ namespace FlairX_Mod_Manager.Pages
             _currentSearch = string.IsNullOrWhiteSpace(args.QueryText) ? null : args.QueryText;
             _currentPage = 1;
             _ = LoadModsAsync();
-        }        private void RefreshButton_Loaded(object sender, RoutedEventArgs e)
-        {
-            ToolTipService.SetToolTip(RefreshButton, SharedUtilities.GetTranslation(_lang, "RefreshTooltip"));
-        }
-
-        private void RefreshButton_Click(object sender, RoutedEventArgs e)
-        {
-            _ = LoadModsAsync();
         }
 
         private void PrevPageButton_Click(object sender, RoutedEventArgs e)
@@ -583,6 +578,9 @@ namespace FlairX_Mod_Manager.Pages
                 // Animate transition to details
                 AnimateContentSwitch(ModsListGrid, DetailsPanel);
                 _currentState = NavigationState.ModDetails;
+                
+                // Change back button icon to left arrow
+                BackIcon.Glyph = "\uE72B"; // Left arrow
 
                 // Load mod details
                 _currentModDetails = await GameBananaService.GetModDetailsAsync(modId);
@@ -679,6 +677,13 @@ namespace FlairX_Mod_Manager.Pages
                 DetailFilesList.Visibility = Visibility.Visible;
                 DetailDownloadButton.Visibility = Visibility.Visible;
                 DetailOpenBrowserButton.Visibility = Visibility.Visible;
+                
+                // Ensure size changed event is attached for markdown images
+                if (!_isAttachedToSizeChanged)
+                {
+                    DetailDescriptionScrollViewer.SizeChanged += DetailDescriptionScrollViewer_SizeChanged;
+                    _isAttachedToSizeChanged = true;
+                }
             }
             catch (Exception ex)
             {
@@ -695,10 +700,20 @@ namespace FlairX_Mod_Manager.Pages
             _detailFiles.Clear();
             _currentState = NavigationState.ModsList;
             
+            // Change back button icon to X (close)
+            BackIcon.Glyph = "\uE711"; // Cancel/Close icon
+            
             // Restore title
             var gameName = GetGameName(_gameTag);
             var titleFormat = SharedUtilities.GetTranslation(_lang, "BrowseTitle");
             TitleText.Text = string.Format(titleFormat, gameName);
+            
+            // Clean up event handlers to prevent memory leaks
+            if (_isAttachedToSizeChanged)
+            {
+                DetailDescriptionScrollViewer.SizeChanged -= DetailDescriptionScrollViewer_SizeChanged;
+                _isAttachedToSizeChanged = false;
+            }
         }
 
         private void AnimateContentSwitch(UIElement hideElement, UIElement showElement)
@@ -776,56 +791,6 @@ namespace FlairX_Mod_Manager.Pages
                 await Windows.System.Launcher.LaunchUriAsync(new Uri(_currentModDetails.ProfileUrl));
             }
         }
-
-        private void DetailCopyLinkButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentModDetails != null && !string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
-            {
-                try
-                {
-                    var dataPackage = new Windows.ApplicationModel.DataTransfer.DataPackage();
-                    dataPackage.SetText(_currentModDetails.ProfileUrl);
-                    Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
-                    
-                    Logger.LogInfo($"Copied mod link to clipboard: {_currentModDetails.ProfileUrl}");
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError($"Failed to copy mod link to clipboard", ex);
-                }
-            }
-        }
-
-        private async void DetailShareButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentModDetails != null && !string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
-            {
-                try
-                {
-                    var dataTransferManager = Windows.ApplicationModel.DataTransfer.DataTransferManager.GetForCurrentView();
-                    dataTransferManager.DataRequested += (sender, args) =>
-                    {
-                        args.Request.Data.Properties.Title = _currentModDetails.Name;
-                        args.Request.Data.Properties.Description = "GameBanana Mod";
-                        args.Request.Data.SetWebLink(new Uri(_currentModDetails.ProfileUrl));
-                        args.Request.Data.SetText(_currentModDetails.ProfileUrl);
-                    };
-                    
-                    Windows.ApplicationModel.DataTransfer.DataTransferManager.ShowShareUI();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError($"Failed to share mod link", ex);
-                    // Fallback to copying to clipboard
-                    DetailCopyLinkButton_Click(sender, e);
-                }
-            }
-        }
-
-
-
-
-
 
 
 
@@ -1169,11 +1134,27 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Just set the markdown text directly
                 DetailDescriptionMarkdown.Text = markdown;
+                
+                // Update images after a small delay to ensure the visual tree is ready
+                _ = UpdateMarkdownImagesWithRetry();
             }
             catch (Exception ex)
             {
                 Logger.LogError("Failed to convert HTML to Markdown", ex);
                 DetailDescriptionMarkdown.Text = "Failed to load description.";
+            }
+        }
+        
+        private async Task UpdateMarkdownImagesWithRetry()
+        {
+            // Try to update images immediately
+            UpdateMarkdownImages();
+            
+            // Retry a few times with delays to ensure the visual tree is fully loaded
+            for (int i = 0; i < 3; i++)
+            {
+                await Task.Delay(100 * (i + 1)); // 100ms, 200ms, 300ms
+                UpdateMarkdownImages();
             }
         }
 
@@ -1184,7 +1165,8 @@ namespace FlairX_Mod_Manager.Pages
 
         private void DetailDescriptionMarkdown_Loaded(object sender, RoutedEventArgs e)
         {
-            // Images will be resized on SizeChanged event
+            // Images will be resized on SizeChanged event, but also trigger an update here
+            UpdateMarkdownImages();
         }
 
 
@@ -1196,10 +1178,13 @@ namespace FlairX_Mod_Manager.Pages
                 var availableWidth = DetailDescriptionScrollViewer.ActualWidth;
                 if (availableWidth <= 0) return;
 
-                var maxWidth = availableWidth - 20;
+                var maxWidth = availableWidth - 20; // Leave some margin
                 UpdateImagesInPanel(DetailDescriptionMarkdown, maxWidth);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error updating markdown images", ex);
+            }
         }
 
         private void UpdateImagesInPanel(DependencyObject parent, double maxWidth)
@@ -1213,29 +1198,65 @@ namespace FlairX_Mod_Manager.Pages
                     
                     if (child is Image img)
                     {
-                        img.Width = maxWidth;
+                        // Only adjust images that don't have a explicit width set or are too wide
+                        if (double.IsNaN(img.Width) || img.Width <= 0 || img.Width > maxWidth)
+                        {
+                            img.Width = maxWidth;
+                        }
                         img.Height = double.NaN;
                         img.Stretch = Microsoft.UI.Xaml.Media.Stretch.Uniform;
                         img.HorizontalAlignment = HorizontalAlignment.Left;
                         img.VerticalAlignment = VerticalAlignment.Top;
                         img.Margin = new Thickness(0, 4, 0, 4);
                         
+                        // Ensure the parent container also allows proper sizing
                         if (img.Parent is FrameworkElement parentElement)
                         {
                             parentElement.Height = double.NaN;
                             parentElement.Margin = new Thickness(0, 4, 0, 4);
                             parentElement.VerticalAlignment = VerticalAlignment.Top;
+                            
+                            // If the parent is a block element, ensure it doesn't constrain the width
+                            if (parentElement is Microsoft.UI.Xaml.Documents.Block)
+                            {
+                                // Block elements in markdown may need special handling
+                            }
                         }
                     }
                     else if (child is Microsoft.UI.Xaml.Documents.Paragraph paragraph)
                     {
                         paragraph.Margin = new Thickness(0, 4, 0, 4);
                     }
+                    else if (child is Microsoft.UI.Xaml.Documents.InlineUIContainer container)
+                    {
+                        // Handle inline UI containers that might contain images
+                        var containerChildCount = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(container);
+                        for (int j = 0; j < containerChildCount; j++)
+                        {
+                            var containerChild = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(container, j);
+                            if (containerChild is Image containerImg)
+                            {
+                                if (double.IsNaN(containerImg.Width) || containerImg.Width <= 0 || containerImg.Width > maxWidth)
+                                {
+                                    containerImg.Width = maxWidth;
+                                }
+                                containerImg.Height = double.NaN;
+                                containerImg.Stretch = Microsoft.UI.Xaml.Media.Stretch.Uniform;
+                                containerImg.HorizontalAlignment = HorizontalAlignment.Left;
+                                containerImg.VerticalAlignment = VerticalAlignment.Top;
+                                containerImg.Margin = new Thickness(0, 4, 0, 4);
+                            }
+                        }
+                    }
                     
+                    // Recursively process child elements
                     UpdateImagesInPanel(child, maxWidth);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error updating images in panel", ex);
+            }
         }
     }
 }

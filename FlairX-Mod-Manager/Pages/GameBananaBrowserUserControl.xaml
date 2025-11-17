@@ -48,7 +48,7 @@
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <Button x:Name="BackButton" Width="48" Height="48" Click="BackButton_Click" VerticalAlignment="Center"
                         PointerEntered="BackButton_PointerEntered" PointerExited="BackButton_PointerExited">
-                    <FontIcon x:Name="BackIcon" Glyph="&#xE72A;" FontSize="20">
+                    <FontIcon x:Name="BackIcon" Glyph="&#xE711;" FontSize="20">
                         <FontIcon.RenderTransform>
                             <ScaleTransform x:Name="BackIconScale" ScaleX="1" ScaleY="1"/>
                         </FontIcon.RenderTransform>
@@ -414,9 +414,16 @@
                         </StackPanel>
                         
                         <!-- Action buttons -->
-                        <StackPanel Spacing="12" MaxWidth="600" HorizontalAlignment="Left">
+                        <Grid MaxWidth="600" HorizontalAlignment="Left">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
                             <!-- Main download button -->
                             <Button x:Name="DetailDownloadButton" 
+                                    Grid.Column="0"
                                     Style="{StaticResource AccentButtonStyle}"
                                     HorizontalAlignment="Stretch"
                                     Click="DetailDownloadButton_Click"
@@ -427,50 +434,18 @@
                                 </StackPanel>
                             </Button>
                             
-                            <!-- Secondary action buttons -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                
-                                <Button x:Name="DetailOpenBrowserButton" 
-                                        Grid.Column="0"
-                                        HorizontalAlignment="Stretch"
-                                        Click="DetailOpenBrowserButton_Click"
-                                        Height="40">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon Glyph="&#xE774;" FontSize="14"/>
-                                        <TextBlock Text="Open in Browser" FontSize="12"/>
-                                    </StackPanel>
-                                </Button>
-                                
-                                <Button x:Name="DetailCopyLinkButton" 
-                                        Grid.Column="2"
-                                        HorizontalAlignment="Stretch"
-                                        Click="DetailCopyLinkButton_Click"
-                                        Height="40">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon Glyph="&#xE8C8;" FontSize="14"/>
-                                        <TextBlock Text="Copy Link" FontSize="12"/>
-                                    </StackPanel>
-                                </Button>
-                                
-                                <Button x:Name="DetailShareButton" 
-                                        Grid.Column="4"
-                                        HorizontalAlignment="Stretch"
-                                        Click="DetailShareButton_Click"
-                                        Height="40">
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon Glyph="&#xE72D;" FontSize="14"/>
-                                        <TextBlock Text="Share" FontSize="12"/>
-                                    </StackPanel>
-                                </Button>
-                            </Grid>
-                        </StackPanel>
+                            <!-- Open in browser button -->
+                            <Button x:Name="DetailOpenBrowserButton" 
+                                    Grid.Column="2"
+                                    HorizontalAlignment="Stretch"
+                                    Click="DetailOpenBrowserButton_Click"
+                                    Height="48">
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <FontIcon Glyph="&#xE774;" FontSize="16"/>
+                                    <TextBlock Text="Open in Browser" FontSize="14" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Button>
+                        </Grid>
                         
                         <!-- Loading indicator -->
                         <StackPanel x:Name="DetailLoadingPanel" 
