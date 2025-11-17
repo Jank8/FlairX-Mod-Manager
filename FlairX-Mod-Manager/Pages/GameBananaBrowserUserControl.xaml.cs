@@ -64,6 +64,7 @@ namespace FlairX_Mod_Manager.Pages
             public bool IsRated { get; set; } = false;
             public bool IsInstalled { get; set; } = false;
             public Visibility IsInstalledVisibility => IsInstalled ? Visibility.Visible : Visibility.Collapsed;
+            public string InstalledText { get; set; } = "Installed";
             
             public string DownloadCountFormatted => FormatCount(DownloadCount);
             public string LikeCountFormatted => FormatCount(LikeCount);
@@ -360,6 +361,8 @@ namespace FlairX_Mod_Manager.Pages
                     _hasMorePages = response.Records.Count >= 50;
                 }
 
+                var installedText = SharedUtilities.GetTranslation(_lang, "Installed");
+                
                 foreach (var record in response.Records)
                 {
                     // Skip NSFW content if setting is enabled
@@ -380,7 +383,8 @@ namespace FlairX_Mod_Manager.Pages
                         DateModified = record.DateModified,
                         DateUpdated = record.DateUpdated,
                         IsRated = record.HasContentRatings,
-                        IsInstalled = IsModInstalled(record.ProfileUrl)
+                        IsInstalled = IsModInstalled(record.ProfileUrl),
+                        InstalledText = installedText
                     };
 
                     // Get preview image
@@ -475,6 +479,8 @@ namespace FlairX_Mod_Manager.Pages
                     _hasMorePages = response.Records.Count >= 50;
                 }
 
+                var installedText = SharedUtilities.GetTranslation(_lang, "Installed");
+                
                 foreach (var record in response.Records)
                 {
                     // Skip NSFW content if setting is enabled
@@ -495,7 +501,8 @@ namespace FlairX_Mod_Manager.Pages
                         DateModified = record.DateModified,
                         DateUpdated = record.DateUpdated,
                         IsRated = record.HasContentRatings,
-                        IsInstalled = IsModInstalled(record.ProfileUrl)
+                        IsInstalled = IsModInstalled(record.ProfileUrl),
+                        InstalledText = installedText
                     };
 
                     // Get preview image
