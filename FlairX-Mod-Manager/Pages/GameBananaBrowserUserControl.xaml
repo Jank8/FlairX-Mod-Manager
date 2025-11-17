@@ -238,17 +238,17 @@
                     
                     <!-- Image Container with navigation -->
                     <Viewbox Grid.Column="0" MaxWidth="600" MaxHeight="600" Stretch="Uniform" VerticalAlignment="Top">
-                        <Grid Width="500" Height="500">
+                        <Grid Width="600" Height="600">
                             <!-- Coordinate field for hover -->
                             <Grid x:Name="DetailImageCoordinateField" 
-                                  Width="500" Height="500" 
+                                  Width="600" Height="600" 
                                   Background="Transparent"
                                   PointerEntered="DetailImageCoordinateField_PointerEntered"
                                   PointerExited="DetailImageCoordinateField_PointerExited"
                                   PointerMoved="DetailImageCoordinateField_PointerMoved"/>
                             
                             <!-- Content with tilt animation -->
-                            <Grid x:Name="DetailImageContentRoot" Margin="25" IsHitTestVisible="False">
+                            <Grid x:Name="DetailImageContentRoot" Margin="0" IsHitTestVisible="False">
                                 <Border x:Name="DetailImageBorder" CornerRadius="12" BorderThickness="15" BorderBrush="{ThemeResource TileBorderBrush}">
                                     <Border CornerRadius="8">
                                         <Image x:Name="DetailImage" Stretch="Uniform"/>
@@ -259,7 +259,7 @@
                             <!-- Previous Button -->
                             <Border x:Name="DetailPrevImageButton" Width="48" Height="48" 
                                     VerticalAlignment="Bottom" HorizontalAlignment="Left"
-                                    Margin="50,0,0,50" Visibility="Collapsed"
+                                    Margin="20,0,0,20" Visibility="Collapsed"
                                     CornerRadius="12"
                                     Background="{ThemeResource LauncherAcrylicBrush}"
                                     PointerPressed="DetailPrevImageButton_Click"
@@ -273,7 +273,7 @@
                             <!-- Next Button -->
                             <Border x:Name="DetailNextImageButton" Width="48" Height="48" 
                                     VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                                    Margin="0,0,50,50" Visibility="Collapsed"
+                                    Margin="0,0,20,20" Visibility="Collapsed"
                                     CornerRadius="12"
                                     Background="{ThemeResource LauncherAcrylicBrush}"
                                     PointerPressed="DetailNextImageButton_Click"
@@ -286,7 +286,7 @@
                             
                             <!-- Image Counter -->
                             <Border Background="{ThemeResource LauncherAcrylicBrush}" 
-                                    CornerRadius="12" Padding="8,4" Margin="0,0,0,50" 
+                                    CornerRadius="12" Padding="8,4" Margin="0,0,0,20" 
                                     VerticalAlignment="Bottom" HorizontalAlignment="Center"
                                     x:Name="DetailImageCounterBorder" Visibility="Collapsed"
                                     PointerEntered="DetailImageCoordinateField_PointerEntered"
