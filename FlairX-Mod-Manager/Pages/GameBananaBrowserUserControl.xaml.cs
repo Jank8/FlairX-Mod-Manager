@@ -684,12 +684,21 @@ namespace FlairX_Mod_Manager.Pages
                     DetailDescriptionScrollViewer.SizeChanged += DetailDescriptionScrollViewer_SizeChanged;
                     _isAttachedToSizeChanged = true;
                 }
+                
+                // Attach to the markdown text block layout updated event
+                DetailDescriptionMarkdown.LayoutUpdated += DetailDescriptionMarkdown_LayoutUpdated;
             }
             catch (Exception ex)
             {
                 Logger.LogError("Failed to load mod details", ex);
                 CloseDetailsPanel();
             }
+        }
+        
+        private void DetailDescriptionMarkdown_LayoutUpdated(object? sender, object e)
+        {
+            // Update images when the markdown layout is updated
+            UpdateMarkdownImages();
         }
 
         private void CloseDetailsPanel()
@@ -714,6 +723,9 @@ namespace FlairX_Mod_Manager.Pages
                 DetailDescriptionScrollViewer.SizeChanged -= DetailDescriptionScrollViewer_SizeChanged;
                 _isAttachedToSizeChanged = false;
             }
+            
+            // Clean up markdown layout updated event handler
+            DetailDescriptionMarkdown.LayoutUpdated -= DetailDescriptionMarkdown_LayoutUpdated;
         }
 
         private void AnimateContentSwitch(UIElement hideElement, UIElement showElement)
@@ -1126,6 +1138,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Remove whitespace before/after images
                 markdown = System.Text.RegularExpressions.Regex.Replace(markdown, @"\n+!\[", "\n\n![");
                 markdown = System.Text.RegularExpressions.Regex.Replace(markdown, @"\)\n+", ")\n\n");
+                
                 // Trim each line
                 var lines = markdown.Split('\n');
                 markdown = string.Join('\n', lines.Select(l => l.Trim()));
@@ -1150,12 +1163,18 @@ namespace FlairX_Mod_Manager.Pages
             // Try to update images immediately
             UpdateMarkdownImages();
             
-            // Retry a few times with delays to ensure the visual tree is fully loaded
-            for (int i = 0; i < 3; i++)
+            // Retry several times with increasing delays to ensure the visual tree is fully loaded
+            for (int i = 0; i < 8; i++)
             {
-                await Task.Delay(100 * (i + 1)); // 100ms, 200ms, 300ms
+                await Task.Delay(25 * (i + 1)); // 25ms, 50ms, 75ms, 100ms, 125ms, 150ms, 175ms, 200ms
                 UpdateMarkdownImages();
             }
+            
+            // One final update with normal priority to ensure everything is properly sized
+            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () =>
+            {
+                UpdateMarkdownImages();
+            });
         }
 
         private void DetailDescriptionScrollViewer_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -1176,9 +1195,18 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 var availableWidth = DetailDescriptionScrollViewer.ActualWidth;
-                if (availableWidth <= 0) return;
+                if (availableWidth <= 0) 
+                {
+                    // If the scroll viewer width is not available yet, try to get it from the parent
+                    availableWidth = DetailsPanel.ActualWidth;
+                    if (availableWidth <= 0)
+                    {
+                        // If still not available, use a default width
+                        availableWidth = 600;
+                    }
+                }
 
-                var maxWidth = availableWidth - 20; // Leave some margin
+                var maxWidth = Math.Max(100, availableWidth - 20); // Ensure minimum width of 100px
                 UpdateImagesInPanel(DetailDescriptionMarkdown, maxWidth);
             }
             catch (Exception ex)
@@ -1198,29 +1226,25 @@ namespace FlairX_Mod_Manager.Pages
                     
                     if (child is Image img)
                     {
-                        // Only adjust images that don't have a explicit width set or are too wide
-                        if (double.IsNaN(img.Width) || img.Width <= 0 || img.Width > maxWidth)
-                        {
-                            img.Width = maxWidth;
-                        }
+                        // Force resize all images to fit the container width
+                        img.Width = maxWidth;
+                        img.MaxWidth = maxWidth;
                         img.Height = double.NaN;
                         img.Stretch = Microsoft.UI.Xaml.Media.Stretch.Uniform;
                         img.HorizontalAlignment = HorizontalAlignment.Left;
                         img.VerticalAlignment = VerticalAlignment.Top;
                         img.Margin = new Thickness(0, 4, 0, 4);
                         
+                        // Log the image resize for debugging
+                        Logger.LogInfo($"Resized image to width: {maxWidth}");
+                        
                         // Ensure the parent container also allows proper sizing
                         if (img.Parent is FrameworkElement parentElement)
                         {
                             parentElement.Height = double.NaN;
+                            parentElement.MaxWidth = maxWidth;
                             parentElement.Margin = new Thickness(0, 4, 0, 4);
                             parentElement.VerticalAlignment = VerticalAlignment.Top;
-                            
-                            // If the parent is a block element, ensure it doesn't constrain the width
-                            if (parentElement is Microsoft.UI.Xaml.Documents.Block)
-                            {
-                                // Block elements in markdown may need special handling
-                            }
                         }
                     }
                     else if (child is Microsoft.UI.Xaml.Documents.Paragraph paragraph)
@@ -1236,15 +1260,36 @@ namespace FlairX_Mod_Manager.Pages
                             var containerChild = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(container, j);
                             if (containerChild is Image containerImg)
                             {
-                                if (double.IsNaN(containerImg.Width) || containerImg.Width <= 0 || containerImg.Width > maxWidth)
-                                {
-                                    containerImg.Width = maxWidth;
-                                }
+                                containerImg.Width = maxWidth;
+                                containerImg.MaxWidth = maxWidth;
                                 containerImg.Height = double.NaN;
                                 containerImg.Stretch = Microsoft.UI.Xaml.Media.Stretch.Uniform;
                                 containerImg.HorizontalAlignment = HorizontalAlignment.Left;
                                 containerImg.VerticalAlignment = VerticalAlignment.Top;
                                 containerImg.Margin = new Thickness(0, 4, 0, 4);
+                                
+                                Logger.LogInfo($"Resized container image to width: {maxWidth}");
+                            }
+                        }
+                    }
+                    else if (child is Panel panel)
+                    {
+                        // Handle panels that might contain images
+                        var panelChildCount = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(panel);
+                        for (int j = 0; j < panelChildCount; j++)
+                        {
+                            var panelChild = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(panel, j);
+                            if (panelChild is Image panelImg)
+                            {
+                                panelImg.Width = maxWidth;
+                                panelImg.MaxWidth = maxWidth;
+                                panelImg.Height = double.NaN;
+                                panelImg.Stretch = Microsoft.UI.Xaml.Media.Stretch.Uniform;
+                                panelImg.HorizontalAlignment = HorizontalAlignment.Left;
+                                panelImg.VerticalAlignment = VerticalAlignment.Top;
+                                panelImg.Margin = new Thickness(0, 4, 0, 4);
+                                
+                                Logger.LogInfo($"Resized panel image to width: {maxWidth}");
                             }
                         }
                     }
