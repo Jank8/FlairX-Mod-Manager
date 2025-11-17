@@ -575,14 +575,34 @@ namespace FlairX_Mod_Manager.Pages
                 var url = ModUrlTextBox.Text;
                 if (!string.IsNullOrEmpty(url))
                 {
-                    if (!url.StartsWith("http://") && !url.StartsWith("https://"))
-                        url = "https://" + url;
-                    
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    // Check if it's a GameBanana URL
+                    if (url.Contains("gamebanana.com", StringComparison.OrdinalIgnoreCase))
                     {
-                        FileName = url,
-                        UseShellExecute = true
-                    });
+                        // Get game tag from current game
+                        var gameTag = SettingsManager.CurrentSelectedGame;
+                        if (!string.IsNullOrEmpty(gameTag))
+                        {
+                            // Open GameBanana browser with mod URL
+                            var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                            mainWindow?.ShowGameBananaBrowserPanel(gameTag, url);
+                        }
+                        else
+                        {
+                            Logger.LogWarning("No game tag found, cannot open GameBanana browser");
+                        }
+                    }
+                    else
+                    {
+                        // Open in external browser for non-GameBanana URLs
+                        if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                            url = "https://" + url;
+                        
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = url,
+                            UseShellExecute = true
+                        });
+                    }
                 }
             }
             catch (Exception ex)

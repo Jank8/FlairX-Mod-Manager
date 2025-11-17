@@ -47,6 +47,7 @@ namespace FlairX_Mod_Manager.Pages
         }
         
         private NavigationState _currentState = NavigationState.ModsList;
+        private bool _openedDirectlyToModDetails = false;
 
         public class ModViewModel : INotifyPropertyChanged
         {
@@ -116,7 +117,7 @@ namespace FlairX_Mod_Manager.Pages
         // Event for closing the panel
         public event EventHandler? CloseRequested;
 
-        public GameBananaBrowserUserControl(string gameTag)
+        public GameBananaBrowserUserControl(string gameTag, string? modUrl = null)
         {
             InitializeComponent();
             _gameTag = gameTag;
@@ -145,8 +146,17 @@ namespace FlairX_Mod_Manager.Pages
             _modsScrollViewer = ModsScrollViewer;
             Logger.LogInfo("ScrollViewer attached directly from XAML");
             
-            // Load mods (sections will be extracted from loaded mods)
-            _ = LoadModsAsync();
+            // If modUrl is provided, load mod details directly
+            if (!string.IsNullOrEmpty(modUrl))
+            {
+                _openedDirectlyToModDetails = true;
+                _ = LoadModDetailsFromUrlAsync(modUrl);
+            }
+            else
+            {
+                // Load mods (sections will be extracted from loaded mods)
+                _ = LoadModsAsync();
+            }
         }
 
         private bool IsModInstalled(string profileUrl)
@@ -618,8 +628,16 @@ namespace FlairX_Mod_Manager.Pages
             // Handle back navigation based on current state
             if (_currentState == NavigationState.ModDetails)
             {
-                // Go back to mods list
-                CloseDetailsPanel();
+                // If opened directly to mod details, close the entire panel
+                if (_openedDirectlyToModDetails)
+                {
+                    CloseRequested?.Invoke(this, EventArgs.Empty);
+                }
+                else
+                {
+                    // Go back to mods list
+                    CloseDetailsPanel();
+                }
             }
             else
             {
@@ -694,8 +712,15 @@ namespace FlairX_Mod_Manager.Pages
                 AnimateContentSwitch(ModsListGrid, DetailsPanel);
                 _currentState = NavigationState.ModDetails;
                 
-                // Change back button icon to left arrow
-                BackIcon.Glyph = "\uE72B"; // Left arrow
+                // Change back button icon - close (X) if opened directly, left arrow if navigated from list
+                if (_openedDirectlyToModDetails)
+                {
+                    BackIcon.Glyph = "\uE711"; // Close (X)
+                }
+                else
+                {
+                    BackIcon.Glyph = "\uE72B"; // Left arrow
+                }
 
                 // Load mod details
                 _currentModDetails = await GameBananaService.GetModDetailsAsync(modId);
@@ -790,10 +815,10 @@ namespace FlairX_Mod_Manager.Pages
 
                     DetailFilesList.ItemsSource = _detailFiles;
                     
-                    // Auto-select all files by default
+                    // Files are unselected by default
                     foreach (var file in _detailFiles)
                     {
-                        file.IsSelected = true;
+                        file.IsSelected = false;
                     }
                     
                     DetailDownloadButton.IsEnabled = true;
@@ -924,6 +949,8 @@ namespace FlairX_Mod_Manager.Pages
             // Show file extraction dialog
             var authorName = _currentModDetails.Submitter?.Name ?? "unknown";
             var dateUpdated = _currentModDetails.DateUpdated > 0 ? _currentModDetails.DateUpdated : _currentModDetails.DateAdded;
+            var categoryName = _currentModDetails.Category?.Name; // Get category from API
+            
             var extractDialog = new Dialogs.GameBananaFileExtractionDialog(
                 selectedFiles, 
                 _currentModDetails.Name, 
@@ -931,7 +958,9 @@ namespace FlairX_Mod_Manager.Pages
                 _currentModDetails.ProfileUrl,
                 authorName,
                 _currentModDetails.Id,
-                dateUpdated);
+                dateUpdated,
+                categoryName,
+                _currentModDetails.PreviewMedia); // Pass preview media
             extractDialog.XamlRoot = XamlRoot;
             var result = await extractDialog.ShowAsync();
 
@@ -1523,5 +1552,36 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogError("Error updating images in panel", ex);
             }
         }
+
+        private async Task LoadModDetailsFromUrlAsync(string modUrl)
+        {
+            try
+            {
+                // Parse GameBanana URL to extract mod ID
+                // Example: https://gamebanana.com/mods/574763
+                var urlPattern = new System.Text.RegularExpressions.Regex(@"gamebanana\.com/mods/(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                var match = urlPattern.Match(modUrl);
+                
+                if (match.Success && int.TryParse(match.Groups[1].Value, out int modId))
+                {
+                    Logger.LogInfo($"Loading mod details from URL: {modUrl}, ID: {modId}");
+                    await ShowModDetailsAsync(modId);
+                }
+                else
+                {
+                    Logger.LogWarning($"Could not parse mod ID from URL: {modUrl}");
+                    // Fallback to loading mods list
+                    await LoadModsAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to load mod details from URL: {modUrl}", ex);
+                // Fallback to loading mods list
+                await LoadModsAsync();
+            }
+        }
+
+
     }
 }

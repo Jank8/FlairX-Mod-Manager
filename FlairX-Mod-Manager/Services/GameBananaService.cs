@@ -170,6 +170,18 @@ namespace FlairX_Mod_Manager.Services
             public string? File100 { get; set; }
         }
 
+        public class ModCategory
+        {
+            [JsonPropertyName("_idRow")]
+            public int Id { get; set; }
+            
+            [JsonPropertyName("_sName")]
+            public string Name { get; set; } = "";
+            
+            [JsonPropertyName("_sModelName")]
+            public string? ModelName { get; set; }
+        }
+
         public class Submitter
         {
             [JsonPropertyName("_idRow")]
@@ -243,7 +255,7 @@ namespace FlairX_Mod_Manager.Services
             public int PostCount { get; set; }
             
             [JsonPropertyName("_aCategory")]
-            public object? Category { get; set; }
+            public ModCategory? Category { get; set; }
             
             [JsonPropertyName("_aGame")]
             public object? Game { get; set; }

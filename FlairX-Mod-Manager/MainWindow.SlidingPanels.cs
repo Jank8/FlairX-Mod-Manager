@@ -36,9 +36,9 @@ namespace FlairX_Mod_Manager
             ShowSlidingPanel(presetsControl, "Presets");
         }
 
-        public void ShowGameBananaBrowserPanel(string gameTag)
+        public void ShowGameBananaBrowserPanel(string gameTag, string? modUrl = null)
         {
-            var browserControl = new GameBananaBrowserUserControl(gameTag);
+            var browserControl = new GameBananaBrowserUserControl(gameTag, modUrl);
             var lang = SharedUtilities.LoadLanguageDictionary("GameBananaBrowser");
             var gameName = gameTag switch
             {

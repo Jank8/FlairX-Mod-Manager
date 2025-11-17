@@ -1002,6 +1002,20 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (finalImage != src) finalImage.Dispose();
             }
+            
+            // Delete original file if it's different from target
+            try
+            {
+                if (!sourcePath.Equals(targetPath, StringComparison.OrdinalIgnoreCase) && File.Exists(sourcePath))
+                {
+                    File.Delete(sourcePath);
+                    Logger.LogInfo($"Deleted original preview: {sourcePath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to delete original preview: {sourcePath}", ex);
+            }
         }
 
         private static void CreateMinitileStatic(string sourcePath, string minitilePath)
