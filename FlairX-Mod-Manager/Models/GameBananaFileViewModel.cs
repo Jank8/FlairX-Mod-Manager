@@ -5,6 +5,8 @@ namespace FlairX_Mod_Manager.Models
 {
     public class GameBananaFileViewModel : INotifyPropertyChanged
     {
+        private bool _isSelected = true;
+        
         public int Id { get; set; }
         public string FileName { get; set; } = "";
         public long FileSize { get; set; }
@@ -12,6 +14,19 @@ namespace FlairX_Mod_Manager.Models
         public string DownloadUrl { get; set; } = "";
         public int DownloadCount { get; set; }
         public long DateAdded { get; set; }
+        
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged(nameof(IsSelected));
+                }
+            }
+        }
 
         public string FileSizeFormatted => FormatFileSize(FileSize);
         public string DownloadCountFormatted => FormatCount(DownloadCount);
@@ -55,8 +70,11 @@ namespace FlairX_Mod_Manager.Models
             }
         }
 
-        #pragma warning disable CS0067
         public event PropertyChangedEventHandler? PropertyChanged;
-        #pragma warning restore CS0067
+        
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

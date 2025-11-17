@@ -143,6 +143,20 @@
                                                        Height="277" 
                                                        Width="277"/>
                                                 
+                                                <!-- Installed badge -->
+                                                <Border Background="#CC00AA00" 
+                                                        CornerRadius="4" 
+                                                        Padding="8,4" 
+                                                        Margin="8"
+                                                        HorizontalAlignment="Right" 
+                                                        VerticalAlignment="Top"
+                                                        Visibility="{Binding IsInstalledVisibility}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                                        <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="White"/>
+                                                        <TextBlock x:Name="TileInstalledBadgeText" Text="Installed" FontSize="12" Foreground="White" FontWeight="SemiBold"/>
+                                                    </StackPanel>
+                                                </Border>
+                                                
                                                 <!-- Stats overlay -->
                                                 <Grid VerticalAlignment="Bottom" 
                                                       Background="#CC000000"
@@ -228,6 +242,26 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 
+                <!-- Installed badge (floating in top right corner) -->
+                <Border x:Name="DetailInstalledBadge"
+                        Background="#CC00AA00" 
+                        CornerRadius="8" 
+                        Padding="16,8" 
+                        Margin="0,0,24,0"
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Top"
+                        Visibility="Collapsed"
+                        Grid.Row="0"
+                        Grid.RowSpan="2">
+                    <Border.Shadow>
+                        <ThemeShadow/>
+                    </Border.Shadow>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE73E;" FontSize="16" Foreground="White"/>
+                        <TextBlock x:Name="DetailInstalledBadgeText" Text="Installed" FontSize="16" Foreground="White" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Border>
+                
                 <!-- Top section: Image slider + Info -->
                 <Grid Grid.Row="0" Margin="0,0,0,24">
                     <Grid.ColumnDefinitions>
@@ -307,7 +341,7 @@
                         
                         <!-- Author -->
                         <StackPanel Grid.Row="0" Spacing="8">
-                            <TextBlock Text="Author" FontSize="14" FontWeight="SemiBold" Opacity="0.7"/>
+                            <TextBlock x:Name="DetailAuthorLabel" Text="Author" FontSize="14" FontWeight="SemiBold" Opacity="0.7"/>
                             <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                                 <!-- Avatar with hover effect -->
                                 <Border Width="48" Height="48"
@@ -330,17 +364,18 @@
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock x:Name="DetailAuthor" FontSize="16" FontWeight="SemiBold"/>
                                     <HyperlinkButton x:Name="DetailAuthorProfileLink" 
-                                                    Content="View Profile"
                                                     FontSize="12"
                                                     Padding="0"
-                                                    Click="DetailAuthorProfileLink_Click"/>
+                                                    Click="DetailAuthorProfileLink_Click">
+                                        <TextBlock x:Name="DetailViewProfileText" Text="View Profile"/>
+                                    </HyperlinkButton>
                                 </StackPanel>
                             </StackPanel>
                         </StackPanel>
                         
                         <!-- Description with Markdown -->
                         <StackPanel Grid.Row="1" Spacing="8" Margin="0,16,0,0">
-                            <TextBlock x:Name="DetailDescriptionTitle" Text="Description" FontSize="16" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="DetailDescriptionTitle" FontSize="16" FontWeight="SemiBold"/>
                             <ScrollViewer x:Name="DetailDescriptionScrollViewer" 
                                           Height="480" 
                                           VerticalScrollBarVisibility="Auto"
@@ -357,57 +392,49 @@
                     <StackPanel Spacing="16">
                         <!-- Files -->
                         <StackPanel Spacing="12">
-                            <TextBlock x:Name="DetailFilesTitle" Text="Files" FontSize="16" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="DetailFilesTitle" FontSize="16" FontWeight="SemiBold"/>
                             <ListView x:Name="DetailFilesList" 
-                                      SelectionMode="Multiple"
+                                      SelectionMode="None"
                                       MaxHeight="400">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                        <Setter Property="Padding" Value="12,8"/>
+                                        <Setter Property="Padding" Value="0"/>
                                     </Style>
                                 </ListView.ItemContainerStyle>
-                                <ListView.Resources>
-                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundChecked" Color="{ThemeResource SystemBaseHighColor}"/>
-                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundCheckedPointerOver" Color="{ThemeResource SystemBaseHighColor}"/>
-                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundCheckedPressed" Color="{ThemeResource SystemBaseHighColor}"/>
-                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundCheckedDisabled" Color="{ThemeResource SystemBaseMediumColor}"/>
-                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundIndeterminate" Color="{ThemeResource SystemBaseHighColor}"/>
-                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundIndeterminatePointerOver" Color="{ThemeResource SystemBaseHighColor}"/>
-                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundIndeterminatePressed" Color="{ThemeResource SystemBaseHighColor}"/>
-                                    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundIndeterminateDisabled" Color="{ThemeResource SystemBaseMediumColor}"/>
-                                </ListView.Resources>
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Padding="8">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-                                            
-                                            <TextBlock Grid.Row="0" Text="{Binding FileName}" FontWeight="SemiBold"/>
-                                            <TextBlock Grid.Row="1" Text="{Binding Description}" 
-                                                       TextWrapping="Wrap" 
-                                                       Opacity="0.7" 
-                                                       FontSize="12"
-                                                       Margin="0,4,0,0"
-                                                       Visibility="{Binding HasDescription}"/>
-                                            <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
-                                                <TextBlock FontSize="12" Opacity="0.6">
-                                                    <Run Text="Size: "/>
-                                                    <Run Text="{Binding FileSizeFormatted}"/>
-                                                </TextBlock>
-                                                <TextBlock FontSize="12" Opacity="0.6">
-                                                    <Run Text="Downloads: "/>
-                                                    <Run Text="{Binding DownloadCountFormatted}"/>
-                                                </TextBlock>
-                                                <TextBlock FontSize="12" Opacity="0.6">
-                                                    <Run Text="Added: "/>
-                                                    <Run Text="{Binding DateAddedFormatted}"/>
-                                                </TextBlock>
-                                            </StackPanel>
-                                        </Grid>
+                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Padding="12,8">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                
+                                                <TextBlock Grid.Row="0" Text="{Binding FileName}" FontWeight="SemiBold"/>
+                                                <TextBlock Grid.Row="1" Text="{Binding Description}" 
+                                                           TextWrapping="Wrap" 
+                                                           Opacity="0.7" 
+                                                           FontSize="12"
+                                                           Margin="0,4,0,0"
+                                                           Visibility="{Binding HasDescription}"/>
+                                                <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
+                                                    <TextBlock FontSize="12" Opacity="0.6">
+                                                        <Run Text="Size: "/>
+                                                        <Run Text="{Binding FileSizeFormatted}"/>
+                                                    </TextBlock>
+                                                    <TextBlock FontSize="12" Opacity="0.6">
+                                                        <Run Text="Downloads: "/>
+                                                        <Run Text="{Binding DownloadCountFormatted}"/>
+                                                    </TextBlock>
+                                                    <TextBlock FontSize="12" Opacity="0.6">
+                                                        <Run Text="Added: "/>
+                                                        <Run Text="{Binding DateAddedFormatted}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Grid>
+                                        </CheckBox>
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
@@ -430,7 +457,7 @@
                                     Height="48">
                                 <StackPanel Orientation="Horizontal" Spacing="12">
                                     <FontIcon Glyph="&#xE896;" FontSize="16"/>
-                                    <TextBlock Text="Download and Install" FontSize="14" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="DetailDownloadButtonText" Text="Download and Install" FontSize="14" FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Button>
                             
@@ -442,7 +469,7 @@
                                     Height="48">
                                 <StackPanel Orientation="Horizontal" Spacing="12">
                                     <FontIcon Glyph="&#xE774;" FontSize="16"/>
-                                    <TextBlock Text="Open in Browser" FontSize="14" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="DetailOpenBrowserButtonText" Text="Open in Browser" FontSize="14" FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Button>
                         </Grid>

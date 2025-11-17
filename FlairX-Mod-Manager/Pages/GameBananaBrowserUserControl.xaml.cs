@@ -62,6 +62,8 @@ namespace FlairX_Mod_Manager.Pages
             public long DateModified { get; set; }
             public long DateUpdated { get; set; }
             public bool IsRated { get; set; } = false;
+            public bool IsInstalled { get; set; } = false;
+            public Visibility IsInstalledVisibility => IsInstalled ? Visibility.Visible : Visibility.Collapsed;
             
             public string DownloadCountFormatted => FormatCount(DownloadCount);
             public string LikeCountFormatted => FormatCount(LikeCount);
@@ -128,6 +130,12 @@ namespace FlairX_Mod_Manager.Pages
 
             // Set UI text
             SearchBox.PlaceholderText = SharedUtilities.GetTranslation(_lang, "SearchPlaceholder");
+            DetailInstalledBadgeText.Text = SharedUtilities.GetTranslation(_lang, "Installed");
+            DetailAuthorLabel.Text = SharedUtilities.GetTranslation(_lang, "Author");
+            DetailViewProfileText.Text = SharedUtilities.GetTranslation(_lang, "ViewProfile");
+            DetailDescriptionTitle.Text = SharedUtilities.GetTranslation(_lang, "Description");
+            DetailFilesTitle.Text = SharedUtilities.GetTranslation(_lang, "Files");
+            DetailOpenBrowserButtonText.Text = SharedUtilities.GetTranslation(_lang, "OpenInBrowser");
             
             ModsGridView.ItemsSource = _mods;
             
@@ -138,6 +146,104 @@ namespace FlairX_Mod_Manager.Pages
             
             // Load mods (sections will be extracted from loaded mods)
             _ = LoadModsAsync();
+        }
+
+        private bool IsModInstalled(string profileUrl)
+        {
+            try
+            {
+                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
+                if (string.IsNullOrEmpty(modLibraryPath) || !System.IO.Directory.Exists(modLibraryPath))
+                    return false;
+
+                // Search all mod.json files in mod library
+                foreach (var categoryDir in System.IO.Directory.GetDirectories(modLibraryPath))
+                {
+                    foreach (var modDir in System.IO.Directory.GetDirectories(categoryDir))
+                    {
+                        var modJsonPath = System.IO.Path.Combine(modDir, "mod.json");
+                        if (System.IO.File.Exists(modJsonPath))
+                        {
+                            try
+                            {
+                                var jsonContent = System.IO.File.ReadAllText(modJsonPath);
+                                var modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, System.Text.Json.JsonElement>>(jsonContent);
+                                
+                                if (modData != null && modData.TryGetValue("url", out var urlElement))
+                                {
+                                    var url = urlElement.GetString();
+                                    if (!string.IsNullOrEmpty(url) && url.Equals(profileUrl, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        return true;
+                                    }
+                                }
+                            }
+                            catch
+                            {
+                                // Skip invalid mod.json files
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error checking if mod is installed", ex);
+            }
+
+            return false;
+        }
+        
+        private async Task UpdateDateCheckedForMod(string profileUrl)
+        {
+            try
+            {
+                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
+                if (string.IsNullOrEmpty(modLibraryPath) || !System.IO.Directory.Exists(modLibraryPath))
+                    return;
+
+                // Search for the mod by URL
+                foreach (var categoryDir in System.IO.Directory.GetDirectories(modLibraryPath))
+                {
+                    foreach (var modDir in System.IO.Directory.GetDirectories(categoryDir))
+                    {
+                        var modJsonPath = System.IO.Path.Combine(modDir, "mod.json");
+                        if (System.IO.File.Exists(modJsonPath))
+                        {
+                            try
+                            {
+                                var jsonContent = await System.IO.File.ReadAllTextAsync(modJsonPath);
+                                var modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonContent);
+                                
+                                if (modData != null && modData.TryGetValue("url", out var urlObj))
+                                {
+                                    var url = urlObj?.ToString();
+                                    if (!string.IsNullOrEmpty(url) && url.Equals(profileUrl, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        // Update dateChecked to current date
+                                        modData["dateChecked"] = DateTime.Now.ToString("yyyy-MM-dd");
+                                        
+                                        var jsonOptions = new System.Text.Json.JsonSerializerOptions { WriteIndented = true };
+                                        var updatedJson = System.Text.Json.JsonSerializer.Serialize(modData, jsonOptions);
+                                        await System.IO.File.WriteAllTextAsync(modJsonPath, updatedJson);
+                                        
+                                        Logger.LogInfo($"Updated dateChecked for mod at {modJsonPath}");
+                                        return;
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Error updating dateChecked for mod at {modJsonPath}", ex);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error updating dateChecked", ex);
+            }
         }
 
         private void ModsScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
@@ -273,7 +379,8 @@ namespace FlairX_Mod_Manager.Pages
                         DateAdded = record.DateAdded,
                         DateModified = record.DateModified,
                         DateUpdated = record.DateUpdated,
-                        IsRated = record.HasContentRatings
+                        IsRated = record.HasContentRatings,
+                        IsInstalled = IsModInstalled(record.ProfileUrl)
                     };
 
                     // Get preview image
@@ -387,7 +494,8 @@ namespace FlairX_Mod_Manager.Pages
                         DateAdded = record.DateAdded,
                         DateModified = record.DateModified,
                         DateUpdated = record.DateUpdated,
-                        IsRated = record.HasContentRatings
+                        IsRated = record.HasContentRatings,
+                        IsInstalled = IsModInstalled(record.ProfileUrl)
                     };
 
                     // Get preview image
@@ -590,6 +698,27 @@ namespace FlairX_Mod_Manager.Pages
                     CloseDetailsPanel();
                     return;
                 }
+                
+                // Check if mod is installed and update UI
+                bool isInstalled = false;
+                if (!string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
+                {
+                    isInstalled = IsModInstalled(_currentModDetails.ProfileUrl);
+                    
+                    // Update dateChecked in mod.json if this mod is installed
+                    if (isInstalled)
+                    {
+                        _ = UpdateDateCheckedForMod(_currentModDetails.ProfileUrl);
+                    }
+                }
+                
+                // Show/hide installed badge
+                DetailInstalledBadge.Visibility = isInstalled ? Visibility.Visible : Visibility.Collapsed;
+                
+                // Update download button text based on installation status
+                DetailDownloadButtonText.Text = isInstalled 
+                    ? SharedUtilities.GetTranslation(_lang, "DownloadAndUpdate")
+                    : SharedUtilities.GetTranslation(_lang, "DownloadAndInstall");
 
                 // Update UI
                 TitleText.Text = _currentModDetails.Name;
@@ -654,10 +783,10 @@ namespace FlairX_Mod_Manager.Pages
 
                     DetailFilesList.ItemsSource = _detailFiles;
                     
-                    // Auto-select first file
-                    if (_detailFiles.Count > 0)
+                    // Auto-select all files by default
+                    foreach (var file in _detailFiles)
                     {
-                        DetailFilesList.SelectedIndex = 0;
+                        file.IsSelected = true;
                     }
                     
                     DetailDownloadButton.IsEnabled = true;
@@ -770,7 +899,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (_currentModDetails == null) return;
 
-            var selectedFiles = DetailFilesList.SelectedItems.Cast<Models.GameBananaFileViewModel>().ToList();
+            var selectedFiles = _detailFiles.Where(f => f.IsSelected).ToList();
 
             if (selectedFiles.Count == 0)
             {
@@ -786,7 +915,16 @@ namespace FlairX_Mod_Manager.Pages
             }
 
             // Show file extraction dialog
-            var extractDialog = new Dialogs.GameBananaFileExtractionDialog(selectedFiles, _currentModDetails.Name, _gameTag, _currentModDetails.ProfileUrl);
+            var authorName = _currentModDetails.Submitter?.Name ?? "unknown";
+            var dateUpdated = _currentModDetails.DateUpdated > 0 ? _currentModDetails.DateUpdated : _currentModDetails.DateAdded;
+            var extractDialog = new Dialogs.GameBananaFileExtractionDialog(
+                selectedFiles, 
+                _currentModDetails.Name, 
+                _gameTag, 
+                _currentModDetails.ProfileUrl,
+                authorName,
+                _currentModDetails.Id,
+                dateUpdated);
             extractDialog.XamlRoot = XamlRoot;
             var result = await extractDialog.ShowAsync();
 
@@ -1038,20 +1176,95 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        // Detail image tilt animation - DISABLED for performance
+        // Detail image tilt animation
         private void DetailImageCoordinateField_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            // Disabled for performance
+            if (sender is Grid grid)
+            {
+                grid.PointerMoved += DetailImageCoordinateField_PointerMoved;
+            }
         }
 
         private void DetailImageCoordinateField_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            // Disabled for performance
+            if (sender is Grid grid)
+            {
+                grid.PointerMoved -= DetailImageCoordinateField_PointerMoved;
+                
+                // Reset tilt with animation
+                if (DetailImageBorder?.Projection is Microsoft.UI.Xaml.Media.PlaneProjection projection)
+                {
+                    var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    var easing = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase();
+                    
+                    var rotXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(300)),
+                        EasingFunction = easing
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotXAnim, projection);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotXAnim, "RotationX");
+                    storyboard.Children.Add(rotXAnim);
+                    
+                    var rotYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(300)),
+                        EasingFunction = easing
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotYAnim, projection);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotYAnim, "RotationY");
+                    storyboard.Children.Add(rotYAnim);
+                    
+                    storyboard.Begin();
+                }
+            }
         }
 
         private void DetailImageCoordinateField_PointerMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            // Disabled for performance
+            if (sender is Grid grid && DetailImageBorder != null)
+            {
+                try
+                {
+                    var position = e.GetCurrentPoint(grid);
+                    var width = grid.ActualWidth;
+                    var height = grid.ActualHeight;
+                    
+                    if (width > 0 && height > 0)
+                    {
+                        var centerX = width / 2;
+                        var centerY = height / 2;
+                        var offsetX = (position.Position.X - centerX) / centerX;
+                        var offsetY = (position.Position.Y - centerY) / centerY;
+                        
+                        var maxTilt = 10.0;
+                        var targetTiltX = -offsetY * maxTilt;
+                        var targetTiltY = offsetX * maxTilt;
+                        
+                        // Get or create projection
+                        if (DetailImageBorder.Projection is not Microsoft.UI.Xaml.Media.PlaneProjection projection)
+                        {
+                            projection = new Microsoft.UI.Xaml.Media.PlaneProjection
+                            {
+                                CenterOfRotationX = 0.5,
+                                CenterOfRotationY = 0.5
+                            };
+                            DetailImageBorder.Projection = projection;
+                        }
+                        
+                        // Smooth interpolation
+                        var lerpFactor = 0.15;
+                        projection.RotationX = projection.RotationX + ((targetTiltX - projection.RotationX) * lerpFactor);
+                        projection.RotationY = projection.RotationY + ((targetTiltY - projection.RotationY) * lerpFactor);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in DetailImageCoordinateField_PointerMoved", ex);
+                }
+            }
         }
 
         // Author avatar hover effect

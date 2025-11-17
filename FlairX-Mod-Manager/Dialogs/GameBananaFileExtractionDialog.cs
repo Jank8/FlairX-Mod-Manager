@@ -19,6 +19,9 @@ namespace FlairX_Mod_Manager.Dialogs
         private List<Models.GameBananaFileViewModel> _selectedFiles;
         private string _modName;
         private string _gameTag;
+        private string _authorName;
+        private int _modId;
+        private long _dateUpdatedTimestamp;
         private ListView _archiveContentsListView;
         private TextBox _categoryTextBox;
         private ProgressBar _progressBar;
@@ -72,12 +75,18 @@ namespace FlairX_Mod_Manager.Dialogs
             List<Models.GameBananaFileViewModel> selectedFiles,
             string modName,
             string gameTag,
-            string? modProfileUrl = null)
+            string? modProfileUrl = null,
+            string? authorName = null,
+            int modId = 0,
+            long dateUpdatedTimestamp = 0)
         {
             _selectedFiles = selectedFiles;
             _modName = modName;
             _gameTag = gameTag;
             _modProfileUrl = modProfileUrl;
+            _authorName = authorName ?? "unknown";
+            _modId = modId;
+            _dateUpdatedTimestamp = dateUpdatedTimestamp;
 
             Title = "Download and Install Mod";
             PrimaryButtonText = "Download and Extract";
@@ -399,18 +408,95 @@ namespace FlairX_Mod_Manager.Dialogs
         private async Task CreateModJson(string modPath)
         {
             var modJsonPath = Path.Combine(modPath, "mod.json");
+            
+            // Try to fetch version from GameBanana API
+            string version = "";
+            if (_modId > 0 && !string.IsNullOrEmpty(_modProfileUrl))
+            {
+                try
+                {
+                    version = await FetchVersionFromGameBanana(_modProfileUrl);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to fetch version for mod {_modName}", ex);
+                }
+            }
+            
+            // Convert timestamp to date string
+            string dateUpdated = "0000-00-00";
+            if (_dateUpdatedTimestamp > 0)
+            {
+                try
+                {
+                    var date = DateTimeOffset.FromUnixTimeSeconds(_dateUpdatedTimestamp).DateTime;
+                    dateUpdated = date.ToString("yyyy-MM-dd");
+                }
+                catch
+                {
+                    dateUpdated = "0000-00-00";
+                }
+            }
+            
             var modJson = new
             {
-                author = "unknown",
+                author = _authorName,
                 url = _modProfileUrl ?? "https://",
-                version = "",
+                version = string.IsNullOrWhiteSpace(version) ? " " : version,
                 dateChecked = DateTime.Now.ToString("yyyy-MM-dd"),
-                dateUpdated = DateTime.Now.ToString("yyyy-MM-dd"),
+                dateUpdated = dateUpdated,
                 hotkeys = new object[] { }
             };
 
             var json = System.Text.Json.JsonSerializer.Serialize(modJson, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(modJsonPath, json);
+        }
+        
+        private async Task<string> FetchVersionFromGameBanana(string url)
+        {
+            try
+            {
+                // Parse GameBanana URL to extract item type and ID
+                var urlPattern = new System.Text.RegularExpressions.Regex(@"gamebanana\.com/(\w+)/(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                var match = urlPattern.Match(url);
+                if (!match.Success)
+                {
+                    return "";
+                }
+
+                string itemType = match.Groups[1].Value; // e.g., "mods", "tools"
+                string itemId = match.Groups[2].Value;   // e.g., "574763"
+
+                // Capitalize first letter for API (Mod, Tool, etc.)
+                itemType = char.ToUpper(itemType[0]) + itemType.Substring(1).TrimEnd('s');
+
+                // Build API URL to get updates
+                string apiUrl = $"https://gamebanana.com/apiv11/{itemType}/{itemId}/Updates?_nPage=1&_nPerpage=1&_csvProperties=_sVersion";
+
+                using var httpClient = new System.Net.Http.HttpClient();
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+
+                var response = await httpClient.GetStringAsync(apiUrl);
+                using var doc = System.Text.Json.JsonDocument.Parse(response);
+                var root = doc.RootElement;
+
+                // Get the first update's version
+                if (root.ValueKind == System.Text.Json.JsonValueKind.Array && root.GetArrayLength() > 0)
+                {
+                    var firstUpdate = root[0];
+                    if (firstUpdate.TryGetProperty("_sVersion", out var versionProp))
+                    {
+                        return versionProp.GetString() ?? "";
+                    }
+                }
+
+                return "";
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to fetch version from GameBanana API for URL: {url}", ex);
+                return "";
+            }
         }
 
         private bool IsArchiveFile(string fileName)
