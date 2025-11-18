@@ -49,7 +49,7 @@ namespace FlairX_Mod_Manager.Pages
         private Dictionary<string, string> _fileNameByDisplayName = new();
         private static bool _isOptimizingPreviews = false;
         private CancellationTokenSource? _previewCts;
-        private FontIcon? _optimizePreviewsButtonIcon;
+        private TextBlock? _optimizePreviewsButtonText;
 
         public event EventHandler? CloseRequested; // Event to notify parent to close
 
@@ -68,7 +68,7 @@ namespace FlairX_Mod_Manager.Pages
         public SettingsUserControl()
         {
             this.InitializeComponent();
-            _optimizePreviewsButtonIcon = OptimizePreviewsButton.Content as FontIcon;
+            _optimizePreviewsButtonText = OptimizePreviewsButtonText;
             SettingsManager.Load();
             LoadLanguages();
             InitializeUIState();
@@ -266,7 +266,7 @@ namespace FlairX_Mod_Manager.Pages
             
             // Section headers
             if (AppearanceHeader != null) AppearanceHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AppearanceHeader");
-            if (GameSettingsHeader != null) GameSettingsHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GameSettingsHeader");
+            if (DisplayHeader != null) DisplayHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DisplayHeader");
             if (DirectoriesHeader != null) DirectoriesHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DirectoriesHeader");
             if (BehaviorHeader != null) BehaviorHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_BehaviorHeader");
             
@@ -274,6 +274,7 @@ namespace FlairX_Mod_Manager.Pages
             if (BackdropLabel != null) BackdropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop");
             if (LanguageLabel != null) LanguageLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language");
             if (OptimizePreviewsLabel != null) OptimizePreviewsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
+            if (OptimizePreviewsButtonText != null && !_isOptimizingPreviews) OptimizePreviewsButtonText.Text = SharedUtilities.GetTranslation(lang, "Optimize");
             if (DefaultResolutionOnStartLabel != null) DefaultResolutionOnStartLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultResolutionOnStart_Label");
             if (DefaultStartResolutionLabel != null) DefaultStartResolutionLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Label");
             if (XXMIRootDirectoryLabel != null) XXMIRootDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory");
@@ -708,9 +709,9 @@ namespace FlairX_Mod_Manager.Pages
             OptimizePreviewsButton.IsEnabled = true;
             OptimizePreviewsProgressBar.Visibility = Visibility.Visible;
             
-            if (_optimizePreviewsButtonIcon != null)
+            if (_optimizePreviewsButtonText != null)
             {
-                _optimizePreviewsButtonIcon.Glyph = "\uE711"; // Cancel icon
+                _optimizePreviewsButtonText.Text = "Cancel";
             }
 
             try
@@ -728,9 +729,9 @@ namespace FlairX_Mod_Manager.Pages
                 OptimizePreviewsButton.IsEnabled = true;
                 OptimizePreviewsProgressBar.Visibility = Visibility.Collapsed;
                 
-                if (_optimizePreviewsButtonIcon != null)
+                if (_optimizePreviewsButtonText != null)
                 {
-                    _optimizePreviewsButtonIcon.Glyph = "\uE89E"; // Original icon
+                    _optimizePreviewsButtonText.Text = "Optimize";
                 }
             }
             
@@ -1122,9 +1123,9 @@ namespace FlairX_Mod_Manager.Pages
             OptimizePreviewsButton.IsEnabled = true;
             OptimizePreviewsProgressBar.Visibility = Visibility.Visible;
             
-            if (_optimizePreviewsButtonIcon != null)
+            if (_optimizePreviewsButtonText != null)
             {
-                _optimizePreviewsButtonIcon.Glyph = "\uE711"; // Cancel icon
+                _optimizePreviewsButtonText.Text = "Cancel";
             }
 
             try
@@ -1142,9 +1143,9 @@ namespace FlairX_Mod_Manager.Pages
                 OptimizePreviewsButton.IsEnabled = true;
                 OptimizePreviewsProgressBar.Visibility = Visibility.Collapsed;
                 
-                if (_optimizePreviewsButtonIcon != null)
+                if (_optimizePreviewsButtonText != null)
                 {
-                    _optimizePreviewsButtonIcon.Glyph = "\uE89E"; // Original icon
+                    _optimizePreviewsButtonText.Text = "Optimize";
                 }
             }
             

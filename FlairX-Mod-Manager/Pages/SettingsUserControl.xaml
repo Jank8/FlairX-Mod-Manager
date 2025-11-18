@@ -176,8 +176,8 @@
                         </Grid>
                     </Border>
                     
-                    <!-- Game Settings Section -->
-                    <TextBlock x:Name="GameSettingsHeader" Text="Game Settings" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                    <!-- Display Section -->
+                    <TextBlock x:Name="DisplayHeader" Text="Display" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
                     
                     <!-- Default Resolution on Start Setting -->
                     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -262,10 +262,15 @@
                             </StackPanel>
                             
                             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                <Button x:Name="OptimizePreviewsButton" Width="40" Height="32" Padding="0" Click="OptimizePreviewsButton_Click">
-                                    <FontIcon x:Name="OptimizePreviewsButtonIcon" Glyph="&#xE89E;" FontSize="20"/>
+                                <ProgressBar x:Name="OptimizePreviewsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
+                                <Button x:Name="OptimizePreviewsButton" 
+                                        Width="100"
+                                        Height="32" 
+                                        Padding="12,5,12,6" 
+                                        Click="OptimizePreviewsButton_Click"
+                                        Style="{StaticResource AccentButtonStyle}">
+                                    <TextBlock x:Name="OptimizePreviewsButtonText" Text="Optimize"/>
                                 </Button>
-                                <ProgressBar x:Name="OptimizePreviewsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="8,0,0,0" />
                             </StackPanel>
                         </Grid>
                     </Border>
