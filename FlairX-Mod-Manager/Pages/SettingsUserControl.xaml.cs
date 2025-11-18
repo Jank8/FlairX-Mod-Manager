@@ -98,6 +98,34 @@ namespace FlairX_Mod_Manager.Pages
             CloseRequested?.Invoke(this, EventArgs.Empty);
         }
 
+        private void UpdateToggleLabels()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            var onText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_On");
+            var offText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_Off");
+            
+            if (DefaultResolutionOnStartToggleLabel != null && DefaultResolutionOnStartToggle != null)
+                DefaultResolutionOnStartToggleLabel.Text = DefaultResolutionOnStartToggle.IsOn ? onText : offText;
+            if (SkipXXMILauncherToggleLabel != null && SkipXXMILauncherToggle != null)
+                SkipXXMILauncherToggleLabel.Text = SkipXXMILauncherToggle.IsOn ? onText : offText;
+            if (ActiveModsToTopToggleLabel != null && ActiveModsToTopToggle != null)
+                ActiveModsToTopToggleLabel.Text = ActiveModsToTopToggle.IsOn ? onText : offText;
+            if (DynamicModSearchToggleLabel != null && DynamicModSearchToggle != null)
+                DynamicModSearchToggleLabel.Text = DynamicModSearchToggle.IsOn ? onText : offText;
+            if (ShowOrangeAnimationToggleLabel != null && ShowOrangeAnimationToggle != null)
+                ShowOrangeAnimationToggleLabel.Text = ShowOrangeAnimationToggle.IsOn ? onText : offText;
+            if (ModGridZoomToggleLabel != null && ModGridZoomToggle != null)
+                ModGridZoomToggleLabel.Text = ModGridZoomToggle.IsOn ? onText : offText;
+            if (GridLoggingToggleLabel != null && GridLoggingToggle != null)
+                GridLoggingToggleLabel.Text = GridLoggingToggle.IsOn ? onText : offText;
+            if (MinimizeToTrayToggleLabel != null && MinimizeToTrayToggle != null)
+                MinimizeToTrayToggleLabel.Text = MinimizeToTrayToggle.IsOn ? onText : offText;
+            if (BlurNSFWToggleLabel != null && BlurNSFWToggle != null)
+                BlurNSFWToggleLabel.Text = BlurNSFWToggle.IsOn ? onText : offText;
+            if (HotkeysEnabledToggleLabel != null && HotkeysEnabledToggle != null)
+                HotkeysEnabledToggleLabel.Text = HotkeysEnabledToggle.IsOn ? onText : offText;
+        }
+        
         private void BackButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             var scaleAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
@@ -235,6 +263,13 @@ namespace FlairX_Mod_Manager.Pages
             
             // Main labels - use null checks
             if (SettingsTitle != null) SettingsTitle.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Title");
+            
+            // Section headers
+            if (AppearanceHeader != null) AppearanceHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AppearanceHeader");
+            if (GameSettingsHeader != null) GameSettingsHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GameSettingsHeader");
+            if (DirectoriesHeader != null) DirectoriesHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DirectoriesHeader");
+            if (BehaviorHeader != null) BehaviorHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_BehaviorHeader");
+            
             if (ThemeLabel != null) ThemeLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme");
             if (BackdropLabel != null) BackdropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop");
             if (LanguageLabel != null) LanguageLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language");
@@ -268,6 +303,9 @@ namespace FlairX_Mod_Manager.Pages
             if (ModGridZoomDescription != null) ModGridZoomDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Description") ?? string.Empty;
             if (GridLoggingDescription != null) GridLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Description") ?? string.Empty;
             if (MinimizeToTrayDescription != null) MinimizeToTrayDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Description") ?? string.Empty;
+            
+            // ToggleSwitch labels - set initial state
+            UpdateToggleLabels();
             
             // Hotkey labels and descriptions - use null checks
             if (OptimizePreviewsHotkeyLabel != null) OptimizePreviewsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
@@ -1403,18 +1441,21 @@ namespace FlairX_Mod_Manager.Pages
         {
             SettingsManager.Current.ActiveModsToTopEnabled = ActiveModsToTopToggle.IsOn;
             SettingsManager.Save();
+            UpdateToggleLabels();
         }
 
         private void DynamicModSearchToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.DynamicModSearchEnabled = DynamicModSearchToggle.IsOn;
             SettingsManager.Save();
+            UpdateToggleLabels();
         }
 
         private void ShowOrangeAnimationToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.ShowOrangeAnimation = ShowOrangeAnimationToggle.IsOn;
             SettingsManager.Save();
+            UpdateToggleLabels();
             
             // Refresh animation in MainWindow
             if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
@@ -1427,6 +1468,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             SettingsManager.Current.ModGridZoomEnabled = ModGridZoomToggle.IsOn;
             SettingsManager.Save();
+            UpdateToggleLabels();
 
             // If the user disabled zooming, reset zoom to 100% immediately
             if (!ModGridZoomToggle.IsOn)
@@ -1457,24 +1499,28 @@ namespace FlairX_Mod_Manager.Pages
         {
             SettingsManager.Current.GridLoggingEnabled = GridLoggingToggle.IsOn;
             SettingsManager.Save();
+            UpdateToggleLabels();
         }
 
         private void MinimizeToTrayToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.MinimizeToTrayEnabled = MinimizeToTrayToggle.IsOn;
             SettingsManager.Save();
+            UpdateToggleLabels();
         }
 
         private void BlurNSFWToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.BlurNSFWThumbnails = BlurNSFWToggle.IsOn;
             SettingsManager.Save();
+            UpdateToggleLabels();
         }
 
         private void HotkeysEnabledToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.HotkeysEnabled = HotkeysEnabledToggle.IsOn;
             SettingsManager.Save();
+            UpdateToggleLabels();
             
             // Update hotkey section UI state
             UpdateHotkeysSectionState(HotkeysEnabledToggle.IsOn);
@@ -2044,6 +2090,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             SettingsManager.Current.UseDefaultResolutionOnStart = DefaultResolutionOnStartToggle.IsOn;
             SettingsManager.Save();
+            UpdateToggleLabels();
             
             // Enable/disable the resolution input boxes
             DefaultStartWidthTextBox.IsEnabled = DefaultResolutionOnStartToggle.IsOn;
@@ -2187,6 +2234,7 @@ namespace FlairX_Mod_Manager.Pages
             SettingsManager.Current.SkipXXMILauncherEnabled = SkipXXMILauncherToggle.IsOn;
             SettingsManager.Save();
             Logger.LogInfo($"SkipXXMILauncher setting saved: {SettingsManager.Current.SkipXXMILauncherEnabled}");
+            UpdateToggleLabels();
         }
 
         // Clean up event subscription when control is unloaded

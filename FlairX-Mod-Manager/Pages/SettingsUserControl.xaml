@@ -37,61 +37,83 @@
             </Grid.RowDefinitions>
             <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" 
                           VerticalAlignment="Stretch" Padding="0,0,0,12">
-                <StackPanel Spacing="25" Margin="0,0,0,0" MaxWidth="1400" HorizontalAlignment="Left">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="8*" MaxWidth="1000"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,0,0" HorizontalAlignment="Stretch">
+                    
+                    <!-- Appearance Section -->
+                    <TextBlock x:Name="AppearanceHeader" Text="Appearance" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
                     
                     <!-- Theme Setting -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE790;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="ThemeLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="ThemeDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
                         
-                        <FontIcon Grid.Column="0" Glyph="&#xE790;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="ThemeLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="ThemeDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <SelectorBar Grid.Column="3" x:Name="ThemeSelectorBar" SelectionChanged="ThemeSelectorBar_SelectionChanged" VerticalAlignment="Center">
-                                <SelectorBarItem x:Name="ThemeSelectorAuto" Tag="Auto" Margin="0,0,8,0">
-                                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
-                                        <FontIcon Glyph="&#xE890;" FontSize="16"/>
-                                        <TextBlock x:Name="ThemeSelectorAutoText" Text="Auto" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </SelectorBarItem>
-                                <SelectorBarItem x:Name="ThemeSelectorLight" Tag="Light" Margin="4,0,4,0">
-                                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
-                                        <FontIcon Glyph="&#xE706;" FontSize="16"/>
-                                        <TextBlock x:Name="ThemeSelectorLightText" Text="Light" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </SelectorBarItem>
-                                <SelectorBarItem x:Name="ThemeSelectorDark" Tag="Dark">
-                                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
-                                        <FontIcon Glyph="&#xE708;" FontSize="16"/>
-                                        <TextBlock x:Name="ThemeSelectorDarkText" Text="Dark" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </SelectorBarItem>
-                            </SelectorBar>
-                    </Grid>
+                            <SelectorBar Grid.Column="3" x:Name="ThemeSelectorBar" SelectionChanged="ThemeSelectorBar_SelectionChanged" VerticalAlignment="Center">
+                                    <SelectorBarItem x:Name="ThemeSelectorAuto" Tag="Auto" Margin="0,0,8,0">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                            <FontIcon Glyph="&#xE890;" FontSize="16"/>
+                                            <TextBlock x:Name="ThemeSelectorAutoText" Text="Auto" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </SelectorBarItem>
+                                    <SelectorBarItem x:Name="ThemeSelectorLight" Tag="Light" Margin="4,0,4,0">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                            <FontIcon Glyph="&#xE706;" FontSize="16"/>
+                                            <TextBlock x:Name="ThemeSelectorLightText" Text="Light" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </SelectorBarItem>
+                                    <SelectorBarItem x:Name="ThemeSelectorDark" Tag="Dark">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                            <FontIcon Glyph="&#xE708;" FontSize="16"/>
+                                            <TextBlock x:Name="ThemeSelectorDarkText" Text="Dark" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </SelectorBarItem>
+                                </SelectorBar>
+                        </Grid>
+                    </Border>
                     
                     <!-- Backdrop Setting -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xF4A5;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="BackdropLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="BackdropDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xF4A5;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="BackdropLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="BackdropDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
                         
                         <SelectorBar Grid.Column="3" x:Name="BackdropSelectorBar" SelectionChanged="BackdropSelectorBar_SelectionChanged" VerticalAlignment="Center">
                             <SelectorBarItem x:Name="BackdropSelectorMica" Tag="Mica" Margin="0,0,4,0">
@@ -124,389 +146,556 @@
                                     <TextBlock x:Name="BackdropSelectorNoneText" Text="None" VerticalAlignment="Center" MinWidth="40"/>
                                 </StackPanel>
                             </SelectorBarItem>
-                        </SelectorBar>
-                    </Grid>
+                            </SelectorBar>
+                        </Grid>
+                    </Border>
                     
                     <!-- Language Setting -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xF2B7;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="LanguageLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="LanguageDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <ComboBox Grid.Column="3" x:Name="LanguageComboBox" Width="200" SelectionChanged="LanguageComboBox_SelectionChanged" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,24">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xF2B7;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="LanguageLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="LanguageDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <ComboBox Grid.Column="3" x:Name="LanguageComboBox" Width="200" SelectionChanged="LanguageComboBox_SelectionChanged" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Game Settings Section -->
+                    <TextBlock x:Name="GameSettingsHeader" Text="Game Settings" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
                     
                     <!-- Default Resolution on Start Setting -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE7F4;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="DefaultResolutionOnStartLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="DefaultResolutionOnStartDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <ToggleSwitch Grid.Column="3" x:Name="DefaultResolutionOnStartToggle" Toggled="DefaultResolutionOnStartToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE7F4;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="DefaultResolutionOnStartLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="DefaultResolutionOnStartDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                <TextBlock x:Name="DefaultResolutionOnStartToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                                <ToggleSwitch x:Name="DefaultResolutionOnStartToggle" Toggled="DefaultResolutionOnStartToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     
                     <!-- Default Start Resolution Values -->
-                    <Grid x:Name="DefaultStartResolutionGrid">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE8A9;" FontSize="20" VerticalAlignment="Center" Opacity="0.7"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="DefaultStartResolutionLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="DefaultStartResolutionDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                            <TextBox x:Name="DefaultStartWidthTextBox" Width="80" TextChanged="DefaultStartWidthTextBox_TextChanged" VerticalAlignment="Center" InputScope="Number"/>
-                            <TextBlock Text="×" VerticalAlignment="Center" FontSize="14" Opacity="0.7"/>
-                            <TextBox x:Name="DefaultStartHeightTextBox" Width="80" TextChanged="DefaultStartHeightTextBox_TextChanged" VerticalAlignment="Center" InputScope="Number"/>
-                        </StackPanel>
-                    </Grid>
+                    <Border x:Name="DefaultStartResolutionGrid" 
+                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE8A9;" FontSize="20" VerticalAlignment="Center" Opacity="0.7"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="DefaultStartResolutionLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="DefaultStartResolutionDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                                <TextBox x:Name="DefaultStartWidthTextBox" Width="80" TextChanged="DefaultStartWidthTextBox_TextChanged" VerticalAlignment="Center" InputScope="Number"/>
+                                <TextBlock Text="×" VerticalAlignment="Center" FontSize="14" Opacity="0.7"/>
+                                <TextBox x:Name="DefaultStartHeightTextBox" Width="80" TextChanged="DefaultStartHeightTextBox_TextChanged" VerticalAlignment="Center" InputScope="Number"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     
                     <!-- Optimize Previews Setting -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE89E;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="OptimizePreviewsLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="OptimizePreviewsDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button x:Name="OptimizePreviewsButton" Width="40" Height="32" Padding="0" Click="OptimizePreviewsButton_Click">
-                                <FontIcon x:Name="OptimizePreviewsButtonIcon" Glyph="&#xE89E;" FontSize="20"/>
-                            </Button>
-                            <ProgressBar x:Name="OptimizePreviewsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="8,0,0,0" />
-                        </StackPanel>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,24">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE89E;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="OptimizePreviewsLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="OptimizePreviewsDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button x:Name="OptimizePreviewsButton" Width="40" Height="32" Padding="0" Click="OptimizePreviewsButton_Click">
+                                    <FontIcon x:Name="OptimizePreviewsButtonIcon" Glyph="&#xE89E;" FontSize="20"/>
+                                </Button>
+                                <ProgressBar x:Name="OptimizePreviewsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="8,0,0,0" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     
+                    <!-- Directories Section -->
+                    <TextBlock x:Name="DirectoriesHeader" Text="Directories" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
 
                     <!-- XXMI Root Directory -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE8B7;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="XXMIRootDirectoryLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="XXMIRootDirectoryDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                            <BreadcrumbBar x:Name="XXMIRootDirectoryBreadcrumb" Width="300" ItemClicked="XXMIRootDirectoryBreadcrumb_ItemClicked" Margin="0,0,8,0"/>
-                            <Button x:Name="XXMIRootDirectoryPickButton" Click="XXMIRootDirectoryPickButton_Click" Width="32" Height="32" Padding="0">
-                                <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
-                            </Button>
-                            <Button x:Name="XXMIRootDirectoryDefaultButton" Click="XXMIRootDirectoryDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0">
-                                <FontIcon Glyph="&#xE72C;" FontSize="14"/>
-                            </Button>
-                        </StackPanel>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE8B7;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="XXMIRootDirectoryLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="XXMIRootDirectoryDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                <BreadcrumbBar x:Name="XXMIRootDirectoryBreadcrumb" Width="300" ItemClicked="XXMIRootDirectoryBreadcrumb_ItemClicked" Margin="0,0,8,0"/>
+                                <Button x:Name="XXMIRootDirectoryPickButton" Click="XXMIRootDirectoryPickButton_Click" Width="32" Height="32" Padding="0">
+                                    <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
+                                </Button>
+                                <Button x:Name="XXMIRootDirectoryDefaultButton" Click="XXMIRootDirectoryDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0">
+                                    <FontIcon Glyph="&#xE72C;" FontSize="14"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     
                     <!-- Mod Library Directory -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE8F1;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="ModLibraryDirectoryLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="ModLibraryDirectoryDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                            <BreadcrumbBar x:Name="ModLibraryDirectoryBreadcrumb" Width="300" ItemClicked="ModLibraryDirectoryBreadcrumb_ItemClicked" Margin="0,0,8,0"/>
-                            <Button x:Name="ModLibraryDirectoryPickButton" Click="ModLibraryDirectoryPickButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Select directory">
-                                <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
-                            </Button>
-                            <Button x:Name="ModLibraryDirectoryDefaultButton" Click="ModLibraryDirectoryDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0" ToolTipService.ToolTip="">
-                                <FontIcon Glyph="&#xE72C;" FontSize="14"/>
-                            </Button>
-                        </StackPanel>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,24">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE8F1;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="ModLibraryDirectoryLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="ModLibraryDirectoryDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                <BreadcrumbBar x:Name="ModLibraryDirectoryBreadcrumb" Width="300" ItemClicked="ModLibraryDirectoryBreadcrumb_ItemClicked" Margin="0,0,8,0"/>
+                                <Button x:Name="ModLibraryDirectoryPickButton" Click="ModLibraryDirectoryPickButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Select directory">
+                                    <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
+                                </Button>
+                                <Button x:Name="ModLibraryDirectoryDefaultButton" Click="ModLibraryDirectoryDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0" ToolTipService.ToolTip="">
+                                    <FontIcon Glyph="&#xE72C;" FontSize="14"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Behavior Section -->
+                    <TextBlock x:Name="BehaviorHeader" Text="Behavior" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
 
                     <!-- Skip XXMI Launcher -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xEB9D;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="SkipXXMILauncherLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="SkipXXMILauncherDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <ToggleSwitch Grid.Column="3" x:Name="SkipXXMILauncherToggle" Toggled="SkipXXMILauncherToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xEB9D;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="SkipXXMILauncherLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="SkipXXMILauncherDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                <TextBlock x:Name="SkipXXMILauncherToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                                <ToggleSwitch x:Name="SkipXXMILauncherToggle" Toggled="SkipXXMILauncherToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
                     <!-- Active Mods to Top -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE74A;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="ActiveModsToTopLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="ActiveModsToTopDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <ToggleSwitch Grid.Column="3" x:Name="ActiveModsToTopToggle" Toggled="ActiveModsToTopToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE74A;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="ActiveModsToTopLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="ActiveModsToTopDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                <TextBlock x:Name="ActiveModsToTopToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                                <ToggleSwitch x:Name="ActiveModsToTopToggle" Toggled="ActiveModsToTopToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
 
                     <!-- Dynamic Filtering -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE71C;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="DynamicModSearchLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="DynamicModSearchDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <ToggleSwitch Grid.Column="3" x:Name="DynamicModSearchToggle" Toggled="DynamicModSearchToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE71C;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="DynamicModSearchLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="DynamicModSearchDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                <TextBlock x:Name="DynamicModSearchToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                                <ToggleSwitch x:Name="DynamicModSearchToggle" Toggled="DynamicModSearchToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     
                     <!-- Animation -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE91B;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="ShowOrangeAnimationLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="ShowOrangeAnimationDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <ToggleSwitch Grid.Column="3" x:Name="ShowOrangeAnimationToggle" Toggled="ShowOrangeAnimationToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE91B;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="ShowOrangeAnimationLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="ShowOrangeAnimationDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                <TextBlock x:Name="ShowOrangeAnimationToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                                <ToggleSwitch x:Name="ShowOrangeAnimationToggle" Toggled="ShowOrangeAnimationToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     
                     <!-- Grid Zoom -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE8A3;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="ModGridZoomLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="ModGridZoomDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <ToggleSwitch Grid.Column="3" x:Name="ModGridZoomToggle" Toggled="ModGridZoomToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE8A3;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="ModGridZoomLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="ModGridZoomDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                <TextBlock x:Name="ModGridZoomToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                                <ToggleSwitch x:Name="ModGridZoomToggle" Toggled="ModGridZoomToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     
                     <!-- Grid Logging -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE7C3;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="GridLoggingLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="GridLoggingDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <ToggleSwitch Grid.Column="3" x:Name="GridLoggingToggle" Toggled="GridLoggingToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE7C3;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="GridLoggingLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="GridLoggingDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                <TextBlock x:Name="GridLoggingToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                                <ToggleSwitch x:Name="GridLoggingToggle" Toggled="GridLoggingToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     
                     <!-- Minimize to Tray -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE921;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="MinimizeToTrayLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="MinimizeToTrayDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <ToggleSwitch Grid.Column="3" x:Name="MinimizeToTrayToggle" Toggled="MinimizeToTrayToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE921;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="MinimizeToTrayLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="MinimizeToTrayDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                <TextBlock x:Name="MinimizeToTrayToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                                <ToggleSwitch x:Name="MinimizeToTrayToggle" Toggled="MinimizeToTrayToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     
                     <!-- Blur NSFW Thumbnails -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE7B3;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="BlurNSFWLabel" Text="Hide NSFW Content" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="BlurNSFWDescription" Text="Hide mods marked as 'rated' in GameBanana browser" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <ToggleSwitch Grid.Column="3" x:Name="BlurNSFWToggle" Toggled="BlurNSFWToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,24">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE7B3;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="BlurNSFWLabel" Text="Hide NSFW Content" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="BlurNSFWDescription" Text="Hide mods marked as 'rated' in GameBanana browser" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                <TextBlock x:Name="BlurNSFWToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                                <ToggleSwitch x:Name="BlurNSFWToggle" Toggled="BlurNSFWToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     
                     <!-- Hotkeys Section Header with Toggle -->
-                    <Grid Margin="0,35,0,0">
+                    <Grid Margin="0,0,0,12">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
-                        <TextBlock x:Name="HotkeysHeader" Grid.Column="0" Text="" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                        <ToggleSwitch x:Name="HotkeysEnabledToggle" Grid.Column="1" Toggled="HotkeysEnabledToggle_Toggled" OnContent="" OffContent="" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="HotkeysHeader" Grid.Column="0" Text="" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                            <TextBlock x:Name="HotkeysEnabledToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                            <ToggleSwitch x:Name="HotkeysEnabledToggle" Toggled="HotkeysEnabledToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                        </StackPanel>
                     </Grid>
                     
                     <!-- Optimize Previews Hotkey -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="OptimizePreviewsHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="OptimizePreviewsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <TextBox Grid.Column="3" x:Name="OptimizePreviewsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+O" TextChanged="OptimizePreviewsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="OptimizePreviewsHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="OptimizePreviewsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <TextBox Grid.Column="3" x:Name="OptimizePreviewsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+O" TextChanged="OptimizePreviewsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
                     
                     <!-- Reload Manager Hotkey -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="ReloadManagerHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="ReloadManagerHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <TextBox Grid.Column="3" x:Name="ReloadManagerHotkeyTextBox" Width="160" PlaceholderText="Ctrl+R" TextChanged="ReloadManagerHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="ReloadManagerHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="ReloadManagerHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <TextBox Grid.Column="3" x:Name="ReloadManagerHotkeyTextBox" Width="160" PlaceholderText="Ctrl+R" TextChanged="ReloadManagerHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
                     
                     <!-- Shuffle Active Mods Hotkey -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="ShuffleActiveModsHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="ShuffleActiveModsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <TextBox Grid.Column="3" x:Name="ShuffleActiveModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+S" TextChanged="ShuffleActiveModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="ShuffleActiveModsHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="ShuffleActiveModsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <TextBox Grid.Column="3" x:Name="ShuffleActiveModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+S" TextChanged="ShuffleActiveModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
                     
                     <!-- Deactivate All Mods Hotkey -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="DeactivateAllModsHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="DeactivateAllModsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <TextBox Grid.Column="3" x:Name="DeactivateAllModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+D" TextChanged="DeactivateAllModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="DeactivateAllModsHotkeyLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="DeactivateAllModsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <TextBox Grid.Column="3" x:Name="DeactivateAllModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+D" TextChanged="DeactivateAllModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
 
-                </StackPanel>
+                    </StackPanel>
+                </Grid>
             </ScrollViewer>
             <Button x:Name="AboutButton"
                     Grid.Row="1"
