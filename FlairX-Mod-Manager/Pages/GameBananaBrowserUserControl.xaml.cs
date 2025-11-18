@@ -168,6 +168,11 @@ namespace FlairX_Mod_Manager.Pages
                 if (string.IsNullOrEmpty(modLibraryPath) || !System.IO.Directory.Exists(modLibraryPath))
                     return false;
 
+                // Extract mod ID from profile URL
+                var profileModId = ExtractModIdFromUrl(profileUrl);
+                if (string.IsNullOrEmpty(profileModId))
+                    return false;
+
                 // Search all mod.json files in mod library
                 foreach (var categoryDir in System.IO.Directory.GetDirectories(modLibraryPath))
                 {
@@ -184,9 +189,14 @@ namespace FlairX_Mod_Manager.Pages
                                 if (modData != null && modData.TryGetValue("url", out var urlElement))
                                 {
                                     var url = urlElement.GetString();
-                                    if (!string.IsNullOrEmpty(url) && url.Equals(profileUrl, StringComparison.OrdinalIgnoreCase))
+                                    if (!string.IsNullOrEmpty(url) && url != "https://")
                                     {
-                                        return true;
+                                        // Extract mod ID from stored URL and compare
+                                        var storedModId = ExtractModIdFromUrl(url);
+                                        if (!string.IsNullOrEmpty(storedModId) && storedModId == profileModId)
+                                        {
+                                            return true;
+                                        }
                                     }
                                 }
                             }
@@ -204,6 +214,27 @@ namespace FlairX_Mod_Manager.Pages
             }
 
             return false;
+        }
+
+        private string? ExtractModIdFromUrl(string url)
+        {
+            try
+            {
+                // GameBanana URL format: https://gamebanana.com/mods/574763
+                var pattern = new System.Text.RegularExpressions.Regex(@"gamebanana\.com/mods/(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                var match = pattern.Match(url);
+                
+                if (match.Success)
+                {
+                    return match.Groups[1].Value;
+                }
+            }
+            catch
+            {
+                // Ignore parsing errors
+            }
+            
+            return null;
         }
         
         private async Task UpdateDateCheckedForMod(string profileUrl)

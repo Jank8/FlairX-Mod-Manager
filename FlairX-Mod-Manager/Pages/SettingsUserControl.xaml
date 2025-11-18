@@ -264,7 +264,7 @@
                             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
                                 <ProgressBar x:Name="OptimizePreviewsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
                                 <Button x:Name="OptimizePreviewsButton" 
-                                        Width="100"
+                                        Width="160"
                                         Height="32" 
                                         Padding="12,5,12,6" 
                                         Click="OptimizePreviewsButton_Click"
