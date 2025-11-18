@@ -10,7 +10,7 @@ namespace FlairX_Mod_Manager.Services
 {
     public class GameBananaService
     {
-        private static readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(30) };
+        private static readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(15) };
         
         // Game ID mapping
         private static readonly Dictionary<string, int> GameIds = new()
@@ -352,6 +352,21 @@ namespace FlairX_Mod_Manager.Services
                 var result = JsonSerializer.Deserialize<ModListResponse>(content);
                 return result;
             }
+            catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+            {
+                Logger.LogError($"Timeout while fetching mods from GameBanana", ex);
+                return null;
+            }
+            catch (TaskCanceledException ex)
+            {
+                Logger.LogError($"Request cancelled while fetching mods from GameBanana", ex);
+                return null;
+            }
+            catch (HttpRequestException ex)
+            {
+                Logger.LogError($"Network error while fetching mods from GameBanana: {ex.Message}", ex);
+                return null;
+            }
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to fetch mods from GameBanana: {ex.Message}", ex);
@@ -384,6 +399,21 @@ namespace FlairX_Mod_Manager.Services
                 var result = JsonSerializer.Deserialize<ModDetailsResponse>(content);
 
                 return result;
+            }
+            catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+            {
+                Logger.LogError($"Timeout while fetching mod details from GameBanana", ex);
+                return null;
+            }
+            catch (TaskCanceledException ex)
+            {
+                Logger.LogError($"Request cancelled while fetching mod details from GameBanana", ex);
+                return null;
+            }
+            catch (HttpRequestException ex)
+            {
+                Logger.LogError($"Network error while fetching mod details from GameBanana: {ex.Message}", ex);
+                return null;
             }
             catch (Exception ex)
             {
