@@ -138,6 +138,7 @@ namespace FlairX_Mod_Manager.Pages
             DetailDescriptionTitle.Text = SharedUtilities.GetTranslation(_lang, "Description");
             DetailFilesTitle.Text = SharedUtilities.GetTranslation(_lang, "Files");
             DetailOpenBrowserButtonText.Text = SharedUtilities.GetTranslation(_lang, "OpenInBrowser");
+            RetryButton.Content = SharedUtilities.GetTranslation(_lang, "Retry");
             
             ModsGridView.ItemsSource = _mods;
             
@@ -335,6 +336,7 @@ namespace FlairX_Mod_Manager.Pages
                 LoadingPanel.Visibility = Visibility.Visible;
                 EmptyPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Collapsed;
+                ConnectionErrorBar.IsOpen = false;
 
                 _mods.Clear();
                 
@@ -350,7 +352,18 @@ namespace FlairX_Mod_Manager.Pages
                     null,
                     null);
 
-                if (response?.Records == null || response.Records.Count == 0)
+                if (response == null)
+                {
+                    // API error occurred
+                    LoadingPanel.Visibility = Visibility.Collapsed;
+                    ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
+                    ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
+                    ConnectionErrorBar.IsOpen = true;
+                    _hasMorePages = false;
+                    return;
+                }
+
+                if (response.Records == null || response.Records.Count == 0)
                 {
                     LoadingPanel.Visibility = Visibility.Collapsed;
                     EmptyPanel.Visibility = Visibility.Visible;
@@ -434,9 +447,22 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogError("Failed to load mods from GameBanana", ex);
                 LoadingPanel.Visibility = Visibility.Collapsed;
-                EmptyPanel.Visibility = Visibility.Visible;
-                EmptyText.Text = SharedUtilities.GetTranslation(_lang, "FailedToLoadMods");
+                ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
+                ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
+                ConnectionErrorBar.IsOpen = true;
             }
+        }
+        
+        private void ConnectionErrorBar_Closed(InfoBar sender, InfoBarClosedEventArgs args)
+        {
+            // User closed the error notification
+        }
+        
+        private void RetryButton_Click(object sender, RoutedEventArgs e)
+        {
+            ConnectionErrorBar.IsOpen = false;
+            _currentPage = 1;
+            _ = LoadModsAsync();
         }
 
         private async Task AutoLoadMorePagesAsync()
@@ -727,7 +753,11 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (_currentModDetails == null)
                 {
+                    // API error occurred - show error and go back to list
                     CloseDetailsPanel();
+                    ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
+                    ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
+                    ConnectionErrorBar.IsOpen = true;
                     return;
                 }
                 
@@ -799,6 +829,10 @@ namespace FlairX_Mod_Manager.Pages
                 _detailFiles.Clear();
                 if (_currentModDetails.Files != null && _currentModDetails.Files.Count > 0)
                 {
+                    var sizeLabel = SharedUtilities.GetTranslation(_lang, "Size");
+                    var downloadsLabel = SharedUtilities.GetTranslation(_lang, "Downloads");
+                    var addedLabel = SharedUtilities.GetTranslation(_lang, "Added");
+                    
                     foreach (var file in _currentModDetails.Files)
                     {
                         _detailFiles.Add(new Models.GameBananaFileViewModel
@@ -809,7 +843,10 @@ namespace FlairX_Mod_Manager.Pages
                             Description = file.Description,
                             DownloadUrl = file.DownloadUrl,
                             DownloadCount = file.DownloadCount,
-                            DateAdded = file.DateAdded
+                            DateAdded = file.DateAdded,
+                            SizeLabel = sizeLabel,
+                            DownloadsLabel = downloadsLabel,
+                            AddedLabel = addedLabel
                         });
                     }
 
@@ -853,6 +890,9 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogError("Failed to load mod details", ex);
                 CloseDetailsPanel();
+                ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
+                ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
+                ConnectionErrorBar.IsOpen = true;
             }
         }
         
@@ -1577,8 +1617,11 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to load mod details from URL: {modUrl}", ex);
-                // Fallback to loading mods list
+                // Fallback to loading mods list and show error
                 await LoadModsAsync();
+                ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
+                ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
+                ConnectionErrorBar.IsOpen = true;
             }
         }
 

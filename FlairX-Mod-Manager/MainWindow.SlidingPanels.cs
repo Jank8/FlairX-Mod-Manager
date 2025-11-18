@@ -251,7 +251,7 @@ namespace FlairX_Mod_Manager
                 {
                     Background = dialogAcrylicBrush,
                     CornerRadius = new CornerRadius(12, 0, 0, 0), // Rounded only on top-left
-                    HorizontalAlignment = userControl is Pages.GameBananaBrowserUserControl ? HorizontalAlignment.Stretch : HorizontalAlignment.Right,
+                    HorizontalAlignment = HorizontalAlignment.Stretch, // All panels stretch to full width
                     VerticalAlignment = VerticalAlignment.Stretch,
                     Margin = new Thickness(320, 0, 0, 0), // Start after menu (320px menu width)
                     BorderBrush = borderBrush,

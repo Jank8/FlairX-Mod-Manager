@@ -64,6 +64,7 @@
             <Grid x:Name="ModsListGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
@@ -77,9 +78,24 @@
                                 TextChanged="SearchBox_TextChanged"/>
 
             </Grid>
+            
+            <!-- Connection error notification -->
+            <InfoBar x:Name="ConnectionErrorBar"
+                     Grid.Row="1"
+                     Severity="Error"
+                     IsOpen="False"
+                     Margin="16,0,16,8"
+                     IsClosable="True"
+                     Closed="ConnectionErrorBar_Closed">
+                <InfoBar.ActionButton>
+                    <Button x:Name="RetryButton" 
+                            Content="Retry" 
+                            Click="RetryButton_Click"/>
+                </InfoBar.ActionButton>
+            </InfoBar>
 
         <!-- Mods grid -->
-        <ScrollViewer x:Name="ModsScrollViewer" Grid.Row="1" Padding="16">
+        <ScrollViewer x:Name="ModsScrollViewer" Grid.Row="2" Padding="16">
             <Grid>
                 <!-- Loading indicator -->
                 <StackPanel x:Name="LoadingPanel" 
@@ -218,7 +234,7 @@
         </ScrollViewer>
 
         <!-- Loading more indicator -->
-        <Grid Grid.Row="2" 
+        <Grid Grid.Row="3" 
               Padding="16"
               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
               BorderThickness="0,1,0,0">
@@ -421,15 +437,18 @@
                                                            Visibility="{Binding HasDescription}"/>
                                                 <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
                                                     <TextBlock FontSize="12" Opacity="0.6">
-                                                        <Run Text="Size: "/>
+                                                        <Run Text="{Binding SizeLabel}"/>
+                                                        <Run Text=" "/>
                                                         <Run Text="{Binding FileSizeFormatted}"/>
                                                     </TextBlock>
                                                     <TextBlock FontSize="12" Opacity="0.6">
-                                                        <Run Text="Downloads: "/>
+                                                        <Run Text="{Binding DownloadsLabel}"/>
+                                                        <Run Text=" "/>
                                                         <Run Text="{Binding DownloadCountFormatted}"/>
                                                     </TextBlock>
                                                     <TextBlock FontSize="12" Opacity="0.6">
-                                                        <Run Text="Added: "/>
+                                                        <Run Text="{Binding AddedLabel}"/>
+                                                        <Run Text=" "/>
                                                         <Run Text="{Binding DateAddedFormatted}"/>
                                                     </TextBlock>
                                                 </StackPanel>

@@ -473,13 +473,7 @@ namespace FlairX_Mod_Manager
                 loadLanguageMethod?.Invoke(statusKeeperLogsPage, null);
                 updateTextsMethod?.Invoke(statusKeeperLogsPage, null);
             }
-            else if (contentFrame.Content is FlairX_Mod_Manager.Pages.HotkeyFinderPage hotkeyFinderPage)
-            {
-                var loadLanguageMethod = hotkeyFinderPage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var updateTextsMethod = hotkeyFinderPage.GetType().GetMethod("UpdateTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                loadLanguageMethod?.Invoke(hotkeyFinderPage, null);
-                updateTextsMethod?.Invoke(hotkeyFinderPage, null);
-            }
+            // HotkeyFinderPage no longer has UI - removed language update
             else if (contentFrame.Content is FlairX_Mod_Manager.Pages.GBAuthorUpdatePage gbAuthorUpdatePage)
             {
                 var loadLanguageMethod = gbAuthorUpdatePage.GetType().GetMethod("LoadLanguage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);

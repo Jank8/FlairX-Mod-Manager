@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using FlairX_Mod_Manager.Services;
 using FlairX_Mod_Manager.Pages;
+using SharpCompress.Archives;
+using SharpCompress.Common;
+using SharpCompress.Readers;
 
 namespace FlairX_Mod_Manager.Dialogs
 {
@@ -22,8 +24,6 @@ namespace FlairX_Mod_Manager.Dialogs
         private ProgressBar _progressBar;
         private TextBlock _statusText;
         private ObservableCollection<FileViewModel> _files = new();
-        private ObservableCollection<ArchiveFileItem> _archiveFiles = new();
-        private ListView _archiveContentsListView;
         private string? _downloadedArchivePath;
         private string? _modFolderPath;
         private System.Collections.Generic.Dictionary<string, string> _lang = new();
@@ -37,6 +37,10 @@ namespace FlairX_Mod_Manager.Dialogs
             public string DownloadUrl { get; set; } = "";
             public int DownloadCount { get; set; }
             public DateTime DateAdded { get; set; }
+            
+            public string SizeLabel { get; set; } = "Size:";
+            public string DownloadsLabel { get; set; } = "Downloads:";
+            public string AddedLabel { get; set; } = "Added:";
 
             public string FileSizeFormatted => FormatFileSize(FileSize);
             public string DownloadCountFormatted => FormatCount(DownloadCount);
@@ -70,46 +74,7 @@ namespace FlairX_Mod_Manager.Dialogs
             #pragma warning restore CS0067
         }
 
-        public class ArchiveFileItem : INotifyPropertyChanged
-        {
-            private bool _isSelected = true;
-            public bool IsSelected
-            {
-                get => _isSelected;
-                set
-                {
-                    if (_isSelected != value)
-                    {
-                        _isSelected = value;
-                        OnPropertyChanged(nameof(IsSelected));
-                    }
-                }
-            }
 
-            public string FileName { get; set; } = "";
-            public string FullPath { get; set; } = "";
-            public long FileSize { get; set; }
-            public string FileSizeFormatted => FormatFileSize(FileSize);
-
-            private static string FormatFileSize(long bytes)
-            {
-                string[] sizes = { "B", "KB", "MB", "GB" };
-                double len = bytes;
-                int order = 0;
-                while (len >= 1024 && order < sizes.Length - 1)
-                {
-                    order++;
-                    len = len / 1024;
-                }
-                return $"{len:0.##} {sizes[order]}";
-            }
-
-            public event PropertyChangedEventHandler? PropertyChanged;
-            private void OnPropertyChanged(string propertyName)
-            {
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
 
         public GameBananaUpdateDialog(int modId, ModGridPage.ModTile modTile, string gameTag)
         {
@@ -154,25 +119,6 @@ namespace FlairX_Mod_Manager.Dialogs
                 ItemsSource = _files
             };
             stackPanel.Children.Add(_filesListView);
-
-            // Archive contents (hidden initially)
-            var archiveLabel = new TextBlock
-            {
-                Text = "Archive contents (select files to extract):",
-                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                Margin = new Thickness(0, 16, 0, 4),
-                Visibility = Visibility.Collapsed
-            };
-            stackPanel.Children.Add(archiveLabel);
-
-            _archiveContentsListView = new ListView
-            {
-                MaxHeight = 300,
-                SelectionMode = ListViewSelectionMode.None,
-                Visibility = Visibility.Collapsed,
-                ItemsSource = _archiveFiles
-            };
-            stackPanel.Children.Add(_archiveContentsListView);
 
             // Progress
             _statusText = new TextBlock
@@ -228,7 +174,10 @@ namespace FlairX_Mod_Manager.Dialogs
                         Description = file.Description,
                         DownloadUrl = file.DownloadUrl,
                         DownloadCount = file.DownloadCount,
-                        DateAdded = DateTimeOffset.FromUnixTimeSeconds(file.DateAdded).DateTime
+                        DateAdded = DateTimeOffset.FromUnixTimeSeconds(file.DateAdded).DateTime,
+                        SizeLabel = SharedUtilities.GetTranslation(_lang, "Size"),
+                        DownloadsLabel = SharedUtilities.GetTranslation(_lang, "Downloads"),
+                        AddedLabel = SharedUtilities.GetTranslation(_lang, "Added")
                     });
                 }
 
@@ -263,7 +212,7 @@ namespace FlairX_Mod_Manager.Dialogs
 
                 if (selectedFiles.Count == 0)
                 {
-                    await ShowError("Please select at least one file to download.");
+                    await ShowError(SharedUtilities.GetTranslation(_lang, "SelectAtLeastOneFile"));
                     IsPrimaryButtonEnabled = true;
                     IsSecondaryButtonEnabled = true;
                     return;
@@ -278,7 +227,7 @@ namespace FlairX_Mod_Manager.Dialogs
 
                 if (string.IsNullOrEmpty(_modFolderPath) || !Directory.Exists(_modFolderPath))
                 {
-                    await ShowError("Mod folder not found.");
+                    await ShowError(SharedUtilities.GetTranslation(_lang, "ModFolderNotFound"));
                     IsPrimaryButtonEnabled = true;
                     IsSecondaryButtonEnabled = true;
                     return;
@@ -291,7 +240,8 @@ namespace FlairX_Mod_Manager.Dialogs
                 for (int i = 0; i < selectedFiles.Count; i++)
                 {
                     var file = selectedFiles[i];
-                    _statusText.Text = $"Downloading {file.FileName} ({i + 1}/{selectedFiles.Count})...";
+                    _statusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "DownloadingFile"), 
+                        file.FileName, i + 1, selectedFiles.Count);
                     _progressBar.IsIndeterminate = false;
                     _progressBar.Value = 0;
 
@@ -308,40 +258,32 @@ namespace FlairX_Mod_Manager.Dialogs
 
                     if (!success)
                     {
-                        await ShowError($"Failed to download {file.FileName}");
+                        await ShowError(string.Format(SharedUtilities.GetTranslation(_lang, "FailedToDownload"), file.FileName));
                         Directory.Delete(tempDir, true);
                         IsPrimaryButtonEnabled = true;
                         IsSecondaryButtonEnabled = true;
                         return;
                     }
 
-                    // If it's an archive, show contents
+                    // Check if it's an archive
                     if (IsArchiveFile(file.FileName))
                     {
                         _downloadedArchivePath = tempFilePath;
-                        await ShowArchiveContents(tempFilePath);
-
-                        // Change button text
-                        PrimaryButtonText = "Extract Selected Files";
-                        _statusText.Text = "Select files to extract from the archive";
-                        _progressBar.Value = 0;
-
-                        // Re-enable buttons for extraction step
-                        IsPrimaryButtonEnabled = true;
-                        IsSecondaryButtonEnabled = true;
-
-                        // Remove the click handler and add new one for extraction
-                        PrimaryButtonClick -= OnPrimaryButtonClick;
-                        PrimaryButtonClick += OnExtractButtonClick;
-                        return;
                     }
                 }
 
-                // If no archives, just copy files
-                await UpdateModFiles(tempDir);
+                // Extract archive or copy files
+                if (!string.IsNullOrEmpty(_downloadedArchivePath))
+                {
+                    await ExtractArchiveToModFolder();
+                }
+                else
+                {
+                    await UpdateModFiles(tempDir);
+                }
 
                 // Success
-                _statusText.Text = "Update complete!";
+                _statusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractComplete");
                 _progressBar.Value = 100;
                 await Task.Delay(1000);
 
@@ -350,93 +292,126 @@ namespace FlairX_Mod_Manager.Dialogs
             catch (Exception ex)
             {
                 Logger.LogError("Failed to download update", ex);
-                await ShowError($"Update failed: {ex.Message}");
+                await ShowError(string.Format(SharedUtilities.GetTranslation(_lang, "UpdateFailed"), ex.Message));
                 IsPrimaryButtonEnabled = true;
                 IsSecondaryButtonEnabled = true;
             }
         }
 
-        private async void OnExtractButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        private async Task ExtractArchiveToModFolder()
         {
-            args.Cancel = true;
-
             try
             {
-                IsPrimaryButtonEnabled = false;
-                IsSecondaryButtonEnabled = false;
-
-                var selectedFiles = _archiveFiles.Where(f => f.IsSelected).ToList();
-
-                if (selectedFiles.Count == 0)
-                {
-                    await ShowError("Please select at least one file to extract.");
-                    IsPrimaryButtonEnabled = true;
-                    IsSecondaryButtonEnabled = true;
-                    return;
-                }
-
-                _statusText.Text = "Extracting files...";
+                _statusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractExtractingFiles");
                 _progressBar.IsIndeterminate = true;
 
-                // Extract selected files to mod folder
-                using (var archive = ZipFile.OpenRead(_downloadedArchivePath!))
+                // Use ReaderOptions to preserve encoding
+                var readerOptions = new ReaderOptions
                 {
-                    foreach (var selectedFile in selectedFiles)
+                    ArchiveEncoding = new ArchiveEncoding
                     {
-                        var entry = archive.Entries.FirstOrDefault(e => e.FullName == selectedFile.FullPath);
-                        if (entry != null)
+                        Default = System.Text.Encoding.UTF8
+                    }
+                };
+
+                using (var archive = ArchiveFactory.Open(_downloadedArchivePath!, readerOptions))
+                {
+                    var entries = archive.Entries.Where(e => !e.IsDirectory).ToList();
+                    int current = 0;
+                    int total = entries.Count;
+
+                    // Check if all files are in a single root folder
+                    string? commonRootFolder = null;
+                    bool hasSingleRootFolder = true;
+
+                    foreach (var entry in entries)
+                    {
+                        if (string.IsNullOrEmpty(entry.Key)) continue;
+
+                        var parts = entry.Key.Split('/', '\\');
+                        if (parts.Length > 1)
                         {
-                            var destPath = Path.Combine(_modFolderPath!, entry.Name);
-                            entry.ExtractToFile(destPath, true);
+                            var rootFolder = parts[0];
+                            if (commonRootFolder == null)
+                            {
+                                commonRootFolder = rootFolder;
+                            }
+                            else if (commonRootFolder != rootFolder)
+                            {
+                                hasSingleRootFolder = false;
+                                break;
+                            }
                         }
+                        else
+                        {
+                            // File in root, no single folder
+                            hasSingleRootFolder = false;
+                            break;
+                        }
+                    }
+
+                    // If all files are in a single root folder, skip it
+                    int skipLevels = (hasSingleRootFolder && !string.IsNullOrEmpty(commonRootFolder)) ? 1 : 0;
+
+                    foreach (var entry in entries)
+                    {
+                        if (string.IsNullOrEmpty(entry.Key)) continue;
+
+                        // Get relative path and skip root folder if needed
+                        var pathParts = entry.Key.Split('/', '\\').ToList();
+                        if (skipLevels > 0 && pathParts.Count > skipLevels)
+                        {
+                            pathParts.RemoveRange(0, skipLevels);
+                        }
+
+                        var relativePath = string.Join(Path.DirectorySeparatorChar.ToString(), pathParts);
+                        var destPath = Path.Combine(_modFolderPath!, relativePath);
+
+                        // Create directory if needed
+                        var destDir = Path.GetDirectoryName(destPath);
+                        if (!string.IsNullOrEmpty(destDir))
+                        {
+                            Directory.CreateDirectory(destDir);
+                        }
+
+                        // Extract file
+                        using (var entryStream = entry.OpenEntryStream())
+                        using (var fileStream = File.Create(destPath))
+                        {
+                            entryStream.CopyTo(fileStream);
+                        }
+
+                        current++;
+                        _progressBar.IsIndeterminate = false;
+                        _progressBar.Value = (double)current / total * 100;
+                        _statusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "ExtractingProgress"), current, total);
                     }
                 }
 
                 // Update mod.json dateUpdated
                 await UpdateModJsonDate();
-
-                _statusText.Text = "Update complete!";
-                _progressBar.IsIndeterminate = false;
-                _progressBar.Value = 100;
-                await Task.Delay(1000);
-
-                Hide();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to extract files", ex);
-                await ShowError($"Extraction failed: {ex.Message}");
-                IsPrimaryButtonEnabled = true;
-                IsSecondaryButtonEnabled = true;
-            }
-        }
-
-        private async Task ShowArchiveContents(string archivePath)
-        {
-            try
-            {
-                _archiveFiles.Clear();
-
-                using (var archive = ZipFile.OpenRead(archivePath))
+                
+                // Auto-detect hotkeys in background
+                _ = Task.Run(async () =>
                 {
-                    foreach (var entry in archive.Entries.Where(e => !string.IsNullOrEmpty(e.Name)))
+                    try
                     {
-                        _archiveFiles.Add(new ArchiveFileItem
-                        {
-                            FileName = entry.Name,
-                            FullPath = entry.FullName,
-                            FileSize = entry.Length,
-                            IsSelected = true
-                        });
+                        await Pages.HotkeyFinderPage.AutoDetectHotkeysForModStaticAsync(_modFolderPath!);
+                        Logger.LogInfo($"Auto-detected hotkeys for mod: {_modFolderPath}");
                     }
-                }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to auto-detect hotkeys for mod: {_modFolderPath}", ex);
+                    }
+                });
 
-                // Show the list
-                _archiveContentsListView.Visibility = Visibility.Visible;
+                _statusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractComplete");
+                _progressBar.Value = 100;
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to read archive contents", ex);
+                Logger.LogError("Failed to extract archive", ex);
+                throw;
             }
         }
 
@@ -503,16 +478,18 @@ namespace FlairX_Mod_Manager.Dialogs
         private bool IsArchiveFile(string fileName)
         {
             var ext = Path.GetExtension(fileName).ToLowerInvariant();
-            return ext == ".zip" || ext == ".rar" || ext == ".7z";
+            return ext == ".zip" || ext == ".rar" || ext == ".7z" || ext == ".tar" || 
+                   ext == ".gz" || ext == ".bz2" || ext == ".xz" || ext == ".tar.gz" || 
+                   ext == ".tar.bz2" || ext == ".tar.xz";
         }
 
         private async Task ShowError(string message)
         {
             var dialog = new ContentDialog
             {
-                Title = "Error",
+                Title = SharedUtilities.GetTranslation(_lang, "Error"),
                 Content = message,
-                CloseButtonText = "OK",
+                CloseButtonText = SharedUtilities.GetTranslation(_lang, "OK"),
                 XamlRoot = XamlRoot
             };
             await dialog.ShowAsync();

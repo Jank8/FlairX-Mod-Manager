@@ -33,6 +33,21 @@ namespace FlairX_Mod_Manager
             
             // Mark initialization as complete after game selection is restored
             _isInitializationComplete = true;
+            
+            // Auto-detect hotkeys for all mods in background on startup
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    Logger.LogInfo("Starting full hotkey detection on startup");
+                    await Pages.HotkeyFinderPage.RefreshAllModsHotkeysStaticAsync();
+                    Logger.LogInfo("Completed full hotkey detection on startup");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to auto-detect hotkeys on startup", ex);
+                }
+            });
         }
 
         private async void ReloadModsButton_Click(object sender, RoutedEventArgs e)
@@ -113,6 +128,21 @@ namespace FlairX_Mod_Manager
                 
                 // Restore last position instead of always going to All Mods
                 RestoreLastPosition();
+                
+                // Auto-detect hotkeys for all mods in background
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        Logger.LogInfo("Starting full hotkey detection after reload");
+                        await Pages.HotkeyFinderPage.RefreshAllModsHotkeysStaticAsync();
+                        Logger.LogInfo("Completed full hotkey detection after reload");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Failed to auto-detect hotkeys after reload", ex);
+                    }
+                });
                 
                 loadingWindow.Close();
             });

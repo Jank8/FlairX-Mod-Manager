@@ -15,6 +15,10 @@ namespace FlairX_Mod_Manager.Models
         public int DownloadCount { get; set; }
         public long DateAdded { get; set; }
         
+        public string SizeLabel { get; set; } = "Size:";
+        public string DownloadsLabel { get; set; } = "Downloads:";
+        public string AddedLabel { get; set; } = "Added:";
+        
         public bool IsSelected
         {
             get => _isSelected;

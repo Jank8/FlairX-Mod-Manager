@@ -162,7 +162,6 @@ namespace FlairX_Mod_Manager.Pages
             return functionFileName switch
             {
                 "GBAuthorUpdate" => "&#xE895;", // Update/Refresh icon
-                "HotkeyFinder" => "&#xE765;", // Keyboard icon
                 "StatusKeeperPage" => "&#xE713;", // Settings icon
                 "ModInfoBackup" => "&#xE8C8;", // Save icon
                 _ => "&#xE8B7;" // Default settings icon
@@ -174,7 +173,6 @@ namespace FlairX_Mod_Manager.Pages
             return functionFileName switch
             {
                 "GBAuthorUpdate" => "\uE895", // Update/Refresh icon (commonly available)
-                "HotkeyFinder" => "\uE765", // Keyboard icon (commonly available)
                 "StatusKeeperPage" => "\uE713", // Settings icon (commonly available)
                 "ModInfoBackup" => "\uE8C8", // Save icon (commonly available)
                 _ => "\uE8B7" // Default settings icon
@@ -185,12 +183,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
             return SharedUtilities.GetTranslation(lang, "GameBananaAuthorUpdate_Function");
-        }
-
-        private string GetHotkeyFinderFunctionName()
-        {
-            var lang = SharedUtilities.LoadLanguageDictionary("HotkeyFinder");
-            return SharedUtilities.GetTranslation(lang, "HotkeyFinder_Function");
         }
 
         private string GetStatusKeeperFunctionName()
@@ -246,32 +238,6 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             _functionInfos.Add(gbAuthorUpdateFunction);
-
-            // Add Hotkey Finder function
-            var hotkeyFinderFunction = new FunctionInfo
-            {
-                FileName = "HotkeyFinder",
-                Name = GetHotkeyFinderFunctionName(),
-                Enabled = true
-            };
-            string hkJsonPath = Path.Combine(settingsDir, hotkeyFinderFunction.FileName + ".json");
-            if (File.Exists(hkJsonPath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(hkJsonPath);
-                    var loaded = JsonSerializer.Deserialize<FunctionInfo>(json);
-                    if (loaded != null)
-                    {
-                        hotkeyFinderFunction.Enabled = loaded.Enabled;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to load HotkeyFinder function settings", ex);
-                }
-            }
-            _functionInfos.Add(hotkeyFinderFunction);
 
             // Add StatusKeeper function
             var statusKeeperFunction = new FunctionInfo
@@ -340,11 +306,7 @@ namespace FlairX_Mod_Manager.Pages
                         GBAuthorUpdateNavItem.Content = "GameBanana Update";
                         GBAuthorUpdateNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
                         break;
-                    case "HotkeyFinder":
-                        // Update NavigationViewItem
-                        HotkeyFinderNavItem.Content = "Hotkey Finder";
-                        HotkeyFinderNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
-                        break;
+
                     case "StatusKeeperPage":
                         // Update NavigationViewItem
                         StatusKeeperNavItem.Content = "Status Keeper";
@@ -398,9 +360,7 @@ namespace FlairX_Mod_Manager.Pages
                 case "GBAuthorUpdate":
                     FunctionContentFrame.Navigate(typeof(GBAuthorUpdatePage));
                     break;
-                case "HotkeyFinder":
-                    FunctionContentFrame.Navigate(typeof(HotkeyFinderPage));
-                    break;
+
                 case "StatusKeeperPage":
                     FunctionContentFrame.Navigate(typeof(StatusKeeperPage));
                     break;

@@ -37,10 +37,16 @@ namespace FlairX_Mod_Manager.Dialogs
         private bool _downloadPreviews = false;
         private bool _cleanInstall = false;
         private bool _createBackup = false;
+        private bool _keepPreviews = true;
+        private bool _combinePreviews = false;
         private GameBananaService.PreviewMedia? _previewMedia;
         private string? _installedModPath = null;
         private CheckBox? _cleanInstallCheckBox;
         private CheckBox? _createBackupCheckBox;
+        private CheckBox? _keepPreviewsCheckBox;
+        private CheckBox? _combinePreviewsCheckBox;
+        private Grid? _updateOptionsGrid;
+        private System.Collections.Generic.Dictionary<string, string> _lang = new();
 
         public GameBananaFileExtractionDialog(
             List<Models.GameBananaFileViewModel> selectedFiles,
@@ -62,9 +68,12 @@ namespace FlairX_Mod_Manager.Dialogs
             _dateUpdatedTimestamp = dateUpdatedTimestamp;
             _previewMedia = previewMedia;
 
-            Title = "Download and Install Mod";
-            PrimaryButtonText = "Start";
-            CloseButtonText = "Cancel";
+            // Load language
+            _lang = SharedUtilities.LoadLanguageDictionary("GameBananaBrowser");
+
+            Title = SharedUtilities.GetTranslation(_lang, "DownloadAndInstallMod");
+            PrimaryButtonText = SharedUtilities.GetTranslation(_lang, "Start");
+            CloseButtonText = SharedUtilities.GetTranslation(_lang, "Cancel");
             DefaultButton = ContentDialogButton.Primary;
 
             // Create content
@@ -73,7 +82,7 @@ namespace FlairX_Mod_Manager.Dialogs
             // Mod Name
             var modNameLabel = new TextBlock
             {
-                Text = "Mod Name:",
+                Text = SharedUtilities.GetTranslation(_lang, "ModName"),
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
                 Margin = new Thickness(0, 0, 0, 4)
             };
@@ -89,7 +98,7 @@ namespace FlairX_Mod_Manager.Dialogs
             // Category selection
             var categoryLabel = new TextBlock
             {
-                Text = "Category:",
+                Text = SharedUtilities.GetTranslation(_lang, "Category"),
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
                 Margin = new Thickness(0, 0, 0, 4)
             };
@@ -97,57 +106,101 @@ namespace FlairX_Mod_Manager.Dialogs
 
             _categoryTextBox = new TextBox
             {
-                PlaceholderText = "Enter category name",
+                PlaceholderText = SharedUtilities.GetTranslation(_lang, "EnterCategoryName"),
                 Text = categoryName ?? "Characters",
-                Margin = new Thickness(0, 0, 0, 16)
+                Margin = new Thickness(0, 0, 0, 8)
             };
             stackPanel.Children.Add(_categoryTextBox);
 
-            // Download previews checkbox
+            // Download previews checkbox (always visible)
             var downloadPreviewsCheckBox = new CheckBox
             {
-                Content = "Download previews",
+                Content = SharedUtilities.GetTranslation(_lang, "DownloadPreviews"),
                 IsChecked = false,
-                Margin = new Thickness(0, 0, 0, 4)
+                Margin = new Thickness(0, 0, 0, 16)
             };
             Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(downloadPreviewsCheckBox, 
-                "Download preview images from GameBanana and optimize them");
+                SharedUtilities.GetTranslation(_lang, "DownloadPreviews_Tooltip"));
             downloadPreviewsCheckBox.Checked += (s, e) => _downloadPreviews = true;
             downloadPreviewsCheckBox.Unchecked += (s, e) => _downloadPreviews = false;
             stackPanel.Children.Add(downloadPreviewsCheckBox);
 
-            // Clean install checkbox (visible only during updates)
-            _cleanInstallCheckBox = new CheckBox
+            // Two-column layout for update-only checkboxes
+            _updateOptionsGrid = new Grid
             {
-                Content = "Clean install",
-                IsChecked = false,
-                Margin = new Thickness(0, 0, 0, 4),
-                Visibility = Visibility.Collapsed // Will be shown if update is detected
-            };
-            Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_cleanInstallCheckBox, 
-                "Remove all existing files before installing (except backups)");
-            _cleanInstallCheckBox.Checked += (s, e) => _cleanInstall = true;
-            _cleanInstallCheckBox.Unchecked += (s, e) => _cleanInstall = false;
-            stackPanel.Children.Add(_cleanInstallCheckBox);
-
-            // Create backup checkbox (visible only during updates)
-            _createBackupCheckBox = new CheckBox
-            {
-                Content = "Create backup",
-                IsChecked = false,
+                ColumnSpacing = 16,
                 Margin = new Thickness(0, 0, 0, 16),
                 Visibility = Visibility.Collapsed // Will be shown if update is detected
             };
+            _updateOptionsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            _updateOptionsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            // Left column - Installation options
+            var leftColumn = new StackPanel { Spacing = 4 };
+            
+            // Clean install checkbox
+            _cleanInstallCheckBox = new CheckBox
+            {
+                Content = SharedUtilities.GetTranslation(_lang, "CleanInstall"),
+                IsChecked = false
+            };
+            Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_cleanInstallCheckBox, 
+                SharedUtilities.GetTranslation(_lang, "CleanInstall_Tooltip"));
+            _cleanInstallCheckBox.Checked += (s, e) => _cleanInstall = true;
+            _cleanInstallCheckBox.Unchecked += (s, e) => _cleanInstall = false;
+            leftColumn.Children.Add(_cleanInstallCheckBox);
+
+            // Create backup checkbox
+            _createBackupCheckBox = new CheckBox
+            {
+                Content = SharedUtilities.GetTranslation(_lang, "CreateBackup"),
+                IsChecked = false
+            };
             Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_createBackupCheckBox, 
-                "Create a backup of existing files before updating");
+                SharedUtilities.GetTranslation(_lang, "CreateBackup_Tooltip"));
             _createBackupCheckBox.Checked += (s, e) => _createBackup = true;
             _createBackupCheckBox.Unchecked += (s, e) => _createBackup = false;
-            stackPanel.Children.Add(_createBackupCheckBox);
+            leftColumn.Children.Add(_createBackupCheckBox);
+
+            Grid.SetColumn(leftColumn, 0);
+            _updateOptionsGrid.Children.Add(leftColumn);
+
+            // Right column - Preview options
+            var rightColumn = new StackPanel { Spacing = 4 };
+
+            // Keep previews checkbox
+            _keepPreviewsCheckBox = new CheckBox
+            {
+                Content = SharedUtilities.GetTranslation(_lang, "KeepPreviews"),
+                IsChecked = true
+            };
+            Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_keepPreviewsCheckBox, 
+                SharedUtilities.GetTranslation(_lang, "KeepPreviews_Tooltip"));
+            _keepPreviewsCheckBox.Checked += (s, e) => _keepPreviews = true;
+            _keepPreviewsCheckBox.Unchecked += (s, e) => _keepPreviews = false;
+            rightColumn.Children.Add(_keepPreviewsCheckBox);
+
+            // Combine previews checkbox
+            _combinePreviewsCheckBox = new CheckBox
+            {
+                Content = SharedUtilities.GetTranslation(_lang, "CombinePreviews"),
+                IsChecked = false
+            };
+            Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_combinePreviewsCheckBox, 
+                SharedUtilities.GetTranslation(_lang, "CombinePreviews_Tooltip"));
+            _combinePreviewsCheckBox.Checked += (s, e) => _combinePreviews = true;
+            _combinePreviewsCheckBox.Unchecked += (s, e) => _combinePreviews = false;
+            rightColumn.Children.Add(_combinePreviewsCheckBox);
+
+            Grid.SetColumn(rightColumn, 1);
+            _updateOptionsGrid.Children.Add(rightColumn);
+
+            stackPanel.Children.Add(_updateOptionsGrid);
 
             // Download Progress
             _downloadStatusText = new TextBlock
             {
-                Text = "Download:",
+                Text = SharedUtilities.GetTranslation(_lang, "Download"),
                 FontSize = 12,
                 Opacity = 0.7,
                 Margin = new Thickness(0, 0, 0, 4)
@@ -165,7 +218,7 @@ namespace FlairX_Mod_Manager.Dialogs
             // Extract Progress
             _extractStatusText = new TextBlock
             {
-                Text = "Extract:",
+                Text = SharedUtilities.GetTranslation(_lang, "Extract"),
                 FontSize = 12,
                 Opacity = 0.7,
                 Margin = new Thickness(0, 0, 0, 4)
@@ -229,13 +282,11 @@ namespace FlairX_Mod_Manager.Dialogs
                                 // If URLs match, this is an update
                                 if (existingUrl == _modProfileUrl)
                                 {
-                                    // Show update-specific options
-                                    if (_cleanInstallCheckBox != null)
-                                        _cleanInstallCheckBox.Visibility = Visibility.Visible;
-                                    if (_createBackupCheckBox != null)
-                                        _createBackupCheckBox.Visibility = Visibility.Visible;
+                                    // Show update-specific options grid
+                                    if (_updateOptionsGrid != null)
+                                        _updateOptionsGrid.Visibility = Visibility.Visible;
                                     
-                                    Title = "Download and Update Mod";
+                                    Title = SharedUtilities.GetTranslation(_lang, "DownloadAndUpdateMod");
                                     Logger.LogInfo($"Update detected for mod: {modPath}");
                                 }
                             }
@@ -266,7 +317,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 var category = _categoryTextBox.Text.Trim();
                 if (string.IsNullOrWhiteSpace(category))
                 {
-                    await ShowError("Please enter a category name.");
+                    await ShowError(SharedUtilities.GetTranslation(_lang, "EnterCategoryNameError"));
                     IsPrimaryButtonEnabled = true;
                     IsSecondaryButtonEnabled = true;
                     return;
@@ -276,10 +327,13 @@ namespace FlairX_Mod_Manager.Dialogs
                 var tempDir = Path.Combine(Path.GetTempPath(), "FlairX_Downloads", Guid.NewGuid().ToString());
                 Directory.CreateDirectory(tempDir);
 
+                var downloadedFiles = new List<(string filePath, string fileName)>();
+
                 for (int i = 0; i < _selectedFiles.Count; i++)
                 {
                     var file = _selectedFiles[i];
-                    _downloadStatusText.Text = $"Download: {file.FileName} ({i + 1}/{_selectedFiles.Count})";
+                    _downloadStatusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "DownloadingFile"), 
+                        file.FileName, i + 1, _selectedFiles.Count);
 
                     var tempFilePath = Path.Combine(tempDir, file.FileName);
                     var progress = new Progress<double>(value =>
@@ -294,7 +348,7 @@ namespace FlairX_Mod_Manager.Dialogs
 
                     if (!success)
                     {
-                        await ShowError($"Failed to download {file.FileName}");
+                        await ShowError(string.Format(SharedUtilities.GetTranslation(_lang, "FailedToDownload"), file.FileName));
                         Directory.Delete(tempDir, true);
                         IsPrimaryButtonEnabled = true;
                         IsSecondaryButtonEnabled = true;
@@ -302,22 +356,29 @@ namespace FlairX_Mod_Manager.Dialogs
                     }
                     
                     _downloadProgressBar.Value = 100;
-                    
-                    // Check if it's an archive
-                    if (IsArchiveFile(file.FileName))
-                    {
-                        _downloadedArchivePath = tempFilePath;
-                    }
+                    downloadedFiles.Add((tempFilePath, file.FileName));
                 }
 
-                // Extract archive if downloaded
-                if (!string.IsNullOrEmpty(_downloadedArchivePath))
+                // Extract archives based on count
+                bool hasArchives = downloadedFiles.Any(f => IsArchiveFile(f.fileName));
+                
+                if (hasArchives)
                 {
-                    await ExtractArchiveAsync(category);
+                    if (_selectedFiles.Count == 1)
+                    {
+                        // Single file - extract directly to mod folder (old behavior)
+                        _downloadedArchivePath = downloadedFiles[0].filePath;
+                        await ExtractArchiveAsync(category);
+                    }
+                    else
+                    {
+                        // Multiple files - extract each archive to its own subfolder
+                        await ExtractMultipleArchivesAsync(category, downloadedFiles);
+                    }
                 }
                 else
                 {
-                    // If no archives, just move files
+                    // No archives, just move files
                     await InstallFiles(tempDir, category);
                 }
 
@@ -328,8 +389,8 @@ namespace FlairX_Mod_Manager.Dialogs
                 }
 
                 // Success
-                _downloadStatusText.Text = "Download: Complete";
-                _extractStatusText.Text = "Extract: Complete";
+                _downloadStatusText.Text = SharedUtilities.GetTranslation(_lang, "DownloadComplete");
+                _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractComplete");
                 _downloadProgressBar.Value = 100;
                 _extractProgressBar.Value = 100;
                 await Task.Delay(1000);
@@ -340,7 +401,7 @@ namespace FlairX_Mod_Manager.Dialogs
             catch (Exception ex)
             {
                 Logger.LogError("Failed to download and install mod", ex);
-                await ShowError($"Installation failed: {ex.Message}");
+                await ShowError(string.Format(SharedUtilities.GetTranslation(_lang, "InstallationFailed"), ex.Message));
                 IsPrimaryButtonEnabled = true;
                 IsSecondaryButtonEnabled = true;
             }
@@ -350,7 +411,7 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             try
             {
-                _extractStatusText.Text = "Extract: Preparing...";
+                _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractPreparing");
                 _extractProgressBar.IsIndeterminate = true;
 
                 // Get mod library path
@@ -385,13 +446,11 @@ namespace FlairX_Mod_Manager.Dialogs
                                     isUpdate = true;
                                     Logger.LogInfo($"Updating existing mod at: {modPath}");
                                     
-                                    // Show update-specific options
+                                    // Show update-specific options grid
                                     DispatcherQueue.TryEnqueue(() =>
                                     {
-                                        if (_cleanInstallCheckBox != null)
-                                            _cleanInstallCheckBox.Visibility = Visibility.Visible;
-                                        if (_createBackupCheckBox != null)
-                                            _createBackupCheckBox.Visibility = Visibility.Visible;
+                                        if (_updateOptionsGrid != null)
+                                            _updateOptionsGrid.Visibility = Visibility.Visible;
                                     });
                                 }
                             }
@@ -430,12 +489,12 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Clean install - remove all files except backups
                 if (_cleanInstall && Directory.Exists(modPath))
                 {
-                    _extractStatusText.Text = "Extract: Cleaning old files...";
+                    _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractCleaningOldFiles");
                     CleanModFolder(modPath);
                 }
 
                 // Extract all files with directory structure using SharpCompress
-                _extractStatusText.Text = "Extract: Extracting files...";
+                _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractExtractingFiles");
                 
                 // Use ReaderOptions to preserve encoding
                 var readerOptions = new ReaderOptions
@@ -516,36 +575,156 @@ namespace FlairX_Mod_Manager.Dialogs
                         current++;
                         _extractProgressBar.IsIndeterminate = false;
                         _extractProgressBar.Value = (double)current / total * 100;
-                        _extractStatusText.Text = $"Extract: {current}/{total} files";
+                        _extractStatusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "ExtractingProgress"), current, total);
                     }
                 }
 
                 // Create mod.json
                 await CreateModJson(modPath);
                 
-                // Auto-detect hotkeys in background
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        await Pages.HotkeyFinderPage.AutoDetectHotkeysForModStaticAsync(modPath);
-                        Logger.LogInfo($"Auto-detected hotkeys for mod: {modPath}");
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Failed to auto-detect hotkeys for mod: {modPath}", ex);
-                    }
-                });
-                
                 // Save mod path for preview download
                 _installedModPath = modPath;
                 
-                _extractStatusText.Text = "Extract: Complete";
+                _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractComplete");
                 _extractProgressBar.Value = 100;
             }
             catch (Exception ex)
             {
                 Logger.LogError("Failed to extract files", ex);
+                throw;
+            }
+        }
+
+        private async Task ExtractMultipleArchivesAsync(string category, List<(string filePath, string fileName)> downloadedFiles)
+        {
+            try
+            {
+                _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractPreparing");
+                _extractProgressBar.IsIndeterminate = true;
+
+                // Get mod library path
+                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
+                if (string.IsNullOrEmpty(modLibraryPath))
+                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+
+                var categoryPath = Path.Combine(modLibraryPath, category);
+                Directory.CreateDirectory(categoryPath);
+
+                var modFolderName = SanitizeFileName(_modNameTextBox.Text.Trim());
+                var modPath = Path.Combine(categoryPath, modFolderName);
+
+                // Create main mod directory
+                Directory.CreateDirectory(modPath);
+
+                // Extract each archive to its own subfolder
+                int totalFiles = downloadedFiles.Count(f => IsArchiveFile(f.fileName));
+                int currentFile = 0;
+
+                var readerOptions = new ReaderOptions
+                {
+                    ArchiveEncoding = new ArchiveEncoding
+                    {
+                        Default = System.Text.Encoding.UTF8
+                    }
+                };
+
+                foreach (var (filePath, fileName) in downloadedFiles)
+                {
+                    if (!IsArchiveFile(fileName))
+                    {
+                        // Copy non-archive files to main mod folder
+                        var destPath = Path.Combine(modPath, fileName);
+                        File.Copy(filePath, destPath, true);
+                        continue;
+                    }
+
+                    currentFile++;
+                    _extractStatusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "ExtractExtractingFiles") + " ({0}/{1})", currentFile, totalFiles);
+
+                    // Create subfolder for this archive (without extension)
+                    var archiveNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
+                    var archiveSubfolder = Path.Combine(modPath, SanitizeFileName(archiveNameWithoutExt));
+                    Directory.CreateDirectory(archiveSubfolder);
+
+                    using (var archive = ArchiveFactory.Open(filePath, readerOptions))
+                    {
+                        var entries = archive.Entries.Where(e => !e.IsDirectory).ToList();
+                        
+                        // Check if all files are in a single root folder
+                        string? commonRootFolder = null;
+                        bool hasSingleRootFolder = true;
+
+                        foreach (var entry in entries)
+                        {
+                            if (string.IsNullOrEmpty(entry.Key)) continue;
+
+                            var parts = entry.Key.Split('/', '\\');
+                            if (parts.Length > 1)
+                            {
+                                var rootFolder = parts[0];
+                                if (commonRootFolder == null)
+                                {
+                                    commonRootFolder = rootFolder;
+                                }
+                                else if (commonRootFolder != rootFolder)
+                                {
+                                    hasSingleRootFolder = false;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                hasSingleRootFolder = false;
+                                break;
+                            }
+                        }
+
+                        // If all files are in a single root folder, skip it
+                        int skipLevels = (hasSingleRootFolder && !string.IsNullOrEmpty(commonRootFolder)) ? 1 : 0;
+
+                        foreach (var entry in entries)
+                        {
+                            if (string.IsNullOrEmpty(entry.Key)) continue;
+
+                            // Get relative path and skip root folder if needed
+                            var pathParts = entry.Key.Split('/', '\\').ToList();
+                            if (skipLevels > 0 && pathParts.Count > skipLevels)
+                            {
+                                pathParts.RemoveRange(0, skipLevels);
+                            }
+
+                            var relativePath = string.Join(Path.DirectorySeparatorChar.ToString(), pathParts);
+                            var destPath = Path.Combine(archiveSubfolder, relativePath);
+
+                            // Create directory if needed
+                            var destDir = Path.GetDirectoryName(destPath);
+                            if (!string.IsNullOrEmpty(destDir))
+                            {
+                                Directory.CreateDirectory(destDir);
+                            }
+
+                            // Extract file
+                            using (var entryStream = entry.OpenEntryStream())
+                            using (var fileStream = File.Create(destPath))
+                            {
+                                entryStream.CopyTo(fileStream);
+                            }
+                        }
+                    }
+                }
+
+                // Create mod.json in main mod folder
+                await CreateModJson(modPath);
+                
+                // Save mod path for preview download
+                _installedModPath = modPath;
+                
+                _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractComplete");
+                _extractProgressBar.Value = 100;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to extract multiple archives", ex);
                 throw;
             }
         }
@@ -700,9 +879,9 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             var dialog = new ContentDialog
             {
-                Title = "Error",
+                Title = SharedUtilities.GetTranslation(_lang, "Error"),
                 Content = message,
-                CloseButtonText = "OK",
+                CloseButtonText = SharedUtilities.GetTranslation(_lang, "OK"),
                 XamlRoot = XamlRoot
             };
             await dialog.ShowAsync();
@@ -714,38 +893,76 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 if (_previewMedia?.Images == null) return;
 
-                _downloadStatusText.Text = "Download: Downloading previews...";
+                _downloadStatusText.Text = SharedUtilities.GetTranslation(_lang, "DownloadingPreviews");
                 _downloadProgressBar.IsIndeterminate = true;
 
-                // Delete old preview images (all variants)
-                try
+                int startIndex = 0;
+
+                // Delete old preview images (all variants) unless combining
+                if (!_combinePreviews)
                 {
-                    var oldPreviews = Directory.GetFiles(modPath)
+                    try
+                    {
+                        var oldPreviews = Directory.GetFiles(modPath)
+                            .Where(f => 
+                            {
+                                var fileName = Path.GetFileName(f).ToLower();
+                                return (fileName.StartsWith("preview") || fileName == "minitile.jpg") && 
+                                       (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                        f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                        f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                            });
+                        
+                        foreach (var oldPreview in oldPreviews)
+                        {
+                            try
+                            {
+                                File.Delete(oldPreview);
+                                Logger.LogInfo($"Deleted old preview: {oldPreview}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to delete old preview: {oldPreview}", ex);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Failed to delete old previews", ex);
+                    }
+                }
+                else
+                {
+                    // Find next available preview number
+                    var existingPreviews = Directory.GetFiles(modPath)
                         .Where(f => 
                         {
                             var fileName = Path.GetFileName(f).ToLower();
-                            return (fileName.StartsWith("preview") || fileName == "minitile.jpg") && 
+                            return fileName.StartsWith("preview") && 
                                    (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
                                     f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
                                     f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
-                        });
-                    
-                    foreach (var oldPreview in oldPreviews)
+                        })
+                        .Select(f => Path.GetFileName(f))
+                        .ToList();
+
+                    // Extract numbers from existing preview files
+                    var existingNumbers = new List<int>();
+                    foreach (var preview in existingPreviews)
                     {
-                        try
+                        var match = System.Text.RegularExpressions.Regex.Match(preview, @"preview-?(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        if (match.Success && int.TryParse(match.Groups[1].Value, out int num))
                         {
-                            File.Delete(oldPreview);
-                            Logger.LogInfo($"Deleted old preview: {oldPreview}");
+                            existingNumbers.Add(num);
                         }
-                        catch (Exception ex)
+                        else if (preview.ToLower() == "preview.jpg" || preview.ToLower() == "preview.png")
                         {
-                            Logger.LogError($"Failed to delete old preview: {oldPreview}", ex);
+                            existingNumbers.Add(0);
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to delete old previews", ex);
+
+                    startIndex = existingNumbers.Count > 0 ? existingNumbers.Max() + 1 : 0;
+                    Logger.LogInfo($"Combining previews - starting from index {startIndex}");
                 }
 
                 var screenshots = _previewMedia.Images.Where(img => img.Type == "screenshot").ToList();
@@ -758,7 +975,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 {
                     var screenshot = screenshots[i];
                     var imageUrl = $"{screenshot.BaseUrl}/{screenshot.File}";
-                    var fileName = $"preview{(i + 1):D3}.jpg";
+                    var fileName = $"preview{(startIndex + i + 1):D3}.jpg";
                     var filePath = Path.Combine(modPath, fileName);
 
                     try
@@ -769,7 +986,8 @@ namespace FlairX_Mod_Manager.Dialogs
                         
                         _downloadProgressBar.IsIndeterminate = false;
                         _downloadProgressBar.Value = (double)downloaded / screenshots.Count * 100;
-                        _downloadStatusText.Text = $"Download: Previews {downloaded}/{screenshots.Count}";
+                        _downloadStatusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "DownloadingPreviews_Progress"), 
+                            downloaded, screenshots.Count);
                     }
                     catch (Exception ex)
                     {
@@ -783,7 +1001,7 @@ namespace FlairX_Mod_Manager.Dialogs
                     _ = Task.Run(() => OptimizeImagesInBackground(modPath));
                 }
 
-                _downloadStatusText.Text = "Download: Complete";
+                _downloadStatusText.Text = SharedUtilities.GetTranslation(_lang, "DownloadComplete");
                 _downloadProgressBar.Value = 100;
             }
             catch (Exception ex)
@@ -813,7 +1031,7 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             try
             {
-                _extractStatusText.Text = "Extract: Creating backup...";
+                _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractCreatingBackup");
                 _extractProgressBar.IsIndeterminate = true;
 
                 // Find next available backup number inside mod folder
@@ -855,19 +1073,32 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             try
             {
-                // Delete all files and folders except backups
+                // Delete all files and folders except backups (and optionally previews)
                 foreach (var file in Directory.GetFiles(modPath, "*", SearchOption.AllDirectories))
                 {
-                    if (!file.Contains("fxmm-backup"))
+                    // Skip backups
+                    if (file.Contains("fxmm-backup"))
+                        continue;
+
+                    // Skip previews if Keep previews is enabled
+                    if (_keepPreviews)
                     {
-                        try
-                        {
-                            File.Delete(file);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"Failed to delete file: {file}", ex);
-                        }
+                        var fileName = Path.GetFileName(file).ToLower();
+                        bool isPreview = (fileName.StartsWith("preview") || fileName == "minitile.jpg") && 
+                                       (file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                        file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                        file.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                        if (isPreview)
+                            continue;
+                    }
+
+                    try
+                    {
+                        File.Delete(file);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to delete file: {file}", ex);
                     }
                 }
 

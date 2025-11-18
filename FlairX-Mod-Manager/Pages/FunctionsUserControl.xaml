@@ -58,11 +58,6 @@
                             <FontIcon Glyph="&#xF49A;"/>
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
-                    <NavigationViewItem x:Name="HotkeyFinderNavItem" Content="Hotkey Finder" Tag="HotkeyFinder">
-                        <NavigationViewItem.Icon>
-                            <FontIcon Glyph="&#xE765;"/>
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
                     <NavigationViewItem x:Name="StatusKeeperNavItem" Content="Status Keeper" Tag="StatusKeeperPage">
                         <NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xE792;"/>

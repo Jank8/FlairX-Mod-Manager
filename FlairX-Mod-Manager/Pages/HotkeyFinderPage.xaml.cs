@@ -13,97 +13,13 @@ namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class HotkeyFinderPage : Page
     {
-        private CancellationTokenSource? _cancellationTokenSource;
-        private bool _isProcessing = false;
-        
-        // Singleton instance for access from other classes
-        private static HotkeyFinderPage? _instance;
-        public static HotkeyFinderPage? Instance => _instance;
-
         public HotkeyFinderPage()
         {
             this.InitializeComponent();
-            _instance = this;
-            UpdateTexts();
-            LoadSettings();
         }
 
-        private void UpdateTexts()
-        {
-            var lang = SharedUtilities.LoadLanguageDictionary("HotkeyFinder");
-            AutoDetectLabel.Text = SharedUtilities.GetTranslation(lang, "AutoDetectLabel");
-            RefreshAllLabel.Text = SharedUtilities.GetTranslation(lang, "RefreshAllLabel");
-            RefreshButtonText.Text = _isProcessing ? SharedUtilities.GetTranslation(lang, "CancelButton") : SharedUtilities.GetTranslation(lang, "RefreshButton");
-            RefreshIcon.Visibility = _isProcessing ? Visibility.Collapsed : Visibility.Visible;
-            CancelIcon.Visibility = _isProcessing ? Visibility.Visible : Visibility.Collapsed;
-            ToolTipService.SetToolTip(AutoDetectToggle, SharedUtilities.GetTranslation(lang, "AutoDetectLabel"));
-            ToolTipService.SetToolTip(RefreshAllToggle, SharedUtilities.GetTranslation(lang, "RefreshAllLabel"));
-            ToolTipService.SetToolTip(RefreshButton, SharedUtilities.GetTranslation(lang, "RefreshButton"));
-        }
-
-        private void LoadSettings()
-        {
-            var settings = SharedUtilities.LoadJsonSettings<HotkeyFinderSettings>("HotkeyFinder.json");
-            if (settings != null)
-            {
-                AutoDetectToggle.IsOn = settings.AutoDetectEnabled;
-                RefreshAllToggle.IsOn = settings.RefreshAllEnabled;
-            }
-        }
-
-        private void SaveSettings()
-        {
-            var settings = new HotkeyFinderSettings
-            {
-                AutoDetectEnabled = AutoDetectToggle.IsOn,
-                // RefreshAllEnabled is not saved because it turns off after update starts
-            };
-
-            SharedUtilities.SaveJsonSettings("HotkeyFinder.json", settings);
-        }
-
-
-
-        private void AutoDetectToggle_Toggled(object sender, RoutedEventArgs e)
-        {
-            SaveSettings();
-        }
-
-        private void RefreshAllToggle_Toggled(object sender, RoutedEventArgs e)
-        {
-            SaveSettings();
-        }
-
-        private async void RefreshButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await RefreshButtonClickAsync();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in RefreshButton_Click", ex);
-                ShowInfoBar("Error", ex.Message);
-            }
-        }
-        
-        private async Task RefreshButtonClickAsync()
-        {
-            if (_isProcessing)
-            {
-                _cancellationTokenSource?.Cancel();
-                return;
-            }
-
-            if (!RefreshAllToggle.IsOn)
-            {
-                ShowInfoBar("Warning", "EnableConfirmFirst");
-                return;
-            }
-
-            await RefreshAllModsAsync();
-        }
-
+        // All UI removed - hotkeys are now detected automatically on startup and after mod reload
+        // Static methods below are used by the automatic detection system
         // Shared method for detecting and updating hotkeys for mods
         private static async Task DetectAndUpdateHotkeysAsync(
             IEnumerable<string> modDirs,
@@ -171,26 +87,15 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async Task RefreshAllModsAsync()
+        // Static method to refresh all mods hotkeys (for use after reload)
+        public static async Task RefreshAllModsHotkeysStaticAsync()
         {
-            _isProcessing = true;
-            _cancellationTokenSource = new CancellationTokenSource(); // Ensure it's always initialized
-            var lang = SharedUtilities.LoadLanguageDictionary("HotkeyFinder");
-            RefreshButtonText.Text = SharedUtilities.GetTranslation(lang, "CancelButton");
-            RefreshIcon.Visibility = Visibility.Collapsed;
-            CancelIcon.Visibility = Visibility.Visible;
-            RefreshProgressBar.Visibility = Visibility.Visible;
-            RefreshAllToggle.IsOn = false;
-            SaveSettings();
-
-            int processedCount = 0, successCount = 0, errorCount = 0;
-
             try
             {
                 var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
                 if (!Directory.Exists(modLibraryPath))
                 {
-                    ShowInfoBar("Error", "ModLibraryNotFound");
+                    Logger.LogWarning("Mod library path not found for hotkey detection");
                     return;
                 }
                 
@@ -204,114 +109,26 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
                 
-                processedCount = modDirectories.Count;
-                try
-                {
-                    await DetectAndUpdateHotkeysAsync(modDirectories.ToArray(), true, _cancellationTokenSource.Token);
-                    successCount = processedCount;
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to detect and update hotkeys", ex);
-                    errorCount = processedCount;
-                }
-
-                if (!_cancellationTokenSource.Token.IsCancellationRequested)
-                {
-                    var completeMessage = $"{SharedUtilities.GetTranslation(lang, "RefreshCompleteMessage")}\n{SharedUtilities.GetTranslation(lang, "Processed")}: {processedCount}\n{SharedUtilities.GetTranslation(lang, "Success")}: {successCount}\n{SharedUtilities.GetTranslation(lang, "Errors")}: {errorCount}";
-                    ShowInfoBar("Info", completeMessage);
-                }
-                else
-                {
-                    ShowInfoBar("Info", SharedUtilities.GetTranslation(lang, "RefreshCancelledMessage"));
-                }
+                await DetectAndUpdateHotkeysAsync(modDirectories.ToArray(), true);
+                Logger.LogInfo($"Refreshed hotkeys for {modDirectories.Count} mods");
             }
             catch (Exception ex)
             {
-                ShowInfoBar("FatalError", SharedUtilities.GetTranslation(lang, "FatalErrorMessage") + "\n" + ex.Message);
-            }
-            finally
-            {
-                _isProcessing = false;
-                RefreshButtonText.Text = SharedUtilities.GetTranslation(lang, "RefreshButton");
-                RefreshIcon.Visibility = Visibility.Visible;
-                CancelIcon.Visibility = Visibility.Collapsed;
-                RefreshProgressBar.Visibility = Visibility.Collapsed;
+                Logger.LogError("Failed to refresh all mods hotkeys", ex);
             }
         }
-
-        // Refactoring of the automatic method (instance)
-        public async Task AutoDetectHotkeysForModAsync(string modPath)
-        {
-            if (!AutoDetectToggle.IsOn)
-                return;
-            try
-            {
-                await DetectAndUpdateHotkeysAsync(new[] { modPath }, false);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error auto-detecting hotkeys: {ex.Message}");
-            }
-        }
-
-        // Refactoring of the automatic method (static)
+        
+        // Static method for single mod hotkey detection (kept for compatibility)
         public static async Task AutoDetectHotkeysForModStaticAsync(string modPath)
         {
             try
             {
-                bool autoDetectEnabled = false;
-                var settingsPath = PathManager.GetSettingsPath("HotkeyFinder.json");
-                if (File.Exists(settingsPath))
-                {
-                    try
-                    {
-                        var json = File.ReadAllText(settingsPath);
-                        var settings = JsonSerializer.Deserialize<HotkeyFinderSettings>(json);
-                        if (settings != null)
-                        {
-                            autoDetectEnabled = settings.AutoDetectEnabled;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError("Failed to load HotkeyFinder settings for static method", ex);
-                    }
-                }
-                if (!autoDetectEnabled)
-                    return;
                 await DetectAndUpdateHotkeysAsync(new[] { modPath }, false);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error auto-detecting hotkeys: {ex.Message}");
+                Logger.LogError($"Error auto-detecting hotkeys for {modPath}", ex);
             }
-        }
-
-        private void ShowInfoBar(string title, string message)
-        {
-            var lang = SharedUtilities.LoadLanguageDictionary("HotkeyFinder");
-            string translatedTitle = SharedUtilities.GetTranslation(lang, title);
-            
-            // If message contains newlines and colons, it's likely already translated/formatted
-            string displayMessage;
-            if (message.Contains('\n') && message.Contains(':'))
-            {
-                displayMessage = message; // Use as-is, already formatted
-            }
-            else
-            {
-                displayMessage = SharedUtilities.GetTranslation(lang, message); // Try to translate
-            }
-            
-            var dialog = new ContentDialog
-            {
-                Title = translatedTitle,
-                Content = displayMessage,
-                CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                XamlRoot = (App.Current as App)?.MainWindow is MainWindow mainWindow && mainWindow.Content is FrameworkElement fe ? fe.XamlRoot : this.XamlRoot
-            };
-            _ = dialog.ShowAsync();
         }
 
         // Key mapping
@@ -395,12 +212,6 @@ namespace FlairX_Mod_Manager.Pages
             public string Description { get; set; } = "";
         }
 
-        public class HotkeyFinderSettings
-        {
-            public bool AutoDetectEnabled { get; set; } = false;
-            public bool RefreshAllEnabled { get; set; } = false;
-        }
-        
         // Helper class for recursively finding INI files
         private static void FindIniFilesStaticRecursive(string folderPath, List<string> iniFiles)
         {
