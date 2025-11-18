@@ -638,6 +638,14 @@ namespace FlairX_Mod_Manager
 
         private async void CategoryIcon_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
+            _isPointerOverCategoryIcon = true;
+            
+            // Cancel any pending close timer
+            if (_categoryPreviewCloseTimer != null)
+            {
+                _categoryPreviewCloseTimer.Stop();
+            }
+            
             if (sender is Border iconBorder && iconBorder.Tag != null)
             {
                 var categoryInfo = iconBorder.Tag;
@@ -698,10 +706,26 @@ namespace FlairX_Mod_Manager
 
         private void CategoryIcon_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (CategoryPreviewPopup != null)
+            _isPointerOverCategoryIcon = false;
+            
+            // Start timer to close popup after 1 second
+            if (_categoryPreviewCloseTimer == null)
             {
-                CategoryPreviewPopup.IsOpen = false;
+                _categoryPreviewCloseTimer = new DispatcherTimer();
+                _categoryPreviewCloseTimer.Interval = TimeSpan.FromSeconds(1);
+                _categoryPreviewCloseTimer.Tick += (s, args) =>
+                {
+                    _categoryPreviewCloseTimer?.Stop();
+                    
+                    // Only close if pointer is still not over the icon
+                    if (!_isPointerOverCategoryIcon && CategoryPreviewPopup != null)
+                    {
+                        CategoryPreviewPopup.IsOpen = false;
+                    }
+                };
             }
+            
+            _categoryPreviewCloseTimer.Start();
         }
     }
 }

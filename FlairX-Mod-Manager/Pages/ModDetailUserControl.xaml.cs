@@ -225,7 +225,19 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 
                 ModAuthorTextBox.Text = author;
-                ModUrlTextBox.Text = url;
+                
+                // Set URL with placeholder logic
+                if (string.IsNullOrWhiteSpace(url))
+                {
+                    ModUrlTextBox.Text = "https://";
+                    ModUrlTextBox.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray);
+                }
+                else
+                {
+                    ModUrlTextBox.Text = url;
+                    ModUrlTextBox.Foreground = (SolidColorBrush)Application.Current.Resources["TextFillColorPrimaryBrush"];
+                }
+                
                 ModVersionTextBox.Text = version;
                 
                 // Check for available updates
@@ -412,7 +424,8 @@ namespace FlairX_Mod_Manager.Pages
             ModImage.Source = null;
             ModHotkeysList.ItemsSource = null;
             ModAuthorTextBox.Text = "";
-            ModUrlTextBox.Text = "";
+            ModUrlTextBox.Text = "https://";
+            ModUrlTextBox.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray);
             ModVersionTextBox.Text = "";
             ModDateCheckedPicker.Date = null;
             ModDateUpdatedPicker.Date = null;
@@ -421,6 +434,24 @@ namespace FlairX_Mod_Manager.Pages
             _availablePreviewImages.Clear();
             _currentImageIndex = 0;
             UpdateImageNavigation();
+        }
+        
+        private void ModUrlTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (ModUrlTextBox.Text == "https://")
+            {
+                ModUrlTextBox.Text = "";
+                ModUrlTextBox.Foreground = (SolidColorBrush)Application.Current.Resources["TextFillColorPrimaryBrush"];
+            }
+        }
+        
+        private void ModUrlTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(ModUrlTextBox.Text))
+            {
+                ModUrlTextBox.Text = "https://";
+                ModUrlTextBox.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray);
+            }
         }
 
         private void ModDetailUserControl_Loaded(object sender, RoutedEventArgs e)
@@ -553,7 +584,9 @@ namespace FlairX_Mod_Manager.Pages
 
         private async void ModUrlTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            await UpdateModJsonField("url", ModUrlTextBox.Text);
+            // Don't save the placeholder text
+            var urlValue = ModUrlTextBox.Text == "https://" ? "" : ModUrlTextBox.Text;
+            await UpdateModJsonField("url", urlValue);
         }
 
         private async void ModDateCheckedPicker_DateChanged(object sender, Microsoft.UI.Xaml.Controls.CalendarDatePickerDateChangedEventArgs e)

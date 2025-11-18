@@ -45,6 +45,10 @@ namespace FlairX_Mod_Manager
 
 
         private bool _isInitializationComplete = false;
+        
+        // Category preview popup timer
+        private DispatcherTimer? _categoryPreviewCloseTimer;
+        private bool _isPointerOverCategoryIcon = false;
 
         // Backdrop fields
         WindowsSystemDispatcherQueueHelper? wsdqHelper;

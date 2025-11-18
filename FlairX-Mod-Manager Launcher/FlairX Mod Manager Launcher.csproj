@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net8.0</TargetFramework>
 		<RootNamespace>FlairX_Mod_Manager_Launcher</RootNamespace>
 		<AssemblyName>FlairX Mod Manager Launcher</AssemblyName>
-		<ImplicitUsings>enable</ImplicitUsings>
+		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<ApplicationIcon>app.ico</ApplicationIcon>
 		<PublishSingleFile>true</PublishSingleFile>
@@ -16,5 +16,6 @@
 		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<StartupObject>Program</StartupObject>
 	</PropertyGroup>
 </Project>

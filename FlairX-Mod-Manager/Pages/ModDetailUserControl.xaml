@@ -173,7 +173,7 @@
                             <ColumnDefinition Width="8"/>
                             <ColumnDefinition Width="32"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Name="ModUrlTextBox" Grid.Column="0" Margin="0,0,0,0" TextAlignment="Left" HorizontalAlignment="Stretch" Height="32" TextChanged="ModUrlTextBox_TextChanged"/>
+                        <TextBox x:Name="ModUrlTextBox" Grid.Column="0" Margin="0,0,0,0" TextAlignment="Left" HorizontalAlignment="Stretch" Height="32" TextChanged="ModUrlTextBox_TextChanged" GotFocus="ModUrlTextBox_GotFocus" LostFocus="ModUrlTextBox_LostFocus"/>
                         <Border Grid.Column="1" Background="Transparent"/>
                         <Button x:Name="OpenUrlButton" Grid.Column="2" Click="OpenUrlButton_Click" Width="32" Height="32" Background="{ThemeResource ButtonBackground}" BorderBrush="{ThemeResource ButtonBorderBrush}" BorderThickness="1" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <FontIcon Glyph="&#xE71B;" FontSize="16"/>
