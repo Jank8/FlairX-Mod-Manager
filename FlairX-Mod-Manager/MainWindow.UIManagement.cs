@@ -387,20 +387,20 @@ namespace FlairX_Mod_Manager
                         var modJsonPath = System.IO.Path.Combine(modDir, "mod.json");
                         if (!File.Exists(modJsonPath)) continue;
                         
-                        var previewPath = System.IO.Path.Combine(modDir, "preview.jpg");
-                        if (File.Exists(previewPath))
+                        var minitilePath = System.IO.Path.Combine(modDir, "minitile.jpg");
+                        if (File.Exists(minitilePath))
                         {
                             var dirName = System.IO.Path.GetFileName(modDir);
                         
                         // Load image into cache
                         var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                        using (var stream = File.OpenRead(previewPath))
+                        using (var stream = File.OpenRead(minitilePath))
                         {
                             bitmap.SetSource(stream.AsRandomAccessStream());
                         }
                         
                         // Cache the image
-                        ImageCacheManager.CacheImage(previewPath, bitmap);
+                        ImageCacheManager.CacheImage(minitilePath, bitmap);
                         ImageCacheManager.CacheRamImage(dirName, bitmap);
                     }
                     

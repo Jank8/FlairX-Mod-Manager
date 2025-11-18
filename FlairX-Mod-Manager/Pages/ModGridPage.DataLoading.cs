@@ -562,7 +562,7 @@ namespace FlairX_Mod_Manager.Pages
                 return webpPath;
             }
             
-            // Check for JPEG minitile (fallback when WebP encoder not available)
+            // Use JPEG minitile
             string minitileJpegPath = Path.Combine(modDirectory, "minitile.jpg");
             if (File.Exists(minitileJpegPath))
             {
@@ -570,16 +570,9 @@ namespace FlairX_Mod_Manager.Pages
                 return minitileJpegPath;
             }
             
-            // Fallback to original JPEG
-            string jpegPath = Path.Combine(modDirectory, "preview.jpg");
-            if (File.Exists(jpegPath))
-            {
-                LogToGridLog($"Using original JPEG for {Path.GetFileName(modDirectory)}");
-                return jpegPath;
-            }
-            
-            // No image found
-            return jpegPath; // Return path anyway for consistency
+            // No minitile found
+            LogToGridLog($"No minitile found for {Path.GetFileName(modDirectory)}");
+            return minitileJpegPath; // Return path anyway for consistency
         }
 
         private void LoadActiveModsOnly()
