@@ -842,8 +842,8 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     using (var img = System.Drawing.Image.FromFile(catprevJpgPath))
                     {
-                        // Consider optimized if it's square and 600x600
-                        needsOptimization = !(img.Width == 600 && img.Height == 600);
+                        // Consider optimized if it's 600x722
+                        needsOptimization = !(img.Width == 600 && img.Height == 722);
                     }
                 }
                 catch
@@ -869,8 +869,8 @@ namespace FlairX_Mod_Manager.Pages
                 
                 using (var img = System.Drawing.Image.FromFile(previewPath))
                 {
-                    // Create catprev.jpg (600x600 for category tiles)
-                    using (var thumbBmp = new System.Drawing.Bitmap(600, 600))
+                    // Create catprev.jpg (600x722 for category tiles)
+                    using (var thumbBmp = new System.Drawing.Bitmap(600, 722))
                     using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
                     {
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -878,13 +878,31 @@ namespace FlairX_Mod_Manager.Pages
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         
-                        // Calculate crop rectangle to make it square (center crop)
-                        int size = Math.Min(img.Width, img.Height);
-                        int x = (img.Width - size) / 2;
-                        int y = (img.Height - size) / 2;
-                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
-                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        // Calculate crop to 600:722 ratio (center crop)
+                        double targetRatio = 600.0 / 722.0;
+                        double sourceRatio = (double)img.Width / img.Height;
                         
+                        int srcWidth, srcHeight, srcX, srcY;
+                        
+                        if (sourceRatio > targetRatio)
+                        {
+                            // Source is wider - crop width
+                            srcHeight = img.Height;
+                            srcWidth = (int)(srcHeight * targetRatio);
+                            srcX = (img.Width - srcWidth) / 2;
+                            srcY = 0;
+                        }
+                        else
+                        {
+                            // Source is taller - crop height
+                            srcWidth = img.Width;
+                            srcHeight = (int)(srcWidth / targetRatio);
+                            srcX = 0;
+                            srcY = (img.Height - srcHeight) / 2;
+                        }
+                        
+                        var srcRect = new System.Drawing.Rectangle(srcX, srcY, srcWidth, srcHeight);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
                         g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
                         
                         // Save as JPEG catprev
@@ -1062,14 +1080,40 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 using (var src = System.Drawing.Image.FromFile(sourcePath))
-                using (var minitile = new System.Drawing.Bitmap(200, 200))
+                using (var minitile = new System.Drawing.Bitmap(600, 722))
                 using (var g = System.Drawing.Graphics.FromImage(minitile))
                 {
                     g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                     g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                     g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                    g.DrawImage(src, 0, 0, 200, 200);
+                    
+                    // Calculate crop to 600:722 ratio (center crop)
+                    double targetRatio = 600.0 / 722.0;
+                    double sourceRatio = (double)src.Width / src.Height;
+                    
+                    int srcWidth, srcHeight, srcX, srcY;
+                    
+                    if (sourceRatio > targetRatio)
+                    {
+                        // Source is wider - crop width
+                        srcHeight = src.Height;
+                        srcWidth = (int)(srcHeight * targetRatio);
+                        srcX = (src.Width - srcWidth) / 2;
+                        srcY = 0;
+                    }
+                    else
+                    {
+                        // Source is taller - crop height
+                        srcWidth = src.Width;
+                        srcHeight = (int)(srcWidth / targetRatio);
+                        srcX = 0;
+                        srcY = (src.Height - srcHeight) / 2;
+                    }
+                    
+                    var srcRect = new System.Drawing.Rectangle(srcX, srcY, srcWidth, srcHeight);
+                    var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
+                    g.DrawImage(src, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
                     
                     var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
                     if (jpegEncoder != null)
@@ -1784,15 +1828,40 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 using (var previewImg = System.Drawing.Image.FromFile(previewPath))
-                using (var thumbBmp = new System.Drawing.Bitmap(600, 600))
+                using (var thumbBmp = new System.Drawing.Bitmap(600, 722))
                 using (var g3 = System.Drawing.Graphics.FromImage(thumbBmp))
                 {
                     g3.InterpolationMode = InterpolationMode.HighQualityBicubic;
                     g3.CompositingQuality = CompositingQuality.HighQuality;
                     g3.SmoothingMode = SmoothingMode.HighQuality;
                     g3.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    var thumbRect = new System.Drawing.Rectangle(0, 0, 600, 600);
-                    g3.DrawImage(previewImg, thumbRect);
+                    
+                    // Calculate crop to 600:722 ratio (center crop)
+                    double targetRatio = 600.0 / 722.0;
+                    double sourceRatio = (double)previewImg.Width / previewImg.Height;
+                    
+                    int srcWidth, srcHeight, srcX, srcY;
+                    
+                    if (sourceRatio > targetRatio)
+                    {
+                        // Source is wider - crop width
+                        srcHeight = previewImg.Height;
+                        srcWidth = (int)(srcHeight * targetRatio);
+                        srcX = (previewImg.Width - srcWidth) / 2;
+                        srcY = 0;
+                    }
+                    else
+                    {
+                        // Source is taller - crop height
+                        srcWidth = previewImg.Width;
+                        srcHeight = (int)(srcWidth / targetRatio);
+                        srcX = 0;
+                        srcY = (previewImg.Height - srcHeight) / 2;
+                    }
+                    
+                    var srcRect = new System.Drawing.Rectangle(srcX, srcY, srcWidth, srcHeight);
+                    var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
+                    g3.DrawImage(previewImg, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
                     
                     // Save as JPEG minitile
                     var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
@@ -1890,8 +1959,8 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     using (var img = System.Drawing.Image.FromFile(catprevJpgPath))
                     {
-                        // Consider optimized if it's square and 600x600
-                        needsOptimization = !(img.Width == 600 && img.Height == 600);
+                        // Consider optimized if it's 600x722
+                        needsOptimization = !(img.Width == 600 && img.Height == 722);
                     }
                 }
                 catch
@@ -1917,8 +1986,8 @@ namespace FlairX_Mod_Manager.Pages
                 
                 using (var img = System.Drawing.Image.FromFile(previewPath))
                 {
-                    // Create catprev.jpg (600x600 for category tiles)
-                    using (var thumbBmp = new System.Drawing.Bitmap(600, 600))
+                    // Create catprev.jpg (600x722 for category tiles)
+                    using (var thumbBmp = new System.Drawing.Bitmap(600, 722))
                     using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
                     {
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -1926,13 +1995,31 @@ namespace FlairX_Mod_Manager.Pages
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         
-                        // Calculate crop rectangle to make it square (center crop)
-                        int size = Math.Min(img.Width, img.Height);
-                        int x = (img.Width - size) / 2;
-                        int y = (img.Height - size) / 2;
-                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
-                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        // Calculate crop to 600:722 ratio (center crop)
+                        double targetRatio = 600.0 / 722.0;
+                        double sourceRatio = (double)img.Width / img.Height;
                         
+                        int srcWidth, srcHeight, srcX, srcY;
+                        
+                        if (sourceRatio > targetRatio)
+                        {
+                            // Source is wider - crop width
+                            srcHeight = img.Height;
+                            srcWidth = (int)(srcHeight * targetRatio);
+                            srcX = (img.Width - srcWidth) / 2;
+                            srcY = 0;
+                        }
+                        else
+                        {
+                            // Source is taller - crop height
+                            srcWidth = img.Width;
+                            srcHeight = (int)(srcWidth / targetRatio);
+                            srcX = 0;
+                            srcY = (img.Height - srcHeight) / 2;
+                        }
+                        
+                        var srcRect = new System.Drawing.Rectangle(srcX, srcY, srcWidth, srcHeight);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
                         g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
                         
                         // Save as JPEG catprev

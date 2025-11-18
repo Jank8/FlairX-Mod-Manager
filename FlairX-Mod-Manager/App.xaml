@@ -151,6 +151,12 @@
                                   TintOpacity="0.00"
                                   FallbackColor="White"
                                   AlwaysUseFallback="False" />
+                    <AcrylicBrush x:Key="TileCaptionAcrylicBrush"
+                                  TintColor="#FFFFFFFF"
+                                  TintOpacity="0.50"
+                                  FallbackColor="White"
+                                  AlwaysUseFallback="False" />
+                    <SolidColorBrush x:Key="TileCaptionForeground" Color="#2D2D2D" />
                     <AcrylicBrush x:Key="ModDetailNavButtonAcrylicBrush"
                                   TintColor="#FFFFFFFF"
                                   TintOpacity="0.30"
@@ -170,6 +176,12 @@
                                   TintOpacity="0.45"
                                   FallbackColor="Black"
                                   AlwaysUseFallback="False" />
+                    <AcrylicBrush x:Key="TileCaptionAcrylicBrush"
+                                  TintColor="#FF222222"
+                                  TintOpacity="0.75"
+                                  FallbackColor="Black"
+                                  AlwaysUseFallback="False" />
+                    <SolidColorBrush x:Key="TileCaptionForeground" Color="White" />
                     <AcrylicBrush x:Key="ModDetailNavButtonAcrylicBrush"
                                   TintColor="#FF222222"
                                   TintOpacity="0.45"
