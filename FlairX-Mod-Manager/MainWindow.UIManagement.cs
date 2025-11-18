@@ -279,10 +279,10 @@ namespace FlairX_Mod_Manager
             try
             {
                 var categoryPath = Path.Combine(modLibraryPath, categoryName);
-                var categoryPreviewPath = Path.Combine(categoryPath, "catprev.jpg");
+                var categoryMiniPath = Path.Combine(categoryPath, "catmini.jpg");
                 
-                // Check if category preview image exists
-                if (File.Exists(categoryPreviewPath))
+                // Check if category mini preview image exists
+                if (File.Exists(categoryMiniPath))
                 {
                     // Create a high-quality bitmap from the category image
                     var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
@@ -291,7 +291,7 @@ namespace FlairX_Mod_Manager
                     bitmap.DecodePixelWidth = 64;  // 2x for high DPI displays
                     bitmap.DecodePixelHeight = 64; // 2x for high DPI displays
                     
-                    using (var stream = File.OpenRead(categoryPreviewPath))
+                    using (var stream = File.OpenRead(categoryMiniPath))
                     {
                         await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
                     }
@@ -656,15 +656,16 @@ namespace FlairX_Mod_Manager
                     return;
                     
                 var categoryPath = Path.Combine(modLibraryPath, categoryName);
-                var categoryPreviewPath = Path.Combine(categoryPath, "catprev.jpg");
+                var categoryMiniPath = Path.Combine(categoryPath, "catmini.jpg");
                 
-                if (File.Exists(categoryPreviewPath) && CategoryPreviewPopup != null && CategoryPreviewImage != null)
+                // Popup uses catmini.jpg (600x600 square)
+                if (File.Exists(categoryMiniPath) && CategoryPreviewPopup != null && CategoryPreviewImage != null)
                 {
                     try
                     {
-                        // Load the category preview image
+                        // Load the category mini preview image
                         var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                        using (var stream = File.OpenRead(categoryPreviewPath))
+                        using (var stream = File.OpenRead(categoryMiniPath))
                         {
                             await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
                         }

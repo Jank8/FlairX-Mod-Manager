@@ -914,6 +914,33 @@ namespace FlairX_Mod_Manager.Pages
                             thumbBmp.Save(tempPath, jpegEncoder, jpegParams);
                         }
                     }
+                    
+                    // Create catmini.jpg (600x600 square for menu icons) from same source
+                    var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                    using (var miniThumb = new System.Drawing.Bitmap(600, 600))
+                    using (var g2 = System.Drawing.Graphics.FromImage(miniThumb))
+                    {
+                        g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g2.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                        g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                        g2.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                        
+                        // Calculate crop to square (center crop)
+                        int size = Math.Min(img.Width, img.Height);
+                        int x = (img.Width - size) / 2;
+                        int y = (img.Height - size) / 2;
+                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        g2.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
+                        
+                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                        if (jpegEncoder != null)
+                        {
+                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                            miniThumb.Save(catminiPath, jpegEncoder, jpegParams);
+                        }
+                    }
                 }
                 
                 // Handle file replacement if we used temp path
@@ -1920,6 +1947,7 @@ namespace FlairX_Mod_Manager.Pages
             if (token.IsCancellationRequested) return;
             
             var catprevJpgPath = Path.Combine(categoryDir, "catprev.jpg");
+            var catminiJpgPath = Path.Combine(categoryDir, "catmini.jpg");
             
             // Look for existing catprev files (catprev.png, catprev.jpg) and other preview files
             var catprevFiles = Directory.GetFiles(categoryDir)
@@ -1951,8 +1979,10 @@ namespace FlairX_Mod_Manager.Pages
             
             if (allPreviewFiles.Length == 0) return;
             
-            // Check if we need to optimize existing catprev.jpg
+            // Check if we need to optimize existing catprev.jpg and catmini.jpg
             bool needsOptimization = true;
+            bool needsCatmini = !File.Exists(catminiJpgPath);
+            
             if (File.Exists(catprevJpgPath))
             {
                 try
@@ -1969,8 +1999,8 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            // Skip if catprev.jpg already exists and is optimized, and no other catprev files to process
-            if (!needsOptimization && catprevFiles.Length <= 1 && catprevFiles.All(f => f.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase)))
+            // Skip if both files exist and are optimized, and no other catprev files to process
+            if (!needsOptimization && !needsCatmini && catprevFiles.Length <= 1 && catprevFiles.All(f => f.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase)))
                 return;
             
             var previewPath = allPreviewFiles[0]; // Take first preview file found
@@ -2029,6 +2059,33 @@ namespace FlairX_Mod_Manager.Pages
                             var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
                             jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
                             thumbBmp.Save(tempPath, jpegEncoder, jpegParams);
+                        }
+                    }
+                    
+                    // Create catmini.jpg (600x600 square for menu icons) from same source
+                    var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                    using (var miniThumb = new System.Drawing.Bitmap(600, 600))
+                    using (var g2 = System.Drawing.Graphics.FromImage(miniThumb))
+                    {
+                        g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g2.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                        g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                        g2.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                        
+                        // Calculate crop to square (center crop)
+                        int size = Math.Min(img.Width, img.Height);
+                        int x = (img.Width - size) / 2;
+                        int y = (img.Height - size) / 2;
+                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        g2.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
+                        
+                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                        if (jpegEncoder != null)
+                        {
+                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                            miniThumb.Save(catminiPath, jpegEncoder, jpegParams);
                         }
                     }
                 }

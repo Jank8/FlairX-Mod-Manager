@@ -178,7 +178,7 @@
                                   AlwaysUseFallback="False" />
                     <AcrylicBrush x:Key="TileCaptionAcrylicBrush"
                                   TintColor="#FF222222"
-                                  TintOpacity="0.75"
+                                  TintOpacity="0.50"
                                   FallbackColor="Black"
                                   AlwaysUseFallback="False" />
                     <SolidColorBrush x:Key="TileCaptionForeground" Color="White" />
