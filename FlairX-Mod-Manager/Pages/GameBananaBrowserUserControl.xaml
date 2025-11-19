@@ -55,6 +55,20 @@
                     </FontIcon>
                 </Button>
                 <TextBlock x:Name="TitleText" Text="Browse GameBanana Mods" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                
+                <!-- Installed badge (next to title) -->
+                <Border x:Name="DetailInstalledBadge"
+                        Background="#CC00AA00" 
+                        CornerRadius="8" 
+                        Padding="12,6" 
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center"
+                        Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE73E;" FontSize="14" Foreground="White"/>
+                        <TextBlock x:Name="DetailInstalledBadgeText" Text="Installed" FontSize="14" Foreground="White" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </Grid>
         
@@ -268,26 +282,6 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                
-                <!-- Installed badge (floating in top right corner) -->
-                <Border x:Name="DetailInstalledBadge"
-                        Background="#CC00AA00" 
-                        CornerRadius="8" 
-                        Padding="16,8" 
-                        Margin="0,0,24,0"
-                        HorizontalAlignment="Right" 
-                        VerticalAlignment="Top"
-                        Visibility="Collapsed"
-                        Grid.Row="0"
-                        Grid.RowSpan="2">
-                    <Border.Shadow>
-                        <ThemeShadow/>
-                    </Border.Shadow>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE73E;" FontSize="16" Foreground="White"/>
-                        <TextBlock x:Name="DetailInstalledBadgeText" Text="Installed" FontSize="16" Foreground="White" FontWeight="SemiBold"/>
-                    </StackPanel>
-                </Border>
                 
                 <!-- Top section: Image slider + Info -->
                 <Grid Grid.Row="0" Margin="0,0,0,24">

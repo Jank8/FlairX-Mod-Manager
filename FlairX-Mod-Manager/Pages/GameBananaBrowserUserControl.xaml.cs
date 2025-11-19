@@ -974,6 +974,9 @@ namespace FlairX_Mod_Manager.Pages
 
         private void CloseDetailsPanel()
         {
+            // Hide installed badge when leaving details
+            DetailInstalledBadge.Visibility = Visibility.Collapsed;
+            
             // Animate transition back to list
             AnimateContentSwitch(DetailsPanel, ModsListGrid);
             _currentModDetails = null;
