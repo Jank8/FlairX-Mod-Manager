@@ -3,6 +3,8 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace FlairX_Mod_Manager.Pages
 {
@@ -79,7 +81,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void UpdateGridItemSizes()
+        private async void UpdateGridItemSizes()
         {
             // Use ScaleTransform approach instead of manual resizing
             if (ModsGrid != null)
@@ -101,12 +103,25 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
 
-                foreach (var item in ModsGrid.Items)
+                // ONLY update visible containers, not all 1100+ items!
+                // This is the key fix for zoom scroll performance
+                var items = ModsGrid.Items.ToList();
+                var batchSize = 20; // Process 20 items at a time
+                
+                for (int i = 0; i < items.Count; i += batchSize)
                 {
-                    var container = ModsGrid.ContainerFromItem(item) as GridViewItem;
-                    if (container?.ContentTemplateRoot is FrameworkElement root)
+                    // Yield to UI thread every batch to keep scroll responsive
+                    await Task.Yield();
+                    
+                    var batchEnd = Math.Min(i + batchSize, items.Count);
+                    for (int j = i; j < batchEnd; j++)
                     {
-                        ApplyScalingToContainer(container, root);
+                        var item = items[j];
+                        var container = ModsGrid.ContainerFromItem(item) as GridViewItem;
+                        if (container?.ContentTemplateRoot is FrameworkElement root)
+                        {
+                            ApplyScalingToContainer(container, root);
+                        }
                     }
                 }
 
