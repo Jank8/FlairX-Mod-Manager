@@ -54,8 +54,13 @@ namespace FlairX_Mod_Manager.Pages
             public int Id { get; set; }
             public string Name { get; set; } = "";
             public string AuthorName { get; set; } = "";
+            public string AuthorProfileUrl { get; set; } = "";
+            public string? AuthorAvatarUrl { get; set; }
             public string ProfileUrl { get; set; } = "";
             public string? ImageUrl { get; set; }
+            public string CategoryName { get; set; } = "";
+            public string CategoryUrl { get; set; } = "";
+            public string? CategoryIconUrl { get; set; }
             public int DownloadCount { get; set; }
             public int LikeCount { get; set; }
             public int ViewCount { get; set; }
@@ -637,7 +642,13 @@ namespace FlairX_Mod_Manager.Pages
 
         private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            // Wait for user to finish typing (debounce)
+            // If search box is cleared, reset to main page
+            if (string.IsNullOrWhiteSpace(sender.Text) && !string.IsNullOrEmpty(_currentSearch))
+            {
+                _currentSearch = null;
+                _currentPage = 1;
+                _ = LoadModsAsync();
+            }
         }
 
         private void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -839,6 +850,34 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Set profile link
                 DetailAuthorProfileLink.Tag = _currentModDetails.Submitter?.ProfileUrl;
+                
+                // Load category info
+                if (_currentModDetails.Category != null)
+                {
+                    DetailCategory.Text = _currentModDetails.Category.Name ?? "Unknown";
+                    
+                    // Load category icon
+                    if (!string.IsNullOrEmpty(_currentModDetails.Category.IconUrl))
+                    {
+                        try
+                        {
+                            DetailCategoryIcon.Source = new BitmapImage(new Uri(_currentModDetails.Category.IconUrl));
+                        }
+                        catch
+                        {
+                            DetailCategoryIcon.Source = null;
+                        }
+                    }
+                    else
+                    {
+                        DetailCategoryIcon.Source = null;
+                    }
+                }
+                else
+                {
+                    DetailCategory.Text = "Unknown";
+                    DetailCategoryIcon.Source = null;
+                }
 
                 // Load preview images into slider
                 _detailPreviewImages.Clear();
@@ -1656,6 +1695,38 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-
+        private void DetailCategoryLink_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentModDetails?.Category != null && !string.IsNullOrEmpty(_currentModDetails.Category.Name))
+            {
+                try
+                {
+                    // Set search to category name BEFORE navigating back
+                    var categoryName = _currentModDetails.Category.Name;
+                    
+                    // If opened directly to mod details, we need to show the list first
+                    if (_openedDirectlyToModDetails)
+                    {
+                        _openedDirectlyToModDetails = false; // Reset flag so we don't close the panel
+                    }
+                    
+                    // Navigate back to mods list
+                    CloseDetailsPanel();
+                    
+                    // Set search and reload mods (needs to happen after UI is visible)
+                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () =>
+                    {
+                        SearchBox.Text = categoryName;
+                        _currentSearch = categoryName;
+                        _currentPage = 1;
+                        _ = LoadModsAsync();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to filter by category", ex);
+                }
+            }
+        }
     }
 }

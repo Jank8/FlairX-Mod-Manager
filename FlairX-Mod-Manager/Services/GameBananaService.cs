@@ -180,6 +180,12 @@ namespace FlairX_Mod_Manager.Services
             
             [JsonPropertyName("_sModelName")]
             public string? ModelName { get; set; }
+            
+            [JsonPropertyName("_sProfileUrl")]
+            public string? ProfileUrl { get; set; }
+            
+            [JsonPropertyName("_sIconUrl")]
+            public string? IconUrl { get; set; }
         }
 
         public class Submitter

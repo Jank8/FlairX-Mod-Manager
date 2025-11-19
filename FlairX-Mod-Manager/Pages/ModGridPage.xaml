@@ -74,6 +74,79 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        
+        <Style x:Key="ActivateButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{ThemeResource SystemAccentColor}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="RootGrid" Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ContentPresenter"
+                                                           Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                           To="1.0"
+                                                           Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="ContentPresenter"
+                                                           Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                           To="1.0"
+                                                           Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="PointerOver">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemAccentColor}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <DoubleAnimation Storyboard.TargetName="ContentPresenter"
+                                                           Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                           To="1.1"
+                                                           Duration="0:0:0.1"/>
+                                            <DoubleAnimation Storyboard.TargetName="ContentPresenter"
+                                                           Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                           To="1.1"
+                                                           Duration="0:0:0.1"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Pressed">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Background">
+                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemAccentColor}"/>
+                                            </ObjectAnimationUsingKeyFrames>
+                                            <DoubleAnimation Storyboard.TargetName="ContentPresenter"
+                                                           Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                           To="0.95"
+                                                           Duration="0:0:0.05"/>
+                                            <DoubleAnimation Storyboard.TargetName="ContentPresenter"
+                                                           Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                           To="0.95"
+                                                           Duration="0:0:0.05"/>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Disabled"/>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <ContentPresenter x:Name="ContentPresenter"
+                                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                            Content="{TemplateBinding Content}"
+                                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                                            Padding="{TemplateBinding Padding}"
+                                            RenderTransformOrigin="0.5,0.5">
+                                <ContentPresenter.RenderTransform>
+                                    <ScaleTransform ScaleX="1.0" ScaleY="1.0"/>
+                                </ContentPresenter.RenderTransform>
+                            </ContentPresenter>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
     <Grid Padding="24,24,4,24">
         <Grid.RowDefinitions>
@@ -325,7 +398,7 @@
                                             CornerRadius="0,0,8,8"
                                             Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     
-                                    <!-- Mod Name - fades out on hover -->
+                                    <!-- Mod Name - fades out on hover (theme color when inactive) -->
                                     <TextBlock x:Name="ModNameText"
                                                Text="{Binding Name}" 
                                                FontWeight="Bold" 
@@ -338,16 +411,32 @@
                                                HorizontalAlignment="Center" 
                                                TextWrapping="NoWrap"
                                                ToolTipService.ToolTip="{Binding Name}"
-                                               Opacity="1"/>
+                                               Opacity="1"
+                                               Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
+                                    
+                                    <!-- Mod Name - white text when active (green background) -->
+                                    <TextBlock x:Name="ModNameTextActive"
+                                               Text="{Binding Name}" 
+                                               FontWeight="Bold" 
+                                               FontSize="16" 
+                                               Padding="8,4" 
+                                               Foreground="White" 
+                                               TextTrimming="CharacterEllipsis" 
+                                               TextAlignment="Center" 
+                                               VerticalAlignment="Center" 
+                                               HorizontalAlignment="Center" 
+                                               TextWrapping="NoWrap"
+                                               ToolTipService.ToolTip="{Binding Name}"
+                                               Opacity="1"
+                                               Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     
                                     <!-- Activate/Deactivate Button - fades in on hover (only for mods, not categories) -->
                                     <Button x:Name="ActivateButton"
                                             Click="ModActiveButton_Click"
                                             Tag="{Binding}"
+                                            Style="{StaticResource ActivateButtonStyle}"
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Stretch"
-                                            Background="{ThemeResource SystemAccentColor}"
-                                            BorderThickness="0"
                                             CornerRadius="0,0,8,8"
                                             Opacity="0"
                                             Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}">

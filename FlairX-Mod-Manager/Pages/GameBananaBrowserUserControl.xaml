@@ -147,48 +147,28 @@
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
                                         
-                                        <!-- Image Section -->
+                                        <!-- Full Image Background -->
+                                        <Image Grid.Row="0" Grid.RowSpan="2"
+                                               Source="{Binding ImageSource}" 
+                                               Stretch="UniformToFill" 
+                                               Height="357" 
+                                               Width="277"
+                                               VerticalAlignment="Stretch"
+                                               HorizontalAlignment="Stretch"/>
+                                        
+                                        <!-- Installed badge -->
                                         <Border Grid.Row="0"
-                                                Background="#1AFFFFFF" 
-                                                Height="277" 
-                                                Width="277" 
-                                                CornerRadius="8,8,0,0">
-                                            <Grid>
-                                                <Image Source="{Binding ImageSource}" 
-                                                       Stretch="UniformToFill" 
-                                                       Height="277" 
-                                                       Width="277"/>
-                                                
-                                                <!-- Installed badge -->
-                                                <Border Background="#CC00AA00" 
-                                                        CornerRadius="4" 
-                                                        Padding="8,4" 
-                                                        Margin="8"
-                                                        HorizontalAlignment="Right" 
-                                                        VerticalAlignment="Top"
-                                                        Visibility="{Binding IsInstalledVisibility}">
-                                                    <StackPanel Orientation="Horizontal" Spacing="4">
-                                                        <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="White"/>
-                                                        <TextBlock Text="{Binding InstalledText}" FontSize="12" Foreground="White" FontWeight="SemiBold"/>
-                                                    </StackPanel>
-                                                </Border>
-                                                
-                                                <!-- Stats overlay -->
-                                                <Grid VerticalAlignment="Bottom" 
-                                                      Background="#CC000000"
-                                                      Padding="8,4">
-                                                    <StackPanel Orientation="Horizontal" Spacing="12">
-                                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                                            <FontIcon Glyph="&#xE8E1;" FontSize="12" Foreground="White"/>
-                                                            <TextBlock Text="{Binding LikeCountFormatted}" FontSize="12" Foreground="White"/>
-                                                        </StackPanel>
-                                                        <StackPanel Orientation="Horizontal" Spacing="4">
-                                                            <FontIcon Glyph="&#xE890;" FontSize="12" Foreground="White"/>
-                                                            <TextBlock Text="{Binding ViewCountFormatted}" FontSize="12" Foreground="White"/>
-                                                        </StackPanel>
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Grid>
+                                                Background="#CC00AA00" 
+                                                CornerRadius="4" 
+                                                Padding="8,4" 
+                                                Margin="8"
+                                                HorizontalAlignment="Right" 
+                                                VerticalAlignment="Top"
+                                                Visibility="{Binding IsInstalledVisibility}">
+                                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                                <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="White"/>
+                                                <TextBlock Text="{Binding InstalledText}" FontSize="12" Foreground="White" FontWeight="SemiBold"/>
+                                            </StackPanel>
                                         </Border>
                                         
                                         <!-- Description Section -->
@@ -196,33 +176,64 @@
                                               Height="80" 
                                               Width="277" 
                                               CornerRadius="0,0,8,8">
-                                            <Border Background="{ThemeResource TileDescriptionBackground}" 
-                                                    CornerRadius="0,0,8,8" 
-                                                    Opacity="1" />
-                                            <StackPanel Padding="12,8" Spacing="4">
-                                                <TextBlock Text="{Binding Name}" 
+                                            <Border Background="{ThemeResource TileCaptionAcrylicBrush}" 
+                                                    CornerRadius="0,0,8,8" />
+                                            <Grid Padding="12,8">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+                                                
+                                                <TextBlock Grid.Row="0"
+                                                           Text="{Binding Name}" 
                                                            FontWeight="Bold" 
                                                            FontSize="14" 
-                                                           Foreground="{ThemeResource SystemBaseHighColor}" 
+                                                           Foreground="{ThemeResource TileCaptionForeground}" 
                                                            TextTrimming="CharacterEllipsis" 
                                                            TextWrapping="NoWrap"
                                                            MaxLines="1"
                                                            ToolTipService.ToolTip="{Binding Name}"/>
-                                                <TextBlock Text="{Binding AuthorName}" 
+                                                <TextBlock Grid.Row="1"
+                                                           Text="{Binding AuthorName}" 
                                                            FontSize="12"
+                                                           Foreground="{ThemeResource TileCaptionForeground}"
                                                            Opacity="0.7"
+                                                           Margin="0,4,0,0"
                                                            TextTrimming="CharacterEllipsis"/>
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <TextBlock FontSize="10" Opacity="0.6">
-                                                        <Run Text="📅"/>
-                                                        <Run Text="{Binding DateAddedFormatted}"/>
-                                                    </TextBlock>
-                                                    <TextBlock FontSize="10" Opacity="0.6" Visibility="{Binding HasUpdate}">
-                                                        <Run Text="🔄"/>
-                                                        <Run Text="{Binding DateUpdatedFormatted}"/>
-                                                    </TextBlock>
-                                                </StackPanel>
-                                            </StackPanel>
+                                                
+                                                <!-- Stats and dates in bottom -->
+                                                <Grid Grid.Row="2" VerticalAlignment="Bottom">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    
+                                                    <!-- Dates on left -->
+                                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                                                        <TextBlock FontSize="10" Foreground="{ThemeResource TileCaptionForeground}" Opacity="0.6">
+                                                            <Run Text="📅"/>
+                                                            <Run Text="{Binding DateAddedFormatted}"/>
+                                                        </TextBlock>
+                                                        <TextBlock FontSize="10" Foreground="{ThemeResource TileCaptionForeground}" Opacity="0.6" Visibility="{Binding HasUpdate}">
+                                                            <Run Text="🔄"/>
+                                                            <Run Text="{Binding DateUpdatedFormatted}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                    
+                                                    <!-- Stats on right -->
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                                            <FontIcon Glyph="&#xE8E1;" FontSize="10" Foreground="{ThemeResource TileCaptionForeground}" Opacity="0.6"/>
+                                                            <TextBlock Text="{Binding LikeCountFormatted}" FontSize="10" Foreground="{ThemeResource TileCaptionForeground}" Opacity="0.6"/>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                                            <FontIcon Glyph="&#xE890;" FontSize="10" Foreground="{ThemeResource TileCaptionForeground}" Opacity="0.6"/>
+                                                            <TextBlock Text="{Binding ViewCountFormatted}" FontSize="10" Foreground="{ThemeResource TileCaptionForeground}" Opacity="0.6"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Grid>
                                         </Grid>
                                     </Grid>
                                 </Border>
@@ -355,39 +366,79 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         
-                        <!-- Author -->
-                        <StackPanel Grid.Row="0" Spacing="8">
-                            <TextBlock x:Name="DetailAuthorLabel" Text="Author" FontSize="14" FontWeight="SemiBold" Opacity="0.7"/>
-                            <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                                <!-- Avatar with hover effect -->
-                                <Border Width="48" Height="48"
-                                        CornerRadius="8"
-                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                        BorderThickness="2"
-                                        PointerEntered="AuthorAvatar_PointerEntered"
-                                        PointerExited="AuthorAvatar_PointerExited"
-                                        Background="Transparent">
-                                    <Border.RenderTransform>
-                                        <ScaleTransform x:Name="DetailAuthorAvatarScale" 
-                                                      ScaleX="1" ScaleY="1"
-                                                      CenterX="24" CenterY="24"/>
-                                    </Border.RenderTransform>
-                                    <Border CornerRadius="6" Margin="2">
-                                        <Image x:Name="DetailAuthorAvatar" 
-                                               Stretch="UniformToFill"/>
+                        <!-- Author and Category -->
+                        <Grid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Author (left) -->
+                            <StackPanel Grid.Column="0" Spacing="8">
+                                <TextBlock x:Name="DetailAuthorLabel" Text="Author" FontSize="14" FontWeight="SemiBold" Opacity="0.7"/>
+                                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                                    <!-- Avatar with hover effect -->
+                                    <Border Width="48" Height="48"
+                                            CornerRadius="8"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="2"
+                                            PointerEntered="AuthorAvatar_PointerEntered"
+                                            PointerExited="AuthorAvatar_PointerExited"
+                                            Background="Transparent">
+                                        <Border.RenderTransform>
+                                            <ScaleTransform x:Name="DetailAuthorAvatarScale" 
+                                                          ScaleX="1" ScaleY="1"
+                                                          CenterX="24" CenterY="24"/>
+                                        </Border.RenderTransform>
+                                        <Border CornerRadius="6" Margin="2">
+                                            <Image x:Name="DetailAuthorAvatar" 
+                                                   Stretch="UniformToFill"/>
+                                        </Border>
                                     </Border>
-                                </Border>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock x:Name="DetailAuthor" FontSize="16" FontWeight="SemiBold"/>
-                                    <HyperlinkButton x:Name="DetailAuthorProfileLink" 
-                                                    FontSize="12"
-                                                    Padding="0"
-                                                    Click="DetailAuthorProfileLink_Click">
-                                        <TextBlock x:Name="DetailViewProfileText" Text="View Profile"/>
-                                    </HyperlinkButton>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock x:Name="DetailAuthor" FontSize="16" FontWeight="SemiBold"/>
+                                        <HyperlinkButton x:Name="DetailAuthorProfileLink" 
+                                                        FontSize="12"
+                                                        Padding="0"
+                                                        Click="DetailAuthorProfileLink_Click">
+                                            <TextBlock x:Name="DetailViewProfileText" Text="View Profile"/>
+                                        </HyperlinkButton>
+                                    </StackPanel>
                                 </StackPanel>
                             </StackPanel>
-                        </StackPanel>
+                            
+                            <!-- Category (right) -->
+                            <StackPanel Grid.Column="2" Spacing="8" VerticalAlignment="Top">
+                                <TextBlock x:Name="DetailCategoryLabel" Text="Category" FontSize="14" FontWeight="SemiBold" Opacity="0.7"/>
+                                <HyperlinkButton x:Name="DetailCategoryLink"
+                                                Padding="0"
+                                                Click="DetailCategoryLink_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="12">
+                                        <!-- Category icon -->
+                                        <Border Width="48" Height="48"
+                                                CornerRadius="8"
+                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                BorderThickness="2"
+                                                Background="Transparent">
+                                            <Border CornerRadius="6" Margin="2">
+                                                <Image x:Name="DetailCategoryIcon" 
+                                                       Stretch="UniformToFill"/>
+                                            </Border>
+                                        </Border>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock x:Name="DetailCategory" 
+                                                       FontSize="16" 
+                                                       FontWeight="SemiBold"/>
+                                            <TextBlock x:Name="DetailCategoryViewText" 
+                                                       Text="View Category"
+                                                       FontSize="12"
+                                                       Opacity="0.7"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </HyperlinkButton>
+                            </StackPanel>
+                        </Grid>
                         
                         <!-- Description with Markdown -->
                         <StackPanel Grid.Row="1" Spacing="8" Margin="0,16,0,0">

@@ -153,16 +153,17 @@
                                   AlwaysUseFallback="False" />
                     <AcrylicBrush x:Key="TileCaptionAcrylicBrush"
                                   TintColor="#FFFFFFFF"
-                                  TintOpacity="0.50"
+                                  TintOpacity="0.65"
                                   FallbackColor="White"
                                   AlwaysUseFallback="False" />
                     <SolidColorBrush x:Key="TileCaptionForeground" Color="#2D2D2D" />
+                    <SolidColorBrush x:Key="ActivateButtonForeground" Color="#2D2D2D" />
                     <AcrylicBrush x:Key="ModDetailNavButtonAcrylicBrush"
                                   TintColor="#FFFFFFFF"
                                   TintOpacity="0.30"
                                   FallbackColor="White"
                                   AlwaysUseFallback="False" />
-                    <SolidColorBrush x:Key="TileBorderBrush" Color="#E6E6E6" />
+                    <SolidColorBrush x:Key="TileBorderBrush" Color="#D0D0D0" />
                     <SolidColorBrush x:Key="TileDescriptionBackground" Color="#FFFFFFFF" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
@@ -182,6 +183,7 @@
                                   FallbackColor="Black"
                                   AlwaysUseFallback="False" />
                     <SolidColorBrush x:Key="TileCaptionForeground" Color="White" />
+                    <SolidColorBrush x:Key="ActivateButtonForeground" Color="White" />
                     <AcrylicBrush x:Key="ModDetailNavButtonAcrylicBrush"
                                   TintColor="#FF222222"
                                   TintOpacity="0.45"

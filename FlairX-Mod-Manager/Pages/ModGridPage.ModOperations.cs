@@ -203,6 +203,7 @@ namespace FlairX_Mod_Manager.Pages
                     
                     // Animate caption swap: name fades out, activate button fades in
                     var nameText = FindChildByName<TextBlock>(button, "ModNameText");
+                    var nameTextActive = FindChildByName<TextBlock>(button, "ModNameTextActive");
                     var activateBtn = FindChildByName<Button>(button, "ActivateButton");
                     
                     if (nameText != null)
@@ -214,6 +215,21 @@ namespace FlairX_Mod_Manager.Pages
                             EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
                         };
                         Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, nameText);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        storyboard.Children.Add(fadeOut);
+                        storyboard.Begin();
+                    }
+                    
+                    if (nameTextActive != null)
+                    {
+                        var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            To = 0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                        };
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, nameTextActive);
                         Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
                         var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
                         storyboard.Children.Add(fadeOut);
@@ -301,6 +317,7 @@ namespace FlairX_Mod_Manager.Pages
                     
                     // Animate caption swap back: activate button fades out, name fades in
                     var nameText = FindChildByName<TextBlock>(button, "ModNameText");
+                    var nameTextActive = FindChildByName<TextBlock>(button, "ModNameTextActive");
                     var activateBtn = FindChildByName<Button>(button, "ActivateButton");
                     
                     if (nameText != null)
@@ -312,6 +329,21 @@ namespace FlairX_Mod_Manager.Pages
                             EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
                         };
                         Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, nameText);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                        var storyboard2 = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        storyboard2.Children.Add(fadeIn);
+                        storyboard2.Begin();
+                    }
+                    
+                    if (nameTextActive != null)
+                    {
+                        var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            To = 1,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                        };
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, nameTextActive);
                         Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
                         var storyboard2 = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
                         storyboard2.Children.Add(fadeIn);
