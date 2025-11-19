@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
 
@@ -266,35 +267,40 @@ namespace FlairX_Mod_Manager.Pages
             });
         }
 
+        // Throttling for scroll events - prevent too many calls
+        private DateTime _lastLoadCheck = DateTime.MinValue;
+        private const int LOAD_THROTTLE_MS = 200; // Check every 200ms max
+        
+        // Limit concurrent image loads to prevent overwhelming the system
+        private static readonly SemaphoreSlim _imageLoadSemaphore = new SemaphoreSlim(5, 5); // Max 5 concurrent
+        private static readonly HashSet<string> _currentlyLoading = new HashSet<string>();
+        private static readonly object _loadingLock = new object();
+        
         private void ModsScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
         {
             var now = DateTime.Now;
             
-            // Throttle during rapid scrolling - only process every 100ms
-            if ((now - _lastScrollTime).TotalMilliseconds < 100)
-            {
-                return; // Skip this scroll event
-            }
+            // Lightweight throttle: skip if we loaded very recently (< 200ms)
+            if ((now - _lastLoadCheck).TotalMilliseconds < LOAD_THROTTLE_MS)
+                return;
             
-            _lastScrollTime = now;
+            _lastLoadCheck = now;
             
-            // Use low priority dispatcher to prevent blocking mouse wheel
+            // Queue at lowest priority to never block scroll
             DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
             {
-                // Load images when user scrolls
                 LoadVisibleImages();
-                
-                // Load more ModTiles if user is scrolling near the end
                 LoadMoreModTilesIfNeeded();
             });
             
-            // If scrolling has stopped, trigger more aggressive disposal
+            // Aggressive disposal only after scroll stops
             if (!e.IsIntermediate)
             {
                 _ = Task.Run(async () =>
                 {
-                    await Task.Delay(500); // Wait 500ms after scroll stops
-                    DispatcherQueue.TryEnqueue(() => PerformAggressiveDisposal());
+                    await Task.Delay(300);
+                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, 
+                        () => PerformAggressiveDisposal());
                 });
             }
         }
@@ -302,29 +308,28 @@ namespace FlairX_Mod_Manager.Pages
         private void LoadMoreModTilesIfNeeded()
         {
             if (ModsScrollViewer == null || _allModData.Count == 0) return;
+            if (_allMods.Count >= _allModData.Count) return; // All loaded
             
-            // Check if we're near the bottom and need to load more items
+            // Incremental loading: load when within 3 viewport heights of bottom
             var scrollableHeight = ModsScrollViewer.ScrollableHeight;
             var currentVerticalOffset = ModsScrollViewer.VerticalOffset;
             var viewportHeight = ModsScrollViewer.ViewportHeight;
             
-            // Load more when we're within 2 viewport heights of the bottom
-            var loadMoreThreshold = scrollableHeight - (viewportHeight * 2);
+            var loadMoreThreshold = scrollableHeight - (viewportHeight * 3);
             
-            if (currentVerticalOffset >= loadMoreThreshold && _allMods.Count < _allModData.Count)
+            if (currentVerticalOffset >= loadMoreThreshold)
             {
-                LoadMoreModTiles();
+                LoadMoreModTilesIncremental();
             }
         }
 
-        private void LoadMoreModTiles()
+        private void LoadMoreModTilesIncremental()
         {
             var currentCount = _allMods.Count;
-            var batchSize = CalculateInitialLoadCount(); // Load same batch size as initial
+            const int batchSize = 20; // Fixed batch size for incremental loading
             var endIndex = Math.Min(currentCount + batchSize, _allModData.Count);
             
-            LogToGridLog($"Loading more ModTiles: {currentCount} to {endIndex} out of {_allModData.Count}");
-            
+            // Simple loop - no background thread needed
             for (int i = currentCount; i < endIndex; i++)
             {
                 var modData = _allModData[i];
@@ -339,102 +344,148 @@ namespace FlairX_Mod_Manager.Pages
                     Url = modData.Url,
                     LastChecked = modData.LastChecked,
                     LastUpdated = modData.LastUpdated,
-                    HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
+                    HasUpdate = CheckForUpdateLive(modData.Directory),
                     IsVisible = true,
-                    ImageSource = null // Start with no image - lazy load when visible
+                    ImageSource = null // Lazy load via LoadVisibleImages
                 };
                 _allMods.Add(modTile);
             }
-            
-            LogToGridLog($"Added {endIndex - currentCount} more ModTiles, total now: {_allMods.Count}");
         }
 
-        private void LoadVisibleImages()
+        // Fixed tile dimensions for index-based visibility
+        private const double TILE_HEIGHT = 333.0; // 277 image + 56 caption
+        private const double TILE_WIDTH = 277.0;
+        private const double TILE_MARGIN = 24.0;
+        
+        private async void LoadVisibleImages()
         {
             if (ModsGrid?.ItemsSource is not IEnumerable<ModTile> items) return;
+            if (ModsScrollViewer == null) return;
 
-            var visibleItems = new HashSet<ModTile>();
+            var itemsList = items.ToList();
+
+            // Calculate visible range using index-based approach (100x faster than TransformToVisual)
+            var scrollOffset = ModsScrollViewer.VerticalOffset;
+            var viewportHeight = ModsScrollViewer.ViewportHeight;
+            var viewportWidth = ModsScrollViewer.ActualWidth;
+            
+            // Calculate items per row based on viewport width
+            var effectiveTileWidth = (TILE_WIDTH + TILE_MARGIN) * _zoomFactor;
+            var itemsPerRow = Math.Max(1, (int)(viewportWidth / effectiveTileWidth));
+            
+            // Calculate visible row range with buffer
+            var effectiveTileHeight = (TILE_HEIGHT + TILE_MARGIN) * _zoomFactor;
+            var firstVisibleRow = Math.Max(0, (int)(scrollOffset / effectiveTileHeight) - 2); // 2 row buffer above
+            var lastVisibleRow = (int)((scrollOffset + viewportHeight) / effectiveTileHeight) + 2; // 2 row buffer below
+            
+            // Calculate visible item indices
+            var firstVisibleIndex = firstVisibleRow * itemsPerRow;
+            var lastVisibleIndex = Math.Min((lastVisibleRow + 1) * itemsPerRow, itemsList.Count);
+
+            // Collect items to load and dispose
             var itemsToLoad = new List<ModTile>();
             var itemsToDispose = new List<ModTile>();
 
-            foreach (var mod in items)
+            for (int i = 0; i < itemsList.Count; i++)
             {
-                // Get the container for this item
-                var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
-                bool isVisible = container != null && IsItemVisible(container);
+                var mod = itemsList[i];
+                bool isVisible = i >= firstVisibleIndex && i < lastVisibleIndex;
                 
-                if (isVisible)
+                if (isVisible && mod.ImageSource == null)
                 {
-                    visibleItems.Add(mod);
-                    
-                    // Only load if image is not already loaded
-                    if (mod.ImageSource == null)
-                    {
-                        itemsToLoad.Add(mod);
-                    }
+                    itemsToLoad.Add(mod);
                 }
-                else if (mod.ImageSource != null && !IsItemInPreloadBuffer(container))
+                else if (!isVisible && mod.ImageSource != null)
                 {
-                    // Item is not visible and not in preload buffer - candidate for disposal
-                    itemsToDispose.Add(mod);
+                    // Only dispose if RAM threshold exceeded (Lazy Disposal - #2)
+                    var currentMemory = GC.GetTotalMemory(false);
+                    if (currentMemory > 500 * 1024 * 1024) // 500MB threshold
+                    {
+                        itemsToDispose.Add(mod);
+                    }
                 }
             }
 
-            // Load new images and apply scaling with error handling
+            // Load images asynchronously in background - CRITICAL: don't block UI thread!
             foreach (var mod in itemsToLoad)
             {
+                _ = LoadImageAsync(mod);
+            }
+
+            // Dispose images if needed
+            if (itemsToDispose.Count > 0)
+            {
+                DisposeDistantImages(itemsToDispose);
+            }
+        }
+        
+        private async Task LoadImageAsync(ModTile mod)
+        {
+            // Skip if already loading this image
+            lock (_loadingLock)
+            {
+                if (_currentlyLoading.Contains(mod.ImagePath))
+                    return;
+                _currentlyLoading.Add(mod.ImagePath);
+            }
+            
+            try
+            {
+                // Wait for semaphore slot (max 5 concurrent loads)
+                await _imageLoadSemaphore.WaitAsync();
+                
                 try
                 {
-                    LogToGridLog($"LAZY LOAD: Loading image for {mod.Directory}");
-                    mod.ImageSource = CreateBitmapImage(mod.ImagePath);
-                    
-                    // Apply scaling only if not at 100% zoom to reduce work
-                    if (Math.Abs(ZoomFactor - 1.0) > 0.001)
+                    // Read file on background thread to avoid blocking UI
+                    var imageData = await Task.Run(() =>
                     {
-                        var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
-                        if (container?.ContentTemplateRoot is FrameworkElement root)
+                        try
                         {
-                            ApplyScalingToContainer(container, root);
+                            if (File.Exists(mod.ImagePath))
+                            {
+                                return File.ReadAllBytes(mod.ImagePath);
+                            }
+                            return null;
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    });
+                    
+                    // Decode on UI thread (required by WinUI 3)
+                    if (imageData != null)
+                    {
+                        var bitmap = new BitmapImage();
+                        using (var memStream = new MemoryStream(imageData))
+                        {
+                            await bitmap.SetSourceAsync(memStream.AsRandomAccessStream());
+                        }
+                        
+                        mod.ImageSource = bitmap;
+                        
+                        // Apply scaling only if not at 100% zoom
+                        if (Math.Abs(ZoomFactor - 1.0) > 0.001)
+                        {
+                            var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
+                            if (container?.ContentTemplateRoot is FrameworkElement root)
+                            {
+                                ApplyScalingToContainer(container, root);
+                            }
                         }
                     }
                 }
-                catch (Exception ex)
+                finally
                 {
-                    LogToGridLog($"ERROR: Failed to load image for {mod.Directory}: {ex.Message}");
-                    // Skip this problematic mod and continue
+                    _imageLoadSemaphore.Release();
                 }
             }
-
-            // Dispose images that are far from viewport (memory management)
-            DisposeDistantImages(itemsToDispose);
-            
-            // Trigger garbage collection if we disposed many images
-            if (itemsToDispose.Count > 20)
+            finally
             {
-                TriggerGarbageCollection();
-            }
-        }
-
-        private bool IsItemInPreloadBuffer(GridViewItem? container)
-        {
-            if (ModsScrollViewer == null || container == null) return false;
-
-            try
-            {
-                var transform = container.TransformToVisual(ModsScrollViewer);
-                var containerBounds = transform.TransformBounds(new Windows.Foundation.Rect(0, 0, container.ActualWidth, container.ActualHeight));
-                var scrollViewerBounds = new Windows.Foundation.Rect(0, 0, ModsScrollViewer.ActualWidth, ModsScrollViewer.ActualHeight);
-
-                // Reduced buffer - keep images loaded within 2 rows of viewport for better memory management
-                var extendedBuffer = (container.ActualHeight + 24) * 2;
-                var extendedTop = scrollViewerBounds.Top - extendedBuffer;
-                var extendedBottom = scrollViewerBounds.Bottom + extendedBuffer;
-
-                return containerBounds.Top < extendedBottom && containerBounds.Bottom > extendedTop;
-            }
-            catch
-            {
-                return false;
+                lock (_loadingLock)
+                {
+                    _currentlyLoading.Remove(mod.ImagePath);
+                }
             }
         }
 
@@ -442,33 +493,25 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (itemsToDispose.Count == 0) return;
 
-            var disposedCount = 0;
             foreach (var mod in itemsToDispose)
             {
                 if (mod.ImageSource != null)
                 {
                     try
                     {
-                        // Clear the BitmapImage reference to free memory
                         mod.ImageSource = null;
-                        disposedCount++;
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        LogToGridLog($"DISPOSAL: Error disposing image for {mod.Directory}: {ex.Message}");
+                        // Ignore disposal errors
                     }
                 }
             }
-
-            if (disposedCount > 0)
+            
+            // Trigger GC only if we disposed a lot of images
+            if (itemsToDispose.Count > 20)
             {
-                LogToGridLog($"DISPOSAL: Disposed {disposedCount} images to free memory");
-                
-                // Force immediate garbage collection after disposing many images
-                if (disposedCount > 10)
-                {
-                    TriggerGarbageCollection();
-                }
+                TriggerGarbageCollection();
             }
         }
 
@@ -482,80 +525,59 @@ namespace FlairX_Mod_Manager.Pages
 
             try
             {
-                var memoryBefore = GC.GetTotalMemory(false) / 1024 / 1024;
-                
-                // Force garbage collection
+                // Force garbage collection (optimized mode)
                 GC.Collect(2, GCCollectionMode.Optimized);
                 GC.WaitForPendingFinalizers();
                 GC.Collect(2, GCCollectionMode.Optimized);
                 
-                var memoryAfter = GC.GetTotalMemory(true) / 1024 / 1024;
-                var memoryFreed = memoryBefore - memoryAfter;
-                
                 _lastGcTime = DateTime.Now;
-                LogToGridLog($"GC: Freed {memoryFreed}MB (Before: {memoryBefore}MB, After: {memoryAfter}MB)");
             }
-            catch (Exception ex)
+            catch
             {
-                LogToGridLog($"GC: Error during garbage collection: {ex.Message}");
+                // Ignore GC errors
             }
         }
 
         private void PerformAggressiveDisposal()
         {
+            // Aggressive disposal now uses RAM threshold - only dispose if over limit
+            var currentMemory = GC.GetTotalMemory(false);
+            if (currentMemory < 500 * 1024 * 1024) return; // Below 500MB threshold, keep images
+            
             if (ModsGrid?.ItemsSource is not IEnumerable<ModTile> items) return;
 
             var itemsToDispose = new List<ModTile>();
-            var totalLoaded = 0;
+            var itemsList = items.ToList();
+            
+            // Use same index-based calculation as LoadVisibleImages
+            if (ModsScrollViewer == null) return;
+            
+            var scrollOffset = ModsScrollViewer.VerticalOffset;
+            var viewportHeight = ModsScrollViewer.ViewportHeight;
+            var viewportWidth = ModsScrollViewer.ActualWidth;
+            
+            var effectiveTileWidth = (TILE_WIDTH + TILE_MARGIN) * _zoomFactor;
+            var itemsPerRow = Math.Max(1, (int)(viewportWidth / effectiveTileWidth));
+            
+            var effectiveTileHeight = (TILE_HEIGHT + TILE_MARGIN) * _zoomFactor;
+            var firstVisibleRow = Math.Max(0, (int)(scrollOffset / effectiveTileHeight) - 2);
+            var lastVisibleRow = (int)((scrollOffset + viewportHeight) / effectiveTileHeight) + 2;
+            
+            var firstVisibleIndex = firstVisibleRow * itemsPerRow;
+            var lastVisibleIndex = Math.Min((lastVisibleRow + 1) * itemsPerRow, itemsList.Count);
 
-            foreach (var mod in items)
+            for (int i = 0; i < itemsList.Count; i++)
             {
-                if (mod.ImageSource != null)
+                var mod = itemsList[i];
+                if (mod.ImageSource != null && (i < firstVisibleIndex || i >= lastVisibleIndex))
                 {
-                    totalLoaded++;
-                    
-                    // Get the container for this item
-                    var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
-                    
-                    // Dispose if not in the 2-row buffer
-                    if (!IsItemInPreloadBuffer(container))
-                    {
-                        itemsToDispose.Add(mod);
-                    }
+                    itemsToDispose.Add(mod);
                 }
             }
 
             if (itemsToDispose.Count > 0)
             {
-                LogToGridLog($"AGGRESSIVE: Disposing {itemsToDispose.Count} images out of {totalLoaded} loaded");
                 DisposeDistantImages(itemsToDispose);
-            }
-        }
-
-        private bool IsItemVisible(GridViewItem container)
-        {
-            if (ModsScrollViewer == null || container == null) return false;
-
-            try
-            {
-                var transform = container.TransformToVisual(ModsScrollViewer);
-                var containerBounds = transform.TransformBounds(new Windows.Foundation.Rect(0, 0, container.ActualWidth, container.ActualHeight));
-                var scrollViewerBounds = new Windows.Foundation.Rect(0, 0, ModsScrollViewer.ActualWidth, ModsScrollViewer.ActualHeight);
-
-                // Extend both top and bottom boundaries by 2 row heights for smooth scrolling in both directions
-                var preloadBuffer = (container.ActualHeight + 24) * 2; // 2 rows with typical margins
-                var extendedTop = scrollViewerBounds.Top - preloadBuffer;
-                var extendedBottom = scrollViewerBounds.Bottom + preloadBuffer;
-
-                // Check if container intersects with extended viewport (includes 2 rows above and below)
-                return containerBounds.Left < scrollViewerBounds.Right &&
-                       containerBounds.Right > scrollViewerBounds.Left &&
-                       containerBounds.Top < extendedBottom &&
-                       containerBounds.Bottom > extendedTop;
-            }
-            catch
-            {
-                return false;
             }
         }
     }

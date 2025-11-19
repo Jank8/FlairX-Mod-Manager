@@ -554,25 +554,17 @@ namespace FlairX_Mod_Manager.Pages
         
         private string GetOptimalImagePath(string modDirectory)
         {
-            // Prefer WebP minitile for grid display (much smaller file size)
-            string webpPath = Path.Combine(modDirectory, "minitile.webp");
+            // Check files in order of preference - cache path strings to avoid repeated string operations
+            var webpPath = Path.Combine(modDirectory, "minitile.webp");
             if (File.Exists(webpPath))
-            {
-                LogToGridLog($"Using WebP minitile for {Path.GetFileName(modDirectory)}");
                 return webpPath;
-            }
             
-            // Use JPEG minitile
-            string minitileJpegPath = Path.Combine(modDirectory, "minitile.jpg");
-            if (File.Exists(minitileJpegPath))
-            {
-                LogToGridLog($"Using JPEG minitile for {Path.GetFileName(modDirectory)}");
-                return minitileJpegPath;
-            }
+            var jpegPath = Path.Combine(modDirectory, "minitile.jpg");
+            if (File.Exists(jpegPath))
+                return jpegPath;
             
-            // No minitile found
-            LogToGridLog($"No minitile found for {Path.GetFileName(modDirectory)}");
-            return minitileJpegPath; // Return path anyway for consistency
+            // Return jpeg path as default (may not exist)
+            return jpegPath;
         }
 
         private void LoadActiveModsOnly()

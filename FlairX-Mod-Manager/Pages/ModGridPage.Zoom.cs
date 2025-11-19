@@ -12,7 +12,6 @@ namespace FlairX_Mod_Manager.Pages
     public sealed partial class ModGridPage : Page
     {
         private double _zoomFactor = 1.0;
-        private DateTime _lastScrollTime = DateTime.MinValue;
         private double _baseTileSize = 277;
         private double _baseDescHeight = 56;
 
@@ -143,11 +142,12 @@ namespace FlairX_Mod_Manager.Pages
 
         private void ModsScrollViewer_PointerWheelChanged(object sender, PointerRoutedEventArgs e)
         {
-            LogToGridLog($"Wheel event reached ScrollViewer at zoom {_zoomFactor}");
+            // Early exit if zoom is disabled - don't even check modifiers
+            if (!FlairX_Mod_Manager.SettingsManager.Current.ModGridZoomEnabled)
+                return;
             
-            // Only handle zoom if enabled in settings
-            if ((e.KeyModifiers & Windows.System.VirtualKeyModifiers.Control) == Windows.System.VirtualKeyModifiers.Control &&
-                FlairX_Mod_Manager.SettingsManager.Current.ModGridZoomEnabled)
+            // Only handle zoom if Ctrl is pressed
+            if ((e.KeyModifiers & Windows.System.VirtualKeyModifiers.Control) == Windows.System.VirtualKeyModifiers.Control)
             {
                 var properties = e.GetCurrentPoint(ModsScrollViewer).Properties;
                 var delta = properties.MouseWheelDelta;
@@ -165,12 +165,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (oldZoom != _zoomFactor)
                 {
                     e.Handled = true;
-                    LogToGridLog("Zoom wheel event handled");
                 }
-            }
-            else
-            {
-                LogToGridLog("Normal scroll wheel event - letting ScrollViewer handle");
             }
         }
 
