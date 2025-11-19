@@ -309,46 +309,25 @@
                                         </Button>
                                     </Grid>
                                     
-                                    <!-- For Mods: Show heart button with 48x48 backdrop -->
-                                    <Grid Width="48" Height="48" 
-                                          Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}">
-                                        <Border Width="48" Height="48" 
-                                                CornerRadius="12" 
-                                                Background="{ThemeResource IconAcrylicBrush}" />
-                                        <Button Width="48" Height="48" 
-                                                Click="ModActiveButton_Click" 
-                                                Tag="{Binding}" 
-                                                Style="{StaticResource TransparentButtonStyle}"
-                                                PointerEntered="ModActiveButton_PointerEntered" 
-                                                PointerExited="ModActiveButton_PointerExited">
-                                            <Grid>
-                                                <FontIcon x:Name="HeartEmpty" 
-                                                          FontSize="24" 
-                                                          Glyph="&#xEB51;" 
-                                                          Foreground="White"
-                                                          Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
-                                                <FontIcon x:Name="HeartFull" 
-                                                          FontSize="24" 
-                                                          Glyph="&#xEB52;" 
-                                                          Foreground="White"
-                                                          Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                <FontIcon x:Name="HeartHover" 
-                                                          FontSize="24" 
-                                                          Glyph="&#xEB52;" 
-                                                          Foreground="White"
-                                                          Visibility="{Binding IsHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                            </Grid>
-                                        </Button>
-                                    </Grid>
+
                                 </Grid>
                                 
                                 <!-- Description Section with Acrylic Background -->
                                 <Grid VerticalAlignment="Bottom" 
                                       Height="56" 
                                       Width="277">
+                                    <!-- Default background (acrylic) -->
                                     <Border Background="{ThemeResource TileCaptionAcrylicBrush}" 
-                                            CornerRadius="0,0,8,8" />
-                                    <TextBlock Text="{Binding Name}" 
+                                            CornerRadius="0,0,8,8"
+                                            Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
+                                    <!-- Green background when active -->
+                                    <Border Background="#28A745" 
+                                            CornerRadius="0,0,8,8"
+                                            Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    
+                                    <!-- Mod Name - fades out on hover -->
+                                    <TextBlock x:Name="ModNameText"
+                                               Text="{Binding Name}" 
                                                FontWeight="Bold" 
                                                FontSize="16" 
                                                Padding="8,4" 
@@ -358,7 +337,37 @@
                                                VerticalAlignment="Center" 
                                                HorizontalAlignment="Center" 
                                                TextWrapping="NoWrap"
-                                               ToolTipService.ToolTip="{Binding Name}"/>
+                                               ToolTipService.ToolTip="{Binding Name}"
+                                               Opacity="1"/>
+                                    
+                                    <!-- Activate/Deactivate Button - fades in on hover (only for mods, not categories) -->
+                                    <Button x:Name="ActivateButton"
+                                            Click="ModActiveButton_Click"
+                                            Tag="{Binding}"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            Background="{ThemeResource SystemAccentColor}"
+                                            BorderThickness="0"
+                                            CornerRadius="0,0,8,8"
+                                            Opacity="0"
+                                            Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}">
+                                        <Grid>
+                                            <TextBlock x:Name="ActivateText"
+                                                       Text="Activate"
+                                                       FontWeight="Bold"
+                                                       FontSize="16"
+                                                       Foreground="White"
+                                                       TextAlignment="Center"
+                                                       Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
+                                            <TextBlock x:Name="DeactivateText"
+                                                       Text="Deactivate"
+                                                       FontWeight="Bold"
+                                                       FontSize="16"
+                                                       Foreground="White"
+                                                       TextAlignment="Center"
+                                                       Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                        </Grid>
+                                    </Button>
                                 </Grid>
                                 
                                 <!-- Deletion Overlay -->

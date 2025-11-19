@@ -200,12 +200,65 @@ namespace FlairX_Mod_Manager.Pages
                     // Apply initial tilt based on entry position using optimized system
                     CalculateTileTiltTarget(button, e);
                     UpdateTileTiltSmooth(button);
+                    
+                    // Animate caption swap: name fades out, activate button fades in
+                    var nameText = FindChildByName<TextBlock>(button, "ModNameText");
+                    var activateBtn = FindChildByName<Button>(button, "ActivateButton");
+                    
+                    if (nameText != null)
+                    {
+                        var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            To = 0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                        };
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, nameText);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        storyboard.Children.Add(fadeOut);
+                        storyboard.Begin();
+                    }
+                    
+                    if (activateBtn != null)
+                    {
+                        var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            To = 1,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                        };
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, activateBtn);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        storyboard.Children.Add(fadeIn);
+                        storyboard.Begin();
+                    }
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError("Error in TileButton_PointerEntered", ex);
                 }
             }
+        }
+        
+        private T? FindChildByName<T>(DependencyObject parent, string name) where T : FrameworkElement
+        {
+            int childCount = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childCount; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T element && element.Name == name)
+                {
+                    return element;
+                }
+                var result = FindChildByName<T>(child, name);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
         }
 
         private void TileButton_PointerExited(object sender, PointerRoutedEventArgs e)
@@ -244,6 +297,40 @@ namespace FlairX_Mod_Manager.Pages
                         storyboard.Children.Add(rotYAnim);
                         
                         storyboard.Begin();
+                    }
+                    
+                    // Animate caption swap back: activate button fades out, name fades in
+                    var nameText = FindChildByName<TextBlock>(button, "ModNameText");
+                    var activateBtn = FindChildByName<Button>(button, "ActivateButton");
+                    
+                    if (nameText != null)
+                    {
+                        var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            To = 1,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                        };
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, nameText);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                        var storyboard2 = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        storyboard2.Children.Add(fadeIn);
+                        storyboard2.Begin();
+                    }
+                    
+                    if (activateBtn != null)
+                    {
+                        var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            To = 0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                        };
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, activateBtn);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                        var storyboard2 = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        storyboard2.Children.Add(fadeOut);
+                        storyboard2.Begin();
                     }
                 }
                 catch (Exception ex)
