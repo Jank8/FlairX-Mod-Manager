@@ -393,8 +393,8 @@
                                     <Border Background="{ThemeResource TileCaptionAcrylicBrush}" 
                                             CornerRadius="0,0,8,8"
                                             Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
-                                    <!-- Green background when active -->
-                                    <Border Background="#28A745" 
+                                    <!-- Accent color background when active -->
+                                    <Border Background="{ThemeResource SystemAccentColor}" 
                                             CornerRadius="0,0,8,8"
                                             Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     
@@ -414,7 +414,7 @@
                                                Opacity="1"
                                                Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
                                     
-                                    <!-- Mod Name - white text when active (green background) -->
+                                    <!-- Mod Name - white text when active (accent color background) -->
                                     <TextBlock x:Name="ModNameTextActive"
                                                Text="{Binding Name}" 
                                                FontWeight="Bold" 
@@ -439,7 +439,9 @@
                                             VerticalAlignment="Stretch"
                                             CornerRadius="0,0,8,8"
                                             Opacity="0"
-                                            Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}">
+                                            Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"
+                                            PointerEntered="ActivateButton_PointerEntered"
+                                            PointerExited="ActivateButton_PointerExited">
                                         <Grid>
                                             <TextBlock x:Name="ActivateText"
                                                        Text="Activate"

@@ -201,55 +201,7 @@ namespace FlairX_Mod_Manager.Pages
                     CalculateTileTiltTarget(button, e);
                     UpdateTileTiltSmooth(button);
                     
-                    // Animate caption swap: name fades out, activate button fades in
-                    var nameText = FindChildByName<TextBlock>(button, "ModNameText");
-                    var nameTextActive = FindChildByName<TextBlock>(button, "ModNameTextActive");
-                    var activateBtn = FindChildByName<Button>(button, "ActivateButton");
-                    
-                    if (nameText != null)
-                    {
-                        var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                        {
-                            To = 0,
-                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
-                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
-                        };
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, nameText);
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
-                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-                        storyboard.Children.Add(fadeOut);
-                        storyboard.Begin();
-                    }
-                    
-                    if (nameTextActive != null)
-                    {
-                        var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                        {
-                            To = 0,
-                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
-                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
-                        };
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, nameTextActive);
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
-                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-                        storyboard.Children.Add(fadeOut);
-                        storyboard.Begin();
-                    }
-                    
-                    if (activateBtn != null)
-                    {
-                        var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                        {
-                            To = 1,
-                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
-                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
-                        };
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, activateBtn);
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
-                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-                        storyboard.Children.Add(fadeIn);
-                        storyboard.Begin();
-                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -315,59 +267,152 @@ namespace FlairX_Mod_Manager.Pages
                         storyboard.Begin();
                     }
                     
-                    // Animate caption swap back: activate button fades out, name fades in
-                    var nameText = FindChildByName<TextBlock>(button, "ModNameText");
-                    var nameTextActive = FindChildByName<TextBlock>(button, "ModNameTextActive");
-                    var activateBtn = FindChildByName<Button>(button, "ActivateButton");
-                    
-                    if (nameText != null)
-                    {
-                        var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                        {
-                            To = 1,
-                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
-                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
-                        };
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, nameText);
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
-                        var storyboard2 = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-                        storyboard2.Children.Add(fadeIn);
-                        storyboard2.Begin();
-                    }
-                    
-                    if (nameTextActive != null)
-                    {
-                        var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                        {
-                            To = 1,
-                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
-                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
-                        };
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, nameTextActive);
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
-                        var storyboard2 = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-                        storyboard2.Children.Add(fadeIn);
-                        storyboard2.Begin();
-                    }
-                    
-                    if (activateBtn != null)
-                    {
-                        var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                        {
-                            To = 0,
-                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
-                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
-                        };
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, activateBtn);
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
-                        var storyboard2 = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-                        storyboard2.Children.Add(fadeOut);
-                        storyboard2.Begin();
-                    }
+
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError("Error in TileButton_PointerExited", ex);
+                }
+            }
+        }
+
+        // Activate button hover effects - show button and hide name text
+        private void ActivateButton_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button activateBtn)
+            {
+                try
+                {
+                    // Find parent tile button to get name texts
+                    var parent = activateBtn.Parent;
+                    while (parent != null && !(parent is Button tileButton && tileButton.Name == "TileButton"))
+                    {
+                        parent = VisualTreeHelper.GetParent(parent);
+                    }
+                    
+                    if (parent is Button tileBtn)
+                    {
+                        var nameText = FindChildByName<TextBlock>(tileBtn, "ModNameText");
+                        var nameTextActive = FindChildByName<TextBlock>(tileBtn, "ModNameTextActive");
+                        
+                        // Fade out name texts
+                        if (nameText != null)
+                        {
+                            var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                            {
+                                To = 0,
+                                Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                            };
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, nameText);
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                            storyboard.Children.Add(fadeOut);
+                            storyboard.Begin();
+                        }
+                        
+                        if (nameTextActive != null)
+                        {
+                            var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                            {
+                                To = 0,
+                                Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                            };
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, nameTextActive);
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                            storyboard.Children.Add(fadeOut);
+                            storyboard.Begin();
+                        }
+                    }
+                    
+                    // Fade in activate button
+                    var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 1,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, activateBtn);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                    var storyboard2 = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    storyboard2.Children.Add(fadeIn);
+                    storyboard2.Begin();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in ActivateButton_PointerEntered", ex);
+                }
+            }
+        }
+
+        private void ActivateButton_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button activateBtn)
+            {
+                try
+                {
+                    // Find parent tile button to get name texts
+                    var parent = activateBtn.Parent;
+                    while (parent != null && !(parent is Button tileButton && tileButton.Name == "TileButton"))
+                    {
+                        parent = VisualTreeHelper.GetParent(parent);
+                    }
+                    
+                    if (parent is Button tileBtn)
+                    {
+                        var nameText = FindChildByName<TextBlock>(tileBtn, "ModNameText");
+                        var nameTextActive = FindChildByName<TextBlock>(tileBtn, "ModNameTextActive");
+                        
+                        // Fade in name texts
+                        if (nameText != null)
+                        {
+                            var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                            {
+                                To = 1,
+                                Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                            };
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, nameText);
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                            storyboard.Children.Add(fadeIn);
+                            storyboard.Begin();
+                        }
+                        
+                        if (nameTextActive != null)
+                        {
+                            var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                            {
+                                To = 1,
+                                Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                            };
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, nameTextActive);
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                            storyboard.Children.Add(fadeIn);
+                            storyboard.Begin();
+                        }
+                    }
+                    
+                    // Fade out activate button
+                    var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, activateBtn);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                    var storyboard2 = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    storyboard2.Children.Add(fadeOut);
+                    storyboard2.Begin();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in ActivateButton_PointerExited", ex);
                 }
             }
         }

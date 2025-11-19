@@ -1282,7 +1282,59 @@ namespace FlairX_Mod_Manager.Pages
                 if (_detailPreviewImages.Count > 0 && _currentDetailImageIndex >= 0 && _currentDetailImageIndex < _detailPreviewImages.Count)
                 {
                     var imageUrl = _detailPreviewImages[_currentDetailImageIndex];
+                    
+                    // Change the image source first
                     DetailImage.Source = new BitmapImage(new Uri(imageUrl));
+                    
+                    // Create elastic scale animation
+                    var elasticScaleX = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        From = 0.8,
+                        To = 1.0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(600)),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
+                        { 
+                            EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
+                            Oscillations = 2,
+                            Springiness = 8
+                        }
+                    };
+                    
+                    var elasticScaleY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        From = 0.8,
+                        To = 1.0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(600)),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
+                        { 
+                            EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
+                            Oscillations = 2,
+                            Springiness = 8
+                        }
+                    };
+                    
+                    // Ensure the image has a ScaleTransform
+                    if (DetailImage.RenderTransform == null || !(DetailImage.RenderTransform is Microsoft.UI.Xaml.Media.ScaleTransform))
+                    {
+                        DetailImage.RenderTransform = new Microsoft.UI.Xaml.Media.ScaleTransform();
+                        DetailImage.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5); // Center the scaling
+                    }
+                    
+                    var scaleTransform = (Microsoft.UI.Xaml.Media.ScaleTransform)DetailImage.RenderTransform;
+                    
+                    // Create storyboard and apply animations
+                    var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleX, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleX, "ScaleX");
+                    
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleY, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleY, "ScaleY");
+                    
+                    storyboard.Children.Add(elasticScaleX);
+                    storyboard.Children.Add(elasticScaleY);
+                    
+                    storyboard.Begin();
                 }
             }
             catch (Exception ex)

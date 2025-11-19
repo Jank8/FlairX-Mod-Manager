@@ -70,6 +70,63 @@ namespace FlairX_Mod_Manager.Pages
             int count = 0;
             if (!Directory.Exists(ModLibraryPath)) return count;
             
+            // First, backup category preview images
+            try
+            {
+                foreach (var categoryDir in Directory.GetDirectories(ModLibraryPath))
+                {
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    var categoryName = new DirectoryInfo(categoryDir).Name;
+                    
+                    // Check if category has any files to backup
+                    var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
+                    var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                    
+                    bool hasCatprev = File.Exists(catprevPath);
+                    bool hasCatmini = File.Exists(catminiPath);
+                    
+                    // Only create backup if there are files to backup
+                    if (!hasCatprev && !hasCatmini)
+                    {
+                        Logger.LogInfo($"Skipping category backup for {categoryName} - no catprev.jpg or catmini.jpg found");
+                        continue;
+                    }
+                    
+                    // Shift existing category backups: 2->3, 1->2, new->1
+                    var catBackup3 = Path.Combine(categoryDir, $"{categoryName}_category.mib3.zip");
+                    var catBackup2 = Path.Combine(categoryDir, $"{categoryName}_category.mib2.zip");
+                    var catBackup1 = Path.Combine(categoryDir, $"{categoryName}_category.mib1.zip");
+                    
+                    if (File.Exists(catBackup3)) File.Delete(catBackup3);
+                    if (File.Exists(catBackup2)) File.Move(catBackup2, catBackup3);
+                    if (File.Exists(catBackup1)) File.Move(catBackup1, catBackup2);
+                    
+                    // Create new category backup
+                    using (var zipArchive = ZipFile.Open(catBackup1, ZipArchiveMode.Create))
+                    {
+                        // Backup category preview files (catprev.jpg and catmini.jpg)
+                        if (hasCatprev)
+                        {
+                            zipArchive.CreateEntryFromFile(catprevPath, "catprev.jpg");
+                            Logger.LogInfo($"Added catprev.jpg to backup for category: {categoryName}");
+                        }
+                        
+                        if (hasCatmini)
+                        {
+                            zipArchive.CreateEntryFromFile(catminiPath, "catmini.jpg");
+                            Logger.LogInfo($"Added catmini.jpg to backup for category: {categoryName}");
+                        }
+                    }
+                    
+                    Logger.LogInfo($"Created category backup for: {categoryName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to create category backups", ex);
+            }
+            
             // Get all mod directories from all categories
             var modDirs = new List<string>();
             foreach (var categoryDir in Directory.GetDirectories(ModLibraryPath))
@@ -119,20 +176,26 @@ namespace FlairX_Mod_Manager.Pages
                         // Always add mod.json
                         zipArchive.CreateEntryFromFile(modJson, "mod.json");
                         
-                        // Add only essential files
-                        var essentialFiles = new[]
+                        // Add minitile.jpg
+                        var minitilePath = Path.Combine(dir, "minitile.jpg");
+                        if (File.Exists(minitilePath))
                         {
-                            "preview.jpg",
-                            "minitile.jpg"
-                        };
+                            zipArchive.CreateEntryFromFile(minitilePath, "minitile.jpg");
+                        }
                         
-                        foreach (var essentialFile in essentialFiles)
+                        // Add all preview images (preview.jpg, preview-01.jpg, preview-02.jpg, etc.)
+                        var previewFiles = Directory.GetFiles(dir, "preview*.jpg")
+                            .Concat(Directory.GetFiles(dir, "preview*.jpeg"))
+                            .Concat(Directory.GetFiles(dir, "preview*.png"))
+                            .ToList();
+                        
+                        Logger.LogInfo($"Found {previewFiles.Count} preview files for mod: {modName}");
+                        
+                        foreach (var previewFile in previewFiles)
                         {
-                            var filePath = Path.Combine(dir, essentialFile);
-                            if (File.Exists(filePath))
-                            {
-                                zipArchive.CreateEntryFromFile(filePath, essentialFile);
-                            }
+                            var fileName = Path.GetFileName(previewFile);
+                            zipArchive.CreateEntryFromFile(previewFile, fileName);
+                            Logger.LogInfo($"Added {fileName} to backup for mod: {modName}");
                         }
                     }
                     count++;
@@ -241,6 +304,45 @@ namespace FlairX_Mod_Manager.Pages
             int count = 0;
             if (!Directory.Exists(ModLibraryPath)) return count;
             
+            // First, restore category preview images
+            try
+            {
+                foreach (var categoryDir in Directory.GetDirectories(ModLibraryPath))
+                {
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    var categoryName = new DirectoryInfo(categoryDir).Name;
+                    var catBackupZip = Path.Combine(categoryDir, $"{categoryName}_category.mib{backupNum}.zip");
+                    
+                    if (!File.Exists(catBackupZip)) continue;
+                    
+                    try
+                    {
+                        using (var archive = ZipFile.OpenRead(catBackupZip))
+                        {
+                            foreach (var entry in archive.Entries)
+                            {
+                                if (!string.IsNullOrEmpty(entry.Name))
+                                {
+                                    var extractPath = Path.Combine(categoryDir, entry.Name);
+                                    entry.ExtractToFile(extractPath, true);
+                                    Logger.LogInfo($"Restored {entry.Name} for category: {categoryName}");
+                                }
+                            }
+                        }
+                        Logger.LogInfo($"Restored category backup {backupNum} for: {categoryName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to restore category backup {backupNum} for {categoryName}", ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to restore category backups", ex);
+            }
+            
             // Get all mod directories from all categories
             var modDirs = new List<string>();
             foreach (var categoryDir in Directory.GetDirectories(ModLibraryPath))
@@ -343,6 +445,35 @@ namespace FlairX_Mod_Manager.Pages
         {
             int count = 0;
             if (!Directory.Exists(ModLibraryPath)) return count;
+            
+            // First, delete category backups
+            try
+            {
+                foreach (var categoryDir in Directory.GetDirectories(ModLibraryPath))
+                {
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    var categoryName = new DirectoryInfo(categoryDir).Name;
+                    var catBackupZip = Path.Combine(categoryDir, $"{categoryName}_category.mib{backupNum}.zip");
+                    
+                    if (File.Exists(catBackupZip))
+                    {
+                        try
+                        {
+                            File.Delete(catBackupZip);
+                            Logger.LogInfo($"Deleted category backup {backupNum} for: {categoryName}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to delete category backup {backupNum} for {categoryName}", ex);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to delete category backups", ex);
+            }
             
             // Get all mod directories from all categories
             var modDirs = new List<string>();
