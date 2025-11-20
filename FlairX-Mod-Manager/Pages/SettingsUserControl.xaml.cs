@@ -797,7 +797,7 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         // Static versions of processing methods for hotkey use
-        private static void ProcessCategoryPreviewStatic(string categoryDir)
+        public static void ProcessCategoryPreviewStatic(string categoryDir)
         {
             var catprevJpgPath = Path.Combine(categoryDir, "catprev.jpg");
             
@@ -954,7 +954,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private static void ProcessModPreviewImagesStatic(string modDir)
+        public static void ProcessModPreviewImagesStatic(string modDir)
         {
             try
             {

@@ -1022,12 +1022,12 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             try
             {
-                Logger.LogInfo($"Starting background image optimization for downloaded previews in: {modPath}");
+                Logger.LogInfo($"Starting background image optimization for downloaded mod in: {modPath}");
                 
-                // Run the global optimize previews function
-                await Pages.SettingsUserControl.OptimizePreviewsDirectAsync();
+                // Optimize only this specific mod directory
+                await Task.Run(() => Pages.SettingsUserControl.ProcessModPreviewImagesStatic(modPath));
                 
-                Logger.LogInfo($"Completed background image optimization");
+                Logger.LogInfo($"Completed background image optimization for: {modPath}");
             }
             catch (Exception ex)
             {
