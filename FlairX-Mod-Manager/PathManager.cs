@@ -13,7 +13,6 @@ namespace FlairX_Mod_Manager
         // Core directories (relative paths)
         public const string SETTINGS_DIR = "Settings";
         public const string LANGUAGE_DIR = "Language";
-        public const string MODS_DIR = "ModLibrary";
         public const string XXMI_DIR = "XXMI";
         public const string ASSETS_DIR = "Assets";
         

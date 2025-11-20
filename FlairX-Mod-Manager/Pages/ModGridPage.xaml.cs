@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
@@ -1033,8 +1033,7 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 var modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
-                if (string.IsNullOrEmpty(modsPath))
-                    modsPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                
 
                 // Find the mod.json file
                 string? modJsonPath = null;
@@ -1113,8 +1112,7 @@ namespace FlairX_Mod_Manager.Pages
                     return;
 
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
-                if (string.IsNullOrEmpty(modsPath))
-                    modsPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                
 
                 var categoryPath = Path.Combine(modsPath, _currentCategory);
                 
@@ -1458,6 +1456,10 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (ModsGrid?.ItemsSource is not ObservableCollection<ModTile> mods) return;
             
+            // Don't filter in category tiles view
+            if (CurrentViewMode == ViewMode.Categories)
+                return;
+            
             var modsToRemove = new List<ModTile>();
             var modsToAdd = new List<ModTile>();
             
@@ -1466,6 +1468,9 @@ namespace FlairX_Mod_Manager.Pages
                 // Hide NSFW mods - find mods with IsNSFW in _allModData
                 foreach (var mod in mods.ToList())
                 {
+                    // Skip category tiles
+                    if (mod.IsCategory) continue;
+                    
                     var modData = _allModData.FirstOrDefault(m => m.Directory == mod.Directory);
                     if (modData != null && modData.IsNSFW)
                     {
@@ -1478,6 +1483,10 @@ namespace FlairX_Mod_Manager.Pages
                 // Show NSFW mods - add back mods that were hidden
                 foreach (var modData in _allModData)
                 {
+                    // If in category mode, only show mods from current category
+                    if (!string.IsNullOrEmpty(_currentCategory) && modData.Category != _currentCategory)
+                        continue;
+                    
                     if (modData.IsNSFW && !mods.Any(m => m.Directory == modData.Directory))
                     {
                         var modTile = new ModTile

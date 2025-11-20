@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
@@ -55,8 +55,7 @@ namespace FlairX_Mod_Manager.Pages
                 LogToGridLog("BACKGROUND: Starting background mod data loading");
                 
                 var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                
                 if (!Directory.Exists(modLibraryPath)) return;
                 
                 var categoryDirs = Directory.GetDirectories(modLibraryPath);

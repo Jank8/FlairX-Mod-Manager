@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
@@ -423,8 +423,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     // Find the mod folder in the new category-based structure
                     var modLibraryDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
-                    if (string.IsNullOrWhiteSpace(modLibraryDir))
-                        modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                    
                     
                     folderPath = FindModFolderPath(modLibraryDir, tile.Directory) ?? "";
                 }
@@ -525,8 +524,7 @@ namespace FlairX_Mod_Manager.Pages
 
                 // Get mod folder path using the new category-based structure
                 var modLibraryDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
-                if (string.IsNullOrWhiteSpace(modLibraryDir))
-                    modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                
                 
                 var modFolderPath = FindModFolderPath(modLibraryDir, mod.Directory);
                 

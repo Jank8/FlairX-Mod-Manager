@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
@@ -61,8 +61,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 // Open mod details for given name using new category-based structure
                 var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                
                 var modDir = FindModFolderPath(modLibraryPath, modName);
                 if (!string.IsNullOrEmpty(modDir))
                 {
