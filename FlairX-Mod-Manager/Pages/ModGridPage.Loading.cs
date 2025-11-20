@@ -278,29 +278,26 @@ namespace FlairX_Mod_Manager.Pages
         
         private void ModsScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
         {
-            var now = DateTime.Now;
-            
-            // Lightweight throttle: skip if we loaded very recently (< 200ms)
-            if ((now - _lastLoadCheck).TotalMilliseconds < LOAD_THROTTLE_MS)
-                return;
-            
-            _lastLoadCheck = now;
-            
-            // Queue at lowest priority to never block scroll
-            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
-            {
-                LoadVisibleImages();
-                LoadMoreModTilesIfNeeded();
-            });
-            
-            // Aggressive disposal only after scroll stops
+            // Only load when scroll has stopped (debouncing)
             if (!e.IsIntermediate)
             {
                 _ = Task.Run(async () =>
                 {
+                    await Task.Delay(50); // Small delay for stability
+                    
+                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+                    {
+                        // Load images and check if need more tiles
+                        LoadVisibleImages();
+                        LoadMoreModTilesIfNeeded();
+                    });
+                    
+                    // Aggressive disposal after loading
                     await Task.Delay(300);
-                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, 
-                        () => PerformAggressiveDisposal());
+                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => 
+                    {
+                        PerformAggressiveDisposal();
+                    });
                 });
             }
         }

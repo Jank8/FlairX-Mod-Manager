@@ -235,7 +235,7 @@ namespace FlairX_Mod_Manager.Pages
                 else
                 {
                     ModUrlTextBox.Text = url;
-                    ModUrlTextBox.Foreground = (SolidColorBrush)Application.Current.Resources["TextFillColorPrimaryBrush"];
+                    ModUrlTextBox.ClearValue(TextBox.ForegroundProperty); // Use default theme color
                 }
                 
                 ModVersionTextBox.Text = version;
@@ -441,7 +441,7 @@ namespace FlairX_Mod_Manager.Pages
             if (ModUrlTextBox.Text == "https://")
             {
                 ModUrlTextBox.Text = "";
-                ModUrlTextBox.Foreground = (SolidColorBrush)Application.Current.Resources["TextFillColorPrimaryBrush"];
+                ModUrlTextBox.ClearValue(TextBox.ForegroundProperty); // Use default theme color
             }
         }
         
