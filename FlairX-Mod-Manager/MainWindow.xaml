@@ -166,6 +166,7 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Button x:Name="AllModsButton"
                                 Content="All mods"
@@ -174,8 +175,21 @@
                                 VerticalAlignment="Center"
                                 Click="AllModsButton_Click"
                                 Grid.Column="0"/>
-                        <Button x:Name="ViewModeToggleButton"
+                        <Button x:Name="BrowseGameBananaButton"
                                 Grid.Column="1"
+                                Width="32"
+                                Height="32"
+                                Padding="0"
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                ToolTipService.ToolTip="Browse GameBanana"
+                                Click="OpenGameBananaBrowser_Click">
+                            <FontIcon Glyph="&#xE774;" FontSize="16"/>
+                        </Button>
+                        <Button x:Name="ViewModeToggleButton"
+                                Grid.Column="2"
                                 Width="32"
                                 Height="32"
                                 Padding="0"
@@ -186,19 +200,6 @@
                                 ToolTipService.ToolTip="Toggle view mode"
                                 Click="ViewModeToggleButton_Click">
                             <FontIcon Glyph="&#xE8A9;" FontSize="16"/>
-                        </Button>
-                        <Button x:Name="OpenModLibraryButton"
-                                Grid.Column="2"
-                                Width="32"
-                                Height="32"
-                                Padding="0"
-                                Margin="8,0,0,0"
-                                VerticalAlignment="Center"
-                                HorizontalContentAlignment="Center"
-                                VerticalContentAlignment="Center"
-                                ToolTipService.ToolTip="Browse GameBanana Mods"
-                                Click="OpenModLibraryButton_Click">
-                            <FontIcon Glyph="&#xE8B0;" FontSize="16"/>
                         </Button>
 
                     </Grid>

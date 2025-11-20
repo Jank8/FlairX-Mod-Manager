@@ -226,7 +226,7 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo("Setting up button tooltips");
                 // Set button tooltip translations
                 ToolTipService.SetToolTip(ReloadModsButton, SharedUtilities.GetTranslation(_lang, "Reload_Mods_Tooltip"));
-                ToolTipService.SetToolTip(OpenModLibraryButton, SharedUtilities.GetTranslation(_lang, "Open_ModLibrary_Tooltip"));
+                ToolTipService.SetToolTip(BrowseGameBananaButton, SharedUtilities.GetTranslation(_lang, "Browse_GameBanana_Tooltip"));
                 ToolTipService.SetToolTip(LauncherFabBorder, SharedUtilities.GetTranslation(_lang, "Launcher_Tooltip"));
                 Logger.LogInfo("Button tooltips configured successfully");
                 
@@ -508,8 +508,8 @@ namespace FlairX_Mod_Manager
                 AllModsButton.Content = SharedUtilities.GetTranslation(_lang, "All_Mods");
             if (ReloadModsButton != null)
                 ToolTipService.SetToolTip(ReloadModsButton, SharedUtilities.GetTranslation(_lang, "Reload_Mods_Tooltip"));
-            if (OpenModLibraryButton != null)
-                ToolTipService.SetToolTip(OpenModLibraryButton, SharedUtilities.GetTranslation(_lang, "Open_ModLibrary_Tooltip"));
+            if (BrowseGameBananaButton != null)
+                ToolTipService.SetToolTip(BrowseGameBananaButton, SharedUtilities.GetTranslation(_lang, "Browse_GameBanana_Tooltip"));
             if (LauncherFabBorder != null)
                 ToolTipService.SetToolTip(LauncherFabBorder, SharedUtilities.GetTranslation(_lang, "Launcher_Tooltip"));
             if (RestartAppButton != null)
@@ -590,14 +590,11 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-                
-                if (!Directory.Exists(modLibraryPath))
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))
                     return false;
                 
-                var categoryPath = Path.Combine(modLibraryPath, category);
+                var categoryPath = Path.Combine(modsPath, category);
                 return Directory.Exists(categoryPath);
             }
             catch (Exception ex)

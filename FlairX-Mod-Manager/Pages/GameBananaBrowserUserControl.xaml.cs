@@ -172,7 +172,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
+                var modLibraryPath = SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modLibraryPath) || !System.IO.Directory.Exists(modLibraryPath))
                     return false;
 
@@ -249,7 +249,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
+                var modLibraryPath = SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modLibraryPath) || !System.IO.Directory.Exists(modLibraryPath))
                     return;
 

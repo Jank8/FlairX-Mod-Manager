@@ -216,7 +216,7 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
+                string modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
                 
                 // Get all mod directories from all categories
                 var allModDirs = new List<string>();
@@ -740,7 +740,7 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
+                string modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
 
                 var allModDirs = new List<string>();
                 foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
@@ -1052,7 +1052,7 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
+                string modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
 
                 var allModDirs = new List<string>();
                 foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))

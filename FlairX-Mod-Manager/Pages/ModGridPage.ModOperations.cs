@@ -19,9 +19,7 @@ namespace FlairX_Mod_Manager.Pages
         // Animation throttling for tiles
         private readonly Dictionary<Button, DateTime> _lastTileAnimationUpdate = new Dictionary<Button, DateTime>();
         private const int TILE_ANIMATION_THROTTLE_MS = 16; // ~60 FPS
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        private static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, int dwFlags);
-
+        
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
         private static extern int SHFileOperation(ref SHFILEOPSTRUCT lpFileOp);
 
@@ -55,96 +53,41 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
 
-                // Always use current path from settings
-                var modsDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
-                if (string.IsNullOrWhiteSpace(modsDir))
-                    modsDir = Path.Combine(AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
-                var modsDirFull = Path.GetFullPath(modsDir);
-                var defaultModsDirFull = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods"));
-                if (_lastSymlinkTarget != null && !_lastSymlinkTarget.Equals(modsDirFull, StringComparison.OrdinalIgnoreCase))
-                {
-                    RemoveAllSymlinks(_lastSymlinkTarget);
-                }
-                var linkPath = Path.Combine(modsDirFull, mod.Directory);
-                
-                // Find the mod folder in the new category-based structure
-                var modLibraryDir = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryDir))
-                    modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-                var absModDir = FindModFolderPath(modLibraryDir, mod.Directory);
-                
-                if (string.IsNullOrEmpty(absModDir))
-                {
-                    // Mod directory not found - remove tile dynamically
-                    System.Diagnostics.Debug.WriteLine($"Mod directory '{mod.Directory}' not found during activation, removing tile...");
-                    Logger.LogError($"Could not find mod folder for {mod.Directory}, removing from UI");
-                    
-                    // Remove from UI collection
-                    _allMods.Remove(mod);
-                    
-                    // Also remove from active mods if it exists there
-                    if (_activeMods.ContainsKey(mod.Directory))
-                    {
-                        _activeMods.Remove(mod.Directory);
-                        SaveActiveMods();
-                    }
-                    
-                    return;
-                }
-                // Remove double slashes in paths
-                linkPath = CleanPath(linkPath);
-                absModDir = CleanPath(absModDir);
-                
-                // Double-check that source directory still exists before creating symlink
-                if (!Directory.Exists(absModDir))
-                {
-                    // Source directory disappeared - remove tile dynamically
-                    System.Diagnostics.Debug.WriteLine($"Source mod directory '{absModDir}' no longer exists, removing tile...");
-                    Logger.LogError($"Source mod directory for {mod.Directory} no longer exists, removing from UI");
-                    
-                    // Remove from UI collection
-                    _allMods.Remove(mod);
-                    
-                    // Also remove from active mods if it exists there
-                    if (_activeMods.ContainsKey(mod.Directory))
-                    {
-                        _activeMods.Remove(mod.Directory);
-                        SaveActiveMods();
-                    }
-                    
-                    return;
-                }
-                
+                // NEW SYSTEM: Toggle activation by renaming with DISABLED_ prefix
                 if (!_activeMods.TryGetValue(mod.Directory, out var isActive) || !isActive)
                 {
+                    // Activate mod - remove DISABLED_ prefix
                     Logger.LogInfo($"Activating mod: {mod.Directory}");
-                    if (!Directory.Exists(modsDirFull))
+                    if (ActivateModByRename(mod.Directory))
                     {
-                        Directory.CreateDirectory(modsDirFull);
-                        Logger.LogInfo($"Created mods directory: {modsDirFull}");
+                        _activeMods[mod.Directory] = true;
+                        mod.IsActive = true;
+                        Logger.LogInfo($"Mod activated successfully: {mod.Directory}");
                     }
-                    if (!Directory.Exists(linkPath) && !File.Exists(linkPath))
+                    else
                     {
-                        CreateSymlink(linkPath, absModDir);
+                        Logger.LogError($"Failed to activate mod: {mod.Directory}");
+                        return;
                     }
-                    _activeMods[mod.Directory] = true;
-                    mod.IsActive = true;
-                    Logger.LogInfo($"Mod activated successfully: {mod.Directory}");
                 }
                 else
                 {
+                    // Deactivate mod - add DISABLED_ prefix
                     Logger.LogInfo($"Deactivating mod: {mod.Directory}");
-                    if ((Directory.Exists(linkPath) || File.Exists(linkPath)) && IsSymlink(linkPath))
+                    if (DeactivateModByRename(mod.Directory))
                     {
-                        Directory.Delete(linkPath, true);
-                        Logger.LogInfo($"Removed symlink: {linkPath}");
+                        _activeMods[mod.Directory] = false;
+                        mod.IsActive = false;
+                        Logger.LogInfo($"Mod deactivated successfully: {mod.Directory}");
                     }
-                    _activeMods[mod.Directory] = false;
-                    mod.IsActive = false;
-                    Logger.LogInfo($"Mod deactivated successfully: {mod.Directory}");
+                    else
+                    {
+                        Logger.LogError($"Failed to deactivate mod: {mod.Directory}");
+                        return;
+                    }
                 }
+                
                 SaveActiveMods();
-                SaveSymlinkState(modsDirFull);
                 
                 // Update table view if it exists - sync the IsActive state
                 if (_originalTableItems != null)
@@ -450,30 +393,7 @@ namespace FlairX_Mod_Manager.Pages
             return FindModFolderPathStatic(modLibraryDir, modDirectoryName);
         }
 
-        /// <summary>
-        /// Static version of FindModFolderPath for use in static methods
-        /// </summary>
-        private static string? FindModFolderPathStatic(string modLibraryDir, string modDirectoryName)
-        {
-            try
-            {
-                // Search through all category directories to find the mod
-                foreach (var categoryDir in Directory.GetDirectories(modLibraryDir))
-                {
-                    var modPath = Path.Combine(categoryDir, modDirectoryName);
-                    if (Directory.Exists(modPath))
-                    {
-                        return Path.GetFullPath(modPath);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Error finding mod folder path for {modDirectoryName}", ex);
-            }
-            
-            return null;
-        }
+        // FindModFolderPathStatic moved to StaticUtilities.cs
 
         private void OpenModFolderButton_Click(object sender, RoutedEventArgs e)
         {
@@ -496,13 +416,13 @@ namespace FlairX_Mod_Manager.Pages
                     var gameTag = SettingsManager.CurrentSelectedGame;
                     if (string.IsNullOrEmpty(gameTag)) return;
                     
-                    var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
-                    folderPath = PathManager.GetAbsolutePath(Path.Combine(gameModLibraryPath, tile.Directory));
+                    var gamemodsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                    folderPath = PathManager.GetAbsolutePath(Path.Combine(gamemodsPath, tile.Directory));
                 }
                 else
                 {
                     // Find the mod folder in the new category-based structure
-                    var modLibraryDir = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                    var modLibraryDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                     if (string.IsNullOrWhiteSpace(modLibraryDir))
                         modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                     
@@ -604,7 +524,7 @@ namespace FlairX_Mod_Manager.Pages
                     return;
 
                 // Get mod folder path using the new category-based structure
-                var modLibraryDir = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                var modLibraryDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrWhiteSpace(modLibraryDir))
                     modLibraryDir = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 
@@ -732,66 +652,6 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void CreateSymlink(string linkPath, string targetPath)
-        {
-            try
-            {
-                // Normalize paths to handle spaces and special characters properly
-                linkPath = Path.GetFullPath(linkPath);
-                targetPath = Path.GetFullPath(targetPath);
-                
-                // Ensure target directory exists
-                if (!Directory.Exists(targetPath))
-                {
-                    Logger.LogError($"Target directory does not exist: {targetPath}");
-                    return;
-                }
-
-                // Ensure parent directory of link exists
-                var linkParent = Path.GetDirectoryName(linkPath);
-                if (!string.IsNullOrEmpty(linkParent) && !Directory.Exists(linkParent))
-                {
-                    Directory.CreateDirectory(linkParent);
-                }
-
-                // Create the symbolic link
-                bool success = CreateSymbolicLink(linkPath, targetPath, 1); // 1 = directory
-                if (!success)
-                {
-                    var error = Marshal.GetLastWin32Error();
-                    Logger.LogError($"Failed to create symlink from {linkPath} to {targetPath}. Win32 Error: {error}");
-                }
-                else
-                {
-                    Logger.LogInfo($"Created symlink: {linkPath} -> {targetPath}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Exception creating symlink from {linkPath} to {targetPath}", ex);
-            }
-        }
-
-        private bool IsSymlink(string path)
-        {
-            var dirInfo = new DirectoryInfo(path);
-            return dirInfo.Attributes.HasFlag(FileAttributes.ReparsePoint);
-        }
-
-        private void RemoveAllSymlinks(string modsDir)
-        {
-            if (!Directory.Exists(modsDir)) return;
-            foreach (var dir in Directory.GetDirectories(modsDir))
-            {
-                if (IsSymlink(dir))
-                    Directory.Delete(dir);
-            }
-        }
-
-        private void SaveSymlinkState(string targetPath)
-        {
-            _lastSymlinkTarget = targetPath;
-            SaveSymlinkState();
-        }
+        // Symlink methods removed - using DISABLED_ prefix system instead
     }
 }

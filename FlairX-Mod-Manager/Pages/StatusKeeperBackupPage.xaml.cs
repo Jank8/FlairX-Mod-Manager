@@ -64,9 +64,8 @@ namespace FlairX_Mod_Manager.Pages
                 int backupCount = 0;
                 int skipCount = 0;
 
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+                
 
                 // Count existing backups before operation
                 int beforeBackup = 0;
@@ -143,9 +142,8 @@ namespace FlairX_Mod_Manager.Pages
                 int restoreCount = 0;
                 int skipCount = 0;
 
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+                
 
                 await Task.Run(() => RestoreFromBackups(modLibraryPath, ref restoreCount, ref skipCount));
 
@@ -192,9 +190,8 @@ namespace FlairX_Mod_Manager.Pages
 
                 int deleteCount = 0;
 
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+                
 
                 await Task.Run(() => DeleteBackups(modLibraryPath, ref deleteCount));
 
@@ -220,9 +217,8 @@ namespace FlairX_Mod_Manager.Pages
                 CheckBackupButton.IsEnabled = false;
                 CheckBackupProgressBar.Visibility = Visibility.Visible;
                 
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+                
                 int iniCount = 0;
                 int incompleteCount = 0;
 
@@ -287,6 +283,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     if (Directory.Exists(item))
                     {
+                        // Process all directories including DISABLED_ (backup everything)
                         BackupIniFiles(item, ref backupCount, ref skipCount);
                     }
                     else if (File.Exists(item) && item.ToLower().EndsWith(".ini"))
@@ -346,6 +343,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     if (Directory.Exists(item))
                     {
+                        // Restore ALL backups, including in DISABLED_ directories
                         RestoreFromBackups(item, ref restoreCount, ref skipCount);
                     }
                     else if (File.Exists(item) && item.ToLower().EndsWith(".msk"))
@@ -386,6 +384,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     if (Directory.Exists(item))
                     {
+                        // Delete ALL backups, including in DISABLED_ directories
                         DeleteBackups(item, ref deleteCount);
                     }
                     else if (File.Exists(item) && item.ToLower().EndsWith(".msk"))

@@ -92,7 +92,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
+                var modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
                 if (!Directory.Exists(modLibraryPath))
                 {
                     Logger.LogWarning("Mod library path not found for hotkey detection");
@@ -228,15 +228,11 @@ namespace FlairX_Mod_Manager.Pages
                         iniFiles.Add(file);
                     }
                 }
-                // Then, search subdirectories, ignoring those with the "disabled" prefix
+                // Then, search subdirectories
                 var directories = Directory.GetDirectories(folderPath);
                 foreach (var dir in directories)
                 {
-                    var dirName = Path.GetFileName(dir);
-                    if (!dirName.ToLowerInvariant().StartsWith("disabled"))
-                    {
-                        FindIniFilesStaticRecursive(dir, iniFiles);
-                    }
+                    FindIniFilesStaticRecursive(dir, iniFiles);
                 }
             }
             catch (Exception ex)
@@ -473,7 +469,7 @@ namespace FlairX_Mod_Manager.Pages
                 else
                 {
                     // If mod.json doesn't exist, ensure default mod.json is created first
-                    await Task.Run(() => (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary());
+                    // EnsureModJsonInModLibrary removed - no longer needed
                     
                     // Now try to read the newly created mod.json
                     if (File.Exists(modJsonPath))

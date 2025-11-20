@@ -219,11 +219,16 @@ namespace FlairX_Mod_Manager.Dialogs
                 }
 
                 // Find mod folder path
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath))
+                {
+                    await ShowError("XXMI Mods directory not found");
+                    IsPrimaryButtonEnabled = true;
+                    IsSecondaryButtonEnabled = true;
+                    return;
+                }
 
-                _modFolderPath = FindModFolderPath(modLibraryPath, _modTile.Directory);
+                _modFolderPath = FindModFolderPath(modsPath, _modTile.Directory);
 
                 if (string.IsNullOrEmpty(_modFolderPath) || !Directory.Exists(_modFolderPath))
                 {
@@ -455,16 +460,35 @@ namespace FlairX_Mod_Manager.Dialogs
             }
         }
 
-        private string? FindModFolderPath(string modLibraryPath, string modDirectory)
+        private string? FindModFolderPath(string modsPath, string modDirectory)
         {
             try
             {
-                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
                 {
+                    // Check for exact match
                     var modPath = Path.Combine(categoryDir, modDirectory);
                     if (Directory.Exists(modPath))
                     {
                         return modPath;
+                    }
+                    
+                    // Check for DISABLED_ version
+                    var disabledPath = Path.Combine(categoryDir, "DISABLED_" + modDirectory);
+                    if (Directory.Exists(disabledPath))
+                    {
+                        return disabledPath;
+                    }
+                    
+                    // Check if modDirectory already has DISABLED_ prefix, try without it
+                    if (modDirectory.StartsWith("DISABLED_"))
+                    {
+                        var cleanName = modDirectory.Substring("DISABLED_".Length);
+                        var cleanPath = Path.Combine(categoryDir, cleanName);
+                        if (Directory.Exists(cleanPath))
+                        {
+                            return cleanPath;
+                        }
                     }
                 }
                 return null;

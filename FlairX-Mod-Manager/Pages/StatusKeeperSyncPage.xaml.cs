@@ -58,8 +58,6 @@ namespace FlairX_Mod_Manager.Pages
 
             
             // Setting tooltips from language files
-            ToolTipService.SetToolTip(D3dxFilePathPickButton, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_D3dxFilePath"));
-            ToolTipService.SetToolTip(D3dxFilePathDefaultButton, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_RestoreDefault"));
             ToolTipService.SetToolTip(DynamicSyncToggle, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_DynamicSync"));
             ToolTipService.SetToolTip(ManualSyncButton, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_ManualSync"));
         }
@@ -187,93 +185,26 @@ namespace FlairX_Mod_Manager.Pages
 
 
 
-        private async void D3dxFilePathPickButton_Click(object sender, RoutedEventArgs e)
+        private void D3dxFilePathOpenButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                var hwnd = SharedUtilities.GetMainWindowHandle();
-                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
-                if (!string.IsNullOrEmpty(folderPath))
+                var d3dxUserPath = SettingsManager.Current.StatusKeeperD3dxUserIniPath;
+                if (!string.IsNullOrEmpty(d3dxUserPath))
                 {
-                    var iniPath = Path.Combine(folderPath, "d3dx_user.ini");
-                    if (File.Exists(iniPath))
+                    var directoryPath = Path.GetDirectoryName(d3dxUserPath);
+                    if (!string.IsNullOrEmpty(directoryPath) && Directory.Exists(directoryPath))
                     {
-                        SettingsManager.Current.StatusKeeperD3dxUserIniPath = iniPath;
-                        SetBreadcrumbBar(D3dxFilePathBreadcrumb, iniPath);
-                        SettingsManager.Save();
-                        LogStatic($"D3DX User INI path set to: {iniPath}");
-
-                        // Restart watcher if dynamic sync is enabled
-                        if (DynamicSyncToggle.IsOn)
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                         {
-                            StopWatcher();
-                            StopPeriodicSync();
-                            StartWatcher();
-                            StartPeriodicSync();
-                        }
+                            FileName = directoryPath,
+                            UseShellExecute = true
+                        });
+                        LogStatic($"Opened d3dx_user.ini directory: {directoryPath}");
                     }
                     else
                     {
-                        LogStatic($"d3dx_user.ini not found in {folderPath}", "ERROR");
-                        await SharedUtilities.ShowErrorDialog(SharedUtilities.GetTranslation(lang, "Error_Generic"), 
-                            "d3dx_user.ini not found in the selected directory.", this.XamlRoot);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                LogStatic($"Error picking directory: {ex.Message}", "ERROR");
-                await SharedUtilities.ShowErrorDialog(SharedUtilities.GetTranslation(lang, "Error_Generic"), ex.Message, this.XamlRoot);
-            }
-        }
-
-        private void D3dxFilePathDefaultButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Use the currently selected game instead of hardcoded ZZMI
-            var currentGame = SettingsManager.CurrentSelectedGame ?? "ZZMI";
-            var defaultPath = Path.Combine(".", "XXMI", currentGame, "d3dx_user.ini");
-            
-            SettingsManager.Current.StatusKeeperD3dxUserIniPath = defaultPath;
-            SetBreadcrumbBar(D3dxFilePathBreadcrumb, defaultPath);
-            SettingsManager.Save();
-            LogStatic($"D3DX User INI path reset to default for {currentGame}: {defaultPath}");
-
-            // Restart watcher if dynamic sync is enabled
-            if (DynamicSyncToggle.IsOn)
-            {
-                StopWatcher();
-                StopPeriodicSync();
-                StartWatcher();
-                StartPeriodicSync();
-            }
-        }
-
-        private void D3dxFilePathBreadcrumb_ItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
-        {
-            try
-            {
-                // Only handle clicks on the home icon (first item)
-                if (args.Index == 0)
-                {
-                    var d3dxUserPath = SettingsManager.Current.StatusKeeperD3dxUserIniPath;
-                    if (!string.IsNullOrEmpty(d3dxUserPath))
-                    {
-                        var directoryPath = Path.GetDirectoryName(d3dxUserPath);
-                        if (!string.IsNullOrEmpty(directoryPath) && Directory.Exists(directoryPath))
-                        {
-                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                            {
-                                FileName = directoryPath,
-                                UseShellExecute = true
-                            });
-                            LogStatic($"Opened d3dx_user.ini directory: {directoryPath}");
-                        }
-                        else
-                        {
-                            LogStatic($"Directory does not exist: {directoryPath}", "WARNING");
-                        }
+                        LogStatic($"Directory does not exist: {directoryPath}", "WARNING");
                     }
                 }
             }
@@ -490,12 +421,10 @@ namespace FlairX_Mod_Manager.Pages
 
             // Try to find d3dx_user.ini automatically using current game settings
             var currentGame = SettingsManager.CurrentSelectedGame ?? "ZZMI";
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+            
             var xxmiModsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
-            if (string.IsNullOrEmpty(xxmiModsPath))
-                xxmiModsPath = Path.Combine(AppContext.BaseDirectory, "XXMI", currentGame, "Mods");
+            
 
             var tryPaths = new string[]
             {
@@ -640,7 +569,7 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 // Use SharedUtilities to get mod library path
-                var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
+                var modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
                 
                 if (!Directory.Exists(modLibraryPath))
                 {
@@ -658,6 +587,13 @@ namespace FlairX_Mod_Manager.Pages
                     
                     foreach (var modDir in Directory.GetDirectories(categoryDir))
                     {
+                        // Skip DISABLED_ directories (inactive mods)
+                        var modDirName = Path.GetFileName(modDir);
+                        if (modDirName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+                        
                         try
                         {
                             var modJsonPath = Path.Combine(modDir, "mod.json");
@@ -729,10 +665,9 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                // Use XXMI Mods directory (symlinks) instead of ModLibrary
+                // Use XXMI Mods directory
                 var xxmiModsPath = SettingsManager.GetCurrentXXMIModsDirectory();
-                if (string.IsNullOrEmpty(xxmiModsPath))
-                    xxmiModsPath = Path.Combine(AppContext.BaseDirectory, "XXMI", "ZZMI", "Mods");
+                
                 
                 var currentGame = SettingsManager.CurrentSelectedGame;
                 LogStatic($"DEBUG: Current game: '{currentGame}', XXMI Mods: '{xxmiModsPath}'");

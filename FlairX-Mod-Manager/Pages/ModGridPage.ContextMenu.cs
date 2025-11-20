@@ -403,13 +403,13 @@ namespace FlairX_Mod_Manager.Pages
                 // Check if mod directory exists before showing context menu (skip for categories)
                 if (!modTile.IsCategory)
                 {
-                    string modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-                    if (string.IsNullOrEmpty(modLibraryPath))
+                    string modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+                    if (string.IsNullOrEmpty(modsPath))
                     {
-                        modLibraryPath = PathManager.GetModLibraryPath();
+                        modsPath = PathManager.GetModsPath();
                     }
                     
-                    string? fullModDir = FindModFolderPath(modLibraryPath, modTile.Directory);
+                    string? fullModDir = FindModFolderPath(modsPath, modTile.Directory);
                     if (string.IsNullOrEmpty(fullModDir) || !Directory.Exists(fullModDir))
                     {
                         // Mod directory not found - remove tile and cancel context menu
@@ -679,20 +679,20 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
+                var modsPath = SharedUtilities.GetSafeXXMIModsPath();
                 string? currentPath = null;
                 string? parentPath = null;
                 
                 if (modTile.IsCategory)
                 {
                     // Renaming category
-                    currentPath = Path.Combine(modLibraryPath, modTile.Directory);
-                    parentPath = modLibraryPath;
+                    currentPath = Path.Combine(modsPath, modTile.Directory);
+                    parentPath = modsPath;
                 }
                 else
                 {
                     // Renaming mod - find it in categories
-                    foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                    foreach (var categoryDir in Directory.GetDirectories(modsPath))
                     {
                         var modPath = Path.Combine(categoryDir, modTile.Directory);
                         if (Directory.Exists(modPath))
@@ -746,7 +746,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     
                     // Recreate symlinks
-                    RecreateSymlinksFromActiveMods();
+                    // No symlink recreation needed;
                 }
                 
                 Logger.LogInfo($"Successfully renamed {(modTile.IsCategory ? "category" : "mod")} from '{oldName}' to '{newName}'");
@@ -820,7 +820,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (modTile.IsCategory) return null;
                 
-                var modLibraryDir = SharedUtilities.GetSafeModLibraryPath();
+                var modLibraryDir = SharedUtilities.GetSafeXXMIModsPath();
                 var modFolderPath = FindModFolderPath(modLibraryDir, modTile.Directory);
                 
                 if (string.IsNullOrEmpty(modFolderPath)) return null;
@@ -880,13 +880,13 @@ namespace FlairX_Mod_Manager.Pages
                     try
                     {
                         // Check if mod directory exists before opening detail page
-                        string modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-                        if (string.IsNullOrEmpty(modLibraryPath))
+                        string modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+                        if (string.IsNullOrEmpty(modsPath))
                         {
-                            modLibraryPath = PathManager.GetModLibraryPath();
+                            modsPath = PathManager.GetModsPath();
                         }
                         
-                        string? fullModDir = FindModFolderPath(modLibraryPath, tile.Directory);
+                        string? fullModDir = FindModFolderPath(modsPath, tile.Directory);
                         if (string.IsNullOrEmpty(fullModDir) || !Directory.Exists(fullModDir))
                         {
                             // Mod directory not found - remove tile dynamically

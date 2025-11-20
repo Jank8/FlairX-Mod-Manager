@@ -23,11 +23,6 @@ namespace FlairX_Mod_Manager
 
         private void MainRoot_Loaded(object sender, RoutedEventArgs e)
         {
-            if (Application.Current is App app)
-            {
-                app.ShowStartupNtfsWarningIfNeeded();
-            }
-            
             // Restore saved game selection first
             RestoreGameSelection();
             
@@ -88,7 +83,7 @@ namespace FlairX_Mod_Manager
                     var app = App.Current as App;
                     if (app != null)
                     {
-                        await app.EnsureModJsonInModLibrary();
+                        await app.EnsureModJsonInXXMIMods();
                     }
                     LogToGridLog("REFRESH: Mod.json files updated");
                     await Task.Delay(100);
@@ -114,9 +109,8 @@ namespace FlairX_Mod_Manager
                 UpdateGameSelectionComboBoxTexts();
                 _ = GenerateModCharacterMenuAsync();
                 
-                // Recreate symlinks to ensure they match current active mods state
-                FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
-                Logger.LogInfo("Symlinks recreated during manager reload");
+                // No symlink recreation needed - using DISABLED_ prefix system
+                Logger.LogInfo("Mod state maintained during manager reload");
                 
                 // Update All Mods button state after reload
                 UpdateAllModsButtonState();
@@ -283,9 +277,8 @@ namespace FlairX_Mod_Manager
                     UpdateUIForGameSelection(true); // Enable UI
                 }
                 
-                // Clean up symlinks from previous game before switching
-                System.Diagnostics.Debug.WriteLine("Cleaning up symlinks from previous game...");
-                CleanupSymlinksForGameSwitch();
+                // No symlink cleanup needed - using DISABLED_ prefix system
+                System.Diagnostics.Debug.WriteLine("Switching games - no cleanup needed...");
                 
                 // Switch game paths using index
                 SettingsManager.SwitchGame(selectedIndex);
@@ -307,7 +300,7 @@ namespace FlairX_Mod_Manager
                 if (gameSelected)
                 {
                     // Ensure mod.json files exist in the new game's directory
-                    _ = (App.Current as App)?.EnsureModJsonInModLibrary();
+                    _ = (App.Current as App)?.EnsureModJsonInXXMIMods();
                     
                     // Create default preset for the new game if it doesn't exist
                     var gridPage = new FlairX_Mod_Manager.Pages.ModGridPage();
@@ -317,9 +310,8 @@ namespace FlairX_Mod_Manager
                     System.Diagnostics.Debug.WriteLine("Regenerating character menu for new game...");
                     _ = GenerateModCharacterMenuAsync();
                     
-                    // Recreate symlinks for the new game based on active mods
-                    System.Diagnostics.Debug.WriteLine("Recreating symlinks for new game...");
-                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    // No symlink recreation needed - using DISABLED_ prefix system
+                    System.Diagnostics.Debug.WriteLine("Mod state maintained for new game...");
                     
                     // Always navigate to All Mods when a game is selected
                     // This handles all cases including ModDetailPage (since the current mod might not exist in new game)
@@ -338,18 +330,18 @@ namespace FlairX_Mod_Manager
                 
                 System.Diagnostics.Debug.WriteLine($"Game switched successfully. New paths:");
                 System.Diagnostics.Debug.WriteLine($"  Mods: '{SettingsManager.GetCurrentXXMIModsDirectory()}'");
-                System.Diagnostics.Debug.WriteLine($"  ModLibrary: '{SettingsManager.GetCurrentModLibraryDirectory()}'");
                 System.Diagnostics.Debug.WriteLine($"  D3DX INI: '{SettingsManager.Current.StatusKeeperD3dxUserIniPath}'");
             }
         }
 
 
 
-        private void OpenModLibraryButton_Click(object sender, RoutedEventArgs e)
+        // OpenModLibraryButton removed - mods are now in XXMI/Mods directly
+        
+        private void OpenGameBananaBrowser_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                // Check if a game is selected
                 var gameTag = SettingsManager.CurrentSelectedGame;
                 if (string.IsNullOrEmpty(gameTag))
                 {
@@ -362,7 +354,6 @@ namespace FlairX_Mod_Manager
                     return;
                 }
 
-                // Open GameBanana browser as sliding panel
                 ShowGameBananaBrowserPanel(gameTag);
             }
             catch (Exception ex)
@@ -540,39 +531,6 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        private void CleanupSymlinksForGameSwitch()
-        {
-            try
-            {
-                // Get current XXMI mods directory (before switching)
-                var currentModsDir = SettingsManager.GetCurrentXXMIModsDirectory();
-                if (string.IsNullOrWhiteSpace(currentModsDir))
-                    return;
-                
-                if (!Directory.Exists(currentModsDir))
-                    return;
-                
-                // Remove all symlinks from current game's directory
-                foreach (var dir in Directory.GetDirectories(currentModsDir))
-                {
-                    if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
-                    {
-                        try
-                        {
-                            Directory.Delete(dir, true);
-                            System.Diagnostics.Debug.WriteLine($"Removed symlink: {dir}");
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"Failed to remove symlink {dir}: {ex.Message}");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error during symlink cleanup: {ex.Message}");
-            }
-        }
+        // Symlink cleanup removed - no longer needed with DISABLED_ prefix system
     }
 }

@@ -45,8 +45,18 @@ namespace FlairX_Mod_Manager
 
         private string GetXXMILauncherPath()
         {
-            var xxmiRoot = SettingsManager.Current.XXMIRootDirectory ?? @".\XXMI";
-            return Path.Combine(AppContext.BaseDirectory, xxmiRoot, @"Resources\Bin\XXMI Launcher.exe");
+            // Get XXMI root for current game (or default if no game selected)
+            var xxmiRoot = SettingsManager.GetCurrentGameXXMIRoot();
+            
+            // If path is already absolute, use it directly; otherwise combine with base directory
+            if (Path.IsPathRooted(xxmiRoot))
+            {
+                return Path.Combine(xxmiRoot, @"Resources\Bin\XXMI Launcher.exe");
+            }
+            else
+            {
+                return Path.Combine(AppContext.BaseDirectory, xxmiRoot, @"Resources\Bin\XXMI Launcher.exe");
+            }
         }
 
         private StackPanel CreateXXMIDownloadContent(string expectedPath)
@@ -167,17 +177,17 @@ namespace FlairX_Mod_Manager
 
                 await Task.Run(async () =>
                 {
-                    var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
-                    if (!Directory.Exists(modLibraryPath))
+                    var modsPath = SharedUtilities.GetSafeXXMIModsPath();
+                    if (!Directory.Exists(modsPath))
                     {
-                        Logger.LogWarning($"Mod library path does not exist: {modLibraryPath}");
+                        Logger.LogWarning($"Mod library path does not exist: {modsPath}");
                         return;
                     }
 
                     var categories = new List<string>();
                     
                     // Get all category directories, excluding "Other"
-                    foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                    foreach (var categoryDir in Directory.GetDirectories(modsPath))
                     {
                         var categoryName = Path.GetFileName(categoryDir);
                         if (!string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
@@ -223,7 +233,7 @@ namespace FlairX_Mod_Manager
                                     {
                                         Content = category,
                                         Tag = $"Category_{category}",
-                                        Icon = await CreateCategoryIconAsync(category, modLibraryPath),
+                                        Icon = await CreateCategoryIconAsync(category, modsPath),
                                         Style = (Style)Application.Current.Resources["CategoryAvatarNavigationViewItem"]
                                     };
                                     
@@ -235,7 +245,7 @@ namespace FlairX_Mod_Manager
                                     {
                                         // Small delay to ensure template is fully applied
                                         await Task.Delay(50);
-                                        AttachIconHoverEvents(menuItem, category, modLibraryPath);
+                                        AttachIconHoverEvents(menuItem, category, modsPath);
                                     };
                                 }
                                 
@@ -274,11 +284,11 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        private async Task<IconElement> CreateCategoryIconAsync(string categoryName, string modLibraryPath)
+        private async Task<IconElement> CreateCategoryIconAsync(string categoryName, string modsPath)
         {
             try
             {
-                var categoryPath = Path.Combine(modLibraryPath, categoryName);
+                var categoryPath = Path.Combine(modsPath, categoryName);
                 var categoryMiniPath = Path.Combine(categoryPath, "catmini.jpg");
                 
                 // Check if category mini preview image exists
@@ -361,14 +371,14 @@ namespace FlairX_Mod_Manager
 
         private async Task PreloadModImages(LoadingWindow loadingWindow)
         {
-            var modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
-            if (!Directory.Exists(modLibraryPath)) return;
+            var modsPath = SharedUtilities.GetSafeXXMIModsPath();
+            if (!Directory.Exists(modsPath)) return;
             
             var totalMods = 0;
             var processedMods = 0;
             
             // Count total mods first
-            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+            foreach (var categoryDir in Directory.GetDirectories(modsPath))
             {
                 if (Directory.Exists(categoryDir))
                 {
@@ -376,7 +386,7 @@ namespace FlairX_Mod_Manager
                 }
             }
             
-            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+            foreach (var categoryDir in Directory.GetDirectories(modsPath))
             {
                 if (!Directory.Exists(categoryDir)) continue;
                 
@@ -538,7 +548,6 @@ namespace FlairX_Mod_Manager
                 if (ReloadModsButton != null) ReloadModsButton.IsEnabled = gameSelected;
                 if (RestartAppButton != null) RestartAppButton.IsEnabled = gameSelected;
                 if (AllModsButton != null) AllModsButton.IsEnabled = gameSelected;
-                if (OpenModLibraryButton != null) OpenModLibraryButton.IsEnabled = gameSelected;
                 if (ViewModeToggleButton != null) ViewModeToggleButton.IsEnabled = gameSelected;
                 
                 // Enable/disable launcher FAB
@@ -579,7 +588,7 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        private void AttachIconHoverEvents(NavigationViewItem menuItem, string categoryName, string modLibraryPath)
+        private void AttachIconHoverEvents(NavigationViewItem menuItem, string categoryName, string modsPath)
         {
             try
             {
@@ -588,7 +597,7 @@ namespace FlairX_Mod_Manager
                 if (iconBorder != null)
                 {
                     // Store category info in the border's tag for the event handlers
-                    iconBorder.Tag = new { CategoryName = categoryName, ModLibraryPath = modLibraryPath };
+                    iconBorder.Tag = new { CategoryName = categoryName, modsPath = modsPath };
                     
                     // Ensure the border can receive pointer events
                     iconBorder.Background = iconBorder.Background ?? new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Transparent);
@@ -650,12 +659,12 @@ namespace FlairX_Mod_Manager
             {
                 var categoryInfo = iconBorder.Tag;
                 var categoryName = categoryInfo.GetType().GetProperty("CategoryName")?.GetValue(categoryInfo) as string;
-                var modLibraryPath = categoryInfo.GetType().GetProperty("ModLibraryPath")?.GetValue(categoryInfo) as string;
+                var modsPath = categoryInfo.GetType().GetProperty("modsPath")?.GetValue(categoryInfo) as string;
                 
-                if (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(modLibraryPath))
+                if (string.IsNullOrEmpty(categoryName) || string.IsNullOrEmpty(modsPath))
                     return;
                     
-                var categoryPath = Path.Combine(modLibraryPath, categoryName);
+                var categoryPath = Path.Combine(modsPath, categoryName);
                 var categoryMiniPath = Path.Combine(categoryPath, "catmini.jpg");
                 
                 // Popup uses catmini.jpg (600x600 square)

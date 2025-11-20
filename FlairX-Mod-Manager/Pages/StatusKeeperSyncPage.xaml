@@ -9,15 +9,12 @@
     mc:Ignorable="d">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="0" Spacing="16">
-            <!-- File Path Selection -->
+            <!-- File Path Display -->
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock x:Name="D3dxFilePathLabel" Text="" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                <BreadcrumbBar x:Name="D3dxFilePathBreadcrumb" Width="330" Margin="-40,0,8,0" ItemClicked="D3dxFilePathBreadcrumb_ItemClicked"/>
-                <Button x:Name="D3dxFilePathPickButton" Click="D3dxFilePathPickButton_Click" Width="32" Height="32" Padding="0">
+                <BreadcrumbBar x:Name="D3dxFilePathBreadcrumb" Width="370" Margin="-40,0,8,0"/>
+                <Button x:Name="D3dxFilePathOpenButton" Click="D3dxFilePathOpenButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Open folder">
                     <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
-                </Button>
-                <Button x:Name="D3dxFilePathDefaultButton" Click="D3dxFilePathDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0">
-                    <FontIcon Glyph="&#xE72C;" FontSize="14"/>
                 </Button>
             </StackPanel>
             <!-- Backup Confirmation Toggle -->

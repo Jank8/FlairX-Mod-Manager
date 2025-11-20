@@ -80,10 +80,10 @@ namespace FlairX_Mod_Manager.Pages
                 ToolTipService.SetToolTip(TodayDateCheckedButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_SetToday_Tooltip"));
                 ToolTipService.SetToolTip(TodayDateUpdatedButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_SetToday_Tooltip"));
 
-                string modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                string modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modLibraryPath))
                 {
-                    modLibraryPath = PathManager.GetModLibraryPath();
+                    modLibraryPath = PathManager.GetModsPath();
                 }
 
                 System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: Using mod library path: {modLibraryPath}");
@@ -109,6 +109,11 @@ namespace FlairX_Mod_Manager.Pages
                     if (!string.IsNullOrEmpty(fullModDir) && Directory.Exists(fullModDir))
                     {
                         string modName = Path.GetFileName(fullModDir);
+                        // Remove DISABLED_ prefix from display name
+                        if (modName.StartsWith("DISABLED_"))
+                        {
+                            modName = modName.Substring("DISABLED_".Length);
+                        }
                         ModDetailTitle.Text = modName;
                         _modJsonPath = Path.Combine(fullModDir, "mod.json");
                         _currentModDirectory = fullModDir;
@@ -169,10 +174,29 @@ namespace FlairX_Mod_Manager.Pages
                 // Search through all category directories to find the mod
                 foreach (var categoryDir in Directory.GetDirectories(modLibraryDir))
                 {
+                    // Check for exact match
                     var modPath = Path.Combine(categoryDir, modDirectoryName);
                     if (Directory.Exists(modPath))
                     {
                         return Path.GetFullPath(modPath);
+                    }
+                    
+                    // Check for DISABLED_ version
+                    var disabledPath = Path.Combine(categoryDir, "DISABLED_" + modDirectoryName);
+                    if (Directory.Exists(disabledPath))
+                    {
+                        return Path.GetFullPath(disabledPath);
+                    }
+                    
+                    // Check if modDirectoryName already has DISABLED_ prefix, try without it
+                    if (modDirectoryName.StartsWith("DISABLED_"))
+                    {
+                        var cleanName = modDirectoryName.Substring("DISABLED_".Length);
+                        var cleanPath = Path.Combine(categoryDir, cleanName);
+                        if (Directory.Exists(cleanPath))
+                        {
+                            return Path.GetFullPath(cleanPath);
+                        }
                     }
                 }
             }
@@ -709,7 +733,7 @@ namespace FlairX_Mod_Manager.Pages
             if (!File.Exists(_modJsonPath))
             {
                 // If mod.json doesn't exist, ensure default mod.json is created first
-                await Task.Run(() => (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary());
+                // EnsureModJsonInModLibrary removed - no longer needed
                 
                 // Check if mod.json was created successfully
                 if (!File.Exists(_modJsonPath))
@@ -756,7 +780,7 @@ namespace FlairX_Mod_Manager.Pages
             if (string.IsNullOrEmpty(_modJsonPath)) return;
             if (!File.Exists(_modJsonPath))
             {
-                await Task.Run(() => (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary());
+                // EnsureModJsonInModLibrary removed - no longer needed
                 if (!File.Exists(_modJsonPath))
                 {
                     Logger.LogError($"Failed to create default mod.json at: {_modJsonPath}");

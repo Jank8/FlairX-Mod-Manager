@@ -1,13 +1,10 @@
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace FlairX_Mod_Manager
@@ -17,75 +14,34 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public static class SharedUtilities
     {
-        // ==================== WIN32 FOLDER PICKER ====================
+        // ==================== FOLDER PICKER ====================
         
-        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-        private static extern IntPtr SHBrowseForFolder(ref BROWSEINFO bi);
-
-        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-        private static extern bool SHGetPathFromIDList(IntPtr pidl, StringBuilder pszPath);
-
-        private const int MAX_PATH = 260;
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        private struct BROWSEINFO
-        {
-            public nint hwndOwner;
-            public nint pidlRoot;
-            public IntPtr pszDisplayName;
-            public string lpszTitle;
-            public uint ulFlags;
-            public nint lpfn;
-            public nint lParam;
-            public int iImage;
-        }
-
         /// <summary>
-        /// Asynchronicznie otwiera dialog wyboru folderu Win32
+        /// Asynchronicznie otwiera dialog wyboru folderu WinUI 3
         /// </summary>
-        /// <param name="hwnd">Handle okna nadrz�dnego</param>
-        /// <param name="title">Tytu� dialogu</param>
-        /// <returns>�cie�ka wybranego folderu lub null je�li anulowano</returns>
+        /// <param name="hwnd">Handle okna nadrzędnego</param>
+        /// <param name="title">Tytuł dialogu (nieużywany w WinUI 3 FolderPicker)</param>
+        /// <returns>Ścieżka wybranego folderu lub null jeśli anulowano</returns>
         public static async Task<string?> PickFolderAsync(nint hwnd, string title)
         {
-            var tcs = new TaskCompletionSource<string?>();
-            var thread = new Thread(() =>
+            try
             {
-                try
-                {
-                    var bi = new BROWSEINFO
-                    {
-                        hwndOwner = hwnd,
-                        lpszTitle = title,
-                        ulFlags = 0x00000040 // BIF_NEWDIALOGSTYLE
-                    };
-                    
-                    IntPtr pidl = SHBrowseForFolder(ref bi);
-                    if (pidl == IntPtr.Zero)
-                    {
-                        tcs.SetResult(null);
-                        return;
-                    }
-                    
-                    var sb = new StringBuilder(MAX_PATH);
-                    if (SHGetPathFromIDList(pidl, sb))
-                    {
-                        tcs.SetResult(sb.ToString());
-                    }
-                    else
-                    {
-                        tcs.SetResult(null);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    tcs.SetException(ex);
-                }
-            });
-            
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-            return await tcs.Task;
+                var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+                
+                // Initialize with window handle
+                WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+                
+                // Set file type filters (required even for folder picker)
+                folderPicker.FileTypeFilter.Add("*");
+                
+                var folder = await folderPicker.PickSingleFolderAsync();
+                return folder?.Path;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to pick folder", ex);
+                return null;
+            }
         }
 
         // ==================== FILESYSTEM UTILITIES ====================
@@ -423,19 +379,11 @@ namespace FlairX_Mod_Manager
         }
         
         /// <summary>
-        /// Gets mod library path safely
-        /// </summary>
-        public static string GetSafeModLibraryPath(string? subPath = null)
-        {
-            return PathManager.GetModLibraryPath(subPath);
-        }
-        
-        /// <summary>
         /// Gets XXMI mods path safely
         /// </summary>
         public static string GetSafeXXMIModsPath(string? subPath = null)
         {
-            return PathManager.GetXXMIModsPath(subPath);
+            return SettingsManager.GetCurrentXXMIModsDirectory() ?? string.Empty;
         }
     }
 }

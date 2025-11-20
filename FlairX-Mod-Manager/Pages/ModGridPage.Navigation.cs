@@ -60,7 +60,7 @@ namespace FlairX_Mod_Manager.Pages
             if (e.Parameter is string modName && !string.IsNullOrEmpty(modName))
             {
                 // Open mod details for given name using new category-based structure
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modLibraryPath))
                     modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
                 var modDir = FindModFolderPath(modLibraryPath, modName);
@@ -369,37 +369,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void LoadSymlinkState()
-        {
-            if (File.Exists(SymlinkStatePath))
-            {
-                try
-                {
-                    var json = File.ReadAllText(SymlinkStatePath);
-                    var state = JsonSerializer.Deserialize<SymlinkState>(json);
-                    _lastSymlinkTarget = state?.TargetPath ?? string.Empty;
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to load symlink state", ex);
-                    _lastSymlinkTarget = string.Empty;
-                }
-            }
-        }
 
-        private void SaveSymlinkState()
-        {
-            try
-            {
-                var state = new SymlinkState { TargetPath = _lastSymlinkTarget ?? string.Empty };
-                var json = JsonSerializer.Serialize(state, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(SymlinkStatePath, json);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to save symlink state", ex);
-            }
-        }
 
         private void UpdateTranslations()
         {
@@ -418,9 +388,6 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        public class SymlinkState
-        {
-            public string TargetPath { get; set; } = string.Empty;
-        }
+
     }
 }

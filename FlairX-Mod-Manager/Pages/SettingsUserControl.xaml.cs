@@ -278,8 +278,7 @@ namespace FlairX_Mod_Manager.Pages
             if (DefaultResolutionOnStartLabel != null) DefaultResolutionOnStartLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultResolutionOnStart_Label");
             if (DefaultStartResolutionLabel != null) DefaultStartResolutionLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Label");
             if (XXMIRootDirectoryLabel != null) XXMIRootDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory");
-            if (ModLibraryDirectoryLabel != null) ModLibraryDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModLibraryDirectory");
-            if (SkipXXMILauncherLabel != null) SkipXXMILauncherLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_SkipXXMILauncher_Label");
+                        if (SkipXXMILauncherLabel != null) SkipXXMILauncherLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_SkipXXMILauncher_Label");
             if (ActiveModsToTopLabel != null) ActiveModsToTopLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Label");
             if (DynamicModSearchLabel != null) DynamicModSearchLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Label");
             if (ShowOrangeAnimationLabel != null) ShowOrangeAnimationLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Label");
@@ -297,8 +296,7 @@ namespace FlairX_Mod_Manager.Pages
             if (DefaultResolutionOnStartDescription != null) DefaultResolutionOnStartDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultResolutionOnStart_Description") ?? string.Empty;
             if (DefaultStartResolutionDescription != null) DefaultStartResolutionDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Description") ?? string.Empty;
             if (XXMIRootDirectoryDescription != null) XXMIRootDirectoryDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory_Description") ?? string.Empty;
-            if (ModLibraryDirectoryDescription != null) ModLibraryDirectoryDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModLibraryDirectory_Description") ?? string.Empty;
-            if (SkipXXMILauncherDescription != null) SkipXXMILauncherDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_SkipXXMILauncher_Description") ?? string.Empty;
+                        if (SkipXXMILauncherDescription != null) SkipXXMILauncherDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_SkipXXMILauncher_Description") ?? string.Empty;
             if (ActiveModsToTopDescription != null) ActiveModsToTopDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Description") ?? string.Empty;
             if (DynamicModSearchDescription != null) DynamicModSearchDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Description") ?? string.Empty;
             if (ShowOrangeAnimationDescription != null) ShowOrangeAnimationDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Description") ?? string.Empty;
@@ -340,14 +338,11 @@ namespace FlairX_Mod_Manager.Pages
 
             if (ActiveModsToTopToggle != null) ToolTipService.SetToolTip(ActiveModsToTopToggle, SharedUtilities.GetTranslation(lang, "ActiveModsToTop_Tooltip"));
             if (XXMIRootDirectoryDefaultButton != null) ToolTipService.SetToolTip(XXMIRootDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
-            if (ModLibraryDirectoryDefaultButton != null) ToolTipService.SetToolTip(ModLibraryDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
-            if (OptimizePreviewsButton != null) ToolTipService.SetToolTip(OptimizePreviewsButton, SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Tooltip"));
+                        if (OptimizePreviewsButton != null) ToolTipService.SetToolTip(OptimizePreviewsButton, SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Tooltip"));
 
             if (XXMIRootDirectoryPickButton != null) ToolTipService.SetToolTip(XXMIRootDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
-            if (ModLibraryDirectoryPickButton != null) ToolTipService.SetToolTip(ModLibraryDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
-            if (XXMIRootDirectoryBreadcrumb != null) ToolTipService.SetToolTip(XXMIRootDirectoryBreadcrumb, SharedUtilities.GetTranslation(lang, "OpenDirectory_Tooltip"));
-            if (ModLibraryDirectoryBreadcrumb != null) ToolTipService.SetToolTip(ModLibraryDirectoryBreadcrumb, SharedUtilities.GetTranslation(lang, "OpenDirectory_Tooltip"));
-            if (DynamicModSearchToggle != null) ToolTipService.SetToolTip(DynamicModSearchToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Tooltip"));
+                        if (XXMIRootDirectoryBreadcrumb != null) ToolTipService.SetToolTip(XXMIRootDirectoryBreadcrumb, SharedUtilities.GetTranslation(lang, "OpenDirectory_Tooltip"));
+                        if (DynamicModSearchToggle != null) ToolTipService.SetToolTip(DynamicModSearchToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Tooltip"));
         }
 
         private void LoadLanguages()
@@ -481,7 +476,7 @@ namespace FlairX_Mod_Manager.Pages
             
             // Set BreadcrumbBar paths
             SetBreadcrumbBar(XXMIRootDirectoryBreadcrumb, SettingsManager.GetCurrentGameXXMIRoot());
-            SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, SettingsManager.GetCurrentModLibraryDirectory());
+            // ModLibraryDirectoryBreadcrumb removed - no longer needed
             
             // Set hotkey values from settings
             OptimizePreviewsHotkeyTextBox.Text = SettingsManager.Current.OptimizePreviewsHotkey;
@@ -671,7 +666,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             await Task.Run(() =>
             {
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modLibraryPath) || !Directory.Exists(modLibraryPath)) return;
                 foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
                 {
@@ -770,7 +765,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogInfo("Starting optimize previews via hotkey (no confirmation)");
                 
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
+                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modLibraryPath) || !Directory.Exists(modLibraryPath))
                 {
                     Logger.LogWarning("Mod library path not found for optimize previews hotkey");
@@ -1259,37 +1254,15 @@ namespace FlairX_Mod_Manager.Pages
                 var folderPath = await SharedUtilities.PickFolderAsync(hwnd, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
                 if (!string.IsNullOrEmpty(folderPath))
                 {
-                    if (!IsNtfs(folderPath))
-                        ShowNtfsWarning(folderPath, "XXMI");
-                    
-                    // Clean up symlinks from current mods directory before switching
-                    var currentModsPath = SettingsManager.GetCurrentXXMIModsDirectory();
-                    if (Directory.Exists(currentModsPath))
-                    {
-                        Logger.LogInfo($"Cleaning up symlinks from current XXMI mods directory: {currentModsPath}");
-                        foreach (var dir in Directory.GetDirectories(currentModsPath))
-                        {
-                            if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
-                            {
-                                try
-                                {
-                                    Directory.Delete(dir, true);
-                                    Logger.LogInfo($"Removed symlink: {dir}");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.LogError($"Failed to remove symlink: {dir}", ex);
-                                }
-                            }
-                        }
-                    }
+                    // Clean up from current mods directory before switching
+
                     
                     // Set XXMI root for current game
                     SettingsManager.SetCurrentGameXXMIRoot(folderPath);
                     SetBreadcrumbBar(XXMIRootDirectoryBreadcrumb, folderPath);
-                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    // RecreateSymlinksFromActiveMods removed - no longer needed
                     
-                    Logger.LogInfo($"Changed XXMI root directory to: {folderPath}");
+                    FlairX_Mod_Manager.Logger.LogInfo($"Changed XXMI root directory to: {folderPath}");
                 }
             }
             catch (Exception ex)
@@ -1319,35 +1292,16 @@ namespace FlairX_Mod_Manager.Pages
             if (string.Equals(Path.GetFullPath(currentModsPath), Path.GetFullPath(defaultModsPath), StringComparison.OrdinalIgnoreCase))
                 return;
 
-            // Clean up symlinks from current directory before switching
-            if (Directory.Exists(currentModsPath))
-            {
-                Logger.LogInfo($"Cleaning up symlinks from current directory: {currentModsPath}");
-                foreach (var dir in Directory.GetDirectories(currentModsPath))
-                {
-                    if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
-                    {
-                        try
-                        {
-                            Directory.Delete(dir, true);
-                            Logger.LogInfo($"Removed symlink: {dir}");
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"Failed to remove symlink: {dir}", ex);
-                        }
-                    }
-                }
-            }
+
 
             // Remove custom XXMI root for current game to use default
             SettingsManager.Current.GameXXMIRootPaths.Remove(gameTag);
             SettingsManager.Save();
             
             SetBreadcrumbBar(XXMIRootDirectoryBreadcrumb, defaultXXMIRoot);
-            FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+            // RecreateSymlinksFromActiveMods removed - no longer needed
             
-            Logger.LogInfo($"Restored XXMI root to default: {defaultXXMIRoot}");
+            FlairX_Mod_Manager.Logger.LogInfo($"Restored XXMI root to default: {defaultXXMIRoot}");
         }
 
         private void XXMIRootDirectoryBreadcrumb_ItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
@@ -1361,155 +1315,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async Task ModLibraryDirectoryPickButton_ClickAsync(Button senderButton)
-        {
-            senderButton.IsEnabled = false;
-            try
-            {
-                var lang = SharedUtilities.LoadLanguageDictionary();
-                var hwnd = SharedUtilities.GetMainWindowHandle();
-                var folderPath = await SharedUtilities.PickFolderAsync(hwnd, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
-                if (!string.IsNullOrEmpty(folderPath))
-                {
-                    if (!IsNtfs(folderPath))
-                        ShowNtfsWarning(folderPath, "ModLibrary");
-
-                    // Deactivate all mods and remove symlinks
-                    var activeModsPath = PathManager.GetSettingsPath("ActiveMods.json");
-                    if (File.Exists(activeModsPath))
-                    {
-                        var allMods = new Dictionary<string, bool>();
-                        var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(File.ReadAllText(activeModsPath)) ?? new Dictionary<string, bool>();
-                        foreach (var key in currentMods.Keys)
-                        {
-                            allMods[key] = false;
-                        }
-                        var json = System.Text.Json.JsonSerializer.Serialize(allMods, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                        File.WriteAllText(activeModsPath, json);
-                    }
-                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
-
-                    SettingsManager.SetCurrentGameModLibrary(folderPath);
-                    SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, folderPath);
-
-                    // Create default mod.json in subdirectories
-                    (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary();
-
-                    // Refresh manager (skip menu regeneration for directory changes)
-                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
-                    {
-                        mainWindow.RefreshUIAfterLanguageChange(false);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to change ModLibrary directory", ex);
-            }
-            senderButton.IsEnabled = true;
-        }
-
-        private async void ModLibraryDirectoryPickButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button senderButton)
-                await ModLibraryDirectoryPickButton_ClickAsync(senderButton);
-        }
-
-        private void ModLibraryDirectoryDefaultButton_Click(object sender, RoutedEventArgs e)
-        {
-            // If already default, do nothing
-            var defaultPath = AppConstants.DEFAULT_MOD_LIBRARY_PATH;
-            var currentPath = SettingsManager.GetCurrentModLibraryDirectory();
-            
-            Logger.LogInfo($"Restore default mod library button clicked. Current: '{currentPath}', Default: '{defaultPath}'");
-            
-            // If already default, do nothing
-            if (string.IsNullOrWhiteSpace(currentPath))
-            {
-                Logger.LogInfo("Current mod library path is null/empty, already using default - no action needed");
-                return;
-            }
-            
-            try
-            {
-                var currentFullPath = Path.GetFullPath(currentPath);
-                var defaultFullPath = Path.GetFullPath(defaultPath);
-                
-                if (string.Equals(currentFullPath, defaultFullPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    Logger.LogInfo($"Mod library is already using default path ({currentFullPath}) - no action needed");
-                    return;
-                }
-                
-                Logger.LogInfo($"Mod library path needs to be changed from '{currentFullPath}' to '{defaultFullPath}'");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to compare mod library paths", ex);
-                return;
-            }
-
-            // Deactivate all mods and remove symlinks
-            var activeModsPath = PathManager.GetSettingsPath("ActiveMods.json");
-            if (File.Exists(activeModsPath))
-            {
-                var allMods = new Dictionary<string, bool>();
-                var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(File.ReadAllText(activeModsPath)) ?? new Dictionary<string, bool>();
-                foreach (var key in currentMods.Keys)
-                {
-                    allMods[key] = false;
-                }
-                var json = System.Text.Json.JsonSerializer.Serialize(allMods, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(activeModsPath, json);
-            }
-            FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
-
-            // Remove custom mod library path for current game to use default
-            string gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
-            if (!string.IsNullOrEmpty(gameTag))
-            {
-                SettingsManager.Current.GameModLibraryPaths.Remove(gameTag);
-                SettingsManager.Save();
-                
-                var newDefaultPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
-                SetBreadcrumbBar(ModLibraryDirectoryBreadcrumb, newDefaultPath);
-            }
-
-            // Refresh manager (skip menu regeneration for directory changes)
-            if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
-            {
-                mainWindow.RefreshUIAfterLanguageChange(false);
-            }
-        }
-
-        private void ModLibraryDirectoryBreadcrumb_ItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
-        {
-            var path = GetBreadcrumbPath(sender);
-            string gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
-            if (!string.IsNullOrEmpty(gameTag))
-            {
-                SettingsManager.Current.GameModLibraryPaths[gameTag] = path;
-                SettingsManager.Save();
-            }
-        }
-
-        private bool IsNtfs(string path)
-        {
-            return SharedUtilities.IsNtfsFileSystem(path);
-        }
-
-        private void ShowNtfsWarning(string path, string label)
-        {
-            var lang = SharedUtilities.LoadLanguageDictionary();
-            var dialog = new ContentDialog
-            {
-                Title = SharedUtilities.GetTranslation(lang, "Ntfs_Warning_Title"),
-                Content = string.Format(SharedUtilities.GetTranslation(lang, "Ntfs_Warning_Content"), label, path),
-                CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot
-            };
-            _ = dialog.ShowAsync();
-        }
+        // ModLibrary methods removed - mods stored in XXMI/Mods only
 
         private void ActiveModsToTopToggle_Toggled(object sender, RoutedEventArgs e)
         {

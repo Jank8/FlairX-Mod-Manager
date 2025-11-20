@@ -13,7 +13,7 @@ namespace FlairX_Mod_Manager
         // Core directories (relative paths)
         public const string SETTINGS_DIR = "Settings";
         public const string LANGUAGE_DIR = "Language";
-        public const string MOD_LIBRARY_DIR = "ModLibrary";
+        public const string MODS_DIR = "ModLibrary";
         public const string XXMI_DIR = "XXMI";
         public const string ASSETS_DIR = "Assets";
         
@@ -121,27 +121,19 @@ namespace FlairX_Mod_Manager
         }
         
         /// <summary>
-        /// Gets mod library path
+        /// Gets mods path (XXMI/Mods)
         /// </summary>
-        public static string GetModLibraryPath(string? subPath = null)
+        public static string GetModsPath(string? subPath = null)
         {
-            var modLibPath = SettingsManager.GetCurrentModLibraryDirectory();
+            var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
             
             if (string.IsNullOrEmpty(subPath))
-                return GetAbsolutePath(modLibPath);
+                return GetAbsolutePath(modsPath);
             else
-                return GetAbsolutePath(CombinePath(modLibPath, subPath));
+                return GetAbsolutePath(CombinePath(modsPath, subPath));
         }
         
-        /// <summary>
-        /// Gets category-based mod path (ModLibrary/[GameName]/[Category]/[ModName])
-        /// </summary>
-        public static string GetCategoryModPath(string category, string modName)
-        {
-            var gameTag = SettingsManager.CurrentSelectedGame;
-            var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
-            return GetAbsolutePath(CombinePath(gameModLibraryPath, category, modName));
-        }
+        // GetCategoryModPath removed - mods stored directly in XXMI/Mods
         
         /// <summary>
         /// Gets category from mod directory path
@@ -150,14 +142,14 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                var modLibraryPath = GetModLibraryPath();
+                var modLibraryPath = GetModsPath();
                 var relativePath = Path.GetRelativePath(modLibraryPath, modPath);
                 var pathParts = relativePath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
                 
-                // Expected structure: [GameName]/[Category]/[ModName]
+                // Expected structure: [Category]/[ModName]
                 if (pathParts.Length >= 2)
                 {
-                    return pathParts[1]; // Category is the second part
+                    return pathParts[0]; // Category is the first part
                 }
                 
                 return "Other"; // Default category

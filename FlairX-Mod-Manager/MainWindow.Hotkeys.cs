@@ -197,19 +197,16 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogInfo("Shuffle active mods hotkey triggered");
                 
-                // Get mod library path
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrWhiteSpace(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-                
-                if (!Directory.Exists(modLibraryPath))
+                // Get XXMI mods path
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrWhiteSpace(modsPath) || !Directory.Exists(modsPath))
                 {
-                    Logger.LogError("Mod library directory does not exist");
+                    Logger.LogError("XXMI mods directory does not exist");
                     return;
                 }
                 
                 // Get all categories except "Other"
-                var categories = Directory.GetDirectories(modLibraryPath)
+                var categories = Directory.GetDirectories(modsPath)
                     .Where(categoryDir => !string.Equals(Path.GetFileName(categoryDir), "Other", StringComparison.OrdinalIgnoreCase))
                     .Where(Directory.Exists)
                     .ToList();
@@ -268,8 +265,7 @@ namespace FlairX_Mod_Manager
                     var json = JsonSerializer.Serialize(newActiveMods, new JsonSerializerOptions { WriteIndented = true });
                     File.WriteAllText(activeModsPath, json);
                     
-                    // Recreate symlinks
-                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    // No symlink recreation needed - using DISABLED_ prefix system
                     
                     Logger.LogInfo($"Shuffle completed - activated {selectedMods.Count} random mods");
                     
@@ -314,14 +310,11 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogInfo("Deactivate all mods hotkey triggered");
                 
-                // Get mod library path
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrWhiteSpace(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-                
-                if (!Directory.Exists(modLibraryPath))
+                // Get XXMI mods path
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrWhiteSpace(modsPath) || !Directory.Exists(modsPath))
                 {
-                    Logger.LogError("Mod library directory does not exist");
+                    Logger.LogError("XXMI mods directory does not exist");
                     return;
                 }
                 
@@ -342,7 +335,7 @@ namespace FlairX_Mod_Manager
                         {
                             // Check if mod is in "Other" category
                             bool isInOtherCategory = false;
-                            var otherCategoryPath = Path.Combine(modLibraryPath, "Other");
+                            var otherCategoryPath = Path.Combine(modsPath, "Other");
                             if (Directory.Exists(otherCategoryPath))
                             {
                                 var modPath = Path.Combine(otherCategoryPath, mod);
@@ -381,8 +374,7 @@ namespace FlairX_Mod_Manager
                     var json = JsonSerializer.Serialize(newActiveMods, new JsonSerializerOptions { WriteIndented = true });
                     File.WriteAllText(activeModsPath, json);
                     
-                    // Recreate symlinks
-                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    // No symlink recreation needed - using DISABLED_ prefix system
                     
                     Logger.LogInfo($"Deactivate all completed - deactivated {deactivatedMods.Count} mods (excluding Other category)");
                     

@@ -258,21 +258,20 @@ namespace FlairX_Mod_Manager.Dialogs
             try
             {
                 // Get mod library path
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
 
-                var categoryPath = Path.Combine(modLibraryPath, category);
+                var categoryPath = Path.Combine(modsPath, category);
                 if (!Directory.Exists(categoryPath))
                     return;
 
-                var modFolderName = SanitizeFileName(_modName);
-                var modPath = Path.Combine(categoryPath, modFolderName);
+                // Check if mod already exists (with or without DISABLED_ prefix)
+                var cleanModName = SanitizeFileName(_modName);
+                var existingModPath = FindExistingModPath(categoryPath, cleanModName);
 
                 // Check if mod exists and has same URL
-                if (Directory.Exists(modPath))
+                if (!string.IsNullOrEmpty(existingModPath) && Directory.Exists(existingModPath))
                 {
-                    var modJsonPath = Path.Combine(modPath, "mod.json");
+                    var modJsonPath = Path.Combine(existingModPath, "mod.json");
                     if (File.Exists(modJsonPath))
                     {
                         try
@@ -290,7 +289,7 @@ namespace FlairX_Mod_Manager.Dialogs
                                         _updateOptionsGrid.Visibility = Visibility.Visible;
                                     
                                     Title = SharedUtilities.GetTranslation(_lang, "DownloadAndUpdateMod");
-                                    Logger.LogInfo($"Update detected for mod: {modPath}");
+                                    Logger.LogInfo($"Update detected for mod: {existingModPath}");
                                 }
                             }
                         }
@@ -418,21 +417,22 @@ namespace FlairX_Mod_Manager.Dialogs
                 _extractProgressBar.IsIndeterminate = true;
 
                 // Get mod library path
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
 
-                var categoryPath = Path.Combine(modLibraryPath, category);
+                var categoryPath = Path.Combine(modsPath, category);
                 Directory.CreateDirectory(categoryPath);
 
-                // Use mod name from textbox
-                var modFolderName = SanitizeFileName(_modNameTextBox.Text.Trim());
-                var modPath = Path.Combine(categoryPath, modFolderName);
-
-                // Check if this is an update (folder exists with same mod URL)
+                // Check if mod already exists (with or without DISABLED_ prefix)
+                var cleanModName = SanitizeFileName(_modNameTextBox.Text.Trim());
+                var existingModPath = FindExistingModPath(categoryPath, cleanModName);
+                
                 bool isUpdate = false;
-                if (Directory.Exists(modPath))
+                string modPath;
+                
+                if (!string.IsNullOrEmpty(existingModPath) && Directory.Exists(existingModPath))
                 {
+                    // Mod exists - check if it's an update
+                    modPath = existingModPath;
                     var modJsonPath = Path.Combine(modPath, "mod.json");
                     if (File.Exists(modJsonPath))
                     {
@@ -468,13 +468,20 @@ namespace FlairX_Mod_Manager.Dialogs
                     if (!isUpdate)
                     {
                         int counter = 1;
-                        while (Directory.Exists($"{modPath}_{counter}"))
+                        var basePath = modPath;
+                        while (Directory.Exists($"{basePath}_{counter}"))
                         {
                             counter++;
                         }
-                        modPath = $"{modPath}_{counter}";
+                        modPath = $"{basePath}_{counter}";
                         Logger.LogInfo($"Installing new mod at: {modPath}");
                     }
+                }
+                else
+                {
+                    // New mod - add DISABLED_ prefix
+                    modPath = Path.Combine(categoryPath, "DISABLED_" + cleanModName);
+                    Logger.LogInfo($"Installing new mod (disabled by default) at: {modPath}");
                 }
 
                 // Create directory if it doesn't exist (for new installs)
@@ -606,14 +613,13 @@ namespace FlairX_Mod_Manager.Dialogs
                 _extractProgressBar.IsIndeterminate = true;
 
                 // Get mod library path
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
 
-                var categoryPath = Path.Combine(modLibraryPath, category);
+                var categoryPath = Path.Combine(modsPath, category);
                 Directory.CreateDirectory(categoryPath);
 
-                var modFolderName = SanitizeFileName(_modNameTextBox.Text.Trim());
+                // New mods are disabled by default
+                var modFolderName = "DISABLED_" + SanitizeFileName(_modNameTextBox.Text.Trim());
                 var modPath = Path.Combine(categoryPath, modFolderName);
 
                 // Create main mod directory
@@ -734,11 +740,9 @@ namespace FlairX_Mod_Manager.Dialogs
 
         private async Task InstallFiles(string sourceDir, string category)
         {
-            var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+            var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
 
-            var categoryPath = Path.Combine(modLibraryPath, category);
+            var categoryPath = Path.Combine(modsPath, category);
             Directory.CreateDirectory(categoryPath);
 
             var modFolderName = SanitizeFileName(_modName);
@@ -1128,6 +1132,24 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 Logger.LogError("Failed to clean mod folder", ex);
             }
+        }
+        
+        /// <summary>
+        /// Find existing mod path (with or without DISABLED_ prefix)
+        /// </summary>
+        private string? FindExistingModPath(string categoryPath, string modName)
+        {
+            // Check for exact match
+            var exactPath = Path.Combine(categoryPath, modName);
+            if (Directory.Exists(exactPath))
+                return exactPath;
+            
+            // Check for DISABLED_ version
+            var disabledPath = Path.Combine(categoryPath, "DISABLED_" + modName);
+            if (Directory.Exists(disabledPath))
+                return disabledPath;
+            
+            return null;
         }
     }
 }

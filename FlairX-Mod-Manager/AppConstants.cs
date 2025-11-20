@@ -11,21 +11,18 @@ namespace FlairX_Mod_Manager
         // Directory Names
         public const string SETTINGS_FOLDER = "Settings";
         public const string LANGUAGE_FOLDER = "Language";
-        public const string MOD_LIBRARY_FOLDER = "ModLibrary";
         public const string XXMI_FOLDER = "XXMI";
         public const string ASSETS_FOLDER = "Assets";
         
         // File Names
         public const string SETTINGS_FILE = "Settings.json";
         public const string ACTIVE_MODS_FILE = "ActiveMods.json";
-        public const string SYMLINK_STATE_FILE = "SymlinkState.json";
         public const string STATUS_KEEPER_LOG_FILE = "StatusKeeper.log";
         public const string APPLICATION_LOG_FILE = "Application.log";
         public const string D3DX_USER_INI_FILE = "d3dx_user.ini";
         
         // Default Paths (ZZZ as default)
         public const string DEFAULT_XXMI_MODS_PATH = @".\XXMI\ZZMI\Mods";
-        public const string DEFAULT_MOD_LIBRARY_PATH = @".\ModLibrary";
         public const string DEFAULT_D3DX_USER_INI_PATH = @".\XXMI\ZZMI\d3dx_user.ini";
         
         // Game Configuration
@@ -43,23 +40,7 @@ namespace FlairX_Mod_Manager
                 return $@".\XXMI\{gameTag}\d3dx_user.ini";
             }
             
-            public static string GetModLibraryPath(string gameTag)
-            {
-                if (string.IsNullOrEmpty(gameTag)) return string.Empty;
-                
-                string subDir = gameTag switch
-                {
-                    "ZZMI" => "ZZ",
-                    "WWMI" => "WW", 
-                    "SRMI" => "SR",
-                    "GIMI" => "GI",
-                    "HIMI" => "HI",
-                    _ => "ZZ"
-                };
-                
-                return $@".\ModLibrary\{subDir}";
-            }
-            
+
             public static string GetPresetsPath(string gameTag)
             {
                 if (string.IsNullOrEmpty(gameTag)) return string.Empty;

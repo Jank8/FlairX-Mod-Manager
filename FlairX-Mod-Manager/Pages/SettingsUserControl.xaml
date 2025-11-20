@@ -312,39 +312,7 @@
                         </Grid>
                     </Border>
                     
-                    <!-- Mod Library Directory -->
-                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                            BorderThickness="1" 
-                            CornerRadius="8" 
-                            Padding="16" 
-                            Margin="0,0,0,24">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            
-                            <FontIcon Grid.Column="0" Glyph="&#xE8F1;" FontSize="20" VerticalAlignment="Center"/>
-                            
-                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                <TextBlock x:Name="ModLibraryDirectoryLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="ModLibraryDirectoryDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                            </StackPanel>
-                            
-                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                                <BreadcrumbBar x:Name="ModLibraryDirectoryBreadcrumb" Width="300" ItemClicked="ModLibraryDirectoryBreadcrumb_ItemClicked" Margin="0,0,8,0"/>
-                                <Button x:Name="ModLibraryDirectoryPickButton" Click="ModLibraryDirectoryPickButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Select directory">
-                                    <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
-                                </Button>
-                                <Button x:Name="ModLibraryDirectoryDefaultButton" Click="ModLibraryDirectoryDefaultButton_Click" Width="32" Height="32" Padding="0" Margin="8,0,0,0" ToolTipService.ToolTip="">
-                                    <FontIcon Glyph="&#xE72C;" FontSize="14"/>
-                                </Button>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
+                    <!-- Mod Library Directory removed - mods stored in XXMI/Mods -->
                     
                     <!-- Behavior Section -->
                     <TextBlock x:Name="BehaviorHeader" Text="Behavior" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>

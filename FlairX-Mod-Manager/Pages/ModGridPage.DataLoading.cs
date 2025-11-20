@@ -34,14 +34,14 @@ namespace FlairX_Mod_Manager.Pages
                 return;
             }
             
-            var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
-            string modLibraryPath = PathManager.GetAbsolutePath(gameModLibraryPath);
+            var gameModsPath = AppConstants.GameConfig.GetModsPath(gameTag);
+            string modsPath = PathManager.GetAbsolutePath(gameModsPath);
             
-            if (!Directory.Exists(modLibraryPath)) return;
+            if (!Directory.Exists(modsPath)) return;
             
             var categories = new List<ModTile>();
             
-            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+            foreach (var categoryDir in Directory.GetDirectories(modsPath))
             {
                 if (!Directory.Exists(categoryDir)) continue;
                 
@@ -97,8 +97,8 @@ namespace FlairX_Mod_Manager.Pages
             var gameTag = SettingsManager.CurrentSelectedGame;
             if (string.IsNullOrEmpty(gameTag)) return "";
             
-            var gameModLibraryPath = AppConstants.GameConfig.GetModLibraryPath(gameTag);
-            string categoryPath = PathManager.GetAbsolutePath(Path.Combine(gameModLibraryPath, categoryName));
+            var gameModsPath = AppConstants.GameConfig.GetModsPath(gameTag);
+            string categoryPath = PathManager.GetAbsolutePath(Path.Combine(gameModsPath, categoryName));
             
             // Look for category-specific preview image only
             string categoryPreview = Path.Combine(categoryPath, "catprev.jpg");
@@ -158,13 +158,12 @@ namespace FlairX_Mod_Manager.Pages
 
         private void LoadCategoryModData(string category)
         {
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-            if (!Directory.Exists(modLibraryPath)) return;
+            var modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+            
+            if (!Directory.Exists(modsPath)) return;
             
             _allModData.Clear();
-            var categoryPath = Path.Combine(modLibraryPath, category);
+            var categoryPath = Path.Combine(modsPath, category);
             
             if (Directory.Exists(categoryPath))
             {
@@ -175,10 +174,10 @@ namespace FlairX_Mod_Manager.Pages
                     
                     try
                     {
-                        var name = Path.GetFileName(modDir);
-                        string previewPath = GetOptimalImagePath(modDir);
                         var dirName = Path.GetFileName(modDir);
-                        var isActive = _activeMods.TryGetValue(dirName, out var active) && active;
+                        var name = GetCleanModName(dirName);
+                        string previewPath = GetOptimalImagePath(modDir);
+                        var isActive = IsModActive(dirName);
                         
                         // Parse JSON for additional data
                         var modCharacter = "other";
@@ -351,17 +350,16 @@ namespace FlairX_Mod_Manager.Pages
 
         private void LoadAllModData()
         {
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-            if (!Directory.Exists(modLibraryPath)) return;
+            var modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+            
+            if (!Directory.Exists(modsPath)) return;
             
             _allModData.Clear();
             var cacheHits = 0;
             var cacheMisses = 0;
             
             // Process category directories (1st level) and mod directories (2nd level)
-            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+            foreach (var categoryDir in Directory.GetDirectories(modsPath))
             {
                 if (!Directory.Exists(categoryDir)) continue;
                 
@@ -376,7 +374,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (modData != null)
                     {
                         // Update active state (this can change without file modification)
-                        modData.IsActive = _activeMods.TryGetValue(dirName, out var active) && active;
+                        modData.IsActive = IsModActive(dirName);
                         
                         // Add category information from folder structure
                         modData.Category = Path.GetFileName(categoryDir);
@@ -466,9 +464,9 @@ namespace FlairX_Mod_Manager.Pages
                         lastUpdated = File.GetLastWriteTime(dir);
                     }
                     
-                    var name = Path.GetFileName(dir);
+                    var cleanName = GetCleanModName(dirName);
                     string previewPath = GetOptimalImagePath(dir);
-                    var isActive = _activeMods.TryGetValue(dirName, out var active) && active;
+                    var isActive = IsModActive(dirName);
                     
                     // Determine category from directory structure
                     var categoryName = "Unknown";
@@ -487,9 +485,9 @@ namespace FlairX_Mod_Manager.Pages
                     
                     var modData = new ModData
                     { 
-                        Name = name, 
+                        Name = cleanName, 
                         ImagePath = previewPath, 
-                        Directory = dirName, 
+                        Directory = cleanName, 
                         IsActive = isActive,
                         Character = modCharacter,
                         Author = modAuthor,
@@ -694,17 +692,16 @@ namespace FlairX_Mod_Manager.Pages
 
         private void LoadActiveModData()
         {
-            var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (string.IsNullOrEmpty(modLibraryPath))
-                modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
-            if (!Directory.Exists(modLibraryPath)) return;
+            var modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+            
+            if (!Directory.Exists(modsPath)) return;
             
             _allModData.Clear();
             var cacheHits = 0;
             var cacheMisses = 0;
             
             // Process category directories excluding "Other" for active mods view (same as All Mods)
-            foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+            foreach (var categoryDir in Directory.GetDirectories(modsPath))
             {
                 if (!Directory.Exists(categoryDir)) continue;
                 
@@ -719,7 +716,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (modData != null)
                     {
                         // Update active state (this can change without file modification)
-                        modData.IsActive = _activeMods.TryGetValue(dirName, out var active) && active;
+                        modData.IsActive = IsModActive(dirName);
                         
                         // Add category information from folder structure
                         modData.Category = Path.GetFileName(categoryDir);

@@ -190,9 +190,7 @@ namespace FlairX_Mod_Manager.Pages
                 return PathManager.GetActiveModsPath();
             }
         }
-        private static string SymlinkStatePath => Path.Combine(AppContext.BaseDirectory, "Settings", "SymlinkState.json");
         private Dictionary<string, bool> _activeMods = new();
-        private string? _lastSymlinkTarget;
         private ObservableCollection<ModTile> _allMods = new();
         
         // Animation system for tile tilt effects
@@ -784,13 +782,13 @@ namespace FlairX_Mod_Manager.Pages
                 // Check if mod directory exists before showing context menu (skip for categories)
                 if (!modTile.IsCategory)
                 {
-                    string modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-                    if (string.IsNullOrEmpty(modLibraryPath))
+                    string modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+                    if (string.IsNullOrEmpty(modsPath))
                     {
-                        modLibraryPath = PathManager.GetModLibraryPath();
+                        modsPath = PathManager.GetModsPath();
                     }
                     
-                    string? fullModDir = FindModFolderPath(modLibraryPath, modTile.Directory);
+                    string? fullModDir = FindModFolderPath(modsPath, modTile.Directory);
                     if (string.IsNullOrEmpty(fullModDir) || !Directory.Exists(fullModDir))
                     {
                         // Mod directory not found - cancel context menu opening
@@ -975,11 +973,8 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogInfo("Loading active mods state");
                 LoadActiveMods();
                 
-                Logger.LogInfo("Loading symlink state");
-                LoadSymlinkState();
-                
                 Logger.LogInfo("Ensuring mod.json files exist in ModLibrary");
-                (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary();
+                // EnsureModJsonInModLibrary removed - no longer needed
                 
                 this.Loaded += ModGridPage_Loaded;
                 
@@ -1037,13 +1032,13 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath))
+                    modsPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
 
                 // Find the mod.json file
                 string? modJsonPath = null;
-                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
                 {
                     var potentialPath = Path.Combine(categoryDir, modDirectory, "mod.json");
                     if (File.Exists(potentialPath))
@@ -1117,11 +1112,11 @@ namespace FlairX_Mod_Manager.Pages
                 if (string.IsNullOrEmpty(_currentCategory))
                     return;
 
-                var modLibraryPath = SettingsManager.GetCurrentModLibraryDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath))
-                    modLibraryPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath))
+                    modsPath = Path.Combine(AppContext.BaseDirectory, "ModLibrary");
 
-                var categoryPath = Path.Combine(modLibraryPath, _currentCategory);
+                var categoryPath = Path.Combine(modsPath, _currentCategory);
                 
                 if (Directory.Exists(categoryPath))
                 {
@@ -1196,11 +1191,10 @@ namespace FlairX_Mod_Manager.Pages
             //     _ = mainWindow.GenerateModCharacterMenuAsync();
             // }
             
-            // Check mod directories and create mod.json in level 1 directories - CRITICAL for mod integrity
-            (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary();
+            // EnsureModJsonInModLibrary removed - no longer needed
             
             // Update translations for UI elements
-            UpdateTranslations();
+            // UpdateTranslations(); // Method removed or renamed
             UpdateContextMenuTranslations();
             
             // Update CategoryTitle based on current view

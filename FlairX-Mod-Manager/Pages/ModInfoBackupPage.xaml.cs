@@ -12,7 +12,7 @@ namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class ModInfoBackupPage : Page
     {
-        private string ModLibraryPath => SharedUtilities.GetSafeModLibraryPath();
+        private string ModLibraryPath => SharedUtilities.GetSafeXXMIModsPath();
         private const int MaxBackups = 3;
 
         public ModInfoBackupPage()

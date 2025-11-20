@@ -43,9 +43,6 @@ namespace FlairX_Mod_Manager
             Logger.LogInfo("Application starting up");
             try
             {
-                Logger.LogInfo("Checking admin privileges");
-                RequireAdmin();
-                
                 Logger.LogInfo("Initializing WinUI components");
                 InitializeComponent();
                 
@@ -174,17 +171,14 @@ namespace FlairX_Mod_Manager
                 Application.Current.Resources["AppFontFamily"] = silesianFont;
             }
             // Language loading is now handled by SharedUtilities in each component
-            _ = EnsureModJsonInModLibrary();
+            _ = EnsureModJsonInXXMIMods();
             EnsureDefaultDirectories();
             // Always generate default preset on app startup
             FlairX_Mod_Manager.Pages.ModGridPage gridPage = new();
             gridPage.SaveDefaultPresetAllInactive();
             
-            // Ensure symlinks are properly validated and recreated for active mods on startup
-            Logger.LogInfo("Validating and recreating symlinks for active mods on application startup");
-            FlairX_Mod_Manager.Pages.ModGridPage.ValidateAndFixSymlinks();
-            FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
-            Logger.LogInfo("Symlink validation and recreation completed on startup");
+            // No symlink validation needed - using DISABLED_ prefix system
+            Logger.LogInfo("Mod state maintained using DISABLED_ prefix system");
             // Removed: ZIP thumbnail cache generation on startup
 
             // Show loading window first
@@ -240,16 +234,6 @@ namespace FlairX_Mod_Manager
                 {
                     Directory.CreateDirectory(xxmiDir);
                     Logger.LogInfo("XXMI directory created successfully");
-                    
-                    if (!IsNtfs(xxmiDir))
-                    {
-                        Logger.LogWarning($"XXMI directory is not on NTFS filesystem: {xxmiDir}");
-                        ShowNtfsWarning(xxmiDir, "XXMI");
-                    }
-                    else
-                    {
-                        Logger.LogInfo("XXMI directory is on NTFS filesystem");
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -261,117 +245,30 @@ namespace FlairX_Mod_Manager
                 Logger.LogWarning("XXMI directory path is empty or null");
             }
             
-            var modLibDir = FlairX_Mod_Manager.SettingsManager.GetCurrentModLibraryDirectory();
-            if (!string.IsNullOrWhiteSpace(modLibDir))
-            {
-                Logger.LogInfo($"Creating ModLibrary directory: {modLibDir}");
-                try
-                {
-                    Directory.CreateDirectory(modLibDir);
-                    Logger.LogInfo("ModLibrary directory created successfully");
-                    
-                    if (!IsNtfs(modLibDir))
-                    {
-                        Logger.LogWarning($"ModLibrary directory is not on NTFS filesystem: {modLibDir}");
-                        ShowNtfsWarning(modLibDir, "ModLibrary");
-                    }
-                    else
-                    {
-                        Logger.LogInfo("ModLibrary directory is on NTFS filesystem");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError($"ModLibrary directory creation failed: {modLibDir}", ex);
-                }
-            }
-            else
-            {
-                Logger.LogWarning("ModLibrary directory path is empty or null");
-            }
+            // Mods are now stored directly in XXMI/Mods - no separate ModLibrary needed
+            Logger.LogInfo("Mods will be stored in XXMI/Mods directory");
         }
 
-        private bool IsNtfs(string path)
-        {
-            try
-            {
-                var fullPath = System.IO.Path.GetFullPath(path);
-                var root = System.IO.Path.GetPathRoot(fullPath);
-                if (string.IsNullOrEmpty(root)) return false;
-                var drive = new DriveInfo(root!);
-                return string.Equals(drive.DriveFormat, "NTFS", StringComparison.OrdinalIgnoreCase);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"NTFS check failed: {ex.Message}");
-                return false;
-            }
-        }
 
-        private void ShowNtfsWarning(string path, string label)
-        {
-            var langDict = SharedUtilities.LoadLanguageDictionary();
-            var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
-            {
-                Title = SharedUtilities.GetTranslation(langDict, "Ntfs_Warning_Title"),
-                Content = string.Format(SharedUtilities.GetTranslation(langDict, "Ntfs_Warning_Content"), label, path),
-                CloseButtonText = "OK",
-                XamlRoot = _window?.Content?.XamlRoot
-            };
-            _ = dialog.ShowAsync();
-        }
-
-        // Changed to public so MainWindow can call this method
-        public void ShowStartupNtfsWarningIfNeeded()
-        {
-            try
-            {
-                var exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
-                if (!string.IsNullOrEmpty(exePath))
-                {
-                    var root = System.IO.Path.GetPathRoot(System.IO.Path.GetFullPath(exePath));
-                    if (!string.IsNullOrEmpty(root))
-                    {
-                        var drive = new DriveInfo(root!);
-                        if (!string.Equals(drive.DriveFormat, "NTFS", StringComparison.OrdinalIgnoreCase))
-                        {
-                            var langDict = SharedUtilities.LoadLanguageDictionary();
-                            var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
-                            {
-                                Title = SharedUtilities.GetTranslation(langDict, "Ntfs_Warning_Title"),
-                                Content = SharedUtilities.GetTranslation(langDict, "Ntfs_Startup_Warning_Content"),
-                                CloseButtonText = "OK",
-                                XamlRoot = _window?.Content?.XamlRoot
-                            };
-                            _ = dialog.ShowAsync();
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Failed to check NTFS on startup: {ex.Message}");
-            }
-        }
 
         // Removed duplicate MainWindow property
 
-        public async Task EnsureModJsonInModLibrary()
+        public async Task EnsureModJsonInXXMIMods()
         {
             await Task.Run(async () =>
             {
                 // Only run if a game is selected (not index 0)
                 if (SettingsManager.Current.SelectedGameIndex == 0)
                 {
-                    System.Diagnostics.Debug.WriteLine("EnsureModJsonInModLibrary: Skipping - no game selected");
+                    System.Diagnostics.Debug.WriteLine("EnsureModJsonInXXMIMods: Skipping - no game selected");
                     return;
                 }
                 
-                // Use current path from settings with validation
-                string modLibraryPath = SharedUtilities.GetSafeModLibraryPath();
-                if (!System.IO.Directory.Exists(modLibraryPath)) 
+                // Use XXMI Mods directory
+                string modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (!System.IO.Directory.Exists(modsPath)) 
                 {
-                    System.Diagnostics.Debug.WriteLine($"EnsureModJsonInModLibrary: Skipping - mod library path does not exist: {modLibraryPath}");
+                    System.Diagnostics.Debug.WriteLine($"EnsureModJsonInXXMIMods: Skipping - mod library path does not exist: {modsPath}");
                     return;
                 }
             
@@ -380,7 +277,7 @@ namespace FlairX_Mod_Manager
             var updatedModPaths = new List<string>();
             
             // Process category directories (1st level) and mod directories (2nd level)
-            foreach (var categoryDir in System.IO.Directory.GetDirectories(modLibraryPath, "*", SearchOption.TopDirectoryOnly))
+            foreach (var categoryDir in System.IO.Directory.GetDirectories(modsPath, "*", SearchOption.TopDirectoryOnly))
             {
                 // Skip if this is not a directory or is a special directory
                 if (!System.IO.Directory.Exists(categoryDir)) continue;
@@ -525,7 +422,7 @@ namespace FlairX_Mod_Manager
             }
             
             // Clean up any mod.json files that shouldn't be in category directories
-            foreach (var categoryDir in System.IO.Directory.GetDirectories(modLibraryPath, "*", SearchOption.TopDirectoryOnly))
+            foreach (var categoryDir in System.IO.Directory.GetDirectories(modsPath, "*", SearchOption.TopDirectoryOnly))
             {
                 var categoryModJsonPath = System.IO.Path.Combine(categoryDir, "mod.json");
                 if (System.IO.File.Exists(categoryModJsonPath))
@@ -634,23 +531,14 @@ namespace FlairX_Mod_Manager
             {
                 _window = new MainWindow();
                 
-                // Add window close handling - remove symlinks
+                // Add window close handling - remove s
                 _window.Closed += (s, e) =>
                 {
-                    FlairX_Mod_Manager.Pages.ModGridPage.RecreateSymlinksFromActiveMods();
+                    // No symlink recreation needed - using DISABLED_ prefix system
                     var modsDir = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                     if (string.IsNullOrWhiteSpace(modsDir))
                         modsDir = SharedUtilities.GetSafeXXMIModsPath();
-                    if (System.IO.Directory.Exists(modsDir))
-                    {
-                        foreach (var dir in System.IO.Directory.GetDirectories(modsDir))
-                        {
-                            if (FlairX_Mod_Manager.Pages.ModGridPage.IsSymlinkStatic(dir))
-                            {
-                                System.IO.Directory.Delete(dir, true);
-                            }
-                        }
-                    }
+                    // No symlink cleanup needed - using DISABLED_ prefix system
                 };
                 
                 _window.Activate();
@@ -684,32 +572,6 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        private void RequireAdmin()
-        {
-            using var identity = WindowsIdentity.GetCurrent();
-            var principal = new WindowsPrincipal(identity);
-            if (!principal.IsInRole(WindowsBuiltInRole.Administrator))
-            {
-                var exeName = Process.GetCurrentProcess().MainModule?.FileName;
-                if (!string.IsNullOrEmpty(exeName))
-                {
-                    var startInfo = new ProcessStartInfo(exeName)
-                    {
-                        UseShellExecute = true,
-                        Verb = "runas"
-                    };
-                    try
-                    {
-                        Process.Start(startInfo);
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Failed to restart as admin: {ex.Message}");
-                        // User cancelled UAC or other error occurred
-                    }
-                }
-                Environment.Exit(0);
-            }
-        }
+
     }
 }
