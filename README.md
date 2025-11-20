@@ -29,8 +29,8 @@ Modern mod manager for miHoYo games built with **WinUI 3** and **.NET 10**. Hand
 ## System Requirements
 
 - **Windows 10 22H2** or **Windows 11**
-- **.NET 10 Desktop Runtime** - [Download](https://dotnet.microsoft.com/download/dotnet/10.0)
-- **Windows App SDK 1.8** - [Download](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads)
+- **[.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)**
+- **[Windows App SDK 1.8](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads)**
 - **XXMI Framework** (Portable version)
 - **2GB RAM** minimum, 4GB recommended
 - **1280×720** minimum display resolution
@@ -77,8 +77,8 @@ Modern mod manager for miHoYo games built with **WinUI 3** and **.NET 10**. Hand
 ## Building from Source
 
 ### Prerequisites
-- Visual Studio 2026 with .NET 10 SDK
-- Windows App SDK 1.8
+- Visual Studio 2026 with **[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)**
+- **[Windows App SDK 1.8](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads)**
 
 ### Build Main Application
 ```bash
