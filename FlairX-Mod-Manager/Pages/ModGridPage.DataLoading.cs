@@ -239,9 +239,9 @@ namespace FlairX_Mod_Manager.Pages
                         
                         var modData = new ModData
                         {
-                            Name = name,
+                            Name = name,  // Already cleaned by GetCleanModName above
                             ImagePath = previewPath,
-                            Directory = dirName,
+                            Directory = name,  // Use clean name (same as Name)
                             IsActive = isActive,
                             Character = modCharacter,
                             Author = modAuthor,
@@ -414,14 +414,16 @@ namespace FlairX_Mod_Manager.Pages
         private ModData? GetCachedModData(string dir, string modJsonPath)
         {
             var dirName = Path.GetFileName(dir);
+            var cleanName = GetCleanModName(dirName);
             
             lock (_cacheLock)
             {
                 // Check if file has been modified since last cache
                 var lastWriteTime = File.GetLastWriteTime(modJsonPath);
                 
-                if (_modJsonCache.TryGetValue(dirName, out var cachedData) &&
-                    _modFileTimestamps.TryGetValue(dirName, out var cachedTime) &&
+                // Use clean name for cache lookup
+                if (_modJsonCache.TryGetValue(cleanName, out var cachedData) &&
+                    _modFileTimestamps.TryGetValue(cleanName, out var cachedTime) &&
                     cachedTime >= lastWriteTime)
                 {
                     // Cache hit - return cached data
@@ -464,7 +466,7 @@ namespace FlairX_Mod_Manager.Pages
                         lastUpdated = File.GetLastWriteTime(dir);
                     }
                     
-                    var cleanName = GetCleanModName(dirName);
+                    // cleanName already declared at the beginning of the method
                     string previewPath = GetOptimalImagePath(dir);
                     var isActive = IsModActive(dirName);
                     
@@ -485,9 +487,9 @@ namespace FlairX_Mod_Manager.Pages
                     
                     var modData = new ModData
                     { 
-                        Name = cleanName, 
+                        Name = cleanName,  // Display name without DISABLED_ prefix
                         ImagePath = previewPath, 
-                        Directory = cleanName, 
+                        Directory = cleanName,  // Use clean name for directory reference
                         IsActive = isActive,
                         Character = modCharacter,
                         Author = modAuthor,
@@ -498,9 +500,9 @@ namespace FlairX_Mod_Manager.Pages
                         IsNSFW = isNSFW
                     };
                     
-                    // Cache the data
-                    _modJsonCache[dirName] = modData;
-                    _modFileTimestamps[dirName] = lastWriteTime;
+                    // Cache the data using clean name as key
+                    _modJsonCache[cleanName] = modData;
+                    _modFileTimestamps[cleanName] = lastWriteTime;
                     
                     return modData;
                 }

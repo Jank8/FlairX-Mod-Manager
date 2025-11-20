@@ -87,10 +87,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     
-    <!-- ModLibrary instruction file -->
-    <Content Include="ModLibrary\ModLibrary.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+
   </ItemGroup>
 
   <!-- ========================================
@@ -106,19 +103,12 @@
     <!-- Create Settings directory -->
     <MakeDir Directories="$(OutputPath)Settings" />
     
-    <!-- Create game-specific XXMI subdirectories -->
-    <MakeDir Directories="$(OutputPath)XXMI\ZZMI" />
-    <MakeDir Directories="$(OutputPath)XXMI\GIMI" />
-    <MakeDir Directories="$(OutputPath)XXMI\WWMI" />
-    <MakeDir Directories="$(OutputPath)XXMI\SRMI" />
-    <MakeDir Directories="$(OutputPath)XXMI\HIMI" />
-    
-    <!-- Create game-specific ModLibrary subdirectories -->
-    <MakeDir Directories="$(OutputPath)ModLibrary\ZZ" />
-    <MakeDir Directories="$(OutputPath)ModLibrary\GI" />
-    <MakeDir Directories="$(OutputPath)ModLibrary\WW" />
-    <MakeDir Directories="$(OutputPath)ModLibrary\SR" />
-    <MakeDir Directories="$(OutputPath)ModLibrary\HI" />
+    <!-- Create game-specific XXMI subdirectories with Mods folders -->
+    <MakeDir Directories="$(OutputPath)XXMI\ZZMI\Mods" />
+    <MakeDir Directories="$(OutputPath)XXMI\GIMI\Mods" />
+    <MakeDir Directories="$(OutputPath)XXMI\WWMI\Mods" />
+    <MakeDir Directories="$(OutputPath)XXMI\SRMI\Mods" />
+    <MakeDir Directories="$(OutputPath)XXMI\HIMI\Mods" />
     
     <!-- Delete unnecessary files -->
     <Delete Files="@(LooseXbfFiles)" ContinueOnError="true" />

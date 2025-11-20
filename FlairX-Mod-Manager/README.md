@@ -54,12 +54,10 @@ A comprehensive mod management application for multiple miHoYo games, built with
 - **Category Organization**: Automatic detection of categories (Characters, Weapons, UI, Effects) from mod library structure
 - **Dynamic Menu**: Categories automatically appear in the sidebar menu for easy navigation
 - **Mod Activation**: 
-  - Toggle mods on/off using Windows symbolic links (CreateSymbolicLink Win32 API)
+  - Toggle mods on/off with simple one-click activation
   - Simple heart icons (filled/empty) with system accent color when active
-  - Automatic NTFS validation before creating symlinks
   - Security validation for directory names (path traversal protection)
-  - Automatic cleanup of broken symlinks
-  - Symlink state persistence across sessions
+  - Mod state persistence across sessions
 - **Real-time Search**: Dynamic search functionality across all categories simultaneously
 - **Sorting Options**: Sort by name (A-Z/Z-A), category, active status, last checked, last updated
 - **Zoom Support**: 
@@ -113,7 +111,7 @@ A comprehensive mod management application for multiple miHoYo games, built with
 - **Functions System**: Enable/disable custom Lua script functions for extended functionality
 - **Image Optimization**: Automatic optimization and conversion of preview images to standardized format
 - **Multi-language Support**: 17 languages with automatic detection and specialized fonts for international scripts
-- **Administrator Privileges**: Automatic elevation for symbolic link creation and file operations
+- **Administrator Privileges**: Automatic elevation for file operations when needed
 
 ### 🚀 Performance Features
 - **Optimized Memory Usage**: Efficiently handles **900+ mods** using only **~900MB RAM** (~1MB per mod)
@@ -198,7 +196,7 @@ A comprehensive mod management application for multiple miHoYo games, built with
   - Reserved filename checking (CON, PRN, AUX, etc.)
   - URL validation for safe operations
   - Safe file operations with comprehensive error handling
-- **NTFS Validation**: Automatic file system checking for symbolic link support
+
 - **Directory Management**: Automatic creation of required directories with proper structure (XXMI/ZZMI, GIMI, WWMI, SRMI, HIMI + ModLibrary subdirectories)
 - **Dual-Layer Image Caching**: 
   - **Disk cache** for persistent storage (minitile.jpg files)
@@ -246,7 +244,7 @@ A comprehensive mod management application for multiple miHoYo games, built with
   - SystemBackdropConfiguration for proper theme integration
   - Event-based updates when theme changes
   - Sliding panels inherit backdrop settings
-- **Administrator Elevation**: Automatic privilege escalation for symbolic link operations
+- **Administrator Elevation**: Automatic privilege escalation for file operations when needed
 
 ## System Requirements
 
@@ -262,15 +260,14 @@ A comprehensive mod management application for multiple miHoYo games, built with
 - **XXMI Framework** (Portable version recommended)
 
 ### File System & Permissions
-- **NTFS partition** required for mod activation (symbolic link support)
-- **Administrator privileges** automatically requested for symbolic link creation
-- Application validates NTFS file system and shows warnings for incompatible drives
+- **Administrator privileges** may be requested for certain file operations
+- Application works on any file system (NTFS, FAT32, exFAT)
 
 ### Hardware
 - **RAM**: 2 GB minimum, 4 GB recommended (efficiently handles **900+ mods in ~900MB**)
 - **Storage**: 500 MB for application, additional space for mod libraries
-- **Display**: 1300x720 minimum resolution (supports up to 20000x15000)
-- **Default Window Size**: 1300x720 pixels
+- **Display**: 1280x720 minimum resolution (supports up to 20000x15000)
+- **Default Window Size**: 1650x820 pixels
 - **Performance**: Excellent memory efficiency - approximately **1MB RAM per mod**
 
 ## Installation
@@ -302,7 +299,7 @@ A comprehensive mod management application for multiple miHoYo games, built with
 
 ### Getting Started
 1. **Select Game**: Choose your target game from the dropdown menu
-2. **Add Mods**: Place mod folders in category directories: `ModLibrary/[Game]/[Category]/[ModName]/`
+2. **Add Mods**: Place mod folders in category directories: `XXMI/[GameTag]/Mods/[Category]/[ModName]/`
 3. **Browse & Activate**: Use category menu items to browse, then click heart icons to activate mods
 4. **Launch**: Use the floating action button to launch XXMI with active mods
 
@@ -330,30 +327,32 @@ A comprehensive mod management application for multiple miHoYo games, built with
 
 ### Installing Mods
 1. **Download** mods from GameBanana/NexusMods
-2. **Extract** to: `app/ModLibrary/[Game]/[Category]/[ModName]/`
-   - Example: `app/ModLibrary/GI/Characters/Ayaka_Outfit/`
+2. **Extract** to: `app/XXMI/[GameTag]/Mods/[Category]/[ModName]/`
+   - Example: `app/XXMI/GIMI/Mods/Characters/Ayaka_Outfit/`
 3. **Add preview images** (optional): Include `preview*.png` or `preview*.jpg` files for thumbnails
 4. **Click reload** (↻) to detect new mods
 5. **Activate** by clicking heart icons
 
 ### Directory Structure Example
 ```
-📁 app/ModLibrary/GI/
-├── 📁 Characters/
-│   ├── 📄 catprev.jpg (auto-generated category preview - 600x600)
-│   └── 📁 Ayaka_Outfit/
-│       ├── 📄 mod.json (auto-created)
-│       ├── 📄 preview.jpg (main preview)
-│       ├── 📄 preview-01.jpg (additional preview)
-│       ├── 📄 preview-02.jpg (additional preview)
-│       ├── 📄 minitile.jpg (auto-generated thumbnail)
-│       └── 📁 mod files...
-├── 📁 Weapons/
-│   ├── 📄 catprev.jpg (auto-generated category preview)
-│   └── 📁 weapon mods...
-└── 📁 UI/
-    ├── 📄 catprev.jpg (auto-generated category preview)
-    └── 📁 ui mods...
+📁 app/XXMI/GIMI/
+├── 📁 Mods/
+│   ├── 📁 Characters/
+│   │   ├── 📄 catprev.jpg (auto-generated category preview - 600x600)
+│   │   └── 📁 Ayaka_Outfit/
+│   │       ├── 📄 mod.json (auto-created)
+│   │       ├── 📄 preview.jpg (main preview)
+│   │       ├── 📄 preview-01.jpg (additional preview)
+│   │       ├── 📄 preview-02.jpg (additional preview)
+│   │       ├── 📄 minitile.jpg (auto-generated thumbnail)
+│   │       └── 📁 mod files...
+│   ├── 📁 Weapons/
+│   │   ├── 📄 catprev.jpg (auto-generated category preview)
+│   │   └── 📁 weapon mods...
+│   └── 📁 UI/
+│       ├── 📄 catprev.jpg (auto-generated category preview)
+│       └── 📁 ui mods...
+└── 📄 d3dx_user.ini (XXMI configuration)
 ```
 
 ## Preview Image System
@@ -481,24 +480,28 @@ The built-in optimizer automatically processes both **mod previews** and **categ
 ### Directory Structure
 ```
 📁 FlairX Mod Manager/
-├── 📁 ModLibrary/
-│   ├── 📁 ZZ/              # Zenless Zone Zero mods (ZZMI)
-│   │   ├── 📁 Characters/  # Character mods
-│   │   ├── 📁 Weapons/     # Weapon mods
-│   │   ├── 📁 UI/          # UI mods
-│   │   └── 📁 Other/       # Other mods
-│   ├── 📁 GI/              # Genshin Impact mods (GIMI)
-│   ├── 📁 HI/              # Honkai Impact 3rd mods (HIMI)
-│   ├── 📁 SR/              # Honkai: Star Rail mods (SRMI)
-│   └── 📁 WW/              # Wuthering Waves mods (WWMI)
 ├── 📁 XXMI/
-│   ├── 📁 ZZ/              # Game-specific XXMI directories
-│   │   ├── 📁 Mods/        # Active mod symlinks
+│   ├── 📁 ZZMI/            # Zenless Zone Zero
+│   │   ├── 📁 Mods/        # All mods stored here
+│   │   │   ├── 📁 Characters/  # Character mods
+│   │   │   ├── 📁 Weapons/     # Weapon mods
+│   │   │   ├── 📁 UI/          # UI mods
+│   │   │   └── 📁 Other/       # Other mods
 │   │   └── 📄 d3dx_user.ini # Game configuration
-│   └── 📁 GI/, HI/, SR/, WW/ # Other game directories
+│   ├── 📁 GIMI/            # Genshin Impact
+│   │   ├── 📁 Mods/
+│   │   └── 📄 d3dx_user.ini
+│   ├── 📁 HIMI/            # Honkai Impact 3rd
+│   ├── 📁 SRMI/            # Honkai: Star Rail
+│   └── 📁 WWMI/            # Wuthering Waves
 ├── 📁 Settings/
 │   ├── 📄 Settings.json    # Main application settings
 │   ├── 📁 Presets/         # Game-specific preset configurations
+│   │   ├── 📁 ZZ/          # Zenless Zone Zero presets
+│   │   ├── 📁 GI/          # Genshin Impact presets
+│   │   ├── 📁 HI/          # Honkai Impact 3rd presets
+│   │   ├── 📁 SR/          # Honkai: Star Rail presets
+│   │   └── 📁 WW/          # Wuthering Waves presets
 │   ├── 📄 Application.log  # Application log file
 │   └── 📄 StatusKeeper.log # StatusKeeper log file
 ├── 📁 Language/            # Multi-language support files
@@ -506,13 +509,13 @@ The built-in optimizer automatically processes both **mod previews** and **categ
 ```
 
 ### Settings & Configuration
-- **Per-Game Paths**: Custom XXMI and ModLibrary paths for each game
+- **Per-Game Paths**: Custom XXMI paths for each game (mods stored in XXMI/[GameTag]/Mods)
 - **Themes**: Light, Dark, Auto with backdrop effects (Mica/MicaAlt require Windows 11, Acrylic/AcrylicThin/None work on Windows 10+)
 - **Global Hotkeys**: Configurable shortcuts for optimize previews, reload manager, shuffle active mods, and deactivate all mods
 - **Window State**: Automatic saving of size, position, and maximized state
 - **Resolution Management**: 
   - **Real-time Display**: Shows current window size with automatic updates during resize
-  - **Smart Validation**: Prevents invalid sizes (minimum 1300×720, maximum monitor resolution)
+  - **Smart Validation**: Prevents invalid sizes (minimum 1280×720, maximum monitor resolution)
   - **Default Resolution Toggle**: Option to use fixed startup size instead of remembering last size
   - **Responsive Updates**: Window size fields update automatically with 200ms throttling for smooth performance
 
@@ -574,7 +577,7 @@ The built-in optimizer automatically processes both **mod previews** and **categ
         - Update mod.json files with namespace info
         - Preload images
         - Regenerate menu
-        - Recreate symlinks
+
         - Restore last position
         - Auto-detect hotkeys
       - GameSelectionComboBox_SelectionChanged: Game switching with validation
