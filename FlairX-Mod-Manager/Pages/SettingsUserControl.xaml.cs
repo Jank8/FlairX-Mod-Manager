@@ -1028,8 +1028,18 @@ namespace FlairX_Mod_Manager.Pages
 
         private static void OptimizePreviewImageStatic(string sourcePath, string targetPath)
         {
-            using (var src = System.Drawing.Image.FromFile(sourcePath))
+            try
             {
+                Logger.LogInfo($"Optimizing image: {sourcePath} -> {targetPath}");
+                
+                if (!File.Exists(sourcePath))
+                {
+                    Logger.LogError($"Source file does not exist: {sourcePath}");
+                    return;
+                }
+                
+                using (var src = System.Drawing.Image.FromFile(sourcePath))
+                {
                 // Step 1: Crop to square (1:1 ratio) if needed
                 int originalSize = Math.Min(src.Width, src.Height);
                 int x = (src.Width - originalSize) / 2;
@@ -1076,12 +1086,26 @@ namespace FlairX_Mod_Manager.Pages
                 var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
                 if (jpegEncoder != null)
                 {
+                    Logger.LogInfo($"Saving to {targetPath}");
                     var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
                     jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 85L);
                     finalImage.Save(targetPath, jpegEncoder, jpegParams);
+                    Logger.LogInfo("Image saved successfully");
+                }
+                else
+                {
+                    Logger.LogError("JPEG encoder not found");
                 }
 
                 if (finalImage != src) finalImage.Dispose();
+                
+                Logger.LogInfo("Image optimization completed successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to optimize image {sourcePath}", ex);
+                throw; // Re-throw to ensure error is handled upstream
             }
             
             // Delete original file if it's different from target

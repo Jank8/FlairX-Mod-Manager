@@ -308,7 +308,12 @@
                                 HorizontalContentAlignment="Stretch"
                                 VerticalContentAlignment="Stretch"
                                 PointerEntered="TileButton_PointerEntered"
-                                PointerExited="TileButton_PointerExited">
+                                PointerExited="TileButton_PointerExited"
+                                AllowDrop="True"
+                                DragEnter="Tile_DragEnter"
+                                DragLeave="Tile_DragLeave"
+                                Drop="Tile_Drop"
+                                DragOver="Tile_DragOver">
                             <Button.ContextFlyout>
                                 <MenuFlyout Opening="ContextMenu_Opening">
                                     <!-- Dynamic menu items will be populated in code-behind -->
@@ -474,6 +479,29 @@
                                                   VerticalAlignment="Center"
                                                   Opacity="0.8"/>
                                     </Grid>
+                                </Border>
+                                
+                                <!-- Drag & Drop Overlay -->
+                                <Border x:Name="DragDropOverlay"
+                                        Grid.RowSpan="2"
+                                        Background="{ThemeResource TileCaptionAcrylicBrush}"
+                                        CornerRadius="8"
+                                        Visibility="Collapsed"
+                                        Opacity="0"
+                                        IsHitTestVisible="False">
+                                    <StackPanel HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center"
+                                                Spacing="12">
+                                        <FontIcon x:Name="DropIcon"
+                                                  Glyph="&#xE896;" 
+                                                  FontSize="48"
+                                                  Foreground="{ThemeResource SystemAccentColor}"/>
+                                        <TextBlock x:Name="DropText"
+                                                   Text="Drop images here"
+                                                   FontSize="14"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}"
+                                                   HorizontalAlignment="Center"/>
+                                    </StackPanel>
                                 </Border>
                             </Grid>
                         </Border>

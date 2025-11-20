@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
@@ -25,6 +25,7 @@ using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml.Hosting;
 using System.Numerics;
 using Microsoft.UI.Xaml.Media.Animation;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace FlairX_Mod_Manager.Pages
 {
@@ -1549,6 +1550,315 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 });
             });
+        }
+
+        // Drag & Drop Event Handlers
+        private void Tile_DragEnter(object sender, DragEventArgs e)
+        {
+            Logger.LogInfo("Tile_DragEnter called");
+            
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                Logger.LogInfo("Contains storage items");
+                e.AcceptedOperation = DataPackageOperation.Copy;
+                
+                if (sender is Button btn && btn.DataContext is ModTile tile && !tile.IsCategory)
+                {
+                    Logger.LogInfo($"Drag enter on mod: {tile.Name}");
+                    var overlay = FindVisualChild<Border>(btn, "DragDropOverlay");
+                    if (overlay != null)
+                    {
+                        Logger.LogInfo("Found overlay, showing it");
+                        overlay.Visibility = Visibility.Visible;
+                        
+                        var fadeIn = new DoubleAnimation
+                        {
+                            From = 0,
+                            To = 1,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(200))
+                        };
+                        var storyboard = new Storyboard();
+                        Storyboard.SetTarget(fadeIn, overlay);
+                        Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                        storyboard.Children.Add(fadeIn);
+                        storyboard.Begin();
+                    }
+                    else
+                    {
+                        Logger.LogError("Overlay not found!");
+                    }
+                }
+                else
+                {
+                    Logger.LogInfo($"Sender type: {sender?.GetType().Name}, IsCategory: {(sender as Button)?.DataContext is ModTile t && t.IsCategory}");
+                }
+            }
+            else
+            {
+                Logger.LogInfo("Does not contain storage items");
+            }
+        }
+        
+        private void Tile_DragLeave(object sender, DragEventArgs e)
+        {
+            if (sender is Button btn)
+            {
+                var overlay = FindVisualChild<Border>(btn, "DragDropOverlay");
+                if (overlay != null && overlay.Visibility == Visibility.Visible)
+                {
+                    var fadeOut = new DoubleAnimation
+                    {
+                        From = overlay.Opacity,
+                        To = 0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(200))
+                    };
+                    var storyboard = new Storyboard();
+                    Storyboard.SetTarget(fadeOut, overlay);
+                    Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                    storyboard.Children.Add(fadeOut);
+                    storyboard.Completed += (s, args) => overlay.Visibility = Visibility.Collapsed;
+                    storyboard.Begin();
+                }
+            }
+        }
+        
+        private void Tile_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                e.AcceptedOperation = DataPackageOperation.Copy;
+            }
+        }
+        
+        private async void Tile_Drop(object sender, DragEventArgs e)
+        {
+            if (sender is not Button btn || btn.DataContext is not ModTile tile || tile.IsCategory)
+                return;
+                
+            if (!e.DataView.Contains(StandardDataFormats.StorageItems))
+                return;
+
+            Border? dropOverlay = null;
+            FontIcon? dropIcon = null;
+            TextBlock? dropText = null;
+                
+            try
+            {
+                var items = await e.DataView.GetStorageItemsAsync();
+                var imageFiles = items.OfType<StorageFile>()
+                    .Where(f => f.FileType.ToLower() is ".jpg" or ".jpeg" or ".png")
+                    .ToList();
+                    
+                if (!imageFiles.Any())
+                {
+                    // Hide overlay
+                    var overlay = FindVisualChild<Border>(btn, "DragDropOverlay");
+                    if (overlay != null)
+                    {
+                        overlay.Visibility = Visibility.Collapsed;
+                        overlay.Opacity = 0;
+                    }
+                    return;
+                }
+                
+                Logger.LogInfo($"Drop received: {imageFiles.Count} image files");
+                
+                // Get UI elements
+                dropOverlay = FindVisualChild<Border>(btn, "DragDropOverlay");
+                dropIcon = dropOverlay != null ? FindVisualChild<FontIcon>(dropOverlay, "DropIcon") : null;
+                dropText = dropOverlay != null ? FindVisualChild<TextBlock>(dropOverlay, "DropText") : null;
+                
+                // Show processing state
+                if (dropText != null)
+                {
+                    dropText.Text = $"Copying {imageFiles.Count} image(s)...";
+                    Logger.LogInfo("Updated drop text to copying");
+                }
+                if (dropIcon != null)
+                {
+                    dropIcon.Glyph = "\uE895"; // Sync icon
+                }
+                
+                // Get mod folder path
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                var gameModsPath = AppConstants.GameConfig.GetModsPath(gameTag);
+                Logger.LogInfo($"Game mods path from config: {gameModsPath}");
+                string modsPath = PathManager.GetAbsolutePath(gameModsPath);
+                Logger.LogInfo($"Absolute mods path: {modsPath}");
+                string modFolderPath = !string.IsNullOrEmpty(_currentCategory) 
+                    ? Path.Combine(modsPath, _currentCategory, tile.Directory)
+                    : Path.Combine(modsPath, tile.Directory);
+                Logger.LogInfo($"Final mod folder path: {modFolderPath}");
+                    
+                if (!Directory.Exists(modFolderPath))
+                {
+                    Logger.LogWarning($"Mod folder not found, creating: {modFolderPath}");
+                    try
+                    {
+                        Directory.CreateDirectory(modFolderPath);
+                        Logger.LogInfo($"Created mod folder: {modFolderPath}");
+                    }
+                    catch (Exception createEx)
+                    {
+                        Logger.LogError($"Failed to create mod folder: {modFolderPath}", createEx);
+                        if (dropOverlay != null)
+                        {
+                            dropOverlay.Visibility = Visibility.Collapsed;
+                            dropOverlay.Opacity = 0;
+                        }
+                        return;
+                    }
+                }
+                
+                Logger.LogInfo($"Target folder: {modFolderPath}");
+                
+                // Copy images with preview naming
+                int copiedCount = 0;
+                Logger.LogInfo($"Starting copy of {imageFiles.Count} files");
+                foreach (var imageFile in imageFiles)
+                {
+                    try
+                    {
+                        Logger.LogInfo($"Processing file: {imageFile.Name} (Path: {imageFile.Path})");
+                        
+                        // Generate preview name: preview001.jpg, preview002.jpg, etc.
+                        var previewName = $"preview{copiedCount + 1:D3}{imageFile.FileType}";
+                        var targetPath = Path.Combine(modFolderPath, previewName);
+                        Logger.LogInfo($"Target path: {targetPath} (from original: {imageFile.Name})");
+                        
+                        // Check if source file exists
+                        if (!File.Exists(imageFile.Path))
+                        {
+                            Logger.LogError($"Source file does not exist: {imageFile.Path}");
+                            continue;
+                        }
+                        
+                        // Use simple file copy with preview naming
+                        Logger.LogInfo("Using File.Copy with preview naming");
+                        File.Copy(imageFile.Path, targetPath, true);
+                        
+                        copiedCount++;
+                        Logger.LogInfo($"Successfully copied {imageFile.Name} as {previewName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to copy {imageFile?.Name ?? "unknown"}", ex);
+                    }
+                }
+                
+                Logger.LogInfo($"Copy complete. Copied {copiedCount}/{imageFiles.Count} files with preview naming");
+                
+                // Optimize in background
+                Logger.LogInfo("Starting optimization in background");
+                await Task.Run(() =>
+                {
+                    try
+                    {
+                        Logger.LogInfo($"Calling ProcessModPreviewImagesStatic for: {modFolderPath}");
+                        SettingsUserControl.ProcessModPreviewImagesStatic(modFolderPath);
+                        Logger.LogInfo("Optimization complete");
+                        
+                        // Log what files exist after optimization
+                        try
+                        {
+                            var files = Directory.GetFiles(modFolderPath)
+                                .Select(f => Path.GetFileName(f))
+                                .Where(f => f.StartsWith("preview", StringComparison.OrdinalIgnoreCase) || f.Equals("minitile.jpg", StringComparison.OrdinalIgnoreCase))
+                                .ToList();
+                            Logger.LogInfo($"Files after optimization: {string.Join(", ", files)}");
+                        }
+                        catch (Exception filesEx)
+                        {
+                            Logger.LogError("Failed to list files after optimization", filesEx);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Optimization failed", ex);
+                    }
+                });
+                Logger.LogInfo("Background task started");
+                
+                // Show success
+                if (dropText != null)
+                {
+                    dropText.Text = "Images added!";
+                    Logger.LogInfo("Updated drop text to success");
+                }
+                if (dropIcon != null)
+                {
+                    dropIcon.Glyph = "\uE73E"; // Checkmark
+                }
+                
+                await Task.Delay(1500);
+                
+                // Fade out overlay
+                if (dropOverlay != null)
+                {
+                    var fadeOut = new DoubleAnimation
+                    {
+                        From = 1,
+                        To = 0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(300))
+                    };
+                    var storyboard = new Storyboard();
+                    Storyboard.SetTarget(fadeOut, dropOverlay);
+                    Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                    storyboard.Children.Add(fadeOut);
+                    storyboard.Completed += (s, args) =>
+                    {
+                        dropOverlay.Visibility = Visibility.Collapsed;
+                        dropOverlay.Opacity = 0;
+                        if (dropText != null) dropText.Text = "Drop images here";
+                        if (dropIcon != null) dropIcon.Glyph = "\uE896";
+                    };
+                    storyboard.Begin();
+                    Logger.LogInfo("Started fade out animation");
+                }
+                
+                // Refresh images
+                LoadVisibleImages();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in drag & drop handler", ex);
+                if (dropOverlay != null)
+                {
+                    dropOverlay.Visibility = Visibility.Collapsed;
+                    dropOverlay.Opacity = 0;
+                }
+            }
+        }
+        
+        private T? FindVisualChild<T>(DependencyObject parent, string name) where T : FrameworkElement
+        {
+            if (parent == null) return null;
+            
+            try
+            {
+                int childCount = VisualTreeHelper.GetChildrenCount(parent);
+                for (int i = 0; i < childCount; i++)
+                {
+                    var child = VisualTreeHelper.GetChild(parent, i);
+                    
+                    if (child is T typedChild && typedChild.Name == name)
+                    {
+                        return typedChild;
+                    }
+                    
+                    var result = FindVisualChild<T>(child, name);
+                    if (result != null)
+                    {
+                        return result;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"FindVisualChild error for {name}", ex);
+            }
+            
+            return null;
         }
 
 
