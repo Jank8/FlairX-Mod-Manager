@@ -34,6 +34,20 @@
             </Button>
             <TextBlock x:Name="ModDetailTitle" Text="Mod Details" FontSize="24" FontWeight="Bold" Margin="16,0,16,0" VerticalAlignment="Center"/>
             <TextBox x:Name="ModVersionTextBox" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" MinWidth="100" MaxWidth="200" PlaceholderText="Version" TextChanged="ModVersionTextBox_TextChanged" BorderThickness="0" Background="Transparent" Padding="0" Margin="0,2,0,0"/>
+            
+            <!-- NSFW badge (after version) -->
+            <Border x:Name="NSFWBadge"
+                    Background="#CCCC0000" 
+                    CornerRadius="8" 
+                    Padding="12,6" 
+                    Margin="8,0,0,0"
+                    VerticalAlignment="Center"
+                    Visibility="Collapsed">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <FontIcon Glyph="&#xE7B3;" FontSize="14" Foreground="White"/>
+                    <TextBlock x:Name="NSFWBadgeText" Text="NSFW" FontSize="14" Foreground="White" FontWeight="SemiBold"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
         
         <!-- Content exactly copied from ModDetailPage -->
@@ -130,6 +144,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="8"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="16"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
@@ -179,6 +195,18 @@
                             <FontIcon Glyph="&#xE71B;" FontSize="16"/>
                         </Button>
                     </Grid>
+                    <!-- NSFW Checkbox -->
+                    <CheckBox x:Name="ModNSFWCheckBox" 
+                              Grid.Row="12" 
+                              Grid.Column="0" 
+                              Margin="0,0,0,0"
+                              Checked="ModNSFWCheckBox_Checked"
+                              Unchecked="ModNSFWCheckBox_Unchecked">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE7B3;" FontSize="16" Foreground="#CCCC0000"/>
+                            <TextBlock x:Name="ModNSFWLabel" Text="NSFW Content" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </CheckBox>
                     <!-- Update Available Notification -->
                     <TextBlock x:Name="UpdateAvailableNotification" 
                                Text="" 
@@ -186,7 +214,7 @@
                                FontWeight="SemiBold"
                                FontSize="14"
                                Visibility="Collapsed"
-                               Grid.Row="12"
+                               Grid.Row="14"
                                Grid.Column="0"
                                HorizontalAlignment="Left"
                                VerticalAlignment="Top"/>

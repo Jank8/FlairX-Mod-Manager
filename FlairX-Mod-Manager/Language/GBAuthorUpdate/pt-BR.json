@@ -26,6 +26,9 @@
   "FetchDatesButton_Tooltip": "Busca datas de publicação/atualização para mods",
   "FetchVersionsButton": "Buscar versões do servidor",
   "FetchVersionsButton_Tooltip": "Busca informações de versão para mods",
+  "UpdateOtherDataButton": "Atualizar outros dados",
+  "UpdateOtherDataButton_Tooltip": "Atualiza tags NSFW e outros metadados do GameBanana",
+  "ConfirmUpdateOtherData": "Isso atualizará tags NSFW e outros metadados do GameBanana para todos os mods com URLs. Continuar?",
   "VersionFetchError": "Erro ao buscar versão",
   "VersionSummaryTitle": "Resumo da atualização de versões",
   "ModsWithIssues": "Mods com problemas:"

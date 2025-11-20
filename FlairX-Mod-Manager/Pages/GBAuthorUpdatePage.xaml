@@ -62,6 +62,7 @@
                 </Button>
                 <ProgressBar x:Name="FetchVersionsProgressBar" Width="130" Height="32" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="20,0,0,0" />
             </StackPanel>
+
         </StackPanel>
     </Grid>
 </Page>

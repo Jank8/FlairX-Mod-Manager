@@ -1029,6 +1029,7 @@ namespace FlairX_Mod_Manager.Pages
             public DateTime LastChecked { get; set; } = DateTime.MinValue;
             public DateTime LastUpdated { get; set; } = DateTime.MinValue;
             public bool HasUpdate { get; set; } = false;
+            public bool IsNSFW { get; set; } = false;
         }
 
         // Check for updates without cache - always reads fresh from mod.json
@@ -1458,6 +1459,94 @@ namespace FlairX_Mod_Manager.Pages
             return projection;
         }
 
+        // Dynamic NSFW filtering
+        public void FilterNSFWMods(bool hideNSFW)
+        {
+            if (ModsGrid?.ItemsSource is not ObservableCollection<ModTile> mods) return;
+            
+            var modsToRemove = new List<ModTile>();
+            var modsToAdd = new List<ModTile>();
+            
+            if (hideNSFW)
+            {
+                // Hide NSFW mods - find mods with IsNSFW in _allModData
+                foreach (var mod in mods.ToList())
+                {
+                    var modData = _allModData.FirstOrDefault(m => m.Directory == mod.Directory);
+                    if (modData != null && modData.IsNSFW)
+                    {
+                        modsToRemove.Add(mod);
+                    }
+                }
+            }
+            else
+            {
+                // Show NSFW mods - add back mods that were hidden
+                foreach (var modData in _allModData)
+                {
+                    if (modData.IsNSFW && !mods.Any(m => m.Directory == modData.Directory))
+                    {
+                        var modTile = new ModTile
+                        {
+                            Name = modData.Name,
+                            ImagePath = modData.ImagePath,
+                            Directory = modData.Directory,
+                            IsActive = modData.IsActive,
+                            Category = modData.Category,
+                            Author = modData.Author,
+                            Url = modData.Url,
+                            LastChecked = modData.LastChecked,
+                            LastUpdated = modData.LastUpdated,
+                            HasUpdate = modData.HasUpdate,
+                            IsVisible = true,
+                            ImageSource = null
+                        };
+                        modsToAdd.Add(modTile);
+                    }
+                }
+            }
+            
+            // Remove mods with animation
+            foreach (var mod in modsToRemove)
+            {
+                mod.IsBeingDeleted = true;
+            }
+            
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(500); // Wait for animation
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    foreach (var mod in modsToRemove)
+                    {
+                        mods.Remove(mod);
+                    }
+                    
+                    // Add back mods if showing NSFW
+                    foreach (var mod in modsToAdd)
+                    {
+                        mods.Add(mod);
+                    }
+                    
+                    // Sort if needed
+                    if (SettingsManager.Current.ActiveModsToTopEnabled)
+                    {
+                        var sorted = mods.OrderByDescending(m => m.IsActive).ThenBy(m => m.Name).ToList();
+                        mods.Clear();
+                        foreach (var m in sorted)
+                        {
+                            mods.Add(m);
+                        }
+                    }
+                    
+                    // Load visible images for newly added mods
+                    if (modsToAdd.Count > 0)
+                    {
+                        LoadVisibleImages();
+                    }
+                });
+            });
+        }
 
 
     }

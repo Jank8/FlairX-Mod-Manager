@@ -165,6 +165,8 @@
   "SettingsPage_GridLogging_Description": "Włącz szczegółowe logowanie do debugowania wydajności",
   "SettingsPage_MinimizeToTray_Label": "Zminimalizuj do zasobnika",
   "SettingsPage_MinimizeToTray_Description": "Minimalizuj aplikację do zasobnika systemowego zamiast paska zadań",
+  "SettingsPage_HideNSFW_Label": "Ukryj treści NSFW",
+  "SettingsPage_HideNSFW_Description": "Ukryj mody oznaczone jako NSFW w siatce modów i przeglądarce GameBanana",
   "SystemTray_Show": "Pokaż",
   "SystemTray_Exit": "Wyjście",
   "SystemTray_MinimizedTitle": "FlairX Mod Manager",
@@ -173,5 +175,6 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "Skrót klawiszowy do optymalizacji podglądów",
   "SettingsPage_ReloadManagerHotkey_Description": "Skrót klawiszowy do przeładowania menedżera",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "Skrót klawiszowy do tasowania aktywnych modów",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "Skrót klawiszowy do dezaktywacji wszystkich modów"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "Skrót klawiszowy do dezaktywacji wszystkich modów",
+  "ModDetail_NSFW_Label": "Treści NSFW"
 }

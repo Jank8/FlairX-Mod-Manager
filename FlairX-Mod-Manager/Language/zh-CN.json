@@ -171,5 +171,10 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "优化预览的键盘快捷键",
   "SettingsPage_ReloadManagerHotkey_Description": "重新加载管理器的键盘快捷键",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "随机排列活跃模组的键盘快捷键",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "停用所有模组的键盘快捷键"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "停用所有模组的键盘快捷键",
+  "ModDetail_NSFW_Label": "NSFW内容",
+  "ToggleSwitch_On": "开启",
+  "ToggleSwitch_Off": "关闭",
+  "SettingsPage_HideNSFW_Label": "隐藏NSFW内容",
+  "SettingsPage_HideNSFW_Description": "在模组网格和GameBanana浏览器中隐藏标记为NSFW的模组"
 }

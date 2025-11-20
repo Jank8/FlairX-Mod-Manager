@@ -960,6 +960,7 @@ namespace FlairX_Mod_Manager.Pages
         // Fetch Versions functionality
         private CancellationTokenSource? _ctsVersions;
 
+
         private async void FetchVersionsButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -1251,11 +1252,5 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        public class ModJson
-        {
-            public string? author { get; set; }
-            public string? url { get; set; }
-            // ...other fields...
-        }
     }
 }

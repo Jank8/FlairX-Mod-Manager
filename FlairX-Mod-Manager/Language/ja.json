@@ -171,5 +171,10 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "プレビュー最適化のキーボードショートカット",
   "SettingsPage_ReloadManagerHotkey_Description": "マネージャー再読み込みのキーボードショートカット",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "アクティブMod シャッフルのキーボードショートカット",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "全Mod無効化のキーボードショートカット"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "全Mod無効化のキーボードショートカット",
+  "ModDetail_NSFW_Label": "NSFWコンテンツ",
+  "ToggleSwitch_On": "オン",
+  "ToggleSwitch_Off": "オフ",
+  "SettingsPage_HideNSFW_Label": "NSFWコンテンツを非表示",
+  "SettingsPage_HideNSFW_Description": "ModグリッドとGameBananaブラウザでNSFWとマークされたModを非表示にする"
 }

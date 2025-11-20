@@ -186,6 +186,7 @@ namespace FlairX_Mod_Manager.Pages
                         var modUrl = "";
                         var lastChecked = DateTime.MinValue;
                         var lastUpdated = DateTime.MinValue;
+                        var isNSFW = false;
                         
                         bool hasUpdate = false;
                         
@@ -198,6 +199,7 @@ namespace FlairX_Mod_Manager.Pages
                             modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
                             modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
                             modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
+                            isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
                             
                             if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && dateCheckedProp.ValueKind == JsonValueKind.String)
                             {
@@ -248,7 +250,8 @@ namespace FlairX_Mod_Manager.Pages
                             Category = category,
                             LastChecked = lastChecked,
                             LastUpdated = lastUpdated,
-                            HasUpdate = hasUpdate
+                            HasUpdate = hasUpdate,
+                            IsNSFW = isNSFW
                         };
                         
                         _allModData.Add(modData);
@@ -290,6 +293,12 @@ namespace FlairX_Mod_Manager.Pages
             var mods = new List<ModTile>();
             foreach (var modData in _allModData)
             {
+                // Filter NSFW mods if setting is enabled
+                if (modData.IsNSFW && SettingsManager.Current.BlurNSFWThumbnails)
+                {
+                    continue;
+                }
+                
                 var modTile = new ModTile 
                 { 
                     Name = modData.Name, 
@@ -430,6 +439,7 @@ namespace FlairX_Mod_Manager.Pages
                     var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
                     var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
                     var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
+                    var isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
                     
                     // Parse dates for sorting
                     var lastChecked = DateTime.MinValue;
@@ -486,7 +496,8 @@ namespace FlairX_Mod_Manager.Pages
                         Url = modUrl,
                         Category = categoryName,
                         LastChecked = lastChecked,
-                        LastUpdated = lastUpdated
+                        LastUpdated = lastUpdated,
+                        IsNSFW = isNSFW
                     };
                     
                     // Cache the data
@@ -508,9 +519,17 @@ namespace FlairX_Mod_Manager.Pages
             var initialLoadCount = CalculateInitialLoadCount();
             
             var initialMods = new List<ModTile>();
-            for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
+            int loaded = 0;
+            for (int i = 0; i < _allModData.Count && loaded < initialLoadCount; i++)
             {
                 var modData = _allModData[i];
+                
+                // Filter NSFW mods if setting is enabled
+                if (modData.IsNSFW && SettingsManager.Current.BlurNSFWThumbnails)
+                {
+                    continue;
+                }
+                
                 var modTile = new ModTile 
                 { 
                     Name = modData.Name, 
@@ -527,6 +546,7 @@ namespace FlairX_Mod_Manager.Pages
                     ImageSource = null // Start with no image - lazy load when visible
                 };
                 initialMods.Add(modTile);
+                loaded++;
             }
             
             _allMods = new ObservableCollection<ModTile>(initialMods);

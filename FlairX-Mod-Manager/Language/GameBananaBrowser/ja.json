@@ -57,5 +57,6 @@
   "Added": "追加日:",
   "ConnectionErrorTitle": "接続エラー",
   "ConnectionErrorMessage": "GameBananaに接続できません。インターネット接続を確認するか、後でもう一度お試しください。",
-  "Retry": "再試行"
+  "Retry": "再試行",
+  "ViewCategory": "カテゴリを表示"
 }

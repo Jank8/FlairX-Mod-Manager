@@ -71,6 +71,7 @@ namespace FlairX_Mod_Manager.Pages
                 ModHotkeysLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Hotkeys");
                 ModUrlLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_URL");
                 UpdateAvailableNotification.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_UpdateAvailable");
+                ModNSFWLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetail_NSFW_Label");
 
                 // Set tooltip for OpenUrlButton
                 ToolTipService.SetToolTip(OpenUrlButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_OpenURL_Tooltip"));
@@ -239,6 +240,11 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 
                 ModVersionTextBox.Text = version;
+                
+                // Check if mod is NSFW and show badge + set checkbox
+                bool isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
+                NSFWBadge.Visibility = isNSFW ? Visibility.Visible : Visibility.Collapsed;
+                ModNSFWCheckBox.IsChecked = isNSFW;
                 
                 // Check for available updates
                 CheckForUpdates(root);
@@ -601,6 +607,18 @@ namespace FlairX_Mod_Manager.Pages
             await UpdateModJsonField("dateUpdated", dateValue);
         }
 
+        private async void ModNSFWCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            await UpdateModJsonFieldBool("isNSFW", true);
+            NSFWBadge.Visibility = Visibility.Visible;
+        }
+
+        private async void ModNSFWCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            await UpdateModJsonFieldBool("isNSFW", false);
+            NSFWBadge.Visibility = Visibility.Collapsed;
+        }
+
         private void OpenUrlButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -725,6 +743,56 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     var updatedDoc = JsonDocument.Parse(newJson);
                     CheckForUpdates(updatedDoc.RootElement);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to save mod details", ex);
+            }
+        }
+
+        private async Task UpdateModJsonFieldBool(string field, bool value)
+        {
+            if (string.IsNullOrEmpty(_modJsonPath)) return;
+            if (!File.Exists(_modJsonPath))
+            {
+                await Task.Run(() => (App.Current as FlairX_Mod_Manager.App)?.EnsureModJsonInModLibrary());
+                if (!File.Exists(_modJsonPath))
+                {
+                    Logger.LogError($"Failed to create default mod.json at: {_modJsonPath}");
+                    return;
+                }
+            }
+            try
+            {
+                var json = File.ReadAllText(_modJsonPath);
+                var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                var dict = new Dictionary<string, object?>();
+                foreach (var prop in root.EnumerateObject())
+                {
+                    if (prop.Name == field)
+                        dict[field] = value;
+                    else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
+                        dict[prop.Name] = prop.Value.GetString();
+                    else if (prop.Name == "isNSFW")
+                        dict[prop.Name] = prop.Value.GetBoolean();
+                    else
+                        dict[prop.Name] = prop.Value.Deserialize<object>();
+                }
+                if (!dict.ContainsKey(field))
+                    dict[field] = value;
+                var newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(_modJsonPath, newJson);
+                
+                // Trigger NSFW filtering if enabled
+                if (field == "isNSFW")
+                {
+                    var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                    if (mainWindow?.CurrentModGridPage != null)
+                    {
+                        mainWindow.CurrentModGridPage.FilterNSFWMods(SettingsManager.Current.BlurNSFWThumbnails);
+                    }
                 }
             }
             catch (Exception ex)

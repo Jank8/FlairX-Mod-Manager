@@ -22,6 +22,7 @@ namespace FlairX_Mod_Manager.Pages
         private System.Collections.Generic.Dictionary<string, string> _lang = new();
         private GameBananaService.ModDetailsResponse? _currentModDetails;
         private ObservableCollection<Models.GameBananaFileViewModel> _detailFiles = new();
+        private bool _currentModIsNSFW = false;
         
         // Infinite scroll
         private bool _isLoadingMore = false;
@@ -140,6 +141,8 @@ namespace FlairX_Mod_Manager.Pages
             DetailInstalledBadgeText.Text = SharedUtilities.GetTranslation(_lang, "Installed");
             DetailAuthorLabel.Text = SharedUtilities.GetTranslation(_lang, "Author");
             DetailViewProfileText.Text = SharedUtilities.GetTranslation(_lang, "ViewProfile");
+            DetailCategoryLabel.Text = SharedUtilities.GetTranslation(_lang, "Category");
+            DetailCategoryViewText.Text = SharedUtilities.GetTranslation(_lang, "ViewCategory");
             DetailDescriptionTitle.Text = SharedUtilities.GetTranslation(_lang, "Description");
             DetailFilesTitle.Text = SharedUtilities.GetTranslation(_lang, "Files");
             DetailOpenBrowserButtonText.Text = SharedUtilities.GetTranslation(_lang, "OpenInBrowser");
@@ -678,6 +681,7 @@ namespace FlairX_Mod_Manager.Pages
             if (e.ClickedItem is ModViewModel mod)
             {
                 // Show details panel
+                _currentModIsNSFW = mod.IsRated;
                 _ = ShowModDetailsAsync(mod.Id);
             }
         }
@@ -687,6 +691,7 @@ namespace FlairX_Mod_Manager.Pages
             if (sender is Button button && button.Tag is ModViewModel mod)
             {
                 // Show details panel
+                _currentModIsNSFW = mod.IsRated;
                 _ = ShowModDetailsAsync(mod.Id);
             }
         }
@@ -1073,7 +1078,8 @@ namespace FlairX_Mod_Manager.Pages
                 _currentModDetails.Id,
                 dateUpdated,
                 categoryName,
-                _currentModDetails.PreviewMedia); // Pass preview media
+                _currentModDetails.PreviewMedia,
+                _currentModIsNSFW); // Pass NSFW status from mod list
             extractDialog.XamlRoot = XamlRoot;
             var result = await extractDialog.ShowAsync();
 

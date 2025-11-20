@@ -57,5 +57,6 @@
   "Added": "Idinagdag:",
   "ConnectionErrorTitle": "Error sa koneksyon",
   "ConnectionErrorMessage": "Hindi makakonekta sa GameBanana. Pakisuri ang iyong koneksyon sa internet o subukan muli mamaya.",
-  "Retry": "Subukan muli"
+  "Retry": "Subukan muli",
+  "ViewCategory": "Tingnan ang kategorya"
 }

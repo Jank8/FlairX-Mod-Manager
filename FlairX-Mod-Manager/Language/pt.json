@@ -174,5 +174,11 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "Atalho de teclado para optimizar pré-visualizações",
   "SettingsPage_ReloadManagerHotkey_Description": "Atalho de teclado para recarregar o gestor",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "Atalho de teclado para baralhar mods activos",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "Atalho de teclado para desactivar todos os mods"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "Atalho de teclado para desactivar todos os mods",
+  "ModDetail_NSFW_Label": "Conteúdo NSFW",
+  "Optimize": "Optimizar",
+  "ToggleSwitch_On": "Ligado",
+  "ToggleSwitch_Off": "Desligado",
+  "SettingsPage_HideNSFW_Label": "Ocultar conteúdo NSFW",
+  "SettingsPage_HideNSFW_Description": "Ocultar mods marcados como NSFW na grelha de mods e no navegador GameBanana"
 }

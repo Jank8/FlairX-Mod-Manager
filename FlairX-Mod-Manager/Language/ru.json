@@ -171,5 +171,10 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "Горячая клавиша для оптимизации эскизов модов",
   "SettingsPage_ReloadManagerHotkey_Description": "Горячая клавиша для перезагрузки менеджера",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "Горячая клавиша для перетасовки активных модов",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "Горячая клавиша для деактивации всех модов"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "Горячая клавиша для деактивации всех модов",
+  "ModDetail_NSFW_Label": "NSFW контент",
+  "ToggleSwitch_On": "Вкл",
+  "ToggleSwitch_Off": "Выкл",
+  "SettingsPage_HideNSFW_Label": "Скрыть NSFW контент",
+  "SettingsPage_HideNSFW_Description": "Скрыть моды, помеченные как NSFW, в сетке модов и браузере GameBanana"
 }

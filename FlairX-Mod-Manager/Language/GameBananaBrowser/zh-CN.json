@@ -57,5 +57,6 @@
   "Added": "添加时间:",
   "ConnectionErrorTitle": "连接错误",
   "ConnectionErrorMessage": "无法连接到GameBanana。请检查您的网络连接或稍后重试。",
-  "Retry": "重试"
+  "Retry": "重试",
+  "ViewCategory": "查看类别"
 }

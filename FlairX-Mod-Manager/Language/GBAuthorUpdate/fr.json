@@ -26,6 +26,9 @@
   "FetchDatesButton_Tooltip": "Récupère les dates de publication/mise à jour pour les mods",
   "FetchVersionsButton": "Récupérer les versions du serveur",
   "FetchVersionsButton_Tooltip": "Récupère les informations de version pour les mods",
+  "UpdateOtherDataButton": "Mettre à jour d'autres données",
+  "UpdateOtherDataButton_Tooltip": "Met à jour les balises NSFW et autres métadonnées de GameBanana",
+  "ConfirmUpdateOtherData": "Cela mettra à jour les balises NSFW et autres métadonnées de GameBanana pour tous les mods avec des URL. Continuer?",
   "VersionFetchError": "Erreur lors de la récupération de la version",
   "VersionSummaryTitle": "Résumé de mise à jour des versions",
   "ModsWithIssues": "Mods avec problèmes:"

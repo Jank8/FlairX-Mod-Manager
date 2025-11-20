@@ -26,6 +26,9 @@
   "FetchDatesButton_Tooltip": "मॉड्स के लिए प्रकाशन/अपडेट तारीखें प्राप्त करता है",
   "FetchVersionsButton": "सर्वर से संस्करण प्राप्त करें",
   "FetchVersionsButton_Tooltip": "मॉड्स के लिए संस्करण जानकारी प्राप्त करता है",
+  "UpdateOtherDataButton": "अन्य डेटा अपडेट करें",
+  "UpdateOtherDataButton_Tooltip": "GameBanana से NSFW टैग और अन्य मेटाडेटा अपडेट करता है",
+  "ConfirmUpdateOtherData": "यह URL वाले सभी मॉड्स के लिए GameBanana से NSFW टैग और अन्य मेटाडेटा अपडेट करेगा। जारी रखें?",
   "VersionFetchError": "संस्करण प्राप्त करने में त्रुटि",
   "VersionSummaryTitle": "संस्करण अपडेट सारांश",
   "ModsWithIssues": "समस्याओं वाले मॉड:"

@@ -174,5 +174,11 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "Önizlemeleri optimize etmek için klavye kısayolu",
   "SettingsPage_ReloadManagerHotkey_Description": "Yöneticiyi yeniden yüklemek için klavye kısayolu",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "Aktif modları karıştırmak için klavye kısayolu",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "Tüm modları devre dışı bırakmak için klavye kısayolu"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "Tüm modları devre dışı bırakmak için klavye kısayolu",
+  "ModDetail_NSFW_Label": "NSFW İçerik",
+  "Optimize": "Optimize Et",
+  "ToggleSwitch_On": "Açık",
+  "ToggleSwitch_Off": "Kapalı",
+  "SettingsPage_HideNSFW_Label": "NSFW İçeriği Gizle",
+  "SettingsPage_HideNSFW_Description": "Mod ızgarasında ve GameBanana tarayıcısında NSFW olarak işaretlenmiş modları gizle"
 }

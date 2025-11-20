@@ -165,6 +165,8 @@
   "SettingsPage_GridLogging_Description": "Enable detailed logging for performance debugging",
   "SettingsPage_MinimizeToTray_Label": "Minimize to tray",
   "SettingsPage_MinimizeToTray_Description": "Minimize the application to system tray instead of taskbar",
+  "SettingsPage_HideNSFW_Label": "Hide NSFW Content",
+  "SettingsPage_HideNSFW_Description": "Hide mods marked as NSFW in mod grid and GameBanana browser",
   "SystemTray_Show": "Show",
   "SystemTray_Exit": "Exit",
   "SystemTray_MinimizedTitle": "FlairX Mod Manager",
@@ -173,5 +175,6 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "Keyboard shortcut for optimizing previews",
   "SettingsPage_ReloadManagerHotkey_Description": "Keyboard shortcut for reloading the manager",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "Keyboard shortcut for shuffling active mods",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "Keyboard shortcut for deactivating all mods"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "Keyboard shortcut for deactivating all mods",
+  "ModDetail_NSFW_Label": "NSFW Content"
 }

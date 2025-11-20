@@ -57,5 +57,6 @@
   "Added": "Ajouté:",
   "ConnectionErrorTitle": "Erreur de connexion",
   "ConnectionErrorMessage": "Impossible de se connecter à GameBanana. Vérifiez votre connexion internet ou réessayez plus tard.",
-  "Retry": "Réessayer"
+  "Retry": "Réessayer",
+  "ViewCategory": "Voir la catégorie"
 }

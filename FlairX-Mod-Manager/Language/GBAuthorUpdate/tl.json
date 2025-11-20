@@ -26,6 +26,9 @@
   "FetchDatesButton_Tooltip": "Kinukuha ang mga petsa ng paglalabas/pag-update para sa mga mod",
   "FetchVersionsButton": "Kunin ang mga bersyon mula sa server",
   "FetchVersionsButton_Tooltip": "Kinukuha ang impormasyon ng bersyon para sa mga mod",
+  "UpdateOtherDataButton": "I-update ang iba pang data",
+  "UpdateOtherDataButton_Tooltip": "Ina-update ang mga NSFW tag at iba pang metadata mula sa GameBanana",
+  "ConfirmUpdateOtherData": "Ia-update nito ang mga NSFW tag at iba pang metadata mula sa GameBanana para sa lahat ng mod na may URL. Magpatuloy?",
   "VersionFetchError": "Error habang kinukuha ang bersyon",
   "VersionSummaryTitle": "Buod ng pag-update ng mga bersyon",
   "ModsWithIssues": "Mga mod na may problema:"

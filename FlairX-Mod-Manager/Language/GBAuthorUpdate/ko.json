@@ -26,6 +26,9 @@
   "FetchDatesButton_Tooltip": "모드의 게시/업데이트 날짜를 가져옵니다",
   "FetchVersionsButton": "서버에서 버전 가져오기",
   "FetchVersionsButton_Tooltip": "모드의 버전 정보를 가져옵니다",
+  "UpdateOtherDataButton": "기타 데이터 업데이트",
+  "UpdateOtherDataButton_Tooltip": "GameBanana에서 NSFW 태그 및 기타 메타데이터를 업데이트합니다",
+  "ConfirmUpdateOtherData": "URL이 있는 모든 모드에 대해 GameBanana에서 NSFW 태그 및 기타 메타데이터를 업데이트합니다. 계속하시겠습니까?",
   "VersionFetchError": "버전 가져오기 중 오류",
   "VersionSummaryTitle": "버전 업데이트 요약",
   "ModsWithIssues": "문제가 있는 모드:"

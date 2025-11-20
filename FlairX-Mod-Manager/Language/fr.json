@@ -171,5 +171,10 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "Raccourci clavier pour optimiser les aperçus",
   "SettingsPage_ReloadManagerHotkey_Description": "Raccourci clavier pour recharger le gestionnaire",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "Raccourci clavier pour mélanger les mods actifs",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "Raccourci clavier pour désactiver tous les mods"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "Raccourci clavier pour désactiver tous les mods",
+  "ModDetail_NSFW_Label": "Contenu NSFW",
+  "ToggleSwitch_On": "Activé",
+  "ToggleSwitch_Off": "Désactivé",
+  "SettingsPage_HideNSFW_Label": "Masquer le contenu NSFW",
+  "SettingsPage_HideNSFW_Description": "Masquer les mods marqués comme NSFW dans la grille de mods et le navigateur GameBanana"
 }

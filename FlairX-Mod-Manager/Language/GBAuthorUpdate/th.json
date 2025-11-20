@@ -26,6 +26,9 @@
   "FetchDatesButton_Tooltip": "ดึงวันที่เผยแพร่/อัปเดตสำหรับ mod",
   "FetchVersionsButton": "ดึงเวอร์ชันจากเซิร์ฟเวอร์",
   "FetchVersionsButton_Tooltip": "ดึงข้อมูลเวอร์ชันสำหรับ mod",
+  "UpdateOtherDataButton": "อัปเดตข้อมูลอื่นๆ",
+  "UpdateOtherDataButton_Tooltip": "อัปเดตแท็ก NSFW และข้อมูลเมตาอื่นๆ จาก GameBanana",
+  "ConfirmUpdateOtherData": "การดำเนินการนี้จะอัปเดตแท็ก NSFW และข้อมูลเมตาอื่นๆ จาก GameBanana สำหรับ mod ทั้งหมดที่มี URL ดำเนินการต่อหรือไม่?",
   "VersionFetchError": "ข้อผิดพลาดขณะดึงข้อมูลเวอร์ชัน",
   "VersionSummaryTitle": "สรุปการอัปเดตเวอร์ชัน",
   "ModsWithIssues": "มอดที่มีปัญหา:"

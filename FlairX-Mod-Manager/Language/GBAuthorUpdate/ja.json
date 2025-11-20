@@ -26,6 +26,9 @@
   "FetchDatesButton_Tooltip": "Modの公開/更新日を取得します",
   "FetchVersionsButton": "サーバーからバージョンを取得",
   "FetchVersionsButton_Tooltip": "Modのバージョン情報を取得します",
+  "UpdateOtherDataButton": "その他のデータを更新",
+  "UpdateOtherDataButton_Tooltip": "GameBananaからNSFWタグとその他のメタデータを更新します",
+  "ConfirmUpdateOtherData": "これにより、URLを持つすべてのModのGameBananaからNSFWタグとその他のメタデータが更新されます。続行しますか？",
   "VersionFetchError": "バージョンの取得中にエラーが発生しました",
   "VersionSummaryTitle": "バージョンの更新概要",
   "ModsWithIssues": "問題のあるMod:"

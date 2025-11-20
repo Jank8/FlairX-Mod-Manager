@@ -26,6 +26,9 @@
   "FetchDatesButton_Tooltip": "Получает даты публикации/обновления для модов",
   "FetchVersionsButton": "Получить версии с сервера",
   "FetchVersionsButton_Tooltip": "Получает информацию о версиях для модов",
+  "UpdateOtherDataButton": "Обновить другие данные",
+  "UpdateOtherDataButton_Tooltip": "Обновляет теги NSFW и другие метаданные из GameBanana",
+  "ConfirmUpdateOtherData": "Это обновит теги NSFW и другие метаданные из GameBanana для всех модов с URL. Продолжить?",
   "VersionFetchError": "Ошибка получения версии",
   "VersionSummaryTitle": "Краткое содержание обновления версий",
   "ModsWithIssues": "Моды с проблемами:"

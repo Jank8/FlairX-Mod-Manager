@@ -174,5 +174,11 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "Keyboard shortcut para sa pag-optimize ng mga preview",
   "SettingsPage_ReloadManagerHotkey_Description": "Keyboard shortcut para sa pag-reload ng manager",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "Keyboard shortcut para sa pag-shuffle ng mga active mod",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "Keyboard shortcut para sa pag-deactivate ng lahat ng mod"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "Keyboard shortcut para sa pag-deactivate ng lahat ng mod",
+  "ModDetail_NSFW_Label": "NSFW na Nilalaman",
+  "Optimize": "I-optimize",
+  "ToggleSwitch_On": "Naka-on",
+  "ToggleSwitch_Off": "Naka-off",
+  "SettingsPage_HideNSFW_Label": "Itago ang NSFW na Nilalaman",
+  "SettingsPage_HideNSFW_Description": "Itago ang mga mod na minarkahan bilang NSFW sa mod grid at GameBanana browser"
 }

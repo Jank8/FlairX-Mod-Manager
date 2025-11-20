@@ -57,5 +57,6 @@
   "Added": "Dodano:",
   "ConnectionErrorTitle": "Błąd połączenia",
   "ConnectionErrorMessage": "Nie można połączyć się z GameBanana. Sprawdź połączenie internetowe lub spróbuj ponownie później.",
-  "Retry": "Ponów"
+  "Retry": "Ponów",
+  "ViewCategory": "Zobacz kategorię"
 }

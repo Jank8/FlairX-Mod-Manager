@@ -57,5 +57,6 @@
   "Added": "Eklenme:",
   "ConnectionErrorTitle": "Bağlantı hatası",
   "ConnectionErrorMessage": "GameBanana'ya bağlanılamıyor. İnternet bağlantınızı kontrol edin veya daha sonra tekrar deneyin.",
-  "Retry": "Tekrar dene"
+  "Retry": "Tekrar dene",
+  "ViewCategory": "Kategoriyi görüntüle"
 }

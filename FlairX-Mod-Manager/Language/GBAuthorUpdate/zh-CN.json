@@ -26,6 +26,9 @@
   "FetchDatesButton_Tooltip": "获取模组的发布/更新日期",
   "FetchVersionsButton": "从服务器获取版本",
   "FetchVersionsButton_Tooltip": "获取模组的版本信息",
+  "UpdateOtherDataButton": "更新其他数据",
+  "UpdateOtherDataButton_Tooltip": "从GameBanana更新NSFW标签和其他元数据",
+  "ConfirmUpdateOtherData": "这将从GameBanana更新所有带URL的模组的NSFW标签和其他元数据。继续？",
   "VersionFetchError": "获取版本时出错",
   "VersionSummaryTitle": "版本更新摘要",
   "ModsWithIssues": "有问题的模组:"

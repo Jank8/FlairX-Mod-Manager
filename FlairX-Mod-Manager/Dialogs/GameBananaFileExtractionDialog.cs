@@ -47,6 +47,7 @@ namespace FlairX_Mod_Manager.Dialogs
         private CheckBox? _combinePreviewsCheckBox;
         private Grid? _updateOptionsGrid;
         private System.Collections.Generic.Dictionary<string, string> _lang = new();
+        private bool _isNSFW = false;
 
         public GameBananaFileExtractionDialog(
             List<Models.GameBananaFileViewModel> selectedFiles,
@@ -57,7 +58,8 @@ namespace FlairX_Mod_Manager.Dialogs
             int modId = 0,
             long dateUpdatedTimestamp = 0,
             string? categoryName = null,
-            GameBananaService.PreviewMedia? previewMedia = null)
+            GameBananaService.PreviewMedia? previewMedia = null,
+            bool isNSFW = false)
         {
             _selectedFiles = selectedFiles;
             _modName = modName;
@@ -67,6 +69,7 @@ namespace FlairX_Mod_Manager.Dialogs
             _modId = modId;
             _dateUpdatedTimestamp = dateUpdatedTimestamp;
             _previewMedia = previewMedia;
+            _isNSFW = isNSFW;
 
             // Load language
             _lang = SharedUtilities.LoadLanguageDictionary("GameBananaBrowser");
@@ -807,6 +810,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 version = string.IsNullOrWhiteSpace(version) ? " " : version,
                 dateChecked = DateTime.Now.ToString("yyyy-MM-dd"),
                 dateUpdated = dateUpdated,
+                isNSFW = _isNSFW,
                 hotkeys = new object[] { }
             };
 

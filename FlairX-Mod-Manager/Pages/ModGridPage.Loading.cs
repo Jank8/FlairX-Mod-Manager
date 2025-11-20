@@ -107,6 +107,7 @@ namespace FlairX_Mod_Manager.Pages
                             var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
                             var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
                             var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
+                            var isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
                             
                             // Parse dates for sorting
                             var lastChecked = DateTime.MinValue;
@@ -160,7 +161,8 @@ namespace FlairX_Mod_Manager.Pages
                                 Category = categoryName,
                                 LastChecked = lastChecked,
                                 LastUpdated = lastUpdated,
-                                HasUpdate = hasUpdate
+                                HasUpdate = hasUpdate,
+                                IsNSFW = isNSFW
                             };
                             
                             // Cache the data

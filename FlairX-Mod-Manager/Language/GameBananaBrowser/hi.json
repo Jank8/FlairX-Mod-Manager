@@ -57,5 +57,6 @@
   "Added": "जोड़ा गया:",
   "ConnectionErrorTitle": "कनेक्शन त्रुटि",
   "ConnectionErrorMessage": "GameBanana से कनेक्ट नहीं हो सका। कृपया अपना इंटरनेट कनेक्शन जांचें या बाद में पुनः प्रयास करें।",
-  "Retry": "पुनः प्रयास करें"
+  "Retry": "पुनः प्रयास करें",
+  "ViewCategory": "श्रेणी देखें"
 }

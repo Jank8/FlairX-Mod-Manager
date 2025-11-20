@@ -174,5 +174,11 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "ปุ่มลัดคีย์บอร์ดสำหรับการปรับปรุงตัวอย่าง",
   "SettingsPage_ReloadManagerHotkey_Description": "ปุ่มลัดคีย์บอร์ดสำหรับการโหลดตัวจัดการใหม่",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "ปุ่มลัดคีย์บอร์ดสำหรับการสลับม็อดที่ใช้งาน",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "ปุ่มลัดคีย์บอร์ดสำหรับการปิดใช้งานม็อดทั้งหมด"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "ปุ่มลัดคีย์บอร์ดสำหรับการปิดใช้งานม็อดทั้งหมด",
+  "ModDetail_NSFW_Label": "เนื้อหา NSFW",
+  "Optimize": "เพิ่มประสิทธิภาพ",
+  "ToggleSwitch_On": "เปิด",
+  "ToggleSwitch_Off": "ปิด",
+  "SettingsPage_HideNSFW_Label": "ซ่อนเนื้อหา NSFW",
+  "SettingsPage_HideNSFW_Description": "ซ่อนม็อดที่ทำเครื่องหมายเป็น NSFW ในตารางม็อดและเบราว์เซอร์ GameBanana"
 }

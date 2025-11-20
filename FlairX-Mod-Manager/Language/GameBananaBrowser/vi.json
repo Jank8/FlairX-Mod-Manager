@@ -57,5 +57,6 @@
   "Added": "Đã thêm:",
   "ConnectionErrorTitle": "Lỗi kết nối",
   "ConnectionErrorMessage": "Không thể kết nối với GameBanana. Vui lòng kiểm tra kết nối internet của bạn hoặc thử lại sau.",
-  "Retry": "Thử lại"
+  "Retry": "Thử lại",
+  "ViewCategory": "Xem danh mục"
 }

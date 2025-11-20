@@ -174,5 +174,11 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "優化預覽的鍵盤快速鍵",
   "SettingsPage_ReloadManagerHotkey_Description": "重新載入管理器的鍵盤快速鍵",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "隨機排列活躍模組的鍵盤快速鍵",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "停用所有模組的鍵盤快速鍵"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "停用所有模組的鍵盤快速鍵",
+  "ModDetail_NSFW_Label": "NSFW內容",
+  "Optimize": "最佳化",
+  "ToggleSwitch_On": "開啟",
+  "ToggleSwitch_Off": "關閉",
+  "SettingsPage_HideNSFW_Label": "隱藏NSFW內容",
+  "SettingsPage_HideNSFW_Description": "在模組網格和GameBanana瀏覽器中隱藏標記為NSFW的模組"
 }

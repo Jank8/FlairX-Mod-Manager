@@ -174,5 +174,11 @@
   "SettingsPage_OptimizePreviewsHotkey_Description": "Phím tắt bàn phím để tối ưu hóa xem trước",
   "SettingsPage_ReloadManagerHotkey_Description": "Phím tắt bàn phím để tải lại trình quản lý",
   "SettingsPage_ShuffleActiveModsHotkey_Description": "Phím tắt bàn phím để xáo trộn các mod đang hoạt động",
-  "SettingsPage_DeactivateAllModsHotkey_Description": "Phím tắt bàn phím để vô hiệu hóa tất cả mod"
+  "SettingsPage_DeactivateAllModsHotkey_Description": "Phím tắt bàn phím để vô hiệu hóa tất cả mod",
+  "ModDetail_NSFW_Label": "Nội dung NSFW",
+  "Optimize": "Tối ưu hóa",
+  "ToggleSwitch_On": "Bật",
+  "ToggleSwitch_Off": "Tắt",
+  "SettingsPage_HideNSFW_Label": "Ẩn nội dung NSFW",
+  "SettingsPage_HideNSFW_Description": "Ẩn các mod được đánh dấu là NSFW trong lưới mod và trình duyệt GameBanana"
 }

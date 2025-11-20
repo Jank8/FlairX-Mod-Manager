@@ -26,6 +26,9 @@
   "FetchDatesButton_Tooltip": "Lấy ngày phát hành/cập nhật cho mod",
   "FetchVersionsButton": "Lấy phiên bản từ máy chủ",
   "FetchVersionsButton_Tooltip": "Lấy thông tin phiên bản cho mod",
+  "UpdateOtherDataButton": "Cập nhật dữ liệu khác",
+  "UpdateOtherDataButton_Tooltip": "Cập nhật thẻ NSFW và siêu dữ liệu khác từ GameBanana",
+  "ConfirmUpdateOtherData": "Điều này sẽ cập nhật thẻ NSFW và siêu dữ liệu khác từ GameBanana cho tất cả các mod có URL. Tiếp tục?",
   "VersionFetchError": "Lỗi khi lấy phiên bản",
   "VersionSummaryTitle": "Tóm tắt cập nhật phiên bản",
   "ModsWithIssues": "Các mod có vấn đề:"

@@ -26,6 +26,9 @@
   "FetchDatesButton_Tooltip": "Modlar için yayın/güncelleme tarihlerini alır",
   "FetchVersionsButton": "Sunucudan sürümleri al",
   "FetchVersionsButton_Tooltip": "Modlar için sürüm bilgilerini alır",
+  "UpdateOtherDataButton": "Diğer verileri güncelle",
+  "UpdateOtherDataButton_Tooltip": "GameBanana'dan NSFW etiketlerini ve diğer meta verileri günceller",
+  "ConfirmUpdateOtherData": "Bu, URL'si olan tüm modlar için GameBanana'dan NSFW etiketlerini ve diğer meta verileri güncelleyecektir. Devam edilsin mi?",
   "VersionFetchError": "Sürüm alınırken hata",
   "VersionSummaryTitle": "Sürüm güncelleme özeti",
   "ModsWithIssues": "Sorunlu modlar:"

@@ -286,6 +286,7 @@ namespace FlairX_Mod_Manager.Pages
             if (ModGridZoomLabel != null) ModGridZoomLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Label");
             if (GridLoggingLabel != null) GridLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Label");
             if (MinimizeToTrayLabel != null) MinimizeToTrayLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Label");
+            if (BlurNSFWLabel != null) BlurNSFWLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Label");
             if (HotkeysHeader != null) HotkeysHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Hotkeys_Header");
 
             // Description texts - use null checks and fallback to empty string if missing
@@ -304,6 +305,7 @@ namespace FlairX_Mod_Manager.Pages
             if (ModGridZoomDescription != null) ModGridZoomDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Description") ?? string.Empty;
             if (GridLoggingDescription != null) GridLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Description") ?? string.Empty;
             if (MinimizeToTrayDescription != null) MinimizeToTrayDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Description") ?? string.Empty;
+            if (BlurNSFWDescription != null) BlurNSFWDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Description") ?? string.Empty;
             
             // ToggleSwitch labels - set initial state
             UpdateToggleLabels();
@@ -1586,6 +1588,13 @@ namespace FlairX_Mod_Manager.Pages
             SettingsManager.Current.BlurNSFWThumbnails = BlurNSFWToggle.IsOn;
             SettingsManager.Save();
             UpdateToggleLabels();
+            
+            // Dynamically filter NSFW mods in ModGridPage
+            var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
+            if (mainWindow?.CurrentModGridPage != null)
+            {
+                mainWindow.CurrentModGridPage.FilterNSFWMods(BlurNSFWToggle.IsOn);
+            }
         }
 
         private void HotkeysEnabledToggle_Toggled(object sender, RoutedEventArgs e)

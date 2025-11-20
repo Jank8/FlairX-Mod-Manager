@@ -32,6 +32,9 @@ namespace FlairX_Mod_Manager
         
         // Event for notifying about window size changes
         public static event EventHandler? WindowSizeChanged;
+        
+        // Current ModGridPage reference for dynamic filtering
+        public FlairX_Mod_Manager.Pages.ModGridPage? CurrentModGridPage { get; set; }
 
         private void LoadLanguage()
         {
@@ -390,10 +393,18 @@ namespace FlairX_Mod_Manager
             {
                 if (e.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
                 {
+                    // Store reference to current ModGridPage for dynamic filtering
+                    CurrentModGridPage = modGridPage;
+                    
                     // Restore view mode button from settings when returning to ModGridPage
                     RestoreViewModeButtonFromSettings();
                     
                     // Context menu visibility is now handled automatically by the global refresh system
+                }
+                else
+                {
+                    // Clear reference when navigating away
+                    CurrentModGridPage = null;
                 }
             };
             MainRoot.Loaded += MainRoot_Loaded;
