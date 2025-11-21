@@ -195,6 +195,7 @@ namespace FlairX_Mod_Manager.Pages
             
             // Update all texts and icons once at the end
             UpdateTexts(lang);
+            CheckUpdatesButtonText.Text = SharedUtilities.GetTranslation(lang, "CheckForUpdates");
             AboutButtonText.Text = SharedUtilities.GetTranslation(lang, "AboutButton_Label");
             AboutButtonIcon.Glyph = "\uE946";
             
@@ -2151,6 +2152,52 @@ namespace FlairX_Mod_Manager.Pages
             _windowSizeUpdateTimer?.Stop();
         }
 
+        private async void CheckUpdatesButton_Click(object sender, RoutedEventArgs e)
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            
+            CheckUpdatesButton.IsEnabled = false;
+            
+            var result = await UpdateChecker.CheckForUpdatesAsync();
+            
+            if (result == null)
+            {
+                var errorDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
+                    Content = SharedUtilities.GetTranslation(lang, "UpdateCheckFailed"),
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+                CheckUpdatesButton.IsEnabled = true;
+                return;
+            }
+            
+            if (result.Value.updateAvailable)
+            {
+                var updateDialog = new FlairX_Mod_Manager.Dialogs.ManagerUpdateDialog(
+                    result.Value.latestVersion,
+                    result.Value.downloadUrl
+                );
+                updateDialog.XamlRoot = this.XamlRoot;
+                await updateDialog.ShowAsync();
+            }
+            else
+            {
+                var infoDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "Information"),
+                    Content = $"{SharedUtilities.GetTranslation(lang, "LatestVersion")} ({UpdateChecker.GetCurrentVersion()})",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await infoDialog.ShowAsync();
+            }
+            
+            CheckUpdatesButton.IsEnabled = true;
+        }
+        
         private async void AboutButton_Click(object sender, RoutedEventArgs e)
         {
             var lang = SharedUtilities.LoadLanguageDictionary();
@@ -2227,80 +2274,6 @@ namespace FlairX_Mod_Manager.Pages
                 Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 8)
             };
             stackPanel.Children.Add(versionBlock);
-            
-            // Check for updates button
-            var checkUpdateButton = new Button
-            {
-                Content = SharedUtilities.GetTranslation(lang, "CheckForUpdates") ?? "Check for Updates",
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 8)
-            };
-            
-            var updateStatusText = new TextBlock
-            {
-                TextWrapping = TextWrapping.Wrap,
-                TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 4, 0, 4),
-                Visibility = Visibility.Collapsed
-            };
-            
-            var updateProgressBar = new ProgressBar
-            {
-                Visibility = Visibility.Collapsed,
-                Margin = new Thickness(0, 4, 0, 8)
-            };
-            
-            checkUpdateButton.Click += async (s, args) =>
-            {
-                checkUpdateButton.IsEnabled = false;
-                updateStatusText.Visibility = Visibility.Visible;
-                updateStatusText.Text = SharedUtilities.GetTranslation(lang, "CheckingForUpdates") ?? "Checking for updates...";
-                updateProgressBar.Visibility = Visibility.Collapsed;
-                
-                var result = await UpdateChecker.CheckForUpdatesAsync();
-                
-                if (result == null)
-                {
-                    updateStatusText.Text = SharedUtilities.GetTranslation(lang, "UpdateCheckFailed") ?? "Failed to check for updates. Please check your internet connection.";
-                    checkUpdateButton.IsEnabled = true;
-                    return;
-                }
-                
-                if (result.Value.updateAvailable)
-                {
-                    updateStatusText.Text = $"{SharedUtilities.GetTranslation(lang, "UpdateAvailable") ?? "Update available"}: v{result.Value.latestVersion}\n\n{SharedUtilities.GetTranslation(lang, "DownloadingUpdate") ?? "Downloading and installing..."}";
-                    updateProgressBar.Visibility = Visibility.Visible;
-                    updateProgressBar.IsIndeterminate = false;
-                    updateProgressBar.Value = 0;
-                    
-                    var progress = new Progress<int>(percent =>
-                    {
-                        this.DispatcherQueue.TryEnqueue(() =>
-                        {
-                            updateProgressBar.Value = percent;
-                        });
-                    });
-                    
-                    var success = await UpdateChecker.DownloadAndInstallUpdateAsync(result.Value.downloadUrl, progress);
-                    
-                    if (!success)
-                    {
-                        updateStatusText.Text = SharedUtilities.GetTranslation(lang, "UpdateDownloadFailed") ?? "Failed to download update. Please try again later.";
-                        updateProgressBar.Visibility = Visibility.Collapsed;
-                        checkUpdateButton.IsEnabled = true;
-                    }
-                    // If successful, app will close and restart
-                }
-                else
-                {
-                    updateStatusText.Text = $"{SharedUtilities.GetTranslation(lang, "LatestVersion") ?? "You are using the latest version"} ({currentVersion})";
-                    checkUpdateButton.IsEnabled = true;
-                }
-            };
-            
-            stackPanel.Children.Add(checkUpdateButton);
-            stackPanel.Children.Add(updateProgressBar);
-            stackPanel.Children.Add(updateStatusText);
             
             // Credits section
             stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_AI"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,8,0,4) });

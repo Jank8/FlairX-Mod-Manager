@@ -182,7 +182,13 @@
     "CheckingForUpdates":  "正在检查更新...",
     "UpdateCheckFailed":  "检查更新失败。请检查您的网络连接。",
     "UpdateAvailable":  "有可用更新",
-    "DownloadingUpdate":  "正在下载和安装...",
+    "DownloadingUpdate":  "正在下载更新...",
     "UpdateDownloadFailed":  "下载更新失败。请稍后重试。",
-    "LatestVersion":  "您正在使用最新版本"
+    "LatestVersion":  "您正在使用最新版本",
+    "DownloadAndInstall":  "下载并安装",
+    "NewVersionAvailable":  "有新版本可用",
+    "CurrentVersion":  "当前版本",
+    "ReadyToDownload":  "准备下载并安装更新。",
+    "UpdateFailed":  "更新失败",
+    "Close":  "关闭"
 }

@@ -179,10 +179,15 @@
     "ModTile_Activate":  "Aktywuj",
     "ModTile_Deactivate":  "Dezaktywuj",
     "CheckForUpdates":  "Sprawdź aktualizacje",
-    "CheckingForUpdates":  "Sprawdzanie aktualizacji...",
-    "UpdateCheckFailed":  "Nie udało się sprawdzić aktualizacji. Sprawdź połączenie internetowe.",
+    "UpdateCheckFailed":  "Nie udało się sprawdzić aktualizacji. Sprawdź połączenie z internetem.",
     "UpdateAvailable":  "Dostępna aktualizacja",
-    "DownloadingUpdate":  "Pobieranie i instalowanie...",
+    "DownloadingUpdate":  "Pobieranie aktualizacji...",
     "UpdateDownloadFailed":  "Nie udało się pobrać aktualizacji. Spróbuj ponownie później.",
-    "LatestVersion":  "Używasz najnowszej wersji"
+    "LatestVersion":  "Używasz najnowszej wersji",
+    "DownloadAndInstall":  "Pobierz i zainstaluj",
+    "NewVersionAvailable":  "Dostępna nowa wersja",
+    "CurrentVersion":  "Aktualna wersja",
+    "ReadyToDownload":  "Gotowe do pobrania i zainstalowania aktualizacji.",
+    "UpdateFailed":  "Aktualizacja nie powiodła się",
+    "Close":  "Zamknij"
 }

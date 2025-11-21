@@ -670,20 +670,31 @@
                     </StackPanel>
                 </Grid>
             </ScrollViewer>
-            <Button x:Name="AboutButton"
-                    Grid.Row="1"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Bottom"
-                    Margin="0,16,0,0"
-                    Width="200"
-                    Height="40"
-                    MaxWidth="800"
-                    Click="AboutButton_Click">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <FontIcon x:Name="AboutButtonIcon" Glyph="&#xE946;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                    <TextBlock x:Name="AboutButtonText" Text="" VerticalAlignment="Center"/>
-                </StackPanel>
-            </Button>
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Bottom"
+                        Margin="0,16,0,0"
+                        Spacing="12">
+                <Button x:Name="CheckUpdatesButton"
+                        Width="200"
+                        Height="40"
+                        Click="CheckUpdatesButton_Click">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <FontIcon Glyph="&#xE895;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="CheckUpdatesButtonText" Text="" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="AboutButton"
+                        Width="200"
+                        Height="40"
+                        Click="AboutButton_Click">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <FontIcon x:Name="AboutButtonIcon" Glyph="&#xE946;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="AboutButtonText" Text="" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

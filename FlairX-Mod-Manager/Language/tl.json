@@ -184,5 +184,11 @@
     "UpdateAvailable":  "May available na update",
     "DownloadingUpdate":  "Nag-download at nag-install...",
     "UpdateDownloadFailed":  "Hindi ma-download ang update. Subukan muli mamaya.",
-    "LatestVersion":  "Gumagamit ka ng pinakabagong bersyon"
+    "LatestVersion":  "Gumagamit ka ng pinakabagong bersyon",
+    "DownloadAndInstall":  "I-download at I-install",
+    "NewVersionAvailable":  "May bagong bersyon na available",
+    "CurrentVersion":  "Kasalukuyang bersyon",
+    "ReadyToDownload":  "Handa nang i-download at i-install ang update.",
+    "UpdateFailed":  "Nabigo ang pag-update",
+    "Close":  "Isara"
 }

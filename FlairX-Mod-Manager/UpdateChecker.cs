@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -17,16 +18,18 @@ namespace FlairX_Mod_Manager
         
         private static readonly HttpClient _httpClient = new HttpClient
         {
-            Timeout = TimeSpan.FromSeconds(30)
+            Timeout = TimeSpan.FromMinutes(2)
         };
 
         static UpdateChecker()
         {
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager");
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) FlairX-Mod-Manager/3.0");
+            _httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
         }
 
         public static async Task<(bool updateAvailable, string latestVersion, string downloadUrl)?> CheckForUpdatesAsync()
         {
+            Logger.LogInfo("=== UPDATE CHECK STARTED ===");
             try
             {
                 var url = $"https://api.github.com/repos/{GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}/releases/latest";
@@ -38,23 +41,13 @@ namespace FlairX_Mod_Manager
                 using var doc = JsonDocument.Parse(response);
                 var root = doc.RootElement;
                 
-                // Try to get version from name first (e.g., "Release 3.0.0"), fallback to tag_name
-                string? versionSource = null;
-                if (root.TryGetProperty("name", out var nameProperty))
-                {
-                    versionSource = nameProperty.GetString();
-                    Logger.LogInfo($"Latest release name: {versionSource}");
-                }
+                // Use tag_name for version
+                string? versionSource = root.GetProperty("tag_name").GetString();
+                Logger.LogInfo($"Latest release tag: {versionSource}");
                 
                 if (string.IsNullOrEmpty(versionSource))
                 {
-                    versionSource = root.GetProperty("tag_name").GetString();
-                    Logger.LogInfo($"Latest release tag: {versionSource}");
-                }
-                
-                if (string.IsNullOrEmpty(versionSource))
-                {
-                    Logger.LogWarning("Release name and tag are empty");
+                    Logger.LogWarning("Release tag is empty");
                     return null;
                 }
                 
@@ -68,7 +61,7 @@ namespace FlairX_Mod_Manager
                 }
                 Logger.LogInfo($"Extracted version: {latestVersion}");
                 
-                // Get download URL for .7z asset (FlairX.Mod.Manager.7z)
+                // Get download URL for .zip asset
                 string? downloadUrl = null;
                 if (root.TryGetProperty("assets", out var assets))
                 {
@@ -77,10 +70,10 @@ namespace FlairX_Mod_Manager
                     {
                         var name = asset.GetProperty("name").GetString();
                         Logger.LogInfo($"Asset: {name}");
-                        if (name?.EndsWith(".7z", StringComparison.OrdinalIgnoreCase) == true)
+                        if (name?.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) == true)
                         {
                             downloadUrl = asset.GetProperty("browser_download_url").GetString();
-                            Logger.LogInfo($"Found .7z asset: {downloadUrl}");
+                            Logger.LogInfo($"Found .zip asset: {downloadUrl}");
                             break;
                         }
                     }
@@ -92,7 +85,7 @@ namespace FlairX_Mod_Manager
                 
                 if (string.IsNullOrEmpty(downloadUrl))
                 {
-                    Logger.LogWarning("No .7z download URL found");
+                    Logger.LogWarning("No .zip download URL found");
                     return null;
                 }
                 
@@ -175,7 +168,7 @@ namespace FlairX_Mod_Manager
             try
             {
                 var tempDir = Path.Combine(Path.GetTempPath(), "FlairX_Update");
-                var archivePath = Path.Combine(tempDir, "update.7z");
+                var archivePath = Path.Combine(tempDir, "update.zip");
                 
                 // Create temp directory
                 if (Directory.Exists(tempDir))
@@ -216,19 +209,99 @@ namespace FlairX_Mod_Manager
                 var extractPath = Path.Combine(tempDir, "extracted");
                 Directory.CreateDirectory(extractPath);
                 
-                using (var archive = ArchiveFactory.Open(archivePath))
+                try
                 {
-                    foreach (var entry in archive.Entries)
+                    Logger.LogInfo($"Opening archive: {archivePath}");
+                    using (var archive = ArchiveFactory.Open(archivePath))
                     {
-                        if (!entry.IsDirectory)
+                        Logger.LogInfo("Archive opened, reading entries...");
+                        var entries = archive.Entries.Where(e => !e.IsDirectory).ToList();
+                        Logger.LogInfo($"Found {entries.Count} files in archive");
+                        
+                        // Check if all files are in a single root folder
+                        string? commonRootFolder = null;
+                        bool hasSingleRootFolder = true;
+                        
+                        foreach (var entry in entries)
                         {
-                            entry.WriteToDirectory(extractPath, new ExtractionOptions
+                            if (string.IsNullOrEmpty(entry.Key)) continue;
+                            
+                            var parts = entry.Key.Split('/', '\\');
+                            if (parts.Length > 1)
                             {
-                                ExtractFullPath = true,
-                                Overwrite = true
-                            });
+                                var rootFolder = parts[0];
+                                if (commonRootFolder == null)
+                                {
+                                    commonRootFolder = rootFolder;
+                                }
+                                else if (commonRootFolder != rootFolder)
+                                {
+                                    hasSingleRootFolder = false;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                hasSingleRootFolder = false;
+                                break;
+                            }
                         }
+                        
+                        Logger.LogInfo($"Archive structure: hasSingleRootFolder={hasSingleRootFolder}, rootFolder={commonRootFolder}");
+                        
+                        // Extract files, skipping root folder if needed
+                        int extractedCount = 0;
+                        foreach (var entry in entries)
+                        {
+                            try
+                            {
+                                if (string.IsNullOrEmpty(entry.Key)) continue;
+                                
+                                var pathParts = entry.Key.Split('/', '\\').ToList();
+                                
+                                // Skip root folder if all files are in one folder
+                                if (hasSingleRootFolder && !string.IsNullOrEmpty(commonRootFolder) && pathParts.Count > 1)
+                                {
+                                    pathParts.RemoveAt(0);
+                                }
+                                
+                                var relativePath = string.Join(Path.DirectorySeparatorChar.ToString(), pathParts);
+                                var destPath = Path.Combine(extractPath, relativePath);
+                                
+                                Logger.LogInfo($"Extracting: {entry.Key} -> {relativePath}");
+                                
+                                var destDir = Path.GetDirectoryName(destPath);
+                                if (!string.IsNullOrEmpty(destDir))
+                                {
+                                    Directory.CreateDirectory(destDir);
+                                }
+                                
+                                using (var entryStream = entry.OpenEntryStream())
+                                using (var fileStream = File.Create(destPath))
+                                {
+                                    entryStream.CopyTo(fileStream);
+                                }
+                                
+                                extractedCount++;
+                                if (extractedCount % 10 == 0)
+                                {
+                                    Logger.LogInfo($"Extracted {extractedCount}/{entries.Count} files...");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to extract {entry.Key}", ex);
+                                throw;
+                            }
+                        }
+                        
+                        Logger.LogInfo($"Extraction completed: {extractedCount} files");
                     }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Archive extraction failed", ex);
+                    throw;
                 }
                 
                 // Create update script
@@ -246,12 +319,26 @@ namespace FlairX_Mod_Manager
                     return false;
                 }
                 
+                // Go up one directory (from app/ to root with launcher)
+                var parentDir = Path.GetDirectoryName(currentDir);
+                if (string.IsNullOrEmpty(parentDir))
+                {
+                    Logger.LogError("Failed to get parent directory");
+                    return false;
+                }
+                
+                Logger.LogInfo($"Current exe: {currentExePath}");
+                Logger.LogInfo($"Current dir: {currentDir}");
+                Logger.LogInfo($"Parent dir (target): {parentDir}");
+                
                 // Create batch script to replace files after app closes
                 var scriptPath = Path.Combine(tempDir, "update.bat");
+                
                 var script = $@"@echo off
+cd /d ""{parentDir}""
 timeout /t 2 /nobreak > nul
 echo Applying update...
-xcopy /E /I /Y ""{extractPath}\*"" ""{currentDir}""
+xcopy /E /I /Y ""{extractPath}\*"" .
 if errorlevel 1 (
     echo Update failed!
     pause
@@ -259,7 +346,8 @@ if errorlevel 1 (
 )
 echo Update completed!
 timeout /t 2 /nobreak > nul
-start """" ""{currentExePath}""
+start """" "".\FlairX Mod Manager Launcher.exe""
+cd /d ""{Path.GetDirectoryName(tempDir)}""
 rmdir /s /q ""{tempDir}""
 ";
                 

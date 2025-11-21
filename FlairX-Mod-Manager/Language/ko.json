@@ -184,5 +184,11 @@
     "UpdateAvailable":  "업데이트 사용 가능",
     "DownloadingUpdate":  "다운로드 및 설치 중...",
     "UpdateDownloadFailed":  "업데이트 다운로드에 실패했습니다. 나중에 다시 시도하세요.",
-    "LatestVersion":  "최신 버전을 사용하고 있습니다"
+    "LatestVersion":  "최신 버전을 사용하고 있습니다",
+    "DownloadAndInstall":  "다운로드 및 설치",
+    "NewVersionAvailable":  "새 버전 사용 가능",
+    "CurrentVersion":  "현재 버전",
+    "ReadyToDownload":  "업데이트를 다운로드하고 설치할 준비가 되었습니다.",
+    "UpdateFailed":  "업데이트 실패",
+    "Close":  "닫기"
 }

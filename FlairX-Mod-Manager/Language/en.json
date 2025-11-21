@@ -179,10 +179,15 @@
     "ModTile_Activate":  "Activate",
     "ModTile_Deactivate":  "Deactivate",
     "CheckForUpdates":  "Check for Updates",
-    "CheckingForUpdates":  "Checking for updates...",
     "UpdateCheckFailed":  "Failed to check for updates. Please check your internet connection.",
     "UpdateAvailable":  "Update available",
-    "DownloadingUpdate":  "Downloading and installing...",
+    "DownloadingUpdate":  "Downloading update...",
     "UpdateDownloadFailed":  "Failed to download update. Please try again later.",
-    "LatestVersion":  "You are using the latest version"
+    "LatestVersion":  "You are using the latest version",
+    "DownloadAndInstall":  "Download and Install",
+    "NewVersionAvailable":  "New version available",
+    "CurrentVersion":  "Current version",
+    "ReadyToDownload":  "Ready to download and install update.",
+    "UpdateFailed":  "Update failed",
+    "Close":  "Close"
 }

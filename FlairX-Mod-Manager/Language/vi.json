@@ -184,5 +184,11 @@
     "UpdateAvailable":  "Có bản cập nhật",
     "DownloadingUpdate":  "Đang tải xuống và cài đặt...",
     "UpdateDownloadFailed":  "Không thể tải xuống bản cập nhật. Vui lòng thử lại sau.",
-    "LatestVersion":  "Bạn đang sử dụng phiên bản mới nhất"
+    "LatestVersion":  "Bạn đang sử dụng phiên bản mới nhất",
+    "DownloadAndInstall":  "Tải xuống và Cài đặt",
+    "NewVersionAvailable":  "Phiên bản mới có sẵn",
+    "CurrentVersion":  "Phiên bản hiện tại",
+    "ReadyToDownload":  "Sẵn sàng tải xuống và cài đặt bản cập nhật.",
+    "UpdateFailed":  "Cập nhật thất bại",
+    "Close":  "Đóng"
 }

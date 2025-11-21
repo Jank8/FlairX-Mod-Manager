@@ -184,5 +184,11 @@
     "UpdateAvailable":  "Güncelleme mevcut",
     "DownloadingUpdate":  "İndiriliyor ve kuruluyor...",
     "UpdateDownloadFailed":  "Güncelleme indirilemedi. Daha sonra tekrar deneyin.",
-    "LatestVersion":  "En son sürümü kullanıyorsunuz"
+    "LatestVersion":  "En son sürümü kullanıyorsunuz",
+    "DownloadAndInstall":  "İndir ve Yükle",
+    "NewVersionAvailable":  "Yeni sürüm mevcut",
+    "CurrentVersion":  "Mevcut sürüm",
+    "ReadyToDownload":  "Güncellemeyi indirmeye ve yüklemeye hazır.",
+    "UpdateFailed":  "Güncelleme başarısız oldu",
+    "Close":  "Kapat"
 }

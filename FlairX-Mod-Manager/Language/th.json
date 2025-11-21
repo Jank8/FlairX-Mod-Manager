@@ -184,5 +184,11 @@
     "UpdateAvailable":  "มการอปเดตใหม",
     "DownloadingUpdate":  "กาลงดาวนโหลดและตดตง...",
     "UpdateDownloadFailed":  "ไมสามารถดาวนโหลดการอปเดตได กรณาลองใหมภายหลง",
-    "LatestVersion":  "คณกาลงใชเวอรชนลาสด"
+    "LatestVersion":  "คณกาลงใชเวอรชนลาสด",
+    "DownloadAndInstall":  "ดาวนโหลดและตดตง",
+    "NewVersionAvailable":  "มเวอรชนใหมพรอมใช",
+    "CurrentVersion":  "เวอรชนปจจบน",
+    "ReadyToDownload":  "พรอมดาวนโหลดและตดตงการอปเดต",
+    "UpdateFailed":  "การอปเดตลมเหลว",
+    "Close":  "ปด"
 }

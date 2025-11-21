@@ -184,5 +184,11 @@
     "UpdateAvailable":  "Actualización disponible",
     "DownloadingUpdate":  "Descargando e instalando...",
     "UpdateDownloadFailed":  "Error al descargar la actualización. Inténtalo más tarde.",
-    "LatestVersion":  "Estás usando la última versión"
+    "LatestVersion":  "Estás usando la última versión",
+    "DownloadAndInstall":  "Descargar e instalar",
+    "NewVersionAvailable":  "Nueva versión disponible",
+    "CurrentVersion":  "Versión actual",
+    "ReadyToDownload":  "Listo para descargar e instalar la actualización.",
+    "UpdateFailed":  "La actualización falló",
+    "Close":  "Cerrar"
 }

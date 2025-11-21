@@ -184,5 +184,11 @@
     "UpdateAvailable":  "更新が利用可能",
     "DownloadingUpdate":  "ダウンロードとインストール中...",
     "UpdateDownloadFailed":  "更新のダウンロードに失敗しました。後でもう一度お試しください。",
-    "LatestVersion":  "最新バージョンを使用しています"
+    "LatestVersion":  "最新バージョンを使用しています",
+    "DownloadAndInstall":  "ダウンロードしてインストール",
+    "NewVersionAvailable":  "新しいバージョンが利用可能です",
+    "CurrentVersion":  "現在のバージョン",
+    "ReadyToDownload":  "更新をダウンロードしてインストールする準備ができました。",
+    "UpdateFailed":  "更新に失敗しました",
+    "Close":  "閉じる"
 }

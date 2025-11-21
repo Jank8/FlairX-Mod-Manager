@@ -184,5 +184,11 @@
     "UpdateAvailable":  "有可用更新",
     "DownloadingUpdate":  "正在下載和安裝...",
     "UpdateDownloadFailed":  "下載更新失敗。請稍後重試。",
-    "LatestVersion":  "您正在使用最新版本"
+    "LatestVersion":  "您正在使用最新版本",
+    "DownloadAndInstall":  "下載並安裝",
+    "NewVersionAvailable":  "有新版本可用",
+    "CurrentVersion":  "目前版本",
+    "ReadyToDownload":  "準備下載並安裝更新。",
+    "UpdateFailed":  "更新失敗",
+    "Close":  "關閉"
 }

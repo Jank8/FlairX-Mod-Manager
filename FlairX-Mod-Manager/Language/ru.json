@@ -184,5 +184,11 @@
     "UpdateAvailable":  "Доступно обновление",
     "DownloadingUpdate":  "Загрузка и установка...",
     "UpdateDownloadFailed":  "Не удалось загрузить обновление. Попробуйте позже.",
-    "LatestVersion":  "Вы используете последнюю версию"
+    "LatestVersion":  "Вы используете последнюю версию",
+    "DownloadAndInstall":  "Скачать и установить",
+    "NewVersionAvailable":  "Доступна новая версия",
+    "CurrentVersion":  "Текущая версия",
+    "ReadyToDownload":  "Готово к загрузке и установке обновления.",
+    "UpdateFailed":  "Обновление не удалось",
+    "Close":  "Закрыть"
 }

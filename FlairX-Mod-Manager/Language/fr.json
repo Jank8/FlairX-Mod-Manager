@@ -184,5 +184,11 @@
     "UpdateAvailable":  "Mise à jour disponible",
     "DownloadingUpdate":  "Téléchargement et installation...",
     "UpdateDownloadFailed":  "Échec du téléchargement de la mise à jour. Réessayez plus tard.",
-    "LatestVersion":  "Vous utilisez la dernière version"
+    "LatestVersion":  "Vous utilisez la dernière version",
+    "DownloadAndInstall":  "Télécharger et installer",
+    "NewVersionAvailable":  "Nouvelle version disponible",
+    "CurrentVersion":  "Version actuelle",
+    "ReadyToDownload":  "Prêt à télécharger et installer la mise à jour.",
+    "UpdateFailed":  "La mise à jour a échoué",
+    "Close":  "Fermer"
 }
