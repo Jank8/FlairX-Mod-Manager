@@ -977,7 +977,7 @@ namespace FlairX_Mod_Manager.Pages
                 bool needsMinitile = !File.Exists(minitileJpgPath);
 
                 // Process each preview file
-                for (int i = 0; i < previewFiles.Count && i < 100; i++) // Max 100 images
+                for (int i = 0; i < previewFiles.Count && i < 10; i++) // Max 10 images (TEMPORARY FOR TESTING)
                 {
                     var sourceFile = previewFiles[i];
                     string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
@@ -1001,6 +1001,39 @@ namespace FlairX_Mod_Manager.Pages
                     if (i == 0)
                     {
                         CreateMinitileStatic(targetPath, minitileJpgPath);
+                    }
+                }
+                
+                // Clean up any extra preview files beyond the limit
+                var existingPreviews = Directory.GetFiles(modDir, "preview*.*")
+                    .Where(f => 
+                    {
+                        var name = Path.GetFileNameWithoutExtension(f);
+                        var ext = Path.GetExtension(f).ToLower();
+                        
+                        // Skip if not an image file
+                        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png") return false;
+                        
+                        if (name == "preview") return false; // Keep main preview
+                        if (name.StartsWith("preview-"))
+                        {
+                            var suffix = name.Substring(8); // Remove "preview-"
+                            return !int.TryParse(suffix, out int num) || num > 9; // Remove if not 01-09 (for limit of 10)
+                        }
+                        return true; // Remove other preview files
+                    })
+                    .ToList();
+
+                foreach (var extraFile in existingPreviews)
+                {
+                    try
+                    {
+                        File.Delete(extraFile);
+                        Logger.LogInfo($"Deleted excess preview file: {Path.GetFileName(extraFile)}");
+                    }
+                    catch (Exception deleteEx)
+                    {
+                        Logger.LogError($"Failed to delete excess file: {extraFile}", deleteEx);
                     }
                 }
             }
@@ -1557,7 +1590,7 @@ namespace FlairX_Mod_Manager.Pages
                 bool needsMinitile = !File.Exists(minitileJpgPath);
 
                 // Process each preview file
-                for (int i = 0; i < previewFiles.Count && i < 100; i++) // Max 100 images (preview.jpg + preview-01.jpg to preview-99.jpg)
+                for (int i = 0; i < previewFiles.Count && i < 10; i++) // Max 10 images (TEMPORARY FOR TESTING)
                 {
                     var sourceFile = previewFiles[i];
                     string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
