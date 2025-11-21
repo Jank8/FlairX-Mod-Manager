@@ -1679,37 +1679,24 @@ namespace FlairX_Mod_Manager.Pages
                     dropIcon.Glyph = "\uE895"; // Sync icon
                 }
                 
-                // Get mod folder path
+                // Get mod folder path - use FindModFolderPath to handle DISABLED_ prefix
                 var gameTag = SettingsManager.CurrentSelectedGame;
                 var gameModsPath = AppConstants.GameConfig.GetModsPath(gameTag);
                 Logger.LogInfo($"Game mods path from config: {gameModsPath}");
                 string modsPath = PathManager.GetAbsolutePath(gameModsPath);
                 Logger.LogInfo($"Absolute mods path: {modsPath}");
-                string modFolderPath = !string.IsNullOrEmpty(_currentCategory) 
-                    ? Path.Combine(modsPath, _currentCategory, tile.Directory)
-                    : Path.Combine(modsPath, tile.Directory);
-                Logger.LogInfo($"Final mod folder path: {modFolderPath}");
-                    
-                if (!Directory.Exists(modFolderPath))
-                {
-                    Logger.LogWarning($"Mod folder not found, creating: {modFolderPath}");
-                    try
-                    {
-                        Directory.CreateDirectory(modFolderPath);
-                        Logger.LogInfo($"Created mod folder: {modFolderPath}");
-                    }
-                    catch (Exception createEx)
-                    {
-                        Logger.LogError($"Failed to create mod folder: {modFolderPath}", createEx);
-                        if (dropOverlay != null)
-                        {
-                            dropOverlay.Visibility = Visibility.Collapsed;
-                            dropOverlay.Opacity = 0;
-                        }
-                        return;
-                    }
-                }
                 
+                string? modFolderPath = FindModFolderPath(modsPath, tile.Directory);
+                if (string.IsNullOrEmpty(modFolderPath))
+                {
+                    Logger.LogError($"Could not find mod folder for: {tile.Directory}");
+                    if (dropOverlay != null)
+                    {
+                        dropOverlay.Visibility = Visibility.Collapsed;
+                        dropOverlay.Opacity = 0;
+                    }
+                    return;
+                }
                 Logger.LogInfo($"Target folder: {modFolderPath}");
                 
                 // Copy images with preview naming
