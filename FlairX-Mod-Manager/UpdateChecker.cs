@@ -14,7 +14,6 @@ namespace FlairX_Mod_Manager
     {
         private const string GITHUB_REPO_OWNER = "Jank8";
         private const string GITHUB_REPO_NAME = "FlairX-Mod-Manager";
-        private const string CURRENT_VERSION = "3.0.0";
         
         private static readonly HttpClient _httpClient = new HttpClient
         {
@@ -23,7 +22,7 @@ namespace FlairX_Mod_Manager
 
         static UpdateChecker()
         {
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) FlairX-Mod-Manager/3.0");
+            _httpClient.DefaultRequestHeaders.Add("User-Agent", $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) FlairX-Mod-Manager/{AppConstants.APP_VERSION}");
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
         }
 
@@ -90,8 +89,8 @@ namespace FlairX_Mod_Manager
                 }
                 
                 // Compare versions
-                var updateAvailable = IsNewerVersion(CURRENT_VERSION, latestVersion);
-                Logger.LogInfo($"Current version: {CURRENT_VERSION}, Latest version: {latestVersion}, Update available: {updateAvailable}");
+                var updateAvailable = IsNewerVersion(AppConstants.APP_VERSION, latestVersion);
+                Logger.LogInfo($"Current version: {AppConstants.APP_VERSION}, Latest version: {latestVersion}, Update available: {updateAvailable}");
                 
                 return (updateAvailable, latestVersion, downloadUrl);
             }
@@ -377,7 +376,7 @@ rmdir /s /q ""{tempDir}""
 
         public static string GetCurrentVersion()
         {
-            return CURRENT_VERSION;
+            return AppConstants.APP_VERSION;
         }
     }
 }

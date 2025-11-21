@@ -692,14 +692,29 @@ namespace FlairX_Mod_Manager.Pages
                 else
                 {
                     // Renaming mod - find it in categories
+                    // modTile.Directory contains clean name without DISABLED_ prefix
+                    // We need to check both with and without the prefix
                     foreach (var categoryDir in Directory.GetDirectories(modsPath))
                     {
+                        // Try with clean name first
                         var modPath = Path.Combine(categoryDir, modTile.Directory);
                         if (Directory.Exists(modPath))
                         {
                             currentPath = modPath;
                             parentPath = categoryDir;
                             break;
+                        }
+                        
+                        // Try with DISABLED_ prefix if mod is inactive
+                        if (!modTile.IsActive)
+                        {
+                            var disabledModPath = Path.Combine(categoryDir, "DISABLED_" + modTile.Directory);
+                            if (Directory.Exists(disabledModPath))
+                            {
+                                currentPath = disabledModPath;
+                                parentPath = categoryDir;
+                                break;
+                            }
                         }
                     }
                 }
@@ -710,12 +725,32 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
                 
-                var newPath = Path.Combine(parentPath, newName);
+                // For mods: preserve DISABLED_ prefix if mod is inactive
+                string newDirectoryName = newName;
+                if (!modTile.IsCategory && !modTile.IsActive)
+                {
+                    newDirectoryName = "DISABLED_" + newName;
+                }
                 
+                var newPath = Path.Combine(parentPath, newDirectoryName);
+                
+                // Check if target already exists (with or without DISABLED_ prefix)
                 if (Directory.Exists(newPath))
                 {
                     await ShowErrorDialog("Error", $"A {(modTile.IsCategory ? "category" : "mod")} with the name '{newName}' already exists.");
                     return;
+                }
+                
+                // Also check the opposite state (active/inactive) to prevent conflicts
+                if (!modTile.IsCategory)
+                {
+                    var oppositePrefix = modTile.IsActive ? "DISABLED_" + newName : newName.Replace("DISABLED_", "");
+                    var oppositePath = Path.Combine(parentPath, oppositePrefix);
+                    if (Directory.Exists(oppositePath))
+                    {
+                        await ShowErrorDialog("Error", $"A mod with the name '{newName}' already exists in a different state.");
+                        return;
+                    }
                 }
                 
                 // Rename the directory
