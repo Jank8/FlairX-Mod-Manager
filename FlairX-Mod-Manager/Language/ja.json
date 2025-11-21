@@ -177,5 +177,12 @@
     "DragDrop_AddedSkipped":  "{0}枚追加、{1}枚スキップ",
     "DragDrop_ImagesAdded":  "画像を追加しました！",
     "ModTile_Activate":  "有効化",
-    "ModTile_Deactivate":  "無効化"
+    "ModTile_Deactivate":  "無効化",
+    "CheckForUpdates":  "更新を確認",
+    "CheckingForUpdates":  "更新を確認中...",
+    "UpdateCheckFailed":  "更新の確認に失敗しました。インターネット接続を確認してください。",
+    "UpdateAvailable":  "更新が利用可能",
+    "DownloadingUpdate":  "ダウンロードとインストール中...",
+    "UpdateDownloadFailed":  "更新のダウンロードに失敗しました。後でもう一度お試しください。",
+    "LatestVersion":  "最新バージョンを使用しています"
 }

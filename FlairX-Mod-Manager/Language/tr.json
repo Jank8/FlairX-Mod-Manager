@@ -177,5 +177,12 @@
     "DragDrop_AddedSkipped":  "{0} eklendi, {1} atlandı",
     "DragDrop_ImagesAdded":  "Resimler eklendi!",
     "ModTile_Activate":  "Etkinleştir",
-    "ModTile_Deactivate":  "Devre Dışı Bırak"
+    "ModTile_Deactivate":  "Devre Dışı Bırak",
+    "CheckForUpdates":  "Güncellemeleri Kontrol Et",
+    "CheckingForUpdates":  "Güncellemeler kontrol ediliyor...",
+    "UpdateCheckFailed":  "Güncellemeler kontrol edilemedi. İnternet bağlantınızı kontrol edin.",
+    "UpdateAvailable":  "Güncelleme mevcut",
+    "DownloadingUpdate":  "İndiriliyor ve kuruluyor...",
+    "UpdateDownloadFailed":  "Güncelleme indirilemedi. Daha sonra tekrar deneyin.",
+    "LatestVersion":  "En son sürümü kullanıyorsunuz"
 }

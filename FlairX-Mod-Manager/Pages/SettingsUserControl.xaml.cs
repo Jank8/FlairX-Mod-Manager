@@ -1991,117 +1991,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async void AboutButton_Click(object sender, RoutedEventArgs e)
-        {
-            var lang = SharedUtilities.LoadLanguageDictionary();
-            var dialog = new ContentDialog
-            {
-                CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot,
-            };
-            var stackPanel = new StackPanel();
-            
-            // Add title first
-            var titleBlock = new TextBlock
-            {
-                Text = "FlairX Mod Manager",
-                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
-                TextAlignment = TextAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                FontSize = 22,
-                Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,16)
-            };
-            stackPanel.Children.Add(titleBlock);
-            
-            // Add avatar image under title
-            try
-            {
-                var avatarPath = Path.Combine(PathManager.GetAbsolutePath("Assets"), "avatar.png");
-                
-                if (File.Exists(avatarPath))
-                {
-                    // Create square border container with rounded corners
-                    var avatarBorder = new Microsoft.UI.Xaml.Controls.Border
-                    {
-                        Width = 80,
-                        Height = 80,
-                        CornerRadius = new Microsoft.UI.Xaml.CornerRadius(8), // Rounded corners
-                        BorderThickness = new Microsoft.UI.Xaml.Thickness(2),
-                        BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.LightGray),
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                        Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 12),
-                        Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White)
-                    };
-                    
-                    var avatarImage = new Microsoft.UI.Xaml.Controls.Image
-                    {
-                        Stretch = Microsoft.UI.Xaml.Media.Stretch.UniformToFill
-                    };
-                    
-                    var avatarBitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                    avatarBitmap.UriSource = new Uri($"file:///{avatarPath.Replace('\\', '/')}");
-                    avatarImage.Source = avatarBitmap;
-                    
-                    avatarBorder.Child = avatarImage;
-                    stackPanel.Children.Add(avatarBorder);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Failed to load avatar image: {ex.Message}");
-            }
-            
-            // Add GitHub link directly under avatar (no "Author" label)
-            stackPanel.Children.Add(new HyperlinkButton { Content = "Jank8", NavigateUri = new Uri("https://github.com/Jank8"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,16), HorizontalAlignment = HorizontalAlignment.Center });
-            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_AI"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
-            
-            // Create AI section with Kiro, GitHub Copilot, and Qoder
-            var aiPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) };
-            aiPanel.Children.Add(new HyperlinkButton { Content = "Kiro", NavigateUri = new Uri("https://kiro.dev/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
-            aiPanel.Children.Add(new TextBlock { Text = ", ", VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
-            aiPanel.Children.Add(new HyperlinkButton { Content = "GitHub Copilot", NavigateUri = new Uri("https://github.com/features/copilot"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
-            aiPanel.Children.Add(new TextBlock { Text = " " + SharedUtilities.GetTranslation(lang, "AboutDialog_And") + " ", VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
-            aiPanel.Children.Add(new HyperlinkButton { Content = "Qoder", NavigateUri = new Uri("https://qoder.com/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
-            stackPanel.Children.Add(aiPanel);
-            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Fonts"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
-            stackPanel.Children.Add(new HyperlinkButton { Content = "Noto Fonts", NavigateUri = new Uri("https://notofonts.github.io/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) });
-            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Thanks"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
-            var thanksPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
-            thanksPanel.Children.Add(new StackPanel {
-                Orientation = Orientation.Vertical,
-                Children = {
-                    new HyperlinkButton { Content = "XLXZ", NavigateUri = new Uri("https://github.com/XiaoLinXiaoZhu"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0), HorizontalAlignment = HorizontalAlignment.Left },
-                }
-            });
-            thanksPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_For"), VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(8,0,8,0) });
-            thanksPanel.Children.Add(new StackPanel {
-                Orientation = Orientation.Vertical,
-                VerticalAlignment = VerticalAlignment.Center,
-                Children = {
-                    new HyperlinkButton { Content = "Source code", NavigateUri = new Uri("https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager/blob/main/plugins/recognizeModInfoPlugin.js"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0), HorizontalAlignment = HorizontalAlignment.Left },
-                }
-            });
-            stackPanel.Children.Add(thanksPanel);
-            
-            var gplPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,16,0,0) };
-            gplPanel.Children.Add(new HyperlinkButton { Content = SharedUtilities.GetTranslation(lang, "AboutDialog_License"), NavigateUri = new Uri("https://www.gnu.org/licenses/gpl-3.0.html#license-text") });
-            stackPanel.Children.Add(gplPanel);
-            
-            // Add version information at the bottom
-            var version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "2.6.7";
-            var versionBlock = new TextBlock
-            {
-                Text = $"{SharedUtilities.GetTranslation(lang, "AboutDialog_Version")}: {version}",
-                FontSize = 12,
-                Opacity = 0.7,
-                TextAlignment = TextAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Microsoft.UI.Xaml.Thickness(0, 12, 0, 0)
-            };
-            stackPanel.Children.Add(versionBlock);
-            dialog.Content = stackPanel;
-            await dialog.ShowAsync();
-        }
+
 
         private void DefaultResolutionOnStartToggle_Toggled(object sender, RoutedEventArgs e)
         {
@@ -2259,6 +2149,196 @@ namespace FlairX_Mod_Manager.Pages
         {
             MainWindow.WindowSizeChanged -= OnWindowSizeChanged;
             _windowSizeUpdateTimer?.Stop();
+        }
+
+        private async void AboutButton_Click(object sender, RoutedEventArgs e)
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            var currentVersion = UpdateChecker.GetCurrentVersion();
+            
+            var dialog = new ContentDialog
+            {
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot,
+            };
+            var stackPanel = new StackPanel();
+            
+            // Add title first
+            var titleBlock = new TextBlock
+            {
+                Text = "FlairX Mod Manager",
+                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                TextAlignment = TextAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                FontSize = 22,
+                Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,16)
+            };
+            stackPanel.Children.Add(titleBlock);
+            
+            // Add avatar image under title
+            try
+            {
+                var avatarPath = Path.Combine(PathManager.GetAbsolutePath("Assets"), "avatar.png");
+                
+                if (File.Exists(avatarPath))
+                {
+                    // Create square border container with rounded corners
+                    var avatarBorder = new Microsoft.UI.Xaml.Controls.Border
+                    {
+                        Width = 80,
+                        Height = 80,
+                        CornerRadius = new Microsoft.UI.Xaml.CornerRadius(8), // Rounded corners
+                        BorderThickness = new Microsoft.UI.Xaml.Thickness(2),
+                        BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.LightGray),
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 12),
+                        Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White)
+                    };
+                    
+                    var avatarImage = new Microsoft.UI.Xaml.Controls.Image
+                    {
+                        Stretch = Microsoft.UI.Xaml.Media.Stretch.UniformToFill
+                    };
+                    
+                    var avatarBitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+                    avatarBitmap.UriSource = new Uri($"file:///{avatarPath.Replace('\\', '/')}");
+                    avatarImage.Source = avatarBitmap;
+                    
+                    avatarBorder.Child = avatarImage;
+                    stackPanel.Children.Add(avatarBorder);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Failed to load avatar image: {ex.Message}");
+            }
+            
+            // Add GitHub link directly under avatar (no "Author" label)
+            stackPanel.Children.Add(new HyperlinkButton { Content = "Jank8", NavigateUri = new Uri("https://github.com/Jank8"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,16), HorizontalAlignment = HorizontalAlignment.Center });
+            
+            // Add version information and update button
+            var versionBlock = new TextBlock
+            {
+                Text = $"{SharedUtilities.GetTranslation(lang, "AboutDialog_Version")}: {currentVersion}",
+                FontSize = 14,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                TextAlignment = TextAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 8)
+            };
+            stackPanel.Children.Add(versionBlock);
+            
+            // Check for updates button
+            var checkUpdateButton = new Button
+            {
+                Content = SharedUtilities.GetTranslation(lang, "CheckForUpdates") ?? "Check for Updates",
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 8)
+            };
+            
+            var updateStatusText = new TextBlock
+            {
+                TextWrapping = TextWrapping.Wrap,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 4, 0, 4),
+                Visibility = Visibility.Collapsed
+            };
+            
+            var updateProgressBar = new ProgressBar
+            {
+                Visibility = Visibility.Collapsed,
+                Margin = new Thickness(0, 4, 0, 8)
+            };
+            
+            checkUpdateButton.Click += async (s, args) =>
+            {
+                checkUpdateButton.IsEnabled = false;
+                updateStatusText.Visibility = Visibility.Visible;
+                updateStatusText.Text = SharedUtilities.GetTranslation(lang, "CheckingForUpdates") ?? "Checking for updates...";
+                updateProgressBar.Visibility = Visibility.Collapsed;
+                
+                var result = await UpdateChecker.CheckForUpdatesAsync();
+                
+                if (result == null)
+                {
+                    updateStatusText.Text = SharedUtilities.GetTranslation(lang, "UpdateCheckFailed") ?? "Failed to check for updates. Please check your internet connection.";
+                    checkUpdateButton.IsEnabled = true;
+                    return;
+                }
+                
+                if (result.Value.updateAvailable)
+                {
+                    updateStatusText.Text = $"{SharedUtilities.GetTranslation(lang, "UpdateAvailable") ?? "Update available"}: v{result.Value.latestVersion}\n\n{SharedUtilities.GetTranslation(lang, "DownloadingUpdate") ?? "Downloading and installing..."}";
+                    updateProgressBar.Visibility = Visibility.Visible;
+                    updateProgressBar.IsIndeterminate = false;
+                    updateProgressBar.Value = 0;
+                    
+                    var progress = new Progress<int>(percent =>
+                    {
+                        this.DispatcherQueue.TryEnqueue(() =>
+                        {
+                            updateProgressBar.Value = percent;
+                        });
+                    });
+                    
+                    var success = await UpdateChecker.DownloadAndInstallUpdateAsync(result.Value.downloadUrl, progress);
+                    
+                    if (!success)
+                    {
+                        updateStatusText.Text = SharedUtilities.GetTranslation(lang, "UpdateDownloadFailed") ?? "Failed to download update. Please try again later.";
+                        updateProgressBar.Visibility = Visibility.Collapsed;
+                        checkUpdateButton.IsEnabled = true;
+                    }
+                    // If successful, app will close and restart
+                }
+                else
+                {
+                    updateStatusText.Text = $"{SharedUtilities.GetTranslation(lang, "LatestVersion") ?? "You are using the latest version"} ({currentVersion})";
+                    checkUpdateButton.IsEnabled = true;
+                }
+            };
+            
+            stackPanel.Children.Add(checkUpdateButton);
+            stackPanel.Children.Add(updateProgressBar);
+            stackPanel.Children.Add(updateStatusText);
+            
+            // Credits section
+            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_AI"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,8,0,4) });
+            
+            // Create AI section with Kiro, GitHub Copilot, and Qoder
+            var aiPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) };
+            aiPanel.Children.Add(new HyperlinkButton { Content = "Kiro", NavigateUri = new Uri("https://kiro.dev/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
+            aiPanel.Children.Add(new TextBlock { Text = ", ", VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
+            aiPanel.Children.Add(new HyperlinkButton { Content = "GitHub Copilot", NavigateUri = new Uri("https://github.com/features/copilot"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
+            aiPanel.Children.Add(new TextBlock { Text = " " + SharedUtilities.GetTranslation(lang, "AboutDialog_And") + " ", VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
+            aiPanel.Children.Add(new HyperlinkButton { Content = "Qoder", NavigateUri = new Uri("https://qoder.com/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
+            stackPanel.Children.Add(aiPanel);
+            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Fonts"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
+            stackPanel.Children.Add(new HyperlinkButton { Content = "Noto Fonts", NavigateUri = new Uri("https://notofonts.github.io/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) });
+            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Thanks"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
+            var thanksPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+            thanksPanel.Children.Add(new StackPanel {
+                Orientation = Orientation.Vertical,
+                Children = {
+                    new HyperlinkButton { Content = "XLXZ", NavigateUri = new Uri("https://github.com/XiaoLinXiaoZhu"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0), HorizontalAlignment = HorizontalAlignment.Left },
+                }
+            });
+            thanksPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_For"), VerticalAlignment = VerticalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(8,0,8,0) });
+            thanksPanel.Children.Add(new StackPanel {
+                Orientation = Orientation.Vertical,
+                VerticalAlignment = VerticalAlignment.Center,
+                Children = {
+                    new HyperlinkButton { Content = "Source code", NavigateUri = new Uri("https://github.com/XiaoLinXiaoZhu/XX-Mod-Manager/blob/main/plugins/recognizeModInfoPlugin.js"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0), HorizontalAlignment = HorizontalAlignment.Left },
+                }
+            });
+            stackPanel.Children.Add(thanksPanel);
+            
+            var gplPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,8,0,0) };
+            gplPanel.Children.Add(new HyperlinkButton { Content = SharedUtilities.GetTranslation(lang, "AboutDialog_License"), NavigateUri = new Uri("https://www.gnu.org/licenses/gpl-3.0.html#license-text") });
+            stackPanel.Children.Add(gplPanel);
+            
+            dialog.Content = stackPanel;
+            await dialog.ShowAsync();
         }
     }
 }

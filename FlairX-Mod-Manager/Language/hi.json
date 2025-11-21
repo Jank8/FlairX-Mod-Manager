@@ -177,5 +177,12 @@
     "DragDrop_AddedSkipped":  "{0} जोड़े गए, {1} छोड़े गए",
     "DragDrop_ImagesAdded":  "चित्र जोड़े गए!",
     "ModTile_Activate":  "सकरय कर",
-    "ModTile_Deactivate":  "नषकरय कर"
+    "ModTile_Deactivate":  "नषकरय कर",
+    "CheckForUpdates":  "अपडट क लए जच कर",
+    "CheckingForUpdates":  "अपडट क जच क जा रह ह...",
+    "UpdateCheckFailed":  "अपडट क जच करन मवफल रह. कपया अपन इटरनट कनकशन क जच कर.",
+    "UpdateAvailable":  "अपडट उपलबध ह",
+    "DownloadingUpdate":  "डउनलड और इसटल क जा रह ह...",
+    "UpdateDownloadFailed":  "अपडट डउनलड करन मवफल रह. कपया बद मपनः परयस कर.",
+    "LatestVersion":  "आप नवनतम ससकरण का उपयग कर रह ह"
 }

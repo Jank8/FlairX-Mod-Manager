@@ -177,5 +177,12 @@
     "DragDrop_AddedSkipped":  "已添加{0}张，跳过{1}张",
     "DragDrop_ImagesAdded":  "图片已添加！",
     "ModTile_Activate":  "激活",
-    "ModTile_Deactivate":  "停用"
+    "ModTile_Deactivate":  "停用",
+    "CheckForUpdates":  "检查更新",
+    "CheckingForUpdates":  "正在检查更新...",
+    "UpdateCheckFailed":  "检查更新失败。请检查您的网络连接。",
+    "UpdateAvailable":  "有可用更新",
+    "DownloadingUpdate":  "正在下载和安装...",
+    "UpdateDownloadFailed":  "下载更新失败。请稍后重试。",
+    "LatestVersion":  "您正在使用最新版本"
 }

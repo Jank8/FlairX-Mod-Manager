@@ -177,5 +177,12 @@
     "DragDrop_AddedSkipped":  "Добавлено {0}, пропущено {1}",
     "DragDrop_ImagesAdded":  "Изображения добавлены!",
     "ModTile_Activate":  "Активировать",
-    "ModTile_Deactivate":  "Деактивировать"
+    "ModTile_Deactivate":  "Деактивировать",
+    "CheckForUpdates":  "Проверить обновления",
+    "CheckingForUpdates":  "Проверка обновлений...",
+    "UpdateCheckFailed":  "Не удалось проверить обновления. Проверьте подключение к интернету.",
+    "UpdateAvailable":  "Доступно обновление",
+    "DownloadingUpdate":  "Загрузка и установка...",
+    "UpdateDownloadFailed":  "Не удалось загрузить обновление. Попробуйте позже.",
+    "LatestVersion":  "Вы используете последнюю версию"
 }

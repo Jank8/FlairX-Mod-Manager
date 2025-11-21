@@ -177,5 +177,12 @@
     "DragDrop_AddedSkipped":  "เพม {0} ขาม {1}",
     "DragDrop_ImagesAdded":  "เพมรปภาพแลว!",
     "ModTile_Activate":  "เปดใชงาน",
-    "ModTile_Deactivate":  "ปดใชงาน"
+    "ModTile_Deactivate":  "ปดใชงาน",
+    "CheckForUpdates":  "ตรวจสอบการอปเดต",
+    "CheckingForUpdates":  "กาลงตรวจสอบการอปเดต...",
+    "UpdateCheckFailed":  "ไมสามารถตรวจสอบการอปเดตได กรณาตรวจสอบการเชอมตออนเทอรเนต",
+    "UpdateAvailable":  "มการอปเดตใหม",
+    "DownloadingUpdate":  "กาลงดาวนโหลดและตดตง...",
+    "UpdateDownloadFailed":  "ไมสามารถดาวนโหลดการอปเดตได กรณาลองใหมภายหลง",
+    "LatestVersion":  "คณกาลงใชเวอรชนลาสด"
 }

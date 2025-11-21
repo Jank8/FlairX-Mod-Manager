@@ -177,5 +177,12 @@
     "DragDrop_AddedSkipped":  "Đã thêm {0}, bỏ qua {1}",
     "DragDrop_ImagesAdded":  "Đã thêm hình ảnh!",
     "ModTile_Activate":  "Kích hoạt",
-    "ModTile_Deactivate":  "Vô hiệu hóa"
+    "ModTile_Deactivate":  "Vô hiệu hóa",
+    "CheckForUpdates":  "Kiểm tra cập nhật",
+    "CheckingForUpdates":  "Đang kiểm tra cập nhật...",
+    "UpdateCheckFailed":  "Không thể kiểm tra cập nhật. Vui lòng kiểm tra kết nối internet.",
+    "UpdateAvailable":  "Có bản cập nhật",
+    "DownloadingUpdate":  "Đang tải xuống và cài đặt...",
+    "UpdateDownloadFailed":  "Không thể tải xuống bản cập nhật. Vui lòng thử lại sau.",
+    "LatestVersion":  "Bạn đang sử dụng phiên bản mới nhất"
 }

@@ -177,5 +177,12 @@
     "DragDrop_AddedSkipped":  "Ajouté {0}, ignoré {1}",
     "DragDrop_ImagesAdded":  "Images ajoutées !",
     "ModTile_Activate":  "Activer",
-    "ModTile_Deactivate":  "Désactiver"
+    "ModTile_Deactivate":  "Désactiver",
+    "CheckForUpdates":  "Vérifier les mises à jour",
+    "CheckingForUpdates":  "Vérification des mises à jour...",
+    "UpdateCheckFailed":  "Échec de la vérification des mises à jour. Vérifiez votre connexion internet.",
+    "UpdateAvailable":  "Mise à jour disponible",
+    "DownloadingUpdate":  "Téléchargement et installation...",
+    "UpdateDownloadFailed":  "Échec du téléchargement de la mise à jour. Réessayez plus tard.",
+    "LatestVersion":  "Vous utilisez la dernière version"
 }

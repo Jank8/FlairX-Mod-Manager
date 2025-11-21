@@ -177,5 +177,12 @@
     "DragDrop_AddedSkipped":  "Añadido {0}, omitido {1}",
     "DragDrop_ImagesAdded":  "¡Imágenes añadidas!",
     "ModTile_Activate":  "Activar",
-    "ModTile_Deactivate":  "Desactivar"
+    "ModTile_Deactivate":  "Desactivar",
+    "CheckForUpdates":  "Buscar actualizaciones",
+    "CheckingForUpdates":  "Buscando actualizaciones...",
+    "UpdateCheckFailed":  "Error al buscar actualizaciones. Verifica tu conexión a internet.",
+    "UpdateAvailable":  "Actualización disponible",
+    "DownloadingUpdate":  "Descargando e instalando...",
+    "UpdateDownloadFailed":  "Error al descargar la actualización. Inténtalo más tarde.",
+    "LatestVersion":  "Estás usando la última versión"
 }

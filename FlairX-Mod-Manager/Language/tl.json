@@ -177,5 +177,12 @@
     "DragDrop_AddedSkipped":  "Idinagdag {0}, nilaktawan {1}",
     "DragDrop_ImagesAdded":  "Naidagdag ang mga larawan!",
     "ModTile_Activate":  "I-activate",
-    "ModTile_Deactivate":  "I-deactivate"
+    "ModTile_Deactivate":  "I-deactivate",
+    "CheckForUpdates":  "Suriin ang mga update",
+    "CheckingForUpdates":  "Sinusuri ang mga update...",
+    "UpdateCheckFailed":  "Hindi masuri ang mga update. Suriin ang iyong koneksyon sa internet.",
+    "UpdateAvailable":  "May available na update",
+    "DownloadingUpdate":  "Nag-download at nag-install...",
+    "UpdateDownloadFailed":  "Hindi ma-download ang update. Subukan muli mamaya.",
+    "LatestVersion":  "Gumagamit ka ng pinakabagong bersyon"
 }
