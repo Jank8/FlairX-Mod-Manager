@@ -205,76 +205,114 @@ namespace FlairX_Mod_Manager
                     return;
                 }
                 
-                // Get all categories except "Other"
-                var categories = Directory.GetDirectories(modsPath)
-                    .Where(categoryDir => !string.Equals(Path.GetFileName(categoryDir), "Other", StringComparison.OrdinalIgnoreCase))
-                    .Where(Directory.Exists)
-                    .ToList();
-                
-                if (categories.Count == 0)
-                {
-                    Logger.LogInfo("No categories found for shuffling");
-                    return;
-                }
-                
                 var random = new Random();
                 var newActiveMods = new Dictionary<string, bool>();
                 var selectedMods = new List<string>();
                 
-                // Load current active mods to deactivate them
-                var activeModsPath = PathManager.GetActiveModsPath();
-                if (File.Exists(activeModsPath))
+                // Step 1: Deactivate ALL mods (except Other category) - like Python script
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
                 {
-                    try
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    var categoryName = Path.GetFileName(categoryDir);
+                    
+                    // Skip "Other" category
+                    if (string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
                     {
-                        var json = File.ReadAllText(activeModsPath);
-                        var currentMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
-                        // Set all current mods to inactive
-                        foreach (var mod in currentMods.Keys)
+                        // Keep Other category mods as they are
+                        foreach (var modDir in Directory.GetDirectories(categoryDir))
                         {
-                            newActiveMods[mod] = false;
+                            var modFolderName = Path.GetFileName(modDir);
+                            var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
+                            bool isActive = !modFolderName.StartsWith("DISABLED_");
+                            newActiveMods[cleanName] = isActive;
                         }
+                        continue;
                     }
-                    catch (Exception ex)
+                    
+                    // Deactivate all mods in this category
+                    foreach (var modDir in Directory.GetDirectories(categoryDir))
                     {
-                        Logger.LogError("Failed to load current active mods for shuffling", ex);
+                        var modFolderName = Path.GetFileName(modDir);
+                        
+                        // Skip if already disabled
+                        if (modFolderName.StartsWith("DISABLED_"))
+                        {
+                            var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
+                            newActiveMods[cleanName] = false;
+                            continue;
+                        }
+                        
+                        // Add DISABLED_ prefix
+                        var newName = "DISABLED_" + modFolderName;
+                        var newPath = Path.Combine(categoryDir, newName);
+                        
+                        try
+                        {
+                            Directory.Move(modDir, newPath);
+                            newActiveMods[modFolderName] = false;
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to deactivate {modFolderName}", ex);
+                        }
                     }
                 }
                 
-                // Select 1 random mod from each category (excluding "Other")
-                foreach (var categoryDir in categories)
+                // Step 2: Activate 1 random mod from each category (except Other)
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
                 {
-                    var modDirs = Directory.GetDirectories(categoryDir)
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    var categoryName = Path.GetFileName(categoryDir);
+                    
+                    // Skip "Other" category
+                    if (string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    
+                    // Get all disabled mods in this category
+                    var disabledMods = Directory.GetDirectories(categoryDir)
+                        .Where(modDir => Path.GetFileName(modDir).StartsWith("DISABLED_"))
                         .Where(modDir => File.Exists(Path.Combine(modDir, "mod.json")))
                         .ToList();
                     
-                    if (modDirs.Count > 0)
+                    if (disabledMods.Count > 0)
                     {
-                        // Select random mod from this category
-                        var randomModDir = modDirs[random.Next(modDirs.Count)];
-                        var modName = Path.GetFileName(randomModDir);
+                        // Select random mod
+                        var randomModDir = disabledMods[random.Next(disabledMods.Count)];
+                        var modFolderName = Path.GetFileName(randomModDir);
+                        var cleanName = modFolderName.Substring("DISABLED_".Length);
                         
-                        newActiveMods[modName] = true;
-                        selectedMods.Add($"{Path.GetFileName(categoryDir)}: {modName}");
+                        // Remove DISABLED_ prefix
+                        var newPath = Path.Combine(categoryDir, cleanName);
+                        
+                        try
+                        {
+                            Directory.Move(randomModDir, newPath);
+                            newActiveMods[cleanName] = true;
+                            selectedMods.Add($"{categoryName}: {cleanName}");
+                            Logger.LogInfo($"Activated random mod: {cleanName}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to activate {cleanName}", ex);
+                        }
                     }
                 }
                 
                 // Save new active mods configuration
                 try
                 {
+                    var activeModsPath = PathManager.GetActiveModsPath();
                     var json = JsonSerializer.Serialize(newActiveMods, new JsonSerializerOptions { WriteIndented = true });
                     File.WriteAllText(activeModsPath, json);
-                    
-                    // No symlink recreation needed - using DISABLED_ prefix system
                     
                     Logger.LogInfo($"Shuffle completed - activated {selectedMods.Count} random mods");
                     
                     // Reload manager to refresh the view
-                    Logger.LogInfo("About to call ReloadModsAsync for shuffle");
                     DispatcherQueue.TryEnqueue(async () =>
                     {
                         await ReloadModsAsync();
-                        Logger.LogInfo("ReloadModsAsync completed for shuffle");
                     });
                 }
                 catch (Exception ex)
@@ -318,72 +356,75 @@ namespace FlairX_Mod_Manager
                     return;
                 }
                 
-                // Load current active mods
-                var activeModsPath = PathManager.GetActiveModsPath();
+                int deactivatedCount = 0;
                 var newActiveMods = new Dictionary<string, bool>();
-                var deactivatedMods = new List<string>();
                 
-                if (File.Exists(activeModsPath))
+                // Iterate through all category directories (like Python script)
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
                 {
-                    try
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    var categoryName = Path.GetFileName(categoryDir);
+                    
+                    // Skip "Other" category
+                    if (string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
                     {
-                        var json = File.ReadAllText(activeModsPath);
-                        var currentMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
-                        
-                        // Deactivate all mods except those in "Other" category
-                        foreach (var mod in currentMods.Keys)
+                        // Keep Other category mods as they are - just record their current state
+                        foreach (var modDir in Directory.GetDirectories(categoryDir))
                         {
-                            // Check if mod is in "Other" category
-                            bool isInOtherCategory = false;
-                            var otherCategoryPath = Path.Combine(modsPath, "Other");
-                            if (Directory.Exists(otherCategoryPath))
-                            {
-                                var modPath = Path.Combine(otherCategoryPath, mod);
-                                if (Directory.Exists(modPath))
-                                {
-                                    isInOtherCategory = true;
-                                }
-                            }
-                            
-                            if (isInOtherCategory)
-                            {
-                                // Keep "Other" category mods active if they were active
-                                newActiveMods[mod] = currentMods.TryGetValue(mod, out var isActive) && isActive;
-                            }
-                            else
-                            {
-                                // Deactivate all other mods
-                                if (currentMods.TryGetValue(mod, out var wasActive) && wasActive)
-                                {
-                                    deactivatedMods.Add(mod);
-                                }
-                                newActiveMods[mod] = false;
-                            }
+                            var modFolderName = Path.GetFileName(modDir);
+                            var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
+                            bool isActive = !modFolderName.StartsWith("DISABLED_");
+                            newActiveMods[cleanName] = isActive;
                         }
+                        continue;
                     }
-                    catch (Exception ex)
+                    
+                    // Deactivate all mods in other categories
+                    foreach (var modDir in Directory.GetDirectories(categoryDir))
                     {
-                        Logger.LogError("Failed to load current active mods for deactivation", ex);
-                        return;
+                        var modFolderName = Path.GetFileName(modDir);
+                        
+                        // Skip if already disabled
+                        if (modFolderName.StartsWith("DISABLED_"))
+                        {
+                            var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
+                            newActiveMods[cleanName] = false;
+                            continue;
+                        }
+                        
+                        // Add DISABLED_ prefix
+                        var newName = "DISABLED_" + modFolderName;
+                        var newPath = Path.Combine(categoryDir, newName);
+                        
+                        try
+                        {
+                            Directory.Move(modDir, newPath);
+                            newActiveMods[modFolderName] = false;
+                            deactivatedCount++;
+                            Logger.LogInfo($"Deactivated: {modFolderName}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to deactivate {modFolderName}", ex);
+                            newActiveMods[modFolderName] = true; // Keep as active if rename failed
+                        }
                     }
                 }
                 
                 // Save new active mods configuration
                 try
                 {
+                    var activeModsPath = PathManager.GetActiveModsPath();
                     var json = JsonSerializer.Serialize(newActiveMods, new JsonSerializerOptions { WriteIndented = true });
                     File.WriteAllText(activeModsPath, json);
                     
-                    // No symlink recreation needed - using DISABLED_ prefix system
-                    
-                    Logger.LogInfo($"Deactivate all completed - deactivated {deactivatedMods.Count} mods (excluding Other category)");
+                    Logger.LogInfo($"Deactivate all completed - deactivated {deactivatedCount} mods (excluding Other category)");
                     
                     // Reload manager to refresh the view
-                    Logger.LogInfo("About to call ReloadModsAsync for deactivate");
                     DispatcherQueue.TryEnqueue(async () =>
                     {
                         await ReloadModsAsync();
-                        Logger.LogInfo("ReloadModsAsync completed for deactivate");
                     });
                 }
                 catch (Exception ex)
