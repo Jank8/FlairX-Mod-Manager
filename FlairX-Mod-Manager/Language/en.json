@@ -45,7 +45,6 @@
     "ModDetailPage_UpdateAvailable":  "Update available",
     "None":  "None",
     "OK":  "OK",
-    "Open_ModLibrary_Tooltip":  "Browse GameBanana Mods",
     "Browse_GameBanana_Tooltip":  "Browse GameBanana Mods",
     "ContextMenu_CheckUpdates":  "Check for Updates",
     "OptimizePreviews_Cancelled":  "Optimization cancelled.",
@@ -81,7 +80,6 @@
     "SettingsPage_Language":  "Language:",
     "SettingsPage_ModGridZoom_Label":  "Grid Zoom",
     "SettingsPage_ModGridZoom_Tooltip":  "Feature is half-bugged. Mouse scroll wheel may stop working, dragging scroll bar or using mouse wheel on scroll bar still works. That\u0027s WinUI 3 problem, couldn\u0027t fix this.",
-    "SettingsPage_ModLibraryDirectory":  "Mod library directory:",
     "SettingsPage_OptimizePreviews_Label":  "Optimize mod thumbnails",
     "SettingsPage_DefaultResolutionOnStart_Label":  "Default resolution on start",
     "SettingsPage_DefaultResolutionOnStart_Description":  "Use fixed window size instead of remembering last size",
@@ -152,7 +150,6 @@
     "SettingsPage_Language_Description":  "Select your preferred language",
     "SettingsPage_OptimizePreviews_Description":  "Optimize mod preview images for better performance",
     "SettingsPage_XXMIRootDirectory_Description":  "Path to XXMI installation directory",
-    "SettingsPage_ModLibraryDirectory_Description":  "Directory containing your mod collection",
     "SettingsPage_SkipXXMILauncher_Description":  "Remember that skipping the launcher means you won\u0027t download updates automatically",
     "SettingsPage_ActiveModsToTop_Description":  "Move active mods to the top of the list",
     "SettingsPage_DynamicModSearch_Description":  "Enable real-time filtering as you type",
@@ -172,5 +169,12 @@
     "SettingsPage_ReloadManagerHotkey_Description":  "Keyboard shortcut for reloading the manager",
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "Keyboard shortcut for shuffling active mods",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "Keyboard shortcut for deactivating all mods",
-    "ModDetail_NSFW_Label":  "NSFW Content"
+    "ModDetail_NSFW_Label":  "NSFW Content",
+    "DragDrop_DropImagesHere":  "Drop images here",
+    "DragDrop_LimitReached":  "Limit reached ({0} images max)",
+    "DragDrop_Copying":  "Copying {0} image(s)...",
+    "DragDrop_AddedSkipped":  "Added {0}, skipped {1}",
+    "DragDrop_ImagesAdded":  "Images added!",
+    "ModTile_Activate":  "Activate",
+    "ModTile_Deactivate":  "Deactivate"
 }

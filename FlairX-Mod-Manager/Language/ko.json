@@ -45,7 +45,6 @@
     "ModDetailPage_UpdateAvailable":  "업데이트 가능",
     "None":  "없음",
     "OK":  "확인",
-    "Open_ModLibrary_Tooltip":  "GameBanana 모드 탐색",
     "Browse_GameBanana_Tooltip":  "GameBanana 모드 탐색",
     "ContextMenu_CheckUpdates":  "업데이트 확인",
     "OpenDirectory_Tooltip":  "디렉토리를 열려면 클릭",
@@ -81,7 +80,6 @@
     "SettingsPage_Language":  "언어:",
     "SettingsPage_ModGridZoom_Label":  "그리드 줌",
     "SettingsPage_ModGridZoom_Tooltip":  "기능이 반쯤 버그가 있습니다. 마우스 스크롤 휠이 작동하지 않을 수 있지만, 스크롤 바 드래그나 스크롤 바에서 마우스 휠 사용은 여전히 작동합니다. 이는 WinUI 3 문제로 수정할 수 없었습니다.",
-    "SettingsPage_ModLibraryDirectory":  "모드 라이브러리 디렉토리:",
     "SettingsPage_OptimizePreviews_Label":  "모드 썸네일 최적화",
     "SettingsPage_DefaultResolutionOnStart_Label":  "시작 시 기본 해상도",
     "SettingsPage_DefaultResolutionOnStart_Description":  "마지막 크기를 기억하는 대신 고정 창 크기 사용",
@@ -150,7 +148,6 @@
     "SettingsPage_Language_Description":  "선호하는 언어를 선택하세요",
     "SettingsPage_OptimizePreviews_Description":  "더 나은 성능을 위해 모드 미리보기 이미지를 최적화",
     "SettingsPage_XXMIRootDirectory_Description":  "XXMI 설치 디렉토리 경로",
-    "SettingsPage_ModLibraryDirectory_Description":  "모드 컬렉션이 포함된 디렉토리",
     "SettingsPage_SkipXXMILauncher_Description":  "런처를 건너뛰면 자동으로 업데이트를 다운로드하지 않는다는 점을 기억하세요",
     "SettingsPage_ActiveModsToTop_Description":  "활성 모드를 목록 상단으로 이동",
     "SettingsPage_DynamicModSearch_Description":  "입력하는 동안 실시간 필터링 활성화",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "켜짐",
     "ToggleSwitch_Off":  "꺼짐",
     "SettingsPage_HideNSFW_Label":  "NSFW 콘텐츠 숨기기",
-    "SettingsPage_HideNSFW_Description":  "모드 그리드 및 GameBanana 브라우저에서 NSFW로 표시된 모드 숨기기"
+    "SettingsPage_HideNSFW_Description":  "모드 그리드 및 GameBanana 브라우저에서 NSFW로 표시된 모드 숨기기",
+    "DragDrop_DropImagesHere":  "여기에 이미지를 드롭하세요",
+    "DragDrop_LimitReached":  "한도 도달 (최대 {0}개)",
+    "DragDrop_Copying":  "{0}개 이미지 복사 중...",
+    "DragDrop_AddedSkipped":  "{0}개 추가, {1}개 건너뜀",
+    "DragDrop_ImagesAdded":  "이미지가 추가되었습니다!",
+    "ModTile_Activate":  "활성화",
+    "ModTile_Deactivate":  "비활성화"
 }

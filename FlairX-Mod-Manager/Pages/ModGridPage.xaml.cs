@@ -106,6 +106,14 @@ namespace FlairX_Mod_Manager.Pages
 
         public class ModTile : INotifyPropertyChanged
         {
+            public ModTile()
+            {
+                // Initialize translations
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                _activateText = SharedUtilities.GetTranslation(langDict, "ModTile_Activate");
+                _deactivateText = SharedUtilities.GetTranslation(langDict, "ModTile_Deactivate");
+            }
+            
             private string _name = "";
             public string Name 
             { 
@@ -179,6 +187,21 @@ namespace FlairX_Mod_Manager.Pages
                 get => _isBeingDeleted;
                 set { if (_isBeingDeleted != value) { _isBeingDeleted = value; OnPropertyChanged(nameof(IsBeingDeleted)); } }
             }
+            
+            private string _activateText = "";
+            public string ActivateText
+            {
+                get => _activateText;
+                set { if (_activateText != value) { _activateText = value; OnPropertyChanged(nameof(ActivateText)); } }
+            }
+            
+            private string _deactivateText = "";
+            public string DeactivateText
+            {
+                get => _deactivateText;
+                set { if (_deactivateText != value) { _deactivateText = value; OnPropertyChanged(nameof(DeactivateText)); } }
+            }
+            
             // Removed IsInViewport - using new scroll-based lazy loading instead
             public event PropertyChangedEventHandler? PropertyChanged;
             protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -1193,7 +1216,7 @@ namespace FlairX_Mod_Manager.Pages
             // EnsureModJsonInModLibrary removed - no longer needed
             
             // Update translations for UI elements
-            // UpdateTranslations(); // Method removed or renamed
+            UpdateTranslations();
             UpdateContextMenuTranslations();
             
             // Update CategoryTitle based on current view
@@ -1668,23 +1691,10 @@ namespace FlairX_Mod_Manager.Pages
                 dropIcon = dropOverlay != null ? FindVisualChild<FontIcon>(dropOverlay, "DropIcon") : null;
                 dropText = dropOverlay != null ? FindVisualChild<TextBlock>(dropOverlay, "DropText") : null;
                 
-                // Show processing state
-                if (dropText != null)
-                {
-                    dropText.Text = $"Copying {imageFiles.Count} image(s)...";
-                    Logger.LogInfo("Updated drop text to copying");
-                }
-                if (dropIcon != null)
-                {
-                    dropIcon.Glyph = "\uE895"; // Sync icon
-                }
-                
-                // Get mod folder path - use FindModFolderPath to handle DISABLED_ prefix
+                // Get mod folder path first to check existing images
                 var gameTag = SettingsManager.CurrentSelectedGame;
                 var gameModsPath = AppConstants.GameConfig.GetModsPath(gameTag);
-                Logger.LogInfo($"Game mods path from config: {gameModsPath}");
                 string modsPath = PathManager.GetAbsolutePath(gameModsPath);
-                Logger.LogInfo($"Absolute mods path: {modsPath}");
                 
                 string? modFolderPath = FindModFolderPath(modsPath, tile.Directory);
                 if (string.IsNullOrEmpty(modFolderPath))
@@ -1697,13 +1707,96 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     return;
                 }
+                
+                // Check existing preview images count
+                const int MAX_IMAGES = AppConstants.MAX_PREVIEW_IMAGES;
+                var existingPreviews = Directory.Exists(modFolderPath) 
+                    ? Directory.GetFiles(modFolderPath, "preview*.*")
+                        .Where(f => 
+                        {
+                            var ext = Path.GetExtension(f).ToLower();
+                            return ext == ".jpg" || ext == ".jpeg" || ext == ".png";
+                        })
+                        .Count()
+                    : 0;
+                
+                Logger.LogInfo($"Existing preview images: {existingPreviews}/{MAX_IMAGES}");
+                
+                // Load language dictionary once for all feedback messages
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                
+                // Check if limit reached
+                if (existingPreviews >= MAX_IMAGES)
+                {
+                    Logger.LogInfo("Image limit reached, showing error feedback");
+                    if (dropText != null)
+                    {
+                        dropText.Text = string.Format(SharedUtilities.GetTranslation(lang, "DragDrop_LimitReached"), AppConstants.MAX_PREVIEW_IMAGES);
+                    }
+                    if (dropIcon != null)
+                    {
+                        dropIcon.Glyph = "\uE711"; // Cross/Cancel icon
+                        dropIcon.FontSize = 48; // Same size as checkmark
+                    }
+                    
+                    await Task.Delay(2000);
+                    
+                    // Fade out overlay
+                    if (dropOverlay != null)
+                    {
+                        var fadeOut = new DoubleAnimation
+                        {
+                            From = 1,
+                            To = 0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(300))
+                        };
+                        var storyboard = new Storyboard();
+                        Storyboard.SetTarget(fadeOut, dropOverlay);
+                        Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                        storyboard.Children.Add(fadeOut);
+                        storyboard.Completed += (s, args) =>
+                        {
+                            dropOverlay.Visibility = Visibility.Collapsed;
+                            dropOverlay.Opacity = 0;
+                            if (dropText != null) dropText.Text = "Drop images here";
+                            if (dropIcon != null)
+                            {
+                                dropIcon.Glyph = "\uE896";
+                                dropIcon.FontSize = 48;
+                            }
+                        };
+                        storyboard.Begin();
+                    }
+                    return;
+                }
+                
+                // Calculate how many images we can add
+                int availableSlots = MAX_IMAGES - existingPreviews;
+                int filesToCopy = Math.Min(imageFiles.Count, availableSlots);
+                int skippedCount = imageFiles.Count - filesToCopy;
+                
+                Logger.LogInfo($"Available slots: {availableSlots}, Files to copy: {filesToCopy}, Skipped: {skippedCount}");
+                
+                // Show processing state
+                if (dropText != null)
+                {
+                    dropText.Text = string.Format(SharedUtilities.GetTranslation(lang, "DragDrop_Copying"), filesToCopy);
+                    Logger.LogInfo("Updated drop text to copying");
+                }
+                if (dropIcon != null)
+                {
+                    dropIcon.Glyph = "\uE895"; // Sync icon
+                }
+                
+                // modFolderPath already retrieved above
                 Logger.LogInfo($"Target folder: {modFolderPath}");
                 
-                // Copy images with preview naming
+                // Copy images with preview naming (only up to available slots)
                 int copiedCount = 0;
-                Logger.LogInfo($"Starting copy of {imageFiles.Count} files");
-                foreach (var imageFile in imageFiles)
+                Logger.LogInfo($"Starting copy of {filesToCopy} files (out of {imageFiles.Count})");
+                for (int i = 0; i < filesToCopy; i++)
                 {
+                    var imageFile = imageFiles[i];
                     try
                     {
                         Logger.LogInfo($"Processing file: {imageFile.Name} (Path: {imageFile.Path})");
@@ -1766,15 +1859,24 @@ namespace FlairX_Mod_Manager.Pages
                 });
                 Logger.LogInfo("Background task started");
                 
-                // Show success
+                // Show success with skip info if applicable
                 if (dropText != null)
                 {
-                    dropText.Text = "Images added!";
-                    Logger.LogInfo("Updated drop text to success");
+                    if (skippedCount > 0)
+                    {
+                        dropText.Text = string.Format(SharedUtilities.GetTranslation(lang, "DragDrop_AddedSkipped"), copiedCount, skippedCount);
+                        Logger.LogInfo($"Updated drop text to partial success: {copiedCount} added, {skippedCount} skipped");
+                    }
+                    else
+                    {
+                        dropText.Text = SharedUtilities.GetTranslation(lang, "DragDrop_ImagesAdded");
+                        Logger.LogInfo("Updated drop text to success");
+                    }
                 }
                 if (dropIcon != null)
                 {
                     dropIcon.Glyph = "\uE73E"; // Checkmark
+                    dropIcon.FontSize = 48; // Same size as cross
                 }
                 
                 await Task.Delay(1500);
@@ -1796,7 +1898,11 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         dropOverlay.Visibility = Visibility.Collapsed;
                         dropOverlay.Opacity = 0;
-                        if (dropText != null) dropText.Text = "Drop images here";
+                        if (dropText != null)
+                        {
+                            var resetLang = SharedUtilities.LoadLanguageDictionary();
+                            dropText.Text = SharedUtilities.GetTranslation(resetLang, "DragDrop_DropImagesHere");
+                        }
                         if (dropIcon != null) dropIcon.Glyph = "\uE896";
                     };
                     storyboard.Begin();

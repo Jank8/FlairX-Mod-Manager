@@ -45,7 +45,6 @@
     "ModDetailPage_UpdateAvailable":  "アップデート利用可能",
     "None":  "なし",
     "OK":  "OK",
-    "Open_ModLibrary_Tooltip":  "GameBanana Mod を閲覧",
     "Browse_GameBanana_Tooltip":  "GameBanana Mod を閲覧",
     "ContextMenu_CheckUpdates":  "アップデートを確認",
     "OpenDirectory_Tooltip":  "ディレクトリを開くにはクリック",
@@ -81,7 +80,6 @@
     "SettingsPage_Language":  "言語:",
     "SettingsPage_ModGridZoom_Label":  "グリッドズーム",
     "SettingsPage_ModGridZoom_Tooltip":  "機能にバグが少し存在します。マウスのスクロールホイールが動作しなくなることがありますが、スクロールバーをドラッグしたり、スクロールバー上でマウスホイールを使うことはできます。これは WinUI 3 の問題であり、修正ができませんでした。",
-    "SettingsPage_ModLibraryDirectory":  "Mod ライブラリのディレクトリ:",
     "SettingsPage_OptimizePreviews_Label":  "Mod のサムネイルを最適化",
     "SettingsPage_DefaultResolutionOnStart_Label":  "起動時のデフォルト解像度",
     "SettingsPage_DefaultResolutionOnStart_Description":  "最後のサイズを記憶する代わりに固定ウィンドウサイズを使用",
@@ -150,7 +148,6 @@
     "SettingsPage_Language_Description":  "お好みの言語を選択してください",
     "SettingsPage_OptimizePreviews_Description":  "パフォーマンス向上のためModプレビュー画像を最適化",
     "SettingsPage_XXMIRootDirectory_Description":  "XXMIインストールディレクトリへのパス",
-    "SettingsPage_ModLibraryDirectory_Description":  "Modコレクションを含むディレクトリ",
     "SettingsPage_SkipXXMILauncher_Description":  "ランチャーをスキップすると自動的にアップデートをダウンロードしないことを覚えておいてください",
     "SettingsPage_ActiveModsToTop_Description":  "アクティブなModをリストの上部に移動",
     "SettingsPage_DynamicModSearch_Description":  "入力中のリアルタイムフィルタリングを有効にする",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "オン",
     "ToggleSwitch_Off":  "オフ",
     "SettingsPage_HideNSFW_Label":  "NSFWコンテンツを非表示",
-    "SettingsPage_HideNSFW_Description":  "ModグリッドとGameBananaブラウザでNSFWとマークされたModを非表示にする"
+    "SettingsPage_HideNSFW_Description":  "ModグリッドとGameBananaブラウザでNSFWとマークされたModを非表示にする",
+    "DragDrop_DropImagesHere":  "画像をここにドロップ",
+    "DragDrop_LimitReached":  "上限に達しました（最大{0}枚）",
+    "DragDrop_Copying":  "{0}枚の画像をコピー中...",
+    "DragDrop_AddedSkipped":  "{0}枚追加、{1}枚スキップ",
+    "DragDrop_ImagesAdded":  "画像を追加しました！",
+    "ModTile_Activate":  "有効化",
+    "ModTile_Deactivate":  "無効化"
 }

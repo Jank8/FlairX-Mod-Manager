@@ -44,7 +44,6 @@
     "ModDetailPage_UpdateAvailable":  "มีอัปเดต",
     "None":  "ไม่มี",
     "OK":  "ตกลง",
-    "Open_ModLibrary_Tooltip":  "เรียกดู Mod จาก GameBanana",
     "Browse_GameBanana_Tooltip":  "เรียกดู Mod จาก GameBanana",
     "ContextMenu_CheckUpdates":  "ตรวจสอบการอัปเดต",
     "OpenDirectory_Tooltip":  "คลิกเพื่อเปิดไดเรกทอรี",
@@ -80,7 +79,6 @@
     "SettingsPage_Language":  "ภาษา:",
     "SettingsPage_ModGridZoom_Label":  "ซูมกริด",
     "SettingsPage_ModGridZoom_Tooltip":  "ฟีเจอร์มีปัญหาครึ่งหนึ่ง ล้อเลื่อนเมาส์อาจหยุดทำงาน การลากแถบเลื่อนหรือใช้ล้อเลื่อนเมาส์บนแถบเลื่อนยังคงใช้งานได้ นี่เป็นปัญหาของ WinUI 3 ไม่สามารถแก้ไขได้",
-    "SettingsPage_ModLibraryDirectory":  "ไดเรกทอรีไลบรารี mod:",
     "SettingsPage_OptimizePreviews_Label":  "ปรับภาพขนาดย่อ mod ให้เหมาะสม",
     "SettingsPage_DefaultResolutionOnStart_Label":  "ความละเอียดเริ่มต้นเมื่อเริ่มต้น",
     "SettingsPage_DefaultResolutionOnStart_Description":  "ใช้ขนาดหน้าต่างคงที่แทนการจดจำขนาดล่าสุด",
@@ -148,7 +146,6 @@
     "SettingsPage_Language_Description":  "เลือกภาษาที่คุณต้องการ",
     "SettingsPage_OptimizePreviews_Description":  "ปรับปรุงภาพตัวอย่างม็อดเพื่อประสิทธิภาพที่ดีขึ้น",
     "SettingsPage_XXMIRootDirectory_Description":  "เส้นทางไปยังไดเรกทอรีการติดตั้ง XXMI",
-    "SettingsPage_ModLibraryDirectory_Description":  "ไดเรกทอรีที่มีคอลเลกชันม็อดของคุณ",
     "SettingsPage_SkipXXMILauncher_Label":  "ข้ามการเริ่มต้น XXMI Launcher",
     "SettingsPage_SkipXXMILauncher_Description":  "จำไว้ว่าการข้าม launcher หมายความว่าคุณจะไม่ดาวน์โหลดอัปเดตโดยอัตโนมัติ",
     "SettingsPage_ActiveModsToTop_Description":  "ย้ายม็อดที่ใช้งานไปด้านบนของรายการ",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "เปิด",
     "ToggleSwitch_Off":  "ปิด",
     "SettingsPage_HideNSFW_Label":  "ซ่อนเนื้อหา NSFW",
-    "SettingsPage_HideNSFW_Description":  "ซ่อนม็อดที่ทำเครื่องหมายเป็น NSFW ในตารางม็อดและเบราว์เซอร์ GameBanana"
+    "SettingsPage_HideNSFW_Description":  "ซ่อนม็อดที่ทำเครื่องหมายเป็น NSFW ในตารางม็อดและเบราว์เซอร์ GameBanana",
+    "DragDrop_DropImagesHere":  "วางรปภาพทน",
+    "DragDrop_LimitReached":  "ถงขดจำกด ({0} รูปสูงสุด)",
+    "DragDrop_Copying":  "กำลังคัดลอก {0} รป...",
+    "DragDrop_AddedSkipped":  "เพม {0} ขาม {1}",
+    "DragDrop_ImagesAdded":  "เพมรปภาพแลว!",
+    "ModTile_Activate":  "เปดใชงาน",
+    "ModTile_Deactivate":  "ปดใชงาน"
 }

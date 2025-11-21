@@ -45,7 +45,6 @@
     "ModDetailPage_UpdateAvailable":  "Dostępna aktualizacja",
     "None":  "Brak",
     "OK":  "OK",
-    "Open_ModLibrary_Tooltip":  "Przeglądaj mody GameBanana",
     "Browse_GameBanana_Tooltip":  "Przeglądaj mody GameBanana",
     "ContextMenu_CheckUpdates":  "Sprawdź aktualizacje",
     "OpenDirectory_Tooltip":  "Kliknij, aby otworzyć katalog",
@@ -81,7 +80,6 @@
     "SettingsPage_Language":  "Język:",
     "SettingsPage_ModGridZoom_Label":  "Powiększenie siatki",
     "SettingsPage_ModGridZoom_Tooltip":  "Funkcja jest w połowie zepsuta. Kółko myszy może przestać działać, przeciąganie paska przewijania lub używanie kółka myszy na pasku przewijania nadal działa. To problem WinUI 3, nie udało się tego naprawić.",
-    "SettingsPage_ModLibraryDirectory":  "Katalog biblioteki modów:",
     "SettingsPage_OptimizePreviews_Label":  "Optymalizuj miniatury modów",
     "SettingsPage_DefaultResolutionOnStart_Label":  "Domyślna rozdzielczość przy starcie",
     "SettingsPage_DefaultResolutionOnStart_Description":  "Używaj stałego rozmiaru okna zamiast zapamiętywania ostatniego",
@@ -152,7 +150,6 @@
     "SettingsPage_Language_Description":  "Wybierz preferowany język",
     "SettingsPage_OptimizePreviews_Description":  "Optymalizuj obrazy podglądu modów dla lepszej wydajności",
     "SettingsPage_XXMIRootDirectory_Description":  "Ścieżka do katalogu instalacji XXMI",
-    "SettingsPage_ModLibraryDirectory_Description":  "Katalog zawierający kolekcję modów",
     "SettingsPage_SkipXXMILauncher_Description":  "Pamiętaj że pomijając launcher nie ściągniesz aktualizacji automatycznie",
     "SettingsPage_ActiveModsToTop_Description":  "Przenieś aktywne mody na górę listy",
     "SettingsPage_DynamicModSearch_Description":  "Włącz filtrowanie w czasie rzeczywistym podczas pisania",
@@ -172,5 +169,12 @@
     "SettingsPage_ReloadManagerHotkey_Description":  "Skrót klawiszowy do przeładowania menedżera",
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "Skrót klawiszowy do tasowania aktywnych modów",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "Skrót klawiszowy do dezaktywacji wszystkich modów",
-    "ModDetail_NSFW_Label":  "Treści NSFW"
+    "ModDetail_NSFW_Label":  "Treści NSFW",
+    "DragDrop_DropImagesHere":  "Upuść obrazy tutaj",
+    "DragDrop_LimitReached":  "Osiągnięto limit ({0} obrazów max)",
+    "DragDrop_Copying":  "Kopiowanie {0} obraz(ów)...",
+    "DragDrop_AddedSkipped":  "Dodano {0}, pominięto {1}",
+    "DragDrop_ImagesAdded":  "Obrazy dodane!",
+    "ModTile_Activate":  "Aktywuj",
+    "ModTile_Deactivate":  "Dezaktywuj"
 }

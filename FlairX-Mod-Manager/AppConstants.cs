@@ -92,6 +92,9 @@ namespace FlairX_Mod_Manager
         public const int MAX_IMAGE_CACHE_SIZE = 100;
         public const int MAX_RAM_IMAGE_CACHE_SIZE = 50;
         
+        // Preview Image Limits
+        public const int MAX_PREVIEW_IMAGES = 100;
+        
         // Timing Constants
         public const int LOG_REFRESH_INTERVAL_MS = 3000;
         public const int PERIODIC_SYNC_INTERVAL_SECONDS = 10;

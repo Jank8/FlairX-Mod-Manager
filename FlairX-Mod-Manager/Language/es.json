@@ -45,7 +45,6 @@
     "ModDetailPage_UpdateAvailable":  "Actualización disponible",
     "None":  "Ninguno",
     "OK":  "Aceptar",
-    "Open_ModLibrary_Tooltip":  "Explorar mods de GameBanana",
     "Browse_GameBanana_Tooltip":  "Explorar mods de GameBanana",
     "ContextMenu_CheckUpdates":  "Buscar actualizaciones",
     "OpenDirectory_Tooltip":  "Haz clic para abrir el directorio",
@@ -81,7 +80,6 @@
     "SettingsPage_Language":  "Idioma:",
     "SettingsPage_ModGridZoom_Label":  "Zoom de Cuadrícula",
     "SettingsPage_ModGridZoom_Tooltip":  "La función está medio bugueada. La rueda de desplazamiento del ratón puede dejar de funcionar, arrastrar la barra de desplazamiento o usar la rueda del ratón en la barra de desplazamiento aún funciona. Es un problema de WinUI 3, no pude arreglarlo.",
-    "SettingsPage_ModLibraryDirectory":  "Directorio de biblioteca de mods:",
     "SettingsPage_OptimizePreviews_Label":  "Optimizar miniaturas de mods",
     "SettingsPage_DefaultResolutionOnStart_Label":  "Resolución predeterminada al iniciar",
     "SettingsPage_DefaultResolutionOnStart_Description":  "Usar tamaño de ventana fijo en lugar de recordar el último tamaño",
@@ -150,7 +148,6 @@
     "SettingsPage_Language_Description":  "Selecciona tu idioma preferido",
     "SettingsPage_OptimizePreviews_Description":  "Optimiza las imágenes de vista previa de mods para mejor rendimiento",
     "SettingsPage_XXMIRootDirectory_Description":  "Ruta al directorio de instalación de XXMI",
-    "SettingsPage_ModLibraryDirectory_Description":  "Directorio que contiene tu colección de mods",
     "SettingsPage_SkipXXMILauncher_Description":  "Recuerda que omitir el launcher significa que no descargarás actualizaciones automáticamente",
     "SettingsPage_ActiveModsToTop_Description":  "Mover mods activos a la parte superior de la lista",
     "SettingsPage_DynamicModSearch_Description":  "Habilitar filtrado en tiempo real mientras escribes",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "Activado",
     "ToggleSwitch_Off":  "Desactivado",
     "SettingsPage_HideNSFW_Label":  "Ocultar contenido NSFW",
-    "SettingsPage_HideNSFW_Description":  "Ocultar mods marcados como NSFW en la cuadrícula de mods y el navegador de GameBanana"
+    "SettingsPage_HideNSFW_Description":  "Ocultar mods marcados como NSFW en la cuadrícula de mods y el navegador de GameBanana",
+    "DragDrop_DropImagesHere":  "Suelta imágenes aquí",
+    "DragDrop_LimitReached":  "Límite alcanzado ({0} imágenes máx)",
+    "DragDrop_Copying":  "Copiando {0} imagen(es)...",
+    "DragDrop_AddedSkipped":  "Añadido {0}, omitido {1}",
+    "DragDrop_ImagesAdded":  "¡Imágenes añadidas!",
+    "ModTile_Activate":  "Activar",
+    "ModTile_Deactivate":  "Desactivar"
 }

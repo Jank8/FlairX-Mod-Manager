@@ -45,7 +45,6 @@
     "ModDetailPage_UpdateAvailable":  "Доступно обновление",
     "None":  "Нет",
     "OK":  "OK",
-    "Open_ModLibrary_Tooltip":  "Просмотр модов GameBanana",
     "Browse_GameBanana_Tooltip":  "Просмотр модов GameBanana",
     "ContextMenu_CheckUpdates":  "Проверить обновления",
     "OpenDirectory_Tooltip":  "Нажмите, чтобы открыть каталог",
@@ -81,7 +80,6 @@
     "SettingsPage_Language":  "Язык:",
     "SettingsPage_ModGridZoom_Label":  "Увеличение изображения",
     "SettingsPage_ModGridZoom_Tooltip":  "Функция наполовину сломана. Колесо мыши может перестать работать, перетаскивание полосы прокрутки или использование колеса мыши на полосе прокрутки все еще работает. Это проблема WinUI 3, не удалось ее исправить.",
-    "SettingsPage_ModLibraryDirectory":  "Каталог библиотеки модов:",
     "SettingsPage_OptimizePreviews_Label":  "Оптимизация эскизов модов",
     "SettingsPage_DefaultResolutionOnStart_Label":  "Фиксированный размер окна",
     "SettingsPage_DefaultResolutionOnStart_Description":  "Использовать фиксированный размер окна",
@@ -150,7 +148,6 @@
     "SettingsPage_Language_Description":  "Выберите язык",
     "SettingsPage_OptimizePreviews_Description":  "Оптимизация эскизов модов для повышения производительности",
     "SettingsPage_XXMIRootDirectory_Description":  "Путь к папке установки XXMI",
-    "SettingsPage_ModLibraryDirectory_Description":  "Папка для сохранения модов",
     "SettingsPage_SkipXXMILauncher_Description":  "Помните, что пропуск лаунчера означает, что вы не будете автоматически загружать обновления",
     "SettingsPage_ActiveModsToTop_Description":  "Переместить активные моды в верхнюю часть списка",
     "SettingsPage_DynamicModSearch_Description":  "Включить фильтрацию в реальном времени при вводе текста",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "Вкл",
     "ToggleSwitch_Off":  "Выкл",
     "SettingsPage_HideNSFW_Label":  "Скрыть NSFW контент",
-    "SettingsPage_HideNSFW_Description":  "Скрыть моды, помеченные как NSFW, в сетке модов и браузере GameBanana"
+    "SettingsPage_HideNSFW_Description":  "Скрыть моды, помеченные как NSFW, в сетке модов и браузере GameBanana",
+    "DragDrop_DropImagesHere":  "Перетащите изображения сюда",
+    "DragDrop_LimitReached":  "Достигнут лимит ({0} изображений макс)",
+    "DragDrop_Copying":  "Копирование {0} изображени(й)...",
+    "DragDrop_AddedSkipped":  "Добавлено {0}, пропущено {1}",
+    "DragDrop_ImagesAdded":  "Изображения добавлены!",
+    "ModTile_Activate":  "Активировать",
+    "ModTile_Deactivate":  "Деактивировать"
 }

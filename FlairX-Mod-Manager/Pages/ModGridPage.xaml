@@ -449,14 +449,14 @@
                                             PointerExited="ActivateButton_PointerExited">
                                         <Grid>
                                             <TextBlock x:Name="ActivateText"
-                                                       Text="Activate"
+                                                       Text="{Binding ActivateText}"
                                                        FontWeight="Bold"
                                                        FontSize="16"
                                                        Foreground="White"
                                                        TextAlignment="Center"
                                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
                                             <TextBlock x:Name="DeactivateText"
-                                                       Text="Deactivate"
+                                                       Text="{Binding DeactivateText}"
                                                        FontWeight="Bold"
                                                        FontSize="16"
                                                        Foreground="White"

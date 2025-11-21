@@ -44,7 +44,6 @@
     "ModDetailPage_UpdateAvailable":  "Güncelleme mevcut",
     "None":  "Hiçbiri",
     "OK":  "Tamam",
-    "Open_ModLibrary_Tooltip":  "GameBanana Modlarına Göz At",
     "Browse_GameBanana_Tooltip":  "GameBanana Modlarına Göz At",
     "ContextMenu_CheckUpdates":  "Güncellemeleri kontrol et",
     "OpenDirectory_Tooltip":  "Dizini açmak için tıklayın",
@@ -80,7 +79,6 @@
     "SettingsPage_Language":  "Dil:",
     "SettingsPage_ModGridZoom_Label":  "Izgara Yakınlaştırma",
     "SettingsPage_ModGridZoom_Tooltip":  "Özellik yarı hatalı. Fare kaydırma tekerleği çalışmayı durdurabilir, kaydırma çubuğunu sürüklemek veya kaydırma çubuğunda fare tekerleğini kullanmak hala çalışıyor. Bu WinUI 3 sorunu, düzeltemedim.",
-    "SettingsPage_ModLibraryDirectory":  "Mod kütüphanesi dizini:",
     "SettingsPage_OptimizePreviews_Label":  "Mod küçük resimlerini optimize et",
     "SettingsPage_DefaultResolutionOnStart_Label":  "Başlangıçta varsayılan çözünürlük",
     "SettingsPage_DefaultResolutionOnStart_Description":  "Son boyutu hatırlamak yerine sabit pencere boyutu kullan",
@@ -148,7 +146,6 @@
     "SettingsPage_Language_Description":  "Tercih ettiğiniz dili seçin",
     "SettingsPage_OptimizePreviews_Description":  "Daha iyi performans için mod önizleme görüntülerini optimize edin",
     "SettingsPage_XXMIRootDirectory_Description":  "XXMI kurulum dizinine giden yol",
-    "SettingsPage_ModLibraryDirectory_Description":  "Mod koleksiyonunuzu içeren dizin",
     "SettingsPage_SkipXXMILauncher_Label":  "XXMI Launcher başlatmayı atla",
     "SettingsPage_SkipXXMILauncher_Description":  "Launcher\u0027ı atlamanın güncellemeleri otomatik olarak indirmeyeceğiniz anlamına geldiğini unutmayın",
     "SettingsPage_ActiveModsToTop_Description":  "Aktif modları listenin üstüne taşı",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "Açık",
     "ToggleSwitch_Off":  "Kapalı",
     "SettingsPage_HideNSFW_Label":  "NSFW İçeriği Gizle",
-    "SettingsPage_HideNSFW_Description":  "Mod ızgarasında ve GameBanana tarayıcısında NSFW olarak işaretlenmiş modları gizle"
+    "SettingsPage_HideNSFW_Description":  "Mod ızgarasında ve GameBanana tarayıcısında NSFW olarak işaretlenmiş modları gizle",
+    "DragDrop_DropImagesHere":  "Resimleri buraya bırakın",
+    "DragDrop_LimitReached":  "Limite ulaşıldı ({0} resim maks)",
+    "DragDrop_Copying":  "{0} resim kopyalanıyor...",
+    "DragDrop_AddedSkipped":  "{0} eklendi, {1} atlandı",
+    "DragDrop_ImagesAdded":  "Resimler eklendi!",
+    "ModTile_Activate":  "Etkinleştir",
+    "ModTile_Deactivate":  "Devre Dışı Bırak"
 }

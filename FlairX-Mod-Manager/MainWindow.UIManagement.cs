@@ -549,6 +549,7 @@ namespace FlairX_Mod_Manager
                 if (RestartAppButton != null) RestartAppButton.IsEnabled = gameSelected;
                 if (AllModsButton != null) AllModsButton.IsEnabled = gameSelected;
                 if (ViewModeToggleButton != null) ViewModeToggleButton.IsEnabled = gameSelected;
+                if (BrowseGameBananaButton != null) BrowseGameBananaButton.IsEnabled = gameSelected;
                 
                 // Enable/disable launcher FAB
                 if (LauncherFabBorder != null) LauncherFabBorder.IsHitTestVisible = gameSelected;

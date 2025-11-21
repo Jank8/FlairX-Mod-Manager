@@ -44,7 +44,6 @@
     "ModDetailPage_UpdateAvailable":  "有可用更新",
     "None":  "無",
     "OK":  "確定",
-    "Open_ModLibrary_Tooltip":  "瀏覽 GameBanana 模組",
     "Browse_GameBanana_Tooltip":  "瀏覽 GameBanana 模組",
     "ContextMenu_CheckUpdates":  "檢查更新",
     "OpenDirectory_Tooltip":  "點擊開啟目錄",
@@ -80,7 +79,6 @@
     "SettingsPage_Language":  "語言:",
     "SettingsPage_ModGridZoom_Label":  "網格縮放",
     "SettingsPage_ModGridZoom_Tooltip":  "功能有一半問題。滑鼠滾輪可能停止工作，拖動捲軸或在捲軸上使用滑鼠滾輪仍然有效。這是WinUI 3的問題，無法修復。",
-    "SettingsPage_ModLibraryDirectory":  "模組庫目錄:",
     "SettingsPage_OptimizePreviews_Label":  "最佳化模組縮圖",
     "SettingsPage_DefaultResolutionOnStart_Label":  "啟動時預設解析度",
     "SettingsPage_DefaultResolutionOnStart_Description":  "使用固定視窗大小而不是記住上次大小",
@@ -148,7 +146,6 @@
     "SettingsPage_Language_Description":  "選擇您偏好的語言",
     "SettingsPage_OptimizePreviews_Description":  "優化模組預覽圖像以獲得更好的效能",
     "SettingsPage_XXMIRootDirectory_Description":  "XXMI安裝目錄的路徑",
-    "SettingsPage_ModLibraryDirectory_Description":  "包含您模組收藏的目錄",
     "SettingsPage_SkipXXMILauncher_Label":  "跳過XXMI啟動器啟動",
     "SettingsPage_SkipXXMILauncher_Description":  "請記住，跳過啟動器意味著您不會自動下載更新",
     "SettingsPage_ActiveModsToTop_Description":  "將活躍模組移至清單頂部",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "開啟",
     "ToggleSwitch_Off":  "關閉",
     "SettingsPage_HideNSFW_Label":  "隱藏NSFW內容",
-    "SettingsPage_HideNSFW_Description":  "在模組網格和GameBanana瀏覽器中隱藏標記為NSFW的模組"
+    "SettingsPage_HideNSFW_Description":  "在模組網格和GameBanana瀏覽器中隱藏標記為NSFW的模組",
+    "DragDrop_DropImagesHere":  "將圖片拖放到此處",
+    "DragDrop_LimitReached":  "已達上限（最多{0}張）",
+    "DragDrop_Copying":  "正在複製{0}張圖片...",
+    "DragDrop_AddedSkipped":  "已新增{0}張，略過{1}張",
+    "DragDrop_ImagesAdded":  "圖片已新增！",
+    "ModTile_Activate":  "啟用",
+    "ModTile_Deactivate":  "停用"
 }

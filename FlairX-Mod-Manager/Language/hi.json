@@ -44,7 +44,6 @@
     "ModDetailPage_UpdateAvailable":  "अपडेट उपलब्ध है",
     "None":  "कोई नहीं",
     "OK":  "ठीक है",
-    "Open_ModLibrary_Tooltip":  "GameBanana मॉड ब्राउज़ करें",
     "Browse_GameBanana_Tooltip":  "GameBanana मॉड ब्राउज़ करें",
     "ContextMenu_CheckUpdates":  "अपडेट जांचें",
     "OpenDirectory_Tooltip":  "डायरेक्टरी खोलने के लिए क्लिक करें",
@@ -80,7 +79,6 @@
     "SettingsPage_Language":  "भाषा:",
     "SettingsPage_ModGridZoom_Label":  "ग्रिड ज़ूम",
     "SettingsPage_ModGridZoom_Tooltip":  "फीचर आधा-बग्ड है। माउस स्क्रॉल व्हील काम करना बंद कर सकता है, स्क्रॉल बार खींचना या स्क्रॉल बार पर माउस व्हील का उपयोग अभी भी काम करता है। यह WinUI 3 की समस्या है, इसे ठीक नहीं कर सका।",
-    "SettingsPage_ModLibraryDirectory":  "मॉड लाइब्रेरी डायरेक्टरी:",
     "SettingsPage_OptimizePreviews_Label":  "मॉड थंबनेल अनुकूलित करें",
     "SettingsPage_DefaultResolutionOnStart_Label":  "प्रारंभ पर डिफ़ॉल्ट रिज़ॉल्यूशन",
     "SettingsPage_DefaultResolutionOnStart_Description":  "अंतिम आकार याद रखने के बजाय निश्चित विंडो आकार का उपयोग करें",
@@ -148,7 +146,6 @@
     "SettingsPage_Language_Description":  "अपनी पसंदीदा भाषा चुनें",
     "SettingsPage_OptimizePreviews_Description":  "बेहतर प्रदर्शन के लिए मॉड पूर्वावलोकन छवियों को अनुकूलित करें",
     "SettingsPage_XXMIRootDirectory_Description":  "XXMI इंस्टॉलेशन निर्देशिका का पथ",
-    "SettingsPage_ModLibraryDirectory_Description":  "आपके मॉड संग्रह वाली निर्देशिका",
     "SettingsPage_SkipXXMILauncher_Label":  "XXMI लॉन्चर स्टार्टअप छोड़ें",
     "SettingsPage_SkipXXMILauncher_Description":  "याद रखें कि लॉन्चर को छोड़ने का मतलब है कि आप अपडेट स्वचालित रूप से डाउनलोड नहीं करेंगे",
     "SettingsPage_ActiveModsToTop_Description":  "सक्रिय मॉड को सूची के शीर्ष पर ले जाएं",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "चालू",
     "ToggleSwitch_Off":  "बंद",
     "SettingsPage_HideNSFW_Label":  "NSFW सामग्री छिपाएं",
-    "SettingsPage_HideNSFW_Description":  "मॉड ग्रिड और GameBanana ब्राउज़र में NSFW के रूप में चिह्नित मॉड छिपाएं"
+    "SettingsPage_HideNSFW_Description":  "मॉड ग्रिड और GameBanana ब्राउज़र में NSFW के रूप में चिह्नित मॉड छिपाएं",
+    "DragDrop_DropImagesHere":  "यह चतर छड",
+    "DragDrop_LimitReached":  "सीमा पहुँच गई ({0} चित्र अधिकतम)",
+    "DragDrop_Copying":  "{0} चित्र कॉपी हो रहे हैं...",
+    "DragDrop_AddedSkipped":  "{0} जोड़े गए, {1} छोड़े गए",
+    "DragDrop_ImagesAdded":  "चित्र जोड़े गए!",
+    "ModTile_Activate":  "सकरय कर",
+    "ModTile_Deactivate":  "नषकरय कर"
 }

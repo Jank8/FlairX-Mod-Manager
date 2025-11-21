@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
@@ -977,7 +977,7 @@ namespace FlairX_Mod_Manager.Pages
                 bool needsMinitile = !File.Exists(minitileJpgPath);
 
                 // Process each preview file
-                for (int i = 0; i < previewFiles.Count && i < 10; i++) // Max 10 images (TEMPORARY FOR TESTING)
+                for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
                 {
                     var sourceFile = previewFiles[i];
                     string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
@@ -1018,7 +1018,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (name.StartsWith("preview-"))
                         {
                             var suffix = name.Substring(8); // Remove "preview-"
-                            return !int.TryParse(suffix, out int num) || num > 9; // Remove if not 01-09 (for limit of 10)
+                            return !int.TryParse(suffix, out int num) || num > (AppConstants.MAX_PREVIEW_IMAGES - 1);
                         }
                         return true; // Remove other preview files
                     })
@@ -1590,7 +1590,7 @@ namespace FlairX_Mod_Manager.Pages
                 bool needsMinitile = !File.Exists(minitileJpgPath);
 
                 // Process each preview file
-                for (int i = 0; i < previewFiles.Count && i < 10; i++) // Max 10 images (TEMPORARY FOR TESTING)
+                for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
                 {
                     var sourceFile = previewFiles[i];
                     string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
@@ -1632,7 +1632,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (name.StartsWith("preview-"))
                         {
                             var suffix = name.Substring(8); // Remove "preview-"
-                            return !int.TryParse(suffix, out int num) || num > 99; // Remove if not 01-99
+                            return !int.TryParse(suffix, out int num) || num > (AppConstants.MAX_PREVIEW_IMAGES - 1);
                         }
                         return true; // Remove other preview files
                     })

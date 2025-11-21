@@ -45,7 +45,6 @@
     "ModDetailPage_UpdateAvailable":  "Mise à jour disponible",
     "None":  "Aucun",
     "OK":  "OK",
-    "Open_ModLibrary_Tooltip":  "Parcourir les mods GameBanana",
     "Browse_GameBanana_Tooltip":  "Parcourir les mods GameBanana",
     "ContextMenu_CheckUpdates":  "Vérifier les mises à jour",
     "OpenDirectory_Tooltip":  "Cliquez pour ouvrir le répertoire",
@@ -81,7 +80,6 @@
     "SettingsPage_Language":  "Langue :",
     "SettingsPage_ModGridZoom_Label":  "Zoom de Grille",
     "SettingsPage_ModGridZoom_Tooltip":  "La fonctionnalité est à moitié buggée. La molette de la souris peut cesser de fonctionner, faire glisser la barre de défilement ou utiliser la molette de la souris sur la barre de défilement fonctionne toujours. C\u0027est un problème WinUI 3, je n\u0027ai pas pu le corriger.",
-    "SettingsPage_ModLibraryDirectory":  "Répertoire de la bibliothèque de mods :",
     "SettingsPage_OptimizePreviews_Label":  "Optimiser les miniatures de mods",
     "SettingsPage_DefaultResolutionOnStart_Label":  "Résolution par défaut au démarrage",
     "SettingsPage_DefaultResolutionOnStart_Description":  "Utiliser une taille de fenêtre fixe au lieu de mémoriser la dernière taille",
@@ -150,7 +148,6 @@
     "SettingsPage_Language_Description":  "Sélectionnez votre langue préférée",
     "SettingsPage_OptimizePreviews_Description":  "Optimisez les images d\u0027aperçu des mods pour de meilleures performances",
     "SettingsPage_XXMIRootDirectory_Description":  "Chemin vers le répertoire d\u0027installation XXMI",
-    "SettingsPage_ModLibraryDirectory_Description":  "Répertoire contenant votre collection de mods",
     "SettingsPage_SkipXXMILauncher_Description":  "Rappelez-vous qu\u0027ignorer le lanceur signifie que vous ne téléchargerez pas les mises à jour automatiquement",
     "SettingsPage_ActiveModsToTop_Description":  "Déplacer les mods actifs en haut de la liste",
     "SettingsPage_DynamicModSearch_Description":  "Activer le filtrage en temps réel pendant que vous tapez",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "Activé",
     "ToggleSwitch_Off":  "Désactivé",
     "SettingsPage_HideNSFW_Label":  "Masquer le contenu NSFW",
-    "SettingsPage_HideNSFW_Description":  "Masquer les mods marqués comme NSFW dans la grille de mods et le navigateur GameBanana"
+    "SettingsPage_HideNSFW_Description":  "Masquer les mods marqués comme NSFW dans la grille de mods et le navigateur GameBanana",
+    "DragDrop_DropImagesHere":  "Déposez les images ici",
+    "DragDrop_LimitReached":  "Limite atteinte ({0} images max)",
+    "DragDrop_Copying":  "Copie de {0} image(s)...",
+    "DragDrop_AddedSkipped":  "Ajouté {0}, ignoré {1}",
+    "DragDrop_ImagesAdded":  "Images ajoutées !",
+    "ModTile_Activate":  "Activer",
+    "ModTile_Deactivate":  "Désactiver"
 }

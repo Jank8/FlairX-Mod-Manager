@@ -37,26 +37,36 @@
             </Grid>
             
             <!-- 2. Przywracanie -->
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock x:Name="RestoreBackupLabel" Text="Przywróć kopię zapasową" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                <Button x:Name="RestoreBackupButton" Height="32" MinWidth="120" Click="RestoreBackupButton_Click" Margin="-40,0,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="255"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="RestoreBackupLabel" Text="Przywróć kopię zapasową" VerticalAlignment="Center" Grid.Column="0"/>
+                <Button x:Name="RestoreBackupButton" Height="32" MinWidth="120" Click="RestoreBackupButton_Click" Grid.Column="1" Margin="-40,0,0,0">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE8EB;" FontSize="16"/>
                         <TextBlock x:Name="RestoreBackupButtonText" Text=""/>
                     </StackPanel>
                 </Button>
-            </StackPanel>
+            </Grid>
             
             <!-- 3. Usuwanie -->
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock x:Name="DeleteBackupsLabel" Text="Usuń kopie zapasowe" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
-                <Button x:Name="DeleteBackupsButton" Height="32" MinWidth="120" Click="DeleteBackupsButton_Click" Margin="-40,0,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="255"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="DeleteBackupsLabel" Text="Usuń kopie zapasowe" VerticalAlignment="Center" Grid.Column="0"/>
+                <Button x:Name="DeleteBackupsButton" Height="32" MinWidth="120" Click="DeleteBackupsButton_Click" Grid.Column="1" Margin="-40,0,0,0">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE74D;" FontSize="16"/>
                         <TextBlock x:Name="DeleteBackupsButtonText" Text=""/>
                     </StackPanel>
                 </Button>
-            </StackPanel>
+            </Grid>
         </StackPanel>
     </ScrollViewer>
 </Page>

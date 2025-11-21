@@ -44,7 +44,6 @@
     "ModDetailPage_UpdateAvailable":  "Có bản cập nhật",
     "None":  "Không có",
     "OK":  "OK",
-    "Open_ModLibrary_Tooltip":  "Duyệt mod GameBanana",
     "Browse_GameBanana_Tooltip":  "Duyệt mod GameBanana",
     "ContextMenu_CheckUpdates":  "Kiểm tra cập nhật",
     "OpenDirectory_Tooltip":  "Nhấp để mở thư mục",
@@ -80,7 +79,6 @@
     "SettingsPage_Language":  "Ngôn ngữ:",
     "SettingsPage_ModGridZoom_Label":  "Thu phóng lưới",
     "SettingsPage_ModGridZoom_Tooltip":  "Tính năng bị lỗi một nửa. Con lăn chuột có thể ngừng hoạt động, kéo thanh cuộn hoặc sử dụng con lăn chuột trên thanh cuộn vẫn hoạt động. Đó là vấn đề của WinUI 3, không thể sửa được.",
-    "SettingsPage_ModLibraryDirectory":  "Thư mục thư viện mod:",
     "SettingsPage_OptimizePreviews_Label":  "Tối ưu hóa hình thu nhỏ mod",
     "SettingsPage_DefaultResolutionOnStart_Label":  "Độ phân giải mặc định khi khởi động",
     "SettingsPage_DefaultResolutionOnStart_Description":  "Sử dụng kích thước cửa sổ cố định thay vì nhớ kích thước cuối cùng",
@@ -148,7 +146,6 @@
     "SettingsPage_Language_Description":  "Chọn ngôn ngữ ưa thích của bạn",
     "SettingsPage_OptimizePreviews_Description":  "Tối ưu hóa hình ảnh xem trước mod để có hiệu suất tốt hơn",
     "SettingsPage_XXMIRootDirectory_Description":  "Đường dẫn đến thư mục cài đặt XXMI",
-    "SettingsPage_ModLibraryDirectory_Description":  "Thư mục chứa bộ sưu tập mod của bạn",
     "SettingsPage_SkipXXMILauncher_Label":  "Bỏ qua khởi động XXMI Launcher",
     "SettingsPage_SkipXXMILauncher_Description":  "Hãy nhớ rằng bỏ qua launcher có nghĩa là bạn sẽ không tự động tải xuống các bản cập nhật",
     "SettingsPage_ActiveModsToTop_Description":  "Di chuyển các mod đang hoạt động lên đầu danh sách",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "Bật",
     "ToggleSwitch_Off":  "Tắt",
     "SettingsPage_HideNSFW_Label":  "Ẩn nội dung NSFW",
-    "SettingsPage_HideNSFW_Description":  "Ẩn các mod được đánh dấu là NSFW trong lưới mod và trình duyệt GameBanana"
+    "SettingsPage_HideNSFW_Description":  "Ẩn các mod được đánh dấu là NSFW trong lưới mod và trình duyệt GameBanana",
+    "DragDrop_DropImagesHere":  "Thả hình ảnh vào đây",
+    "DragDrop_LimitReached":  "Đã đạt giới hạn ({0} hình tối đa)",
+    "DragDrop_Copying":  "Đang sao chép {0} hình...",
+    "DragDrop_AddedSkipped":  "Đã thêm {0}, bỏ qua {1}",
+    "DragDrop_ImagesAdded":  "Đã thêm hình ảnh!",
+    "ModTile_Activate":  "Kích hoạt",
+    "ModTile_Deactivate":  "Vô hiệu hóa"
 }

@@ -385,6 +385,36 @@ namespace FlairX_Mod_Manager.Pages
             {
                 ExitTableViewItem.Text = SharedUtilities.GetTranslation(langDict, "Exit_Table_View");
             }
+            
+            // Update activate/deactivate button texts in all mod tiles
+            UpdateModTileTranslations();
+        }
+        
+        private void UpdateModTileTranslations()
+        {
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            var activateTranslation = SharedUtilities.GetTranslation(langDict, "ModTile_Activate");
+            var deactivateTranslation = SharedUtilities.GetTranslation(langDict, "ModTile_Deactivate");
+            
+            // Update all ModTile objects in _allMods collection
+            foreach (var modTile in _allMods)
+            {
+                modTile.ActivateText = activateTranslation;
+                modTile.DeactivateText = deactivateTranslation;
+            }
+            
+            // Also update items in ModsGrid if it has a different source
+            if (ModsGrid.ItemsSource != null && ModsGrid.ItemsSource != _allMods)
+            {
+                if (ModsGrid.ItemsSource is IEnumerable<ModTile> modTiles)
+                {
+                    foreach (var modTile in modTiles)
+                    {
+                        modTile.ActivateText = activateTranslation;
+                        modTile.DeactivateText = deactivateTranslation;
+                    }
+                }
+            }
         }
 
 

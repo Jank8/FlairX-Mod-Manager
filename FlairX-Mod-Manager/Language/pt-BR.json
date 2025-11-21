@@ -45,7 +45,6 @@
     "ModDetailPage_UpdateAvailable":  "Atualização disponível",
     "None":  "Nenhum",
     "OK":  "OK",
-    "Open_ModLibrary_Tooltip":  "Navegar mods do GameBanana",
     "Browse_GameBanana_Tooltip":  "Navegar mods do GameBanana",
     "ContextMenu_CheckUpdates":  "Verificar atualizações",
     "OpenDirectory_Tooltip":  "Clique para abrir o diretório",
@@ -81,7 +80,6 @@
     "SettingsPage_Language":  "Idioma:",
     "SettingsPage_ModGridZoom_Label":  "Zoom da Grade",
     "SettingsPage_ModGridZoom_Tooltip":  "O recurso está meio com defeito. A roda do mouse pode parar de funcionar, arrastar a barra de rolagem ou usar a roda do mouse na barra de rolagem ainda funciona. Esse é um problema do WinUI 3, não consegui corrigir.",
-    "SettingsPage_ModLibraryDirectory":  "Diretório da biblioteca de mods:",
     "SettingsPage_OptimizePreviews_Label":  "Otimizar miniaturas de mods",
     "SettingsPage_DefaultResolutionOnStart_Label":  "Resolução padrão na inicialização",
     "SettingsPage_DefaultResolutionOnStart_Description":  "Usar tamanho de janela fixo em vez de lembrar o último tamanho",
@@ -150,7 +148,6 @@
     "SettingsPage_Language_Description":  "Selecione seu idioma preferido",
     "SettingsPage_OptimizePreviews_Description":  "Otimize imagens de visualização de mods para melhor desempenho",
     "SettingsPage_XXMIRootDirectory_Description":  "Caminho para o diretório de instalação do XXMI",
-    "SettingsPage_ModLibraryDirectory_Description":  "Diretório contendo sua coleção de mods",
     "SettingsPage_SkipXXMILauncher_Description":  "Lembre-se de que pular o launcher significa que você não baixará atualizações automaticamente",
     "SettingsPage_ActiveModsToTop_Description":  "Mover mods ativos para o topo da lista",
     "SettingsPage_DynamicModSearch_Description":  "Habilitar filtragem em tempo real enquanto você digita",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "Ligado",
     "ToggleSwitch_Off":  "Desligado",
     "SettingsPage_HideNSFW_Label":  "Ocultar conteúdo NSFW",
-    "SettingsPage_HideNSFW_Description":  "Ocultar mods marcados como NSFW na grade de mods e no navegador GameBanana"
+    "SettingsPage_HideNSFW_Description":  "Ocultar mods marcados como NSFW na grade de mods e no navegador GameBanana",
+    "DragDrop_DropImagesHere":  "Solte imagens aqui",
+    "DragDrop_LimitReached":  "Limite atingido ({0} imagens máx)",
+    "DragDrop_Copying":  "Copiando {0} imagem(ns)...",
+    "DragDrop_AddedSkipped":  "Adicionado {0}, ignorado {1}",
+    "DragDrop_ImagesAdded":  "Imagens adicionadas!",
+    "ModTile_Activate":  "Ativar",
+    "ModTile_Deactivate":  "Desativar"
 }

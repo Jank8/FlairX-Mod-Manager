@@ -11,7 +11,7 @@
     <Grid Margin="24">
         <StackPanel Spacing="16">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Button x:Name="CreateBackupsButton" Height="36" Width="220" Click="CreateBackupsButton_Click" Padding="0">
+                <Button x:Name="CreateBackupsButton" Height="36" Width="500" Click="CreateBackupsButton_Click" Padding="0">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xEA35;" FontSize="16"/>
                         <TextBlock x:Name="CreateBackupsText" Text="Backup all mod.json"/>
@@ -22,13 +22,13 @@
             <StackPanel Orientation="Vertical" Spacing="8">
                 <Grid Height="40">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="330"/>
                         <ColumnDefinition Width="15"/>
                         <ColumnDefinition Width="48"/>
                         <ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="RestoreBackup1Button" Height="32" Width="220" Tag="1" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
+                    <Button x:Name="RestoreBackup1Button" Height="32" Width="330" Tag="1" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE8EB;" FontSize="16"/>
                             <TextBlock x:Name="RestoreBackup1Text" Text="Restore backup 1 (newest)"/>
@@ -44,13 +44,13 @@
                 </Grid>
                 <Grid Height="40">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="330"/>
                         <ColumnDefinition Width="15"/>
                         <ColumnDefinition Width="48"/>
                         <ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="RestoreBackup2Button" Height="32" Width="220" Tag="2" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
+                    <Button x:Name="RestoreBackup2Button" Height="32" Width="330" Tag="2" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE8EB;" FontSize="16"/>
                             <TextBlock x:Name="RestoreBackup2Text" Text="Restore backup 2 (middle)"/>
@@ -65,13 +65,13 @@
                 </Grid>
                 <Grid Height="40">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="330"/>
                         <ColumnDefinition Width="15"/>
                         <ColumnDefinition Width="48"/>
                         <ColumnDefinition Width="10"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="RestoreBackup3Button" Height="32" Width="220" Tag="3" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
+                    <Button x:Name="RestoreBackup3Button" Height="32" Width="330" Tag="3" Click="RestoreBackupButton_Click" Grid.Column="0" Padding="0">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE8EB;" FontSize="16"/>
                             <TextBlock x:Name="RestoreBackup3Text" Text="Restore backup 3 (oldest)"/>

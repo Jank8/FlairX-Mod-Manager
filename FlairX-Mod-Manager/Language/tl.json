@@ -44,7 +44,6 @@
     "ModDetailPage_UpdateAvailable":  "May available na update",
     "None":  "Wala",
     "OK":  "OK",
-    "Open_ModLibrary_Tooltip":  "Mag-browse ng GameBanana Mods",
     "Browse_GameBanana_Tooltip":  "Mag-browse ng GameBanana Mods",
     "ContextMenu_CheckUpdates":  "Suriin ang mga update",
     "OpenDirectory_Tooltip":  "I-click upang buksan ang directory",
@@ -80,7 +79,6 @@
     "SettingsPage_Language":  "Wika:",
     "SettingsPage_ModGridZoom_Label":  "Grid Zoom",
     "SettingsPage_ModGridZoom_Tooltip":  "Ang feature ay kalahating sira. Maaaring tumigil ang mouse scroll wheel, pero gumagana pa rin ang pag-drag ng scroll bar o paggamit ng mouse wheel sa scroll bar. Ito ay problema ng WinUI 3, hindi naayos.",
-    "SettingsPage_ModLibraryDirectory":  "Mod library directory:",
     "SettingsPage_OptimizePreviews_Label":  "I-optimize ang mga mod thumbnail",
     "SettingsPage_DefaultResolutionOnStart_Label":  "Default resolution sa simula",
     "SettingsPage_DefaultResolutionOnStart_Description":  "Gamitin ang fixed window size sa halip na tandaan ang huling laki",
@@ -148,7 +146,6 @@
     "SettingsPage_Language_Description":  "Piliin ang inyong gustong wika",
     "SettingsPage_OptimizePreviews_Description":  "I-optimize ang mga preview image ng mod para sa mas magandang performance",
     "SettingsPage_XXMIRootDirectory_Description":  "Path sa XXMI installation directory",
-    "SettingsPage_ModLibraryDirectory_Description":  "Directory na naglalaman ng inyong mod collection",
     "SettingsPage_SkipXXMILauncher_Label":  "Laktawan ang pagbubukas ng XXMI Launcher",
     "SettingsPage_SkipXXMILauncher_Description":  "Tandaan na ang paglaktaw sa launcher ay nangangahulugang hindi kayo mag-download ng mga update nang awtomatiko",
     "SettingsPage_ActiveModsToTop_Description":  "Ilipat ang mga active mod sa tuktok ng listahan",
@@ -172,5 +169,12 @@
     "ToggleSwitch_On":  "Naka-on",
     "ToggleSwitch_Off":  "Naka-off",
     "SettingsPage_HideNSFW_Label":  "Itago ang NSFW na Nilalaman",
-    "SettingsPage_HideNSFW_Description":  "Itago ang mga mod na minarkahan bilang NSFW sa mod grid at GameBanana browser"
+    "SettingsPage_HideNSFW_Description":  "Itago ang mga mod na minarkahan bilang NSFW sa mod grid at GameBanana browser",
+    "DragDrop_DropImagesHere":  "Ihulog ang mga larawan dito",
+    "DragDrop_LimitReached":  "Naabot na ang limitasyon ({0} larawan max)",
+    "DragDrop_Copying":  "Kinokopya ang {0} larawan...",
+    "DragDrop_AddedSkipped":  "Idinagdag {0}, nilaktawan {1}",
+    "DragDrop_ImagesAdded":  "Naidagdag ang mga larawan!",
+    "ModTile_Activate":  "I-activate",
+    "ModTile_Deactivate":  "I-deactivate"
 }
