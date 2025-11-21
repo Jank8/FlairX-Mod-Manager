@@ -170,6 +170,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "Skrót klawiszowy do tasowania aktywnych modów",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "Skrót klawiszowy do dezaktywacji wszystkich modów",
     "ModDetail_NSFW_Label":  "Treści NSFW",
+    "ModDetail_StatusKeeperSync_Label":  "Synchronizuj ustawienia z gry",
     "DragDrop_DropImagesHere":  "Upuść obrazy tutaj",
     "DragDrop_LimitReached":  "Osiągnięto limit ({0} obrazów max)",
     "DragDrop_Copying":  "Kopiowanie {0} obraz(ów)...",

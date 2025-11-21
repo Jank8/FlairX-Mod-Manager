@@ -486,6 +486,16 @@ namespace FlairX_Mod_Manager.Pages
                     var varName = oldMatch.Groups[2].Value.Trim();
                     var value = oldMatch.Groups[3].Value.Trim();
 
+                    // Extract mod folder name from path (first part before any slash)
+                    var modFolderName = fullIniPath.Split('\\', '/')[0];
+                    
+                    // Check if this mod has StatusKeeper sync enabled
+                    if (!IsModSyncEnabled(modFolderName))
+                    {
+                        LogStatic($"⏭️ OLD FORMAT: Skipping {fullIniPath} -> {varName} (mod sync disabled)");
+                        continue;
+                    }
+
                     LogStatic($"✅ OLD FORMAT: {fullIniPath} -> {varName} = {value}");
 
                     if (!allEntries.ContainsKey(fullIniPath))
@@ -504,11 +514,10 @@ namespace FlairX_Mod_Manager.Pages
                     var varName = newMatch.Groups[2].Value.Trim();
                     var value = newMatch.Groups[3].Value.Trim();
 
-                    LogStatic($"✅ NEW FORMAT: namespace={namespacePath} -> {varName} = {value}");
-
                     // Find the .ini files that have this namespace
                     if (namespaceToFiles.TryGetValue(namespacePath, out var iniFilePaths))
                     {
+                        LogStatic($"✅ NEW FORMAT: namespace={namespacePath} -> {varName} = {value}");
                         LogStatic($"  Mapped to files: {string.Join(", ", iniFilePaths)}");
                         
                         // Add variable to ALL files with this namespace
@@ -523,14 +532,13 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     else
                     {
-                        LogStatic($"⚠️ No .ini files found with namespace: {namespacePath}", "WARN");
-                        
                         // Try case-insensitive search
                         var foundKey = namespaceToFiles.Keys.FirstOrDefault(k => 
                             string.Equals(k, namespacePath, StringComparison.OrdinalIgnoreCase));
                         
                         if (foundKey != null)
                         {
+                            LogStatic($"✅ NEW FORMAT: namespace={namespacePath} -> {varName} = {value}");
                             LogStatic($"  ✅ Found case-insensitive match: '{foundKey}' -> {string.Join(", ", namespaceToFiles[foundKey])}");
                             
                             // Add variable to ALL files with this namespace
@@ -545,7 +553,9 @@ namespace FlairX_Mod_Manager.Pages
                         }
                         else
                         {
-                            LogStatic($"  ❌ No case-insensitive match found either", "ERROR");
+                            // Namespace not found - could be disabled mod, missing mod, or outdated entry
+                            // Only log at DEBUG level to avoid spam
+                            LogStatic($"⏭️ Skipped namespace '{namespacePath}' (mod not found or sync disabled)", "DEBUG");
                         }
                     }
                     continue;
@@ -562,9 +572,53 @@ namespace FlairX_Mod_Manager.Pages
             return allEntries;
         }
 
+        private static bool IsModSyncEnabled(string modFolderName)
+        {
+            try
+            {
+                var modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
+                
+                if (!Directory.Exists(modLibraryPath))
+                {
+                    return true; // Default to enabled if we can't check
+                }
+
+                // Search through category directories for the mod
+                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                {
+                    var modDir = Path.Combine(categoryDir, modFolderName);
+                    if (Directory.Exists(modDir))
+                    {
+                        var modJsonPath = Path.Combine(modDir, "mod.json");
+                        if (File.Exists(modJsonPath))
+                        {
+                            var jsonContent = File.ReadAllText(modJsonPath);
+                            using var doc = JsonDocument.Parse(jsonContent);
+                            var root = doc.RootElement;
+                            
+                            // Check if StatusKeeper sync is disabled
+                            if (root.TryGetProperty("statusKeeperSync", out var syncProp) && 
+                                syncProp.ValueKind == JsonValueKind.False)
+                            {
+                                return false;
+                            }
+                        }
+                        return true; // Found mod, sync enabled (or not specified = default true)
+                    }
+                }
+                
+                return true; // Mod not found, default to enabled
+            }
+            catch (Exception ex)
+            {
+                LogStatic($"Error checking mod sync status for {modFolderName}: {ex.Message}", "WARN");
+                return true; // Default to enabled on error
+            }
+        }
+
         private static Dictionary<string, List<string>> BuildNamespaceMapping()
         {
-            var namespaceToFiles = new Dictionary<string, List<string>>();
+            var namespaceToFiles = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
             
             try
             {
@@ -602,7 +656,17 @@ namespace FlairX_Mod_Manager.Pages
                         var jsonContent = File.ReadAllText(modJsonPath);
                         using var doc = JsonDocument.Parse(jsonContent);
                         var root = doc.RootElement;
+                        
+                        // Check if StatusKeeper sync is enabled for this mod
+                        if (root.TryGetProperty("statusKeeperSync", out var syncProp) && 
+                            syncProp.ValueKind == JsonValueKind.False)
+                        {
+                            LogStatic($"⏭️ Skipped: {modDirName} (sync disabled by user)");
+                            continue;
+                        }
 
+                        var modFolderName = Path.GetFileName(modDir);
+                        
                         // Check if this mod uses namespace sync method
                         if (root.TryGetProperty("syncMethod", out var syncMethodProp) && 
                             syncMethodProp.GetString() == "namespace")
@@ -610,7 +674,8 @@ namespace FlairX_Mod_Manager.Pages
                             if (root.TryGetProperty("namespaces", out var namespacesProp) && 
                                 namespacesProp.ValueKind == JsonValueKind.Array)
                             {
-                                var modFolderName = Path.GetFileName(modDir);
+                                bool needsUpdate = false;
+                                var updatedNamespaces = new List<(string namespacePath, List<string> iniFiles)>();
                                 
                                 foreach (var namespaceItem in namespacesProp.EnumerateArray())
                                 {
@@ -634,11 +699,56 @@ namespace FlairX_Mod_Manager.Pages
 
                                         if (iniFiles.Count > 0)
                                         {
+                                            // Validate namespace against actual .ini files
+                                            var actualNamespace = ValidateNamespaceInIniFiles(modDir, iniFiles);
+                                            
+                                            if (string.IsNullOrEmpty(actualNamespace))
+                                            {
+                                                // Namespace no longer exists in .ini files - author switched to classic format
+                                                LogStatic($"🔄 Auto-updating {modFolderName}: namespace removed from .ini files - converting to classic format", "INFO");
+                                                ConvertModJsonToClassicSync(modJsonPath);
+                                                needsUpdate = false; // Skip further processing for this mod
+                                                break; // Exit namespace loop
+                                            }
+                                            else if (!actualNamespace.Equals(namespacePath, StringComparison.OrdinalIgnoreCase))
+                                            {
+                                                LogStatic($"⚠️ Namespace mismatch in {modFolderName}: mod.json has '{namespacePath}' but .ini files use '{actualNamespace}' - updating mod.json", "WARN");
+                                                updatedNamespaces.Add((actualNamespace, iniFiles));
+                                                needsUpdate = true;
+                                            }
+                                            else
+                                            {
+                                                updatedNamespaces.Add((namespacePath, iniFiles));
+                                            }
+                                            
                                             namespaceToFiles[namespacePath] = iniFiles;
                                             LogStatic($"  Found namespace: {namespacePath} -> {string.Join(", ", iniFiles)}");
                                         }
                                     }
                                 }
+                                
+                                // Update mod.json if namespace mismatch was detected
+                                if (needsUpdate)
+                                {
+                                    UpdateModJsonNamespaces(modJsonPath, updatedNamespaces);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Mod doesn't have namespace sync method - check if .ini files have namespace declarations
+                            // This handles mods that were updated from classic to namespace format
+                            var (detectedNamespace, iniFilesWithNamespace) = DetectNamespaceInModWithFiles(modDir, modFolderName);
+                            if (!string.IsNullOrEmpty(detectedNamespace) && iniFilesWithNamespace.Count > 0)
+                            {
+                                LogStatic($"� Auteo-updating {modFolderName}: detected namespace '{detectedNamespace}' - converting from classic to namespace sync method", "INFO");
+                                
+                                // Update mod.json to use namespace sync method
+                                ConvertModJsonToNamespaceSync(modJsonPath, detectedNamespace, iniFilesWithNamespace);
+                                
+                                // Add to namespace mapping
+                                namespaceToFiles[detectedNamespace] = iniFilesWithNamespace;
+                                LogStatic($"  ✅ Converted to namespace sync: {detectedNamespace} -> {string.Join(", ", iniFilesWithNamespace)}");
                             }
                         }
                     }
@@ -1171,6 +1281,185 @@ namespace FlairX_Mod_Manager.Pages
         private void StartPeriodicSync()
         {
             StartPeriodicSyncStatic();
+        }
+
+        private static (string? namespaceName, List<string> iniFiles) DetectNamespaceInModWithFiles(string modDir, string modFolderName)
+        {
+            try
+            {
+                string? detectedNamespace = null;
+                var iniFilesWithNamespace = new List<string>();
+                
+                // Scan all .ini files in mod directory for namespace declaration
+                var iniFiles = Directory.GetFiles(modDir, "*.ini", SearchOption.AllDirectories);
+                foreach (var iniPath in iniFiles)
+                {
+                    var content = File.ReadAllText(iniPath, System.Text.Encoding.UTF8);
+                    var match = System.Text.RegularExpressions.Regex.Match(content, @"^\s*namespace\s*=\s*(.+)$", System.Text.RegularExpressions.RegexOptions.Multiline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    if (match.Success)
+                    {
+                        var namespaceName = match.Groups[1].Value.Trim();
+                        
+                        // First namespace found becomes the detected namespace
+                        if (detectedNamespace == null)
+                        {
+                            detectedNamespace = namespaceName;
+                        }
+                        
+                        // Only add files that use the same namespace
+                        if (namespaceName.Equals(detectedNamespace, StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Get relative path from mod directory
+                            var relativePath = Path.GetRelativePath(modDir, iniPath).Replace('\\', '/');
+                            var fullIniPath = Path.Combine(modFolderName, relativePath).Replace('\\', '/');
+                            iniFilesWithNamespace.Add(relativePath);
+                        }
+                    }
+                }
+                
+                return (detectedNamespace, iniFilesWithNamespace);
+            }
+            catch (Exception ex)
+            {
+                LogStatic($"Error detecting namespace in mod: {ex.Message}", "DEBUG");
+                return (null, new List<string>());
+            }
+        }
+        
+        private static void ConvertModJsonToClassicSync(string modJsonPath)
+        {
+            try
+            {
+                var jsonContent = File.ReadAllText(modJsonPath);
+                using var doc = JsonDocument.Parse(jsonContent);
+                var root = doc.RootElement;
+                
+                // Rebuild mod.json without namespace sync method
+                var dict = new Dictionary<string, object?>();
+                foreach (var prop in root.EnumerateObject())
+                {
+                    // Remove namespace-related fields
+                    if (prop.Name == "syncMethod" || prop.Name == "namespaces")
+                        continue;
+                    
+                    dict[prop.Name] = prop.Value.Deserialize<object>();
+                }
+                
+                var newJson = System.Text.Json.JsonSerializer.Serialize(dict, new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
+                File.WriteAllText(modJsonPath, newJson, System.Text.Encoding.UTF8);
+                LogStatic($"✅ Converted mod.json to classic format (removed namespace sync): {modJsonPath}");
+            }
+            catch (Exception ex)
+            {
+                LogStatic($"Error converting mod.json to classic format: {ex.Message}", "ERROR");
+            }
+        }
+        
+        private static void ConvertModJsonToNamespaceSync(string modJsonPath, string namespaceName, List<string> iniFiles)
+        {
+            try
+            {
+                var jsonContent = File.ReadAllText(modJsonPath);
+                using var doc = JsonDocument.Parse(jsonContent);
+                var root = doc.RootElement;
+                
+                // Rebuild mod.json with namespace sync method
+                var dict = new Dictionary<string, object?>();
+                foreach (var prop in root.EnumerateObject())
+                {
+                    // Skip old syncMethod if it exists
+                    if (prop.Name == "syncMethod")
+                        continue;
+                    
+                    dict[prop.Name] = prop.Value.Deserialize<object>();
+                }
+                
+                // Add namespace sync method
+                dict["syncMethod"] = "namespace";
+                dict["namespaces"] = new List<Dictionary<string, object>>
+                {
+                    new Dictionary<string, object>
+                    {
+                        ["namespace"] = namespaceName,
+                        ["iniFiles"] = iniFiles
+                    }
+                };
+                
+                var newJson = System.Text.Json.JsonSerializer.Serialize(dict, new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
+                File.WriteAllText(modJsonPath, newJson, System.Text.Encoding.UTF8);
+                LogStatic($"✅ Converted mod.json to namespace sync method: {modJsonPath}");
+            }
+            catch (Exception ex)
+            {
+                LogStatic($"Error converting mod.json to namespace sync: {ex.Message}", "ERROR");
+            }
+        }
+        
+        private static string? ValidateNamespaceInIniFiles(string modDir, List<string> iniFiles)
+        {
+            try
+            {
+                // Check first .ini file for namespace declaration
+                var firstIniFile = iniFiles.FirstOrDefault();
+                if (string.IsNullOrEmpty(firstIniFile)) return null;
+                
+                var iniPath = Path.Combine(modDir, firstIniFile.Replace('/', '\\'));
+                if (!File.Exists(iniPath)) return null;
+                
+                var content = File.ReadAllText(iniPath, System.Text.Encoding.UTF8);
+                
+                // Look for namespace declaration: namespace = <value>
+                var match = System.Text.RegularExpressions.Regex.Match(content, @"^\s*namespace\s*=\s*(.+)$", System.Text.RegularExpressions.RegexOptions.Multiline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                if (match.Success)
+                {
+                    return match.Groups[1].Value.Trim();
+                }
+                
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LogStatic($"Error validating namespace in .ini files: {ex.Message}", "WARN");
+                return null;
+            }
+        }
+        
+        private static void UpdateModJsonNamespaces(string modJsonPath, List<(string namespacePath, List<string> iniFiles)> namespaces)
+        {
+            try
+            {
+                var jsonContent = File.ReadAllText(modJsonPath);
+                using var doc = JsonDocument.Parse(jsonContent);
+                var root = doc.RootElement;
+                
+                // Rebuild mod.json with updated namespaces
+                var dict = new Dictionary<string, object?>();
+                foreach (var prop in root.EnumerateObject())
+                {
+                    if (prop.Name == "namespaces")
+                    {
+                        // Replace with updated namespaces
+                        var namespacesArray = namespaces.Select(ns => new Dictionary<string, object>
+                        {
+                            ["namespace"] = ns.namespacePath,
+                            ["iniFiles"] = ns.iniFiles
+                        }).ToList();
+                        dict["namespaces"] = namespacesArray;
+                    }
+                    else
+                    {
+                        dict[prop.Name] = prop.Value.Deserialize<object>();
+                    }
+                }
+                
+                var newJson = System.Text.Json.JsonSerializer.Serialize(dict, new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
+                File.WriteAllText(modJsonPath, newJson, System.Text.Encoding.UTF8);
+                LogStatic($"✅ Updated mod.json with corrected namespaces: {modJsonPath}");
+            }
+            catch (Exception ex)
+            {
+                LogStatic($"Error updating mod.json namespaces: {ex.Message}", "ERROR");
+            }
         }
 
         private static Dictionary<string, string>? ExtractConstantsSection(string iniPath)

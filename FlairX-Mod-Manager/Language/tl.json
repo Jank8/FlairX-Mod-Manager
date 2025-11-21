@@ -165,6 +165,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "Keyboard shortcut para sa pag-shuffle ng mga active mod",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "Keyboard shortcut para sa pag-deactivate ng lahat ng mod",
     "ModDetail_NSFW_Label":  "NSFW na Nilalaman",
+    "ModDetail_StatusKeeperSync_Label":  "I-sync ang mga setting mula sa laro",
     "Optimize":  "I-optimize",
     "ToggleSwitch_On":  "Naka-on",
     "ToggleSwitch_Off":  "Naka-off",

@@ -142,7 +142,8 @@
                         <RowDefinition Height="16"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="16"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="16"/>
                         <RowDefinition Height="Auto"/>
@@ -201,12 +202,16 @@
                               Grid.Column="0" 
                               Margin="0,0,0,0"
                               Checked="ModNSFWCheckBox_Checked"
-                              Unchecked="ModNSFWCheckBox_Unchecked">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE7B3;" FontSize="16" Foreground="#CCCC0000"/>
-                            <TextBlock x:Name="ModNSFWLabel" Text="NSFW Content" FontWeight="SemiBold"/>
-                        </StackPanel>
-                    </CheckBox>
+                              Unchecked="ModNSFWCheckBox_Unchecked"
+                              Content="NSFW Content"/>
+                    <!-- StatusKeeper Sync Checkbox -->
+                    <CheckBox x:Name="ModStatusKeeperSyncCheckBox" 
+                              Grid.Row="13" 
+                              Grid.Column="0" 
+                              Margin="0,0,0,0"
+                              Checked="ModStatusKeeperSyncCheckBox_Checked"
+                              Unchecked="ModStatusKeeperSyncCheckBox_Unchecked"
+                              Content="StatusKeeper Sync"/>
                     <!-- Update Available Notification -->
                     <TextBlock x:Name="UpdateAvailableNotification" 
                                Text="" 

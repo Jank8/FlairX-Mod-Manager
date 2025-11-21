@@ -12,21 +12,11 @@ namespace FlairX_Mod_Manager.Pages
     public sealed partial class StatusKeeperLogsPage : Page
     {
         private StatusKeeperSettings _settings = new();
-        private Microsoft.UI.Xaml.DispatcherTimer? _logRefreshTimer;
-        private const int LogRefreshIntervalSeconds = 0; // zmieniamy na 0 sekund
 
         public StatusKeeperLogsPage()
         {
             this.InitializeComponent();
             UpdateTexts();
-            InitLogRefreshTimer();
-        }
-
-        private void InitLogRefreshTimer()
-        {
-            _logRefreshTimer = new Microsoft.UI.Xaml.DispatcherTimer();
-            _logRefreshTimer.Interval = TimeSpan.FromMilliseconds(AppConstants.LOG_REFRESH_INTERVAL_MS);
-            _logRefreshTimer.Tick += (s, e) => RefreshLogContent();
         }
 
         private void UpdateTexts()
@@ -49,50 +39,6 @@ namespace FlairX_Mod_Manager.Pages
             {
                 _settings = settings;
                 LoadSettingsToUI();
-            }
-            RefreshLogContent();
-            _logRefreshTimer?.Start();
-        }
-
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
-        {
-            base.OnNavigatedFrom(e);
-            _logRefreshTimer?.Stop();
-        }
-
-        private void RefreshLogContent()
-        {
-            var logPath = GetLogPath();
-            if (File.Exists(logPath))
-            {
-                try
-                {
-                    string logContent = File.ReadAllText(logPath, System.Text.Encoding.UTF8);
-                    if (!string.IsNullOrWhiteSpace(logContent))
-                    {
-                        // Najnowsze wpisy na g�rze
-                        var lines = logContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                        Array.Reverse(lines);
-                        LogsTextBlock.Text = string.Join("\n", lines);
-                        
-                        // Przewi� na g�r�, aby pokaza� najnowsze wpisy
-                        LogsScrollViewer.ScrollToVerticalOffset(0);
-                    }
-                    else
-                    {
-                        var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                        LogsTextBlock.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Log_Empty");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogsTextBlock.Text = $"Error reading log file: {ex.Message}";
-                }
-            }
-            else
-            {
-                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                LogsTextBlock.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Log_NotFound");
             }
         }
 
@@ -121,7 +67,6 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Debug.WriteLine("File logging disabled - console only");
             }
-            RefreshLogContent();
         }
 
         private async void OpenLogButton_Click(object sender, RoutedEventArgs e)
@@ -188,8 +133,6 @@ namespace FlairX_Mod_Manager.Pages
                         InitFileLogging(logPath);
                         Debug.WriteLine("Log file cleared and reinitialized");
                     }
-                    
-                    RefreshLogContent();
                     
                     var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                     await SharedUtilities.ShowInfoDialog(SharedUtilities.GetTranslation(lang, "StatusKeeper_Success"), SharedUtilities.GetTranslation(lang, "StatusKeeper_LogCleared_Success"), this.XamlRoot);

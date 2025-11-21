@@ -165,6 +165,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "ปุ่มลัดคีย์บอร์ดสำหรับการสลับม็อดที่ใช้งาน",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "ปุ่มลัดคีย์บอร์ดสำหรับการปิดใช้งานม็อดทั้งหมด",
     "ModDetail_NSFW_Label":  "เนื้อหา NSFW",
+    "ModDetail_StatusKeeperSync_Label":  "ซิงค์การตั้งค่าจากเกม",
     "Optimize":  "เพิ่มประสิทธิภาพ",
     "ToggleSwitch_On":  "เปิด",
     "ToggleSwitch_Off":  "ปิด",

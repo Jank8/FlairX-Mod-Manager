@@ -7,21 +7,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <Grid Margin="0">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        
+    <StackPanel Margin="0" Spacing="16">
         <!-- Toggle dla zapisywania loga -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,16">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
             <TextBlock x:Name="LoggingLabel" Text="Zapisywanie loga:" VerticalAlignment="Center" Margin="0,0,8,0" Width="255"/>
             <ToggleSwitch x:Name="LoggingToggle" Width="120" OnContent="" OffContent="" Toggled="LoggingToggle_Toggled" Margin="-40,0,0,0"/>
         </StackPanel>
         
         <!-- Przyciski w jednej linii -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+        <StackPanel Orientation="Horizontal" Spacing="12">
             <Button x:Name="OpenLogButton" Height="32" MinWidth="120" Click="OpenLogButton_Click">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                     <FontIcon Glyph="&#xE8A7;" FontSize="16"/>
@@ -35,25 +29,5 @@
                 </StackPanel>
             </Button>
         </StackPanel>
-        
-        <!-- Responsywny podgląd loga -->
-        <Border Grid.Row="2" 
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                BorderThickness="1" 
-                CornerRadius="8" 
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-            <ScrollViewer x:Name="LogsScrollViewer" 
-                          VerticalScrollBarVisibility="Auto" 
-                          HorizontalScrollBarVisibility="Auto"
-                          ZoomMode="Disabled"
-                          Padding="12">
-                <TextBlock x:Name="LogsTextBlock" 
-                           Text=""
-                           FontFamily="Consolas"
-                           FontSize="12"
-                           TextWrapping="Wrap"
-                           IsTextSelectionEnabled="True"/>
-            </ScrollViewer>
-        </Border>
-    </Grid>
+    </StackPanel>
 </Page>

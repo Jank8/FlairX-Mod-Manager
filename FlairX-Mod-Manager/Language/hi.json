@@ -165,6 +165,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "सक्रिय मॉड को फेरबदल करने के लिए कीबोर्ड शॉर्टकट",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "सभी मॉड को निष्क्रिय करने के लिए कीबोर्ड शॉर्टकट",
     "ModDetail_NSFW_Label":  "NSFW सामग्री",
+    "ModDetail_StatusKeeperSync_Label":  "गेम से सेटिंग्स सिंक करें",
     "Optimize":  "अनुकूलित करें",
     "ToggleSwitch_On":  "चालू",
     "ToggleSwitch_Off":  "बंद",

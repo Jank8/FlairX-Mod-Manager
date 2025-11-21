@@ -165,6 +165,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "Aktif modları karıştırmak için klavye kısayolu",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "Tüm modları devre dışı bırakmak için klavye kısayolu",
     "ModDetail_NSFW_Label":  "NSFW İçerik",
+    "ModDetail_StatusKeeperSync_Label":  "Oyundan ayarları senkronize et",
     "Optimize":  "Optimize Et",
     "ToggleSwitch_On":  "Açık",
     "ToggleSwitch_Off":  "Kapalı",

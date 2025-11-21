@@ -166,6 +166,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "활성 모드 셔플을 위한 키보드 단축키",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "모든 모드 비활성화를 위한 키보드 단축키",
     "ModDetail_NSFW_Label":  "NSFW 콘텐츠",
+    "ModDetail_StatusKeeperSync_Label":  "게임에서 설정 동기화",
     "ToggleSwitch_On":  "켜짐",
     "ToggleSwitch_Off":  "꺼짐",
     "SettingsPage_HideNSFW_Label":  "NSFW 콘텐츠 숨기기",

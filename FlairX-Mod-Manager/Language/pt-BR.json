@@ -166,6 +166,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "Atalho de teclado para embaralhar mods ativos",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "Atalho de teclado para desativar todos os mods",
     "ModDetail_NSFW_Label":  "Conteúdo NSFW",
+    "ModDetail_StatusKeeperSync_Label":  "Sincronizar configurações do jogo",
     "ToggleSwitch_On":  "Ligado",
     "ToggleSwitch_Off":  "Desligado",
     "SettingsPage_HideNSFW_Label":  "Ocultar conteúdo NSFW",

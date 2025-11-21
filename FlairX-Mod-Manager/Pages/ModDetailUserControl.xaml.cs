@@ -71,7 +71,8 @@ namespace FlairX_Mod_Manager.Pages
                 ModHotkeysLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Hotkeys");
                 ModUrlLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_URL");
                 UpdateAvailableNotification.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_UpdateAvailable");
-                ModNSFWLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetail_NSFW_Label");
+                ModNSFWCheckBox.Content = SharedUtilities.GetTranslation(lang, "ModDetail_NSFW_Label");
+                ModStatusKeeperSyncCheckBox.Content = SharedUtilities.GetTranslation(lang, "ModDetail_StatusKeeperSync_Label");
 
                 // Set tooltip for OpenUrlButton
                 ToolTipService.SetToolTip(OpenUrlButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_OpenURL_Tooltip"));
@@ -269,6 +270,10 @@ namespace FlairX_Mod_Manager.Pages
                 bool isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
                 NSFWBadge.Visibility = isNSFW ? Visibility.Visible : Visibility.Collapsed;
                 ModNSFWCheckBox.IsChecked = isNSFW;
+                
+                // Load StatusKeeper sync setting (default true if not present)
+                bool statusKeeperSync = !root.TryGetProperty("statusKeeperSync", out var syncProp) || syncProp.ValueKind != JsonValueKind.False;
+                ModStatusKeeperSyncCheckBox.IsChecked = statusKeeperSync;
                 
                 // Check for available updates
                 CheckForUpdates(root);
@@ -643,6 +648,16 @@ namespace FlairX_Mod_Manager.Pages
             NSFWBadge.Visibility = Visibility.Collapsed;
         }
 
+        private async void ModStatusKeeperSyncCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            await UpdateModJsonFieldBool("statusKeeperSync", true);
+        }
+
+        private async void ModStatusKeeperSyncCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            await UpdateModJsonFieldBool("statusKeeperSync", false);
+        }
+
         private void OpenUrlButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -799,7 +814,7 @@ namespace FlairX_Mod_Manager.Pages
                         dict[field] = value;
                     else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
                         dict[prop.Name] = prop.Value.GetString();
-                    else if (prop.Name == "isNSFW")
+                    else if (prop.Name == "isNSFW" || prop.Name == "statusKeeperSync")
                         dict[prop.Name] = prop.Value.GetBoolean();
                     else
                         dict[prop.Name] = prop.Value.Deserialize<object>();

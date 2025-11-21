@@ -304,7 +304,8 @@ namespace FlairX_Mod_Manager
                         ["version"] = "",
                         ["dateChecked"] = "0000-00-00",
                         ["dateUpdated"] = "0000-00-00",
-                        ["hotkeys"] = new List<object>()
+                        ["hotkeys"] = new List<object>(),
+                        ["statusKeeperSync"] = true
                     };
                     
                     // Add sync method info
@@ -375,6 +376,15 @@ namespace FlairX_Mod_Manager
                                 updatedModPaths.Add(modDir);
                         }
                         
+                        // ONLY add missing statusKeeperSync if it doesn't exist
+                        if (!modData.ContainsKey("statusKeeperSync"))
+                        {
+                            modData["statusKeeperSync"] = true;
+                            needsUpdate = true;
+                            if (!updatedModPaths.Contains(modDir))
+                                updatedModPaths.Add(modDir);
+                        }
+                        
                         // DO NOT add any other missing fields - preserve user data
                     }
                     catch (Exception ex)
@@ -386,7 +396,8 @@ namespace FlairX_Mod_Manager
                             ["author"] = "unknown",
                             ["url"] = "https://",
                             ["hotkeys"] = new List<object>(),
-                            ["syncMethod"] = hasNamespace ? "namespace" : "classic"
+                            ["syncMethod"] = hasNamespace ? "namespace" : "classic",
+                            ["statusKeeperSync"] = true
                         };
                         
                         if (hasNamespace && namespaceMap.Count > 0)

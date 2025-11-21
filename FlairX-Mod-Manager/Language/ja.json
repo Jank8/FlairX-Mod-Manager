@@ -166,6 +166,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "アクティブMod シャッフルのキーボードショートカット",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "全Mod無効化のキーボードショートカット",
     "ModDetail_NSFW_Label":  "NSFWコンテンツ",
+    "ModDetail_StatusKeeperSync_Label":  "ゲームから設定を同期",
     "ToggleSwitch_On":  "オン",
     "ToggleSwitch_Off":  "オフ",
     "SettingsPage_HideNSFW_Label":  "NSFWコンテンツを非表示",

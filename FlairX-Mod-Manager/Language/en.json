@@ -170,6 +170,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "Keyboard shortcut for shuffling active mods",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "Keyboard shortcut for deactivating all mods",
     "ModDetail_NSFW_Label":  "NSFW Content",
+    "ModDetail_StatusKeeperSync_Label":  "Sync settings from game",
     "DragDrop_DropImagesHere":  "Drop images here",
     "DragDrop_LimitReached":  "Limit reached ({0} images max)",
     "DragDrop_Copying":  "Copying {0} image(s)...",

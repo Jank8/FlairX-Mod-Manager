@@ -166,6 +166,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "随机排列活跃模组的键盘快捷键",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "停用所有模组的键盘快捷键",
     "ModDetail_NSFW_Label":  "NSFW内容",
+    "ModDetail_StatusKeeperSync_Label":  "从游戏同步设置",
     "ToggleSwitch_On":  "开启",
     "ToggleSwitch_Off":  "关闭",
     "SettingsPage_HideNSFW_Label":  "隐藏NSFW内容",

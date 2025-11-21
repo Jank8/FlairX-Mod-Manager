@@ -166,6 +166,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "Горячая клавиша для перетасовки активных модов",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "Горячая клавиша для деактивации всех модов",
     "ModDetail_NSFW_Label":  "NSFW контент",
+    "ModDetail_StatusKeeperSync_Label":  "Синхронизировать настройки из игры",
     "ToggleSwitch_On":  "Вкл",
     "ToggleSwitch_Off":  "Выкл",
     "SettingsPage_HideNSFW_Label":  "Скрыть NSFW контент",

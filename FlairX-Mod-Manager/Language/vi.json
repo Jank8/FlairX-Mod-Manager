@@ -165,6 +165,7 @@
     "SettingsPage_ShuffleActiveModsHotkey_Description":  "Phím tắt bàn phím để xáo trộn các mod đang hoạt động",
     "SettingsPage_DeactivateAllModsHotkey_Description":  "Phím tắt bàn phím để vô hiệu hóa tất cả mod",
     "ModDetail_NSFW_Label":  "Nội dung NSFW",
+    "ModDetail_StatusKeeperSync_Label":  "Đồng bộ cài đặt từ trò chơi",
     "Optimize":  "Tối ưu hóa",
     "ToggleSwitch_On":  "Bật",
     "ToggleSwitch_Off":  "Tắt",
