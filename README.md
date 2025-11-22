@@ -85,9 +85,32 @@ Modern mod manager for miHoYo games built with **WinUI 3** and **.NET 10**. Hand
 4. First image becomes the mod thumbnail
 
 **Manual Method:**
-1. Place images in mod folder as `preview.jpg`, `preview-01.jpg`, etc.
+1. Place images in mod folder with these naming patterns:
+   - `preview.jpg` - Main thumbnail (required)
+   - `preview-01.jpg` to `preview-99.jpg` - Additional images
+   - Alternative: `preview.png`, `preview-01.png`, etc.
 2. Click "Optimize Previews" in Settings
 3. Images are resized to 1000×1000 and cropped to square
+
+**Preview Image Requirements:**
+- **Location:** Place in mod root folder (same level as mod.json)
+- **Naming:** `preview.jpg` or `preview.png` for main image
+- **Numbering:** `preview-01.jpg`, `preview-02.jpg`, etc. for additional images
+- **Format:** JPG or PNG (automatically converted to JPG during optimization)
+- **Limit:** Up to 100 images per mod
+- **Optimization:** Automatically resizes to 1000×1000px, crops to square, saves as high-quality JPG
+- **Mini-tiles:** Automatically generates small thumbnails for fast grid loading
+
+**Example Mod Structure:**
+```
+📁 XXMI/GIMI/Mods/Characters/Ayaka/
+├── 📄 mod.json
+├── 📄 preview.jpg          # Main thumbnail (shows in grid)
+├── 📄 preview-01.jpg       # Additional image 1
+├── 📄 preview-02.jpg       # Additional image 2
+├── 📄 preview-03.jpg       # Additional image 3
+└── 📁 [mod files...]
+```
 
 ### Directory Structure
 
