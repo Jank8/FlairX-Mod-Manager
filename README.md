@@ -92,7 +92,7 @@ Modern mod manager for miHoYo games built with **WinUI 3** and **.NET 10**. Hand
 ### Directory Structure
 
 ```
-📁 FlairX Mod Manager/
+📁 app/
 ├── 📁 XXMI/
 │   ├── 📁 ZZMI/Mods/          # Zenless Zone Zero
 │   ├── 📁 GIMI/Mods/          # Genshin Impact
