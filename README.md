@@ -136,7 +136,7 @@ Output: `FlairX-Mod-Manager Launcher\bin\Release\net10.0\win-x64\publish\FlairX 
 - Microsoft.WindowsAppSDK (1.8.251106002)
 - CommunityToolkit.WinUI (8.2.x)
 - Microsoft.Graphics.Win2D (1.3.2)
-- SharpCompress (0.41.0)
+- SharpSevenZip (2.0.33) + 7z.dll
 - ReverseMarkdown (4.7.1)
 - NLua (1.7.5)
 

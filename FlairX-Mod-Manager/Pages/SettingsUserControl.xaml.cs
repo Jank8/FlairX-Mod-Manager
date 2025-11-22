@@ -2178,7 +2178,8 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var updateDialog = new FlairX_Mod_Manager.Dialogs.ManagerUpdateDialog(
                     result.Value.latestVersion,
-                    result.Value.downloadUrl
+                    result.Value.downloadUrl,
+                    result.Value.changelog
                 );
                 updateDialog.XamlRoot = this.XamlRoot;
                 await updateDialog.ShowAsync();
@@ -2288,6 +2289,11 @@ namespace FlairX_Mod_Manager.Pages
             stackPanel.Children.Add(aiPanel);
             stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Fonts"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
             stackPanel.Children.Add(new HyperlinkButton { Content = "Noto Fonts", NavigateUri = new Uri("https://notofonts.github.io/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) });
+            
+            // 7-Zip section
+            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Compression"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
+            stackPanel.Children.Add(new HyperlinkButton { Content = "7-Zip", NavigateUri = new Uri("https://www.7-zip.org/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) });
+            
             stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Thanks"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
             var thanksPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
             thanksPanel.Children.Add(new StackPanel {

@@ -12,7 +12,7 @@ namespace FlairX_Mod_Manager.Dialogs
         private string _downloadUrl;
         private string _latestVersion;
 
-        public ManagerUpdateDialog(string latestVersion, string downloadUrl)
+        public ManagerUpdateDialog(string latestVersion, string downloadUrl, string changelog = "")
         {
             _latestVersion = latestVersion;
             _downloadUrl = downloadUrl;
@@ -33,6 +33,28 @@ namespace FlairX_Mod_Manager.Dialogs
                 Margin = new Thickness(0, 0, 0, 8)
             };
             stackPanel.Children.Add(infoText);
+
+            // Add changelog if available
+            if (!string.IsNullOrWhiteSpace(changelog))
+            {
+                var changelogLabel = new TextBlock
+                {
+                    Text = "What's New:",
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Margin = new Thickness(0, 8, 0, 4)
+                };
+                stackPanel.Children.Add(changelogLabel);
+
+                var changelogText = new TextBlock
+                {
+                    Text = changelog,
+                    TextWrapping = TextWrapping.Wrap,
+                    FontSize = 12,
+                    Opacity = 0.8,
+                    Margin = new Thickness(0, 0, 0, 8)
+                };
+                stackPanel.Children.Add(changelogText);
+            }
 
             _statusText = new TextBlock
             {

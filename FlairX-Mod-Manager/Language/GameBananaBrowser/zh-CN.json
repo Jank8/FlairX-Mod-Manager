@@ -58,5 +58,12 @@
     "ConnectionErrorTitle":  "连接错误",
     "ConnectionErrorMessage":  "无法连接到GameBanana。请检查您的网络连接或稍后重试。",
     "Retry":  "重试",
-    "ViewCategory":  "查看类别"
+    "ViewCategory":  "查看类别",
+    "Mod":  "模组",
+    "CheckingForUpdates":  "正在检查可用更新...",
+    "Loading":  "加载中...",
+    "AvailableFiles":  "可用文件:",
+    "FoundFilesSelectToDownload":  "找到{0}个文件。选择要下载的文件。",
+    "FailedToLoadFiles":  "加载文件失败。请重试。",
+    "XXMIModsDirectoryNotFound":  "未找到XXMI模组目录"
 }

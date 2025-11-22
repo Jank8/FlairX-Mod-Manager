@@ -10,9 +10,6 @@ using System.Threading.Tasks;
 using FlairX_Mod_Manager.Services;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
-using SharpCompress.Archives;
-using SharpCompress.Common;
-using SharpCompress.Readers;
 
 namespace FlairX_Mod_Manager.Dialogs
 {
@@ -48,6 +45,7 @@ namespace FlairX_Mod_Manager.Dialogs
         private Grid? _updateOptionsGrid;
         private System.Collections.Generic.Dictionary<string, string> _lang = new();
         private bool _isNSFW = false;
+        private string? _version;
 
         public GameBananaFileExtractionDialog(
             List<Models.GameBananaFileViewModel> selectedFiles,
@@ -59,7 +57,8 @@ namespace FlairX_Mod_Manager.Dialogs
             long dateUpdatedTimestamp = 0,
             string? categoryName = null,
             GameBananaService.PreviewMedia? previewMedia = null,
-            bool isNSFW = false)
+            bool isNSFW = false,
+            string? version = null)
         {
             _selectedFiles = selectedFiles;
             _modName = modName;
@@ -70,6 +69,7 @@ namespace FlairX_Mod_Manager.Dialogs
             _dateUpdatedTimestamp = dateUpdatedTimestamp;
             _previewMedia = previewMedia;
             _isNSFW = isNSFW;
+            _version = version;
 
             // Load language
             _lang = SharedUtilities.LoadLanguageDictionary("GameBananaBrowser");
@@ -503,89 +503,67 @@ namespace FlairX_Mod_Manager.Dialogs
                     CleanModFolder(modPath);
                 }
 
-                // Extract all files with directory structure using SharpCompress
+                // Extract all files with directory structure using SharpSevenZip
                 _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractExtractingFiles");
                 
-                // Use ReaderOptions to preserve encoding
-                var readerOptions = new ReaderOptions
-                {
-                    ArchiveEncoding = new ArchiveEncoding
-                    {
-                        Default = System.Text.Encoding.UTF8
-                    }
-                };
+                // Extract to temp directory first to handle root folder skipping
+                var tempExtractPath = Path.Combine(Path.GetTempPath(), $"fxmm_extract_{Guid.NewGuid()}");
+                Directory.CreateDirectory(tempExtractPath);
                 
-                using (var archive = ArchiveFactory.Open(_downloadedArchivePath!, readerOptions))
+                try
                 {
-                    var entries = archive.Entries.Where(e => !e.IsDirectory).ToList();
-                    int current = 0;
-                    int total = entries.Count;
+                    // Extract with progress
+                    var progress = new Progress<int>(percent =>
+                    {
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            _extractProgressBar.IsIndeterminate = false;
+                            _extractProgressBar.Value = percent;
+                            _extractStatusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "ExtractingProgress"), percent, 100);
+                        });
+                    });
+                    
+                    ArchiveHelper.ExtractToDirectory(_downloadedArchivePath!, tempExtractPath, progress);
                     
                     // Check if all files are in a single root folder
-                    string? commonRootFolder = null;
-                    bool hasSingleRootFolder = true;
+                    var topLevelItems = Directory.GetFileSystemEntries(tempExtractPath);
+                    string sourceDir = tempExtractPath;
                     
-                    foreach (var entry in entries)
+                    if (topLevelItems.Length == 1 && Directory.Exists(topLevelItems[0]))
                     {
-                        if (string.IsNullOrEmpty(entry.Key)) continue;
-                        
-                        var parts = entry.Key.Split('/', '\\');
-                        if (parts.Length > 1)
-                        {
-                            var rootFolder = parts[0];
-                            if (commonRootFolder == null)
-                            {
-                                commonRootFolder = rootFolder;
-                            }
-                            else if (commonRootFolder != rootFolder)
-                            {
-                                hasSingleRootFolder = false;
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            // File in root, no single folder
-                            hasSingleRootFolder = false;
-                            break;
-                        }
+                        // All files are in a single root folder, skip it
+                        sourceDir = topLevelItems[0];
+                        Logger.LogInfo($"Skipping root folder: {Path.GetFileName(sourceDir)}");
                     }
                     
-                    // If all files are in a single root folder, skip it
-                    int skipLevels = (hasSingleRootFolder && !string.IsNullOrEmpty(commonRootFolder)) ? 1 : 0;
-                    
-                    foreach (var entry in entries)
+                    // Move files to final destination
+                    foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
                     {
-                        if (string.IsNullOrEmpty(entry.Key)) continue;
-                        
-                        // Get relative path and skip root folder if needed
-                        var pathParts = entry.Key.Split('/', '\\').ToList();
-                        if (skipLevels > 0 && pathParts.Count > skipLevels)
-                        {
-                            pathParts.RemoveRange(0, skipLevels);
-                        }
-                        
-                        var relativePath = string.Join(Path.DirectorySeparatorChar.ToString(), pathParts);
+                        var relativePath = Path.GetRelativePath(sourceDir, file);
                         var destPath = Path.Combine(modPath, relativePath);
                         
-                        // Create directory if needed
                         var destDir = Path.GetDirectoryName(destPath);
                         if (!string.IsNullOrEmpty(destDir))
                         {
                             Directory.CreateDirectory(destDir);
                         }
                         
-                        // Extract file
-                        using (var entryStream = entry.OpenEntryStream())
-                        using (var fileStream = File.Create(destPath))
+                        File.Move(file, destPath, true);
+                    }
+                }
+                finally
+                {
+                    // Cleanup temp directory
+                    try
+                    {
+                        if (Directory.Exists(tempExtractPath))
                         {
-                            entryStream.CopyTo(fileStream);
+                            Directory.Delete(tempExtractPath, true);
                         }
-                        
-                        current++;
-                        _extractProgressBar.IsIndeterminate = false;
-                        _extractProgressBar.Value = (double)current / total * 100;
-                        _extractStatusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "ExtractingProgress"), current, total);
+                    }
+                    catch (Exception cleanupEx)
+                    {
+                        Logger.LogWarning($"Failed to cleanup temp extraction directory: {cleanupEx.Message}");
                     }
                 }
 
@@ -629,14 +607,6 @@ namespace FlairX_Mod_Manager.Dialogs
                 int totalFiles = downloadedFiles.Count(f => IsArchiveFile(f.fileName));
                 int currentFile = 0;
 
-                var readerOptions = new ReaderOptions
-                {
-                    ArchiveEncoding = new ArchiveEncoding
-                    {
-                        Default = System.Text.Encoding.UTF8
-                    }
-                };
-
                 foreach (var (filePath, fileName) in downloadedFiles)
                 {
                     if (!IsArchiveFile(fileName))
@@ -653,71 +623,55 @@ namespace FlairX_Mod_Manager.Dialogs
                     // Create subfolder for this archive (without extension)
                     var archiveNameWithoutExt = Path.GetFileNameWithoutExtension(fileName);
                     var archiveSubfolder = Path.Combine(modPath, SanitizeFileName(archiveNameWithoutExt));
-                    Directory.CreateDirectory(archiveSubfolder);
-
-                    using (var archive = ArchiveFactory.Open(filePath, readerOptions))
+                    
+                    // Extract to temp directory first to handle root folder skipping
+                    var tempExtractPath = Path.Combine(Path.GetTempPath(), $"fxmm_multi_{Guid.NewGuid()}");
+                    Directory.CreateDirectory(tempExtractPath);
+                    
+                    try
                     {
-                        var entries = archive.Entries.Where(e => !e.IsDirectory).ToList();
+                        ArchiveHelper.ExtractToDirectory(filePath, tempExtractPath);
                         
                         // Check if all files are in a single root folder
-                        string? commonRootFolder = null;
-                        bool hasSingleRootFolder = true;
-
-                        foreach (var entry in entries)
+                        var topLevelItems = Directory.GetFileSystemEntries(tempExtractPath);
+                        string sourceDir = tempExtractPath;
+                        
+                        if (topLevelItems.Length == 1 && Directory.Exists(topLevelItems[0]))
                         {
-                            if (string.IsNullOrEmpty(entry.Key)) continue;
-
-                            var parts = entry.Key.Split('/', '\\');
-                            if (parts.Length > 1)
-                            {
-                                var rootFolder = parts[0];
-                                if (commonRootFolder == null)
-                                {
-                                    commonRootFolder = rootFolder;
-                                }
-                                else if (commonRootFolder != rootFolder)
-                                {
-                                    hasSingleRootFolder = false;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                hasSingleRootFolder = false;
-                                break;
-                            }
+                            // All files are in a single root folder, skip it
+                            sourceDir = topLevelItems[0];
+                            Logger.LogInfo($"Skipping root folder: {Path.GetFileName(sourceDir)}");
                         }
-
-                        // If all files are in a single root folder, skip it
-                        int skipLevels = (hasSingleRootFolder && !string.IsNullOrEmpty(commonRootFolder)) ? 1 : 0;
-
-                        foreach (var entry in entries)
+                        
+                        // Move files to final destination
+                        Directory.CreateDirectory(archiveSubfolder);
+                        foreach (var file in Directory.GetFiles(sourceDir, "*", SearchOption.AllDirectories))
                         {
-                            if (string.IsNullOrEmpty(entry.Key)) continue;
-
-                            // Get relative path and skip root folder if needed
-                            var pathParts = entry.Key.Split('/', '\\').ToList();
-                            if (skipLevels > 0 && pathParts.Count > skipLevels)
-                            {
-                                pathParts.RemoveRange(0, skipLevels);
-                            }
-
-                            var relativePath = string.Join(Path.DirectorySeparatorChar.ToString(), pathParts);
+                            var relativePath = Path.GetRelativePath(sourceDir, file);
                             var destPath = Path.Combine(archiveSubfolder, relativePath);
-
-                            // Create directory if needed
+                            
                             var destDir = Path.GetDirectoryName(destPath);
                             if (!string.IsNullOrEmpty(destDir))
                             {
                                 Directory.CreateDirectory(destDir);
                             }
-
-                            // Extract file
-                            using (var entryStream = entry.OpenEntryStream())
-                            using (var fileStream = File.Create(destPath))
+                            
+                            File.Move(file, destPath, true);
+                        }
+                    }
+                    finally
+                    {
+                        // Cleanup temp directory
+                        try
+                        {
+                            if (Directory.Exists(tempExtractPath))
                             {
-                                entryStream.CopyTo(fileStream);
+                                Directory.Delete(tempExtractPath, true);
                             }
+                        }
+                        catch (Exception cleanupEx)
+                        {
+                            Logger.LogWarning($"Failed to cleanup temp extraction directory: {cleanupEx.Message}");
                         }
                     }
                 }
@@ -778,19 +732,8 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             var modJsonPath = Path.Combine(modPath, "mod.json");
             
-            // Try to fetch version from GameBanana API
-            string version = "";
-            if (_modId > 0 && !string.IsNullOrEmpty(_modProfileUrl))
-            {
-                try
-                {
-                    version = await FetchVersionFromGameBanana(_modProfileUrl);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError($"Failed to fetch version for mod {_modName}", ex);
-                }
-            }
+            // Use version from API (_sVersion)
+            string version = _version ?? "";
             
             // Convert timestamp to date string
             string dateUpdated = "0000-00-00";
@@ -1052,20 +995,20 @@ namespace FlairX_Mod_Manager.Dialogs
                 } while (File.Exists(backupPath));
 
                 // Create backup without compression (store only)
-                using (var archive = System.IO.Compression.ZipFile.Open(backupPath, System.IO.Compression.ZipArchiveMode.Create))
-                {
-                    var files = Directory.GetFiles(modPath, "*", SearchOption.AllDirectories)
-                        .Where(f => !f.Contains("fxmm-backup")); // Skip existing backups
+                var files = Directory.GetFiles(modPath, "*", SearchOption.AllDirectories)
+                    .Where(f => !f.Contains("fxmm-backup")) // Skip existing backups
+                    .ToList();
 
-                    foreach (var file in files)
-                    {
-                        var relativePath = Path.GetRelativePath(modPath, file);
-                        var entry = archive.CreateEntry(relativePath, System.IO.Compression.CompressionLevel.NoCompression);
-                        
-                        using var fileStream = File.OpenRead(file);
-                        using var entryStream = entry.Open();
-                        await fileStream.CopyToAsync(entryStream);
-                    }
+                var filesToBackup = new Dictionary<string, string>();
+                foreach (var file in files)
+                {
+                    var relativePath = Path.GetRelativePath(modPath, file);
+                    filesToBackup[relativePath] = file;
+                }
+
+                if (filesToBackup.Count > 0)
+                {
+                    ArchiveHelper.CreateArchiveFromFiles(backupPath, filesToBackup);
                 }
 
                 Logger.LogInfo($"Created backup: {backupPath}");

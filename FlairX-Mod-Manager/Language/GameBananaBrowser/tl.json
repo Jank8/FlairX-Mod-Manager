@@ -58,5 +58,12 @@
     "ConnectionErrorTitle":  "Error sa koneksyon",
     "ConnectionErrorMessage":  "Hindi makakonekta sa GameBanana. Pakisuri ang iyong koneksyon sa internet o subukan muli mamaya.",
     "Retry":  "Subukan muli",
-    "ViewCategory":  "Tingnan ang kategorya"
+    "ViewCategory":  "Tingnan ang kategorya",
+    "Mod":  "Mod",
+    "CheckingForUpdates":  "Sinusuri ang mga available na update...",
+    "Loading":  "Naglo-load...",
+    "AvailableFiles":  "Mga available na file:",
+    "FoundFilesSelectToDownload":  "Nakahanap ng {0} file. Pumili ng mga file para i-download.",
+    "FailedToLoadFiles":  "Nabigong mag-load ng mga file. Pakisubukan muli.",
+    "XXMIModsDirectoryNotFound":  "Hindi nahanap ang XXMI Mods directory"
 }

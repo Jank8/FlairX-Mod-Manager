@@ -58,5 +58,12 @@
     "ConnectionErrorTitle":  "Bağlantı hatası",
     "ConnectionErrorMessage":  "GameBanana\u0027ya bağlanılamıyor. İnternet bağlantınızı kontrol edin veya daha sonra tekrar deneyin.",
     "Retry":  "Tekrar dene",
-    "ViewCategory":  "Kategoriyi görüntüle"
+    "ViewCategory":  "Kategoriyi görüntüle",
+    "Mod":  "Mod",
+    "CheckingForUpdates":  "Mevcut güncellemeler kontrol ediliyor...",
+    "Loading":  "Yükleniyor...",
+    "AvailableFiles":  "Mevcut dosyalar:",
+    "FoundFilesSelectToDownload":  "{0} dosya bulundu. İndirmek için dosyaları seçin.",
+    "FailedToLoadFiles":  "Dosyalar yüklenemedi. Lütfen tekrar deneyin.",
+    "XXMIModsDirectoryNotFound":  "XXMI Modları dizini bulunamadı"
 }

@@ -2,7 +2,6 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -103,20 +102,22 @@ namespace FlairX_Mod_Manager.Pages
                     if (File.Exists(catBackup1)) File.Move(catBackup1, catBackup2);
                     
                     // Create new category backup
-                    using (var zipArchive = ZipFile.Open(catBackup1, ZipArchiveMode.Create))
+                    var filesToBackup = new Dictionary<string, string>();
+                    if (hasCatprev)
                     {
-                        // Backup category preview files (catprev.jpg and catmini.jpg)
-                        if (hasCatprev)
-                        {
-                            zipArchive.CreateEntryFromFile(catprevPath, "catprev.jpg");
-                            Logger.LogInfo($"Added catprev.jpg to backup for category: {categoryName}");
-                        }
-                        
-                        if (hasCatmini)
-                        {
-                            zipArchive.CreateEntryFromFile(catminiPath, "catmini.jpg");
-                            Logger.LogInfo($"Added catmini.jpg to backup for category: {categoryName}");
-                        }
+                        filesToBackup["catprev.jpg"] = catprevPath;
+                        Logger.LogInfo($"Added catprev.jpg to backup for category: {categoryName}");
+                    }
+                    
+                    if (hasCatmini)
+                    {
+                        filesToBackup["catmini.jpg"] = catminiPath;
+                        Logger.LogInfo($"Added catmini.jpg to backup for category: {categoryName}");
+                    }
+                    
+                    if (filesToBackup.Count > 0)
+                    {
+                        ArchiveHelper.CreateArchiveFromFiles(catBackup1, filesToBackup);
                     }
                     
                     Logger.LogInfo($"Created category backup for: {categoryName}");
@@ -171,33 +172,34 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     
                     // Create new backup1
-                    using (var zipArchive = ZipFile.Open(backup1, ZipArchiveMode.Create))
+                    var filesToBackup = new Dictionary<string, string>
                     {
-                        // Always add mod.json
-                        zipArchive.CreateEntryFromFile(modJson, "mod.json");
-                        
-                        // Add minitile.jpg
-                        var minitilePath = Path.Combine(dir, "minitile.jpg");
-                        if (File.Exists(minitilePath))
-                        {
-                            zipArchive.CreateEntryFromFile(minitilePath, "minitile.jpg");
-                        }
-                        
-                        // Add all preview images (preview.jpg, preview-01.jpg, preview-02.jpg, etc.)
-                        var previewFiles = Directory.GetFiles(dir, "preview*.jpg")
-                            .Concat(Directory.GetFiles(dir, "preview*.jpeg"))
-                            .Concat(Directory.GetFiles(dir, "preview*.png"))
-                            .ToList();
-                        
-                        Logger.LogInfo($"Found {previewFiles.Count} preview files for mod: {modName}");
-                        
-                        foreach (var previewFile in previewFiles)
-                        {
-                            var fileName = Path.GetFileName(previewFile);
-                            zipArchive.CreateEntryFromFile(previewFile, fileName);
-                            Logger.LogInfo($"Added {fileName} to backup for mod: {modName}");
-                        }
+                        ["mod.json"] = modJson
+                    };
+                    
+                    // Add minitile.jpg
+                    var minitilePath = Path.Combine(dir, "minitile.jpg");
+                    if (File.Exists(minitilePath))
+                    {
+                        filesToBackup["minitile.jpg"] = minitilePath;
                     }
+                    
+                    // Add all preview images (preview.jpg, preview-01.jpg, preview-02.jpg, etc.)
+                    var previewFiles = Directory.GetFiles(dir, "preview*.jpg")
+                        .Concat(Directory.GetFiles(dir, "preview*.jpeg"))
+                        .Concat(Directory.GetFiles(dir, "preview*.png"))
+                        .ToList();
+                    
+                    Logger.LogInfo($"Found {previewFiles.Count} preview files for mod: {modName}");
+                    
+                    foreach (var previewFile in previewFiles)
+                    {
+                        var fileName = Path.GetFileName(previewFile);
+                        filesToBackup[fileName] = previewFile;
+                        Logger.LogInfo($"Added {fileName} to backup for mod: {modName}");
+                    }
+                    
+                    ArchiveHelper.CreateArchiveFromFiles(backup1, filesToBackup);
                     count++;
                     Logger.LogInfo($"Created backup for mod: {modName}");
                 }
@@ -318,18 +320,7 @@ namespace FlairX_Mod_Manager.Pages
                     
                     try
                     {
-                        using (var archive = ZipFile.OpenRead(catBackupZip))
-                        {
-                            foreach (var entry in archive.Entries)
-                            {
-                                if (!string.IsNullOrEmpty(entry.Name))
-                                {
-                                    var extractPath = Path.Combine(categoryDir, entry.Name);
-                                    entry.ExtractToFile(extractPath, true);
-                                    Logger.LogInfo($"Restored {entry.Name} for category: {categoryName}");
-                                }
-                            }
-                        }
+                        ArchiveHelper.ExtractToDirectory(catBackupZip, categoryDir);
                         Logger.LogInfo($"Restored category backup {backupNum} for: {categoryName}");
                     }
                     catch (Exception ex)
@@ -362,32 +353,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 try
                 {
-                    using (var archive = ZipFile.OpenRead(backupZip))
-                    {
-                        // Extract all entries from the backup
-                        foreach (var entry in archive.Entries)
-                        {
-                            if (!string.IsNullOrEmpty(entry.Name))
-                            {
-                                var extractPath = Path.Combine(dir, entry.Name);
-                                try
-                                {
-                                    // Ensure directory exists
-                                    var extractDir = Path.GetDirectoryName(extractPath);
-                                    if (!string.IsNullOrEmpty(extractDir) && !Directory.Exists(extractDir))
-                                    {
-                                        Directory.CreateDirectory(extractDir);
-                                    }
-                                    
-                                    entry.ExtractToFile(extractPath, true);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.LogError($"Failed to extract {entry.Name} for mod {modName}", ex);
-                                }
-                            }
-                        }
-                    }
+                    ArchiveHelper.ExtractToDirectory(backupZip, dir);
                     count++;
                     Logger.LogInfo($"Restored backup {backupNum} for mod: {modName}");
                 }

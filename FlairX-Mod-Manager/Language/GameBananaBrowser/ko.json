@@ -58,5 +58,12 @@
     "ConnectionErrorTitle":  "연결 오류",
     "ConnectionErrorMessage":  "GameBanana에 연결할 수 없습니다. 인터넷 연결을 확인하거나 나중에 다시 시도하세요.",
     "Retry":  "재시도",
-    "ViewCategory":  "카테고리 보기"
+    "ViewCategory":  "카테고리 보기",
+    "Mod":  "모드",
+    "CheckingForUpdates":  "사용 가능한 업데이트 확인 중...",
+    "Loading":  "로딩 중...",
+    "AvailableFiles":  "사용 가능한 파일:",
+    "FoundFilesSelectToDownload":  "{0}개의 파일을 찾았습니다. 다운로드할 파일을 선택하세요.",
+    "FailedToLoadFiles":  "파일을 불러오지 못했습니다. 다시 시도해주세요.",
+    "XXMIModsDirectoryNotFound":  "XXMI 모드 디렉토리를 찾을 수 없습니다"
 }

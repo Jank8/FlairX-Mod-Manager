@@ -58,5 +58,12 @@
     "ConnectionErrorTitle":  "Błąd połączenia",
     "ConnectionErrorMessage":  "Nie można połączyć się z GameBanana. Sprawdź połączenie internetowe lub spróbuj ponownie później.",
     "Retry":  "Ponów",
-    "ViewCategory":  "Zobacz kategorię"
+    "ViewCategory":  "Zobacz kategorię",
+    "Mod":  "Mod",
+    "CheckingForUpdates":  "Sprawdzanie dostępnych aktualizacji...",
+    "Loading":  "Ładowanie...",
+    "AvailableFiles":  "Dostępne pliki:",
+    "FoundFilesSelectToDownload":  "Znaleziono {0} plik(ów). Wybierz pliki do pobrania.",
+    "FailedToLoadFiles":  "Nie udało się załadować plików. Spróbuj ponownie.",
+    "XXMIModsDirectoryNotFound":  "Nie znaleziono katalogu XXMI Mods"
 }

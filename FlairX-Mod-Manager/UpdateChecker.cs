@@ -5,8 +5,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
-using SharpCompress.Archives;
-using SharpCompress.Common;
 
 namespace FlairX_Mod_Manager
 {
@@ -26,7 +24,7 @@ namespace FlairX_Mod_Manager
             _httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
         }
 
-        public static async Task<(bool updateAvailable, string latestVersion, string downloadUrl)?> CheckForUpdatesAsync()
+        public static async Task<(bool updateAvailable, string latestVersion, string downloadUrl, string changelog)?> CheckForUpdatesAsync()
         {
             Logger.LogInfo("=== UPDATE CHECK STARTED ===");
             try
@@ -60,6 +58,14 @@ namespace FlairX_Mod_Manager
                 }
                 Logger.LogInfo($"Extracted version: {latestVersion}");
                 
+                // Get changelog from body
+                string changelog = "";
+                if (root.TryGetProperty("body", out var bodyElement))
+                {
+                    changelog = bodyElement.GetString() ?? "";
+                    Logger.LogInfo($"Changelog length: {changelog.Length} characters");
+                }
+                
                 // Get download URL for .zip asset
                 string? downloadUrl = null;
                 if (root.TryGetProperty("assets", out var assets))
@@ -92,7 +98,7 @@ namespace FlairX_Mod_Manager
                 var updateAvailable = IsNewerVersion(AppConstants.APP_VERSION, latestVersion);
                 Logger.LogInfo($"Current version: {AppConstants.APP_VERSION}, Latest version: {latestVersion}, Update available: {updateAvailable}");
                 
-                return (updateAvailable, latestVersion, downloadUrl);
+                return (updateAvailable, latestVersion, downloadUrl, changelog);
             }
             catch (HttpRequestException ex)
             {
@@ -204,98 +210,30 @@ namespace FlairX_Mod_Manager
                 
                 Logger.LogInfo("Download completed, extracting update...");
                 
-                // Extract to temp directory using SharpCompress
+                // Extract to temp directory using SharpSevenZip
                 var extractPath = Path.Combine(tempDir, "extracted");
                 Directory.CreateDirectory(extractPath);
                 
                 try
                 {
-                    Logger.LogInfo($"Opening archive: {archivePath}");
-                    using (var archive = ArchiveFactory.Open(archivePath))
+                    Logger.LogInfo($"Extracting archive: {archivePath}");
+                    ArchiveHelper.ExtractToDirectory(archivePath, extractPath);
+                    
+                    // Check if all files are in a single root folder and skip it
+                    var topLevelItems = Directory.GetFileSystemEntries(extractPath);
+                    if (topLevelItems.Length == 1 && Directory.Exists(topLevelItems[0]))
                     {
-                        Logger.LogInfo("Archive opened, reading entries...");
-                        var entries = archive.Entries.Where(e => !e.IsDirectory).ToList();
-                        Logger.LogInfo($"Found {entries.Count} files in archive");
+                        var rootFolder = topLevelItems[0];
+                        Logger.LogInfo($"Skipping root folder: {Path.GetFileName(rootFolder)}");
                         
-                        // Check if all files are in a single root folder
-                        string? commonRootFolder = null;
-                        bool hasSingleRootFolder = true;
-                        
-                        foreach (var entry in entries)
-                        {
-                            if (string.IsNullOrEmpty(entry.Key)) continue;
-                            
-                            var parts = entry.Key.Split('/', '\\');
-                            if (parts.Length > 1)
-                            {
-                                var rootFolder = parts[0];
-                                if (commonRootFolder == null)
-                                {
-                                    commonRootFolder = rootFolder;
-                                }
-                                else if (commonRootFolder != rootFolder)
-                                {
-                                    hasSingleRootFolder = false;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                hasSingleRootFolder = false;
-                                break;
-                            }
-                        }
-                        
-                        Logger.LogInfo($"Archive structure: hasSingleRootFolder={hasSingleRootFolder}, rootFolder={commonRootFolder}");
-                        
-                        // Extract files, skipping root folder if needed
-                        int extractedCount = 0;
-                        foreach (var entry in entries)
-                        {
-                            try
-                            {
-                                if (string.IsNullOrEmpty(entry.Key)) continue;
-                                
-                                var pathParts = entry.Key.Split('/', '\\').ToList();
-                                
-                                // Skip root folder if all files are in one folder
-                                if (hasSingleRootFolder && !string.IsNullOrEmpty(commonRootFolder) && pathParts.Count > 1)
-                                {
-                                    pathParts.RemoveAt(0);
-                                }
-                                
-                                var relativePath = string.Join(Path.DirectorySeparatorChar.ToString(), pathParts);
-                                var destPath = Path.Combine(extractPath, relativePath);
-                                
-                                Logger.LogInfo($"Extracting: {entry.Key} -> {relativePath}");
-                                
-                                var destDir = Path.GetDirectoryName(destPath);
-                                if (!string.IsNullOrEmpty(destDir))
-                                {
-                                    Directory.CreateDirectory(destDir);
-                                }
-                                
-                                using (var entryStream = entry.OpenEntryStream())
-                                using (var fileStream = File.Create(destPath))
-                                {
-                                    entryStream.CopyTo(fileStream);
-                                }
-                                
-                                extractedCount++;
-                                if (extractedCount % 10 == 0)
-                                {
-                                    Logger.LogInfo($"Extracted {extractedCount}/{entries.Count} files...");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.LogError($"Failed to extract {entry.Key}", ex);
-                                throw;
-                            }
-                        }
-                        
-                        Logger.LogInfo($"Extraction completed: {extractedCount} files");
+                        // Move all files from root folder to extract path
+                        var tempMoveDir = Path.Combine(tempDir, "temp_move");
+                        Directory.Move(rootFolder, tempMoveDir);
+                        Directory.Delete(extractPath);
+                        Directory.Move(tempMoveDir, extractPath);
                     }
+                    
+                    Logger.LogInfo($"Extraction completed");
                 }
                 catch (Exception ex)
                 {

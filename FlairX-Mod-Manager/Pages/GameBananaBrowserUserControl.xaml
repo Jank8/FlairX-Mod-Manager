@@ -56,7 +56,20 @@
                 </Button>
                 <TextBlock x:Name="TitleText" Text="Browse GameBanana Mods" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
                 
-                <!-- Installed badge (next to title) -->
+                <!-- Version badge (next to title) -->
+                <Border x:Name="DetailVersionBadge"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8" 
+                        Padding="12,6" 
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center"
+                        Visibility="Collapsed">
+                    <TextBlock x:Name="DetailVersionText" FontSize="14" FontWeight="SemiBold"/>
+                </Border>
+                
+                <!-- Installed badge (next to version) -->
                 <Border x:Name="DetailInstalledBadge"
                         Background="#CC00AA00" 
                         CornerRadius="8" 

@@ -58,5 +58,12 @@
     "ConnectionErrorTitle":  "कनेक्शन त्रुटि",
     "ConnectionErrorMessage":  "GameBanana से कनेक्ट नहीं हो सका। कृपया अपना इंटरनेट कनेक्शन जांचें या बाद में पुनः प्रयास करें।",
     "Retry":  "पुनः प्रयास करें",
-    "ViewCategory":  "श्रेणी देखें"
+    "ViewCategory":  "श्रेणी देखें",
+    "Mod":  "मॉड",
+    "CheckingForUpdates":  "उपलब्ध अपडेट की जांच की जा रही है...",
+    "Loading":  "लोड हो रहा है...",
+    "AvailableFiles":  "उपलब्ध फ़ाइलें:",
+    "FoundFilesSelectToDownload":  "{0} फ़ाइल(ें) मिलीं। डाउनलोड करने के लिए फ़ाइलें चुनें।",
+    "FailedToLoadFiles":  "फ़ाइलें लोड करने में विफल। कृपया पुनः प्रयास करें।",
+    "XXMIModsDirectoryNotFound":  "XXMI मॉड निर्देशिका नहीं मिली"
 }

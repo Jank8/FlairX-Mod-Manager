@@ -16,7 +16,6 @@ using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.Storage;
 using Microsoft.UI;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.IO.Compression;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Microsoft.UI.Xaml.Data;

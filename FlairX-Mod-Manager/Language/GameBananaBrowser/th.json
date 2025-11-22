@@ -58,5 +58,12 @@
     "ConnectionErrorTitle":  "ข้อผิดพลาดในการเชื่อมต่อ",
     "ConnectionErrorMessage":  "ไม่สามารถเชื่อมต่อกับ GameBanana ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณหรือลองอีกครั้งในภายหลัง",
     "Retry":  "ลองอีกครั้ง",
-    "ViewCategory":  "ดูหมวดหมู่"
+    "ViewCategory":  "ดูหมวดหมู่",
+    "Mod":  "ม็อด",
+    "CheckingForUpdates":  "กำลังตรวจสอบการอัปเดตที่มี...",
+    "Loading":  "กำลังโหลด...",
+    "AvailableFiles":  "ไฟล์ที่มี:",
+    "FoundFilesSelectToDownload":  "พบ {0} ไฟล์ เลือกไฟล์เพื่อดาวน์โหลด",
+    "FailedToLoadFiles":  "โหลดไฟล์ไม่สำเร็จ กรุณาลองอีกครั้ง",
+    "XXMIModsDirectoryNotFound":  "ไม่พบไดเรกทอรีม็อด XXMI"
 }

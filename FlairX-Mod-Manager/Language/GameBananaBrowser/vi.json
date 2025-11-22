@@ -58,5 +58,12 @@
     "ConnectionErrorTitle":  "Lỗi kết nối",
     "ConnectionErrorMessage":  "Không thể kết nối với GameBanana. Vui lòng kiểm tra kết nối internet của bạn hoặc thử lại sau.",
     "Retry":  "Thử lại",
-    "ViewCategory":  "Xem danh mục"
+    "ViewCategory":  "Xem danh mục",
+    "Mod":  "Mod",
+    "CheckingForUpdates":  "Đang kiểm tra các bản cập nhật có sẵn...",
+    "Loading":  "Đang tải...",
+    "AvailableFiles":  "Các tệp có sẵn:",
+    "FoundFilesSelectToDownload":  "Đã tìm thấy {0} tệp. Chọn tệp để tải xuống.",
+    "FailedToLoadFiles":  "Không thể tải tệp. Vui lòng thử lại.",
+    "XXMIModsDirectoryNotFound":  "Không tìm thấy thư mục XXMI Mods"
 }

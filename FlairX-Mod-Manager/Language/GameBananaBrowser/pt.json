@@ -58,5 +58,12 @@
     "ConnectionErrorTitle":  "Erro de ligação",
     "ConnectionErrorMessage":  "Não foi possível ligar ao GameBanana. Verifique a sua ligação à internet ou tente novamente mais tarde.",
     "Retry":  "Tentar novamente",
-    "ViewCategory":  "Ver categoria"
+    "ViewCategory":  "Ver categoria",
+    "Mod":  "Mod",
+    "CheckingForUpdates":  "A verificar atualizações disponíveis...",
+    "Loading":  "A carregar...",
+    "AvailableFiles":  "Ficheiros disponíveis:",
+    "FoundFilesSelectToDownload":  "Encontrados {0} ficheiro(s). Selecione ficheiros para transferir.",
+    "FailedToLoadFiles":  "Falha ao carregar ficheiros. Por favor, tente novamente.",
+    "XXMIModsDirectoryNotFound":  "Diretório de mods XXMI não encontrado"
 }

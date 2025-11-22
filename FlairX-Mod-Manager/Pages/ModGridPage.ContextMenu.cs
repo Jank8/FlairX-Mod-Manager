@@ -1142,38 +1142,48 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async void ContextMenu_CheckUpdates_Click(object sender, RoutedEventArgs e)
+        private void ContextMenu_CheckUpdates_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
             {
-                try
+                var modUrl = GetModUrl(modTile);
+                if (!string.IsNullOrEmpty(modUrl))
                 {
-                    var modUrl = GetModUrl(modTile);
-                    var modId = FlairX_Mod_Manager.Services.GameBananaService.ExtractModIdFromUrl(modUrl ?? "");
-                    
-                    if (!modId.HasValue)
+                    // Check if it's a GameBanana URL
+                    if (modUrl.Contains("gamebanana.com", StringComparison.OrdinalIgnoreCase))
                     {
-                        await ShowErrorDialog("Could not extract mod ID from URL.");
-                        return;
+                        // Get game tag from current game
+                        var gameTag = SettingsManager.CurrentSelectedGame;
+                        if (!string.IsNullOrEmpty(gameTag))
+                        {
+                            // Open GameBanana browser with mod URL
+                            var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
+                            mainWindow?.ShowGameBananaBrowserPanel(gameTag, modUrl);
+                        }
+                        else
+                        {
+                            Logger.LogWarning("No game tag found, cannot open GameBanana browser");
+                        }
                     }
-
-                    // Get current game tag
-                    var gameTag = FlairX_Mod_Manager.SettingsManager.CurrentSelectedGame;
-                    if (string.IsNullOrEmpty(gameTag))
+                    else
                     {
-                        await ShowErrorDialog("No game selected.");
-                        return;
+                        // For non-GameBanana URLs, open in external browser
+                        try
+                        {
+                            if (!modUrl.StartsWith("http://") && !modUrl.StartsWith("https://"))
+                                modUrl = "https://" + modUrl;
+                            
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = modUrl,
+                                UseShellExecute = true
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError("Failed to open URL", ex);
+                        }
                     }
-
-                    // Show update dialog
-                    var updateDialog = new FlairX_Mod_Manager.Dialogs.GameBananaUpdateDialog(modId.Value, modTile, gameTag);
-                    updateDialog.XamlRoot = this.XamlRoot;
-                    await updateDialog.ShowAsync();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to check for updates", ex);
-                    await ShowErrorDialog($"Failed to check for updates: {ex.Message}");
                 }
             }
         }

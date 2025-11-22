@@ -831,6 +831,18 @@ namespace FlairX_Mod_Manager.Pages
 
                 // Update UI
                 TitleText.Text = _currentModDetails.Name;
+                
+                // Show version if available
+                if (!string.IsNullOrEmpty(_currentModDetails.Version))
+                {
+                    DetailVersionText.Text = _currentModDetails.Version;
+                    DetailVersionBadge.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    DetailVersionBadge.Visibility = Visibility.Collapsed;
+                }
+                
                 DetailAuthor.Text = _currentModDetails.Submitter?.Name ?? "Unknown";
                 
                 // Load description in MarkdownTextBlock
@@ -979,8 +991,9 @@ namespace FlairX_Mod_Manager.Pages
 
         private void CloseDetailsPanel()
         {
-            // Hide installed badge when leaving details
+            // Hide installed badge and version badge when leaving details
             DetailInstalledBadge.Visibility = Visibility.Collapsed;
+            DetailVersionBadge.Visibility = Visibility.Collapsed;
             
             // Animate transition back to list
             AnimateContentSwitch(DetailsPanel, ModsListGrid);
@@ -1079,7 +1092,8 @@ namespace FlairX_Mod_Manager.Pages
                 dateUpdated,
                 categoryName,
                 _currentModDetails.PreviewMedia,
-                _currentModIsNSFW); // Pass NSFW status from mod list
+                _currentModIsNSFW, // Pass NSFW status from mod list
+                _currentModDetails.Version); // Pass version from API (_sVersion)
             extractDialog.XamlRoot = XamlRoot;
             var result = await extractDialog.ShowAsync();
 
