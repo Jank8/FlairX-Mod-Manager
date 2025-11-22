@@ -78,38 +78,34 @@ Modern mod manager for miHoYo games built with **WinUI 3** and **.NET 10**. Hand
 
 ### Adding Preview Images
 
-**Drag & Drop Method:**
-1. Select up to 100 images (JPG/PNG)
-2. Drag them onto any mod tile
-3. Images are automatically optimized and numbered
-4. First image becomes the mod thumbnail
+**Adding Images:**
+- **GameBanana Browser:** Mods installed via internal browser have previews automatically downloaded and optimized, you can add more inside and optimize manually to combine with more images.
+- **Drag & Drop:** Select up to 100 images (JPG/PNG) and drag onto any mod tile - automatically optimized
+- **Manual:** Place `preview.jpg`, `preview001.jpg`, `preview002.jpg`, etc. in mod folder, then run "Optimize Previews" from Settings
 
-**Manual Method:**
-1. Place images in mod folder with these naming patterns:
-   - `preview.jpg` - Main thumbnail (required)
-   - `preview-01.jpg` to `preview-99.jpg` - Additional images
-   - Alternative: `preview.png`, `preview-01.png`, etc.
-2. Click "Optimize Previews" in Settings
-3. Images are resized to 1000×1000 and cropped to square
-
-**Preview Image Requirements:**
-- **Location:** Place in mod root folder (same level as mod.json)
-- **Naming:** `preview.jpg` or `preview.png` for main image
-- **Numbering:** `preview-01.jpg`, `preview-02.jpg`, etc. for additional images
-- **Format:** JPG or PNG (automatically converted to JPG during optimization)
+**Image Optimization:**
+- **Before:** `preview000.jpg`, `preview001.jpg`, `preview002.jpg`, etc.
+- **After:** `preview.jpg`, `preview-01.jpg`, `preview-02.jpg`, etc. (1000×1000px, cropped to square)
+- **Auto-generated:** `minitile.jpg` (600×722px for fast grid loading)
 - **Limit:** Up to 100 images per mod
-- **Optimization:** Automatically resizes to 1000×1000px, crops to square, saves as high-quality JPG
-- **Mini-tiles:** Automatically generates small thumbnails for fast grid loading
+
+**Category Thumbnails:**
+- Place `preview.jpg` in category folder (e.g., `XXMI/GIMI/Mods/Category/`)
+- Run "Optimize Previews" from Settings to generate `catprev.jpg` and `catmini.jpg`
 
 **Example Mod Structure:**
 ```
-📁 XXMI/GIMI/Mods/Characters/Ayaka/
-├── 📄 mod.json
-├── 📄 preview.jpg          # Main thumbnail (shows in grid)
-├── 📄 preview-01.jpg       # Additional image 1
-├── 📄 preview-02.jpg       # Additional image 2
-├── 📄 preview-03.jpg       # Additional image 3
-└── 📁 [mod files...]
+📁 XXMI/GIMI/Mods/
+├── 📁 Category/
+│   ├── 📄 catprev.jpg          # Category thumbnail (auto-generated)
+│   ├── 📄 catmini.jpg          # Category mini (auto-generated)
+│   └── 📁 ModName/
+│       ├── 📄 mod.json
+│       ├── 📄 preview.jpg      # Optimized image 1 (1000x1000)
+│       ├── 📄 minitile.jpg     # Mini thumbnail for grid (600x722, auto-generated)
+│       ├── 📄 preview-01.jpg   # Optimized image 2 (1000x1000)
+│       ├── 📄 preview-02.jpg   # Optimized image 3 (1000x1000)
+│       └── 📁 [mod files...]
 ```
 
 ### Directory Structure
