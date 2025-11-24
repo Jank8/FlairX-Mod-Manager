@@ -97,6 +97,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 Margin = new Thickness(0, 0, 0, 8)
             };
             _modNameTextBox.BeforeTextChanging += ModNameTextBox_BeforeTextChanging;
+            _modNameTextBox.TextChanged += (s, e) => ValidateInputs();
             stackPanel.Children.Add(_modNameTextBox);
 
             // Category selection
@@ -115,6 +116,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 Margin = new Thickness(0, 0, 0, 8)
             };
             _categoryTextBox.BeforeTextChanging += CategoryTextBox_BeforeTextChanging;
+            _categoryTextBox.TextChanged += (s, e) => ValidateInputs();
             stackPanel.Children.Add(_categoryTextBox);
 
             // Download previews checkbox (always visible)
@@ -326,9 +328,17 @@ namespace FlairX_Mod_Manager.Dialogs
                 IsSecondaryButtonEnabled = false;
 
                 var category = _categoryTextBox.Text.Trim();
-                if (string.IsNullOrWhiteSpace(category))
+                // Validation is handled by ValidateInputs() - button should be disabled if invalid
+                if (string.IsNullOrWhiteSpace(category) || IsReservedWindowsName(category))
                 {
-                    await ShowError(SharedUtilities.GetTranslation(_lang, "EnterCategoryNameError"));
+                    IsPrimaryButtonEnabled = true;
+                    IsSecondaryButtonEnabled = true;
+                    return;
+                }
+
+                var modName = _modNameTextBox.Text.Trim();
+                if (IsReservedWindowsName(modName))
+                {
                     IsPrimaryButtonEnabled = true;
                     IsSecondaryButtonEnabled = true;
                     return;
@@ -542,7 +552,21 @@ namespace FlairX_Mod_Manager.Dialogs
                         });
                     });
                     
-                    ArchiveHelper.ExtractToDirectory(_downloadedArchivePath!, tempExtractPath, progress);
+                    // Try extraction with timeout
+                    var extractTask = Task.Run(() => ArchiveHelper.ExtractToDirectory(_downloadedArchivePath!, tempExtractPath, progress));
+                    if (!extractTask.Wait(TimeSpan.FromMinutes(5)))
+                    {
+                        Logger.LogWarning("Archive extraction timed out after 5 minutes, trying fallback method");
+                        // Fallback to System.IO.Compression for problematic archives
+                        if (_downloadedArchivePath!.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                        {
+                            System.IO.Compression.ZipFile.ExtractToDirectory(_downloadedArchivePath!, tempExtractPath, true);
+                        }
+                        else
+                        {
+                            throw new TimeoutException(SharedUtilities.GetTranslation(_lang, "ExtractionTimeout"));
+                        }
+                    }
                     
                     // Check if all files are in a single root folder
                     var topLevelItems = Directory.GetFileSystemEntries(tempExtractPath);
@@ -649,7 +673,21 @@ namespace FlairX_Mod_Manager.Dialogs
                     
                     try
                     {
-                        ArchiveHelper.ExtractToDirectory(filePath, tempExtractPath);
+                        // Try extraction with timeout
+                        var extractTask = Task.Run(() => ArchiveHelper.ExtractToDirectory(filePath, tempExtractPath));
+                        if (!extractTask.Wait(TimeSpan.FromMinutes(5)))
+                        {
+                            Logger.LogWarning($"Archive extraction timed out for {fileName}, trying fallback method");
+                            // Fallback to System.IO.Compression for problematic archives
+                            if (fileName.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                            {
+                                System.IO.Compression.ZipFile.ExtractToDirectory(filePath, tempExtractPath, true);
+                            }
+                            else
+                            {
+                                throw new TimeoutException(string.Format(SharedUtilities.GetTranslation(_lang, "ExtractionTimeoutFile"), fileName));
+                            }
+                        }
                         
                         // Check if all files are in a single root folder
                         var topLevelItems = Directory.GetFileSystemEntries(tempExtractPath);
@@ -1116,7 +1154,7 @@ namespace FlairX_Mod_Manager.Dialogs
 
         private void ModNameTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
         {
-            // Replace forward slash with dash, block other invalid characters
+            // Replace forward slash with dash
             if (args.NewText.Contains('/'))
             {
                 args.Cancel = true;
@@ -1133,16 +1171,13 @@ namespace FlairX_Mod_Manager.Dialogs
                 return;
             }
 
-            // Block Windows reserved names
-            if (IsReservedWindowsName(args.NewText))
-            {
-                args.Cancel = true;
-            }
+            // Validate and update button state
+            ValidateInputs();
         }
 
         private void CategoryTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
         {
-            // Replace forward slash with dash, block other invalid characters
+            // Replace forward slash with dash
             if (args.NewText.Contains('/'))
             {
                 args.Cancel = true;
@@ -1159,11 +1194,20 @@ namespace FlairX_Mod_Manager.Dialogs
                 return;
             }
 
-            // Block Windows reserved names
-            if (IsReservedWindowsName(args.NewText))
-            {
-                args.Cancel = true;
-            }
+            // Validate and update button state
+            ValidateInputs();
+        }
+
+        private void ValidateInputs()
+        {
+            // Check if mod name or category is a reserved Windows name
+            var modName = _modNameTextBox.Text.Trim();
+            var category = _categoryTextBox.Text.Trim();
+
+            bool isValid = !string.IsNullOrWhiteSpace(category) &&
+                          !IsReservedWindowsName(modName) && 
+                          !IsReservedWindowsName(category);
+            IsPrimaryButtonEnabled = isValid;
         }
 
         private bool IsReservedWindowsName(string name)
@@ -1175,9 +1219,9 @@ namespace FlairX_Mod_Manager.Dialogs
             var nameWithoutExt = name.Split('.')[0].ToUpperInvariant();
 
             // Windows reserved names
-            var reserved = new[] { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", 
-                                   "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", 
-                                   "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
+            var reserved = new[] { "CON", "PRN", "AUX", "NUL",
+                                   "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", 
+                                   "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
 
             return reserved.Contains(nameWithoutExt);
         }

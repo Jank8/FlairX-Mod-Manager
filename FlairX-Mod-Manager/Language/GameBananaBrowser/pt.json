@@ -51,6 +51,8 @@
     "FailedToDownload":  "Falha ao transferir {0}",
     "InstallationFailed":  "A instalação falhou: {0}",
     "UpdateFailed":  "A atualização falhou: {0}",
+    "ExtractionTimeout":  "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
+    "ExtractionTimeoutFile":  "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
     "ModFolderNotFound":  "Pasta do mod não encontrada.",
     "Size":  "Tamanho:",
     "Downloads":  "Transferências:",

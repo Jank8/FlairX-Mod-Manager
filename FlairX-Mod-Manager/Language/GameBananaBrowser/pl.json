@@ -51,6 +51,8 @@
     "FailedToDownload":  "Nie udało się pobrać {0}",
     "InstallationFailed":  "Instalacja nie powiodła się: {0}",
     "UpdateFailed":  "Aktualizacja nie powiodła się: {0}",
+    "ExtractionTimeout":  "Rozpakowywanie archiwum przekroczyło limit czasu (5 minut). Archiwum może być uszkodzone lub zbyt duże.",
+    "ExtractionTimeoutFile":  "Rozpakowywanie archiwum {0} przekroczyło limit czasu. Archiwum może być uszkodzone lub zbyt duże.",
     "ModFolderNotFound":  "Nie znaleziono folderu moda.",
     "Size":  "Rozmiar:",
     "Downloads":  "Pobrania:",

@@ -51,6 +51,8 @@
     "FailedToDownload":  "下載{0}失敗",
     "InstallationFailed":  "安裝失敗: {0}",
     "UpdateFailed":  "更新失敗: {0}",
+    "ExtractionTimeout":  "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
+    "ExtractionTimeoutFile":  "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
     "ModFolderNotFound":  "未找到模組資料夾。",
     "Size":  "大小:",
     "Downloads":  "下載次數:",

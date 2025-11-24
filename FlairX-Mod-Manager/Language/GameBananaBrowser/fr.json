@@ -51,6 +51,8 @@
     "FailedToDownload":  "Échec du téléchargement de {0}",
     "InstallationFailed":  "L\u0027installation a échoué: {0}",
     "UpdateFailed":  "La mise à jour a échoué: {0}",
+    "ExtractionTimeout":  "L'extraction de l'archive a dépassé le délai de 5 minutes. L'archive peut être corrompue ou trop volumineuse.",
+    "ExtractionTimeoutFile":  "L'extraction de l'archive {0} a dépassé le délai. L'archive peut être corrompue ou trop volumineuse.",
     "ModFolderNotFound":  "Dossier du mod introuvable.",
     "Size":  "Taille:",
     "Downloads":  "Téléchargements:",

@@ -51,6 +51,8 @@
     "FailedToDownload":  "{0} indirilemedi",
     "InstallationFailed":  "Yükleme başarısız: {0}",
     "UpdateFailed":  "Güncelleme başarısız: {0}",
+    "ExtractionTimeout":  "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
+    "ExtractionTimeoutFile":  "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
     "ModFolderNotFound":  "Mod klasörü bulunamadı.",
     "Size":  "Boyut:",
     "Downloads":  "İndirmeler:",

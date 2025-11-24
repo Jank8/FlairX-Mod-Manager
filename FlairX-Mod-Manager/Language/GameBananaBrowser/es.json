@@ -51,6 +51,8 @@
     "FailedToDownload":  "Error al descargar {0}",
     "InstallationFailed":  "La instalación falló: {0}",
     "UpdateFailed":  "La actualización falló: {0}",
+    "ExtractionTimeout":  "La extracción del archivo superó el tiempo límite de 5 minutos. El archivo puede estar corrupto o ser demasiado grande.",
+    "ExtractionTimeoutFile":  "La extracción del archivo {0} superó el tiempo límite. El archivo puede estar corrupto o ser demasiado grande.",
     "ModFolderNotFound":  "No se encontró la carpeta del mod.",
     "Size":  "Tamaño:",
     "Downloads":  "Descargas:",

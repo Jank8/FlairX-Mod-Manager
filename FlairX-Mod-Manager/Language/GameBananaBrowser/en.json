@@ -51,6 +51,8 @@
     "FailedToDownload":  "Failed to download {0}",
     "InstallationFailed":  "Installation failed: {0}",
     "UpdateFailed":  "Update failed: {0}",
+    "ExtractionTimeout":  "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
+    "ExtractionTimeoutFile":  "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
     "ModFolderNotFound":  "Mod folder not found.",
     "Size":  "Size:",
     "Downloads":  "Downloads:",

@@ -51,6 +51,8 @@
     "FailedToDownload":  "{0} डाउनलोड करने में विफल",
     "InstallationFailed":  "इंस्टॉलेशन विफल: {0}",
     "UpdateFailed":  "अपडेट विफल: {0}",
+    "ExtractionTimeout":  "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
+    "ExtractionTimeoutFile":  "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
     "ModFolderNotFound":  "मॉड फ़ोल्डर नहीं मिला।",
     "Size":  "आकार:",
     "Downloads":  "डाउनलोड:",
