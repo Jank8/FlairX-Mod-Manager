@@ -190,5 +190,10 @@
     "CurrentVersion": "Kasalukuyang bersyon",
     "ReadyToDownload": "Handa nang i-download at i-install ang update.",
     "UpdateFailed": "Nabigo ang pag-update",
-    "Close": "Isara"
+    "Close": "Isara",
+    "PresetsPage_SavePresetLabel": "I-save ang Bagong Preset",
+    "PresetsPage_ModsInPreset": "Mga Mod sa Preset",
+    "PresetsPage_LoadPresetLabel": "I-load ang Preset",
+    "PresetsPage_DeletePresetDescription": "Alisin ang napiling preset mula sa listahan",
+    "PresetsPage_DeletePresetLabel": "Tanggalin ang Preset"
 }

@@ -1,6 +1,20 @@
 {
     "Title": "ステータスキーパー",
     "StatusKeeper_Function": "ステータスキーパー",
+    "Browse": "参照",
+    "StatusKeeper_BackupConfirmation_Description": "同期を有効にする前にバックアップを作成したことを確認",
+    "StatusKeeper_DynamicSync_Description": "d3dx_user.iniが変更されたときにModステータスを自動的に同期",
+    "StatusKeeper_ManualSync_Description": "Modステータスの同期を手動でトリガー",
+    "StatusKeeper_CreateBackup_Description": "すべてのMod INIファイルのバックアップファイルを作成",
+    "StatusKeeper_CheckBackup_Label": "バックアップを確認",
+    "StatusKeeper_CheckBackup_Description": "バックアップファイルを確認し、不足しているバックアップをチェック",
+    "StatusKeeper_RestoreBackup_Description": "バックアップからすべてのMod INIファイルを復元",
+    "StatusKeeper_DeleteBackups_Description": "すべてのバックアップファイルを削除",
+    "StatusKeeper_Logging_Description": "ファイルへのログ記録を有効または無効にする",
+    "StatusKeeper_OpenLog_Label": "ログファイルを開く",
+    "StatusKeeper_OpenLog_Description": "デフォルトのテキストエディタでログファイルを開く",
+    "StatusKeeper_ClearLog_Label": "ログをクリア",
+    "StatusKeeper_ClearLog_Description": "すべてのログエントリを削除",
     "StatusKeeper_D3dxFilePath_Label": "d3dx_user.ini のファイルパス:",
     "StatusKeeper_DynamicSync_Label": "動的な同期",
     "StatusKeeper_BackupConfirmation_Label": "バックアップを取る",
@@ -47,5 +61,8 @@
     "StatusKeeper_ConfirmDelete_Message": "これにより、すべてのバックアップファイルが削除されます。続行しますか？",
     "Error_Generic": "エラー",
     "OK": "OK",
-    "PickFolderDialog_Title": "フォルダーを選択"
+    "PickFolderDialog_Title": "フォルダーを選択",
+    "StatusKeeper_BackupConfirmationToggleLabel": "オフ/オン",
+    "StatusKeeper_DynamicSyncToggleLabel": "オフ/オン",
+    "StatusKeeper_LoggingToggleLabel": "オフ/オン"
 }

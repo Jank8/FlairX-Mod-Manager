@@ -8,8 +8,14 @@
     mc:Ignorable="d"
     Background="Transparent">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
-        <StackPanel Spacing="0" HorizontalAlignment="Stretch" MaxWidth="1000">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="24">
+        <Grid HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="8*" MaxWidth="1000"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="1" Spacing="0" HorizontalAlignment="Stretch">
             
             <!-- Optimize Button Card -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -29,22 +35,18 @@
                     <FontIcon Grid.Column="0" Glyph="&#xE768;" FontSize="20" VerticalAlignment="Center"/>
                     
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock Text="Manual Optimization" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="ManualOptimizationTitle" FontWeight="SemiBold" FontSize="14"/>
                         <TextBlock x:Name="OptimizeDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                     </StackPanel>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
                         <ProgressBar x:Name="OptimizeProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
                         <Button x:Name="OptimizeButton" 
-                                Width="160"
+                                MinWidth="80"
                                 Height="32" 
-                                Padding="12,5,12,6" 
                                 Click="OptimizeButton_Click"
                                 Style="{StaticResource AccentButtonStyle}">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon x:Name="OptimizeIcon" Glyph="&#xE768;" FontSize="14"/>
-                                <TextBlock x:Name="OptimizeButtonText"/>
-                            </StackPanel>
+                            <TextBlock x:Name="OptimizeButtonText"/>
                         </Button>
                     </StackPanel>
                 </Grid>
@@ -145,7 +147,7 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="16"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="150"/>
                     </Grid.ColumnDefinitions>
                     
                     <FontIcon Grid.Column="0" Glyph="&#xE8C8;" FontSize="20" VerticalAlignment="Center"/>
@@ -155,7 +157,10 @@
                         <TextBlock x:Name="BackupDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                     </StackPanel>
                     
-                    <ToggleSwitch Grid.Column="3" x:Name="CreateBackupsCheckBox" IsOn="False" Toggled="SettingChanged" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                        <TextBlock x:Name="CreateBackupsToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                        <ToggleSwitch x:Name="CreateBackupsCheckBox" IsOn="False" Toggled="SettingChanged" OnContent="" OffContent="" MinWidth="0"/>
+                    </StackPanel>
                 </Grid>
             </Border>
             
@@ -171,7 +176,7 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="16"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="150"/>
                     </Grid.ColumnDefinitions>
                     
                     <FontIcon Grid.Column="0" Glyph="&#xE74E;" FontSize="20" VerticalAlignment="Center"/>
@@ -181,12 +186,15 @@
                         <TextBlock x:Name="KeepOriginalsDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                     </StackPanel>
                     
-                    <ToggleSwitch Grid.Column="3" x:Name="KeepOriginalsCheckBox" IsOn="False" Toggled="SettingChanged" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                        <TextBlock x:Name="KeepOriginalsToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                        <ToggleSwitch x:Name="KeepOriginalsCheckBox" IsOn="False" Toggled="SettingChanged" OnContent="" OffContent="" MinWidth="0"/>
+                    </StackPanel>
                 </Grid>
             </Border>
 
             <!-- Optimization Modes Section -->
-            <TextBlock Text="Optimization Modes" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            <TextBlock x:Name="OptimizationModesHeader" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
             
             <!-- Manual Mode Card -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -215,11 +223,11 @@
                         <TextBlock Grid.Column="2" x:Name="ManualModeHeader" Text="Manual Optimization" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                         
                         <ComboBox Grid.Column="3" x:Name="ManualModeComboBox" Width="250" SelectionChanged="ManualModeComboBox_SelectionChanged" VerticalAlignment="Center">
-                            <ComboBoxItem x:Name="ManualModeFullItem" Tag="Full" Content="Full Optimization"/>
-                            <ComboBoxItem x:Name="ManualModeNoResizeItem" Tag="NoResize" Content="Optimize Without Resize/Crop"/>
-                            <ComboBoxItem x:Name="ManualModeMiniaturesItem" Tag="Miniatures" Content="Generate Miniatures Only"/>
-                            <ComboBoxItem x:Name="ManualModeRenameItem" Tag="Rename" Content="Rename Files Only"/>
-                            <ComboBoxItem x:Name="ManualModeDisabledItem" Tag="Disabled" Content="Disabled"/>
+                            <ComboBoxItem x:Name="ManualModeFullItem" Tag="Full"/>
+                            <ComboBoxItem x:Name="ManualModeNoResizeItem" Tag="NoResize"/>
+                            <ComboBoxItem x:Name="ManualModeMiniaturesItem" Tag="Miniatures"/>
+                            <ComboBoxItem x:Name="ManualModeRenameItem" Tag="Rename"/>
+                            <ComboBoxItem x:Name="ManualModeDisabledItem" Tag="Disabled"/>
                         </ComboBox>
                     </Grid>
                     
@@ -254,11 +262,11 @@
                         <TextBlock Grid.Column="2" x:Name="DragDropModHeader" Text="Drag &amp; Drop Mod" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                         
                         <ComboBox Grid.Column="3" x:Name="DragDropModComboBox" Width="250" SelectionChanged="DragDropModComboBox_SelectionChanged" VerticalAlignment="Center">
-                            <ComboBoxItem x:Name="DragDropModFullItem" Tag="Full" Content="Full Optimization"/>
-                            <ComboBoxItem x:Name="DragDropModNoResizeItem" Tag="NoResize" Content="Optimize Without Resize/Crop"/>
-                            <ComboBoxItem x:Name="DragDropModMiniaturesItem" Tag="Miniatures" Content="Generate Miniatures Only"/>
-                            <ComboBoxItem x:Name="DragDropModRenameItem" Tag="Rename" Content="Rename Files Only"/>
-                            <ComboBoxItem x:Name="DragDropModDisabledItem" Tag="Disabled" Content="Disabled"/>
+                            <ComboBoxItem x:Name="DragDropModFullItem" Tag="Full"/>
+                            <ComboBoxItem x:Name="DragDropModNoResizeItem" Tag="NoResize"/>
+                            <ComboBoxItem x:Name="DragDropModMiniaturesItem" Tag="Miniatures"/>
+                            <ComboBoxItem x:Name="DragDropModRenameItem" Tag="Rename"/>
+                            <ComboBoxItem x:Name="DragDropModDisabledItem" Tag="Disabled"/>
                         </ComboBox>
                     </Grid>
                     
@@ -293,11 +301,11 @@
                         <TextBlock Grid.Column="2" x:Name="DragDropCategoryHeader" Text="Drag &amp; Drop Category" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                         
                         <ComboBox Grid.Column="3" x:Name="DragDropCategoryComboBox" Width="250" SelectionChanged="DragDropCategoryComboBox_SelectionChanged" VerticalAlignment="Center">
-                            <ComboBoxItem x:Name="DragDropCategoryFullItem" Tag="Full" Content="Full Optimization"/>
-                            <ComboBoxItem x:Name="DragDropCategoryNoResizeItem" Tag="NoResize" Content="Optimize Without Resize/Crop"/>
-                            <ComboBoxItem x:Name="DragDropCategoryMiniaturesItem" Tag="Miniatures" Content="Generate Miniatures Only"/>
-                            <ComboBoxItem x:Name="DragDropCategoryRenameItem" Tag="Rename" Content="Rename Files Only"/>
-                            <ComboBoxItem x:Name="DragDropCategoryDisabledItem" Tag="Disabled" Content="Disabled"/>
+                            <ComboBoxItem x:Name="DragDropCategoryFullItem" Tag="Full"/>
+                            <ComboBoxItem x:Name="DragDropCategoryNoResizeItem" Tag="NoResize"/>
+                            <ComboBoxItem x:Name="DragDropCategoryMiniaturesItem" Tag="Miniatures"/>
+                            <ComboBoxItem x:Name="DragDropCategoryRenameItem" Tag="Rename"/>
+                            <ComboBoxItem x:Name="DragDropCategoryDisabledItem" Tag="Disabled"/>
                         </ComboBox>
                     </Grid>
                     
@@ -332,11 +340,11 @@
                         <TextBlock Grid.Column="2" x:Name="AutoDownloadHeader" Text="Automatic (GameBanana Download)" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                         
                         <ComboBox Grid.Column="3" x:Name="AutoDownloadComboBox" Width="250" SelectionChanged="AutoDownloadComboBox_SelectionChanged" VerticalAlignment="Center">
-                            <ComboBoxItem x:Name="AutoDownloadFullItem" Tag="Full" Content="Full Optimization"/>
-                            <ComboBoxItem x:Name="AutoDownloadNoResizeItem" Tag="NoResize" Content="Optimize Without Resize/Crop"/>
-                            <ComboBoxItem x:Name="AutoDownloadMiniaturesItem" Tag="Miniatures" Content="Generate Miniatures Only"/>
-                            <ComboBoxItem x:Name="AutoDownloadRenameItem" Tag="Rename" Content="Rename Files Only"/>
-                            <ComboBoxItem x:Name="AutoDownloadDisabledItem" Tag="Disabled" Content="Disabled"/>
+                            <ComboBoxItem x:Name="AutoDownloadFullItem" Tag="Full"/>
+                            <ComboBoxItem x:Name="AutoDownloadNoResizeItem" Tag="NoResize"/>
+                            <ComboBoxItem x:Name="AutoDownloadMiniaturesItem" Tag="Miniatures"/>
+                            <ComboBoxItem x:Name="AutoDownloadRenameItem" Tag="Rename"/>
+                            <ComboBoxItem x:Name="AutoDownloadDisabledItem" Tag="Disabled"/>
                         </ComboBox>
                     </Grid>
                     
@@ -344,6 +352,7 @@
                 </Grid>
             </Border>
 
-        </StackPanel>
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>

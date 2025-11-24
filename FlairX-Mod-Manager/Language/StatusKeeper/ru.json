@@ -1,6 +1,20 @@
 {
     "Title": "Резервирование",
     "StatusKeeper_Function": "Резервирование",
+    "Browse": "Обзор",
+    "StatusKeeper_BackupConfirmation_Description": "Подтвердите, что вы создали резервные копии перед включением синхронизации",
+    "StatusKeeper_DynamicSync_Description": "Автоматически синхронизировать статус модов при изменении d3dx_user.ini",
+    "StatusKeeper_ManualSync_Description": "Вручную запустить синхронизацию статуса модов",
+    "StatusKeeper_CreateBackup_Description": "Создать файлы резервных копий для всех INI файлов модов",
+    "StatusKeeper_CheckBackup_Label": "Проверить Резервные Копии",
+    "StatusKeeper_CheckBackup_Description": "Проверить файлы резервных копий и найти отсутствующие",
+    "StatusKeeper_RestoreBackup_Description": "Восстановить все INI файлы модов из резервной копии",
+    "StatusKeeper_DeleteBackups_Description": "Удалить все файлы резервных копий",
+    "StatusKeeper_Logging_Description": "Включить или отключить запись в файл",
+    "StatusKeeper_OpenLog_Label": "Открыть Файл Журнала",
+    "StatusKeeper_OpenLog_Description": "Открыть файл журнала в текстовом редакторе по умолчанию",
+    "StatusKeeper_ClearLog_Label": "Очистить Журнал",
+    "StatusKeeper_ClearLog_Description": "Удалить все записи журнала",
     "StatusKeeper_D3dxFilePath_Label": "Путь к файлу d3dx_user.ini:",
     "StatusKeeper_DynamicSync_Label": "Динамическая синхронизация",
     "StatusKeeper_BackupConfirmation_Label": "Создавать резервную копию",
@@ -47,5 +61,8 @@
     "StatusKeeper_ConfirmDelete_Message": "Это удалит все файлы резервных копий. Продолжить?",
     "Error_Generic": "Ошибка",
     "OK": "OK",
-    "PickFolderDialog_Title": "Выбрать папку"
+    "PickFolderDialog_Title": "Выбрать папку",
+    "StatusKeeper_BackupConfirmationToggleLabel": "ВЫКЛ/ВКЛ",
+    "StatusKeeper_DynamicSyncToggleLabel": "ВЫКЛ/ВКЛ",
+    "StatusKeeper_LoggingToggleLabel": "ВЫКЛ/ВКЛ"
 }

@@ -23,21 +23,42 @@ namespace FlairX_Mod_Manager.Pages
         {
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
             var mainLang = SharedUtilities.LoadLanguageDictionary();
+            
+            // Update mode cards
             UpdateAuthorsLabel.Text = SharedUtilities.GetTranslation(lang, "UpdateAuthorsLabel");
+            UpdateAuthorsDescription.Text = SharedUtilities.GetTranslation(lang, "UpdateAuthorsDescription");
             SmartUpdateLabel.Text = SharedUtilities.GetTranslation(lang, "SmartUpdateLabel");
-            // Set constant button width to prevent resizing when text changes
-            UpdateButtonText.Text = _isUpdatingAuthors ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "FetchAuthorsButton");
-            UpdateButton.MinWidth = 160;
+            SmartUpdateDescription.Text = SharedUtilities.GetTranslation(lang, "SmartUpdateDescription");
             
-            // Set fetch dates button text and tooltip
-            FetchDatesButtonText.Text = _isFetchingDates ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "FetchDatesButton");
-            FetchDatesButton.MinWidth = 160;
-            FetchDatesButtonTooltip.Content = SharedUtilities.GetTranslation(lang, "FetchDatesButton_Tooltip");
+            // Actions header
+            ActionsHeader.Text = SharedUtilities.GetTranslation(lang, "ActionsHeader");
             
-            // Set fetch versions button text and tooltip
-            FetchVersionsButtonText.Text = _isFetchingVersions ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "FetchVersionsButton");
-            FetchVersionsButton.MinWidth = 160;
-            FetchVersionsButtonTooltip.Content = SharedUtilities.GetTranslation(lang, "FetchVersionsButton_Tooltip");
+            // Fetch authors card
+            FetchAuthorsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchAuthorsButton");
+            FetchAuthorsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchAuthorsDescription");
+            UpdateButtonText.Text = _isUpdatingAuthors ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            
+            // Fetch dates card
+            FetchDatesTitle.Text = SharedUtilities.GetTranslation(lang, "FetchDatesButton");
+            FetchDatesDescription.Text = SharedUtilities.GetTranslation(lang, "FetchDatesButton_Tooltip");
+            FetchDatesButtonText.Text = _isFetchingDates ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            
+            // Fetch versions card
+            FetchVersionsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton");
+            FetchVersionsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton_Tooltip");
+            FetchVersionsButtonText.Text = _isFetchingVersions ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+        }
+        
+        private void UpdateToggleLabels()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            var onText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_On");
+            var offText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_Off");
+            
+            if (UpdateAuthorsToggleLabel != null && UpdateAuthorsSwitch != null)
+                UpdateAuthorsToggleLabel.Text = UpdateAuthorsSwitch.IsOn ? onText : offText;
+            if (SmartUpdateToggleLabel != null && SmartUpdateSwitch != null)
+                SmartUpdateToggleLabel.Text = SmartUpdateSwitch.IsOn ? onText : offText;
         }
 
         // Thread-safe progress reporting
@@ -56,12 +77,10 @@ namespace FlairX_Mod_Manager.Pages
         {
             this.InitializeComponent();
             UpdateTexts();
+            UpdateToggleLabels();
             ProgressChanged += OnProgressChanged;
             UpdateAuthorsSwitch.Toggled += UpdateAuthorsSwitch_Toggled;
             SmartUpdateSwitch.Toggled += SmartUpdateSwitch_Toggled;
-            // By default only one active
-            if (UpdateAuthorsSwitch.IsOn && SmartUpdateSwitch.IsOn)
-                SmartUpdateSwitch.IsOn = false;
         }
 
         ~GBAuthorUpdatePage()
@@ -194,8 +213,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             var mainLang = SharedUtilities.LoadLanguageDictionary();
             UpdateButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
-            UpdateIcon.Visibility = Visibility.Collapsed;
-            CancelIcon.Visibility = Visibility.Visible;
             UpdateButton.IsEnabled = true;
             UpdateProgressBar.Visibility = Visibility.Visible;
         }
@@ -204,9 +221,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             _isUpdatingAuthors = false;
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-            UpdateButtonText.Text = SharedUtilities.GetTranslation(lang, "FetchAuthorsButton");
-            UpdateIcon.Visibility = Visibility.Visible;
-            CancelIcon.Visibility = Visibility.Collapsed;
+            UpdateButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
             UpdateButton.IsEnabled = true;
             UpdateProgressBar.Visibility = Visibility.Collapsed;
         }
@@ -512,26 +527,12 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     UpdateProgressBar.Visibility = Visibility.Visible;
                     UpdateProgressBar.IsIndeterminate = false;
-                    UpdateProgressBar.Value = _progressValue * 100;
-                    // Ensure icons are in correct state during update
-                    if (UpdateIcon != null && CancelIcon != null)
-                    {
-                        UpdateIcon.Visibility = Visibility.Collapsed;
-                        CancelIcon.Visibility = Visibility.Visible;
-                    }
-                }
+                    UpdateProgressBar.Value = _progressValue * 100;                }
                 else
                 {
                     UpdateProgressBar.Value = 0;
                     UpdateProgressBar.IsIndeterminate = false;
-                    UpdateProgressBar.Visibility = Visibility.Collapsed;
-                    // Ensure icons are reset to default state when not updating
-                    if (UpdateIcon != null && CancelIcon != null)
-                    {
-                        UpdateIcon.Visibility = Visibility.Visible;
-                        CancelIcon.Visibility = Visibility.Collapsed;
-                    }
-                }
+                    UpdateProgressBar.Visibility = Visibility.Collapsed;                }
             }
             
             if (FetchDatesProgressBar != null)
@@ -540,26 +541,12 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     FetchDatesProgressBar.Visibility = Visibility.Visible;
                     FetchDatesProgressBar.IsIndeterminate = false;
-                    FetchDatesProgressBar.Value = _progressValue * 100;
-                    // Ensure icons are in correct state during fetch
-                    if (FetchDatesIcon != null && CancelDatesIcon != null)
-                    {
-                        FetchDatesIcon.Visibility = Visibility.Collapsed;
-                        CancelDatesIcon.Visibility = Visibility.Visible;
-                    }
-                }
+                    FetchDatesProgressBar.Value = _progressValue * 100;                }
                 else
                 {
                     FetchDatesProgressBar.Value = 0;
                     FetchDatesProgressBar.IsIndeterminate = false;
-                    FetchDatesProgressBar.Visibility = Visibility.Collapsed;
-                    // Ensure icons are reset to default state when not fetching
-                    if (FetchDatesIcon != null && CancelDatesIcon != null)
-                    {
-                        FetchDatesIcon.Visibility = Visibility.Visible;
-                        CancelDatesIcon.Visibility = Visibility.Collapsed;
-                    }
-                }
+                    FetchDatesProgressBar.Visibility = Visibility.Collapsed;                }
             }
             
             if (FetchVersionsProgressBar != null)
@@ -568,26 +555,12 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     FetchVersionsProgressBar.Visibility = Visibility.Visible;
                     FetchVersionsProgressBar.IsIndeterminate = false;
-                    FetchVersionsProgressBar.Value = _progressValue * 100;
-                    // Ensure icons are in correct state during fetch
-                    if (FetchVersionsIcon != null && CancelVersionsIcon != null)
-                    {
-                        FetchVersionsIcon.Visibility = Visibility.Collapsed;
-                        CancelVersionsIcon.Visibility = Visibility.Visible;
-                    }
-                }
+                    FetchVersionsProgressBar.Value = _progressValue * 100;                }
                 else
                 {
                     FetchVersionsProgressBar.Value = 0;
                     FetchVersionsProgressBar.IsIndeterminate = false;
-                    FetchVersionsProgressBar.Visibility = Visibility.Collapsed;
-                    // Ensure icons are reset to default state when not fetching
-                    if (FetchVersionsIcon != null && CancelVersionsIcon != null)
-                    {
-                        FetchVersionsIcon.Visibility = Visibility.Visible;
-                        CancelVersionsIcon.Visibility = Visibility.Collapsed;
-                    }
-                }
+                    FetchVersionsProgressBar.Visibility = Visibility.Collapsed;                }
             }
         }
 
@@ -599,6 +572,9 @@ namespace FlairX_Mod_Manager.Pages
             UpdateAuthorsSwitch.IsOn = (CurrentUpdateMode == UpdateMode.Full);
             SmartUpdateSwitch.IsOn = (CurrentUpdateMode == UpdateMode.Smart);
             UpdateProgressBarUI();
+            // Refresh translations when navigating to this page
+            UpdateTexts();
+            UpdateToggleLabels();
         }
 
         protected override void OnNavigatedFrom(Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
@@ -627,6 +603,7 @@ namespace FlairX_Mod_Manager.Pages
                 SmartUpdateSwitch.IsOn = true;
                 CurrentUpdateMode = UpdateMode.Smart;
             }
+            UpdateToggleLabels();
         }
 
         private void SmartUpdateSwitch_Toggled(object sender, RoutedEventArgs e)
@@ -641,6 +618,7 @@ namespace FlairX_Mod_Manager.Pages
                 UpdateAuthorsSwitch.IsOn = true;
                 CurrentUpdateMode = UpdateMode.Full;
             }
+            UpdateToggleLabels();
         }
 
         public bool IsSmartUpdate => CurrentUpdateMode == UpdateMode.Smart;
@@ -718,8 +696,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             var mainLang = SharedUtilities.LoadLanguageDictionary();
             FetchDatesButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
-            FetchDatesIcon.Visibility = Visibility.Collapsed;
-            CancelDatesIcon.Visibility = Visibility.Visible;
             FetchDatesButton.IsEnabled = true;
             FetchDatesProgressBar.Visibility = Visibility.Visible;
         }
@@ -729,8 +705,6 @@ namespace FlairX_Mod_Manager.Pages
             _isFetchingDates = false;
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
             FetchDatesButtonText.Text = SharedUtilities.GetTranslation(lang, "FetchDatesButton");
-            FetchDatesIcon.Visibility = Visibility.Visible;
-            CancelDatesIcon.Visibility = Visibility.Collapsed;
             FetchDatesButton.IsEnabled = true;
             FetchDatesProgressBar.Visibility = Visibility.Collapsed;
         }
@@ -1030,8 +1004,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             var mainLang = SharedUtilities.LoadLanguageDictionary();
             FetchVersionsButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
-            FetchVersionsIcon.Visibility = Visibility.Collapsed;
-            CancelVersionsIcon.Visibility = Visibility.Visible;
             FetchVersionsButton.IsEnabled = true;
             FetchVersionsProgressBar.Visibility = Visibility.Visible;
         }
@@ -1041,8 +1013,6 @@ namespace FlairX_Mod_Manager.Pages
             _isFetchingVersions = false;
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
             FetchVersionsButtonText.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton");
-            FetchVersionsIcon.Visibility = Visibility.Visible;
-            CancelVersionsIcon.Visibility = Visibility.Collapsed;
             FetchVersionsButton.IsEnabled = true;
             FetchVersionsProgressBar.Visibility = Visibility.Collapsed;
         }

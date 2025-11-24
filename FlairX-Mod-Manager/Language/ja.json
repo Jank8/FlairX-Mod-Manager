@@ -190,5 +190,10 @@
     "CurrentVersion": "現在のバージョン",
     "ReadyToDownload": "更新をダウンロードしてインストールする準備ができました。",
     "UpdateFailed": "更新に失敗しました",
-    "Close": "閉じる"
+    "Close": "閉じる",
+    "PresetsPage_SavePresetLabel": "新しいプリセットを保存",
+    "PresetsPage_ModsInPreset": "プリセット内のMod",
+    "PresetsPage_LoadPresetLabel": "プリセットを読み込む",
+    "PresetsPage_DeletePresetDescription": "選択したプリセットをリストから削除",
+    "PresetsPage_DeletePresetLabel": "プリセットを削除"
 }

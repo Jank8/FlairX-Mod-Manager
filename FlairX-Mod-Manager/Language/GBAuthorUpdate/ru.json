@@ -1,6 +1,11 @@
 {
     "Title": "Обновление авторов GameBanana",
     "GameBananaAuthorUpdate_Function": "Обновление авторов GameBanana",
+    "UpdateAuthorsDescription": "Обновить всех авторов модов с GameBanana",
+    "SmartUpdateDescription": "Обновлять только моды с неизвестными или отсутствующими авторами",
+    "ActionsHeader": "Действия",
+    "FetchAuthorsDescription": "Получить и обновить информацию об авторах с GameBanana",
+    "Start": "Старт",
     "UpdateAuthorsLabel": "Обновление авторов GameBanana",
     "SmartUpdateLabel": "Только неизвестные авторы (Умное обновление)",
     "FetchAuthorsButton": "Получить авторов с сервера",
@@ -31,5 +36,7 @@
     "ConfirmUpdateOtherData": "Это обновит теги NSFW и другие метаданные из GameBanana для всех модов с URL. Продолжить?",
     "VersionFetchError": "Ошибка получения версии",
     "VersionSummaryTitle": "Краткое содержание обновления версий",
-    "ModsWithIssues": "Моды с проблемами:"
+    "ModsWithIssues": "Моды с проблемами:",
+    "SmartUpdateToggleLabel": "ВЫКЛ/ВКЛ",
+    "UpdateAuthorsToggleLabel": "ВЫКЛ/ВКЛ"
 }

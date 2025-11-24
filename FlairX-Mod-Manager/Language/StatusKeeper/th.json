@@ -1,6 +1,20 @@
 {
     "Title": "ตัวรักษาสถานะ",
     "StatusKeeper_Function": "ตัวรักษาสถานะ",
+    "Browse": "เรียกดู",
+    "StatusKeeper_BackupConfirmation_Description": "ยนยนวาคณไดสรางขอมลสำรองกอนเปดใชงานการซงค",
+    "StatusKeeper_DynamicSync_Description": "ซงคสถานะมอดโดยอตโนมตเมอ d3dx_user.ini เปลยนแปลง",
+    "StatusKeeper_ManualSync_Description": "เรยกใชการซงคสถานะมอดดวยตนเอง",
+    "StatusKeeper_CreateBackup_Description": "สรางไฟลสำรองสำหรบไฟล INI มอดทงหมด",
+    "StatusKeeper_CheckBackup_Label": "ตรวจสอบขอมลสำรอง",
+    "StatusKeeper_CheckBackup_Description": "ตรวจสอบไฟลสำรองและตรวจหาขอมลสำรองทหายไป",
+    "StatusKeeper_RestoreBackup_Description": "คนคาไฟล INI มอดทงหมดจากขอมลสำรอง",
+    "StatusKeeper_DeleteBackups_Description": "ลบไฟลสำรองทงหมด",
+    "StatusKeeper_Logging_Description": "เปดหรอปดการบนทกลงไฟล",
+    "StatusKeeper_OpenLog_Label": "เปดไฟลบนทก",
+    "StatusKeeper_OpenLog_Description": "เปดไฟลบนทกในโปรแกรมแกไขขอความเรมตน",
+    "StatusKeeper_ClearLog_Label": "ลางบนทก",
+    "StatusKeeper_ClearLog_Description": "ลบรายการบนทกทงหมด",
     "StatusKeeper_D3dxFilePath_Label": "เส้นทางไฟล์ d3dx_user.ini:",
     "StatusKeeper_DynamicSync_Label": "การซิงค์แบบไดนามิก",
     "StatusKeeper_BackupConfirmation_Label": "ฉันได้สร้างข้อมูลสำรองแล้ว",
@@ -47,5 +61,8 @@
     "StatusKeeper_ConfirmDelete_Message": "การดำเนินการนี้จะลบไฟล์ข้อมูลสำรองทั้งหมด ดำเนินการต่อหรือไม่?",
     "Error_Generic": "ข้อผิดพลาด",
     "OK": "ตกลง",
-    "PickFolderDialog_Title": "เลือกโฟลเดอร์"
+    "PickFolderDialog_Title": "เลือกโฟลเดอร์",
+    "StatusKeeper_BackupConfirmationToggleLabel": "ปิด/เปิด",
+    "StatusKeeper_DynamicSyncToggleLabel": "ปิด/เปิด",
+    "StatusKeeper_LoggingToggleLabel": "ปิด/เปิด"
 }

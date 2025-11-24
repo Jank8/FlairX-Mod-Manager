@@ -190,5 +190,10 @@
     "CurrentVersion": "현재 버전",
     "ReadyToDownload": "업데이트를 다운로드하고 설치할 준비가 되었습니다.",
     "UpdateFailed": "업데이트 실패",
-    "Close": "닫기"
+    "Close": "닫기",
+    "PresetsPage_SavePresetLabel": "새 프리셋 저장",
+    "PresetsPage_ModsInPreset": "프리셋의 모드",
+    "PresetsPage_LoadPresetLabel": "프리셋 불러오기",
+    "PresetsPage_DeletePresetDescription": "목록에서 선택한 프리셋 제거",
+    "PresetsPage_DeletePresetLabel": "프리셋 삭제"
 }

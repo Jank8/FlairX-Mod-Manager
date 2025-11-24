@@ -1,6 +1,11 @@
 {
     "Title": "GameBanana から作者を更新",
     "GameBananaAuthorUpdate_Function": "GameBanana の作者を更新",
+    "UpdateAuthorsDescription": "GameBananaからすべてのMod作者を更新",
+    "SmartUpdateDescription": "不明または欠落している作者のModのみを更新",
+    "ActionsHeader": "アクション",
+    "FetchAuthorsDescription": "GameBananaから作者情報を取得して更新",
+    "Start": "開始",
     "UpdateAuthorsLabel": "GameBanana の作者を更新",
     "SmartUpdateLabel": "不明な作者のみ (スマートアップデート)",
     "FetchAuthorsButton": "サーバーから作者を取得",
@@ -31,5 +36,7 @@
     "ConfirmUpdateOtherData": "これにより、URLを持つすべてのModのGameBananaからNSFWタグとその他のメタデータが更新されます。続行しますか？",
     "VersionFetchError": "バージョンの取得中にエラーが発生しました",
     "VersionSummaryTitle": "バージョンの更新概要",
-    "ModsWithIssues": "問題のあるMod:"
+    "ModsWithIssues": "問題のあるMod:",
+    "SmartUpdateToggleLabel": "オフ/オン",
+    "UpdateAuthorsToggleLabel": "オフ/オン"
 }

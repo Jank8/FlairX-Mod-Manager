@@ -1,5 +1,11 @@
 {
     "ImageOptimizer_Function": "ตัวเพิ่มประสิทธิภาพรูปภาพ",
+    "ImageOptimizer_ManualOptimizationTitle": "การเพมประสทธภาพดวยตนเอง",
+    "ImageOptimizer_OptimizationModesHeader": "โหมดการเพมประสทธภาพ",
+    "SettingsPage_OptimizePreviews_Description": "เพมประสทธภาพภาพตวอยางมอดเพอประสทธภาพทดขน",
+    "Cancel": "ยกเลก",
+    "Optimize": "เพมประสทธภาพ",
+    "Start": "เรม",
     "ImageOptimizer_QualityHeader": "การตั้งค่าคุณภาพ",
     "ImageOptimizer_PerformanceHeader": "ประสิทธิภาพ",
     "ImageOptimizer_BackupHeader": "การสำรองข้อมูลและการล้างข้อมูล",
@@ -24,5 +30,7 @@
     "ImageOptimizer_Mode_NoResize_Description": "เพิ่มประสิทธิภาพคุณภาพและแปลงเป็น JPEG โดยไม่ปรับขนาดหรือครอบตัด",
     "ImageOptimizer_Mode_Miniatures_Description": "สร้างภาพขนาดย่อเท่านั้น (minitile.jpg, catmini.jpg)",
     "ImageOptimizer_Mode_Rename_Description": "เปลี่ยนชื่อไฟล์เป็นชื่อมาตรฐานเท่านั้น (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "จะไม่มีการเพิ่มประสิทธิภาพอัตโนมัติ"
+    "ImageOptimizer_Mode_Disabled_Description": "จะไม่มีการเพิ่มประสิทธิภาพอัตโนมัติ",
+    "ImageOptimizer_KeepOriginals_Toggle": "ปิด/เปิด",
+    "ImageOptimizer_CreateBackups_Toggle": "ปิด/เปิด"
 }

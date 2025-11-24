@@ -10,12 +10,19 @@
     mc:Ignorable="d"
     d:DesignHeight="400"
     d:DesignWidth="600">
-    <Grid Margin="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <SelectorBar x:Name="SelectorBar1" Grid.Row="0" SelectionChanged="SelectorBar2_SelectionChanged" Margin="0,0,0,16">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="24">
+        <Grid HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="8*" MaxWidth="1000"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <SelectorBar x:Name="SelectorBar1" Grid.Row="0" SelectionChanged="SelectorBar2_SelectionChanged" Margin="0,0,0,16">
             <SelectorBarItem x:Name="SelectorBarItemSynchronizacja" Text="" IsSelected="True">
                 <SelectorBarItem.Icon>
                     <FontIcon Glyph="&#xE895;" />
@@ -31,7 +38,9 @@
                     <FontIcon Glyph="&#xF000;" />
                 </SelectorBarItem.Icon>
             </SelectorBarItem>
-        </SelectorBar>
-        <Frame x:Name="ContentFrame" Grid.Row="1" IsNavigationStackEnabled="False" />
-    </Grid>
+                </SelectorBar>
+                <Frame x:Name="ContentFrame" Grid.Row="1" IsNavigationStackEnabled="False" />
+            </Grid>
+        </Grid>
+    </ScrollViewer>
 </Page>

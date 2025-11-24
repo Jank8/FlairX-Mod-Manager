@@ -1,5 +1,11 @@
 {
     "ImageOptimizer_Function": "이미지 최적화 도구",
+    "ImageOptimizer_ManualOptimizationTitle": "수동 최적화",
+    "ImageOptimizer_OptimizationModesHeader": "최적화 모드",
+    "SettingsPage_OptimizePreviews_Description": "더 나은 성능을 위해 모드 미리보기 이미지 최적화",
+    "Cancel": "취소",
+    "Optimize": "최적화",
+    "Start": "시작",
     "ImageOptimizer_QualityHeader": "품질 설정",
     "ImageOptimizer_PerformanceHeader": "성능",
     "ImageOptimizer_BackupHeader": "백업 및 정리",
@@ -24,5 +30,7 @@
     "ImageOptimizer_Mode_NoResize_Description": "품질 최적화 및 크기 조정이나 자르기 없이 JPEG로 변환",
     "ImageOptimizer_Mode_Miniatures_Description": "미니어처 썸네일만 생성 (minitile.jpg, catmini.jpg)",
     "ImageOptimizer_Mode_Rename_Description": "표준 이름으로 파일 이름만 변경 (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "자동 최적화가 수행되지 않습니다"
+    "ImageOptimizer_Mode_Disabled_Description": "자동 최적화가 수행되지 않습니다",
+    "ImageOptimizer_KeepOriginals_Toggle": "끄기/켜기",
+    "ImageOptimizer_CreateBackups_Toggle": "끄기/켜기"
 }

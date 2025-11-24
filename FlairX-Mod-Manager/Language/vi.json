@@ -190,5 +190,10 @@
     "CurrentVersion": "Phiên bản hiện tại",
     "ReadyToDownload": "Sẵn sàng tải xuống và cài đặt bản cập nhật.",
     "UpdateFailed": "Cập nhật thất bại",
-    "Close": "Đóng"
+    "Close": "Đóng",
+    "PresetsPage_SavePresetLabel": "Lưu Preset Mới",
+    "PresetsPage_ModsInPreset": "Mod trong Preset",
+    "PresetsPage_LoadPresetLabel": "Tải Preset",
+    "PresetsPage_DeletePresetDescription": "Xóa preset đã chọn khỏi danh sách",
+    "PresetsPage_DeletePresetLabel": "Xóa Preset"
 }

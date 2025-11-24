@@ -1,6 +1,11 @@
 {
     "Title": "गेमबनाना से लेखक अपडेट करें",
     "GameBananaAuthorUpdate_Function": "गेमबनाना लेखक अपडेट",
+    "UpdateAuthorsDescription": "GameBanana स सभ मड लखक क अपडट कर",
+    "SmartUpdateDescription": "कवल अजञत य लपत लखक वल मड क अपडट कर",
+    "ActionsHeader": "करयए",
+    "FetchAuthorsDescription": "GameBanana स लखक जनकर परपत कर और अपडट कर",
+    "Start": "शर कर",
     "UpdateAuthorsLabel": "गेमबनाना लेखकों को अपडेट करें",
     "SmartUpdateLabel": "केवल अज्ञात लेखक (स्मार्ट अपडेट)",
     "FetchAuthorsButton": "सर्वर से लेखक प्राप्त करें",
@@ -31,5 +36,7 @@
     "ConfirmUpdateOtherData": "यह URL वाले सभी मॉड्स के लिए GameBanana से NSFW टैग और अन्य मेटाडेटा अपडेट करेगा। जारी रखें?",
     "VersionFetchError": "संस्करण प्राप्त करने में त्रुटि",
     "VersionSummaryTitle": "संस्करण अपडेट सारांश",
-    "ModsWithIssues": "समस्याओं वाले मॉड:"
+    "ModsWithIssues": "समस्याओं वाले मॉड:",
+    "SmartUpdateToggleLabel": "बंद/चालू",
+    "UpdateAuthorsToggleLabel": "बंद/चालू"
 }

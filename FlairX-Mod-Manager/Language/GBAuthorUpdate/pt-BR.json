@@ -1,6 +1,11 @@
 {
     "Title": "Atualizar Autor do GameBanana",
     "GameBananaAuthorUpdate_Function": "Atualização de Autor GameBanana",
+    "UpdateAuthorsDescription": "Atualizar todos os autores de mods do GameBanana",
+    "SmartUpdateDescription": "Atualizar apenas mods com autores desconhecidos ou ausentes",
+    "ActionsHeader": "Ações",
+    "FetchAuthorsDescription": "Buscar e atualizar informações de autores do GameBanana",
+    "Start": "Iniciar",
     "UpdateAuthorsLabel": "Atualizar autores GameBanana",
     "SmartUpdateLabel": "Apenas autores desconhecidos (Atualização Inteligente)",
     "FetchAuthorsButton": "Buscar autores do servidor",
@@ -31,5 +36,7 @@
     "ConfirmUpdateOtherData": "Isso atualizará tags NSFW e outros metadados do GameBanana para todos os mods com URLs. Continuar?",
     "VersionFetchError": "Erro ao buscar versão",
     "VersionSummaryTitle": "Resumo da atualização de versões",
-    "ModsWithIssues": "Mods com problemas:"
+    "ModsWithIssues": "Mods com problemas:",
+    "SmartUpdateToggleLabel": "OFF/ON",
+    "UpdateAuthorsToggleLabel": "OFF/ON"
 }

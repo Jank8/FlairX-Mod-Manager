@@ -158,11 +158,24 @@ namespace FlairX_Mod_Manager.Pages
         {
             var langDict = SharedUtilities.LoadLanguageDictionary();
             PresetsTitle.Text = SharedUtilities.GetTranslation(langDict, "Presets");
+            
+            // Load Preset Card
+            LoadPresetLabel.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_LoadPresetLabel");
             PresetComboBox.PlaceholderText = SharedUtilities.GetTranslation(langDict, "PresetsPage_ComboBox_Placeholder");
+            LoadPresetButtonText.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_LoadPresetButton");
+            
+            // Save Preset Card
+            SavePresetLabel.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_SavePresetLabel");
             PresetNameTextBox.PlaceholderText = SharedUtilities.GetTranslation(langDict, "PresetsPage_NewPreset_Placeholder");
             SavePresetButtonText.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_SavePresetButton");
-            LoadPresetButtonText.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_LoadPresetButton");
+            
+            // Delete Preset Card
+            DeletePresetLabel.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_DeletePresetLabel");
+            DeletePresetDescription.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_DeletePresetDescription");
             DeletePresetButtonText.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_DeletePresetButton");
+            
+            // Preset Mods List
+            PresetModsHeader.Text = SharedUtilities.GetTranslation(langDict, "PresetsPage_ModsInPreset");
         }
 
         private void EnsurePresetsDir()

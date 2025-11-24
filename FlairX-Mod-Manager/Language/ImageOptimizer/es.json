@@ -1,5 +1,11 @@
 {
     "ImageOptimizer_Function": "Optimizador de Imágenes",
+    "ImageOptimizer_ManualOptimizationTitle": "Optimización Manual",
+    "ImageOptimizer_OptimizationModesHeader": "Modos de Optimización",
+    "SettingsPage_OptimizePreviews_Description": "Optimizar imágenes de vista previa de mods para mejor rendimiento",
+    "Cancel": "Cancelar",
+    "Optimize": "Optimizar",
+    "Start": "Iniciar",
     "ImageOptimizer_QualityHeader": "Configuración de Calidad",
     "ImageOptimizer_PerformanceHeader": "Rendimiento",
     "ImageOptimizer_BackupHeader": "Copia de Seguridad y Limpieza",
@@ -24,5 +30,7 @@
     "ImageOptimizer_Mode_NoResize_Description": "Optimizar calidad y convertir a JPEG sin redimensionar o recortar",
     "ImageOptimizer_Mode_Miniatures_Description": "Solo generar miniaturas (minitile.jpg, catmini.jpg)",
     "ImageOptimizer_Mode_Rename_Description": "Solo renombrar archivos a nombres estándar (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "No se realizará ninguna optimización automática"
+    "ImageOptimizer_Mode_Disabled_Description": "No se realizará ninguna optimización automática",
+    "ImageOptimizer_KeepOriginals_Toggle": "OFF/ON",
+    "ImageOptimizer_CreateBackups_Toggle": "OFF/ON"
 }

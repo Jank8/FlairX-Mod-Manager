@@ -1,6 +1,11 @@
 {
     "Title": "อัปเดตผู้เขียนจาก GameBanana",
     "GameBananaAuthorUpdate_Function": "อัปเดตผู้เขียน GameBanana",
+    "UpdateAuthorsDescription": "อปเดตผสรางมอดทงหมดจาก GameBanana",
+    "SmartUpdateDescription": "อปเดตเฉพาะมอดทมผสรางไมทราบหรอขาดหายไป",
+    "ActionsHeader": "การดำเนนการ",
+    "FetchAuthorsDescription": "ดงและอปเดตขอมลผสรางจาก GameBanana",
+    "Start": "เรม",
     "UpdateAuthorsLabel": "อัปเดตผู้เขียน GameBanana",
     "SmartUpdateLabel": "เฉพาะผู้เขียนที่ไม่ทราบ (Smart Update)",
     "FetchAuthorsButton": "ดึงผู้เขียนจากเซิร์ฟเวอร์",
@@ -31,5 +36,7 @@
     "ConfirmUpdateOtherData": "การดำเนินการนี้จะอัปเดตแท็ก NSFW และข้อมูลเมตาอื่นๆ จาก GameBanana สำหรับ mod ทั้งหมดที่มี URL ดำเนินการต่อหรือไม่?",
     "VersionFetchError": "ข้อผิดพลาดขณะดึงข้อมูลเวอร์ชัน",
     "VersionSummaryTitle": "สรุปการอัปเดตเวอร์ชัน",
-    "ModsWithIssues": "มอดที่มีปัญหา:"
+    "ModsWithIssues": "มอดที่มีปัญหา:",
+    "SmartUpdateToggleLabel": "ปิด/เปิด",
+    "UpdateAuthorsToggleLabel": "ปิด/เปิด"
 }

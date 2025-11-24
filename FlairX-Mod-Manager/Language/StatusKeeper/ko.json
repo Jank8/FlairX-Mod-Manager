@@ -1,6 +1,20 @@
 {
     "Title": "상태 유지기",
     "StatusKeeper_Function": "상태 유지기",
+    "Browse": "찾아보기",
+    "StatusKeeper_BackupConfirmation_Description": "동기화를 활성화하기 전에 백업을 생성했는지 확인",
+    "StatusKeeper_DynamicSync_Description": "d3dx_user.ini가 변경될 때 모드 상태를 자동으로 동기화",
+    "StatusKeeper_ManualSync_Description": "모드 상태 동기화를 수동으로 트리거",
+    "StatusKeeper_CreateBackup_Description": "모든 모드 INI 파일의 백업 파일 생성",
+    "StatusKeeper_CheckBackup_Label": "백업 확인",
+    "StatusKeeper_CheckBackup_Description": "백업 파일을 확인하고 누락된 백업 확인",
+    "StatusKeeper_RestoreBackup_Description": "백업에서 모든 모드 INI 파일 복원",
+    "StatusKeeper_DeleteBackups_Description": "모든 백업 파일 삭제",
+    "StatusKeeper_Logging_Description": "파일 로깅 활성화 또는 비활성화",
+    "StatusKeeper_OpenLog_Label": "로그 파일 열기",
+    "StatusKeeper_OpenLog_Description": "기본 텍스트 편집기에서 로그 파일 열기",
+    "StatusKeeper_ClearLog_Label": "로그 지우기",
+    "StatusKeeper_ClearLog_Description": "모든 로그 항목 삭제",
     "StatusKeeper_D3dxFilePath_Label": "d3dx_user.ini 파일 경로:",
     "StatusKeeper_DynamicSync_Label": "동적 동기화",
     "StatusKeeper_BackupConfirmation_Label": "백업을 만들었습니다",
@@ -47,5 +61,8 @@
     "StatusKeeper_ConfirmDelete_Message": "모든 백업 파일을 삭제합니다. 계속하시겠습니까?",
     "Error_Generic": "오류",
     "OK": "확인",
-    "PickFolderDialog_Title": "폴더 선택"
+    "PickFolderDialog_Title": "폴더 선택",
+    "StatusKeeper_BackupConfirmationToggleLabel": "끄기/켜기",
+    "StatusKeeper_DynamicSyncToggleLabel": "끄기/켜기",
+    "StatusKeeper_LoggingToggleLabel": "끄기/켜기"
 }

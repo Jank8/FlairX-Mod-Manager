@@ -1,5 +1,11 @@
 {
     "ImageOptimizer_Function": "Tagapag-optimize ng Larawan",
+    "ImageOptimizer_ManualOptimizationTitle": "Manu-manong Pag-optimize",
+    "ImageOptimizer_OptimizationModesHeader": "Mga Mode ng Pag-optimize",
+    "SettingsPage_OptimizePreviews_Description": "I-optimize ang mga larawan ng preview ng mod para sa mas mahusay na pagganap",
+    "Cancel": "Kanselahin",
+    "Optimize": "I-optimize",
+    "Start": "Simulan",
     "ImageOptimizer_QualityHeader": "Mga Setting ng Kalidad",
     "ImageOptimizer_PerformanceHeader": "Pagganap",
     "ImageOptimizer_BackupHeader": "Backup at Paglilinis",
@@ -24,5 +30,7 @@
     "ImageOptimizer_Mode_NoResize_Description": "I-optimize ang kalidad at i-convert sa JPEG nang walang pagbabago ng laki o pagputol",
     "ImageOptimizer_Mode_Miniatures_Description": "Gumawa lang ng mga miniature thumbnail (minitile.jpg, catmini.jpg)",
     "ImageOptimizer_Mode_Rename_Description": "Palitan lang ang pangalan ng mga file sa standard na pangalan (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "Walang awtomatikong pag-optimize na isasagawa"
+    "ImageOptimizer_Mode_Disabled_Description": "Walang awtomatikong pag-optimize na isasagawa",
+    "ImageOptimizer_KeepOriginals_Toggle": "OFF/ON",
+    "ImageOptimizer_CreateBackups_Toggle": "OFF/ON"
 }

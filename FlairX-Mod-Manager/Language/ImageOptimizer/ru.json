@@ -1,5 +1,11 @@
 {
     "ImageOptimizer_Function": "Оптимизатор Изображений",
+    "ImageOptimizer_ManualOptimizationTitle": "Ручная Оптимизация",
+    "ImageOptimizer_OptimizationModesHeader": "Режимы Оптимизации",
+    "SettingsPage_OptimizePreviews_Description": "Оптимизировать изображения предпросмотра модов для лучшей производительности",
+    "Cancel": "Отмена",
+    "Optimize": "Оптимизировать",
+    "Start": "Старт",
     "ImageOptimizer_QualityHeader": "Настройки Качества",
     "ImageOptimizer_PerformanceHeader": "Производительность",
     "ImageOptimizer_BackupHeader": "Резервное Копирование и Очистка",
@@ -24,5 +30,7 @@
     "ImageOptimizer_Mode_NoResize_Description": "Оптимизировать качество и конвертировать в JPEG без изменения размера или обрезки",
     "ImageOptimizer_Mode_Miniatures_Description": "Создать только миниатюры (minitile.jpg, catmini.jpg)",
     "ImageOptimizer_Mode_Rename_Description": "Только переименовать файлы в стандартные имена (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "Автоматическая оптимизация не будет выполняться"
+    "ImageOptimizer_Mode_Disabled_Description": "Автоматическая оптимизация не будет выполняться",
+    "ImageOptimizer_KeepOriginals_Toggle": "ВЫКЛ/ВКЛ",
+    "ImageOptimizer_CreateBackups_Toggle": "ВЫКЛ/ВКЛ"
 }

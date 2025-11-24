@@ -190,5 +190,10 @@
     "CurrentVersion": "เวอรชนปจจบน",
     "ReadyToDownload": "พรอมดาวนโหลดและตดตงการอปเดต",
     "UpdateFailed": "การอปเดตลมเหลว",
-    "Close": "ปด"
+    "Close": "ปด",
+    "PresetsPage_SavePresetLabel": "บันทึกพรีเซ็ตใหม่",
+    "PresetsPage_ModsInPreset": "ม็อดในพรีเซ็ต",
+    "PresetsPage_LoadPresetLabel": "โหลดพรีเซ็ต",
+    "PresetsPage_DeletePresetDescription": "ลบพรีเซ็ตที่เลือกออกจากรายการ",
+    "PresetsPage_DeletePresetLabel": "ลบพรีเซ็ต"
 }

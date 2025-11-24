@@ -1,6 +1,20 @@
 {
     "Title": "Gardien de Statut",
     "StatusKeeper_Function": "Gardien de Statut",
+    "Browse": "Parcourir",
+    "StatusKeeper_BackupConfirmation_Description": "Confirmer que vous avez créé des sauvegardes avant d'activer la synchronisation",
+    "StatusKeeper_DynamicSync_Description": "Synchroniser automatiquement l'état des mods lorsque d3dx_user.ini change",
+    "StatusKeeper_ManualSync_Description": "Déclencher manuellement la synchronisation de l'état des mods",
+    "StatusKeeper_CreateBackup_Description": "Créer des fichiers de sauvegarde pour tous les fichiers INI de mods",
+    "StatusKeeper_CheckBackup_Label": "Vérifier les Sauvegardes",
+    "StatusKeeper_CheckBackup_Description": "Vérifier les fichiers de sauvegarde et rechercher les sauvegardes manquantes",
+    "StatusKeeper_RestoreBackup_Description": "Restaurer tous les fichiers INI de mods depuis la sauvegarde",
+    "StatusKeeper_DeleteBackups_Description": "Supprimer tous les fichiers de sauvegarde",
+    "StatusKeeper_Logging_Description": "Activer ou désactiver la journalisation dans un fichier",
+    "StatusKeeper_OpenLog_Label": "Ouvrir le Fichier Journal",
+    "StatusKeeper_OpenLog_Description": "Ouvrir le fichier journal dans l'éditeur de texte par défaut",
+    "StatusKeeper_ClearLog_Label": "Effacer le Journal",
+    "StatusKeeper_ClearLog_Description": "Supprimer toutes les entrées du journal",
     "StatusKeeper_D3dxFilePath_Label": "Chemin du fichier d3dx_user.ini :",
     "StatusKeeper_DynamicSync_Label": "Synchronisation dynamique",
     "StatusKeeper_BackupConfirmation_Label": "J'ai fait des sauvegardes",
@@ -47,5 +61,8 @@
     "StatusKeeper_ConfirmDelete_Message": "Cela supprimera tous les fichiers de sauvegarde. Continuer ?",
     "Error_Generic": "Erreur",
     "OK": "OK",
-    "PickFolderDialog_Title": "Sélectionner un Dossier"
+    "PickFolderDialog_Title": "Sélectionner un Dossier",
+    "StatusKeeper_BackupConfirmationToggleLabel": "OFF/ON",
+    "StatusKeeper_DynamicSyncToggleLabel": "OFF/ON",
+    "StatusKeeper_LoggingToggleLabel": "OFF/ON"
 }

@@ -1,5 +1,11 @@
 {
     "ImageOptimizer_Function": "画像オプティマイザー",
+    "ImageOptimizer_ManualOptimizationTitle": "手動最適化",
+    "ImageOptimizer_OptimizationModesHeader": "最適化モード",
+    "SettingsPage_OptimizePreviews_Description": "パフォーマンス向上のためにModプレビュー画像を最適化",
+    "Cancel": "キャンセル",
+    "Optimize": "最適化",
+    "Start": "開始",
     "ImageOptimizer_QualityHeader": "品質設定",
     "ImageOptimizer_PerformanceHeader": "パフォーマンス",
     "ImageOptimizer_BackupHeader": "バックアップとクリーンアップ",
@@ -24,5 +30,7 @@
     "ImageOptimizer_Mode_NoResize_Description": "品質を最適化し、リサイズやクロップなしでJPEGに変換",
     "ImageOptimizer_Mode_Miniatures_Description": "ミニチュアサムネイルのみ生成（minitile.jpg、catmini.jpg）",
     "ImageOptimizer_Mode_Rename_Description": "標準名にファイル名を変更するのみ（preview.jpg、disabled.jpg）",
-    "ImageOptimizer_Mode_Disabled_Description": "自動最適化は実行されません"
+    "ImageOptimizer_Mode_Disabled_Description": "自動最適化は実行されません",
+    "ImageOptimizer_KeepOriginals_Toggle": "オフ/オン",
+    "ImageOptimizer_CreateBackups_Toggle": "オフ/オン"
 }

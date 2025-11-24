@@ -22,14 +22,36 @@ namespace FlairX_Mod_Manager.Pages
         private void UpdateTexts()
         {
             var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+            
+            // Logging toggle card
             LoggingLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Logging_Label");
+            LoggingDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Logging_Description");
+            
+            // Open log card
+            OpenLogLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_OpenLog_Label");
+            OpenLogDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_OpenLog_Description");
             OpenLogButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_OpenLog_Button");
+            
+            // Clear log card
+            ClearLogLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ClearLog_Label");
+            ClearLogDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ClearLog_Description");
             ClearLogButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ClearLog_Button");
+        }
+        
+        private void UpdateToggleLabels()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            var onText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_On");
+            var offText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_Off");
+            
+            if (LoggingToggleLabel != null && LoggingToggle != null)
+                LoggingToggleLabel.Text = LoggingToggle.IsOn ? onText : offText;
         }
 
         private void LoadSettingsToUI()
         {
             LoggingToggle.IsOn = SettingsManager.Current.StatusKeeperLoggingEnabled;
+            UpdateToggleLabels();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -40,6 +62,9 @@ namespace FlairX_Mod_Manager.Pages
                 _settings = settings;
                 LoadSettingsToUI();
             }
+            // Refresh translations when navigating to this page
+            UpdateTexts();
+            UpdateToggleLabels();
         }
 
         private string GetLogPath()
@@ -55,6 +80,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private void LoggingToggle_Toggled(object sender, RoutedEventArgs e)
         {
+            UpdateToggleLabels();
             SettingsManager.Current.StatusKeeperLoggingEnabled = LoggingToggle.IsOn;
             SettingsManager.Save();
             var logPath = GetLogPath();

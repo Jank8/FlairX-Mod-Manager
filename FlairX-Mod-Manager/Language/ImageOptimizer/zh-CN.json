@@ -1,5 +1,11 @@
 {
     "ImageOptimizer_Function": "图像优化器",
+    "ImageOptimizer_ManualOptimizationTitle": "手动优化",
+    "ImageOptimizer_OptimizationModesHeader": "优化模式",
+    "SettingsPage_OptimizePreviews_Description": "优化模组预览图像以提高性能",
+    "Cancel": "取消",
+    "Optimize": "优化",
+    "Start": "开始",
     "ImageOptimizer_QualityHeader": "质量设置",
     "ImageOptimizer_PerformanceHeader": "性能",
     "ImageOptimizer_BackupHeader": "备份和清理",
@@ -24,5 +30,7 @@
     "ImageOptimizer_Mode_NoResize_Description": "优化质量并转换为JPEG，不调整大小或裁剪",
     "ImageOptimizer_Mode_Miniatures_Description": "仅生成缩略图（minitile.jpg、catmini.jpg）",
     "ImageOptimizer_Mode_Rename_Description": "仅将文件重命名为标准名称（preview.jpg、disabled.jpg）",
-    "ImageOptimizer_Mode_Disabled_Description": "不会执行自动优化"
+    "ImageOptimizer_Mode_Disabled_Description": "不会执行自动优化",
+    "ImageOptimizer_KeepOriginals_Toggle": "关/开",
+    "ImageOptimizer_CreateBackups_Toggle": "关/开"
 }

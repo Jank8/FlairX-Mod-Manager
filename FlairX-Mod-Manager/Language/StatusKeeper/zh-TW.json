@@ -1,6 +1,20 @@
 {
     "Title": "狀態保持器",
     "StatusKeeper_Function": "狀態保持器",
+    "Browse": "瀏覽",
+    "StatusKeeper_BackupConfirmation_Description": "在啟用同步之前確認您已建立備份",
+    "StatusKeeper_DynamicSync_Description": "當d3dx_user.ini更改時自動同步模組狀態",
+    "StatusKeeper_ManualSync_Description": "手動觸發模組狀態同步",
+    "StatusKeeper_CreateBackup_Description": "為所有模組INI檔案建立備份檔案",
+    "StatusKeeper_CheckBackup_Label": "檢查備份",
+    "StatusKeeper_CheckBackup_Description": "驗證備份檔案並檢查缺失的備份",
+    "StatusKeeper_RestoreBackup_Description": "從備份還原所有模組INI檔案",
+    "StatusKeeper_DeleteBackups_Description": "刪除所有備份檔案",
+    "StatusKeeper_Logging_Description": "啟用或停用檔案日誌記錄",
+    "StatusKeeper_OpenLog_Label": "開啟日誌檔案",
+    "StatusKeeper_OpenLog_Description": "在預設文字編輯器中開啟日誌檔案",
+    "StatusKeeper_ClearLog_Label": "清除日誌",
+    "StatusKeeper_ClearLog_Description": "刪除所有日誌條目",
     "StatusKeeper_D3dxFilePath_Label": "d3dx_user.ini檔案路徑:",
     "StatusKeeper_DynamicSync_Label": "動態同步",
     "StatusKeeper_BackupConfirmation_Label": "我已製作備份",
@@ -47,5 +61,8 @@
     "StatusKeeper_ConfirmDelete_Message": "這將刪除所有備份檔案。繼續？",
     "Error_Generic": "錯誤",
     "OK": "確定",
-    "PickFolderDialog_Title": "選擇資料夾"
+    "PickFolderDialog_Title": "選擇資料夾",
+    "StatusKeeper_BackupConfirmationToggleLabel": "關/開",
+    "StatusKeeper_DynamicSyncToggleLabel": "關/開",
+    "StatusKeeper_LoggingToggleLabel": "關/開"
 }

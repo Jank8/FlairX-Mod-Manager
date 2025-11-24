@@ -190,5 +190,10 @@
     "CurrentVersion": "Versión actual",
     "ReadyToDownload": "Listo para descargar e instalar la actualización.",
     "UpdateFailed": "La actualización falló",
-    "Close": "Cerrar"
+    "Close": "Cerrar",
+    "PresetsPage_SavePresetLabel": "Guardar Nuevo Preset",
+    "PresetsPage_ModsInPreset": "Mods en el Preset",
+    "PresetsPage_LoadPresetLabel": "Cargar Preset",
+    "PresetsPage_DeletePresetDescription": "Eliminar el preset seleccionado de la lista",
+    "PresetsPage_DeletePresetLabel": "Eliminar Preset"
 }

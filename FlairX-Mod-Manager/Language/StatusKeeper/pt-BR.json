@@ -1,6 +1,20 @@
 {
     "Title": "Mantenedor de Status",
     "StatusKeeper_Function": "Mantenedor de Status",
+    "Browse": "Procurar",
+    "StatusKeeper_BackupConfirmation_Description": "Confirme que você criou backups antes de ativar a sincronização",
+    "StatusKeeper_DynamicSync_Description": "Sincronizar automaticamente o status dos mods quando d3dx_user.ini mudar",
+    "StatusKeeper_ManualSync_Description": "Acionar manualmente a sincronização do status dos mods",
+    "StatusKeeper_CreateBackup_Description": "Criar arquivos de backup para todos os arquivos INI de mods",
+    "StatusKeeper_CheckBackup_Label": "Verificar Backups",
+    "StatusKeeper_CheckBackup_Description": "Verificar arquivos de backup e procurar backups ausentes",
+    "StatusKeeper_RestoreBackup_Description": "Restaurar todos os arquivos INI de mods do backup",
+    "StatusKeeper_DeleteBackups_Description": "Excluir todos os arquivos de backup",
+    "StatusKeeper_Logging_Description": "Ativar ou desativar o registro em arquivo",
+    "StatusKeeper_OpenLog_Label": "Abrir Arquivo de Log",
+    "StatusKeeper_OpenLog_Description": "Abrir o arquivo de log no editor de texto padrão",
+    "StatusKeeper_ClearLog_Label": "Limpar Log",
+    "StatusKeeper_ClearLog_Description": "Excluir todas as entradas de log",
     "StatusKeeper_D3dxFilePath_Label": "Caminho do arquivo d3dx_user.ini:",
     "StatusKeeper_DynamicSync_Label": "Sincronização dinâmica",
     "StatusKeeper_BackupConfirmation_Label": "Eu fiz backups",
@@ -47,5 +61,8 @@
     "StatusKeeper_ConfirmDelete_Message": "Isso excluirá todos os arquivos de backup. Continuar?",
     "Error_Generic": "Erro",
     "OK": "OK",
-    "PickFolderDialog_Title": "Selecionar Pasta"
+    "PickFolderDialog_Title": "Selecionar Pasta",
+    "StatusKeeper_BackupConfirmationToggleLabel": "OFF/ON",
+    "StatusKeeper_DynamicSyncToggleLabel": "OFF/ON",
+    "StatusKeeper_LoggingToggleLabel": "OFF/ON"
 }

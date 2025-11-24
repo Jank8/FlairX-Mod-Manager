@@ -190,5 +190,10 @@
     "CurrentVersion": "Текущая версия",
     "ReadyToDownload": "Готово к загрузке и установке обновления.",
     "UpdateFailed": "Обновление не удалось",
-    "Close": "Закрыть"
+    "Close": "Закрыть",
+    "PresetsPage_SavePresetLabel": "Сохранить новый пресет",
+    "PresetsPage_ModsInPreset": "Моды в пресете",
+    "PresetsPage_LoadPresetLabel": "Загрузить пресет",
+    "PresetsPage_DeletePresetDescription": "Удалить выбранный пресет из списка",
+    "PresetsPage_DeletePresetLabel": "Удалить пресет"
 }

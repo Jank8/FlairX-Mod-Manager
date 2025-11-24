@@ -1,6 +1,11 @@
 {
     "Title": "從GameBanana更新作者",
     "GameBananaAuthorUpdate_Function": "GameBanana作者更新",
+    "UpdateAuthorsDescription": "從GameBanana更新所有模組作者",
+    "SmartUpdateDescription": "僅更新作者未知或缺失的模組",
+    "ActionsHeader": "操作",
+    "FetchAuthorsDescription": "從GameBanana獲取並更新作者資訊",
+    "Start": "開始",
     "UpdateAuthorsLabel": "更新GameBanana作者",
     "SmartUpdateLabel": "僅未知作者（智慧更新）",
     "FetchAuthorsButton": "從伺服器取得作者",
@@ -31,5 +36,7 @@
     "ConfirmUpdateOtherData": "這將從GameBanana更新所有帶URL的模組的NSFW標籤和其他中繼資料。繼續？",
     "VersionFetchError": "取得版本時出錯",
     "VersionSummaryTitle": "版本更新摘要",
-    "ModsWithIssues": "有問題的模組:"
+    "ModsWithIssues": "有問題的模組:",
+    "SmartUpdateToggleLabel": "關/開",
+    "UpdateAuthorsToggleLabel": "關/開"
 }

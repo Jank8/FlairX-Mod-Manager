@@ -1,5 +1,11 @@
 {
     "ImageOptimizer_Function": "Trình Tối Ưu Hóa Hình Ảnh",
+    "ImageOptimizer_ManualOptimizationTitle": "Tối Ưu Hóa Thủ Công",
+    "ImageOptimizer_OptimizationModesHeader": "Chế Độ Tối Ưu Hóa",
+    "SettingsPage_OptimizePreviews_Description": "Tối ưu hóa hình ảnh xem trước mod để có hiệu suất tốt hơn",
+    "Cancel": "Hủy",
+    "Optimize": "Tối Ưu Hóa",
+    "Start": "Bắt đầu",
     "ImageOptimizer_QualityHeader": "Cài Đặt Chất Lượng",
     "ImageOptimizer_PerformanceHeader": "Hiệu Suất",
     "ImageOptimizer_BackupHeader": "Sao Lưu và Dọn Dẹp",
@@ -24,5 +30,7 @@
     "ImageOptimizer_Mode_NoResize_Description": "Tối ưu hóa chất lượng và chuyển đổi sang JPEG mà không thay đổi kích thước hoặc cắt",
     "ImageOptimizer_Mode_Miniatures_Description": "Chỉ tạo hình thu nhỏ (minitile.jpg, catmini.jpg)",
     "ImageOptimizer_Mode_Rename_Description": "Chỉ đổi tên tệp thành tên chuẩn (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "Không thực hiện tối ưu hóa tự động"
+    "ImageOptimizer_Mode_Disabled_Description": "Không thực hiện tối ưu hóa tự động",
+    "ImageOptimizer_KeepOriginals_Toggle": "TẮT/BẬT",
+    "ImageOptimizer_CreateBackups_Toggle": "TẮT/BẬT"
 }

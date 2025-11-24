@@ -331,57 +331,45 @@ namespace FlairX_Mod_Manager.Pages
 
         private void PopulateFunctionButtons()
         {
-            // Update text for each function navigation item, set visibility based on enabled state
+            // Update text for each function selector item, set visibility based on enabled state
             foreach (var function in _functionInfos)
             {
                 switch (function.FileName)
                 {
                     case "GBAuthorUpdate":
-                        // Update NavigationViewItem
-                        GBAuthorUpdateNavItem.Content = "GameBanana Update";
-                        GBAuthorUpdateNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        GBAuthorUpdateItem.Text = "GameBanana Update";
+                        GBAuthorUpdateItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
                         break;
 
                     case "StatusKeeperPage":
-                        // Update NavigationViewItem
-                        StatusKeeperNavItem.Content = "Status Keeper";
-                        StatusKeeperNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        StatusKeeperItem.Text = "Status Keeper";
+                        StatusKeeperItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
                         break;
                     case "ModInfoBackup":
-                        // Update NavigationViewItem
-                        ModInfoBackupNavItem.Content = "ModInfo Backup";
-                        ModInfoBackupNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        ModInfoBackupItem.Text = "ModInfo Backup";
+                        ModInfoBackupItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
                         break;
                     
                     case "ImageOptimizer":
-                        // Update NavigationViewItem
-                        ImageOptimizerNavItem.Content = "Image Optimizer";
-                        ImageOptimizerNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        ImageOptimizerItem.Text = "Image Optimizer";
+                        ImageOptimizerItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
                         break;
                 }
             }
             
-            // Select the first visible navigation item by default
-            var firstVisibleNavItem = FunctionNavigationView.MenuItems.OfType<NavigationViewItem>().FirstOrDefault(item => item.Visibility == Visibility.Visible);
-            
-            if (firstVisibleNavItem != null)
+            // Navigate to first function
+            var firstFunction = _functionInfos.FirstOrDefault(f => f.Enabled);
+            if (firstFunction != null)
             {
-                FunctionNavigationView.SelectedItem = firstVisibleNavItem;
-                
-                var functionName = firstVisibleNavItem.Tag as string;
-                var firstFunction = _functionInfos.FirstOrDefault(f => f.FileName == functionName);
-                if (firstFunction != null)
-                {
-                    NavigateToFunction(firstFunction);
-                }
+                NavigateToFunction(firstFunction);
             }
         }
 
 
 
-        private void FunctionNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        private void FunctionSelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
         {
-            if (args.SelectedItem is NavigationViewItem selectedItem && selectedItem.Tag is string functionName)
+            if (sender.SelectedItem is SelectorBarItem selectedItem && selectedItem.Tag is string functionName)
             {
                 // Find function by name
                 var function = _functionInfos.FirstOrDefault(f => f.FileName == functionName);

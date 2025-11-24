@@ -1,6 +1,20 @@
 {
     "Title": "Durum Koruyucu",
     "StatusKeeper_Function": "Durum Koruyucu",
+    "Browse": "Gözat",
+    "StatusKeeper_BackupConfirmation_Description": "Senkronizasyonu etkinleştirmeden önce yedek oluşturduğunuzu onaylayın",
+    "StatusKeeper_DynamicSync_Description": "d3dx_user.ini değiştiğinde mod durumunu otomatik olarak senkronize et",
+    "StatusKeeper_ManualSync_Description": "Mod durumu senkronizasyonunu manuel olarak tetikle",
+    "StatusKeeper_CreateBackup_Description": "Tüm mod INI dosyaları için yedek dosyaları oluştur",
+    "StatusKeeper_CheckBackup_Label": "Yedekleri Kontrol Et",
+    "StatusKeeper_CheckBackup_Description": "Yedek dosyalarını doğrula ve eksik yedekleri kontrol et",
+    "StatusKeeper_RestoreBackup_Description": "Tüm mod INI dosyalarını yedekten geri yükle",
+    "StatusKeeper_DeleteBackups_Description": "Tüm yedek dosyalarını sil",
+    "StatusKeeper_Logging_Description": "Dosyaya kayıt yazmayı etkinleştir veya devre dışı bırak",
+    "StatusKeeper_OpenLog_Label": "Günlük Dosyasını Aç",
+    "StatusKeeper_OpenLog_Description": "Günlük dosyasını varsayılan metin düzenleyicide aç",
+    "StatusKeeper_ClearLog_Label": "Günlüğü Temizle",
+    "StatusKeeper_ClearLog_Description": "Tüm günlük girişlerini sil",
     "StatusKeeper_D3dxFilePath_Label": "d3dx_user.ini dosya yolu:",
     "StatusKeeper_DynamicSync_Label": "Dinamik senkronizasyon",
     "StatusKeeper_BackupConfirmation_Label": "Yedekler aldım",
@@ -47,5 +61,8 @@
     "StatusKeeper_ConfirmDelete_Message": "Bu, tüm yedek dosyalarını silecektir. Devam edilsin mi?",
     "Error_Generic": "Hata",
     "OK": "Tamam",
-    "PickFolderDialog_Title": "Klasör Seç"
+    "PickFolderDialog_Title": "Klasör Seç",
+    "StatusKeeper_BackupConfirmationToggleLabel": "KAPALI/AÇIK",
+    "StatusKeeper_DynamicSyncToggleLabel": "KAPALI/AÇIK",
+    "StatusKeeper_LoggingToggleLabel": "KAPALI/AÇIK"
 }

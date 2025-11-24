@@ -24,10 +24,26 @@ namespace FlairX_Mod_Manager.Pages
         private void UpdateTexts()
         {
             var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
-            CreateBackupsText.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_BackupAll");
-            RestoreBackup1Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore1");
-            RestoreBackup2Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore2");
-            RestoreBackup3Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore3");
+            
+            // Create backup section
+            CreateBackupsTitle.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_CreateTitle");
+            CreateBackupsDescription.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_CreateDescription");
+            CreateBackupsText.Text = SharedUtilities.GetTranslation(lang, "Create");
+            
+            // Backups header
+            BackupsHeader.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_BackupsHeader");
+            
+            // Backup titles
+            RestoreBackup1Title.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Backup1Title");
+            RestoreBackup2Title.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Backup2Title");
+            RestoreBackup3Title.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Backup3Title");
+            
+            // Restore buttons
+            RestoreBackup1Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore");
+            RestoreBackup2Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore");
+            RestoreBackup3Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore");
+            
+            // Delete button tooltips
             ToolTipService.SetToolTip(DeleteBackup1Button, SharedUtilities.GetTranslation(lang, "ModInfoBackup_Delete"));
             ToolTipService.SetToolTip(DeleteBackup2Button, SharedUtilities.GetTranslation(lang, "ModInfoBackup_Delete"));
             ToolTipService.SetToolTip(DeleteBackup3Button, SharedUtilities.GetTranslation(lang, "ModInfoBackup_Delete"));
@@ -252,11 +268,11 @@ namespace FlairX_Mod_Manager.Pages
 
                 btn.IsEnabled = false;
                 
-                // Create progress bar for this button
+                // Show progress bar for this button
                 ProgressBar? progressBar = null;
-                if (btn == RestoreBackup1Button) progressBar = CreateProgressBarAfter(btn, 4);
-                else if (btn == RestoreBackup2Button) progressBar = CreateProgressBarAfter(btn, 4);
-                else if (btn == RestoreBackup3Button) progressBar = CreateProgressBarAfter(btn, 4);
+                if (btn == RestoreBackup1Button) progressBar = RestoreBackup1ProgressBar;
+                else if (btn == RestoreBackup2Button) progressBar = RestoreBackup2ProgressBar;
+                else if (btn == RestoreBackup3Button) progressBar = RestoreBackup3ProgressBar;
                 
                 if (progressBar != null) progressBar.Visibility = Visibility.Visible;
                 
@@ -270,36 +286,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
         
-        private ProgressBar? CreateProgressBarAfter(Button button, int column)
-        {
-            // Find the parent grid
-            if (button.Parent is FrameworkElement parent && parent.Parent is Grid grid)
-            {
-                // Check if we already have a progress bar
-                ProgressBar? existingBar = grid.Children.OfType<ProgressBar>().FirstOrDefault();
-                if (existingBar != null)
-                {
-                    return existingBar;
-                }
-                
-                // Create a new progress bar
-                ProgressBar progressBar = new ProgressBar
-                {
-                    IsIndeterminate = true,
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Visibility = Visibility.Collapsed,
-                    Margin = new Thickness(10, 0, 0, 0)
-                };
-                
-                // Add it to the grid in the specified column
-                Grid.SetColumn(progressBar, column);
-                grid.Children.Add(progressBar);
-                
-                return progressBar;
-            }
-            
-            return null;
-        }
+
 
         private int RestoreAllBackups(int backupNum)
         {
@@ -389,11 +376,11 @@ namespace FlairX_Mod_Manager.Pages
                 
                 btn.IsEnabled = false;
                 
-                // Create progress bar for this button
+                // Show progress bar for this button
                 ProgressBar? progressBar = null;
-                if (btn == DeleteBackup1Button) progressBar = CreateProgressBarAfter(btn, 4);
-                else if (btn == DeleteBackup2Button) progressBar = CreateProgressBarAfter(btn, 4);
-                else if (btn == DeleteBackup3Button) progressBar = CreateProgressBarAfter(btn, 4);
+                if (btn == DeleteBackup1Button) progressBar = RestoreBackup1ProgressBar;
+                else if (btn == DeleteBackup2Button) progressBar = RestoreBackup2ProgressBar;
+                else if (btn == DeleteBackup3Button) progressBar = RestoreBackup3ProgressBar;
                 
                 if (progressBar != null) progressBar.Visibility = Visibility.Visible;
                 

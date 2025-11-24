@@ -1,5 +1,11 @@
 {
     "ImageOptimizer_Function": "Görüntü Optimize Edici",
+    "ImageOptimizer_ManualOptimizationTitle": "Manuel Optimizasyon",
+    "ImageOptimizer_OptimizationModesHeader": "Optimizasyon Modları",
+    "SettingsPage_OptimizePreviews_Description": "Daha iyi performans için mod önizleme görsellerini optimize edin",
+    "Cancel": "İptal",
+    "Optimize": "Optimize Et",
+    "Start": "Başlat",
     "ImageOptimizer_QualityHeader": "Kalite Ayarları",
     "ImageOptimizer_PerformanceHeader": "Performans",
     "ImageOptimizer_BackupHeader": "Yedekleme ve Temizlik",
@@ -24,5 +30,7 @@
     "ImageOptimizer_Mode_NoResize_Description": "Kaliteyi optimize et ve yeniden boyutlandırma veya kırpma olmadan JPEG'e dönüştür",
     "ImageOptimizer_Mode_Miniatures_Description": "Sadece minyatür küçük resimler oluştur (minitile.jpg, catmini.jpg)",
     "ImageOptimizer_Mode_Rename_Description": "Dosyaları sadece standart isimlere yeniden adlandır (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "Otomatik optimizasyon yapılmayacak"
+    "ImageOptimizer_Mode_Disabled_Description": "Otomatik optimizasyon yapılmayacak",
+    "ImageOptimizer_KeepOriginals_Toggle": "KAPALI/AÇIK",
+    "ImageOptimizer_CreateBackups_Toggle": "KAPALI/AÇIK"
 }

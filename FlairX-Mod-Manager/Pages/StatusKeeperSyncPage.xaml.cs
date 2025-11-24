@@ -50,16 +50,38 @@ namespace FlairX_Mod_Manager.Pages
         private void UpdateTexts()
         {
             var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-            D3dxFilePathLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxFilePath_Label");
-            DynamicSyncLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DynamicSync_Label");
-            BackupConfirmationLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_BackupConfirmation_Label");
-            ManualSyncLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ManualSync_Label");
-            ManualSyncButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ManualSync_Button");
-
             
-            // Setting tooltips from language files
+            // File path card
+            D3dxFilePathLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxFilePath_Label");
+            D3dxFilePathOpenButtonText.Text = SharedUtilities.GetTranslation(lang, "Browse");
+            ToolTipService.SetToolTip(D3dxFilePathOpenButton, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_D3dxFilePath"));
+            
+            // Backup confirmation card
+            BackupConfirmationLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_BackupConfirmation_Label");
+            BackupConfirmationDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_BackupConfirmation_Description");
+            
+            // Dynamic sync card
+            DynamicSyncLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DynamicSync_Label");
+            DynamicSyncDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DynamicSync_Description");
             ToolTipService.SetToolTip(DynamicSyncToggle, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_DynamicSync"));
+            
+            // Manual sync card
+            ManualSyncLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ManualSync_Label");
+            ManualSyncDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ManualSync_Description");
+            ManualSyncButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_ManualSync_Button");
             ToolTipService.SetToolTip(ManualSyncButton, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_ManualSync"));
+        }
+        
+        private void UpdateToggleLabels()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            var onText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_On");
+            var offText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_Off");
+            
+            if (BackupConfirmationToggleLabel != null && BackupConfirmationToggle != null)
+                BackupConfirmationToggleLabel.Text = BackupConfirmationToggle.IsOn ? onText : offText;
+            if (DynamicSyncToggleLabel != null && DynamicSyncToggle != null)
+                DynamicSyncToggleLabel.Text = DynamicSyncToggle.IsOn ? onText : offText;
         }
 
 
@@ -99,6 +121,10 @@ namespace FlairX_Mod_Manager.Pages
             BackupConfirmationToggle.IsOn = SettingsManager.Current.StatusKeeperBackupConfirmed;
             DynamicSyncToggle.IsOn = SettingsManager.Current.StatusKeeperDynamicSyncEnabled;
             InitializeBreadcrumbBar();
+            
+            // Refresh translations when navigating to this page
+            UpdateTexts();
+            UpdateToggleLabels();
             
             // Update button states
             DynamicSyncToggle.IsEnabled = BackupConfirmationToggle.IsOn;
@@ -216,6 +242,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private void BackupConfirmationToggle_Toggled(object sender, RoutedEventArgs e)
         {
+            UpdateToggleLabels();
             SettingsManager.Current.StatusKeeperBackupConfirmed = BackupConfirmationToggle.IsOn;
             SettingsManager.Save();
             
@@ -245,6 +272,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private void DynamicSyncToggle_Toggled(object sender, RoutedEventArgs e)
         {
+            UpdateToggleLabels();
             // Check if backup is confirmed before allowing sync
             if (DynamicSyncToggle.IsOn && !BackupConfirmationToggle.IsOn)
             {

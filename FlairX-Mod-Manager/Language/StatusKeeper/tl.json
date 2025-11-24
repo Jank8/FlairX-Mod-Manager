@@ -1,6 +1,20 @@
 {
     "Title": "Status Keeper",
     "StatusKeeper_Function": "Status Keeper",
+    "Browse": "Mag-browse",
+    "StatusKeeper_BackupConfirmation_Description": "Kumpirmahin na gumawa ka ng mga backup bago paganahin ang sync",
+    "StatusKeeper_DynamicSync_Description": "Awtomatikong i-sync ang status ng mod kapag nagbago ang d3dx_user.ini",
+    "StatusKeeper_ManualSync_Description": "Manu-manong i-trigger ang pag-sync ng status ng mod",
+    "StatusKeeper_CreateBackup_Description": "Gumawa ng mga backup file para sa lahat ng mod INI files",
+    "StatusKeeper_CheckBackup_Label": "Suriin ang mga Backup",
+    "StatusKeeper_CheckBackup_Description": "I-verify ang mga backup file at suriin ang mga nawawalang backup",
+    "StatusKeeper_RestoreBackup_Description": "Ibalik ang lahat ng mod INI files mula sa backup",
+    "StatusKeeper_DeleteBackups_Description": "Tanggalin ang lahat ng backup files",
+    "StatusKeeper_Logging_Description": "Paganahin o huwag paganahin ang pag-log sa file",
+    "StatusKeeper_OpenLog_Label": "Buksan ang Log File",
+    "StatusKeeper_OpenLog_Description": "Buksan ang log file sa default text editor",
+    "StatusKeeper_ClearLog_Label": "I-clear ang Log",
+    "StatusKeeper_ClearLog_Description": "Tanggalin ang lahat ng log entries",
     "StatusKeeper_D3dxFilePath_Label": "d3dx_user.ini file path:",
     "StatusKeeper_DynamicSync_Label": "Dynamic synchronization",
     "StatusKeeper_BackupConfirmation_Label": "Gumawa ako ng mga backup",
@@ -47,5 +61,8 @@
     "StatusKeeper_ConfirmDelete_Message": "Tatanggalin nito ang lahat ng backup files. Magpatuloy?",
     "Error_Generic": "Error",
     "OK": "OK",
-    "PickFolderDialog_Title": "Pumili ng Folder"
+    "PickFolderDialog_Title": "Pumili ng Folder",
+    "StatusKeeper_BackupConfirmationToggleLabel": "OFF/ON",
+    "StatusKeeper_DynamicSyncToggleLabel": "OFF/ON",
+    "StatusKeeper_LoggingToggleLabel": "OFF/ON"
 }

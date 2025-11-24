@@ -24,21 +24,26 @@ namespace FlairX_Mod_Manager.Pages
         private void UpdateTexts()
         {
             var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+            
+            // Create backup card
             CreateBackupLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Label");
+            CreateBackupDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Description");
             CreateBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Button");
-            RestoreBackupLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Label");
-            RestoreBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Button");
-            DeleteBackupsLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Label");
-            DeleteBackupsButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Button");
+            
+            // Check backup card
+            CheckBackupLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackup_Label");
+            CheckBackupDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackup_Description");
             CheckBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackups_Button");
-            // Set window title to translation
-            if (Window.Current is not null)
-            {
-                if (Window.Current is Microsoft.UI.Xaml.Window win)
-                {
-                    win.Title = SharedUtilities.GetTranslation(lang, "Title");
-                }
-            }
+            
+            // Restore backup card
+            RestoreBackupLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Label");
+            RestoreBackupDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Description");
+            RestoreBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Button");
+            
+            // Delete backups card
+            DeleteBackupsLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Label");
+            DeleteBackupsDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Description");
+            DeleteBackupsButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Button");
         }
 
 

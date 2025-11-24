@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -35,7 +36,20 @@ namespace FlairX_Mod_Manager.Pages
             LoadSettings();
             InitializeUI();
             UpdateAllDescriptions();
+            UpdateToggleLabels();
             _isInitialized = true;
+        }
+        
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            // Refresh translations when navigating to this page
+            if (_isInitialized)
+            {
+                TranslateUI();
+                UpdateAllDescriptions();
+                UpdateToggleLabels();
+            }
         }
 
         private void LoadSettings()
@@ -76,28 +90,30 @@ namespace FlairX_Mod_Manager.Pages
             CreateBackupsCheckBox.IsOn = _createBackups;
             KeepOriginalsCheckBox.IsOn = _keepOriginals;
             
-            // Set combo boxes
+            // Translate UI first (before setting combo box selections)
+            TranslateUI();
+            
+            // Set combo boxes (after translation so items have content)
             SetComboBoxSelection(ManualModeComboBox, _manualMode);
             SetComboBoxSelection(DragDropModComboBox, _dragDropModMode);
             SetComboBoxSelection(DragDropCategoryComboBox, _dragDropCategoryMode);
             SetComboBoxSelection(AutoDownloadComboBox, _autoDownloadMode);
-            
-            // Translate UI
-            TranslateUI();
         }
 
         private void TranslateUI()
         {
-            var lang = SharedUtilities.LoadLanguageDictionary();
+            var lang = SharedUtilities.LoadLanguageDictionary("ImageOptimizer");
             
-            // Optimize button
+            // Top section
+            ManualOptimizationTitle.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_ManualOptimizationTitle");
             OptimizeDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Description");
-            OptimizeButtonText.Text = _isOptimizing ? SharedUtilities.GetTranslation(lang, "Cancel") : SharedUtilities.GetTranslation(lang, "Optimize");
+            OptimizeButtonText.Text = _isOptimizing ? SharedUtilities.GetTranslation(lang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
             
             // Headers
             QualityHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_QualityHeader");
             PerformanceHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_PerformanceHeader");
             BackupHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_BackupHeader");
+            OptimizationModesHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_OptimizationModesHeader");
             ManualModeHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_ManualModeHeader");
             DragDropModHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_DragDropModHeader");
             DragDropCategoryHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_DragDropCategoryHeader");
@@ -107,6 +123,7 @@ namespace FlairX_Mod_Manager.Pages
             JpegQualityLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_JpegQuality");
             JpegQualityDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_JpegQuality_Description");
             ThreadCountLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_ThreadCount");
+            ThreadCountDescription.Text = string.Format(SharedUtilities.GetTranslation(lang, "ImageOptimizer_ThreadCount_Description"), Environment.ProcessorCount);
             
             // Backup options
             CreateBackupsLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_CreateBackups");
@@ -184,7 +201,20 @@ namespace FlairX_Mod_Manager.Pages
 
         private void SettingChanged(object sender, RoutedEventArgs e)
         {
+            UpdateToggleLabels();
             SaveSettings();
+        }
+        
+        private void UpdateToggleLabels()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            var onText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_On");
+            var offText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_Off");
+            
+            if (CreateBackupsToggleLabel != null && CreateBackupsCheckBox != null)
+                CreateBackupsToggleLabel.Text = CreateBackupsCheckBox.IsOn ? onText : offText;
+            if (KeepOriginalsToggleLabel != null && KeepOriginalsCheckBox != null)
+                KeepOriginalsToggleLabel.Text = KeepOriginalsCheckBox.IsOn ? onText : offText;
         }
 
         private void ManualModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -237,7 +267,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private void UpdateModeDescription(TextBlock textBlock, OptimizationMode mode)
         {
-            var lang = SharedUtilities.LoadLanguageDictionary();
+            var lang = SharedUtilities.LoadLanguageDictionary("ImageOptimizer");
             string key = mode switch
             {
                 OptimizationMode.Full => "ImageOptimizer_Mode_Full_Description",
@@ -305,7 +335,6 @@ namespace FlairX_Mod_Manager.Pages
             OptimizeButton.IsEnabled = true;
             OptimizeProgressBar.Visibility = Visibility.Visible;
             OptimizeButtonText.Text = SharedUtilities.GetTranslation(lang, "Cancel");
-            OptimizeIcon.Glyph = "\uE711"; // Cancel icon
 
             try
             {
@@ -352,8 +381,7 @@ namespace FlairX_Mod_Manager.Pages
                 _cts = null;
                 OptimizeButton.IsEnabled = true;
                 OptimizeProgressBar.Visibility = Visibility.Collapsed;
-                OptimizeButtonText.Text = SharedUtilities.GetTranslation(lang, "Optimize");
-                OptimizeIcon.Glyph = "\uE768"; // Optimize icon
+                OptimizeButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
             }
         }
     }

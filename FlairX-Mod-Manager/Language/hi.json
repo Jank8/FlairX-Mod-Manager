@@ -190,5 +190,10 @@
     "CurrentVersion": "वरतमन ससकरण",
     "ReadyToDownload": "अपडट डउनलड और इसटल करन क लए तयर.",
     "UpdateFailed": "अपडट वफल रह",
-    "Close": "बद कर"
+    "Close": "बद कर",
+    "PresetsPage_SavePresetLabel": "नया प्रीसेट सहेजें",
+    "PresetsPage_ModsInPreset": "प्रीसेट में मॉड्स",
+    "PresetsPage_LoadPresetLabel": "प्रीसेट लोड करें",
+    "PresetsPage_DeletePresetDescription": "सूची से चयनित प्रीसेट हटाएं",
+    "PresetsPage_DeletePresetLabel": "प्रीसेट हटाएं"
 }

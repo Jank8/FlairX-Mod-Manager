@@ -1,6 +1,11 @@
 {
     "Title": "I-update ang Author mula sa GameBanana",
     "GameBananaAuthorUpdate_Function": "GameBanana Author Update",
+    "UpdateAuthorsDescription": "I-update ang lahat ng may-akda ng mod mula sa GameBanana",
+    "SmartUpdateDescription": "I-update lang ang mga mod na may hindi kilala o nawawalang may-akda",
+    "ActionsHeader": "Mga Aksyon",
+    "FetchAuthorsDescription": "Kunin at i-update ang impormasyon ng may-akda mula sa GameBanana",
+    "Start": "Simulan",
     "UpdateAuthorsLabel": "I-update ang mga GameBanana author",
     "SmartUpdateLabel": "Hindi kilalang mga author lang (Smart Update)",
     "FetchAuthorsButton": "Kunin ang mga author mula sa server",
@@ -31,5 +36,7 @@
     "ConfirmUpdateOtherData": "Ia-update nito ang mga NSFW tag at iba pang metadata mula sa GameBanana para sa lahat ng mod na may URL. Magpatuloy?",
     "VersionFetchError": "Error habang kinukuha ang bersyon",
     "VersionSummaryTitle": "Buod ng pag-update ng mga bersyon",
-    "ModsWithIssues": "Mga mod na may problema:"
+    "ModsWithIssues": "Mga mod na may problema:",
+    "SmartUpdateToggleLabel": "OFF/ON",
+    "UpdateAuthorsToggleLabel": "OFF/ON"
 }

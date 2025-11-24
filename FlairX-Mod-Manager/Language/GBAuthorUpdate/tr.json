@@ -1,6 +1,11 @@
 {
     "Title": "GameBanana'dan Yazar Güncelle",
     "GameBananaAuthorUpdate_Function": "GameBanana Yazar Güncellemesi",
+    "UpdateAuthorsDescription": "GameBanana'dan tüm mod yazarlarını güncelle",
+    "SmartUpdateDescription": "Sadece bilinmeyen veya eksik yazarlara sahip modları güncelle",
+    "ActionsHeader": "İşlemler",
+    "FetchAuthorsDescription": "GameBanana'dan yazar bilgilerini al ve güncelle",
+    "Start": "Başlat",
     "UpdateAuthorsLabel": "GameBanana yazarlarını güncelle",
     "SmartUpdateLabel": "Sadece bilinmeyen yazarlar (Akıllı Güncelleme)",
     "FetchAuthorsButton": "Sunucudan yazarları al",
@@ -31,5 +36,7 @@
     "ConfirmUpdateOtherData": "Bu, URL'si olan tüm modlar için GameBanana'dan NSFW etiketlerini ve diğer meta verileri güncelleyecektir. Devam edilsin mi?",
     "VersionFetchError": "Sürüm alınırken hata",
     "VersionSummaryTitle": "Sürüm güncelleme özeti",
-    "ModsWithIssues": "Sorunlu modlar:"
+    "ModsWithIssues": "Sorunlu modlar:",
+    "SmartUpdateToggleLabel": "KAPALI/AÇIK",
+    "UpdateAuthorsToggleLabel": "KAPALI/AÇIK"
 }

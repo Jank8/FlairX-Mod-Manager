@@ -190,5 +190,10 @@
     "CurrentVersion": "目前版本",
     "ReadyToDownload": "準備下載並安裝更新。",
     "UpdateFailed": "更新失敗",
-    "Close": "關閉"
+    "Close": "關閉",
+    "PresetsPage_SavePresetLabel": "儲存新預設",
+    "PresetsPage_ModsInPreset": "預設中的模組",
+    "PresetsPage_LoadPresetLabel": "載入預設",
+    "PresetsPage_DeletePresetDescription": "從清單中移除所選預設",
+    "PresetsPage_DeletePresetLabel": "刪除預設"
 }

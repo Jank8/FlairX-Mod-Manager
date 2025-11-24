@@ -1,6 +1,11 @@
 {
     "Title": "Cập nhật tác giả từ GameBanana",
     "GameBananaAuthorUpdate_Function": "Cập nhật tác giả GameBanana",
+    "UpdateAuthorsDescription": "Cập nhật tất cả tác giả mod từ GameBanana",
+    "SmartUpdateDescription": "Chỉ cập nhật các mod có tác giả không xác định hoặc thiếu",
+    "ActionsHeader": "Hành động",
+    "FetchAuthorsDescription": "Lấy và cập nhật thông tin tác giả từ GameBanana",
+    "Start": "Bắt đầu",
     "UpdateAuthorsLabel": "Cập nhật tác giả GameBanana",
     "SmartUpdateLabel": "Chỉ tác giả chưa biết (Cập nhật thông minh)",
     "FetchAuthorsButton": "Lấy tác giả từ máy chủ",
@@ -31,5 +36,7 @@
     "ConfirmUpdateOtherData": "Điều này sẽ cập nhật thẻ NSFW và siêu dữ liệu khác từ GameBanana cho tất cả các mod có URL. Tiếp tục?",
     "VersionFetchError": "Lỗi khi lấy phiên bản",
     "VersionSummaryTitle": "Tóm tắt cập nhật phiên bản",
-    "ModsWithIssues": "Các mod có vấn đề:"
+    "ModsWithIssues": "Các mod có vấn đề:",
+    "SmartUpdateToggleLabel": "TẮT/BẬT",
+    "UpdateAuthorsToggleLabel": "TẮT/BẬT"
 }

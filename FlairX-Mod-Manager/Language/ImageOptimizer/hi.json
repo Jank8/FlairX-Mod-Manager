@@ -1,5 +1,11 @@
 {
     "ImageOptimizer_Function": "छवि अनुकूलक",
+    "ImageOptimizer_ManualOptimizationTitle": "मनअल अनकलन",
+    "ImageOptimizer_OptimizationModesHeader": "अनकलन मड",
+    "SettingsPage_OptimizePreviews_Description": "बहतर परदरशन क लए मड परववलकन छवय क अनकलत कर",
+    "Cancel": "रदद कर",
+    "Optimize": "अनकलत कर",
+    "Start": "शर कर",
     "ImageOptimizer_QualityHeader": "गुणवत्ता सेटिंग्स",
     "ImageOptimizer_PerformanceHeader": "प्रदर्शन",
     "ImageOptimizer_BackupHeader": "बैकअप और सफाई",
@@ -24,5 +30,7 @@
     "ImageOptimizer_Mode_NoResize_Description": "गुणवत्ता को अनुकूलित करें और आकार बदले या क्रॉप किए बिना JPEG में कनवर्ट करें",
     "ImageOptimizer_Mode_Miniatures_Description": "केवल लघुचित्र थंबनेल उत्पन्न करें (minitile.jpg, catmini.jpg)",
     "ImageOptimizer_Mode_Rename_Description": "केवल फ़ाइलों का नाम मानक नामों में बदलें (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "कोई स्वचालित अनुकूलन नहीं किया जाएगा"
+    "ImageOptimizer_Mode_Disabled_Description": "कोई स्वचालित अनुकूलन नहीं किया जाएगा",
+    "ImageOptimizer_KeepOriginals_Toggle": "बंद/चालू",
+    "ImageOptimizer_CreateBackups_Toggle": "बंद/चालू"
 }

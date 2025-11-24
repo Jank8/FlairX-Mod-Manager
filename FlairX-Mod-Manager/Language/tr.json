@@ -190,5 +190,10 @@
     "CurrentVersion": "Mevcut sürüm",
     "ReadyToDownload": "Güncellemeyi indirmeye ve yüklemeye hazır.",
     "UpdateFailed": "Güncelleme başarısız oldu",
-    "Close": "Kapat"
+    "Close": "Kapat",
+    "PresetsPage_SavePresetLabel": "Yeni Ön Ayar Kaydet",
+    "PresetsPage_ModsInPreset": "Ön Ayardaki Modlar",
+    "PresetsPage_LoadPresetLabel": "Ön Ayarı Yükle",
+    "PresetsPage_DeletePresetDescription": "Seçili ön ayarı listeden kaldır",
+    "PresetsPage_DeletePresetLabel": "Ön Ayarı Sil"
 }
