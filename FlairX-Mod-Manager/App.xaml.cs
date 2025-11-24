@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Principal;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -33,6 +34,7 @@ namespace FlairX_Mod_Manager
     {
         private Window? _window;
         public Window? MainWindow => _window;
+        private static Mutex? _instanceMutex;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -41,6 +43,28 @@ namespace FlairX_Mod_Manager
         public App()
         {
             Logger.LogInfo("Application starting up");
+            
+            // Check for single instance
+            bool createdNew;
+            _instanceMutex = new Mutex(true, "FlairXModManager_SingleInstance_Mutex", out createdNew);
+            
+            if (!createdNew)
+            {
+                Logger.LogWarning("Another instance of FlairX Mod Manager is already running");
+                
+                // Show message and exit
+                var messageDialog = new ContentDialog
+                {
+                    Title = "Already Running",
+                    Content = "FlairX Mod Manager is already running. Please close the existing instance first.",
+                    CloseButtonText = "OK"
+                };
+                
+                // Exit the application
+                Environment.Exit(0);
+                return;
+            }
+            
             try
             {
                 Logger.LogInfo("Initializing WinUI components");

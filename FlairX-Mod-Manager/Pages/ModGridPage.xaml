@@ -328,6 +328,8 @@
                                 <Border.Shadow>
                                     <ThemeShadow/>
                                 </Border.Shadow>
+                                <!-- Inner border for clipping content to rounded corners -->
+                                <Border CornerRadius="7">
                             <Grid>
                                 <!-- Full Image Background -->
                                 <Image x:Name="ModImage" 
@@ -392,15 +394,20 @@
                                 
                                 <!-- Description Section with Acrylic Background -->
                                 <Grid VerticalAlignment="Bottom" 
-                                      Height="56" 
-                                      Width="277">
+                                      Height="58" 
+                                      Width="281"
+                                      Margin="-2,0,-2,-2">
                                     <!-- Default background (acrylic) -->
                                     <Border Background="{ThemeResource TileCaptionAcrylicBrush}" 
                                             CornerRadius="0,0,8,8"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
                                             Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
                                     <!-- Accent color background when active -->
                                     <Border Background="{ThemeResource SystemAccentColor}" 
                                             CornerRadius="0,0,8,8"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
                                             Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     
                                     <!-- Mod Name - fades out on hover (theme color when inactive) -->
@@ -504,6 +511,7 @@
                                     </StackPanel>
                                 </Border>
                             </Grid>
+                                </Border>
                         </Border>
                         </Button>
                     </DataTemplate>
