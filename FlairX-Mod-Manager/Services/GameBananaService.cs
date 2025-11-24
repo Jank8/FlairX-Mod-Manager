@@ -384,6 +384,9 @@ namespace FlairX_Mod_Manager.Services
                 var cookies = CloudflareBypassService.GetCachedCookies();
                 var userAgent = CloudflareBypassService.GetCachedUserAgent();
 
+                Logger.LogInfo($"Using cookies: {(string.IsNullOrEmpty(cookies) ? "NONE" : cookies.Substring(0, Math.Min(50, cookies.Length)) + "...")}");
+                Logger.LogInfo($"Using User-Agent: {userAgent ?? "DEFAULT"}");
+
                 var request = new HttpRequestMessage(HttpMethod.Get, url);
                 request.Headers.Add("User-Agent", userAgent ?? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
                 if (!string.IsNullOrEmpty(cookies))
@@ -392,6 +395,8 @@ namespace FlairX_Mod_Manager.Services
                 }
 
                 var response = await _httpClient.SendAsync(request);
+                
+                Logger.LogInfo($"Response status: {response.StatusCode}");
                 
                 // If we get 403/503, return null to trigger dialog in UI layer
                 if (response.StatusCode == System.Net.HttpStatusCode.Forbidden || 
