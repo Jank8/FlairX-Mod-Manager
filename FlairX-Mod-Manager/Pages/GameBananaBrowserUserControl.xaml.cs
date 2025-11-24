@@ -30,9 +30,7 @@ namespace FlairX_Mod_Manager.Pages
         private ScrollViewer? _modsScrollViewer = null;
         private DateTime _lastScrollTime = DateTime.MinValue;
         
-        // Tilt animation system
-        private readonly System.Collections.Generic.Dictionary<Button, (double tiltX, double tiltY)> _tileTiltTargets = new();
-        private readonly System.Collections.Generic.Dictionary<Button, DateTime> _lastTileAnimationUpdate = new();
+
         
         // Image slider for details
         private System.Collections.Generic.List<string> _detailPreviewImages = new();
@@ -1117,183 +1115,6 @@ namespace FlairX_Mod_Manager.Pages
 
 
 
-
-        // Tilt animation methods
-        private void ModTile_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            if (sender is Button button)
-            {
-                try
-                {
-                    button.PointerMoved += ModTile_PointerMoved;
-                    CalculateTileTiltTarget(button, e);
-                    UpdateTileTiltSmooth(button);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Error in ModTile_PointerEntered", ex);
-                }
-            }
-        }
-
-        private void ModTile_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            if (sender is Button button)
-            {
-                try
-                {
-                    button.PointerMoved -= ModTile_PointerMoved;
-                    
-                    var tileBorder = FindTileBorder(button);
-                    if (tileBorder?.Projection is Microsoft.UI.Xaml.Media.PlaneProjection projection)
-                    {
-                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-                        var easing = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase();
-                        
-                        var rotXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                        {
-                            To = 0,
-                            Duration = new Duration(TimeSpan.FromMilliseconds(250)),
-                            EasingFunction = easing
-                        };
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotXAnim, projection);
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotXAnim, "RotationX");
-                        storyboard.Children.Add(rotXAnim);
-                        
-                        var rotYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                        {
-                            To = 0,
-                            Duration = new Duration(TimeSpan.FromMilliseconds(250)),
-                            EasingFunction = easing
-                        };
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotYAnim, projection);
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotYAnim, "RotationY");
-                        storyboard.Children.Add(rotYAnim);
-                        
-                        storyboard.Begin();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Error in ModTile_PointerExited", ex);
-                }
-            }
-        }
-
-        private void ModTile_PointerMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            if (sender is Button button)
-            {
-                try
-                {
-                    var now = DateTime.Now;
-                    if (_lastTileAnimationUpdate.TryGetValue(button, out var lastUpdate) && 
-                        (now - lastUpdate).TotalMilliseconds < 16) return;
-                    
-                    _lastTileAnimationUpdate[button] = now;
-                    CalculateTileTiltTarget(button, e);
-                    UpdateTileTiltSmooth(button);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Error in ModTile_PointerMoved", ex);
-                }
-            }
-        }
-
-        private void CalculateTileTiltTarget(Button btn, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            try
-            {
-                var position = e.GetCurrentPoint(btn);
-                var buttonWidth = btn.ActualWidth;
-                var buttonHeight = btn.ActualHeight;
-                
-                if (buttonWidth > 0 && buttonHeight > 0)
-                {
-                    var centerX = buttonWidth / 2;
-                    var centerY = buttonHeight / 2;
-                    var offsetX = (position.Position.X - centerX) / centerX;
-                    var offsetY = (position.Position.Y - centerY) / centerY;
-                    
-                    var maxTilt = 8.0;
-                    var targetTiltX = offsetY * maxTilt;
-                    var targetTiltY = -offsetX * maxTilt;
-                    
-                    _tileTiltTargets[btn] = (targetTiltX, targetTiltY);
-                }
-            }
-            catch { }
-        }
-
-        private void UpdateTileTiltSmooth(Button btn)
-        {
-            try
-            {
-                var tileBorder = FindTileBorder(btn);
-                if (tileBorder == null) return;
-                
-                var projection = GetOrCreateTileProjection(tileBorder);
-                if (projection == null) return;
-                
-                var currentTiltX = projection.RotationX;
-                var currentTiltY = projection.RotationY;
-                
-                var (targetTiltX, targetTiltY) = _tileTiltTargets.GetValueOrDefault(btn, (0, 0));
-                
-                var lerpFactor = 0.2;
-                var newTiltX = currentTiltX + ((targetTiltX - currentTiltX) * lerpFactor);
-                var newTiltY = currentTiltY + ((targetTiltY - currentTiltY) * lerpFactor);
-                
-                projection.RotationX = newTiltX;
-                projection.RotationY = newTiltY;
-            }
-            catch { }
-        }
-
-        private Microsoft.UI.Xaml.Media.PlaneProjection? GetOrCreateTileProjection(Border tileBorder)
-        {
-            if (tileBorder.Projection is not Microsoft.UI.Xaml.Media.PlaneProjection projection)
-            {
-                projection = new Microsoft.UI.Xaml.Media.PlaneProjection
-                {
-                    CenterOfRotationX = 0.5,
-                    CenterOfRotationY = 0.5
-                };
-                tileBorder.Projection = projection;
-            }
-            return projection;
-        }
-
-        private Border? FindTileBorder(Button btn)
-        {
-            try
-            {
-                if (btn.Content is Border directBorder)
-                    return directBorder;
-
-                return FindChildBorderByName(btn, "TileBorder");
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private Border? FindChildBorderByName(DependencyObject parent, string name)
-        {
-            int count = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(parent);
-            for (int i = 0; i < count; i++)
-            {
-                var child = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(parent, i);
-                if (child is Border b && b.Name == name)
-                    return b;
-                var result = FindChildBorderByName(child, name);
-                if (result != null) return result;
-            }
-            return null;
-        }
-
         // Detail image slider methods
         private void LoadCurrentDetailImage()
         {
@@ -1802,6 +1623,114 @@ namespace FlairX_Mod_Manager.Pages
                     Logger.LogError("Failed to filter by category", ex);
                 }
             }
+        }
+
+        // Tile hover effects - scale only the image
+        private void ModTile_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                try
+                {
+                    // Find the Image element (it's in Grid.Row="0" Grid.RowSpan="2")
+                    var image = FindVisualChild<Image>(button);
+                    if (image == null) return;
+                    
+                    // Create scale transform if it doesn't exist
+                    if (image.RenderTransform is not ScaleTransform)
+                    {
+                        image.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+                        image.RenderTransform = new ScaleTransform();
+                    }
+                    
+                    var scaleTransform = (ScaleTransform)image.RenderTransform;
+                    
+                    // Animate scale to 1.10 (10% larger)
+                    var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    
+                    var scaleXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 1.10,
+                        Duration = TimeSpan.FromMilliseconds(200),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleXAnim, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleXAnim, "ScaleX");
+                    storyboard.Children.Add(scaleXAnim);
+                    
+                    var scaleYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 1.10,
+                        Duration = TimeSpan.FromMilliseconds(200),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleYAnim, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleYAnim, "ScaleY");
+                    storyboard.Children.Add(scaleYAnim);
+                    
+                    storyboard.Begin();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in ModTile_PointerEntered", ex);
+                }
+            }
+        }
+
+        private void ModTile_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                try
+                {
+                    var image = FindVisualChild<Image>(button);
+                    if (image?.RenderTransform is not ScaleTransform scaleTransform) return;
+                    
+                    // Animate scale back to 1.0
+                    var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    
+                    var scaleXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 1.0,
+                        Duration = TimeSpan.FromMilliseconds(200),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleXAnim, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleXAnim, "ScaleX");
+                    storyboard.Children.Add(scaleXAnim);
+                    
+                    var scaleYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 1.0,
+                        Duration = TimeSpan.FromMilliseconds(200),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleYAnim, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleYAnim, "ScaleY");
+                    storyboard.Children.Add(scaleYAnim);
+                    
+                    storyboard.Begin();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in ModTile_PointerExited", ex);
+                }
+            }
+        }
+
+        private T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild)
+                    return typedChild;
+                
+                var result = FindVisualChild<T>(child);
+                if (result != null)
+                    return result;
+            }
+            return null;
         }
     }
 }

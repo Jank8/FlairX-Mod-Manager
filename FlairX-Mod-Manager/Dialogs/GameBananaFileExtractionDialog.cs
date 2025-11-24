@@ -247,7 +247,14 @@ namespace FlairX_Mod_Manager.Dialogs
             };
 
             // Check if this is an update and show appropriate checkboxes
-            CheckIfUpdateAndShowOptions(categoryName ?? "Characters");
+            // Normalize category name for folder lookup
+            var normalizedCategory = (categoryName ?? "Characters").Replace("/", "-");
+            if (normalizedCategory.Equals("Other", StringComparison.OrdinalIgnoreCase) || 
+                normalizedCategory.Equals("Other-Misc", StringComparison.OrdinalIgnoreCase))
+            {
+                normalizedCategory = "Other";
+            }
+            CheckIfUpdateAndShowOptions(normalizedCategory);
 
             // Handle primary button click
             PrimaryButtonClick += OnPrimaryButtonClick;
@@ -325,6 +332,16 @@ namespace FlairX_Mod_Manager.Dialogs
                     return;
                 }
 
+                // Determine folder name: replace "/" with "-" to prevent subfolder creation
+                string categoryFolderName = category.Replace("/", "-");
+                
+                // Special case: "Other" and "Other-Misc" both go to "Other" folder
+                if (categoryFolderName.Equals("Other", StringComparison.OrdinalIgnoreCase) || 
+                    categoryFolderName.Equals("Other-Misc", StringComparison.OrdinalIgnoreCase))
+                {
+                    categoryFolderName = "Other";
+                }
+
                 // Download files
                 var tempDir = Path.Combine(Path.GetTempPath(), "FlairX_Downloads", Guid.NewGuid().ToString());
                 Directory.CreateDirectory(tempDir);
@@ -370,18 +387,18 @@ namespace FlairX_Mod_Manager.Dialogs
                     {
                         // Single file - extract directly to mod folder (old behavior)
                         _downloadedArchivePath = downloadedFiles[0].filePath;
-                        await ExtractArchiveAsync(category);
+                        await ExtractArchiveAsync(categoryFolderName);
                     }
                     else
                     {
                         // Multiple files - extract each archive to its own subfolder
-                        await ExtractMultipleArchivesAsync(category, downloadedFiles);
+                        await ExtractMultipleArchivesAsync(categoryFolderName, downloadedFiles);
                     }
                 }
                 else
                 {
                     // No archives, just move files
-                    await InstallFiles(tempDir, category);
+                    await InstallFiles(tempDir, categoryFolderName);
                 }
 
                 // Download preview images if enabled

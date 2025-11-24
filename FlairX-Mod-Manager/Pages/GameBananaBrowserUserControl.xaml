@@ -162,12 +162,10 @@
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch">
                                 <Border x:Name="TileBorder"
-                                        CornerRadius="8" 
-                                        BorderThickness="1" 
-                                        BorderBrush="{ThemeResource TileBorderBrush}">
-                                    <Border.Shadow>
-                                        <ThemeShadow/>
-                                    </Border.Shadow>
+                                        CornerRadius="8"
+                                        Height="357"
+                                        Width="277"
+                                        Padding="0">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="*"/>
@@ -177,11 +175,9 @@
                                         <!-- Full Image Background -->
                                         <Image Grid.Row="0" Grid.RowSpan="2"
                                                Source="{Binding ImageSource}" 
-                                               Stretch="UniformToFill" 
-                                               Height="357" 
-                                               Width="277"
-                                               VerticalAlignment="Stretch"
-                                               HorizontalAlignment="Stretch"/>
+                                               Stretch="UniformToFill"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"/>
                                         
                                         <!-- Installed badge -->
                                         <Border Grid.Row="0"
@@ -200,11 +196,12 @@
                                         
                                         <!-- Description Section -->
                                         <Grid Grid.Row="1"
-                                              Height="80" 
-                                              Width="277" 
-                                              CornerRadius="0,0,8,8">
+                                              Height="80"
+                                              CornerRadius="0,0,7,7">
                                             <Border Background="{ThemeResource TileCaptionAcrylicBrush}" 
-                                                    CornerRadius="0,0,8,8" />
+                                                    CornerRadius="0,0,7,7"
+                                                    HorizontalAlignment="Stretch"
+                                                    VerticalAlignment="Stretch" />
                                             <Grid Padding="12,8">
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>

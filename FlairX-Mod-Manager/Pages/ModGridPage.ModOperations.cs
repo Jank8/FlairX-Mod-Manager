@@ -16,9 +16,7 @@ namespace FlairX_Mod_Manager.Pages
     /// </summary>
     public sealed partial class ModGridPage : Page
     {
-        // Animation throttling for tiles
-        private readonly Dictionary<Button, DateTime> _lastTileAnimationUpdate = new Dictionary<Button, DateTime>();
-        private const int TILE_ANIMATION_THROTTLE_MS = 16; // ~60 FPS
+
         
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
         private static extern int SHFileOperation(ref SHFILEOPSTRUCT lpFileOp);
@@ -130,21 +128,49 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        // Tile hover effects - dynamic tilt animation that follows cursor + shadow effects
+        // Tile hover effects - scale only the image
         private void TileButton_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
             if (sender is Button button)
             {
                 try
                 {
-                    // Subscribe to pointer moved events for dynamic tilt
-                    button.PointerMoved += TileButton_PointerMoved;
+                    var modImage = FindChildByName<Image>(button, "ModImage");
+                    if (modImage == null) return;
                     
-                    // Apply initial tilt based on entry position using optimized system
-                    CalculateTileTiltTarget(button, e);
-                    UpdateTileTiltSmooth(button);
+                    // Create scale transform if it doesn't exist
+                    if (modImage.RenderTransform is not ScaleTransform)
+                    {
+                        modImage.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+                        modImage.RenderTransform = new ScaleTransform();
+                    }
                     
-
+                    var scaleTransform = (ScaleTransform)modImage.RenderTransform;
+                    
+                    // Animate scale to 1.10 (10% larger)
+                    var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    
+                    var scaleXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 1.10,
+                        Duration = TimeSpan.FromMilliseconds(200),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleXAnim, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleXAnim, "ScaleX");
+                    storyboard.Children.Add(scaleXAnim);
+                    
+                    var scaleYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 1.10,
+                        Duration = TimeSpan.FromMilliseconds(200),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleYAnim, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleYAnim, "ScaleY");
+                    storyboard.Children.Add(scaleYAnim);
+                    
+                    storyboard.Begin();
                 }
                 catch (Exception ex)
                 {
@@ -178,39 +204,33 @@ namespace FlairX_Mod_Manager.Pages
             {
                 try
                 {
-                    // Unsubscribe from pointer moved events
-                    button.PointerMoved -= TileButton_PointerMoved;
+                    var modImage = FindChildByName<Image>(button, "ModImage");
+                    if (modImage?.RenderTransform is not ScaleTransform scaleTransform) return;
                     
-                    // Reset tilt projection on content root with smooth animation
-                    if (button.ContentTemplateRoot is FrameworkElement contentRoot && 
-                        contentRoot.Projection is Microsoft.UI.Xaml.Media.PlaneProjection projection)
+                    // Animate scale back to 1.0
+                    var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    
+                    var scaleXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
                     {
-                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-                        
-                        var rotXAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                        {
-                            To = 0,
-                            Duration = TimeSpan.FromMilliseconds(250),
-                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
-                        };
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotXAnim, projection);
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotXAnim, "RotationX");
-                        storyboard.Children.Add(rotXAnim);
-                        
-                        var rotYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                        {
-                            To = 0,
-                            Duration = TimeSpan.FromMilliseconds(250),
-                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
-                        };
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(rotYAnim, projection);
-                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(rotYAnim, "RotationY");
-                        storyboard.Children.Add(rotYAnim);
-                        
-                        storyboard.Begin();
-                    }
+                        To = 1.0,
+                        Duration = TimeSpan.FromMilliseconds(200),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleXAnim, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleXAnim, "ScaleX");
+                    storyboard.Children.Add(scaleXAnim);
                     
-
+                    var scaleYAnim = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 1.0,
+                        Duration = TimeSpan.FromMilliseconds(200),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleYAnim, scaleTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleYAnim, "ScaleY");
+                    storyboard.Children.Add(scaleYAnim);
+                    
+                    storyboard.Begin();
                 }
                 catch (Exception ex)
                 {
@@ -360,30 +380,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void TileButton_PointerMoved(object sender, PointerRoutedEventArgs e)
-        {
-            if (sender is Button button)
-            {
-                try
-                {
-                    // Throttle animation updates for smoother performance
-                    var now = DateTime.Now;
-                    var lastUpdate = _lastTileAnimationUpdate.GetValueOrDefault(button, DateTime.MinValue);
-                    if ((now - lastUpdate).TotalMilliseconds < TILE_ANIMATION_THROTTLE_MS)
-                        return;
-                    
-                    _lastTileAnimationUpdate[button] = now;
-                    
-                    // Use optimized tilt system with smooth interpolation
-                    CalculateTileTiltTarget(button, e);
-                    UpdateTileTiltSmooth(button);
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Error in TileButton_PointerMoved", ex);
-                }
-            }
-        }
+
 
         /// <summary>
         /// Finds the full path to a mod folder in the category-based structure
