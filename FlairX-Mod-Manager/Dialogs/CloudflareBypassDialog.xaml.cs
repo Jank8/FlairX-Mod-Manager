@@ -57,26 +57,39 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 try
                 {
-                    // Check if we're past Cloudflare (URL should be gamebanana.com without challenge)
                     var url = _webView.CoreWebView2.Source;
                     
-                    if (url.Contains("gamebanana.com") && !url.Contains("challenge"))
+                    Logger.LogInfo($"Navigation completed to: {url}");
+                    
+                    // Wait a bit for any JavaScript to execute
+                    await Task.Delay(2000);
+                    
+                    // Check if we're on gamebanana.com (not a challenge page)
+                    if (url.Contains("gamebanana.com"))
                     {
                         // Get cookies
                         var cookieManager = _webView.CoreWebView2.CookieManager;
                         var cookies = await cookieManager.GetCookiesAsync("https://gamebanana.com");
                         
-                        var cookieString = string.Join("; ", 
-                            System.Linq.Enumerable.Select(cookies, c => $"{c.Name}={c.Value}"));
-                        
-                        // Get user agent
-                        var userAgent = _webView.CoreWebView2.Settings.UserAgent;
-                        
-                        _cookies = cookieString;
-                        _userAgent = userAgent;
-                        _isVerified = true;
-                        
-                        Logger.LogInfo("Cloudflare bypass successful, cookies obtained");
+                        if (cookies.Count > 0)
+                        {
+                            var cookieString = string.Join("; ", 
+                                System.Linq.Enumerable.Select(cookies, c => $"{c.Name}={c.Value}"));
+                            
+                            // Get user agent
+                            var userAgent = _webView.CoreWebView2.Settings.UserAgent;
+                            
+                            _cookies = cookieString;
+                            _userAgent = userAgent;
+                            _isVerified = true;
+                            
+                            Logger.LogInfo($"Cloudflare bypass successful, obtained {cookies.Count} cookies");
+                            Logger.LogInfo($"Cookie string length: {cookieString.Length}");
+                        }
+                        else
+                        {
+                            Logger.LogWarning("No cookies found yet");
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -100,6 +113,64 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             // User cancelled
             _isVerified = false;
+        }
+
+        private async void RefreshButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+        {
+            if (_webView?.CoreWebView2 != null)
+            {
+                try
+                {
+                    StatusText.Text = "Getting cookies...";
+                    
+                    var currentUrl = _webView.CoreWebView2.Source;
+                    Logger.LogInfo($"Current URL: {currentUrl}");
+                    
+                    // Get cookies for all domains
+                    var cookieManager = _webView.CoreWebView2.CookieManager;
+                    var allCookies = await cookieManager.GetCookiesAsync(currentUrl);
+                    
+                    Logger.LogInfo($"Found {allCookies.Count} cookies for {currentUrl}");
+                    
+                    // Log each cookie
+                    foreach (var cookie in allCookies)
+                    {
+                        Logger.LogInfo($"Cookie: {cookie.Name} = {cookie.Value.Substring(0, Math.Min(20, cookie.Value.Length))}... (Domain: {cookie.Domain})");
+                    }
+                    
+                    if (allCookies.Count > 0)
+                    {
+                        var cookieString = string.Join("; ", 
+                            System.Linq.Enumerable.Select(allCookies, c => $"{c.Name}={c.Value}"));
+                        
+                        // Get user agent
+                        var userAgent = _webView.CoreWebView2.Settings.UserAgent;
+                        
+                        _cookies = cookieString;
+                        _userAgent = userAgent;
+                        _isVerified = true;
+                        
+                        StatusText.Text = $"✓ Got {allCookies.Count} cookies! Click Continue.";
+                        Logger.LogInfo($"Manual cookie refresh: obtained {allCookies.Count} cookies");
+                        Logger.LogInfo($"Cookie string: {cookieString.Substring(0, Math.Min(100, cookieString.Length))}...");
+                    }
+                    else
+                    {
+                        StatusText.Text = "No cookies found. Try refreshing the page.";
+                        Logger.LogWarning("Manual cookie refresh: no cookies found");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    StatusText.Text = $"Error: {ex.Message}";
+                    Logger.LogError("Failed to manually get cookies", ex);
+                }
+            }
+            else
+            {
+                StatusText.Text = "WebView not ready";
+                Logger.LogError("WebView is null");
+            }
         }
     }
 }

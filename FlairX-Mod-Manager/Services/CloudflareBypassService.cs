@@ -9,7 +9,7 @@ namespace FlairX_Mod_Manager.Services
     {
         private static string? _cookies;
         private static string? _userAgent;
-        private static readonly string CookieFilePath = Path.Combine(PathManager.GetSettingsPath(), "gamebanana_cookies.txt");
+        private static readonly string CookieFilePath = Path.Combine(PathManager.GetAbsolutePath(PathManager.SETTINGS_DIR), "gamebanana_cookies.txt");
 
         static CloudflareBypassService()
         {
