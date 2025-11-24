@@ -68,6 +68,11 @@
                             <FontIcon Glyph="&#xE8C8;"/>
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
+                    <NavigationViewItem x:Name="ImageOptimizerNavItem" Content="Image Optimizer" Tag="ImageOptimizer">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE91B;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
                 </NavigationView.MenuItems>
                 <Frame x:Name="FunctionContentFrame"/>
             </NavigationView>

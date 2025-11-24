@@ -164,6 +164,7 @@ namespace FlairX_Mod_Manager.Pages
                 "GBAuthorUpdate" => "&#xE895;", // Update/Refresh icon
                 "StatusKeeperPage" => "&#xE713;", // Settings icon
                 "ModInfoBackup" => "&#xE8C8;", // Save icon
+                "ImageOptimizer" => "&#xE91B;", // Image icon
                 _ => "&#xE8B7;" // Default settings icon
             };
         }
@@ -175,6 +176,7 @@ namespace FlairX_Mod_Manager.Pages
                 "GBAuthorUpdate" => "\uE895", // Update/Refresh icon (commonly available)
                 "StatusKeeperPage" => "\uE713", // Settings icon (commonly available)
                 "ModInfoBackup" => "\uE8C8", // Save icon (commonly available)
+                "ImageOptimizer" => "\uE91B", // Image icon
                 _ => "\uE8B7" // Default settings icon
             };
         }
@@ -195,6 +197,12 @@ namespace FlairX_Mod_Manager.Pages
         {
             var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
             return SharedUtilities.GetTranslation(lang, "ModInfoBackup_Function");
+        }
+        
+        private string GetImageOptimizerFunctionName()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            return SharedUtilities.GetTranslation(lang, "ImageOptimizer_Function");
         }
 
         private void SaveFunctionSettings(FunctionInfo function)
@@ -292,6 +300,33 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             _functionInfos.Add(modInfoBackupFunction);
+
+            // Add ImageOptimizer function
+            var imageOptimizerFunction = new FunctionInfo
+            {
+                FileName = "ImageOptimizer",
+                Name = GetImageOptimizerFunctionName(),
+                Enabled = true
+            };
+            string ioJsonPath = Path.Combine(settingsDir, imageOptimizerFunction.FileName + ".json");
+            if (File.Exists(ioJsonPath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(ioJsonPath);
+                    var loaded = JsonSerializer.Deserialize<FunctionInfo>(json);
+                    if (loaded != null)
+                    {
+                        imageOptimizerFunction.Enabled = loaded.Enabled;
+                        imageOptimizerFunction.Name = loaded.Name;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to load ImageOptimizer function settings", ex);
+                }
+            }
+            _functionInfos.Add(imageOptimizerFunction);
         }
 
         private void PopulateFunctionButtons()
@@ -316,6 +351,12 @@ namespace FlairX_Mod_Manager.Pages
                         // Update NavigationViewItem
                         ModInfoBackupNavItem.Content = "ModInfo Backup";
                         ModInfoBackupNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        break;
+                    
+                    case "ImageOptimizer":
+                        // Update NavigationViewItem
+                        ImageOptimizerNavItem.Content = "Image Optimizer";
+                        ImageOptimizerNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
                         break;
                 }
             }
@@ -366,6 +407,10 @@ namespace FlairX_Mod_Manager.Pages
                     break;
                 case "ModInfoBackup":
                     FunctionContentFrame.Navigate(typeof(ModInfoBackupPage));
+                    break;
+                
+                case "ImageOptimizer":
+                    FunctionContentFrame.Navigate(typeof(ImageOptimizerPage));
                     break;
             }
         }

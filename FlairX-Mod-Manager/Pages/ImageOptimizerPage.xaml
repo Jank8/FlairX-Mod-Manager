@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="FlairX_Mod_Manager.Pages.ImageOptimizerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24">
+        <StackPanel Spacing="0" HorizontalAlignment="Stretch" MaxWidth="1000">
+            
+            <!-- Optimize Button Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE768;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="Manual Optimization" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="OptimizeDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                        <ProgressBar x:Name="OptimizeProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
+                        <Button x:Name="OptimizeButton" 
+                                Width="160"
+                                Height="32" 
+                                Padding="12,5,12,6" 
+                                Click="OptimizeButton_Click"
+                                Style="{StaticResource AccentButtonStyle}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon x:Name="OptimizeIcon" Glyph="&#xE768;" FontSize="14"/>
+                                <TextBlock x:Name="OptimizeButtonText"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Quality Section -->
+            <TextBlock x:Name="QualityHeader" Text="Quality Settings" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            
+            <!-- JPEG Quality Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE91B;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock x:Name="JpegQualityLabel" Text="JPEG Quality" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="JpegQualityDescription" Text="Higher quality = larger file size" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        
+                        <TextBlock Grid.Column="3" x:Name="JpegQualityValue" Text="80%" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </Grid>
+                    
+                    <Slider Grid.Row="2" x:Name="JpegQualitySlider" Minimum="60" Maximum="100" Value="80" StepFrequency="5" 
+                            TickFrequency="10" TickPlacement="Outside" ValueChanged="JpegQualitySlider_ValueChanged"/>
+                </Grid>
+            </Border>
+
+            <!-- Performance Section -->
+            <TextBlock x:Name="PerformanceHeader" Text="Performance" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
+            
+            <!-- Thread Count Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE9F5;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock x:Name="ThreadCountLabel" Text="Parallel Threads" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="ThreadCountDescription" Text="More threads = faster processing" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        
+                        <TextBlock Grid.Column="3" x:Name="ThreadCountValue" Text="4" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </Grid>
+                    
+                    <Slider Grid.Row="2" x:Name="ThreadCountSlider" Minimum="1" Maximum="16" Value="4" StepFrequency="1" 
+                            TickFrequency="2" TickPlacement="Outside" ValueChanged="ThreadCountSlider_ValueChanged"/>
+                </Grid>
+            </Border>
+
+            <!-- Backup Section -->
+            <TextBlock x:Name="BackupHeader" Text="Backup &amp; Cleanup" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
+            
+            <!-- Create Backups Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE8C8;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="CreateBackupsLabel" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="BackupDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <ToggleSwitch Grid.Column="3" x:Name="CreateBackupsCheckBox" IsOn="False" Toggled="SettingChanged" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            
+            <!-- Keep Originals Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE74E;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="KeepOriginalsLabel" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="KeepOriginalsDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <ToggleSwitch Grid.Column="3" x:Name="KeepOriginalsCheckBox" IsOn="False" Toggled="SettingChanged" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Optimization Modes Section -->
+            <TextBlock Text="Optimization Modes" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            
+            <!-- Manual Mode Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE70F;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <TextBlock Grid.Column="2" x:Name="ManualModeHeader" Text="Manual Optimization" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                        
+                        <ComboBox Grid.Column="3" x:Name="ManualModeComboBox" Width="250" SelectionChanged="ManualModeComboBox_SelectionChanged" VerticalAlignment="Center">
+                            <ComboBoxItem x:Name="ManualModeFullItem" Tag="Full" Content="Full Optimization"/>
+                            <ComboBoxItem x:Name="ManualModeNoResizeItem" Tag="NoResize" Content="Optimize Without Resize/Crop"/>
+                            <ComboBoxItem x:Name="ManualModeMiniaturesItem" Tag="Miniatures" Content="Generate Miniatures Only"/>
+                            <ComboBoxItem x:Name="ManualModeRenameItem" Tag="Rename" Content="Rename Files Only"/>
+                            <ComboBoxItem x:Name="ManualModeDisabledItem" Tag="Disabled" Content="Disabled"/>
+                        </ComboBox>
+                    </Grid>
+                    
+                    <TextBlock Grid.Row="2" x:Name="ManualModeDescription" TextWrapping="Wrap" FontSize="12" Opacity="0.7"/>
+                </Grid>
+            </Border>
+            
+            <!-- Drag & Drop Mod Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE8B7;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <TextBlock Grid.Column="2" x:Name="DragDropModHeader" Text="Drag &amp; Drop Mod" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                        
+                        <ComboBox Grid.Column="3" x:Name="DragDropModComboBox" Width="250" SelectionChanged="DragDropModComboBox_SelectionChanged" VerticalAlignment="Center">
+                            <ComboBoxItem x:Name="DragDropModFullItem" Tag="Full" Content="Full Optimization"/>
+                            <ComboBoxItem x:Name="DragDropModNoResizeItem" Tag="NoResize" Content="Optimize Without Resize/Crop"/>
+                            <ComboBoxItem x:Name="DragDropModMiniaturesItem" Tag="Miniatures" Content="Generate Miniatures Only"/>
+                            <ComboBoxItem x:Name="DragDropModRenameItem" Tag="Rename" Content="Rename Files Only"/>
+                            <ComboBoxItem x:Name="DragDropModDisabledItem" Tag="Disabled" Content="Disabled"/>
+                        </ComboBox>
+                    </Grid>
+                    
+                    <TextBlock Grid.Row="2" x:Name="DragDropModDescription" TextWrapping="Wrap" FontSize="12" Opacity="0.7"/>
+                </Grid>
+            </Border>
+            
+            <!-- Drag & Drop Category Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE8F1;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <TextBlock Grid.Column="2" x:Name="DragDropCategoryHeader" Text="Drag &amp; Drop Category" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                        
+                        <ComboBox Grid.Column="3" x:Name="DragDropCategoryComboBox" Width="250" SelectionChanged="DragDropCategoryComboBox_SelectionChanged" VerticalAlignment="Center">
+                            <ComboBoxItem x:Name="DragDropCategoryFullItem" Tag="Full" Content="Full Optimization"/>
+                            <ComboBoxItem x:Name="DragDropCategoryNoResizeItem" Tag="NoResize" Content="Optimize Without Resize/Crop"/>
+                            <ComboBoxItem x:Name="DragDropCategoryMiniaturesItem" Tag="Miniatures" Content="Generate Miniatures Only"/>
+                            <ComboBoxItem x:Name="DragDropCategoryRenameItem" Tag="Rename" Content="Rename Files Only"/>
+                            <ComboBoxItem x:Name="DragDropCategoryDisabledItem" Tag="Disabled" Content="Disabled"/>
+                        </ComboBox>
+                    </Grid>
+                    
+                    <TextBlock Grid.Row="2" x:Name="DragDropCategoryDescription" TextWrapping="Wrap" FontSize="12" Opacity="0.7"/>
+                </Grid>
+            </Border>
+            
+            <!-- Auto Download Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE896;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <TextBlock Grid.Column="2" x:Name="AutoDownloadHeader" Text="Automatic (GameBanana Download)" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                        
+                        <ComboBox Grid.Column="3" x:Name="AutoDownloadComboBox" Width="250" SelectionChanged="AutoDownloadComboBox_SelectionChanged" VerticalAlignment="Center">
+                            <ComboBoxItem x:Name="AutoDownloadFullItem" Tag="Full" Content="Full Optimization"/>
+                            <ComboBoxItem x:Name="AutoDownloadNoResizeItem" Tag="NoResize" Content="Optimize Without Resize/Crop"/>
+                            <ComboBoxItem x:Name="AutoDownloadMiniaturesItem" Tag="Miniatures" Content="Generate Miniatures Only"/>
+                            <ComboBoxItem x:Name="AutoDownloadRenameItem" Tag="Rename" Content="Rename Files Only"/>
+                            <ComboBoxItem x:Name="AutoDownloadDisabledItem" Tag="Disabled" Content="Disabled"/>
+                        </ComboBox>
+                    </Grid>
+                    
+                    <TextBlock Grid.Row="2" x:Name="AutoDownloadDescription" TextWrapping="Wrap" FontSize="12" Opacity="0.7"/>
+                </Grid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>
