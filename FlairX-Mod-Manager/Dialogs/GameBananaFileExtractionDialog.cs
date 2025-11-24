@@ -96,6 +96,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 Text = modName,
                 Margin = new Thickness(0, 0, 0, 8)
             };
+            _modNameTextBox.BeforeTextChanging += ModNameTextBox_BeforeTextChanging;
             stackPanel.Children.Add(_modNameTextBox);
 
             // Category selection
@@ -113,6 +114,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 Text = categoryName ?? "Characters",
                 Margin = new Thickness(0, 0, 0, 8)
             };
+            _categoryTextBox.BeforeTextChanging += CategoryTextBox_BeforeTextChanging;
             stackPanel.Children.Add(_categoryTextBox);
 
             // Download previews checkbox (always visible)
@@ -1110,6 +1112,44 @@ namespace FlairX_Mod_Manager.Dialogs
                 return disabledPath;
             
             return null;
+        }
+
+        private void ModNameTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
+        {
+            // Replace forward slash with dash, block other invalid characters
+            if (args.NewText.Contains('/'))
+            {
+                args.Cancel = true;
+                sender.Text = args.NewText.Replace("/", "-");
+                sender.SelectionStart = sender.Text.Length;
+                return;
+            }
+
+            // Block other invalid filename characters (except /)
+            var invalidChars = System.IO.Path.GetInvalidFileNameChars().Where(c => c != '/').ToArray();
+            if (args.NewText.Any(c => invalidChars.Contains(c)))
+            {
+                args.Cancel = true;
+            }
+        }
+
+        private void CategoryTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
+        {
+            // Replace forward slash with dash, block other invalid characters
+            if (args.NewText.Contains('/'))
+            {
+                args.Cancel = true;
+                sender.Text = args.NewText.Replace("/", "-");
+                sender.SelectionStart = sender.Text.Length;
+                return;
+            }
+
+            // Block other invalid filename characters (except /)
+            var invalidChars = System.IO.Path.GetInvalidFileNameChars().Where(c => c != '/').ToArray();
+            if (args.NewText.Any(c => invalidChars.Contains(c)))
+            {
+                args.Cancel = true;
+            }
         }
     }
 }
