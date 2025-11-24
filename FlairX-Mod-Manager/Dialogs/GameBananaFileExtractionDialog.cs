@@ -1130,6 +1130,13 @@ namespace FlairX_Mod_Manager.Dialogs
             if (args.NewText.Any(c => invalidChars.Contains(c)))
             {
                 args.Cancel = true;
+                return;
+            }
+
+            // Block Windows reserved names
+            if (IsReservedWindowsName(args.NewText))
+            {
+                args.Cancel = true;
             }
         }
 
@@ -1149,7 +1156,30 @@ namespace FlairX_Mod_Manager.Dialogs
             if (args.NewText.Any(c => invalidChars.Contains(c)))
             {
                 args.Cancel = true;
+                return;
             }
+
+            // Block Windows reserved names
+            if (IsReservedWindowsName(args.NewText))
+            {
+                args.Cancel = true;
+            }
+        }
+
+        private bool IsReservedWindowsName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return false;
+
+            // Remove extension if present
+            var nameWithoutExt = name.Split('.')[0].ToUpperInvariant();
+
+            // Windows reserved names
+            var reserved = new[] { "CON", "PRN", "AUX", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", 
+                                   "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", 
+                                   "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
+
+            return reserved.Contains(nameWithoutExt);
         }
     }
 }
