@@ -29,40 +29,54 @@
             <TextBlock x:Name="FunctionsTitle" Text="Functions" FontSize="24" FontWeight="Bold" Margin="16,0,16,0" VerticalAlignment="Center"/>
         </StackPanel>
         
-        <!-- Content with SelectorBar -->
+        <!-- NavigationView Content -->
         <Grid Grid.Row="1" Padding="0,0,0,24" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            
-            <!-- Centered SelectorBar -->
-            <SelectorBar x:Name="FunctionSelectorBar" Grid.Row="0" SelectionChanged="FunctionSelectorBar_SelectionChanged" 
-                         HorizontalAlignment="Center" Margin="0,0,0,16">
-                <SelectorBarItem x:Name="GBAuthorUpdateItem" Text="GameBanana Update" IsSelected="True" Tag="GBAuthorUpdate">
-                    <SelectorBarItem.Icon>
-                        <FontIcon Glyph="&#xF49A;"/>
-                    </SelectorBarItem.Icon>
-                </SelectorBarItem>
-                <SelectorBarItem x:Name="StatusKeeperItem" Text="Status Keeper" Tag="StatusKeeperPage">
-                    <SelectorBarItem.Icon>
-                        <FontIcon Glyph="&#xE792;"/>
-                    </SelectorBarItem.Icon>
-                </SelectorBarItem>
-                <SelectorBarItem x:Name="ModInfoBackupItem" Text="ModInfo Backup" Tag="ModInfoBackup">
-                    <SelectorBarItem.Icon>
-                        <FontIcon Glyph="&#xE8C8;"/>
-                    </SelectorBarItem.Icon>
-                </SelectorBarItem>
-                <SelectorBarItem x:Name="ImageOptimizerItem" Text="Image Optimizer" Tag="ImageOptimizer">
-                    <SelectorBarItem.Icon>
-                        <FontIcon Glyph="&#xE91B;"/>
-                    </SelectorBarItem.Icon>
-                </SelectorBarItem>
-            </SelectorBar>
-            
-            <!-- Content Frame -->
-            <Frame x:Name="FunctionContentFrame" Grid.Row="1" IsNavigationStackEnabled="False"/>
+            <NavigationView x:Name="FunctionNavigationView"
+                            IsSettingsVisible="False"
+                            IsBackButtonVisible="Collapsed"
+                            IsBackEnabled="False"
+                            SelectionChanged="FunctionNavigationView_SelectionChanged"
+                            Header=""
+                            AlwaysShowHeader="False"
+                            PaneTitle=""
+                            PaneDisplayMode="Top"
+                            ExpandedModeThresholdWidth="500"
+                            SelectionFollowsFocus="Disabled"
+                            IsTabStop="False"
+                            Background="Transparent"
+                            HorizontalAlignment="Stretch">
+                
+                <NavigationView.Resources>
+                    <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent"/>
+                </NavigationView.Resources>
+                <NavigationView.MenuItems>
+                    <NavigationViewItem x:Name="GBAuthorUpdateNavItem" Content="GameBanana Update" Tag="GBAuthorUpdate">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xF49A;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Name="StatusKeeperNavItem" Content="Status Keeper" Tag="StatusKeeperPage">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE792;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Name="ModInfoBackupNavItem" Content="ModInfo Backup" Tag="ModInfoBackup">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE8C8;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Name="ImageOptimizerNavItem" Content="Image Optimizer" Tag="ImageOptimizer">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE91B;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                </NavigationView.MenuItems>
+                <Frame x:Name="FunctionContentFrame"/>
+            </NavigationView>
         </Grid>
     </Grid>
 </UserControl>

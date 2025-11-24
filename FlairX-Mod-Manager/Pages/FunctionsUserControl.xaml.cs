@@ -331,45 +331,53 @@ namespace FlairX_Mod_Manager.Pages
 
         private void PopulateFunctionButtons()
         {
-            // Update text for each function selector item, set visibility based on enabled state
+            // Update text for each function navigation item, set visibility based on enabled state
             foreach (var function in _functionInfos)
             {
                 switch (function.FileName)
                 {
                     case "GBAuthorUpdate":
-                        GBAuthorUpdateItem.Text = "GameBanana Update";
-                        GBAuthorUpdateItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        GBAuthorUpdateNavItem.Content = "GameBanana Update";
+                        GBAuthorUpdateNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
                         break;
 
                     case "StatusKeeperPage":
-                        StatusKeeperItem.Text = "Status Keeper";
-                        StatusKeeperItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        StatusKeeperNavItem.Content = "Status Keeper";
+                        StatusKeeperNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
                         break;
                     case "ModInfoBackup":
-                        ModInfoBackupItem.Text = "ModInfo Backup";
-                        ModInfoBackupItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        ModInfoBackupNavItem.Content = "ModInfo Backup";
+                        ModInfoBackupNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
                         break;
                     
                     case "ImageOptimizer":
-                        ImageOptimizerItem.Text = "Image Optimizer";
-                        ImageOptimizerItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        ImageOptimizerNavItem.Content = "Image Optimizer";
+                        ImageOptimizerNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
                         break;
                 }
             }
             
-            // Navigate to first function
-            var firstFunction = _functionInfos.FirstOrDefault(f => f.Enabled);
-            if (firstFunction != null)
+            // Select the first visible navigation item by default
+            var firstVisibleNavItem = FunctionNavigationView.MenuItems.OfType<NavigationViewItem>().FirstOrDefault(item => item.Visibility == Visibility.Visible);
+            
+            if (firstVisibleNavItem != null)
             {
-                NavigateToFunction(firstFunction);
+                FunctionNavigationView.SelectedItem = firstVisibleNavItem;
+                
+                var functionName = firstVisibleNavItem.Tag as string;
+                var firstFunction = _functionInfos.FirstOrDefault(f => f.FileName == functionName);
+                if (firstFunction != null)
+                {
+                    NavigateToFunction(firstFunction);
+                }
             }
         }
 
 
 
-        private void FunctionSelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
+        private void FunctionNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            if (sender.SelectedItem is SelectorBarItem selectedItem && selectedItem.Tag is string functionName)
+            if (args.SelectedItem is NavigationViewItem selectedItem && selectedItem.Tag is string functionName)
             {
                 // Find function by name
                 var function = _functionInfos.FirstOrDefault(f => f.FileName == functionName);

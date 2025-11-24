@@ -391,13 +391,35 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (response == null)
                 {
-                    // API error occurred
-                    LoadingPanel.Visibility = Visibility.Collapsed;
-                    ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
-                    ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
-                    ConnectionErrorBar.IsOpen = true;
-                    _hasMorePages = false;
-                    return;
+                    // Try Cloudflare bypass
+                    Logger.LogInfo("Response is null, attempting Cloudflare bypass...");
+                    var (cookies, userAgent) = await Services.CloudflareBypassService.BypassCloudflareAsync(this.XamlRoot);
+                    
+                    if (!string.IsNullOrEmpty(cookies))
+                    {
+                        // Retry the request
+                        response = await GameBananaService.GetModsAsync(
+                            _gameTag, 
+                            _currentPage, 
+                            _currentSearch, 
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null);
+                    }
+                    
+                    if (response == null)
+                    {
+                        // Still failed - show error
+                        LoadingPanel.Visibility = Visibility.Collapsed;
+                        ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
+                        ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
+                        ConnectionErrorBar.IsOpen = true;
+                        _hasMorePages = false;
+                        return;
+                    }
                 }
 
                 if (response.Records == null || response.Records.Count == 0)

@@ -10,7 +10,39 @@ namespace FlairX_Mod_Manager.Services
 {
     public class GameBananaService
     {
-        private static readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(15) };
+        private static readonly HttpClient _httpClient = CreateHttpClient();
+        
+        private static HttpClient CreateHttpClient()
+        {
+            var handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate,
+                UseCookies = true,
+                AllowAutoRedirect = true
+            };
+            
+            var client = new HttpClient(handler)
+            {
+                Timeout = TimeSpan.FromSeconds(30)
+            };
+            
+            // Mimic a real browser to bypass Cloudflare
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            client.DefaultRequestHeaders.Add("Accept", "application/json, text/plain, */*");
+            client.DefaultRequestHeaders.Add("Accept-Language", "en-US,en;q=0.9");
+            client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip, deflate, br");
+            client.DefaultRequestHeaders.Add("DNT", "1");
+            client.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            client.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "document");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "navigate");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-Site", "none");
+            client.DefaultRequestHeaders.Add("Sec-Fetch-User", "?1");
+            client.DefaultRequestHeaders.Add("Cache-Control", "max-age=0");
+            
+            return client;
+        }
         
         // Game ID mapping
         private static readonly Dictionary<string, int> GameIds = new()
@@ -348,10 +380,27 @@ namespace FlairX_Mod_Manager.Services
                 // Log the URL for debugging
                 Logger.LogInfo($"GameBanana API URL: {url}");
 
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/2.6.8");
+                // Use cached cookies if available
+                var cookies = CloudflareBypassService.GetCachedCookies();
+                var userAgent = CloudflareBypassService.GetCachedUserAgent();
 
-                var response = await _httpClient.GetAsync(url);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("User-Agent", userAgent ?? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+                if (!string.IsNullOrEmpty(cookies))
+                {
+                    request.Headers.Add("Cookie", cookies);
+                }
+
+                var response = await _httpClient.SendAsync(request);
+                
+                // If we get 403/503, return null to trigger dialog in UI layer
+                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden || 
+                    response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+                {
+                    Logger.LogInfo("Got blocked by Cloudflare, need user verification");
+                    return null;
+                }
+                
                 response.EnsureSuccessStatusCode();
 
                 var content = await response.Content.ReadAsStringAsync();
@@ -395,10 +444,17 @@ namespace FlairX_Mod_Manager.Services
             {
                 var url = $"https://gamebanana.com/apiv11/Mod/{modId}?_csvProperties=_idRow,_sName,_sText,_sProfileUrl,_aSubmitter,_aFiles,_aPreviewMedia,_tsDateAdded,_tsDateModified,_tsDateUpdated,_nViewCount,_nLikeCount,_nDownloadCount,_nPostCount,_aCategory,_aGame,_sVersion,_bIsObsolete,_aRootCategory";
 
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/2.6.8");
+                var cookies = CloudflareBypassService.GetCachedCookies();
+                var userAgent = CloudflareBypassService.GetCachedUserAgent();
 
-                var response = await _httpClient.GetAsync(url);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("User-Agent", userAgent ?? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+                if (!string.IsNullOrEmpty(cookies))
+                {
+                    request.Headers.Add("Cookie", cookies);
+                }
+
+                var response = await _httpClient.SendAsync(request);
                 response.EnsureSuccessStatusCode();
 
                 var content = await response.Content.ReadAsStringAsync();

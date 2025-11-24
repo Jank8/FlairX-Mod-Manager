@@ -60,10 +60,8 @@
     <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
     <PackageReference Include="NLua" Version="1.7.5" />
     
-
-    
-
-    
+    <!-- WebView2 for Cloudflare bypass -->
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3179.45" />
 
   </ItemGroup>
 
