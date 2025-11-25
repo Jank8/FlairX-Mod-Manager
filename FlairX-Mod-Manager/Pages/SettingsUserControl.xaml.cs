@@ -1,8 +1,9 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using WinRT.Interop;
 using System.Runtime.InteropServices;
 using System.Threading;
 using FlairX_Mod_Manager;
+using FlairX_Mod_Manager.Models;
 
 namespace FlairX_Mod_Manager.Pages
 {
@@ -669,24 +671,40 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modLibraryPath) || !Directory.Exists(modLibraryPath)) return;
-                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                
+                var threadCount = SettingsManager.Current.ImageOptimizerThreadCount;
+                // Auto-detect if 0: use CPU cores - 1 (leave 1 core free)
+                if (threadCount <= 0)
                 {
-                    if (token.IsCancellationRequested)
-                        break;
-                    if (!Directory.Exists(categoryDir)) continue;
-                    
-                    // Process category preview (if exists) to create category minitile
-                    ProcessCategoryPreview(categoryDir, token);
-                    if (token.IsCancellationRequested)
-                        break;
-                    
-                    foreach (var modDir in Directory.GetDirectories(categoryDir))
+                    threadCount = Math.Max(1, Environment.ProcessorCount - 1);
+                }
+                var parallelOptions = new ParallelOptions 
+                { 
+                    MaxDegreeOfParallelism = threadCount,
+                    CancellationToken = token
+                };
+                
+                var categoryDirs = Directory.GetDirectories(modLibraryPath);
+                
+                try
+                {
+                    Parallel.ForEach(categoryDirs, parallelOptions, categoryDir =>
                     {
-                        if (token.IsCancellationRequested)
-                            break;
+                        if (!Directory.Exists(categoryDir)) return;
                         
-                        ProcessModPreviewImages(modDir);
-                    }
+                        // Process category preview (if exists) to create category minitile
+                        ProcessCategoryPreview(categoryDir, token);
+                        
+                        var modDirs = Directory.GetDirectories(categoryDir);
+                        Parallel.ForEach(modDirs, parallelOptions, modDir =>
+                        {
+                            ProcessModPreviewImages(modDir);
+                        });
+                    });
+                }
+                catch (OperationCanceledException)
+                {
+                    // Cancellation requested
                 }
             }, token);
         }
@@ -775,18 +793,34 @@ namespace FlairX_Mod_Manager.Pages
 
                 await Task.Run(() =>
                 {
-                    foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                    var threadCount = SettingsManager.Current.ImageOptimizerThreadCount;
+                    // Auto-detect if 0: use CPU cores - 1 (leave 1 core free)
+                    if (threadCount <= 0)
                     {
-                        if (!Directory.Exists(categoryDir)) continue;
+                        threadCount = Math.Max(1, Environment.ProcessorCount - 1);
+                    }
+                    var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = threadCount };
+                    
+                    // Get optimization mode from Manual Mode setting
+                    var mode = Enum.TryParse<OptimizationMode>(SettingsManager.Current.ImageOptimizerManualMode, out var parsedMode) 
+                        ? parsedMode 
+                        : OptimizationMode.Full;
+                    
+                    var categoryDirs = Directory.GetDirectories(modLibraryPath);
+                    
+                    Parallel.ForEach(categoryDirs, parallelOptions, categoryDir =>
+                    {
+                        if (!Directory.Exists(categoryDir)) return;
                         
                         // Process category preview (if exists) to create category minitile
-                        ProcessCategoryPreviewStatic(categoryDir);
+                        ProcessCategoryPreviewStatic(categoryDir, mode);
                         
-                        foreach (var modDir in Directory.GetDirectories(categoryDir))
+                        var modDirs = Directory.GetDirectories(categoryDir);
+                        Parallel.ForEach(modDirs, parallelOptions, modDir =>
                         {
-                            ProcessModPreviewImagesStatic(modDir);
-                        }
-                    }
+                            ProcessModPreviewImagesStatic(modDir, mode);
+                        });
+                    });
                 });
 
                 Logger.LogInfo("Optimize previews completed via hotkey");
@@ -798,8 +832,54 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         // Static versions of processing methods for hotkey use
-        public static void ProcessCategoryPreviewStatic(string categoryDir)
+        public static void ProcessCategoryPreviewStatic(string categoryDir, OptimizationMode mode = OptimizationMode.Full)
         {
+            // For Disabled mode, just copy preview.jpg if it doesn't exist
+            if (mode == OptimizationMode.Disabled)
+            {
+                // Categories in Disabled mode: just ensure preview.jpg exists, no optimization
+                return;
+            }
+            
+            // For Rename mode, just rename files
+            if (mode == OptimizationMode.Rename)
+            {
+                // Categories don't need renaming - they use preview.jpg, catprev.jpg, catmini.jpg
+                return;
+            }
+            
+            // For Miniatures mode, only generate catprev and catmini if preview.jpg exists
+            if (mode == OptimizationMode.Miniatures)
+            {
+                var categoryPreviewPath = Path.Combine(categoryDir, "preview.jpg");
+                if (File.Exists(categoryPreviewPath))
+                {
+                    // Generate miniatures without modifying preview.jpg
+                    GenerateCategoryMiniaturesOnly(categoryDir, categoryPreviewPath);
+                }
+                return;
+            }
+            
+            // Create backup if enabled (for Full and Lite modes)
+            if (SettingsManager.Current.ImageOptimizerCreateBackups)
+            {
+                var filesToBackup = Directory.GetFiles(categoryDir)
+                    .Where(f => 
+                    {
+                        var fileName = Path.GetFileName(f).ToLower();
+                        return (fileName.StartsWith("preview") || fileName.StartsWith("catprev") || fileName.StartsWith("catmini")) &&
+                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                    })
+                    .ToList();
+                
+                if (filesToBackup.Count > 0)
+                {
+                    CreateBackupZip(categoryDir, filesToBackup);
+                }
+            }
+            
             var catprevJpgPath = Path.Combine(categoryDir, "catprev.jpg");
             
             // Look for existing catprev files (catprev.png, catprev.jpg) and other preview files
@@ -908,7 +988,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (jpegEncoder != null)
                         {
                             var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
                             thumbBmp.Save(tempPath, jpegEncoder, jpegParams);
                         }
                     }
@@ -935,7 +1015,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (jpegEncoder != null)
                         {
                             var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
                             miniThumb.Save(catminiPath, jpegEncoder, jpegParams);
                         }
                     }
@@ -955,10 +1035,249 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        public static void ProcessModPreviewImagesStatic(string modDir)
+        private static void GenerateCategoryMiniaturesOnly(string categoryDir, string previewPath)
         {
             try
             {
+                Logger.LogInfo($"Generating category miniatures only for: {categoryDir}");
+                
+                using (var img = System.Drawing.Image.FromFile(previewPath))
+                {
+                    // Generate catprev.jpg (600x722)
+                    var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
+                    using (var thumbBmp = new System.Drawing.Bitmap(600, 722))
+                    using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
+                    {
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                        
+                        double targetRatio = 600.0 / 722.0;
+                        double sourceRatio = (double)img.Width / img.Height;
+                        
+                        int srcWidth, srcHeight, srcX, srcY;
+                        if (sourceRatio > targetRatio)
+                        {
+                            srcHeight = img.Height;
+                            srcWidth = (int)(srcHeight * targetRatio);
+                            srcX = (img.Width - srcWidth) / 2;
+                            srcY = 0;
+                        }
+                        else
+                        {
+                            srcWidth = img.Width;
+                            srcHeight = (int)(srcWidth / targetRatio);
+                            srcX = 0;
+                            srcY = (img.Height - srcHeight) / 2;
+                        }
+                        
+                        var srcRect = new System.Drawing.Rectangle(srcX, srcY, srcWidth, srcHeight);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
+                        g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
+                        
+                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                        if (jpegEncoder != null)
+                        {
+                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
+                            thumbBmp.Save(catprevPath, jpegEncoder, jpegParams);
+                        }
+                    }
+                    
+                    // Generate catmini.jpg (600x600)
+                    var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                    using (var miniThumb = new System.Drawing.Bitmap(600, 600))
+                    using (var g2 = System.Drawing.Graphics.FromImage(miniThumb))
+                    {
+                        g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g2.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                        g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                        g2.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                        
+                        int size = Math.Min(img.Width, img.Height);
+                        int x = (img.Width - size) / 2;
+                        int y = (img.Height - size) / 2;
+                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        g2.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
+                        
+                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                        if (jpegEncoder != null)
+                        {
+                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
+                            miniThumb.Save(catminiPath, jpegEncoder, jpegParams);
+                        }
+                    }
+                }
+                
+                Logger.LogInfo("Category miniatures generated successfully");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to generate category miniatures for {categoryDir}", ex);
+            }
+        }
+        
+        private static void CopyPreviewFilesStatic(string modDir)
+        {
+            try
+            {
+                Logger.LogInfo($"Copying preview files (no optimization) in: {modDir}");
+                
+                // Find all preview image files
+                var previewFiles = Directory.GetFiles(modDir)
+                    .Where(f => 
+                    {
+                        var fileName = Path.GetFileName(f).ToLower();
+                        return fileName.StartsWith("preview") &&
+                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                    })
+                    .OrderBy(f => f)
+                    .ToList();
+                
+                if (previewFiles.Count == 0) return;
+                
+                // Copy files to standard names without optimization
+                for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
+                {
+                    var sourceFile = previewFiles[i];
+                    var ext = Path.GetExtension(sourceFile);
+                    string targetFileName = i == 0 ? $"preview{ext}" : $"preview-{i:D2}{ext}";
+                    var targetPath = Path.Combine(modDir, targetFileName);
+                    
+                    if (!sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        File.Copy(sourceFile, targetPath, true);
+                        Logger.LogInfo($"Copied: {Path.GetFileName(sourceFile)} -> {targetFileName}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to copy preview files in {modDir}", ex);
+            }
+        }
+        
+        private static void RenamePreviewFilesStatic(string modDir)
+        {
+            try
+            {
+                Logger.LogInfo($"Renaming preview files in: {modDir}");
+                
+                // Find all preview image files
+                var previewFiles = Directory.GetFiles(modDir)
+                    .Where(f => 
+                    {
+                        var fileName = Path.GetFileName(f).ToLower();
+                        return fileName.StartsWith("preview") &&
+                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                    })
+                    .OrderBy(f => f)
+                    .ToList();
+                
+                if (previewFiles.Count == 0) return;
+                
+                // Rename files to standard names
+                for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
+                {
+                    var sourceFile = previewFiles[i];
+                    var ext = Path.GetExtension(sourceFile);
+                    string targetFileName = i == 0 ? $"preview{ext}" : $"preview-{i:D2}{ext}";
+                    var targetPath = Path.Combine(modDir, targetFileName);
+                    
+                    if (!sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Use temp name to avoid conflicts
+                        var tempPath = Path.Combine(modDir, $"_temp_{Guid.NewGuid()}{ext}");
+                        File.Move(sourceFile, tempPath);
+                        File.Move(tempPath, targetPath);
+                        Logger.LogInfo($"Renamed: {Path.GetFileName(sourceFile)} -> {targetFileName}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to rename preview files in {modDir}", ex);
+            }
+        }
+        
+        private static void CreateBackupZip(string directory, List<string> filesToBackup)
+        {
+            try
+            {
+                if (filesToBackup.Count == 0) return;
+                
+                // Create backup filename with timestamp
+                var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                var backupFileName = $"preview_backup_{timestamp}.zip";
+                var backupPath = Path.Combine(directory, backupFileName);
+                
+                // Create ZIP archive
+                using (var archive = ZipFile.Open(backupPath, ZipArchiveMode.Create))
+                {
+                    foreach (var file in filesToBackup)
+                    {
+                        if (File.Exists(file))
+                        {
+                            var entryName = Path.GetFileName(file);
+                            archive.CreateEntryFromFile(file, entryName, CompressionLevel.Optimal);
+                            Logger.LogInfo($"Added to backup: {entryName}");
+                        }
+                    }
+                }
+                
+                Logger.LogInfo($"Created backup: {backupFileName}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to create backup ZIP", ex);
+            }
+        }
+
+        public static void ProcessModPreviewImagesStatic(string modDir, OptimizationMode mode = OptimizationMode.Full)
+        {
+            try
+            {
+                // For Disabled mode, just copy files with standard names (no optimization)
+                if (mode == OptimizationMode.Disabled)
+                {
+                    CopyPreviewFilesStatic(modDir);
+                    return;
+                }
+                
+                // For Rename mode, just rename files to standard names
+                if (mode == OptimizationMode.Rename)
+                {
+                    RenamePreviewFilesStatic(modDir);
+                    return;
+                }
+                
+                // Create backup if enabled
+                if (SettingsManager.Current.ImageOptimizerCreateBackups)
+                {
+                    var filesToBackup = Directory.GetFiles(modDir)
+                        .Where(f => 
+                        {
+                            var fileName = Path.GetFileName(f).ToLower();
+                            return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
+                                   (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                    f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                        })
+                        .ToList();
+                    
+                    if (filesToBackup.Count > 0)
+                    {
+                        CreateBackupZip(modDir, filesToBackup);
+                    }
+                }
+                
                 // Find all preview*.png and preview*.jpg files
                 var previewFiles = Directory.GetFiles(modDir)
                     .Where(f => 
@@ -995,8 +1314,20 @@ namespace FlairX_Mod_Manager.Pages
                         continue;
                     }
 
-                    // Optimize and save the image
-                    OptimizePreviewImageStatic(sourceFile, targetPath);
+                    // Optimize and save the image based on mode
+                    if (mode == OptimizationMode.Miniatures)
+                    {
+                        // For Miniatures mode, just rename/copy without optimization
+                        if (!sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            File.Copy(sourceFile, targetPath, true);
+                        }
+                    }
+                    else
+                    {
+                        // Full or Lite optimization
+                        OptimizePreviewImageStatic(sourceFile, targetPath, mode);
+                    }
 
                     // Create minitile only for the main preview (index 0)
                     if (i == 0)
@@ -1060,11 +1391,11 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private static void OptimizePreviewImageStatic(string sourcePath, string targetPath)
+        private static void OptimizePreviewImageStatic(string sourcePath, string targetPath, OptimizationMode mode = OptimizationMode.Full)
         {
             try
             {
-                Logger.LogInfo($"Optimizing image: {sourcePath} -> {targetPath}");
+                Logger.LogInfo($"Optimizing image: {sourcePath} -> {targetPath} (Mode: {mode})");
                 
                 if (!File.Exists(sourcePath))
                 {
@@ -1074,11 +1405,14 @@ namespace FlairX_Mod_Manager.Pages
                 
                 using (var src = System.Drawing.Image.FromFile(sourcePath))
                 {
-                // Step 1: Crop to square (1:1 ratio) if needed
+                // For Lite mode, skip cropping and resizing
+                bool shouldCropAndResize = (mode == OptimizationMode.Full);
+                
+                // Step 1: Crop to square (1:1 ratio) if needed (only for Full mode)
                 int originalSize = Math.Min(src.Width, src.Height);
                 int x = (src.Width - originalSize) / 2;
                 int y = (src.Height - originalSize) / 2;
-                bool needsCrop = src.Width != src.Height;
+                bool needsCrop = shouldCropAndResize && (src.Width != src.Height);
                 
                 System.Drawing.Image squareImage = src;
                 if (needsCrop)
@@ -1097,11 +1431,11 @@ namespace FlairX_Mod_Manager.Pages
                     squareImage = cropped;
                 }
 
-                // Step 2: Resize if larger than 1000x1000
-                int targetSize = Math.Min(originalSize, 1000);
+                // Step 2: Resize if larger than 1000x1000 (only for Full mode)
+                int targetSize = shouldCropAndResize ? Math.Min(originalSize, 1000) : originalSize;
                 System.Drawing.Image finalImage = squareImage;
                 
-                if (originalSize > 1000)
+                if (shouldCropAndResize && originalSize > 1000)
                 {
                     var resized = new System.Drawing.Bitmap(targetSize, targetSize);
                     using (var g = System.Drawing.Graphics.FromImage(resized))
@@ -1122,7 +1456,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     Logger.LogInfo($"Saving to {targetPath}");
                     var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                    jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 85L);
+                    jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
                     finalImage.Save(targetPath, jpegEncoder, jpegParams);
                     Logger.LogInfo("Image saved successfully");
                 }
@@ -1142,18 +1476,25 @@ namespace FlairX_Mod_Manager.Pages
                 throw; // Re-throw to ensure error is handled upstream
             }
             
-            // Delete original file if it's different from target
-            try
+            // Delete original file if it's different from target (unless KeepOriginals is enabled)
+            if (!SettingsManager.Current.ImageOptimizerKeepOriginals)
             {
-                if (!sourcePath.Equals(targetPath, StringComparison.OrdinalIgnoreCase) && File.Exists(sourcePath))
+                try
                 {
-                    File.Delete(sourcePath);
-                    Logger.LogInfo($"Deleted original preview: {sourcePath}");
+                    if (!sourcePath.Equals(targetPath, StringComparison.OrdinalIgnoreCase) && File.Exists(sourcePath))
+                    {
+                        File.Delete(sourcePath);
+                        Logger.LogInfo($"Deleted original preview: {sourcePath}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to delete original preview: {sourcePath}", ex);
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Logger.LogError($"Failed to delete original preview: {sourcePath}", ex);
+                Logger.LogInfo($"Keeping original file: {sourcePath}");
             }
         }
 
@@ -1201,7 +1542,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (jpegEncoder != null)
                     {
                         var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                        jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                        jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
                         minitile.Save(minitilePath, jpegEncoder, jpegParams);
                     }
                 }
@@ -1572,6 +1913,26 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                // Create backup if enabled
+                if (SettingsManager.Current.ImageOptimizerCreateBackups)
+                {
+                    var filesToBackup = Directory.GetFiles(modDir)
+                        .Where(f => 
+                        {
+                            var fileName = Path.GetFileName(f).ToLower();
+                            return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
+                                   (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                    f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                        })
+                        .ToList();
+                    
+                    if (filesToBackup.Count > 0)
+                    {
+                        CreateBackupZip(modDir, filesToBackup);
+                    }
+                }
+                
                 // Find all preview*.png and preview*.jpg files
                 var previewFiles = Directory.GetFiles(modDir)
                     .Where(f => 
@@ -1617,18 +1978,38 @@ namespace FlairX_Mod_Manager.Pages
                         CreateMinitile(targetPath, minitileJpgPath);
                     }
 
-                    // Move original file to recycle bin if it has a different name
-                    if (!sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase))
+                    // Delete original file if it's different from target (unless KeepOriginals is enabled)
+                    if (!SettingsManager.Current.ImageOptimizerKeepOriginals)
                     {
-                        MoveToRecycleBin(sourceFile);
+                        if (!sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            try
+                            {
+                                File.Delete(sourceFile);
+                                Logger.LogInfo($"Deleted original preview: {sourceFile}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to delete original preview: {sourceFile}", ex);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogInfo($"Keeping original file: {sourceFile}");
                     }
                 }
 
-                // Clean up any extra preview files beyond the 100 limit
-                var existingPreviews = Directory.GetFiles(modDir, "preview*.jpg")
+                // Clean up any extra preview files beyond the limit
+                var existingPreviews = Directory.GetFiles(modDir, "preview*.*")
                     .Where(f => 
                     {
                         var name = Path.GetFileNameWithoutExtension(f);
+                        var ext = Path.GetExtension(f).ToLower();
+                        
+                        // Skip if not an image file
+                        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png") return false;
+                        
                         if (name == "preview") return false; // Keep main preview
                         if (name.StartsWith("preview-"))
                         {
@@ -1641,7 +2022,15 @@ namespace FlairX_Mod_Manager.Pages
 
                 foreach (var extraFile in existingPreviews)
                 {
-                    MoveToRecycleBin(extraFile);
+                    try
+                    {
+                        File.Delete(extraFile);
+                        Logger.LogInfo($"Deleted excess preview file: {Path.GetFileName(extraFile)}");
+                    }
+                    catch (Exception deleteEx)
+                    {
+                        Logger.LogError($"Failed to delete excess file: {extraFile}", deleteEx);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1710,7 +2099,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (encoder != null)
                     {
                         var encParams = new EncoderParameters(1);
-                        encParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100L);
+                        encParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
                         finalBmp.Save(targetPath, encoder, encParams);
                     }
                 }
@@ -1768,7 +2157,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (jpegEncoder != null)
                     {
                         var jpegParams = new EncoderParameters(1);
-                        jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                        jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
                         thumbBmp.Save(minitilePath, jpegEncoder, jpegParams);
                     }
                 }
@@ -1818,6 +2207,26 @@ namespace FlairX_Mod_Manager.Pages
         private void ProcessCategoryPreview(string categoryDir, CancellationToken token)
         {
             if (token.IsCancellationRequested) return;
+            
+            // Create backup if enabled
+            if (SettingsManager.Current.ImageOptimizerCreateBackups)
+            {
+                var filesToBackup = Directory.GetFiles(categoryDir)
+                    .Where(f => 
+                    {
+                        var fileName = Path.GetFileName(f).ToLower();
+                        return (fileName.StartsWith("preview") || fileName.StartsWith("catprev") || fileName.StartsWith("catmini")) &&
+                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                    })
+                    .ToList();
+                
+                if (filesToBackup.Count > 0)
+                {
+                    CreateBackupZip(categoryDir, filesToBackup);
+                }
+            }
             
             var catprevJpgPath = Path.Combine(categoryDir, "catprev.jpg");
             var catminiJpgPath = Path.Combine(categoryDir, "catmini.jpg");
@@ -1930,7 +2339,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (jpegEncoder != null)
                         {
                             var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
                             thumbBmp.Save(tempPath, jpegEncoder, jpegParams);
                         }
                     }
@@ -1957,7 +2366,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (jpegEncoder != null)
                         {
                             var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 80L);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
                             miniThumb.Save(catminiPath, jpegEncoder, jpegParams);
                         }
                     }
@@ -1971,19 +2380,42 @@ namespace FlairX_Mod_Manager.Pages
                     File.Move(tempPath, catprevJpgPath);
                 }
                 
-                // Move all other catprev files to recycle bin after processing
-                foreach (var catprevFile in catprevFiles)
+                // Delete all other catprev files after processing (unless KeepOriginals is enabled)
+                if (!SettingsManager.Current.ImageOptimizerKeepOriginals)
                 {
-                    if (!catprevFile.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                    foreach (var catprevFile in catprevFiles)
                     {
-                        MoveToRecycleBin(catprevFile);
+                        if (!catprevFile.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            try
+                            {
+                                File.Delete(catprevFile);
+                                Logger.LogInfo($"Deleted original category preview: {catprevFile}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to delete original category preview: {catprevFile}", ex);
+                            }
+                        }
+                    }
+                    
+                    // Delete other preview files if they were used
+                    if (!catprevFiles.Contains(previewPath, StringComparer.OrdinalIgnoreCase))
+                    {
+                        try
+                        {
+                            File.Delete(previewPath);
+                            Logger.LogInfo($"Deleted original preview: {previewPath}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to delete original preview: {previewPath}", ex);
+                        }
                     }
                 }
-                
-                // Move other preview files to recycle bin if they were used
-                if (!catprevFiles.Contains(previewPath, StringComparer.OrdinalIgnoreCase))
+                else
                 {
-                    MoveToRecycleBin(previewPath);
+                    Logger.LogInfo($"Keeping original category preview files (KeepOriginals enabled)");
                 }
             }
             catch (Exception ex)

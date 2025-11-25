@@ -1,4 +1,4 @@
-{
+﻿{
     "ImageOptimizer_Function": "Tagapag-optimize ng Larawan",
     "ImageOptimizer_ManualOptimizationTitle": "Manu-manong Pag-optimize",
     "ImageOptimizer_OptimizationModesHeader": "Mga Mode ng Pag-optimize",
@@ -22,15 +22,13 @@
     "ImageOptimizer_KeepOriginals": "Panatilihin ang mga orihinal na file pagkatapos mag-optimize",
     "ImageOptimizer_KeepOriginals_Description": "Ang mga orihinal na file ay hindi tatanggalin (hal. ang preview.png ay mananatili kasama ng preview.jpg)",
     "ImageOptimizer_Mode_Full": "Kumpletong Pag-optimize",
-    "ImageOptimizer_Mode_NoResize": "Mag-optimize Nang Walang Pagbabago ng Laki/Pagputol",
+    "ImageOptimizer_Mode_Lite": "Lite Optimization",
     "ImageOptimizer_Mode_Miniatures": "Gumawa Lang ng mga Miniature",
     "ImageOptimizer_Mode_Rename": "Palitan Lang ang Pangalan ng mga File",
-    "ImageOptimizer_Mode_Disabled": "Hindi Pinagana",
-    "ImageOptimizer_Mode_Full_Description": "Kumpletong pag-optimize: baguhin ang laki sa 512x512, matalinong pagputol, i-convert sa JPEG at gumawa ng mga miniature",
-    "ImageOptimizer_Mode_NoResize_Description": "I-optimize ang kalidad at i-convert sa JPEG nang walang pagbabago ng laki o pagputol",
-    "ImageOptimizer_Mode_Miniatures_Description": "Gumawa lang ng mga miniature thumbnail (minitile.jpg, catmini.jpg)",
-    "ImageOptimizer_Mode_Rename_Description": "Palitan lang ang pangalan ng mga file sa standard na pangalan (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "Walang awtomatikong pag-optimize na isasagawa",
-    "ImageOptimizer_KeepOriginals_Toggle": "OFF/ON",
-    "ImageOptimizer_CreateBackups_Toggle": "OFF/ON"
+    "ImageOptimizer_Mode_Full_Description": "Resize to 1000x1000, crop to square, convert to JPEG, generate miniatures. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Miniatures_Description": "Only generate miniature thumbnails (minitile.jpg 600x722, catmini.jpg 600x600) without modifying original files",
+    "ImageOptimizer_Mode_Rename_Description": "Rename files to standard names (preview.jpg, preview-01.jpg, etc.) without optimization",
+    "ImageOptimizer_Mode_Lite_Description": "Convert to JPEG with compression, generate miniatures, no resizing or cropping. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Disabled": "Disabled",
+    "ImageOptimizer_Mode_Disabled_Description": "No optimization - just copy files with standard names"
 }

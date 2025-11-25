@@ -1024,8 +1024,15 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 Logger.LogInfo($"Starting background image optimization for downloaded mod in: {modPath}");
                 
+                // Get optimization mode from AutoDownloadMode setting
+                var mode = Enum.TryParse<Models.OptimizationMode>(SettingsManager.Current.ImageOptimizerAutoDownloadMode, out var parsedMode) 
+                    ? parsedMode 
+                    : Models.OptimizationMode.Miniatures;
+                
+                Logger.LogInfo($"Using AutoDownloadMode: {mode}");
+                
                 // Optimize only this specific mod directory
-                await Task.Run(() => Pages.SettingsUserControl.ProcessModPreviewImagesStatic(modPath));
+                await Task.Run(() => Pages.SettingsUserControl.ProcessModPreviewImagesStatic(modPath, mode));
                 
                 Logger.LogInfo($"Completed background image optimization for: {modPath}");
             }

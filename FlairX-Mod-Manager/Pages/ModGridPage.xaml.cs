@@ -1434,32 +1434,35 @@ namespace FlairX_Mod_Manager.Pages
                 File.Copy(imageFile.Path, targetPath, overwrite: true);
                 Logger.LogInfo($"Copied image to: {targetPath}");
                 
-                // Run image optimizer in category mode
-                var optimizerMode = ParseOptimizationMode(SettingsManager.Current.ImageOptimizerDragDropCategoryMode);
-                if (optimizerMode != OptimizationMode.Disabled)
+                // Run image optimizer in category mode using DragDropCategoryMode setting
+                var categoryOptimizerMode = ParseOptimizationMode(SettingsManager.Current.ImageOptimizerDragDropCategoryMode);
+                Logger.LogInfo($"Running image optimizer in category mode (Mode: {categoryOptimizerMode})");
+                await Task.Run(() =>
                 {
-                    Logger.LogInfo($"Running image optimizer in category mode: {optimizerMode}");
-                    await Task.Run(() =>
+                    try
                     {
-                        try
+                        Logger.LogInfo($"Calling ProcessCategoryPreviewStatic for: {categoryFolderPath}");
+                        SettingsUserControl.ProcessCategoryPreviewStatic(categoryFolderPath, categoryOptimizerMode);
+                        Logger.LogInfo("Category optimization complete");
+                        
+                        // Delete preview.jpg after optimization (keep only catprev.jpg and catmini.jpg) - only for Full mode and if KeepOriginals is disabled
+                        if (categoryOptimizerMode == OptimizationMode.Full && 
+                            !SettingsManager.Current.ImageOptimizerKeepOriginals && 
+                            File.Exists(targetPath))
                         {
-                            Logger.LogInfo($"Calling ProcessCategoryPreviewStatic for: {categoryFolderPath}");
-                            SettingsUserControl.ProcessCategoryPreviewStatic(categoryFolderPath);
-                            Logger.LogInfo("Category optimization complete");
-                            
-                            // Delete preview.jpg after optimization (keep only catprev.jpg and catmini.jpg)
-                            if (File.Exists(targetPath))
-                            {
-                                File.Delete(targetPath);
-                                Logger.LogInfo($"Deleted original preview.jpg after optimization");
-                            }
+                            File.Delete(targetPath);
+                            Logger.LogInfo($"Deleted original preview.jpg after optimization");
                         }
-                        catch (Exception ex)
+                        else if (SettingsManager.Current.ImageOptimizerKeepOriginals)
                         {
-                            Logger.LogError("Category optimization failed", ex);
+                            Logger.LogInfo($"Keeping original preview.jpg (KeepOriginals enabled)");
                         }
-                    });
-                }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Category optimization failed", ex);
+                    }
+                });
                 
                 // Show success
                 if (dropText != null)
@@ -1791,14 +1794,15 @@ namespace FlairX_Mod_Manager.Pages
                 
                 Logger.LogInfo($"Copy complete. Copied {copiedCount}/{imageFiles.Count} files with preview naming");
                 
-                // Optimize in background
-                Logger.LogInfo("Starting optimization in background");
+                // Optimize in background using DragDropModMode setting
+                var optimizerMode = ParseOptimizationMode(SettingsManager.Current.ImageOptimizerDragDropModMode);
+                Logger.LogInfo($"Starting optimization in background (Mode: {optimizerMode})");
                 await Task.Run(() =>
                 {
                     try
                     {
                         Logger.LogInfo($"Calling ProcessModPreviewImagesStatic for: {modFolderPath}");
-                        SettingsUserControl.ProcessModPreviewImagesStatic(modFolderPath);
+                        SettingsUserControl.ProcessModPreviewImagesStatic(modFolderPath, optimizerMode);
                         Logger.LogInfo("Optimization complete");
                         
                         // Log what files exist after optimization

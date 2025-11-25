@@ -75,11 +75,11 @@ namespace FlairX_Mod_Manager
         
         // Image Optimizer settings
         public int ImageOptimizerJpegQuality { get; set; } = 80;
-        public int ImageOptimizerThreadCount { get; set; } = 4;
+        public int ImageOptimizerThreadCount { get; set; } = 0; // 0 = auto-detect based on CPU cores
         public bool ImageOptimizerCreateBackups { get; set; } = false;
         public bool ImageOptimizerKeepOriginals { get; set; } = false;
         public string ImageOptimizerManualMode { get; set; } = "Full";
-        public string ImageOptimizerDragDropModMode { get; set; } = "Full";
+        public string ImageOptimizerDragDropModMode { get; set; } = "Lite";
         public string ImageOptimizerDragDropCategoryMode { get; set; } = "Full";
         public string ImageOptimizerAutoDownloadMode { get; set; } = "Miniatures";
     }

@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
@@ -74,8 +74,8 @@ namespace FlairX_Mod_Manager.Pages
             
             // Set thread count based on CPU cores
             int logicalCores = Environment.ProcessorCount;
-            int recommendedThreads = Math.Max(1, Math.Min(logicalCores - 1, 8)); // Leave 1 core free, max 8
-            ThreadCountSlider.Maximum = Math.Min(logicalCores, 16);
+            int recommendedThreads = Math.Max(1, logicalCores - 1); // Leave 1 core free
+            ThreadCountSlider.Maximum = logicalCores;
             ThreadCountSlider.Value = _threadCount > 0 ? _threadCount : recommendedThreads;
             ThreadCountValue.Text = _threadCount.ToString();
             
@@ -139,31 +139,28 @@ namespace FlairX_Mod_Manager.Pages
         {
             // Manual mode
             ManualModeFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
-            ManualModeNoResizeItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_NoResize");
+            ManualModeLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
             ManualModeMiniaturesItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Miniatures");
             ManualModeRenameItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Rename");
-            ManualModeDisabledItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Disabled");
+            ManualModeLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
             
             // Drag & Drop Mod
             DragDropModFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
-            DragDropModNoResizeItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_NoResize");
+            DragDropModLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
             DragDropModMiniaturesItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Miniatures");
             DragDropModRenameItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Rename");
             DragDropModDisabledItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Disabled");
             
             // Drag & Drop Category
             DragDropCategoryFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
-            DragDropCategoryNoResizeItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_NoResize");
-            DragDropCategoryMiniaturesItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Miniatures");
-            DragDropCategoryRenameItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Rename");
             DragDropCategoryDisabledItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Disabled");
             
             // Auto Download
             AutoDownloadFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
-            AutoDownloadNoResizeItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_NoResize");
+            AutoDownloadLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
             AutoDownloadMiniaturesItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Miniatures");
             AutoDownloadRenameItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Rename");
-            AutoDownloadDisabledItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Disabled");
+            AutoDownloadLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
         }
 
         private void SetComboBoxSelection(ComboBox comboBox, OptimizationMode mode)
@@ -271,7 +268,7 @@ namespace FlairX_Mod_Manager.Pages
             string key = mode switch
             {
                 OptimizationMode.Full => "ImageOptimizer_Mode_Full_Description",
-                OptimizationMode.NoResize => "ImageOptimizer_Mode_NoResize_Description",
+                OptimizationMode.Lite => "ImageOptimizer_Mode_Lite_Description",
                 OptimizationMode.Miniatures => "ImageOptimizer_Mode_Miniatures_Description",
                 OptimizationMode.Rename => "ImageOptimizer_Mode_Rename_Description",
                 OptimizationMode.Disabled => "ImageOptimizer_Mode_Disabled_Description",
@@ -386,3 +383,4 @@ namespace FlairX_Mod_Manager.Pages
         }
     }
 }
+

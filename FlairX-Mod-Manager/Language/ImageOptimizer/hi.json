@@ -1,4 +1,4 @@
-{
+﻿{
     "ImageOptimizer_Function": "छवि अनुकूलक",
     "ImageOptimizer_ManualOptimizationTitle": "मनअल अनकलन",
     "ImageOptimizer_OptimizationModesHeader": "अनकलन मड",
@@ -22,15 +22,13 @@
     "ImageOptimizer_KeepOriginals": "अनुकूलन के बाद मूल फ़ाइलें रखें",
     "ImageOptimizer_KeepOriginals_Description": "मूल फ़ाइलें हटाई नहीं जाएंगी (उदा. preview.png, preview.jpg के साथ रहेगा)",
     "ImageOptimizer_Mode_Full": "पूर्ण अनुकूलन",
-    "ImageOptimizer_Mode_NoResize": "आकार बदले/क्रॉप किए बिना अनुकूलित करें",
+    "ImageOptimizer_Mode_Lite": "Lite Optimization",
     "ImageOptimizer_Mode_Miniatures": "केवल लघुचित्र उत्पन्न करें",
     "ImageOptimizer_Mode_Rename": "केवल फ़ाइलों का नाम बदलें",
-    "ImageOptimizer_Mode_Disabled": "अक्षम",
-    "ImageOptimizer_Mode_Full_Description": "पूर्ण अनुकूलन: 512x512 में आकार बदलें, स्मार्ट क्रॉप, JPEG में कनवर्ट करें और लघुचित्र उत्पन्न करें",
-    "ImageOptimizer_Mode_NoResize_Description": "गुणवत्ता को अनुकूलित करें और आकार बदले या क्रॉप किए बिना JPEG में कनवर्ट करें",
-    "ImageOptimizer_Mode_Miniatures_Description": "केवल लघुचित्र थंबनेल उत्पन्न करें (minitile.jpg, catmini.jpg)",
-    "ImageOptimizer_Mode_Rename_Description": "केवल फ़ाइलों का नाम मानक नामों में बदलें (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "कोई स्वचालित अनुकूलन नहीं किया जाएगा",
-    "ImageOptimizer_KeepOriginals_Toggle": "बंद/चालू",
-    "ImageOptimizer_CreateBackups_Toggle": "बंद/चालू"
+    "ImageOptimizer_Mode_Full_Description": "Resize to 1000x1000, crop to square, convert to JPEG, generate miniatures. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Miniatures_Description": "Only generate miniature thumbnails (minitile.jpg 600x722, catmini.jpg 600x600) without modifying original files",
+    "ImageOptimizer_Mode_Rename_Description": "Rename files to standard names (preview.jpg, preview-01.jpg, etc.) without optimization",
+    "ImageOptimizer_Mode_Lite_Description": "Convert to JPEG with compression, generate miniatures, no resizing or cropping. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Disabled": "Disabled",
+    "ImageOptimizer_Mode_Disabled_Description": "No optimization - just copy files with standard names"
 }

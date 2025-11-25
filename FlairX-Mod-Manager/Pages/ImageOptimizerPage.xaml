@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="FlairX_Mod_Manager.Pages.ImageOptimizerPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -224,10 +224,9 @@
                         
                         <ComboBox Grid.Column="3" x:Name="ManualModeComboBox" Width="250" SelectionChanged="ManualModeComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="ManualModeFullItem" Tag="Full"/>
-                            <ComboBoxItem x:Name="ManualModeNoResizeItem" Tag="NoResize"/>
+                            <ComboBoxItem x:Name="ManualModeLiteItem" Tag="Lite"/>
                             <ComboBoxItem x:Name="ManualModeMiniaturesItem" Tag="Miniatures"/>
                             <ComboBoxItem x:Name="ManualModeRenameItem" Tag="Rename"/>
-                            <ComboBoxItem x:Name="ManualModeDisabledItem" Tag="Disabled"/>
                         </ComboBox>
                     </Grid>
                     
@@ -263,7 +262,7 @@
                         
                         <ComboBox Grid.Column="3" x:Name="DragDropModComboBox" Width="250" SelectionChanged="DragDropModComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="DragDropModFullItem" Tag="Full"/>
-                            <ComboBoxItem x:Name="DragDropModNoResizeItem" Tag="NoResize"/>
+                            <ComboBoxItem x:Name="DragDropModLiteItem" Tag="Lite"/>
                             <ComboBoxItem x:Name="DragDropModMiniaturesItem" Tag="Miniatures"/>
                             <ComboBoxItem x:Name="DragDropModRenameItem" Tag="Rename"/>
                             <ComboBoxItem x:Name="DragDropModDisabledItem" Tag="Disabled"/>
@@ -302,9 +301,6 @@
                         
                         <ComboBox Grid.Column="3" x:Name="DragDropCategoryComboBox" Width="250" SelectionChanged="DragDropCategoryComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="DragDropCategoryFullItem" Tag="Full"/>
-                            <ComboBoxItem x:Name="DragDropCategoryNoResizeItem" Tag="NoResize"/>
-                            <ComboBoxItem x:Name="DragDropCategoryMiniaturesItem" Tag="Miniatures"/>
-                            <ComboBoxItem x:Name="DragDropCategoryRenameItem" Tag="Rename"/>
                             <ComboBoxItem x:Name="DragDropCategoryDisabledItem" Tag="Disabled"/>
                         </ComboBox>
                     </Grid>
@@ -341,10 +337,9 @@
                         
                         <ComboBox Grid.Column="3" x:Name="AutoDownloadComboBox" Width="250" SelectionChanged="AutoDownloadComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="AutoDownloadFullItem" Tag="Full"/>
-                            <ComboBoxItem x:Name="AutoDownloadNoResizeItem" Tag="NoResize"/>
+                            <ComboBoxItem x:Name="AutoDownloadLiteItem" Tag="Lite"/>
                             <ComboBoxItem x:Name="AutoDownloadMiniaturesItem" Tag="Miniatures"/>
                             <ComboBoxItem x:Name="AutoDownloadRenameItem" Tag="Rename"/>
-                            <ComboBoxItem x:Name="AutoDownloadDisabledItem" Tag="Disabled"/>
                         </ComboBox>
                     </Grid>
                     
@@ -356,3 +351,4 @@
         </Grid>
     </ScrollViewer>
 </Page>
+

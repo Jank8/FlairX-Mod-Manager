@@ -1,4 +1,4 @@
-{
+﻿{
     "ImageOptimizer_Function": "Otimizador de Imagens",
     "ImageOptimizer_ManualOptimizationTitle": "Otimização Manual",
     "ImageOptimizer_OptimizationModesHeader": "Modos de Otimização",
@@ -22,15 +22,13 @@
     "ImageOptimizer_KeepOriginals": "Manter ficheiros originais após otimização",
     "ImageOptimizer_KeepOriginals_Description": "Os ficheiros originais não serão eliminados (ex. preview.png permanece junto a preview.jpg)",
     "ImageOptimizer_Mode_Full": "Otimização Completa",
-    "ImageOptimizer_Mode_NoResize": "Otimizar Sem Redimensionar/Cortar",
+    "ImageOptimizer_Mode_Lite": "Lite Optimization",
     "ImageOptimizer_Mode_Miniatures": "Gerar Apenas Miniaturas",
     "ImageOptimizer_Mode_Rename": "Apenas Renomear Ficheiros",
-    "ImageOptimizer_Mode_Disabled": "Desativado",
-    "ImageOptimizer_Mode_Full_Description": "Otimização completa: redimensionar para 512x512, corte inteligente, converter para JPEG e gerar miniaturas",
-    "ImageOptimizer_Mode_NoResize_Description": "Otimizar qualidade e converter para JPEG sem redimensionar ou cortar",
-    "ImageOptimizer_Mode_Miniatures_Description": "Gerar apenas miniaturas (minitile.jpg, catmini.jpg)",
-    "ImageOptimizer_Mode_Rename_Description": "Apenas renomear ficheiros para nomes padrão (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "Nenhuma otimização automática será realizada",
-    "ImageOptimizer_KeepOriginals_Toggle": "OFF/ON",
-    "ImageOptimizer_CreateBackups_Toggle": "OFF/ON"
+    "ImageOptimizer_Mode_Full_Description": "Resize to 1000x1000, crop to square, convert to JPEG, generate miniatures. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Miniatures_Description": "Only generate miniature thumbnails (minitile.jpg 600x722, catmini.jpg 600x600) without modifying original files",
+    "ImageOptimizer_Mode_Rename_Description": "Rename files to standard names (preview.jpg, preview-01.jpg, etc.) without optimization",
+    "ImageOptimizer_Mode_Lite_Description": "Convert to JPEG with compression, generate miniatures, no resizing or cropping. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Disabled": "Disabled",
+    "ImageOptimizer_Mode_Disabled_Description": "No optimization - just copy files with standard names"
 }

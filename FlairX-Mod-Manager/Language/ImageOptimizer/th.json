@@ -1,4 +1,4 @@
-{
+﻿{
     "ImageOptimizer_Function": "ตัวเพิ่มประสิทธิภาพรูปภาพ",
     "ImageOptimizer_ManualOptimizationTitle": "การเพมประสทธภาพดวยตนเอง",
     "ImageOptimizer_OptimizationModesHeader": "โหมดการเพมประสทธภาพ",
@@ -22,15 +22,13 @@
     "ImageOptimizer_KeepOriginals": "เก็บไฟล์ต้นฉบับหลังการเพิ่มประสิทธิภาพ",
     "ImageOptimizer_KeepOriginals_Description": "ไฟล์ต้นฉบับจะไม่ถูกลบ (เช่น preview.png จะอยู่ข้าง preview.jpg)",
     "ImageOptimizer_Mode_Full": "การเพิ่มประสิทธิภาพแบบเต็ม",
-    "ImageOptimizer_Mode_NoResize": "เพิ่มประสิทธิภาพโดยไม่ปรับขนาด/ครอบตัด",
+    "ImageOptimizer_Mode_Lite": "Lite Optimization",
     "ImageOptimizer_Mode_Miniatures": "สร้างภาพขนาดย่อเท่านั้น",
     "ImageOptimizer_Mode_Rename": "เปลี่ยนชื่อไฟล์เท่านั้น",
-    "ImageOptimizer_Mode_Disabled": "ปิดใช้งาน",
-    "ImageOptimizer_Mode_Full_Description": "การเพิ่มประสิทธิภาพแบบสมบูรณ์: ปรับขนาดเป็น 512x512, ครอบตัดอัจฉริยะ, แปลงเป็น JPEG และสร้างภาพขนาดย่อ",
-    "ImageOptimizer_Mode_NoResize_Description": "เพิ่มประสิทธิภาพคุณภาพและแปลงเป็น JPEG โดยไม่ปรับขนาดหรือครอบตัด",
-    "ImageOptimizer_Mode_Miniatures_Description": "สร้างภาพขนาดย่อเท่านั้น (minitile.jpg, catmini.jpg)",
-    "ImageOptimizer_Mode_Rename_Description": "เปลี่ยนชื่อไฟล์เป็นชื่อมาตรฐานเท่านั้น (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "จะไม่มีการเพิ่มประสิทธิภาพอัตโนมัติ",
-    "ImageOptimizer_KeepOriginals_Toggle": "ปิด/เปิด",
-    "ImageOptimizer_CreateBackups_Toggle": "ปิด/เปิด"
+    "ImageOptimizer_Mode_Full_Description": "Resize to 1000x1000, crop to square, convert to JPEG, generate miniatures. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Miniatures_Description": "Only generate miniature thumbnails (minitile.jpg 600x722, catmini.jpg 600x600) without modifying original files",
+    "ImageOptimizer_Mode_Rename_Description": "Rename files to standard names (preview.jpg, preview-01.jpg, etc.) without optimization",
+    "ImageOptimizer_Mode_Lite_Description": "Convert to JPEG with compression, generate miniatures, no resizing or cropping. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Disabled": "Disabled",
+    "ImageOptimizer_Mode_Disabled_Description": "No optimization - just copy files with standard names"
 }

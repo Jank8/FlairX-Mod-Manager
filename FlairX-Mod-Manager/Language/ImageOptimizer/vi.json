@@ -1,4 +1,4 @@
-{
+﻿{
     "ImageOptimizer_Function": "Trình Tối Ưu Hóa Hình Ảnh",
     "ImageOptimizer_ManualOptimizationTitle": "Tối Ưu Hóa Thủ Công",
     "ImageOptimizer_OptimizationModesHeader": "Chế Độ Tối Ưu Hóa",
@@ -22,15 +22,13 @@
     "ImageOptimizer_KeepOriginals": "Giữ các tệp gốc sau khi tối ưu hóa",
     "ImageOptimizer_KeepOriginals_Description": "Các tệp gốc sẽ không bị xóa (ví dụ: preview.png vẫn ở cạnh preview.jpg)",
     "ImageOptimizer_Mode_Full": "Tối Ưu Hóa Đầy Đủ",
-    "ImageOptimizer_Mode_NoResize": "Tối Ưu Hóa Không Thay Đổi Kích Thước/Cắt",
+    "ImageOptimizer_Mode_Lite": "Lite Optimization",
     "ImageOptimizer_Mode_Miniatures": "Chỉ Tạo Hình Thu Nhỏ",
     "ImageOptimizer_Mode_Rename": "Chỉ Đổi Tên Tệp",
-    "ImageOptimizer_Mode_Disabled": "Đã Tắt",
-    "ImageOptimizer_Mode_Full_Description": "Tối ưu hóa đầy đủ: thay đổi kích thước thành 512x512, cắt thông minh, chuyển đổi sang JPEG và tạo hình thu nhỏ",
-    "ImageOptimizer_Mode_NoResize_Description": "Tối ưu hóa chất lượng và chuyển đổi sang JPEG mà không thay đổi kích thước hoặc cắt",
-    "ImageOptimizer_Mode_Miniatures_Description": "Chỉ tạo hình thu nhỏ (minitile.jpg, catmini.jpg)",
-    "ImageOptimizer_Mode_Rename_Description": "Chỉ đổi tên tệp thành tên chuẩn (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "Không thực hiện tối ưu hóa tự động",
-    "ImageOptimizer_KeepOriginals_Toggle": "TẮT/BẬT",
-    "ImageOptimizer_CreateBackups_Toggle": "TẮT/BẬT"
+    "ImageOptimizer_Mode_Full_Description": "Resize to 1000x1000, crop to square, convert to JPEG, generate miniatures. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Miniatures_Description": "Only generate miniature thumbnails (minitile.jpg 600x722, catmini.jpg 600x600) without modifying original files",
+    "ImageOptimizer_Mode_Rename_Description": "Rename files to standard names (preview.jpg, preview-01.jpg, etc.) without optimization",
+    "ImageOptimizer_Mode_Lite_Description": "Convert to JPEG with compression, generate miniatures, no resizing or cropping. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Disabled": "Disabled",
+    "ImageOptimizer_Mode_Disabled_Description": "No optimization - just copy files with standard names"
 }

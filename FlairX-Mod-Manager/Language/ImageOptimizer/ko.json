@@ -1,4 +1,4 @@
-{
+﻿{
     "ImageOptimizer_Function": "이미지 최적화 도구",
     "ImageOptimizer_ManualOptimizationTitle": "수동 최적화",
     "ImageOptimizer_OptimizationModesHeader": "최적화 모드",
@@ -22,15 +22,13 @@
     "ImageOptimizer_KeepOriginals": "최적화 후 원본 파일 유지",
     "ImageOptimizer_KeepOriginals_Description": "원본 파일은 삭제되지 않습니다 (예: preview.png는 preview.jpg와 함께 유지됨)",
     "ImageOptimizer_Mode_Full": "전체 최적화",
-    "ImageOptimizer_Mode_NoResize": "크기 조정/자르기 없이 최적화",
+    "ImageOptimizer_Mode_Lite": "Lite Optimization",
     "ImageOptimizer_Mode_Miniatures": "미니어처만 생성",
     "ImageOptimizer_Mode_Rename": "파일 이름만 변경",
-    "ImageOptimizer_Mode_Disabled": "비활성화",
-    "ImageOptimizer_Mode_Full_Description": "전체 최적화: 512x512로 크기 조정, 스마트 자르기, JPEG로 변환 및 미니어처 생성",
-    "ImageOptimizer_Mode_NoResize_Description": "품질 최적화 및 크기 조정이나 자르기 없이 JPEG로 변환",
-    "ImageOptimizer_Mode_Miniatures_Description": "미니어처 썸네일만 생성 (minitile.jpg, catmini.jpg)",
-    "ImageOptimizer_Mode_Rename_Description": "표준 이름으로 파일 이름만 변경 (preview.jpg, disabled.jpg)",
-    "ImageOptimizer_Mode_Disabled_Description": "자동 최적화가 수행되지 않습니다",
-    "ImageOptimizer_KeepOriginals_Toggle": "끄기/켜기",
-    "ImageOptimizer_CreateBackups_Toggle": "끄기/켜기"
+    "ImageOptimizer_Mode_Full_Description": "Resize to 1000x1000, crop to square, convert to JPEG, generate miniatures. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Miniatures_Description": "Only generate miniature thumbnails (minitile.jpg 600x722, catmini.jpg 600x600) without modifying original files",
+    "ImageOptimizer_Mode_Rename_Description": "Rename files to standard names (preview.jpg, preview-01.jpg, etc.) without optimization",
+    "ImageOptimizer_Mode_Lite_Description": "Convert to JPEG with compression, generate miniatures, no resizing or cropping. Respects backup and keep originals settings.",
+    "ImageOptimizer_Mode_Disabled": "Disabled",
+    "ImageOptimizer_Mode_Disabled_Description": "No optimization - just copy files with standard names"
 }
