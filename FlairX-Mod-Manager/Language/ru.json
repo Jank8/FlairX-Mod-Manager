@@ -179,6 +179,7 @@
     "DragDrop_ImagesAdded": "Изображения добавлены!",
     "ModTile_Activate": "Активировать",
     "ModTile_Deactivate": "Деактивировать",
+    "ModTile_OpenDirectory": "Открыть каталог",
     "CheckForUpdates": "Проверить обновления",
     "UpdateCheckFailed": "Не удалось проверить обновления. Проверьте подключение к интернету.",
     "UpdateAvailable": "Доступно обновление",

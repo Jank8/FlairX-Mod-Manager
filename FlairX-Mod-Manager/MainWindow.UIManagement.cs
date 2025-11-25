@@ -706,6 +706,23 @@ namespace FlairX_Mod_Manager
                         CategoryPreviewPopup.HorizontalOffset = horizontalOffset;
                         CategoryPreviewPopup.VerticalOffset = verticalOffset;
                         CategoryPreviewPopup.IsOpen = true;
+                        
+                        // Fade in animation
+                        if (CategoryPreviewBorder != null)
+                        {
+                            var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                            {
+                                From = 0,
+                                To = 1,
+                                Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                            };
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, CategoryPreviewBorder);
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                            storyboard.Children.Add(fadeIn);
+                            storyboard.Begin();
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -729,9 +746,25 @@ namespace FlairX_Mod_Manager
                     _categoryPreviewCloseTimer?.Stop();
                     
                     // Only close if pointer is still not over the icon
-                    if (!_isPointerOverCategoryIcon && CategoryPreviewPopup != null)
+                    if (!_isPointerOverCategoryIcon && CategoryPreviewPopup != null && CategoryPreviewBorder != null)
                     {
-                        CategoryPreviewPopup.IsOpen = false;
+                        // Fade out animation
+                        var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            From = 1,
+                            To = 0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                        };
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, CategoryPreviewBorder);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        storyboard.Children.Add(fadeOut);
+                        storyboard.Completed += (sender, e) =>
+                        {
+                            CategoryPreviewPopup.IsOpen = false;
+                        };
+                        storyboard.Begin();
                     }
                 };
             }

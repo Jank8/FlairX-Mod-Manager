@@ -242,12 +242,14 @@
         <Popup x:Name="CategoryPreviewPopup" 
                IsLightDismissEnabled="False"
                IsHitTestVisible="False">
-            <Border Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+            <Border x:Name="CategoryPreviewBorder"
+                    Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
                     CornerRadius="8"
                     Padding="8"
-                    IsHitTestVisible="False">
+                    IsHitTestVisible="False"
+                    Opacity="0">
                 <Border.Shadow>
                     <ThemeShadow/>
                 </Border.Shadow>

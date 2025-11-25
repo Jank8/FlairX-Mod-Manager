@@ -179,6 +179,7 @@
     "DragDrop_ImagesAdded": "圖片已新增！",
     "ModTile_Activate": "啟用",
     "ModTile_Deactivate": "停用",
+    "ModTile_OpenDirectory": "開啟目錄",
     "CheckForUpdates": "檢查更新",
     "UpdateCheckFailed": "檢查更新失敗。請檢查您的網路連線。",
     "UpdateAvailable": "有可用更新",

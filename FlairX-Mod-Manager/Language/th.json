@@ -179,6 +179,7 @@
     "DragDrop_ImagesAdded": "เพมรปภาพแลว!",
     "ModTile_Activate": "เปดใชงาน",
     "ModTile_Deactivate": "ปดใชงาน",
+    "ModTile_OpenDirectory": "เปิดไดเรกทอรี",
     "CheckForUpdates": "ตรวจสอบการอปเดต",
     "UpdateCheckFailed": "ไมสามารถตรวจสอบการอปเดตได กรณาตรวจสอบการเชอมตออนเทอรเนต",
     "UpdateAvailable": "มการอปเดตใหม",

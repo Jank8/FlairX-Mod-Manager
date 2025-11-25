@@ -179,6 +179,7 @@
     "DragDrop_ImagesAdded": "Resimler eklendi!",
     "ModTile_Activate": "Etkinleştir",
     "ModTile_Deactivate": "Devre Dışı Bırak",
+    "ModTile_OpenDirectory": "Dizini Aç",
     "CheckForUpdates": "Güncellemeleri Kontrol Et",
     "UpdateCheckFailed": "Güncellemeler kontrol edilemedi. İnternet bağlantınızı kontrol edin.",
     "UpdateAvailable": "Güncelleme mevcut",

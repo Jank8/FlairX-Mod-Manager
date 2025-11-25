@@ -179,6 +179,7 @@
     "DragDrop_ImagesAdded": "Naidagdag ang mga larawan!",
     "ModTile_Activate": "I-activate",
     "ModTile_Deactivate": "I-deactivate",
+    "ModTile_OpenDirectory": "Buksan ang direktoryo",
     "CheckForUpdates": "Suriin ang mga update",
     "UpdateCheckFailed": "Hindi masuri ang mga update. Suriin ang iyong koneksyon sa internet.",
     "UpdateAvailable": "May available na update",

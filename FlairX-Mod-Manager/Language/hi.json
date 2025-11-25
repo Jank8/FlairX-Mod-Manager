@@ -179,6 +179,7 @@
     "DragDrop_ImagesAdded": "चित्र जोड़े गए!",
     "ModTile_Activate": "सकरय कर",
     "ModTile_Deactivate": "नषकरय कर",
+    "ModTile_OpenDirectory": "निर्देशिका खोलें",
     "CheckForUpdates": "अपडट क लए जच कर",
     "UpdateCheckFailed": "अपडट क जच करन मवफल रह. कपया अपन इटरनट कनकशन क जच कर.",
     "UpdateAvailable": "अपडट उपलबध ह",

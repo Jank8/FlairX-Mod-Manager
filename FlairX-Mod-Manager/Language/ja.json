@@ -179,6 +179,7 @@
     "DragDrop_ImagesAdded": "画像を追加しました！",
     "ModTile_Activate": "有効化",
     "ModTile_Deactivate": "無効化",
+    "ModTile_OpenDirectory": "ディレクトリを開く",
     "CheckForUpdates": "更新を確認",
     "UpdateCheckFailed": "更新の確認に失敗しました。インターネット接続を確認してください。",
     "UpdateAvailable": "更新が利用可能",

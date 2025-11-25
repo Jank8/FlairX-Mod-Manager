@@ -179,6 +179,7 @@
     "DragDrop_ImagesAdded": "이미지가 추가되었습니다!",
     "ModTile_Activate": "활성화",
     "ModTile_Deactivate": "비활성화",
+    "ModTile_OpenDirectory": "디렉토리 열기",
     "CheckForUpdates": "업데이트 확인",
     "UpdateCheckFailed": "업데이트 확인에 실패했습니다. 인터넷 연결을 확인하세요.",
     "UpdateAvailable": "업데이트 사용 가능",

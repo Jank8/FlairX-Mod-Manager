@@ -1400,24 +1400,33 @@ namespace FlairX_Mod_Manager.Pages
                 // Copy image to category folder as preview.jpg (overwriting if exists)
                 string targetPath = Path.Combine(categoryFolderPath, "preview.jpg");
                 
-                // Delete existing preview files
-                var existingPreviews = Directory.GetFiles(categoryFolderPath, "preview.*")
+                // Delete existing preview files (preview.*, catprev.jpg, catmini.jpg)
+                var filesToDelete = new List<string>();
+                
+                // Add preview.* files
+                filesToDelete.AddRange(Directory.GetFiles(categoryFolderPath, "preview.*")
                     .Where(f => 
                     {
                         var ext = Path.GetExtension(f).ToLower();
                         return ext == ".jpg" || ext == ".jpeg" || ext == ".png";
-                    });
+                    }));
                 
-                foreach (var existingFile in existingPreviews)
+                // Add catprev.jpg and catmini.jpg if they exist
+                var catprevPath = Path.Combine(categoryFolderPath, "catprev.jpg");
+                var catminiPath = Path.Combine(categoryFolderPath, "catmini.jpg");
+                if (File.Exists(catprevPath)) filesToDelete.Add(catprevPath);
+                if (File.Exists(catminiPath)) filesToDelete.Add(catminiPath);
+                
+                foreach (var existingFile in filesToDelete)
                 {
                     try
                     {
                         File.Delete(existingFile);
-                        Logger.LogInfo($"Deleted existing preview: {existingFile}");
+                        Logger.LogInfo($"Deleted existing file: {existingFile}");
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError($"Failed to delete existing preview: {existingFile}", ex);
+                        Logger.LogError($"Failed to delete existing file: {existingFile}", ex);
                     }
                 }
                 
@@ -1430,7 +1439,26 @@ namespace FlairX_Mod_Manager.Pages
                 if (optimizerMode != OptimizationMode.Disabled)
                 {
                     Logger.LogInfo($"Running image optimizer in category mode: {optimizerMode}");
-                    await OptimizeImage(targetPath, optimizerMode);
+                    await Task.Run(() =>
+                    {
+                        try
+                        {
+                            Logger.LogInfo($"Calling ProcessCategoryPreviewStatic for: {categoryFolderPath}");
+                            SettingsUserControl.ProcessCategoryPreviewStatic(categoryFolderPath);
+                            Logger.LogInfo("Category optimization complete");
+                            
+                            // Delete preview.jpg after optimization (keep only catprev.jpg and catmini.jpg)
+                            if (File.Exists(targetPath))
+                            {
+                                File.Delete(targetPath);
+                                Logger.LogInfo($"Deleted original preview.jpg after optimization");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError("Category optimization failed", ex);
+                        }
+                    });
                 }
                 
                 // Show success
@@ -1495,268 +1523,7 @@ namespace FlairX_Mod_Manager.Pages
             return OptimizationMode.Full;
         }
         
-        private async Task OptimizeImage(string imagePath, OptimizationMode mode)
-        {
-            Logger.LogInfo($"Optimizing image: {imagePath} with mode: {mode}");
-            
-            if (mode == OptimizationMode.Disabled)
-            {
-                Logger.LogInfo("Optimization disabled, skipping");
-                return;
-            }
-            
-            try
-            {
-                if (!File.Exists(imagePath))
-                {
-                    Logger.LogError($"Image file not found: {imagePath}");
-                    return;
-                }
-                
-                var fileInfo = new FileInfo(imagePath);
-                var directory = fileInfo.DirectoryName;
-                if (directory == null)
-                {
-                    Logger.LogError("Could not get directory from image path");
-                    return;
-                }
-                
-                // Get settings
-                int jpegQuality = SettingsManager.Current.ImageOptimizerJpegQuality;
-                bool createBackups = SettingsManager.Current.ImageOptimizerCreateBackups;
-                bool keepOriginals = SettingsManager.Current.ImageOptimizerKeepOriginals;
-                
-                Logger.LogInfo($"Optimization settings - Quality: {jpegQuality}, Backups: {createBackups}, KeepOriginals: {keepOriginals}");
-                
-                // Create backup if requested
-                if (createBackups)
-                {
-                    int backupNumber = 1;
-                    string backupPath;
-                    do
-                    {
-                        backupPath = Path.Combine(directory, $"preview-bk-{backupNumber:D3}.jpg");
-                        backupNumber++;
-                    } while (File.Exists(backupPath));
-                    
-                    File.Copy(imagePath, backupPath);
-                    Logger.LogInfo($"Created backup: {backupPath}");
-                }
-                
-                // Load image
-                var storageFile = await StorageFile.GetFileFromPathAsync(imagePath);
-                
-                using var stream = await storageFile.OpenAsync(Windows.Storage.FileAccessMode.Read);
-                var decoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(stream);
-                
-                uint originalWidth = decoder.PixelWidth;
-                uint originalHeight = decoder.PixelHeight;
-                
-                Logger.LogInfo($"Original image size: {originalWidth}x{originalHeight}");
-                
-                // Determine target size based on mode
-                uint targetWidth = originalWidth;
-                uint targetHeight = originalHeight;
-                bool shouldResize = false;
-                
-                if (mode == OptimizationMode.Full)
-                {
-                    // Resize to 512x512 with smart crop
-                    targetWidth = 512;
-                    targetHeight = 512;
-                    shouldResize = true;
-                    Logger.LogInfo("Mode: Full - Resizing to 512x512");
-                }
-                else if (mode == OptimizationMode.Miniatures)
-                {
-                    // Generate miniatures only
-                    await GenerateMiniatures(directory, decoder, jpegQuality);
-                    Logger.LogInfo("Mode: Miniatures - Generated miniatures only");
-                    return;
-                }
-                else if (mode == OptimizationMode.Rename)
-                {
-                    // Just rename, nothing to do as it's already named correctly
-                    Logger.LogInfo("Mode: Rename - No processing needed");
-                    return;
-                }
-                
-                // Create temporary file for output
-                string tempPath = Path.Combine(Path.GetTempPath(), $"preview_temp_{Guid.NewGuid()}.jpg");
-                File.Create(tempPath).Dispose();
-                var outputFile = await StorageFile.GetFileFromPathAsync(tempPath);
-                
-                using (var outputStream = await outputFile.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite))
-                {
-                    var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(
-                        Windows.Graphics.Imaging.BitmapEncoder.JpegEncoderId,
-                        outputStream);
-                    
-                    // Set JPEG quality
-                    var qualityValue = new Windows.Graphics.Imaging.BitmapTypedValue(
-                        jpegQuality / 100.0,
-                        Windows.Foundation.PropertyType.Single);
-                    encoder.BitmapProperties.SetPropertiesAsync(
-                        new[] { new System.Collections.Generic.KeyValuePair<string, Windows.Graphics.Imaging.BitmapTypedValue>("ImageQuality", qualityValue) }
-                    ).AsTask().Wait();
-                    
-                    if (shouldResize)
-                    {
-                        // Calculate crop/scale for smart crop
-                        double scale = Math.Max((double)targetWidth / originalWidth, (double)targetHeight / originalHeight);
-                        uint scaledWidth = (uint)(originalWidth * scale);
-                        uint scaledHeight = (uint)(originalHeight * scale);
-                        
-                        encoder.BitmapTransform.ScaledWidth = scaledWidth;
-                        encoder.BitmapTransform.ScaledHeight = scaledHeight;
-                        encoder.BitmapTransform.InterpolationMode = Windows.Graphics.Imaging.BitmapInterpolationMode.Fant;
-                        
-                        // Center crop
-                        uint cropX = (scaledWidth - targetWidth) / 2;
-                        uint cropY = (scaledHeight - targetHeight) / 2;
-                        encoder.BitmapTransform.Bounds = new Windows.Graphics.Imaging.BitmapBounds
-                        {
-                            X = cropX,
-                            Y = cropY,
-                            Width = targetWidth,
-                            Height = targetHeight
-                        };
-                    }
-                    
-                    var pixelData = await decoder.GetPixelDataAsync();
-                    encoder.SetPixelData(
-                        decoder.BitmapPixelFormat,
-                        Windows.Graphics.Imaging.BitmapAlphaMode.Ignore,
-                        originalWidth,
-                        originalHeight,
-                        decoder.DpiX,
-                        decoder.DpiY,
-                        pixelData.DetachPixelData());
-                    
-                    await encoder.FlushAsync();
-                }
-                
-                stream.Dispose();
-                
-                // Replace original with optimized
-                if (!keepOriginals && Path.GetExtension(imagePath).ToLower() != ".jpg")
-                {
-                    File.Delete(imagePath);
-                    Logger.LogInfo($"Deleted original non-JPG file: {imagePath}");
-                }
-                
-                string finalPath = Path.Combine(directory, "preview.jpg");
-                if (File.Exists(finalPath) && finalPath != imagePath)
-                {
-                    File.Delete(finalPath);
-                }
-                
-                File.Move(tempPath, finalPath);
-                Logger.LogInfo($"Optimized image saved to: {finalPath}");
-                
-                // Generate miniatures if in Full mode
-                if (mode == OptimizationMode.Full)
-                {
-                    var optimizedFile = await StorageFile.GetFileFromPathAsync(finalPath);
-                    using var optimizedStream = await optimizedFile.OpenAsync(Windows.Storage.FileAccessMode.Read);
-                    var optimizedDecoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(optimizedStream);
-                    await GenerateMiniatures(directory, optimizedDecoder, jpegQuality);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Failed to optimize image: {imagePath}", ex);
-            }
-        }
-        
-        private async Task GenerateMiniatures(string directory, Windows.Graphics.Imaging.BitmapDecoder decoder, int jpegQuality)
-        {
-            try
-            {
-                // Generate catprev.jpg (category preview - 600x722 for category tiles)
-                string catprevPath = Path.Combine(directory, "catprev.jpg");
-                await CreateThumbnail(decoder, catprevPath, 600, 722, jpegQuality);
-                Logger.LogInfo($"Generated catprev: {catprevPath}");
-                
-                // Generate catmini.jpg (category mini - 600x600 square for menu icons)
-                string catminiPath = Path.Combine(directory, "catmini.jpg");
-                await CreateThumbnail(decoder, catminiPath, 600, 600, jpegQuality);
-                Logger.LogInfo($"Generated catmini: {catminiPath}");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to generate category miniatures", ex);
-            }
-        }
-        
-        private async Task CreateThumbnail(Windows.Graphics.Imaging.BitmapDecoder decoder, string outputPath, uint width, uint height, int jpegQuality)
-        {
-            try
-            {
-                // Create temp file for encoding
-                var tempPath = Path.Combine(Path.GetTempPath(), $"thumb_{Guid.NewGuid()}.jpg");
-                var tempFile = await StorageFile.GetFileFromPathAsync(tempPath);
-                
-                using (var outputStream = await tempFile.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite))
-                {
-                    var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(
-                        Windows.Graphics.Imaging.BitmapEncoder.JpegEncoderId,
-                        outputStream);
-                    
-                    // Set JPEG quality
-                    var qualityValue = new Windows.Graphics.Imaging.BitmapTypedValue(
-                        jpegQuality / 100.0,
-                        Windows.Foundation.PropertyType.Single);
-                    await encoder.BitmapProperties.SetPropertiesAsync(
-                        new[] { new System.Collections.Generic.KeyValuePair<string, Windows.Graphics.Imaging.BitmapTypedValue>("ImageQuality", qualityValue) });
-                    
-                    // Scale and crop
-                    double scale = Math.Max((double)width / decoder.PixelWidth, (double)height / decoder.PixelHeight);
-                    uint scaledWidth = (uint)(decoder.PixelWidth * scale);
-                    uint scaledHeight = (uint)(decoder.PixelHeight * scale);
-                    
-                    encoder.BitmapTransform.ScaledWidth = scaledWidth;
-                    encoder.BitmapTransform.ScaledHeight = scaledHeight;
-                    encoder.BitmapTransform.InterpolationMode = Windows.Graphics.Imaging.BitmapInterpolationMode.Fant;
-                    
-                    // Center crop
-                    uint cropX = (scaledWidth - width) / 2;
-                    uint cropY = (scaledHeight - height) / 2;
-                    encoder.BitmapTransform.Bounds = new Windows.Graphics.Imaging.BitmapBounds
-                    {
-                        X = cropX,
-                        Y = cropY,
-                        Width = width,
-                        Height = height
-                    };
-                    
-                    var pixelData = await decoder.GetPixelDataAsync();
-                    encoder.SetPixelData(
-                        decoder.BitmapPixelFormat,
-                        Windows.Graphics.Imaging.BitmapAlphaMode.Ignore,
-                        decoder.PixelWidth,
-                        decoder.PixelHeight,
-                        decoder.DpiX,
-                        decoder.DpiY,
-                        pixelData.DetachPixelData());
-                    
-                    await encoder.FlushAsync();
-                }
-                
-                // Move temp file to final location
-                if (File.Exists(outputPath))
-                {
-                    File.Delete(outputPath);
-                }
-                File.Move(tempPath, outputPath);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Failed to create thumbnail: {outputPath}", ex);
-                throw;
-            }
-        }
-        
+
         private void Tile_DragEnter(object sender, DragEventArgs e)
         {
             Logger.LogInfo("Tile_DragEnter called");

@@ -353,35 +353,7 @@
                                 <Grid VerticalAlignment="Top" 
                                       HorizontalAlignment="Right" 
                                       Margin="8,8,8,0">
-                                    
-                                    <!-- For Categories: Show folder button with 48x48 backdrop -->
-                                    <Grid Width="48" Height="48" 
-                                          Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <Border Width="48" Height="48" 
-                                                CornerRadius="12" 
-                                                Background="{ThemeResource IconAcrylicBrush}" />
-                                        <Button Width="48" Height="48" 
-                                                Click="OpenModFolderButton_Click" 
-                                                Tag="{Binding}" 
-                                                Style="{StaticResource TransparentButtonStyle}"
-                                                PointerEntered="OpenModFolderButton_PointerEntered" 
-                                                PointerExited="OpenModFolderButton_PointerExited">
-                                            <Grid>
-                                                <FontIcon x:Name="OpenFolderIcon" 
-                                                          FontSize="24" 
-                                                          Glyph="&#xE8B7;" 
-                                                          Foreground="White"
-                                                          Visibility="{Binding IsFolderHovered, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}"/>
-                                                <FontIcon x:Name="OpenFolderIconHover" 
-                                                          FontSize="24" 
-                                                          Glyph="&#xE8D5;" 
-                                                          Foreground="White"
-                                                          Visibility="{Binding IsFolderHovered, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                            </Grid>
-                                        </Button>
-                                    </Grid>
-                                    
-
+                                    <!-- Removed folder button for categories - now in footer -->
                                 </Grid>
                                 
                                 <!-- Description Section with Acrylic Background -->
@@ -456,6 +428,26 @@
                                                        TextAlignment="Center"
                                                        Visibility="{Binding IsActive, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                         </Grid>
+                                    </Button>
+                                    
+                                    <!-- Open Directory Button - fades in on hover (only for categories) -->
+                                    <Button x:Name="OpenDirectoryButton"
+                                            Click="OpenModFolderButton_Click"
+                                            Tag="{Binding}"
+                                            Style="{StaticResource ActivateButtonStyle}"
+                                            HorizontalAlignment="Stretch"
+                                            VerticalAlignment="Stretch"
+                                            CornerRadius="0,0,8,8"
+                                            Opacity="0"
+                                            Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            PointerEntered="OpenDirectoryButton_PointerEntered"
+                                            PointerExited="OpenDirectoryButton_PointerExited">
+                                        <TextBlock x:Name="OpenDirectoryText"
+                                                   Text="{Binding OpenDirectoryText}"
+                                                   FontWeight="Bold"
+                                                   FontSize="16"
+                                                   Foreground="White"
+                                                   TextAlignment="Center"/>
                                     </Button>
                                 </Grid>
                                 

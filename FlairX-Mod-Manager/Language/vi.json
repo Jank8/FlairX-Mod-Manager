@@ -179,6 +179,7 @@
     "DragDrop_ImagesAdded": "Đã thêm hình ảnh!",
     "ModTile_Activate": "Kích hoạt",
     "ModTile_Deactivate": "Vô hiệu hóa",
+    "ModTile_OpenDirectory": "Mở thư mục",
     "CheckForUpdates": "Kiểm tra cập nhật",
     "UpdateCheckFailed": "Không thể kiểm tra cập nhật. Vui lòng kiểm tra kết nối internet.",
     "UpdateAvailable": "Có bản cập nhật",

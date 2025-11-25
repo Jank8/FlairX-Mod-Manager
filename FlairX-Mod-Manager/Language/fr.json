@@ -179,6 +179,7 @@
     "DragDrop_ImagesAdded": "Images ajoutées !",
     "ModTile_Activate": "Activer",
     "ModTile_Deactivate": "Désactiver",
+    "ModTile_OpenDirectory": "Ouvrir le répertoire",
     "CheckForUpdates": "Vérifier les mises à jour",
     "UpdateCheckFailed": "Échec de la vérification des mises à jour. Vérifiez votre connexion internet.",
     "UpdateAvailable": "Mise à jour disponible",

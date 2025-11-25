@@ -12,6 +12,7 @@ namespace FlairX_Mod_Manager.Pages
             var langDict = SharedUtilities.LoadLanguageDictionary();
             _activateText = SharedUtilities.GetTranslation(langDict, "ModTile_Activate");
             _deactivateText = SharedUtilities.GetTranslation(langDict, "ModTile_Deactivate");
+            _openDirectoryText = SharedUtilities.GetTranslation(langDict, "ModTile_OpenDirectory");
         }
         
         private string _name = "";
@@ -107,6 +108,13 @@ namespace FlairX_Mod_Manager.Pages
         {
             get => _deactivateText;
             set { if (_deactivateText != value) { _deactivateText = value; OnPropertyChanged(nameof(DeactivateText)); } }
+        }
+        
+        private string _openDirectoryText = "";
+        public string OpenDirectoryText
+        {
+            get => _openDirectoryText;
+            set { if (_openDirectoryText != value) { _openDirectoryText = value; OnPropertyChanged(nameof(OpenDirectoryText)); } }
         }
         
         // Removed IsInViewport - using new scroll-based lazy loading instead

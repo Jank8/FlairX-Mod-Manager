@@ -380,6 +380,115 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        // Open Directory button hover effects - show button and hide name text (for categories)
+        private void OpenDirectoryButton_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button openDirBtn)
+            {
+                try
+                {
+                    // Find parent tile button to get name text
+                    var parent = openDirBtn.Parent;
+                    while (parent != null && !(parent is Button tileButton && tileButton.Name == "TileButton"))
+                    {
+                        parent = VisualTreeHelper.GetParent(parent);
+                    }
+                    
+                    if (parent is Button tileBtn)
+                    {
+                        var nameText = FindChildByName<TextBlock>(tileBtn, "ModNameText");
+                        
+                        // Fade out name text
+                        if (nameText != null)
+                        {
+                            var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                            {
+                                To = 0,
+                                Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                            };
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, nameText);
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                            storyboard.Children.Add(fadeOut);
+                            storyboard.Begin();
+                        }
+                    }
+                    
+                    // Fade in open directory button
+                    var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 1,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, openDirBtn);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                    var storyboard2 = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    storyboard2.Children.Add(fadeIn);
+                    storyboard2.Begin();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in OpenDirectoryButton_PointerEntered", ex);
+                }
+            }
+        }
+
+        private void OpenDirectoryButton_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button openDirBtn)
+            {
+                try
+                {
+                    // Find parent tile button to get name text
+                    var parent = openDirBtn.Parent;
+                    while (parent != null && !(parent is Button tileButton && tileButton.Name == "TileButton"))
+                    {
+                        parent = VisualTreeHelper.GetParent(parent);
+                    }
+                    
+                    if (parent is Button tileBtn)
+                    {
+                        var nameText = FindChildByName<TextBlock>(tileBtn, "ModNameText");
+                        
+                        // Fade in name text
+                        if (nameText != null)
+                        {
+                            var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                            {
+                                To = 1,
+                                Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                            };
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, nameText);
+                            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                            storyboard.Children.Add(fadeIn);
+                            storyboard.Begin();
+                        }
+                    }
+                    
+                    // Fade out open directory button
+                    var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        To = 0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+                    };
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, openDirBtn);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                    var storyboard2 = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    storyboard2.Children.Add(fadeOut);
+                    storyboard2.Begin();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in OpenDirectoryButton_PointerExited", ex);
+                }
+            }
+        }
+
 
 
         /// <summary>
