@@ -1582,9 +1582,9 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 
                 // Create temporary file for output
-                string tempPath = Path.Combine(directory, $"preview_temp_{Guid.NewGuid()}.jpg");
-                var tempFile = await StorageFile.GetFileFromPathAsync(directory);
-                var outputFile = await tempFile.CreateFileAsync($"preview_temp_{Guid.NewGuid()}.jpg", CreationCollisionOption.ReplaceExisting);
+                string tempPath = Path.Combine(Path.GetTempPath(), $"preview_temp_{Guid.NewGuid()}.jpg");
+                File.Create(tempPath).Dispose();
+                var outputFile = await StorageFile.GetFileFromPathAsync(tempPath);
                 
                 using (var outputStream = await outputFile.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite))
                 {
@@ -1651,7 +1651,7 @@ namespace FlairX_Mod_Manager.Pages
                     File.Delete(finalPath);
                 }
                 
-                File.Move(outputFile.Path, finalPath);
+                File.Move(tempPath, finalPath);
                 Logger.LogInfo($"Optimized image saved to: {finalPath}");
                 
                 // Generate miniatures if in Full mode
@@ -1691,56 +1691,70 @@ namespace FlairX_Mod_Manager.Pages
         
         private async Task CreateThumbnail(Windows.Graphics.Imaging.BitmapDecoder decoder, string outputPath, uint width, uint height, int jpegQuality)
         {
-            var directory = Path.GetDirectoryName(outputPath);
-            if (directory == null) return;
-            
-            var folder = await StorageFolder.GetFolderFromPathAsync(directory);
-            var fileName = Path.GetFileName(outputPath);
-            var outputFile = await folder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
-            
-            using var outputStream = await outputFile.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite);
-            var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(
-                Windows.Graphics.Imaging.BitmapEncoder.JpegEncoderId,
-                outputStream);
-            
-            // Set JPEG quality
-            var qualityValue = new Windows.Graphics.Imaging.BitmapTypedValue(
-                jpegQuality / 100.0,
-                Windows.Foundation.PropertyType.Single);
-            await encoder.BitmapProperties.SetPropertiesAsync(
-                new[] { new System.Collections.Generic.KeyValuePair<string, Windows.Graphics.Imaging.BitmapTypedValue>("ImageQuality", qualityValue) });
-            
-            // Scale and crop
-            double scale = Math.Max((double)width / decoder.PixelWidth, (double)height / decoder.PixelHeight);
-            uint scaledWidth = (uint)(decoder.PixelWidth * scale);
-            uint scaledHeight = (uint)(decoder.PixelHeight * scale);
-            
-            encoder.BitmapTransform.ScaledWidth = scaledWidth;
-            encoder.BitmapTransform.ScaledHeight = scaledHeight;
-            encoder.BitmapTransform.InterpolationMode = Windows.Graphics.Imaging.BitmapInterpolationMode.Fant;
-            
-            // Center crop
-            uint cropX = (scaledWidth - width) / 2;
-            uint cropY = (scaledHeight - height) / 2;
-            encoder.BitmapTransform.Bounds = new Windows.Graphics.Imaging.BitmapBounds
+            try
             {
-                X = cropX,
-                Y = cropY,
-                Width = width,
-                Height = height
-            };
-            
-            var pixelData = await decoder.GetPixelDataAsync();
-            encoder.SetPixelData(
-                decoder.BitmapPixelFormat,
-                Windows.Graphics.Imaging.BitmapAlphaMode.Ignore,
-                decoder.PixelWidth,
-                decoder.PixelHeight,
-                decoder.DpiX,
-                decoder.DpiY,
-                pixelData.DetachPixelData());
-            
-            await encoder.FlushAsync();
+                // Create temp file for encoding
+                var tempPath = Path.Combine(Path.GetTempPath(), $"thumb_{Guid.NewGuid()}.jpg");
+                var tempFile = await StorageFile.GetFileFromPathAsync(tempPath);
+                
+                using (var outputStream = await tempFile.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite))
+                {
+                    var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(
+                        Windows.Graphics.Imaging.BitmapEncoder.JpegEncoderId,
+                        outputStream);
+                    
+                    // Set JPEG quality
+                    var qualityValue = new Windows.Graphics.Imaging.BitmapTypedValue(
+                        jpegQuality / 100.0,
+                        Windows.Foundation.PropertyType.Single);
+                    await encoder.BitmapProperties.SetPropertiesAsync(
+                        new[] { new System.Collections.Generic.KeyValuePair<string, Windows.Graphics.Imaging.BitmapTypedValue>("ImageQuality", qualityValue) });
+                    
+                    // Scale and crop
+                    double scale = Math.Max((double)width / decoder.PixelWidth, (double)height / decoder.PixelHeight);
+                    uint scaledWidth = (uint)(decoder.PixelWidth * scale);
+                    uint scaledHeight = (uint)(decoder.PixelHeight * scale);
+                    
+                    encoder.BitmapTransform.ScaledWidth = scaledWidth;
+                    encoder.BitmapTransform.ScaledHeight = scaledHeight;
+                    encoder.BitmapTransform.InterpolationMode = Windows.Graphics.Imaging.BitmapInterpolationMode.Fant;
+                    
+                    // Center crop
+                    uint cropX = (scaledWidth - width) / 2;
+                    uint cropY = (scaledHeight - height) / 2;
+                    encoder.BitmapTransform.Bounds = new Windows.Graphics.Imaging.BitmapBounds
+                    {
+                        X = cropX,
+                        Y = cropY,
+                        Width = width,
+                        Height = height
+                    };
+                    
+                    var pixelData = await decoder.GetPixelDataAsync();
+                    encoder.SetPixelData(
+                        decoder.BitmapPixelFormat,
+                        Windows.Graphics.Imaging.BitmapAlphaMode.Ignore,
+                        decoder.PixelWidth,
+                        decoder.PixelHeight,
+                        decoder.DpiX,
+                        decoder.DpiY,
+                        pixelData.DetachPixelData());
+                    
+                    await encoder.FlushAsync();
+                }
+                
+                // Move temp file to final location
+                if (File.Exists(outputPath))
+                {
+                    File.Delete(outputPath);
+                }
+                File.Move(tempPath, outputPath);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to create thumbnail: {outputPath}", ex);
+                throw;
+            }
         }
         
         private void Tile_DragEnter(object sender, DragEventArgs e)
