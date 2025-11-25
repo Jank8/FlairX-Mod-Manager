@@ -25,6 +25,8 @@ using Microsoft.UI.Xaml.Hosting;
 using System.Numerics;
 using Microsoft.UI.Xaml.Media.Animation;
 using Windows.ApplicationModel.DataTransfer;
+using FlairX_Mod_Manager.Models;
+using Windows.Graphics.Imaging;
 
 namespace FlairX_Mod_Manager.Pages
 {
@@ -1302,6 +1304,445 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         // Drag & Drop Event Handlers
+        private async Task HandleCategoryImageDrop(Button btn, ModTile tile, List<StorageFile> imageFiles)
+        {
+            var dropOverlay = FindVisualChild<Border>(btn, "DragDropOverlay");
+            var dropIcon = dropOverlay != null ? FindVisualChild<FontIcon>(dropOverlay, "DropIcon") : null;
+            var dropText = dropOverlay != null ? FindVisualChild<TextBlock>(dropOverlay, "DropText") : null;
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            
+            try
+            {
+                // For categories, only allow 1 image
+                if (imageFiles.Count > 1)
+                {
+                    Logger.LogInfo($"Multiple images dropped on category ({imageFiles.Count}), rejecting");
+                    if (dropText != null)
+                    {
+                        dropText.Text = string.Format(SharedUtilities.GetTranslation(lang, "DragDrop_LimitReached"), 1);
+                    }
+                    if (dropIcon != null)
+                    {
+                        dropIcon.Glyph = "\uE711"; // Cross/Cancel icon
+                        dropIcon.FontSize = 48;
+                    }
+                    
+                    await Task.Delay(2000);
+                    
+                    // Fade out overlay
+                    if (dropOverlay != null)
+                    {
+                        var fadeOut = new DoubleAnimation
+                        {
+                            From = 1,
+                            To = 0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(300))
+                        };
+                        var storyboard = new Storyboard();
+                        Storyboard.SetTarget(fadeOut, dropOverlay);
+                        Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                        storyboard.Children.Add(fadeOut);
+                        storyboard.Completed += (s, args) =>
+                        {
+                            dropOverlay.Visibility = Visibility.Collapsed;
+                            dropOverlay.Opacity = 0;
+                            if (dropText != null) dropText.Text = SharedUtilities.GetTranslation(lang, "DragDrop_DropImagesHere");
+                            if (dropIcon != null)
+                            {
+                                dropIcon.Glyph = "\uE896";
+                                dropIcon.FontSize = 48;
+                            }
+                        };
+                        storyboard.Begin();
+                    }
+                    return;
+                }
+                
+                var imageFile = imageFiles[0];
+                Logger.LogInfo($"Processing category image drop: {imageFile.Name}");
+                Logger.LogInfo($"Category tile.Directory: {tile.Directory}");
+                Logger.LogInfo($"Category tile.Name: {tile.Name}");
+                
+                // Get category folder path
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                var gameModsPath = AppConstants.GameConfig.GetModsPath(gameTag);
+                string modsPath = PathManager.GetAbsolutePath(gameModsPath);
+                
+                Logger.LogInfo($"Mods path: {modsPath}");
+                
+                // For categories, the Directory is just the category name, not a full path
+                string categoryFolderPath = Path.Combine(modsPath, tile.Directory);
+                
+                Logger.LogInfo($"Category folder path: {categoryFolderPath}");
+                Logger.LogInfo($"Category folder exists: {Directory.Exists(categoryFolderPath)}");
+                
+                if (!Directory.Exists(categoryFolderPath))
+                {
+                    Logger.LogError($"Category folder does not exist: {categoryFolderPath}");
+                    if (dropOverlay != null)
+                    {
+                        dropOverlay.Visibility = Visibility.Collapsed;
+                        dropOverlay.Opacity = 0;
+                    }
+                    return;
+                }
+                
+                // Show processing state
+                if (dropText != null)
+                {
+                    dropText.Text = string.Format(SharedUtilities.GetTranslation(lang, "DragDrop_Copying"), 1);
+                }
+                if (dropIcon != null)
+                {
+                    dropIcon.Glyph = "\uE895"; // Sync icon
+                }
+                
+                // Copy image to category folder as preview.jpg (overwriting if exists)
+                string targetPath = Path.Combine(categoryFolderPath, "preview.jpg");
+                
+                // Delete existing preview files
+                var existingPreviews = Directory.GetFiles(categoryFolderPath, "preview.*")
+                    .Where(f => 
+                    {
+                        var ext = Path.GetExtension(f).ToLower();
+                        return ext == ".jpg" || ext == ".jpeg" || ext == ".png";
+                    });
+                
+                foreach (var existingFile in existingPreviews)
+                {
+                    try
+                    {
+                        File.Delete(existingFile);
+                        Logger.LogInfo($"Deleted existing preview: {existingFile}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to delete existing preview: {existingFile}", ex);
+                    }
+                }
+                
+                // Copy new image using File.Copy (more reliable than StorageFolder)
+                File.Copy(imageFile.Path, targetPath, overwrite: true);
+                Logger.LogInfo($"Copied image to: {targetPath}");
+                
+                // Run image optimizer in category mode
+                var optimizerMode = ParseOptimizationMode(SettingsManager.Current.ImageOptimizerDragDropCategoryMode);
+                if (optimizerMode != OptimizationMode.Disabled)
+                {
+                    Logger.LogInfo($"Running image optimizer in category mode: {optimizerMode}");
+                    await OptimizeImage(targetPath, optimizerMode);
+                }
+                
+                // Show success
+                if (dropText != null)
+                {
+                    dropText.Text = SharedUtilities.GetTranslation(lang, "DragDrop_ImagesAdded");
+                }
+                if (dropIcon != null)
+                {
+                    dropIcon.Glyph = "\uE73E"; // Checkmark
+                    dropIcon.FontSize = 48;
+                }
+                
+                await Task.Delay(2000);
+                
+                // Fade out overlay
+                if (dropOverlay != null)
+                {
+                    var fadeOut = new DoubleAnimation
+                    {
+                        From = 1,
+                        To = 0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(300))
+                    };
+                    var storyboard = new Storyboard();
+                    Storyboard.SetTarget(fadeOut, dropOverlay);
+                    Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                    storyboard.Children.Add(fadeOut);
+                    storyboard.Completed += (s, args) =>
+                    {
+                        dropOverlay.Visibility = Visibility.Collapsed;
+                        dropOverlay.Opacity = 0;
+                        if (dropText != null) dropText.Text = SharedUtilities.GetTranslation(lang, "DragDrop_DropImagesHere");
+                        if (dropIcon != null) dropIcon.Glyph = "\uE896";
+                    };
+                    storyboard.Begin();
+                }
+                
+                // Reload the category image
+                await Task.Delay(500); // Wait for animation
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    tile.ImageSource = null;
+                    LoadVisibleImages();
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in category drag & drop handler", ex);
+                if (dropOverlay != null)
+                {
+                    dropOverlay.Visibility = Visibility.Collapsed;
+                    dropOverlay.Opacity = 0;
+                }
+            }
+        }
+        
+        private OptimizationMode ParseOptimizationMode(string modeString)
+        {
+            if (Enum.TryParse<OptimizationMode>(modeString, out var mode))
+                return mode;
+            return OptimizationMode.Full;
+        }
+        
+        private async Task OptimizeImage(string imagePath, OptimizationMode mode)
+        {
+            Logger.LogInfo($"Optimizing image: {imagePath} with mode: {mode}");
+            
+            if (mode == OptimizationMode.Disabled)
+            {
+                Logger.LogInfo("Optimization disabled, skipping");
+                return;
+            }
+            
+            try
+            {
+                if (!File.Exists(imagePath))
+                {
+                    Logger.LogError($"Image file not found: {imagePath}");
+                    return;
+                }
+                
+                var fileInfo = new FileInfo(imagePath);
+                var directory = fileInfo.DirectoryName;
+                if (directory == null)
+                {
+                    Logger.LogError("Could not get directory from image path");
+                    return;
+                }
+                
+                // Get settings
+                int jpegQuality = SettingsManager.Current.ImageOptimizerJpegQuality;
+                bool createBackups = SettingsManager.Current.ImageOptimizerCreateBackups;
+                bool keepOriginals = SettingsManager.Current.ImageOptimizerKeepOriginals;
+                
+                Logger.LogInfo($"Optimization settings - Quality: {jpegQuality}, Backups: {createBackups}, KeepOriginals: {keepOriginals}");
+                
+                // Create backup if requested
+                if (createBackups)
+                {
+                    int backupNumber = 1;
+                    string backupPath;
+                    do
+                    {
+                        backupPath = Path.Combine(directory, $"preview-bk-{backupNumber:D3}.jpg");
+                        backupNumber++;
+                    } while (File.Exists(backupPath));
+                    
+                    File.Copy(imagePath, backupPath);
+                    Logger.LogInfo($"Created backup: {backupPath}");
+                }
+                
+                // Load image
+                var storageFile = await StorageFile.GetFileFromPathAsync(imagePath);
+                
+                using var stream = await storageFile.OpenAsync(Windows.Storage.FileAccessMode.Read);
+                var decoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(stream);
+                
+                uint originalWidth = decoder.PixelWidth;
+                uint originalHeight = decoder.PixelHeight;
+                
+                Logger.LogInfo($"Original image size: {originalWidth}x{originalHeight}");
+                
+                // Determine target size based on mode
+                uint targetWidth = originalWidth;
+                uint targetHeight = originalHeight;
+                bool shouldResize = false;
+                
+                if (mode == OptimizationMode.Full)
+                {
+                    // Resize to 512x512 with smart crop
+                    targetWidth = 512;
+                    targetHeight = 512;
+                    shouldResize = true;
+                    Logger.LogInfo("Mode: Full - Resizing to 512x512");
+                }
+                else if (mode == OptimizationMode.Miniatures)
+                {
+                    // Generate miniatures only
+                    await GenerateMiniatures(directory, decoder, jpegQuality);
+                    Logger.LogInfo("Mode: Miniatures - Generated miniatures only");
+                    return;
+                }
+                else if (mode == OptimizationMode.Rename)
+                {
+                    // Just rename, nothing to do as it's already named correctly
+                    Logger.LogInfo("Mode: Rename - No processing needed");
+                    return;
+                }
+                
+                // Create temporary file for output
+                string tempPath = Path.Combine(directory, $"preview_temp_{Guid.NewGuid()}.jpg");
+                var tempFile = await StorageFile.GetFileFromPathAsync(directory);
+                var outputFile = await tempFile.CreateFileAsync($"preview_temp_{Guid.NewGuid()}.jpg", CreationCollisionOption.ReplaceExisting);
+                
+                using (var outputStream = await outputFile.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite))
+                {
+                    var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(
+                        Windows.Graphics.Imaging.BitmapEncoder.JpegEncoderId,
+                        outputStream);
+                    
+                    // Set JPEG quality
+                    var qualityValue = new Windows.Graphics.Imaging.BitmapTypedValue(
+                        jpegQuality / 100.0,
+                        Windows.Foundation.PropertyType.Single);
+                    encoder.BitmapProperties.SetPropertiesAsync(
+                        new[] { new System.Collections.Generic.KeyValuePair<string, Windows.Graphics.Imaging.BitmapTypedValue>("ImageQuality", qualityValue) }
+                    ).AsTask().Wait();
+                    
+                    if (shouldResize)
+                    {
+                        // Calculate crop/scale for smart crop
+                        double scale = Math.Max((double)targetWidth / originalWidth, (double)targetHeight / originalHeight);
+                        uint scaledWidth = (uint)(originalWidth * scale);
+                        uint scaledHeight = (uint)(originalHeight * scale);
+                        
+                        encoder.BitmapTransform.ScaledWidth = scaledWidth;
+                        encoder.BitmapTransform.ScaledHeight = scaledHeight;
+                        encoder.BitmapTransform.InterpolationMode = Windows.Graphics.Imaging.BitmapInterpolationMode.Fant;
+                        
+                        // Center crop
+                        uint cropX = (scaledWidth - targetWidth) / 2;
+                        uint cropY = (scaledHeight - targetHeight) / 2;
+                        encoder.BitmapTransform.Bounds = new Windows.Graphics.Imaging.BitmapBounds
+                        {
+                            X = cropX,
+                            Y = cropY,
+                            Width = targetWidth,
+                            Height = targetHeight
+                        };
+                    }
+                    
+                    var pixelData = await decoder.GetPixelDataAsync();
+                    encoder.SetPixelData(
+                        decoder.BitmapPixelFormat,
+                        Windows.Graphics.Imaging.BitmapAlphaMode.Ignore,
+                        originalWidth,
+                        originalHeight,
+                        decoder.DpiX,
+                        decoder.DpiY,
+                        pixelData.DetachPixelData());
+                    
+                    await encoder.FlushAsync();
+                }
+                
+                stream.Dispose();
+                
+                // Replace original with optimized
+                if (!keepOriginals && Path.GetExtension(imagePath).ToLower() != ".jpg")
+                {
+                    File.Delete(imagePath);
+                    Logger.LogInfo($"Deleted original non-JPG file: {imagePath}");
+                }
+                
+                string finalPath = Path.Combine(directory, "preview.jpg");
+                if (File.Exists(finalPath) && finalPath != imagePath)
+                {
+                    File.Delete(finalPath);
+                }
+                
+                File.Move(outputFile.Path, finalPath);
+                Logger.LogInfo($"Optimized image saved to: {finalPath}");
+                
+                // Generate miniatures if in Full mode
+                if (mode == OptimizationMode.Full)
+                {
+                    var optimizedFile = await StorageFile.GetFileFromPathAsync(finalPath);
+                    using var optimizedStream = await optimizedFile.OpenAsync(Windows.Storage.FileAccessMode.Read);
+                    var optimizedDecoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(optimizedStream);
+                    await GenerateMiniatures(directory, optimizedDecoder, jpegQuality);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to optimize image: {imagePath}", ex);
+            }
+        }
+        
+        private async Task GenerateMiniatures(string directory, Windows.Graphics.Imaging.BitmapDecoder decoder, int jpegQuality)
+        {
+            try
+            {
+                // Generate catprev.jpg (category preview - 600x722 for category tiles)
+                string catprevPath = Path.Combine(directory, "catprev.jpg");
+                await CreateThumbnail(decoder, catprevPath, 600, 722, jpegQuality);
+                Logger.LogInfo($"Generated catprev: {catprevPath}");
+                
+                // Generate catmini.jpg (category mini - 600x600 square for menu icons)
+                string catminiPath = Path.Combine(directory, "catmini.jpg");
+                await CreateThumbnail(decoder, catminiPath, 600, 600, jpegQuality);
+                Logger.LogInfo($"Generated catmini: {catminiPath}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to generate category miniatures", ex);
+            }
+        }
+        
+        private async Task CreateThumbnail(Windows.Graphics.Imaging.BitmapDecoder decoder, string outputPath, uint width, uint height, int jpegQuality)
+        {
+            var directory = Path.GetDirectoryName(outputPath);
+            if (directory == null) return;
+            
+            var folder = await StorageFolder.GetFolderFromPathAsync(directory);
+            var fileName = Path.GetFileName(outputPath);
+            var outputFile = await folder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+            
+            using var outputStream = await outputFile.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite);
+            var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(
+                Windows.Graphics.Imaging.BitmapEncoder.JpegEncoderId,
+                outputStream);
+            
+            // Set JPEG quality
+            var qualityValue = new Windows.Graphics.Imaging.BitmapTypedValue(
+                jpegQuality / 100.0,
+                Windows.Foundation.PropertyType.Single);
+            await encoder.BitmapProperties.SetPropertiesAsync(
+                new[] { new System.Collections.Generic.KeyValuePair<string, Windows.Graphics.Imaging.BitmapTypedValue>("ImageQuality", qualityValue) });
+            
+            // Scale and crop
+            double scale = Math.Max((double)width / decoder.PixelWidth, (double)height / decoder.PixelHeight);
+            uint scaledWidth = (uint)(decoder.PixelWidth * scale);
+            uint scaledHeight = (uint)(decoder.PixelHeight * scale);
+            
+            encoder.BitmapTransform.ScaledWidth = scaledWidth;
+            encoder.BitmapTransform.ScaledHeight = scaledHeight;
+            encoder.BitmapTransform.InterpolationMode = Windows.Graphics.Imaging.BitmapInterpolationMode.Fant;
+            
+            // Center crop
+            uint cropX = (scaledWidth - width) / 2;
+            uint cropY = (scaledHeight - height) / 2;
+            encoder.BitmapTransform.Bounds = new Windows.Graphics.Imaging.BitmapBounds
+            {
+                X = cropX,
+                Y = cropY,
+                Width = width,
+                Height = height
+            };
+            
+            var pixelData = await decoder.GetPixelDataAsync();
+            encoder.SetPixelData(
+                decoder.BitmapPixelFormat,
+                Windows.Graphics.Imaging.BitmapAlphaMode.Ignore,
+                decoder.PixelWidth,
+                decoder.PixelHeight,
+                decoder.DpiX,
+                decoder.DpiY,
+                pixelData.DetachPixelData());
+            
+            await encoder.FlushAsync();
+        }
+        
         private void Tile_DragEnter(object sender, DragEventArgs e)
         {
             Logger.LogInfo("Tile_DragEnter called");
@@ -1311,14 +1752,22 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogInfo("Contains storage items");
                 e.AcceptedOperation = DataPackageOperation.Copy;
                 
-                if (sender is Button btn && btn.DataContext is ModTile tile && !tile.IsCategory)
+                if (sender is Button btn && btn.DataContext is ModTile tile)
                 {
-                    Logger.LogInfo($"Drag enter on mod: {tile.Name}");
+                    Logger.LogInfo($"Drag enter on {(tile.IsCategory ? "category" : "mod")}: {tile.Name}");
                     var overlay = FindVisualChild<Border>(btn, "DragDropOverlay");
                     if (overlay != null)
                     {
                         Logger.LogInfo("Found overlay, showing it");
                         overlay.Visibility = Visibility.Visible;
+                        
+                        // Update text for category vs mod
+                        var dropText = FindVisualChild<TextBlock>(overlay, "DropText");
+                        if (dropText != null && tile.IsCategory)
+                        {
+                            var lang = SharedUtilities.LoadLanguageDictionary();
+                            dropText.Text = SharedUtilities.GetTranslation(lang, "DragDrop_DropImagesHere");
+                        }
                         
                         var fadeIn = new DoubleAnimation
                         {
@@ -1339,7 +1788,7 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 else
                 {
-                    Logger.LogInfo($"Sender type: {sender?.GetType().Name}, IsCategory: {(sender as Button)?.DataContext is ModTile t && t.IsCategory}");
+                    Logger.LogInfo($"Sender type: {sender?.GetType().Name}");
                 }
             }
             else
@@ -1381,7 +1830,7 @@ namespace FlairX_Mod_Manager.Pages
         
         private async void Tile_Drop(object sender, DragEventArgs e)
         {
-            if (sender is not Button btn || btn.DataContext is not ModTile tile || tile.IsCategory)
+            if (sender is not Button btn || btn.DataContext is not ModTile tile)
                 return;
                 
             if (!e.DataView.Contains(StandardDataFormats.StorageItems))
@@ -1411,6 +1860,13 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 
                 Logger.LogInfo($"Drop received: {imageFiles.Count} image files");
+                
+                // Handle category drop differently
+                if (tile.IsCategory)
+                {
+                    await HandleCategoryImageDrop(btn, tile, imageFiles);
+                    return;
+                }
                 
                 // Get UI elements
                 dropOverlay = FindVisualChild<Border>(btn, "DragDropOverlay");
