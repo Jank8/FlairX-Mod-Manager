@@ -79,9 +79,9 @@ namespace FlairX_Mod_Manager
         public bool ImageOptimizerCreateBackups { get; set; } = false;
         public bool ImageOptimizerKeepOriginals { get; set; } = false;
         public string ImageOptimizerManualMode { get; set; } = "Full";
-        public string ImageOptimizerDragDropModMode { get; set; } = "Lite";
+        public string ImageOptimizerDragDropModMode { get; set; } = "Full";
         public string ImageOptimizerDragDropCategoryMode { get; set; } = "Full";
-        public string ImageOptimizerAutoDownloadMode { get; set; } = "Miniatures";
+        public string ImageOptimizerAutoDownloadMode { get; set; } = "Full";
     }
 
     public static class SettingsManager

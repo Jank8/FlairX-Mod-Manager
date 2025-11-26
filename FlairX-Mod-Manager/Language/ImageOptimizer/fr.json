@@ -30,5 +30,11 @@
     "ImageOptimizer_Mode_Rename_Description": "Renommer les fichiers avec des noms standard (preview.jpg, preview-01.jpg, etc.) sans optimisation",
     "ImageOptimizer_Mode_Lite_Description": "Convertir en JPEG avec compression, générer des miniatures, sans redimensionner ou recadrer. Respecte les paramètres de sauvegarde et conservation des originaux.",
     "ImageOptimizer_Mode_Disabled": "Désactivé",
-    "ImageOptimizer_Mode_Disabled_Description": "Pas d'optimisation - juste copier les fichiers avec des noms standard"
+    "ImageOptimizer_Mode_Disabled_Description": "Pas d'optimisation - juste copier les fichiers avec des noms standard",
+    "SettingsPage_OptimizePreviews_Label": "Optimiser les Aperçus",
+    "Success_Title": "Succès",
+    "OptimizePreviews_Completed": "Optimisation des aperçus terminée avec succès",
+    "OptimizePreviews_Cancelled": "L'optimisation a été annulée",
+    "Continue": "Continuer",
+    "OK": "OK"
 }

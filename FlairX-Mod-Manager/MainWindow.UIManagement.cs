@@ -69,9 +69,13 @@ namespace FlairX_Mod_Manager
                 TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap
             };
             
+            // Always show simple relative path for XXMI Launcher (it's always in the same place)
+            var xxmiRoot = SettingsManager.GetCurrentGameXXMIRoot();
+            var displayPath = Path.Combine(xxmiRoot, @"Resources\Bin\XXMI Launcher.exe");
+            
             var text2 = new TextBlock
             {
-                Text = SharedUtilities.GetTranslation(_lang, "ExpectedPath") + ": " + expectedPath,
+                Text = SharedUtilities.GetTranslation(_lang, "ExpectedPath") + ": " + displayPath,
                 TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap,
                 FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas"),
                 FontSize = 12

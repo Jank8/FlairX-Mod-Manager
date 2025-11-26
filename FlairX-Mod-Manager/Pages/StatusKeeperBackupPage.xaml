@@ -38,7 +38,8 @@
                 
                 <Button Grid.Column="5" x:Name="CreateBackupButton" 
                         MinWidth="80"
-                        Height="32" 
+                        Height="36" 
+                        Padding="12,6"
                         Click="CreateBackupButton_Click"
                         Style="{StaticResource AccentButtonStyle}">
                     <TextBlock x:Name="CreateBackupButtonText"/>
@@ -74,7 +75,8 @@
                 
                 <Button Grid.Column="5" x:Name="CheckBackupButton" 
                         MinWidth="80"
-                        Height="32" 
+                        Height="36" 
+                        Padding="12,6"
                         Click="CheckBackupButton_Click">
                     <TextBlock x:Name="CheckBackupButtonText"/>
                 </Button>
@@ -105,7 +107,8 @@
                 
                 <Button Grid.Column="3" x:Name="RestoreBackupButton" 
                         MinWidth="80"
-                        Height="32" 
+                        Height="36" 
+                        Padding="12,6"
                         Click="RestoreBackupButton_Click">
                     <TextBlock x:Name="RestoreBackupButtonText"/>
                 </Button>
@@ -136,7 +139,8 @@
                 
                 <Button Grid.Column="3" x:Name="DeleteBackupsButton" 
                         MinWidth="80"
-                        Height="32" 
+                        Height="36" 
+                        Padding="12,6"
                         Click="DeleteBackupsButton_Click">
                     <TextBlock x:Name="DeleteBackupsButtonText"/>
                 </Button>

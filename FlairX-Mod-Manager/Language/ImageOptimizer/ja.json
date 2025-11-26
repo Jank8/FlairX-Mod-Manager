@@ -30,5 +30,11 @@
     "ImageOptimizer_Mode_Rename_Description": "標準名にファイル名を変更（preview.jpg、preview-01.jpgなど）、最適化なし",
     "ImageOptimizer_Mode_Lite_Description": "圧縮してJPEGに変換、ミニチュア生成、リサイズやトリミングなし。バックアップとオリジナル保持の設定を尊重します。",
     "ImageOptimizer_Mode_Disabled": "無効",
-    "ImageOptimizer_Mode_Disabled_Description": "最適化なし - 標準名でファイルをコピーするのみ"
+    "ImageOptimizer_Mode_Disabled_Description": "最適化なし - 標準名でファイルをコピーするのみ",
+    "SettingsPage_OptimizePreviews_Label": "プレビューを最適化",
+    "Success_Title": "成功",
+    "OptimizePreviews_Completed": "プレビューの最適化が正常に完了しました",
+    "OptimizePreviews_Cancelled": "最適化がキャンセルされました",
+    "Continue": "続ける",
+    "OK": "OK"
 }

@@ -33,7 +33,7 @@
                 </FontIcon>
             </Button>
             <TextBlock x:Name="ModDetailTitle" Text="Mod Details" FontSize="24" FontWeight="Bold" Margin="16,0,16,0" VerticalAlignment="Center"/>
-            <TextBox x:Name="ModVersionTextBox" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" MinWidth="100" MaxWidth="200" PlaceholderText="Version" TextChanged="ModVersionTextBox_TextChanged" BorderThickness="0" Background="Transparent" Padding="0" Margin="0,2,0,0"/>
+            <TextBox x:Name="ModVersionTextBox" Height="36" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" MinWidth="100" MaxWidth="200" PlaceholderText="Version" TextChanged="ModVersionTextBox_TextChanged" BorderThickness="0" Background="Transparent" Padding="0" Margin="0,2,0,0"/>
             
             <!-- NSFW badge (after version) -->
             <Border x:Name="NSFWBadge"
@@ -159,7 +159,7 @@
                             <ColumnDefinition Width="8"/>
                             <ColumnDefinition Width="32"/>
                         </Grid.ColumnDefinitions>
-                        <CalendarDatePicker x:Name="ModDateCheckedPicker" Grid.Column="0" Margin="0,0,0,0" Width="210" Height="32" DateChanged="ModDateCheckedPicker_DateChanged" PlaceholderText="Select date"/>
+                        <CalendarDatePicker x:Name="ModDateCheckedPicker" Grid.Column="0" Margin="0,0,0,0" Width="210" Height="36" DateChanged="ModDateCheckedPicker_DateChanged" PlaceholderText="Select date"/>
                         <Border Grid.Column="1" Background="Transparent"/>
                         <Button x:Name="TodayDateCheckedButton" Grid.Column="2" Width="32" Height="32" Click="TodayDateCheckedButton_Click" Padding="0">
                             <FontIcon Glyph="&#xE823;" FontSize="16"/>
@@ -173,7 +173,7 @@
                             <ColumnDefinition Width="8"/>
                             <ColumnDefinition Width="32"/>
                         </Grid.ColumnDefinitions>
-                        <CalendarDatePicker x:Name="ModDateUpdatedPicker" Grid.Column="0" Margin="0,0,0,0" Width="210" Height="32" DateChanged="ModDateUpdatedPicker_DateChanged" PlaceholderText="Select date"/>
+                        <CalendarDatePicker x:Name="ModDateUpdatedPicker" Grid.Column="0" Margin="0,0,0,0" Width="210" Height="36" DateChanged="ModDateUpdatedPicker_DateChanged" PlaceholderText="Select date"/>
                         <Border Grid.Column="1" Background="Transparent"/>
                         <Button x:Name="TodayDateUpdatedButton" Grid.Column="2" Width="32" Height="32" Click="TodayDateUpdatedButton_Click" Padding="0">
                             <FontIcon Glyph="&#xE823;" FontSize="16"/>
@@ -181,7 +181,7 @@
                     </Grid>
                     <!-- Author -->
                     <TextBlock x:Name="ModAuthorLabel" Text="Author:" FontWeight="Bold" Grid.Row="6" Grid.Column="0" Margin="0,0,0,2"/>
-                    <TextBox x:Name="ModAuthorTextBox" Grid.Row="7" Grid.Column="0" Margin="0,0,0,0" TextAlignment="Left" HorizontalAlignment="Left" MinWidth="110" MaxWidth="250" Width="250" Height="32" TextChanged="ModAuthorTextBox_TextChanged"/>
+                    <TextBox x:Name="ModAuthorTextBox" Grid.Row="7" Grid.Column="0" Margin="0,0,0,0" TextAlignment="Left" HorizontalAlignment="Left" MinWidth="110" MaxWidth="250" Width="250" Height="36" TextChanged="ModAuthorTextBox_TextChanged"/>
                     <!-- URL -->
                     <TextBlock x:Name="ModUrlLabel" Text="URL:" FontWeight="Bold" Visibility="Visible" Grid.Row="9" Grid.Column="0" Margin="0,0,0,2" HorizontalAlignment="Left"/>
                     <Grid Grid.Row="10" Grid.Column="0" HorizontalAlignment="Left" MinWidth="110" MaxWidth="250" Width="250" Height="32">
@@ -190,7 +190,7 @@
                             <ColumnDefinition Width="8"/>
                             <ColumnDefinition Width="32"/>
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Name="ModUrlTextBox" Grid.Column="0" Margin="0,0,0,0" TextAlignment="Left" HorizontalAlignment="Stretch" Height="32" TextChanged="ModUrlTextBox_TextChanged" GotFocus="ModUrlTextBox_GotFocus" LostFocus="ModUrlTextBox_LostFocus"/>
+                        <TextBox x:Name="ModUrlTextBox" Grid.Column="0" Margin="0,0,0,0" TextAlignment="Left" HorizontalAlignment="Stretch" Height="36" TextChanged="ModUrlTextBox_TextChanged" GotFocus="ModUrlTextBox_GotFocus" LostFocus="ModUrlTextBox_LostFocus"/>
                         <Border Grid.Column="1" Background="Transparent"/>
                         <Button x:Name="OpenUrlButton" Grid.Column="2" Click="OpenUrlButton_Click" Width="32" Height="32" Background="{ThemeResource ButtonBackground}" BorderBrush="{ThemeResource ButtonBorderBrush}" BorderThickness="1" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <FontIcon Glyph="&#xE71B;" FontSize="16"/>

@@ -1,4 +1,4 @@
-﻿{
+{
     "ImageOptimizer_Function": "图像优化器",
     "ImageOptimizer_ManualOptimizationTitle": "手动优化",
     "ImageOptimizer_OptimizationModesHeader": "优化模式",
@@ -30,5 +30,11 @@
     "ImageOptimizer_Mode_Rename_Description": "Rename files to standard names (preview.jpg, preview-01.jpg, etc.) without optimization",
     "ImageOptimizer_Mode_Lite_Description": "Convert to JPEG with compression, generate miniatures, no resizing or cropping. Respects backup and keep originals settings.",
     "ImageOptimizer_Mode_Disabled": "Disabled",
-    "ImageOptimizer_Mode_Disabled_Description": "No optimization - just copy files with standard names"
+    "ImageOptimizer_Mode_Disabled_Description": "No optimization - just copy files with standard names",
+    "SettingsPage_OptimizePreviews_Label": "优化预览",
+    "Success_Title": "成功",
+    "OptimizePreviews_Completed": "预览优化成功完成",
+    "OptimizePreviews_Cancelled": "优化已取消",
+    "Continue": "继续",
+    "OK": "确定"
 }

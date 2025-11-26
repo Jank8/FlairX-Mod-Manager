@@ -36,17 +36,17 @@ namespace FlairX_Mod_Manager.Pages
             // Fetch authors card
             FetchAuthorsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchAuthorsButton");
             FetchAuthorsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchAuthorsDescription");
-            UpdateButtonText.Text = _isUpdatingAuthors ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            UpdateButton.Content = _isUpdatingAuthors ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
             
             // Fetch dates card
             FetchDatesTitle.Text = SharedUtilities.GetTranslation(lang, "FetchDatesButton");
             FetchDatesDescription.Text = SharedUtilities.GetTranslation(lang, "FetchDatesButton_Tooltip");
-            FetchDatesButtonText.Text = _isFetchingDates ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            FetchDatesButton.Content = _isFetchingDates ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
             
             // Fetch versions card
             FetchVersionsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton");
             FetchVersionsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton_Tooltip");
-            FetchVersionsButtonText.Text = _isFetchingVersions ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            FetchVersionsButton.Content = _isFetchingVersions ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
         }
         
         private void UpdateToggleLabels()
@@ -212,7 +212,7 @@ namespace FlairX_Mod_Manager.Pages
         private void SetButtonToCancelState()
         {
             var mainLang = SharedUtilities.LoadLanguageDictionary();
-            UpdateButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
+            UpdateButton.Content = SharedUtilities.GetTranslation(mainLang, "Cancel");
             UpdateButton.IsEnabled = true;
             UpdateProgressBar.Visibility = Visibility.Visible;
         }
@@ -221,7 +221,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             _isUpdatingAuthors = false;
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-            UpdateButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
+            UpdateButton.Content = SharedUtilities.GetTranslation(lang, "Start");
             UpdateButton.IsEnabled = true;
             UpdateProgressBar.Visibility = Visibility.Collapsed;
         }
@@ -695,7 +695,7 @@ namespace FlairX_Mod_Manager.Pages
         private void SetDatesButtonToCancelState()
         {
             var mainLang = SharedUtilities.LoadLanguageDictionary();
-            FetchDatesButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
+            FetchDatesButton.Content = SharedUtilities.GetTranslation(mainLang, "Cancel");
             FetchDatesButton.IsEnabled = true;
             FetchDatesProgressBar.Visibility = Visibility.Visible;
         }
@@ -704,7 +704,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             _isFetchingDates = false;
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-            FetchDatesButtonText.Text = SharedUtilities.GetTranslation(lang, "FetchDatesButton");
+            FetchDatesButton.Content = SharedUtilities.GetTranslation(lang, "Start");
             FetchDatesButton.IsEnabled = true;
             FetchDatesProgressBar.Visibility = Visibility.Collapsed;
         }
@@ -1003,7 +1003,7 @@ namespace FlairX_Mod_Manager.Pages
         private void SetVersionsButtonToCancelState()
         {
             var mainLang = SharedUtilities.LoadLanguageDictionary();
-            FetchVersionsButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
+            FetchVersionsButton.Content = SharedUtilities.GetTranslation(mainLang, "Cancel");
             FetchVersionsButton.IsEnabled = true;
             FetchVersionsProgressBar.Visibility = Visibility.Visible;
         }
@@ -1012,7 +1012,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             _isFetchingVersions = false;
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-            FetchVersionsButtonText.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton");
+            FetchVersionsButton.Content = SharedUtilities.GetTranslation(lang, "Start");
             FetchVersionsButton.IsEnabled = true;
             FetchVersionsProgressBar.Visibility = Visibility.Collapsed;
         }

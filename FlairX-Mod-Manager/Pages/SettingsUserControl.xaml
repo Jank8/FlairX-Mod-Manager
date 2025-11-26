@@ -172,7 +172,7 @@
                                 <TextBlock x:Name="LanguageDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
-                            <ComboBox Grid.Column="3" x:Name="LanguageComboBox" Width="200" SelectionChanged="LanguageComboBox_SelectionChanged" VerticalAlignment="Center"/>
+                            <ComboBox Grid.Column="3" x:Name="LanguageComboBox" Width="200" Height="36" SelectionChanged="LanguageComboBox_SelectionChanged" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
                     
@@ -232,9 +232,9 @@
                             </StackPanel>
                             
                             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                                <TextBox x:Name="DefaultStartWidthTextBox" Width="80" TextChanged="DefaultStartWidthTextBox_TextChanged" VerticalAlignment="Center" InputScope="Number"/>
+                                <TextBox x:Name="DefaultStartWidthTextBox" Width="80" Height="36" TextChanged="DefaultStartWidthTextBox_TextChanged" VerticalAlignment="Center" InputScope="Number"/>
                                 <TextBlock Text="×" VerticalAlignment="Center" FontSize="14" Opacity="0.7"/>
-                                <TextBox x:Name="DefaultStartHeightTextBox" Width="80" TextChanged="DefaultStartHeightTextBox_TextChanged" VerticalAlignment="Center" InputScope="Number"/>
+                                <TextBox x:Name="DefaultStartHeightTextBox" Width="80" Height="36" TextChanged="DefaultStartHeightTextBox_TextChanged" VerticalAlignment="Center" InputScope="Number"/>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -265,8 +265,8 @@
                                 <ProgressBar x:Name="OptimizePreviewsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
                                 <Button x:Name="OptimizePreviewsButton" 
                                         Width="160"
-                                        Height="32" 
-                                        Padding="12,5,12,6" 
+                                        Height="36" 
+                                        Padding="12,6" 
                                         Click="OptimizePreviewsButton_Click"
                                         Style="{StaticResource AccentButtonStyle}">
                                     <TextBlock x:Name="OptimizePreviewsButtonText" Text="Optimize"/>
@@ -585,7 +585,7 @@
                                 <TextBlock x:Name="OptimizePreviewsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
-                            <TextBox Grid.Column="3" x:Name="OptimizePreviewsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+O" TextChanged="OptimizePreviewsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="3" x:Name="OptimizePreviewsHotkeyTextBox" Width="160" Height="36" PlaceholderText="Ctrl+O" TextChanged="OptimizePreviewsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
                     
@@ -611,7 +611,7 @@
                                 <TextBlock x:Name="ReloadManagerHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
-                            <TextBox Grid.Column="3" x:Name="ReloadManagerHotkeyTextBox" Width="160" PlaceholderText="Ctrl+R" TextChanged="ReloadManagerHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="3" x:Name="ReloadManagerHotkeyTextBox" Width="160" Height="36" PlaceholderText="Ctrl+R" TextChanged="ReloadManagerHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
                     
@@ -637,7 +637,7 @@
                                 <TextBlock x:Name="ShuffleActiveModsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
-                            <TextBox Grid.Column="3" x:Name="ShuffleActiveModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+S" TextChanged="ShuffleActiveModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="3" x:Name="ShuffleActiveModsHotkeyTextBox" Width="160" Height="36" PlaceholderText="Ctrl+S" TextChanged="ShuffleActiveModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
                     
@@ -663,7 +663,7 @@
                                 <TextBlock x:Name="DeactivateAllModsHotkeyDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
-                            <TextBox Grid.Column="3" x:Name="DeactivateAllModsHotkeyTextBox" Width="160" PlaceholderText="Ctrl+D" TextChanged="DeactivateAllModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
+                            <TextBox Grid.Column="3" x:Name="DeactivateAllModsHotkeyTextBox" Width="160" Height="36" PlaceholderText="Ctrl+D" TextChanged="DeactivateAllModsHotkeyTextBox_TextChanged" KeyDown="HotkeyTextBox_KeyDown" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
 
@@ -678,7 +678,8 @@
                         Spacing="12">
                 <Button x:Name="CheckUpdatesButton"
                         Width="200"
-                        Height="40"
+                        Height="36"
+                        Padding="12,6"
                         Click="CheckUpdatesButton_Click">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                         <FontIcon Glyph="&#xE895;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
@@ -687,7 +688,8 @@
                 </Button>
                 <Button x:Name="AboutButton"
                         Width="200"
-                        Height="40"
+                        Height="36"
+                        Padding="12,6"
                         Click="AboutButton_Click">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                         <FontIcon x:Name="AboutButtonIcon" Glyph="&#xE946;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>

@@ -43,6 +43,13 @@ namespace FlairX_Mod_Manager
             ShowSlidingPanel(modDetailControl, "Mod Details");
         }
 
+        public void NavigateToModDetails(string modDirectory)
+        {
+            // Same as ShowModDetailPanel - opens mod details in a new sliding panel
+            // This will overlay on top of any existing panels (like Presets)
+            ShowModDetailPanel(modDirectory);
+        }
+
         public void ShowGameBananaBrowserPanel(string gameTag, string? modUrl = null)
         {
             var browserControl = new GameBananaBrowserUserControl(gameTag, modUrl);

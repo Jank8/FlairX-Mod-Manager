@@ -431,5 +431,17 @@ namespace FlairX_Mod_Manager.Pages
             UpdateTexts();
             LoadPresetsToComboBox();
         }
+
+        private void PresetModsListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (e.ClickedItem is string modName)
+            {
+                // Navigate to mod details WITHOUT closing the presets panel
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.NavigateToModDetails(modName);
+                }
+            }
+        }
     }
 }

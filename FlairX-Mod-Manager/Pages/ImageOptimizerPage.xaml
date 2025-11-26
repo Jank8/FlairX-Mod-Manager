@@ -43,7 +43,8 @@
                         <ProgressBar x:Name="OptimizeProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
                         <Button x:Name="OptimizeButton" 
                                 MinWidth="80"
-                                Height="32" 
+                                Height="36" 
+                                Padding="12,6"
                                 Click="OptimizeButton_Click"
                                 Style="{StaticResource AccentButtonStyle}">
                             <TextBlock x:Name="OptimizeButtonText"/>
@@ -222,7 +223,7 @@
                         
                         <TextBlock Grid.Column="2" x:Name="ManualModeHeader" Text="Manual Optimization" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <ComboBox Grid.Column="3" x:Name="ManualModeComboBox" Width="250" SelectionChanged="ManualModeComboBox_SelectionChanged" VerticalAlignment="Center">
+                        <ComboBox Grid.Column="3" x:Name="ManualModeComboBox" Width="250" Height="36" SelectionChanged="ManualModeComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="ManualModeFullItem" Tag="Full"/>
                             <ComboBoxItem x:Name="ManualModeLiteItem" Tag="Lite"/>
                             <ComboBoxItem x:Name="ManualModeRenameItem" Tag="Rename"/>
@@ -260,7 +261,7 @@
                         
                         <TextBlock Grid.Column="2" x:Name="DragDropModHeader" Text="Drag &amp; Drop Mod" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <ComboBox Grid.Column="3" x:Name="DragDropModComboBox" Width="250" SelectionChanged="DragDropModComboBox_SelectionChanged" VerticalAlignment="Center">
+                        <ComboBox Grid.Column="3" x:Name="DragDropModComboBox" Width="250" Height="36" SelectionChanged="DragDropModComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="DragDropModFullItem" Tag="Full"/>
                             <ComboBoxItem x:Name="DragDropModLiteItem" Tag="Lite"/>
                             <ComboBoxItem x:Name="DragDropModRenameItem" Tag="Rename"/>
@@ -298,7 +299,7 @@
                         
                         <TextBlock Grid.Column="2" x:Name="DragDropCategoryHeader" Text="Drag &amp; Drop Category" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <ComboBox Grid.Column="3" x:Name="DragDropCategoryComboBox" Width="250" SelectionChanged="DragDropCategoryComboBox_SelectionChanged" VerticalAlignment="Center">
+                        <ComboBox Grid.Column="3" x:Name="DragDropCategoryComboBox" Width="250" Height="36" SelectionChanged="DragDropCategoryComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="DragDropCategoryFullItem" Tag="Full"/>
                             <ComboBoxItem x:Name="DragDropCategoryRenameOnlyItem" Tag="RenameOnly"/>
                         </ComboBox>
@@ -334,7 +335,7 @@
                         
                         <TextBlock Grid.Column="2" x:Name="AutoDownloadHeader" Text="Automatic (GameBanana Download)" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
                         
-                        <ComboBox Grid.Column="3" x:Name="AutoDownloadComboBox" Width="250" SelectionChanged="AutoDownloadComboBox_SelectionChanged" VerticalAlignment="Center">
+                        <ComboBox Grid.Column="3" x:Name="AutoDownloadComboBox" Width="250" Height="36" SelectionChanged="AutoDownloadComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="AutoDownloadFullItem" Tag="Full"/>
                             <ComboBoxItem x:Name="AutoDownloadLiteItem" Tag="Lite"/>
                             <ComboBoxItem x:Name="AutoDownloadRenameItem" Tag="Rename"/>

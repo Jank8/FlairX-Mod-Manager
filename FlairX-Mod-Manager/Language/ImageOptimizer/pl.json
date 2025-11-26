@@ -30,5 +30,11 @@
     "ImageOptimizer_Mode_Full_Description": "Zmiana rozmiaru do 1000x1000, kadrowanie do kwadratu, konwersja do JPEG, generowanie miniatur. Uwzględnia ustawienia kopii zapasowych i zachowania oryginałów.",
     "ImageOptimizer_Mode_Lite_Description": "Konwersja do JPEG z kompresją, generowanie miniatur, bez zmiany rozmiaru i kadrowania. Uwzględnia ustawienia kopii zapasowych i zachowania oryginałów.",
     "ImageOptimizer_Mode_Rename_Description": "Zmiana nazw plików na standardowe (preview.jpg, preview-01.jpg, itp.) i generowanie miniatur (minitile.jpg, catprev.jpg, catmini.jpg)",
-    "ImageOptimizer_Mode_RenameOnly_Description": "Tylko zmiana nazw plików na standardowe (preview.jpg, preview-01.jpg, itp.) bez optymalizacji i generowania miniatur"
+    "ImageOptimizer_Mode_RenameOnly_Description": "Tylko zmiana nazw plików na standardowe (preview.jpg, preview-01.jpg, itp.) bez optymalizacji i generowania miniatur",
+    "SettingsPage_OptimizePreviews_Label": "Optymalizuj podglądy",
+    "Success_Title": "Sukces",
+    "OptimizePreviews_Completed": "Optymalizacja podglądów zakończona pomyślnie",
+    "OptimizePreviews_Cancelled": "Optymalizacja została anulowana",
+    "Continue": "Kontynuuj",
+    "OK": "OK"
 }

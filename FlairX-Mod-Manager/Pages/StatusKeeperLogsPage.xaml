@@ -63,7 +63,8 @@
                 
                 <Button Grid.Column="3" x:Name="OpenLogButton" 
                         MinWidth="80"
-                        Height="32" 
+                        Height="36" 
+                        Padding="12,6"
                         Click="OpenLogButton_Click">
                     <TextBlock x:Name="OpenLogButtonText"/>
                 </Button>
@@ -94,7 +95,8 @@
                 
                 <Button Grid.Column="3" x:Name="ClearLogButton" 
                         MinWidth="80"
-                        Height="32" 
+                        Height="36" 
+                        Padding="12,6"
                         Click="ClearLogButton_Click">
                     <TextBlock x:Name="ClearLogButtonText"/>
                 </Button>
