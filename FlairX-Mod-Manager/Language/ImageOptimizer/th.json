@@ -22,7 +22,7 @@
     "ImageOptimizer_KeepOriginals": "เก็บไฟล์ต้นฉบับหลังการเพิ่มประสิทธิภาพ",
     "ImageOptimizer_KeepOriginals_Description": "ไฟล์ต้นฉบับจะไม่ถูกลบ (เช่น preview.png จะอยู่ข้าง preview.jpg)",
     "ImageOptimizer_Mode_Full": "การเพิ่มประสิทธิภาพแบบเต็ม",
-    "ImageOptimizer_Mode_Lite": "Lite Optimization",
+    "ImageOptimizer_Mode_Lite": "Lite optimization",
     "ImageOptimizer_Mode_Miniatures": "สร้างภาพขนาดย่อเท่านั้น",
     "ImageOptimizer_Mode_Rename": "เปลี่ยนชื่อไฟล์เท่านั้น",
     "ImageOptimizer_Mode_Full_Description": "Resize to 1000x1000, crop to square, convert to JPEG, generate miniatures. Respects backup and keep originals settings.",

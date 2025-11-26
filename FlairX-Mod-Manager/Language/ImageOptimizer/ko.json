@@ -22,7 +22,7 @@
     "ImageOptimizer_KeepOriginals": "최적화 후 원본 파일 유지",
     "ImageOptimizer_KeepOriginals_Description": "원본 파일은 삭제되지 않습니다 (예: preview.png는 preview.jpg와 함께 유지됨)",
     "ImageOptimizer_Mode_Full": "전체 최적화",
-    "ImageOptimizer_Mode_Lite": "Lite Optimization",
+    "ImageOptimizer_Mode_Lite": "Lite optimization",
     "ImageOptimizer_Mode_Miniatures": "미니어처만 생성",
     "ImageOptimizer_Mode_Rename": "파일 이름만 변경",
     "ImageOptimizer_Mode_Full_Description": "Resize to 1000x1000, crop to square, convert to JPEG, generate miniatures. Respects backup and keep originals settings.",

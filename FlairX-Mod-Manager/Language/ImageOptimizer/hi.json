@@ -22,7 +22,7 @@
     "ImageOptimizer_KeepOriginals": "अनुकूलन के बाद मूल फ़ाइलें रखें",
     "ImageOptimizer_KeepOriginals_Description": "मूल फ़ाइलें हटाई नहीं जाएंगी (उदा. preview.png, preview.jpg के साथ रहेगा)",
     "ImageOptimizer_Mode_Full": "पूर्ण अनुकूलन",
-    "ImageOptimizer_Mode_Lite": "Lite Optimization",
+    "ImageOptimizer_Mode_Lite": "Lite optimization",
     "ImageOptimizer_Mode_Miniatures": "केवल लघुचित्र उत्पन्न करें",
     "ImageOptimizer_Mode_Rename": "केवल फ़ाइलों का नाम बदलें",
     "ImageOptimizer_Mode_Full_Description": "Resize to 1000x1000, crop to square, convert to JPEG, generate miniatures. Respects backup and keep originals settings.",

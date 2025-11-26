@@ -22,7 +22,7 @@
     "ImageOptimizer_KeepOriginals": "优化后保留原始文件",
     "ImageOptimizer_KeepOriginals_Description": "原始文件不会被删除（例如preview.png将与preview.jpg一起保留）",
     "ImageOptimizer_Mode_Full": "完全优化",
-    "ImageOptimizer_Mode_Lite": "Lite Optimization",
+    "ImageOptimizer_Mode_Lite": "Lite optimization",
     "ImageOptimizer_Mode_Miniatures": "仅生成缩略图",
     "ImageOptimizer_Mode_Rename": "仅重命名文件",
     "ImageOptimizer_Mode_Full_Description": "Resize to 1000x1000, crop to square, convert to JPEG, generate miniatures. Respects backup and keep originals settings.",

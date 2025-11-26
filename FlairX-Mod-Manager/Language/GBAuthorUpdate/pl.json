@@ -8,7 +8,7 @@
     "Start": "Start",
     "UpdateAuthorsLabel": "Aktualizuj autorów GameBanana",
     "UpdateAuthorsToggleLabel": "WYŁ/WŁ",
-    "SmartUpdateLabel": "Tylko nieznani autorzy (Inteligentna aktualizacja)",
+    "SmartUpdateLabel": "Tylko nieznani autorzy (inteligentna aktualizacja)",
     "SmartUpdateToggleLabel": "WYŁ/WŁ",
     "FetchAuthorsButton": "Pobierz autorów z serwera",
     "ConfirmFetchAuthors": "Spowoduje to pobranie i aktualizację informacji o autorach z GameBanana dla wszystkich modów. Czy chcesz kontynuować?",
