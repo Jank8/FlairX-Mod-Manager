@@ -104,8 +104,6 @@
                             <ProgressBar x:Name="UpdateProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
                             <Button x:Name="UpdateButton" 
                                     MinWidth="80"
-                                    Height="36" 
-                                    Padding="12,6"
                                     Click="UpdateButton_Click"
                                     Style="{StaticResource AccentButtonStyle}">
                                 <TextBlock x:Name="UpdateButtonText"/>
@@ -140,8 +138,6 @@
                             <ProgressBar x:Name="FetchDatesProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
                             <Button x:Name="FetchDatesButton" 
                                     MinWidth="80"
-                                    Height="36" 
-                                    Padding="12,6"
                                     Click="FetchDatesButton_Click">
                                 <TextBlock x:Name="FetchDatesButtonText"/>
                             </Button>
@@ -175,8 +171,6 @@
                             <ProgressBar x:Name="FetchVersionsProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
                             <Button x:Name="FetchVersionsButton" 
                                     MinWidth="80"
-                                    Height="36" 
-                                    Padding="12,6"
                                     Click="FetchVersionsButton_Click">
                                 <TextBlock x:Name="FetchVersionsButtonText"/>
                             </Button>

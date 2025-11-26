@@ -33,8 +33,7 @@
                 </StackPanel>
                 
                 <Button Grid.Column="3" x:Name="D3dxFilePathOpenButton" 
-                        MinWidth="100" Height="36"
-                        Padding="12,6"
+                        MinWidth="100"
                         Click="D3dxFilePathOpenButton_Click" 
                         VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Spacing="8">
@@ -129,8 +128,6 @@
                     <ProgressBar x:Name="ManualSyncProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
                     <Button x:Name="ManualSyncButton" 
                             MinWidth="80"
-                            Height="36" 
-                            Padding="12,6"
                             Click="ManualSyncButton_Click"
                             Style="{StaticResource AccentButtonStyle}">
                         <TextBlock x:Name="ManualSyncButtonText"/>
