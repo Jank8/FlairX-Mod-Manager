@@ -36,6 +36,13 @@ namespace FlairX_Mod_Manager
             ShowSlidingPanel(presetsControl, "Presets");
         }
 
+        public void ShowModDetailPanel(string modDirectory)
+        {
+            var modDetailControl = new ModDetailUserControl();
+            modDetailControl.LoadModDetails(modDirectory);
+            ShowSlidingPanel(modDetailControl, "Mod Details");
+        }
+
         public void ShowGameBananaBrowserPanel(string gameTag, string? modUrl = null)
         {
             var browserControl = new GameBananaBrowserUserControl(gameTag, modUrl);
@@ -379,6 +386,10 @@ namespace FlairX_Mod_Manager
                     else if (userControl is Pages.GameBananaBrowserUserControl gameBananaControl)
                     {
                         gameBananaControl.CloseRequested += (s, args) => closeWithAnimation();
+                    }
+                    else if (userControl is ModDetailUserControl modDetailControl)
+                    {
+                        modDetailControl.CloseRequested += (s, args) => closeWithAnimation();
                     }
                     
                     // Click outside to close

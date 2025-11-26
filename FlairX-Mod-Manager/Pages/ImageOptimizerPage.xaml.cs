@@ -23,7 +23,7 @@ namespace FlairX_Mod_Manager.Pages
         private OptimizationMode _manualMode = OptimizationMode.Full;
         private OptimizationMode _dragDropModMode = OptimizationMode.Full;
         private OptimizationMode _dragDropCategoryMode = OptimizationMode.Full;
-        private OptimizationMode _autoDownloadMode = OptimizationMode.Miniatures;
+        private OptimizationMode _autoDownloadMode = OptimizationMode.Full;
 
         public ImageOptimizerPage()
         {
@@ -60,10 +60,22 @@ namespace FlairX_Mod_Manager.Pages
             _createBackups = SettingsManager.Current.ImageOptimizerCreateBackups;
             _keepOriginals = SettingsManager.Current.ImageOptimizerKeepOriginals;
             
-            _manualMode = ParseMode(SettingsManager.Current.ImageOptimizerManualMode);
-            _dragDropModMode = ParseMode(SettingsManager.Current.ImageOptimizerDragDropModMode);
-            _dragDropCategoryMode = ParseMode(SettingsManager.Current.ImageOptimizerDragDropCategoryMode);
-            _autoDownloadMode = ParseMode(SettingsManager.Current.ImageOptimizerAutoDownloadMode);
+            // Load modes - if empty, use Full
+            _manualMode = string.IsNullOrEmpty(SettingsManager.Current.ImageOptimizerManualMode) 
+                ? OptimizationMode.Full 
+                : ParseMode(SettingsManager.Current.ImageOptimizerManualMode);
+                
+            _dragDropModMode = string.IsNullOrEmpty(SettingsManager.Current.ImageOptimizerDragDropModMode) 
+                ? OptimizationMode.Full 
+                : ParseMode(SettingsManager.Current.ImageOptimizerDragDropModMode);
+                
+            _dragDropCategoryMode = string.IsNullOrEmpty(SettingsManager.Current.ImageOptimizerDragDropCategoryMode) 
+                ? OptimizationMode.Full 
+                : ParseMode(SettingsManager.Current.ImageOptimizerDragDropCategoryMode);
+                
+            _autoDownloadMode = string.IsNullOrEmpty(SettingsManager.Current.ImageOptimizerAutoDownloadMode) 
+                ? OptimizationMode.Full 
+                : ParseMode(SettingsManager.Current.ImageOptimizerAutoDownloadMode);
         }
 
         private void InitializeUI()
@@ -140,27 +152,25 @@ namespace FlairX_Mod_Manager.Pages
             // Manual mode
             ManualModeFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
             ManualModeLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
-            ManualModeMiniaturesItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Miniatures");
             ManualModeRenameItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Rename");
+            ManualModeRenameOnlyItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_RenameOnly");
             ManualModeLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
             
             // Drag & Drop Mod
             DragDropModFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
             DragDropModLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
-            DragDropModMiniaturesItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Miniatures");
             DragDropModRenameItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Rename");
-            DragDropModDisabledItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Disabled");
+            DragDropModRenameOnlyItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_RenameOnly");
             
             // Drag & Drop Category
             DragDropCategoryFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
-            DragDropCategoryDisabledItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Disabled");
+            DragDropCategoryRenameOnlyItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_RenameOnly");
             
             // Auto Download
             AutoDownloadFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
             AutoDownloadLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
-            AutoDownloadMiniaturesItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Miniatures");
             AutoDownloadRenameItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Rename");
-            AutoDownloadLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
+            AutoDownloadRenameOnlyItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_RenameOnly");
         }
 
         private void SetComboBoxSelection(ComboBox comboBox, OptimizationMode mode)
@@ -269,9 +279,8 @@ namespace FlairX_Mod_Manager.Pages
             {
                 OptimizationMode.Full => "ImageOptimizer_Mode_Full_Description",
                 OptimizationMode.Lite => "ImageOptimizer_Mode_Lite_Description",
-                OptimizationMode.Miniatures => "ImageOptimizer_Mode_Miniatures_Description",
                 OptimizationMode.Rename => "ImageOptimizer_Mode_Rename_Description",
-                OptimizationMode.Disabled => "ImageOptimizer_Mode_Disabled_Description",
+                OptimizationMode.RenameOnly => "ImageOptimizer_Mode_RenameOnly_Description",
                 _ => "ImageOptimizer_Mode_Full_Description"
             };
             
@@ -311,7 +320,7 @@ namespace FlairX_Mod_Manager.Pages
             }
 
             // Show confirmation dialog
-            var lang = SharedUtilities.LoadLanguageDictionary();
+            var lang = SharedUtilities.LoadLanguageDictionary("ImageOptimizer");
             var confirmDialog = new ContentDialog
             {
                 Title = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label"),

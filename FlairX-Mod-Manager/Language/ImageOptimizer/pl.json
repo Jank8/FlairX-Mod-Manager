@@ -25,12 +25,10 @@
     "ImageOptimizer_KeepOriginals_Toggle": "WYŁ/WŁ",
     "ImageOptimizer_Mode_Full": "Pełna Optymalizacja",
     "ImageOptimizer_Mode_Lite": "Optymalizacja Lite",
-    "ImageOptimizer_Mode_Miniatures": "Generuj Tylko Miniatury",
-    "ImageOptimizer_Mode_Rename": "Tylko Zmień Nazwy Plików",
-    "ImageOptimizer_Mode_Full_Description": "Zmiana rozmiaru do 1000x1000, kadrowanie do kwadratu, konwersja do JPEG, generowanie miniatur. Respektuje ustawienia backupu i zachowania oryginałów.",
-    "ImageOptimizer_Mode_Miniatures_Description": "Generuj tylko miniatury (minitile.jpg 600x722, catmini.jpg 600x600) bez modyfikacji oryginalnych plików",
-    "ImageOptimizer_Mode_Rename_Description": "Zmienia nazwy plików na standardowe (preview.jpg, preview-01.jpg, itd.) bez optymalizacji",
-    "ImageOptimizer_Mode_Lite_Description": "Konwersja do JPEG z kompresją, generowanie miniatur, bez zmiany rozmiaru i kadrowania. Respektuje ustawienia backupu i zachowania oryginałów.",
-    "ImageOptimizer_Mode_Disabled": "Wyłączone",
-    "ImageOptimizer_Mode_Disabled_Description": "Bez optymalizacji - tylko kopiowanie plików ze standardowymi nazwami"
+    "ImageOptimizer_Mode_Rename": "Standardowe Nazwy + Miniatury",
+    "ImageOptimizer_Mode_RenameOnly": "Tylko Standardowe Nazwy",
+    "ImageOptimizer_Mode_Full_Description": "Zmiana rozmiaru do 1000x1000, kadrowanie do kwadratu, konwersja do JPEG, generowanie miniatur. Uwzględnia ustawienia kopii zapasowych i zachowania oryginałów.",
+    "ImageOptimizer_Mode_Lite_Description": "Konwersja do JPEG z kompresją, generowanie miniatur, bez zmiany rozmiaru i kadrowania. Uwzględnia ustawienia kopii zapasowych i zachowania oryginałów.",
+    "ImageOptimizer_Mode_Rename_Description": "Zmiana nazw plików na standardowe (preview.jpg, preview-01.jpg, itp.) i generowanie miniatur (minitile.jpg, catprev.jpg, catmini.jpg)",
+    "ImageOptimizer_Mode_RenameOnly_Description": "Tylko zmiana nazw plików na standardowe (preview.jpg, preview-01.jpg, itp.) bez optymalizacji i generowania miniatur"
 }

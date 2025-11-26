@@ -1027,7 +1027,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Get optimization mode from AutoDownloadMode setting
                 var mode = Enum.TryParse<Models.OptimizationMode>(SettingsManager.Current.ImageOptimizerAutoDownloadMode, out var parsedMode) 
                     ? parsedMode 
-                    : Models.OptimizationMode.Miniatures;
+                    : Models.OptimizationMode.Full;
                 
                 Logger.LogInfo($"Using AutoDownloadMode: {mode}");
                 

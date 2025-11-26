@@ -225,8 +225,8 @@
                         <ComboBox Grid.Column="3" x:Name="ManualModeComboBox" Width="250" SelectionChanged="ManualModeComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="ManualModeFullItem" Tag="Full"/>
                             <ComboBoxItem x:Name="ManualModeLiteItem" Tag="Lite"/>
-                            <ComboBoxItem x:Name="ManualModeMiniaturesItem" Tag="Miniatures"/>
                             <ComboBoxItem x:Name="ManualModeRenameItem" Tag="Rename"/>
+                            <ComboBoxItem x:Name="ManualModeRenameOnlyItem" Tag="RenameOnly"/>
                         </ComboBox>
                     </Grid>
                     
@@ -263,9 +263,8 @@
                         <ComboBox Grid.Column="3" x:Name="DragDropModComboBox" Width="250" SelectionChanged="DragDropModComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="DragDropModFullItem" Tag="Full"/>
                             <ComboBoxItem x:Name="DragDropModLiteItem" Tag="Lite"/>
-                            <ComboBoxItem x:Name="DragDropModMiniaturesItem" Tag="Miniatures"/>
                             <ComboBoxItem x:Name="DragDropModRenameItem" Tag="Rename"/>
-                            <ComboBoxItem x:Name="DragDropModDisabledItem" Tag="Disabled"/>
+                            <ComboBoxItem x:Name="DragDropModRenameOnlyItem" Tag="RenameOnly"/>
                         </ComboBox>
                     </Grid>
                     
@@ -301,7 +300,7 @@
                         
                         <ComboBox Grid.Column="3" x:Name="DragDropCategoryComboBox" Width="250" SelectionChanged="DragDropCategoryComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="DragDropCategoryFullItem" Tag="Full"/>
-                            <ComboBoxItem x:Name="DragDropCategoryDisabledItem" Tag="Disabled"/>
+                            <ComboBoxItem x:Name="DragDropCategoryRenameOnlyItem" Tag="RenameOnly"/>
                         </ComboBox>
                     </Grid>
                     
@@ -338,8 +337,8 @@
                         <ComboBox Grid.Column="3" x:Name="AutoDownloadComboBox" Width="250" SelectionChanged="AutoDownloadComboBox_SelectionChanged" VerticalAlignment="Center">
                             <ComboBoxItem x:Name="AutoDownloadFullItem" Tag="Full"/>
                             <ComboBoxItem x:Name="AutoDownloadLiteItem" Tag="Lite"/>
-                            <ComboBoxItem x:Name="AutoDownloadMiniaturesItem" Tag="Miniatures"/>
                             <ComboBoxItem x:Name="AutoDownloadRenameItem" Tag="Rename"/>
+                            <ComboBoxItem x:Name="AutoDownloadRenameOnlyItem" Tag="RenameOnly"/>
                         </ComboBox>
                     </Grid>
                     
