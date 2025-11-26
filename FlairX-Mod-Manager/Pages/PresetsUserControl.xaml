@@ -61,7 +61,7 @@
                                 <ComboBox x:Name="PresetComboBox" Width="300" Height="36" Margin="0,8,0,0" SelectionChanged="PresetComboBox_SelectionChanged" HorizontalAlignment="Left"/>
                             </StackPanel>
                             
-                            <Button Grid.Column="3" x:Name="LoadPresetButton" Click="LoadPresetButton_Click" MinWidth="80" Height="36" Padding="12,6">
+                            <Button Grid.Column="3" x:Name="LoadPresetButton" Click="LoadPresetButton_Click" MinWidth="80" Height="36" Padding="12,6" VerticalAlignment="Center">
                                 <TextBlock x:Name="LoadPresetButtonText"/>
                             </Button>
                         </Grid>
@@ -89,7 +89,7 @@
                                 <TextBox x:Name="PresetNameTextBox" Width="300" Height="36" Margin="0,8,0,0" HorizontalAlignment="Left"/>
                             </StackPanel>
                             
-                            <Button Grid.Column="3" x:Name="SavePresetButton" Click="SavePresetButton_Click" MinWidth="80" Height="36" Padding="12,6" Style="{StaticResource AccentButtonStyle}">
+                            <Button Grid.Column="3" x:Name="SavePresetButton" Click="SavePresetButton_Click" MinWidth="80" Height="36" Padding="12,6" VerticalAlignment="Center" Style="{StaticResource AccentButtonStyle}">
                                 <TextBlock x:Name="SavePresetButtonText"/>
                             </Button>
                         </Grid>
@@ -117,7 +117,7 @@
                                 <TextBlock x:Name="DeletePresetDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
-                            <Button Grid.Column="3" x:Name="DeletePresetButton" Click="DeletePresetButton_Click" MinWidth="80" Height="36" Padding="12,6">
+                            <Button Grid.Column="3" x:Name="DeletePresetButton" Click="DeletePresetButton_Click" MinWidth="80" Height="36" Padding="12,6" VerticalAlignment="Center">
                                 <TextBlock x:Name="DeletePresetButtonText"/>
                             </Button>
                         </Grid>
