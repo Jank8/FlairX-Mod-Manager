@@ -9,6 +9,7 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <UseWinUI>true</UseWinUI>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     
     <!-- Application Identity -->
     <AssemblyName>FlairX Mod Manager</AssemblyName>

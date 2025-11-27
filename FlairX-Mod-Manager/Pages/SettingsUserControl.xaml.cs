@@ -811,30 +811,8 @@ namespace FlairX_Mod_Manager.Pages
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         
-                        // Calculate crop to 600:722 ratio (center crop)
-                        double targetRatio = 600.0 / 722.0;
-                        double sourceRatio = (double)img.Width / img.Height;
-                        
-                        int srcWidth, srcHeight, srcX, srcY;
-                        
-                        if (sourceRatio > targetRatio)
-                        {
-                            // Source is wider - crop width
-                            srcHeight = img.Height;
-                            srcWidth = (int)(srcHeight * targetRatio);
-                            srcX = (img.Width - srcWidth) / 2;
-                            srcY = 0;
-                        }
-                        else
-                        {
-                            // Source is taller - crop height
-                            srcWidth = img.Width;
-                            srcHeight = (int)(srcWidth / targetRatio);
-                            srcX = 0;
-                            srcY = (img.Height - srcHeight) / 2;
-                        }
-                        
-                        var srcRect = new System.Drawing.Rectangle(srcX, srcY, srcWidth, srcHeight);
+                        // Calculate crop rectangle using selected algorithm
+                        var srcRect = GetCropRectangleFromSettings(img, 600, 722);
                         var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
                         g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
                         
@@ -858,13 +836,10 @@ namespace FlairX_Mod_Manager.Pages
                         g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g2.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         
-                        // Calculate crop to square (center crop)
-                        int size = Math.Min(img.Width, img.Height);
-                        int x = (img.Width - size) / 2;
-                        int y = (img.Height - size) / 2;
-                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
-                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
-                        g2.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
+                        // Calculate crop rectangle using selected algorithm (square)
+                        var srcRect2 = GetCropRectangleFromSettings(img, 600, 600);
+                        var destRect2 = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        g2.DrawImage(img, destRect2, srcRect2, System.Drawing.GraphicsUnit.Pixel);
                         
                         var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
                         if (jpegEncoder != null)
@@ -1272,33 +1247,40 @@ namespace FlairX_Mod_Manager.Pages
                 bool shouldCropAndResize = (mode == OptimizationMode.Full);
                 
                 // Step 1: Crop to square (1:1 ratio) if needed (only for Full mode)
-                int originalSize = Math.Min(src.Width, src.Height);
-                int x = (src.Width - originalSize) / 2;
-                int y = (src.Height - originalSize) / 2;
                 bool needsCrop = shouldCropAndResize && (src.Width != src.Height);
                 
                 System.Drawing.Image squareImage = src;
                 if (needsCrop)
                 {
-                    var cropped = new System.Drawing.Bitmap(originalSize, originalSize);
+                    // Get crop type from settings
+                    var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
+                    var cropType = Enum.TryParse<Services.CropType>(cropTypeStr, out var parsed) 
+                        ? parsed 
+                        : Services.CropType.Center;
+                    
+                    // Calculate crop rectangle using the selected algorithm
+                    int cropSize = Math.Min(src.Width, src.Height);
+                    var cropRect = Services.ImageCropService.CalculateCropRectangle(src, cropSize, cropSize, cropType);
+                    
+                    var cropped = new System.Drawing.Bitmap(cropRect.Width, cropRect.Height);
                     using (var g = System.Drawing.Graphics.FromImage(cropped))
                     {
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
                         g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                        var srcRect = new System.Drawing.Rectangle(x, y, originalSize, originalSize);
-                        var destRect = new System.Drawing.Rectangle(0, 0, originalSize, originalSize);
-                        g.DrawImage(src, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
+                        var destRect = new System.Drawing.Rectangle(0, 0, cropRect.Width, cropRect.Height);
+                        g.DrawImage(src, destRect, cropRect, System.Drawing.GraphicsUnit.Pixel);
                     }
                     squareImage = cropped;
                 }
 
                 // Step 2: Resize if larger than 1000x1000 (only for Full mode)
-                int targetSize = shouldCropAndResize ? Math.Min(originalSize, 1000) : originalSize;
+                int currentSize = squareImage.Width; // After cropping, image is square
+                int targetSize = shouldCropAndResize ? Math.Min(currentSize, 1000) : currentSize;
                 System.Drawing.Image finalImage = squareImage;
                 
-                if (shouldCropAndResize && originalSize > 1000)
+                if (shouldCropAndResize && currentSize > 1000)
                 {
                     var resized = new System.Drawing.Bitmap(targetSize, targetSize);
                     using (var g = System.Drawing.Graphics.FromImage(resized))
@@ -1374,30 +1356,14 @@ namespace FlairX_Mod_Manager.Pages
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                     g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                     
-                    // Calculate crop to 600:722 ratio (center crop)
-                    double targetRatio = 600.0 / 722.0;
-                    double sourceRatio = (double)src.Width / src.Height;
+                    // Get crop type from settings
+                    var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
+                    var cropType = Enum.TryParse<Services.CropType>(cropTypeStr, out var parsed) 
+                        ? parsed 
+                        : Services.CropType.Center;
                     
-                    int srcWidth, srcHeight, srcX, srcY;
-                    
-                    if (sourceRatio > targetRatio)
-                    {
-                        // Source is wider - crop width
-                        srcHeight = src.Height;
-                        srcWidth = (int)(srcHeight * targetRatio);
-                        srcX = (src.Width - srcWidth) / 2;
-                        srcY = 0;
-                    }
-                    else
-                    {
-                        // Source is taller - crop height
-                        srcWidth = src.Width;
-                        srcHeight = (int)(srcWidth / targetRatio);
-                        srcX = 0;
-                        srcY = (src.Height - srcHeight) / 2;
-                    }
-                    
-                    var srcRect = new System.Drawing.Rectangle(srcX, srcY, srcWidth, srcHeight);
+                    // Calculate crop rectangle using the selected algorithm
+                    var srcRect = Services.ImageCropService.CalculateCropRectangle(src, 600, 722, cropType);
                     var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
                     g.DrawImage(src, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
                     
@@ -2523,6 +2489,19 @@ namespace FlairX_Mod_Manager.Pages
             
             dialog.Content = stackPanel;
             await dialog.ShowAsync();
+        }
+        
+        /// <summary>
+        /// Helper method to get crop rectangle based on settings
+        /// </summary>
+        private static System.Drawing.Rectangle GetCropRectangleFromSettings(System.Drawing.Image img, int targetWidth, int targetHeight)
+        {
+            var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
+            var cropType = Enum.TryParse<Services.CropType>(cropTypeStr, out var parsed) 
+                ? parsed 
+                : Services.CropType.Center;
+            
+            return Services.ImageCropService.CalculateCropRectangle(img, targetWidth, targetHeight, cropType);
         }
     }
 }
