@@ -82,6 +82,8 @@ namespace FlairX_Mod_Manager
         public string ImageOptimizerDragDropModMode { get; set; } = "Full";
         public string ImageOptimizerDragDropCategoryMode { get; set; } = "Full";
         public string ImageOptimizerAutoDownloadMode { get; set; } = "Full";
+        public string ImageCropType { get; set; } = "Center"; // Center, Smart, Entropy, Attention, ManualOnly
+        public bool PreviewBeforeCrop { get; set; } = false; // Show preview dialog before each crop
     }
 
     public static class SettingsManager

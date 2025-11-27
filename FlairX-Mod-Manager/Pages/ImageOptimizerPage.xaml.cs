@@ -76,6 +76,21 @@ namespace FlairX_Mod_Manager.Pages
             _autoDownloadMode = string.IsNullOrEmpty(SettingsManager.Current.ImageOptimizerAutoDownloadMode) 
                 ? OptimizationMode.Full 
                 : ParseMode(SettingsManager.Current.ImageOptimizerAutoDownloadMode);
+            
+            // Load crop settings
+            string cropType = SettingsManager.Current.ImageCropType ?? "Center";
+            ImageCropTypeComboBox.SelectionChanged -= ImageCropTypeComboBox_SelectionChanged;
+            foreach (ComboBoxItem item in ImageCropTypeComboBox.Items)
+            {
+                if ((string)item.Tag == cropType)
+                {
+                    ImageCropTypeComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+            ImageCropTypeComboBox.SelectionChanged += ImageCropTypeComboBox_SelectionChanged;
+            
+            PreviewBeforeCropToggle.IsOn = SettingsManager.Current.PreviewBeforeCrop;
         }
 
         private void InitializeUI()
@@ -123,6 +138,7 @@ namespace FlairX_Mod_Manager.Pages
             
             // Headers
             QualityHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_QualityHeader");
+            CroppingHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_CroppingHeader");
             PerformanceHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_PerformanceHeader");
             BackupHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_BackupHeader");
             OptimizationModesHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_OptimizationModesHeader");
@@ -136,6 +152,19 @@ namespace FlairX_Mod_Manager.Pages
             JpegQualityDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_JpegQuality_Description");
             ThreadCountLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_ThreadCount");
             ThreadCountDescription.Text = string.Format(SharedUtilities.GetTranslation(lang, "ImageOptimizer_ThreadCount_Description"), Environment.ProcessorCount);
+            
+            // Cropping options
+            ImageCropTypeLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ImageCropType_Label");
+            ImageCropTypeDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ImageCropType_Description");
+            PreviewBeforeCropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewBeforeCrop_Label");
+            PreviewBeforeCropDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewBeforeCrop_Description");
+            
+            // Crop type ComboBox items
+            CropTypeCenterText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Center");
+            CropTypeSmartText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Smart");
+            CropTypeEntropyText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Entropy");
+            CropTypeAttentionText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Attention");
+            CropTypeManualText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Manual");
             
             // Backup options
             CreateBackupsLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_CreateBackups");
@@ -222,6 +251,8 @@ namespace FlairX_Mod_Manager.Pages
                 CreateBackupsToggleLabel.Text = CreateBackupsCheckBox.IsOn ? onText : offText;
             if (KeepOriginalsToggleLabel != null && KeepOriginalsCheckBox != null)
                 KeepOriginalsToggleLabel.Text = KeepOriginalsCheckBox.IsOn ? onText : offText;
+            if (PreviewBeforeCropToggleLabel != null && PreviewBeforeCropToggle != null)
+                PreviewBeforeCropToggleLabel.Text = PreviewBeforeCropToggle.IsOn ? onText : offText;
         }
 
         private void ManualModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -389,6 +420,23 @@ namespace FlairX_Mod_Manager.Pages
                 OptimizeProgressBar.Visibility = Visibility.Collapsed;
                 OptimizeButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
             }
+        }
+
+        private void ImageCropTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ImageCropTypeComboBox.SelectedItem is ComboBoxItem item && item.Tag is string cropType)
+            {
+                SettingsManager.Current.ImageCropType = cropType;
+                SettingsManager.Save();
+                Logger.LogInfo($"Image crop type changed to: {cropType}");
+            }
+        }
+
+        private void PreviewBeforeCropToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.PreviewBeforeCrop = PreviewBeforeCropToggle.IsOn;
+            SettingsManager.Save();
+            UpdateToggleLabels();
         }
     }
 }

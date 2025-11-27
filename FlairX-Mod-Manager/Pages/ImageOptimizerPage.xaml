@@ -91,6 +91,80 @@
                 </Grid>
             </Border>
 
+            <!-- Cropping Section -->
+            <TextBlock x:Name="CroppingHeader" Text="Cropping" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
+            
+            <!-- Image Crop Type Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE7A8;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="ImageCropTypeLabel" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="ImageCropTypeDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <ComboBox Grid.Column="3" x:Name="ImageCropTypeComboBox" Width="200" SelectionChanged="ImageCropTypeComboBox_SelectionChanged" VerticalAlignment="Center">
+                        <ComboBoxItem x:Name="CropTypeCenter" Tag="Center">
+                            <TextBlock x:Name="CropTypeCenterText" Text="Center"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem x:Name="CropTypeSmart" Tag="Smart">
+                            <TextBlock x:Name="CropTypeSmartText" Text="Smart"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem x:Name="CropTypeEntropy" Tag="Entropy">
+                            <TextBlock x:Name="CropTypeEntropyText" Text="Entropy"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem x:Name="CropTypeAttention" Tag="Attention">
+                            <TextBlock x:Name="CropTypeAttentionText" Text="Attention"/>
+                        </ComboBoxItem>
+                        <ComboBoxItem x:Name="CropTypeManual" Tag="ManualOnly">
+                            <TextBlock x:Name="CropTypeManualText" Text="Manual Only"/>
+                        </ComboBoxItem>
+                    </ComboBox>
+                </Grid>
+            </Border>
+            
+            <!-- Preview Before Crop Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="150"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE8B9;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="PreviewBeforeCropLabel" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="PreviewBeforeCropDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                        <TextBlock x:Name="PreviewBeforeCropToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                        <ToggleSwitch x:Name="PreviewBeforeCropToggle" Toggled="PreviewBeforeCropToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
             <!-- Performance Section -->
             <TextBlock x:Name="PerformanceHeader" Text="Performance" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
             

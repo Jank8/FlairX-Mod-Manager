@@ -49,9 +49,6 @@ namespace FlairX_Mod_Manager.Pages
         private static extern int SHFileOperation(ref SHFILEOPSTRUCT FileOp);
         private Dictionary<string, string> _languages = new(); // displayName, filePath
         private Dictionary<string, string> _fileNameByDisplayName = new();
-        private static bool _isOptimizingPreviews = false;
-        private CancellationTokenSource? _previewCts;
-        private TextBlock? _optimizePreviewsButtonText;
 
         public event EventHandler? CloseRequested; // Event to notify parent to close
 
@@ -70,7 +67,6 @@ namespace FlairX_Mod_Manager.Pages
         public SettingsUserControl()
         {
             this.InitializeComponent();
-            _optimizePreviewsButtonText = OptimizePreviewsButtonText;
             SettingsManager.Load();
             LoadLanguages();
             InitializeUIState();
@@ -201,21 +197,6 @@ namespace FlairX_Mod_Manager.Pages
             AboutButtonText.Text = SharedUtilities.GetTranslation(lang, "AboutButton_Label");
             AboutButtonIcon.Glyph = "\uE946";
             
-            // Handle optimization progress state (equivalent to OnNavigatedTo)
-            if (_isOptimizingPreviews)
-            {
-                if (OptimizePreviewsProgressBar != null)
-                    OptimizePreviewsProgressBar.Visibility = Visibility.Visible;
-                if (OptimizePreviewsButton != null)
-                    OptimizePreviewsButton.IsEnabled = false;
-            }
-            else
-            {
-                if (OptimizePreviewsProgressBar != null)
-                    OptimizePreviewsProgressBar.Visibility = Visibility.Collapsed;
-                if (OptimizePreviewsButton != null)
-                    OptimizePreviewsButton.IsEnabled = true;
-            }
         }
         
         private void DisableMicaOptionsOnWindows10()
@@ -276,8 +257,6 @@ namespace FlairX_Mod_Manager.Pages
             if (ThemeLabel != null) ThemeLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme");
             if (BackdropLabel != null) BackdropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop");
             if (LanguageLabel != null) LanguageLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language");
-            if (OptimizePreviewsLabel != null) OptimizePreviewsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label");
-            if (OptimizePreviewsButtonText != null && !_isOptimizingPreviews) OptimizePreviewsButtonText.Text = SharedUtilities.GetTranslation(lang, "Optimize");
             if (DefaultResolutionOnStartLabel != null) DefaultResolutionOnStartLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultResolutionOnStart_Label");
             if (DefaultStartResolutionLabel != null) DefaultStartResolutionLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Label");
             if (XXMIRootDirectoryLabel != null) XXMIRootDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory");
@@ -295,7 +274,6 @@ namespace FlairX_Mod_Manager.Pages
             if (ThemeDescription != null) ThemeDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Description") ?? string.Empty;
             if (BackdropDescription != null) BackdropDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_Description") ?? string.Empty;
             if (LanguageDescription != null) LanguageDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language_Description") ?? string.Empty;
-            if (OptimizePreviewsDescription != null) OptimizePreviewsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Description") ?? string.Empty;
             if (DefaultResolutionOnStartDescription != null) DefaultResolutionOnStartDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultResolutionOnStart_Description") ?? string.Empty;
             if (DefaultStartResolutionDescription != null) DefaultStartResolutionDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Description") ?? string.Empty;
             if (XXMIRootDirectoryDescription != null) XXMIRootDirectoryDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory_Description") ?? string.Empty;
@@ -341,8 +319,6 @@ namespace FlairX_Mod_Manager.Pages
 
             if (ActiveModsToTopToggle != null) ToolTipService.SetToolTip(ActiveModsToTopToggle, SharedUtilities.GetTranslation(lang, "ActiveModsToTop_Tooltip"));
             if (XXMIRootDirectoryDefaultButton != null) ToolTipService.SetToolTip(XXMIRootDirectoryDefaultButton, SharedUtilities.GetTranslation(lang, "SettingsPage_RestoreDefault_Tooltip"));
-                        if (OptimizePreviewsButton != null) ToolTipService.SetToolTip(OptimizePreviewsButton, SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Tooltip"));
-
             if (XXMIRootDirectoryPickButton != null) ToolTipService.SetToolTip(XXMIRootDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
                         if (XXMIRootDirectoryBreadcrumb != null) ToolTipService.SetToolTip(XXMIRootDirectoryBreadcrumb, SharedUtilities.GetTranslation(lang, "OpenDirectory_Tooltip"));
                         if (DynamicModSearchToggle != null) ToolTipService.SetToolTip(DynamicModSearchToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Tooltip"));
@@ -660,120 +636,6 @@ namespace FlairX_Mod_Manager.Pages
                     mainWindow.RefreshUIAfterLanguageChange();
                     // No need to navigate back to SettingsPage - we're already here and updated
                 }
-            }
-        }
-
-        private bool _wasPreviewCancelled = false;
-
-        private async Task OptimizePreviewsAsync(CancellationToken token)
-        {
-            await Task.Run(() =>
-            {
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath) || !Directory.Exists(modLibraryPath)) return;
-                
-                var threadCount = SettingsManager.Current.ImageOptimizerThreadCount;
-                // Auto-detect if 0: use CPU cores - 1 (leave 1 core free)
-                if (threadCount <= 0)
-                {
-                    threadCount = Math.Max(1, Environment.ProcessorCount - 1);
-                }
-                var parallelOptions = new ParallelOptions 
-                { 
-                    MaxDegreeOfParallelism = threadCount,
-                    CancellationToken = token
-                };
-                
-                var categoryDirs = Directory.GetDirectories(modLibraryPath);
-                
-                try
-                {
-                    Parallel.ForEach(categoryDirs, parallelOptions, categoryDir =>
-                    {
-                        if (!Directory.Exists(categoryDir)) return;
-                        
-                        // Process category preview (if exists) to create category minitile
-                        ProcessCategoryPreview(categoryDir, token);
-                        
-                        var modDirs = Directory.GetDirectories(categoryDir);
-                        Parallel.ForEach(modDirs, parallelOptions, modDir =>
-                        {
-                            ProcessModPreviewImages(modDir);
-                        });
-                    });
-                }
-                catch (OperationCanceledException)
-                {
-                    // Cancellation requested
-                }
-            }, token);
-        }
-
-        // Public method for hotkey when on settings page - runs optimization with UI but without confirmation dialog
-        public async Task ExecuteOptimizePreviewsWithUI()
-        {
-            if (_isOptimizingPreviews)
-            {
-                Logger.LogInfo("Optimization already in progress - ignoring hotkey");
-                return;
-            }
-
-            _isOptimizingPreviews = true;
-            _wasPreviewCancelled = false;
-            _previewCts = new CancellationTokenSource();
-            
-            OptimizePreviewsButton.IsEnabled = true;
-            OptimizePreviewsProgressBar.Visibility = Visibility.Visible;
-            
-            if (_optimizePreviewsButtonText != null)
-            {
-                _optimizePreviewsButtonText.Text = "Cancel";
-            }
-
-            try
-            {
-                await OptimizePreviewsAsync(_previewCts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                // Operation was cancelled
-            }
-            finally
-            {
-                _isOptimizingPreviews = false;
-                _previewCts = null;
-                OptimizePreviewsButton.IsEnabled = true;
-                OptimizePreviewsProgressBar.Visibility = Visibility.Collapsed;
-                
-                if (_optimizePreviewsButtonText != null)
-                {
-                    _optimizePreviewsButtonText.Text = "Optimize";
-                }
-            }
-            
-            // Show completion or cancellation message
-            var lang = SharedUtilities.LoadLanguageDictionary();
-            if (_wasPreviewCancelled)
-            {
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
-                    Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Cancelled"),
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
-            }
-            else
-            {
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "Success_Title"),
-                    Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"),
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
             }
         }
 
@@ -1553,96 +1415,6 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogError($"Failed to create minitile: {minitilePath}", ex);
             }
         }
-
-        private async void OptimizePreviewsButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (_isOptimizingPreviews)
-            {
-                if (_previewCts != null)
-                {
-                    _wasPreviewCancelled = true;
-                    _previewCts.Cancel();
-                }
-                return;
-            }
-
-            // Show confirmation dialog before starting optimization
-            var lang = SharedUtilities.LoadLanguageDictionary();
-            var confirmDialog = new ContentDialog
-            {
-                Title = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Confirm_Title"),
-                Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Confirm_Message"),
-                PrimaryButtonText = SharedUtilities.GetTranslation(lang, "Continue"),
-                CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel"),
-                DefaultButton = ContentDialogButton.Primary,
-                XamlRoot = this.XamlRoot
-            };
-
-            var result = await confirmDialog.ShowAsync();
-            if (result != ContentDialogResult.Primary)
-            {
-                return; // User cancelled
-            }
-            
-            _isOptimizingPreviews = true;
-            _wasPreviewCancelled = false;
-            _previewCts = new CancellationTokenSource();
-            
-            OptimizePreviewsButton.IsEnabled = true;
-            OptimizePreviewsProgressBar.Visibility = Visibility.Visible;
-            
-            if (_optimizePreviewsButtonText != null)
-            {
-                _optimizePreviewsButtonText.Text = "Cancel";
-            }
-
-            try
-            {
-                await OptimizePreviewsAsync(_previewCts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                // Operation was cancelled
-            }
-            finally
-            {
-                _isOptimizingPreviews = false;
-                _previewCts = null;
-                OptimizePreviewsButton.IsEnabled = true;
-                OptimizePreviewsProgressBar.Visibility = Visibility.Collapsed;
-                
-                if (_optimizePreviewsButtonText != null)
-                {
-                    _optimizePreviewsButtonText.Text = "Optimize";
-                }
-            }
-            
-            // Show completion or cancellation message
-            if (_wasPreviewCancelled)
-            {
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
-                    Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Cancelled"),
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
-            }
-            else
-            {
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "Success_Title"),
-                    Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"),
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
-            }
-        }
-
-
 
         private async Task XXMIRootDirectoryPickButton_ClickAsync(Button senderButton)
         {

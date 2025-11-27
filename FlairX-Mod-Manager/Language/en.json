@@ -106,6 +106,7 @@
     "SettingsPage_Title": "Settings",
     "SettingsPage_AppearanceHeader": "Appearance",
     "SettingsPage_DisplayHeader": "Display",
+    "SettingsPage_ImageOptimizerHeader": "Image Optimizer",
     "SettingsPage_DirectoriesHeader": "Directories",
     "SettingsPage_BehaviorHeader": "Behavior",
     "ToggleSwitch_On": "On",

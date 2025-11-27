@@ -112,39 +112,30 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo("Optimize previews hotkey triggered");
                 
                 // Check if we're currently on the settings page
-                if (contentFrame.Content is FlairX_Mod_Manager.Pages.SettingsUserControl settingsControl)
+                // Check if window is in focus to decide whether to show notifications
+                bool isWindowInFocus = IsWindowInFocus();
+                    
+                if (isWindowInFocus)
                 {
-                    // If we're on settings page, trigger the button click to show progress bar
-                    Logger.LogInfo("On settings page - triggering button click with UI");
-                    await settingsControl.ExecuteOptimizePreviewsWithUI();
+                    // If we're not on settings page but window is in focus, show progress indication
+                    Logger.LogInfo("Not on settings page but window in focus - showing progress indication");
+                    
+                    // Show info that optimization started
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Confirm_Title") + " - " + 
+                                  SharedUtilities.GetTranslation(lang, "Continue"), 2000);
+                    
+                    // Run optimize previews directly
+                    await FlairX_Mod_Manager.Pages.SettingsUserControl.OptimizePreviewsDirectAsync();
+                    
+                    // Show completion message
+                    ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"), 3000);
                 }
                 else
                 {
-                    // Check if window is in focus to decide whether to show notifications
-                    bool isWindowInFocus = IsWindowInFocus();
-                    
-                    if (isWindowInFocus)
-                    {
-                        // If we're not on settings page but window is in focus, show progress indication
-                        Logger.LogInfo("Not on settings page but window in focus - showing progress indication");
-                        
-                        // Show info that optimization started
-                        var lang = SharedUtilities.LoadLanguageDictionary();
-                        ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Confirm_Title") + " - " + 
-                                      SharedUtilities.GetTranslation(lang, "Continue"), 2000);
-                        
-                        // Run optimize previews directly
-                        await FlairX_Mod_Manager.Pages.SettingsUserControl.OptimizePreviewsDirectAsync();
-                        
-                        // Show completion message
-                        ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"), 3000);
-                    }
-                    else
-                    {
-                        // Window not in focus - run silently without notifications
-                        Logger.LogInfo("Window not in focus - running optimize previews silently");
-                        await FlairX_Mod_Manager.Pages.SettingsUserControl.OptimizePreviewsDirectAsync();
-                    }
+                    // Window not in focus - run silently without notifications
+                    Logger.LogInfo("Window not in focus - running optimize previews silently");
+                    await FlairX_Mod_Manager.Pages.SettingsUserControl.OptimizePreviewsDirectAsync();
                 }
                 
                 Logger.LogInfo("Optimize previews hotkey completed");
