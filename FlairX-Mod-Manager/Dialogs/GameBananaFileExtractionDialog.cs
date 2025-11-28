@@ -1024,15 +1024,14 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 Logger.LogInfo($"Starting background image optimization for downloaded mod in: {modPath}");
                 
-                // Get optimization mode from AutoDownloadMode setting
-                var mode = Enum.TryParse<Models.OptimizationMode>(SettingsManager.Current.ImageOptimizerAutoDownloadMode, out var parsedMode) 
-                    ? parsedMode 
-                    : Models.OptimizationMode.Full;
+                // Get optimization context for GameBanana download
+                var context = Services.ImageOptimizationService.GetOptimizationContext(
+                    Services.OptimizationTrigger.GameBananaDownload);
                 
-                Logger.LogInfo($"Using AutoDownloadMode: {mode}");
+                Logger.LogInfo($"Using AutoDownloadMode: {context.Mode}");
                 
                 // Optimize only this specific mod directory
-                await Task.Run(() => Pages.SettingsUserControl.ProcessModPreviewImagesStatic(modPath, mode));
+                await Task.Run(() => Services.ImageOptimizationService.ProcessModPreviewImages(modPath, context.Mode));
                 
                 Logger.LogInfo($"Completed background image optimization for: {modPath}");
             }

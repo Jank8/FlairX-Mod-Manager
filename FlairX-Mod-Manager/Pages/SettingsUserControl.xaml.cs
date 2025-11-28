@@ -745,7 +745,14 @@ namespace FlairX_Mod_Manager.Pages
                 return;
             }
             
-            // Create backup if enabled (for Full and Lite modes)
+            // For Lite mode, convert to JPEG without resizing/cropping, generate thumbnails
+            if (mode == OptimizationMode.Lite)
+            {
+                ProcessCategoryLiteMode(categoryDir);
+                return;
+            }
+            
+            // Create backup if enabled (for Full mode)
             if (SettingsManager.Current.ImageOptimizerCreateBackups)
             {
                 var filesToBackup = Directory.GetFiles(categoryDir)
@@ -1096,7 +1103,8 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to create backup ZIP", ex);
+                Logger.LogError("Failed to create backup ZIP - aborting optimization", ex);
+                throw; // Re-throw to abort optimization
             }
         }
 
@@ -1104,6 +1112,25 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                // Check available disk space before optimization
+                try
+                {
+                    var drive = new DriveInfo(Path.GetPathRoot(modDir) ?? "C:\\");
+                    long availableSpace = drive.AvailableFreeSpace;
+                    long requiredSpace = 100 * 1024 * 1024; // 100 MB minimum
+                    
+                    if (availableSpace < requiredSpace)
+                    {
+                        Logger.LogError($"Insufficient disk space: {availableSpace / (1024 * 1024)} MB available, {requiredSpace / (1024 * 1024)} MB required");
+                        throw new IOException($"Insufficient disk space. Available: {availableSpace / (1024 * 1024)} MB, Required: {requiredSpace / (1024 * 1024)} MB");
+                    }
+                }
+                catch (Exception ex) when (!(ex is IOException))
+                {
+                    Logger.LogWarning($"Could not check disk space: {ex.Message}");
+                    // Continue anyway if we can't check disk space
+                }
+                
                 // For RenameOnly mode, just copy files with standard names (no optimization, no thumbnails)
                 if (mode == OptimizationMode.RenameOnly)
                 {
@@ -1126,7 +1153,14 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
                 
-                // Create backup if enabled
+                // For Lite mode, convert to JPEG without resizing/cropping, generate thumbnails
+                if (mode == OptimizationMode.Lite)
+                {
+                    ProcessModLiteMode(modDir);
+                    return;
+                }
+                
+                // Create backup if enabled (for Full mode)
                 if (SettingsManager.Current.ImageOptimizerCreateBackups)
                 {
                     var filesToBackup = Directory.GetFiles(modDir)
@@ -1194,13 +1228,28 @@ namespace FlairX_Mod_Manager.Pages
                     else
                     {
                         // Full or Lite optimization
-                        OptimizePreviewImageStatic(sourceFile, targetPath, mode);
+                        try
+                        {
+                            OptimizePreviewImageStatic(sourceFile, targetPath, mode);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to optimize {sourceFile}, continuing with remaining images", ex);
+                            continue; // Skip this image and continue with next
+                        }
                     }
 
                     // Create minitile only for the main preview (index 0)
                     if (i == 0)
                     {
-                        CreateMinitileStatic(targetPath, minitileJpgPath);
+                        try
+                        {
+                            CreateMinitileStatic(targetPath, minitileJpgPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to create minitile for {targetPath}, continuing", ex);
+                        }
                     }
                 }
                 
@@ -1348,7 +1397,7 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to optimize image {sourcePath}", ex);
-                throw; // Re-throw to ensure error is handled upstream
+                // Don't re-throw - let caller handle continuation
             }
             
             // Delete original file if it's different from target (unless KeepOriginals is enabled)
@@ -2722,17 +2771,17 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         /// <summary>
-        /// Async version that can show dialog for manual crop or preview
+        /// Async version that can show sliding panel for manual crop or preview
         /// Must be called from UI thread
         /// </summary>
         private static async Task<System.Drawing.Rectangle?> GetCropRectangleWithDialogAsync(System.Drawing.Image img, int targetWidth, int targetHeight, string cropTypeLabel)
         {
             var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
-            var showDialog = cropTypeStr == "ManualOnly" || SettingsManager.Current.PreviewBeforeCrop;
+            var showPanel = cropTypeStr == "ManualOnly" || SettingsManager.Current.PreviewBeforeCrop;
             
-            if (!showDialog)
+            if (!showPanel)
             {
-                // No dialog needed, use automatic crop
+                // No panel needed, use automatic crop
                 return GetCropRectangleFromSettings(img, targetWidth, targetHeight);
             }
             
@@ -2741,28 +2790,223 @@ namespace FlairX_Mod_Manager.Pages
                 // Create a copy of the image to avoid disposal issues
                 var imgCopy = new System.Drawing.Bitmap(img);
                 
-                var dialog = new Dialogs.ImageCropDialog(imgCopy, cropTypeLabel, targetWidth, targetHeight);
-                
-                // Get XamlRoot from MainWindow
-                if (App.Current is App app && app.MainWindow?.Content != null)
+                // Show sliding panel from MainWindow
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                 {
-                    dialog.XamlRoot = app.MainWindow.Content.XamlRoot;
+                    var result = await mainWindow.ShowImageCropPanelAsync(imgCopy, cropTypeLabel, targetWidth, targetHeight);
+                    return result;
                 }
                 
-                var dialogResult = await dialog.ShowAsync();
-                if (dialogResult == ContentDialogResult.Primary)
-                {
-                    return dialog.CropRectangle;
-                }
-                
-                // User cancelled
-                return null;
+                // Fallback if MainWindow not available
+                Logger.LogWarning("MainWindow not available for crop panel");
+                return GetCropRectangleFromSettings(img, targetWidth, targetHeight);
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Error showing crop dialog", ex);
+                Logger.LogError($"Error showing crop panel", ex);
                 // Fallback to automatic crop
                 return GetCropRectangleFromSettings(img, targetWidth, targetHeight);
+            }
+        }
+
+        private static void ProcessModLiteMode(string modDir)
+        {
+            try
+            {
+                // Create backup if enabled
+                if (SettingsManager.Current.ImageOptimizerCreateBackups)
+                {
+                    var filesToBackup = Directory.GetFiles(modDir)
+                        .Where(f => 
+                        {
+                            var fileName = Path.GetFileName(f).ToLower();
+                            return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
+                                   (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                    f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                        })
+                        .ToList();
+                    
+                    if (filesToBackup.Count > 0)
+                    {
+                        CreateBackupZip(modDir, filesToBackup);
+                    }
+                }
+
+                // Find all preview files
+                var previewFiles = Directory.GetFiles(modDir)
+                    .Where(f => 
+                    {
+                        var fileName = Path.GetFileName(f).ToLower();
+                        return fileName.StartsWith("preview") &&
+                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                    })
+                    .OrderBy(f => f)
+                    .ToArray();
+
+                if (previewFiles.Length == 0) return;
+
+                // Process each preview file - convert to JPEG without resizing
+                var processedFiles = new List<string>();
+                for (int i = 0; i < previewFiles.Length; i++)
+                {
+                    var sourceFile = previewFiles[i];
+                    var targetName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
+                    var targetPath = Path.Combine(modDir, targetName);
+
+                    using (var img = System.Drawing.Image.FromFile(sourceFile))
+                    {
+                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders()
+                            .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                        
+                        if (jpegEncoder != null)
+                        {
+                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(
+                                System.Drawing.Imaging.Encoder.Quality, 
+                                (long)SettingsManager.Current.ImageOptimizerJpegQuality);
+                            
+                            img.Save(targetPath, jpegEncoder, jpegParams);
+                            Logger.LogInfo($"Lite mode: Converted {Path.GetFileName(sourceFile)} to {targetName} without resizing");
+                        }
+                    }
+
+                    processedFiles.Add(targetPath);
+
+                    // Delete original if different and KeepOriginals is disabled
+                    if (!SettingsManager.Current.ImageOptimizerKeepOriginals)
+                    {
+                        if (!sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase) && File.Exists(sourceFile))
+                        {
+                            File.Delete(sourceFile);
+                            Logger.LogInfo($"Deleted original: {Path.GetFileName(sourceFile)}");
+                        }
+                    }
+                }
+
+                // Generate minitile from first preview
+                if (processedFiles.Count > 0)
+                {
+                    var minitilePath = Path.Combine(modDir, "minitile.jpg");
+                    CreateMinitileStatic(processedFiles[0], minitilePath);
+                }
+
+                Logger.LogInfo($"Lite mode processing complete for mod: {Path.GetFileName(modDir)}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to process mod in Lite mode: {modDir}", ex);
+            }
+        }
+
+        private static void ProcessCategoryLiteMode(string categoryDir)
+        {
+            try
+            {
+                // Create backup if enabled
+                if (SettingsManager.Current.ImageOptimizerCreateBackups)
+                {
+                    var filesToBackup = Directory.GetFiles(categoryDir)
+                        .Where(f => 
+                        {
+                            var fileName = Path.GetFileName(f).ToLower();
+                            return (fileName.StartsWith("preview") || fileName.StartsWith("catprev") || fileName.StartsWith("catmini")) &&
+                                   (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                    f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                        })
+                        .ToList();
+                    
+                    if (filesToBackup.Count > 0)
+                    {
+                        CreateBackupZip(categoryDir, filesToBackup);
+                    }
+                }
+
+                // Find preview files
+                var previewFiles = Directory.GetFiles(categoryDir)
+                    .Where(f => 
+                    {
+                        var fileName = Path.GetFileName(f).ToLower();
+                        return (fileName.StartsWith("catprev") || fileName.StartsWith("preview")) &&
+                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                    })
+                    .ToArray();
+
+                if (previewFiles.Length == 0) return;
+
+                var sourceFile = previewFiles[0];
+                var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
+
+                // Convert to JPEG without resizing/cropping
+                using (var img = System.Drawing.Image.FromFile(sourceFile))
+                {
+                    var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders()
+                        .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                    
+                    if (jpegEncoder != null)
+                    {
+                        var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                        jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(
+                            System.Drawing.Imaging.Encoder.Quality, 
+                            (long)SettingsManager.Current.ImageOptimizerJpegQuality);
+                        
+                        img.Save(catprevPath, jpegEncoder, jpegParams);
+                        Logger.LogInfo($"Lite mode: Converted {Path.GetFileName(sourceFile)} to JPEG without resizing");
+                    }
+                }
+
+                // Generate catmini thumbnail (600x600)
+                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                using (var img = System.Drawing.Image.FromFile(catprevPath))
+                {
+                    using (var miniThumb = new System.Drawing.Bitmap(600, 600))
+                    using (var g = System.Drawing.Graphics.FromImage(miniThumb))
+                    {
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                        
+                        // Calculate crop for square thumbnail
+                        var srcRect = GetCropRectangleFromSettings(img, 600, 600);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
+                        
+                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders()
+                            .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                        
+                        if (jpegEncoder != null)
+                        {
+                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(
+                                System.Drawing.Imaging.Encoder.Quality, 
+                                (long)SettingsManager.Current.ImageOptimizerJpegQuality);
+                            
+                            miniThumb.Save(catminiPath, jpegEncoder, jpegParams);
+                        }
+                    }
+                }
+
+                // Delete original if different and KeepOriginals is disabled
+                if (!SettingsManager.Current.ImageOptimizerKeepOriginals)
+                {
+                    if (!sourceFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase) && File.Exists(sourceFile))
+                    {
+                        File.Delete(sourceFile);
+                        Logger.LogInfo($"Deleted original: {Path.GetFileName(sourceFile)}");
+                    }
+                }
+
+                Logger.LogInfo($"Lite mode processing complete for category: {Path.GetFileName(categoryDir)}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to process category in Lite mode: {categoryDir}", ex);
             }
         }
     }

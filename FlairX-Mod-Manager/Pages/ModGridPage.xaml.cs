@@ -1435,25 +1435,26 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogInfo($"Copied image to: {targetPath}");
                 
                 // Run image optimizer in category mode using DragDropCategoryMode setting
-                var categoryOptimizerMode = ParseOptimizationMode(SettingsManager.Current.ImageOptimizerDragDropCategoryMode);
-                Logger.LogInfo($"Running image optimizer in category mode (Mode: {categoryOptimizerMode})");
+                var context = Services.ImageOptimizationService.GetOptimizationContext(
+                    Services.OptimizationTrigger.DragDropCategory);
+                Logger.LogInfo($"Running image optimizer in category mode (Mode: {context.Mode})");
                 await Task.Run(() =>
                 {
                     try
                     {
-                        Logger.LogInfo($"Calling ProcessCategoryPreviewStatic for: {categoryFolderPath}");
-                        SettingsUserControl.ProcessCategoryPreviewStatic(categoryFolderPath, categoryOptimizerMode);
+                        Logger.LogInfo($"Calling ProcessCategoryPreview for: {categoryFolderPath}");
+                        Services.ImageOptimizationService.ProcessCategoryPreview(categoryFolderPath, context.Mode);
                         Logger.LogInfo("Category optimization complete");
                         
                         // Delete preview.jpg after optimization (keep only catprev.jpg and catmini.jpg) - only for Full mode and if KeepOriginals is disabled
-                        if (categoryOptimizerMode == OptimizationMode.Full && 
-                            !SettingsManager.Current.ImageOptimizerKeepOriginals && 
+                        if (context.Mode == OptimizationMode.Full && 
+                            !context.KeepOriginals && 
                             File.Exists(targetPath))
                         {
                             File.Delete(targetPath);
                             Logger.LogInfo($"Deleted original preview.jpg after optimization");
                         }
-                        else if (SettingsManager.Current.ImageOptimizerKeepOriginals)
+                        else if (context.KeepOriginals)
                         {
                             Logger.LogInfo($"Keeping original preview.jpg (KeepOriginals enabled)");
                         }
@@ -1795,14 +1796,15 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogInfo($"Copy complete. Copied {copiedCount}/{imageFiles.Count} files with preview naming");
                 
                 // Optimize in background using DragDropModMode setting
-                var optimizerMode = ParseOptimizationMode(SettingsManager.Current.ImageOptimizerDragDropModMode);
-                Logger.LogInfo($"Starting optimization in background (Mode: {optimizerMode})");
+                var context = Services.ImageOptimizationService.GetOptimizationContext(
+                    Services.OptimizationTrigger.DragDropMod);
+                Logger.LogInfo($"Starting optimization in background (Mode: {context.Mode})");
                 await Task.Run(() =>
                 {
                     try
                     {
-                        Logger.LogInfo($"Calling ProcessModPreviewImagesStatic for: {modFolderPath}");
-                        SettingsUserControl.ProcessModPreviewImagesStatic(modFolderPath, optimizerMode);
+                        Logger.LogInfo($"Calling ProcessModPreviewImages for: {modFolderPath}");
+                        Services.ImageOptimizationService.ProcessModPreviewImages(modFolderPath, context.Mode);
                         Logger.LogInfo("Optimization complete");
                         
                         // Log what files exist after optimization

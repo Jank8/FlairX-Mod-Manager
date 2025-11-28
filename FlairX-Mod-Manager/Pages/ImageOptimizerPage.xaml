@@ -91,6 +91,46 @@
                 </Grid>
             </Border>
 
+            <!-- Performance Section -->
+            <TextBlock x:Name="PerformanceHeader" Text="Performance" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
+            
+            <!-- Thread Count Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="8"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE9F5;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock x:Name="ThreadCountLabel" Text="Parallel Threads" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="ThreadCountDescription" Text="More threads = faster processing" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        
+                        <TextBlock Grid.Column="3" x:Name="ThreadCountValue" Text="4" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </Grid>
+                    
+                    <Slider Grid.Row="2" x:Name="ThreadCountSlider" Minimum="1" Maximum="16" Value="4" StepFrequency="1" 
+                            TickFrequency="2" TickPlacement="Outside" ValueChanged="ThreadCountSlider_ValueChanged"/>
+                </Grid>
+            </Border>
+
             <!-- Cropping Section -->
             <TextBlock x:Name="CroppingHeader" Text="Cropping" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
             
@@ -142,7 +182,7 @@
                     BorderThickness="1" 
                     CornerRadius="8" 
                     Padding="16" 
-                    Margin="0,0,0,24">
+                    Margin="0,0,0,2">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -165,109 +205,8 @@
                 </Grid>
             </Border>
 
-            <!-- Performance Section -->
-            <TextBlock x:Name="PerformanceHeader" Text="Performance" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
-            
-            <!-- Thread Count Card -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="8" 
-                    Padding="16" 
-                    Margin="0,0,0,2">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="8"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    
-                    <Grid Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE9F5;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="ThreadCountLabel" Text="Parallel Threads" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="ThreadCountDescription" Text="More threads = faster processing" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <TextBlock Grid.Column="3" x:Name="ThreadCountValue" Text="4" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    </Grid>
-                    
-                    <Slider Grid.Row="2" x:Name="ThreadCountSlider" Minimum="1" Maximum="16" Value="4" StepFrequency="1" 
-                            TickFrequency="2" TickPlacement="Outside" ValueChanged="ThreadCountSlider_ValueChanged"/>
-                </Grid>
-            </Border>
-
-            <!-- Backup Section -->
-            <TextBlock x:Name="BackupHeader" Text="Backup &amp; Cleanup" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
-            
-            <!-- Create Backups Card -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="8" 
-                    Padding="16" 
-                    Margin="0,0,0,2">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="150"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <FontIcon Grid.Column="0" Glyph="&#xE8C8;" FontSize="20" VerticalAlignment="Center"/>
-                    
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="CreateBackupsLabel" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="BackupDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
-                    
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
-                        <TextBlock x:Name="CreateBackupsToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
-                        <ToggleSwitch x:Name="CreateBackupsCheckBox" IsOn="False" Toggled="SettingChanged" OnContent="" OffContent="" MinWidth="0"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-            
-            <!-- Keep Originals Card -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="8" 
-                    Padding="16" 
-                    Margin="0,0,0,24">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="150"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <FontIcon Grid.Column="0" Glyph="&#xE74E;" FontSize="20" VerticalAlignment="Center"/>
-                    
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="KeepOriginalsLabel" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="KeepOriginalsDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
-                    
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
-                        <TextBlock x:Name="KeepOriginalsToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
-                        <ToggleSwitch x:Name="KeepOriginalsCheckBox" IsOn="False" Toggled="SettingChanged" OnContent="" OffContent="" MinWidth="0"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
             <!-- Optimization Modes Section -->
-            <TextBlock x:Name="OptimizationModesHeader" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            <TextBlock x:Name="OptimizationModesHeader" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
             
             <!-- Manual Mode Card -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -416,6 +355,67 @@
                     </Grid>
                     
                     <TextBlock Grid.Row="2" x:Name="AutoDownloadDescription" TextWrapping="Wrap" FontSize="12" Opacity="0.7"/>
+                </Grid>
+            </Border>
+
+            <!-- Backup & Cleanup Section -->
+            <TextBlock x:Name="BackupHeader" Text="Backup &amp; Cleanup" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
+            
+            <!-- Create Backups Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="150"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE8C8;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="CreateBackupsLabel" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="BackupDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                        <TextBlock x:Name="CreateBackupsToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                        <ToggleSwitch x:Name="CreateBackupsCheckBox" IsOn="False" Toggled="SettingChanged" OnContent="" OffContent="" MinWidth="0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Keep Originals Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="150"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE74E;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="KeepOriginalsLabel" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="KeepOriginalsDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                        <TextBlock x:Name="KeepOriginalsToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                        <ToggleSwitch x:Name="KeepOriginalsCheckBox" IsOn="False" Toggled="SettingChanged" OnContent="" OffContent="" MinWidth="0"/>
+                    </StackPanel>
                 </Grid>
             </Border>
 
