@@ -375,7 +375,7 @@ namespace FlairX_Mod_Manager.Pages
 
             try
             {
-                await SettingsUserControl.OptimizePreviewsDirectAsync();
+                await Services.ImageOptimizationService.OptimizeAllPreviewsAsync();
                 
                 // Show success dialog
                 var successDialog = new ContentDialog

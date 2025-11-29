@@ -1443,7 +1443,7 @@ namespace FlairX_Mod_Manager.Pages
                     try
                     {
                         Logger.LogInfo($"Calling ProcessCategoryPreview for: {categoryFolderPath}");
-                        Services.ImageOptimizationService.ProcessCategoryPreview(categoryFolderPath, context.Mode);
+                        Services.ImageOptimizationService.ProcessCategoryPreview(categoryFolderPath, context);
                         Logger.LogInfo("Category optimization complete");
                         
                         // Delete preview.jpg after optimization (keep only catprev.jpg and catmini.jpg) - only for Full mode and if KeepOriginals is disabled
@@ -1804,7 +1804,7 @@ namespace FlairX_Mod_Manager.Pages
                     try
                     {
                         Logger.LogInfo($"Calling ProcessModPreviewImages for: {modFolderPath}");
-                        Services.ImageOptimizationService.ProcessModPreviewImages(modFolderPath, context.Mode);
+                        Services.ImageOptimizationService.ProcessModPreviewImages(modFolderPath, context);
                         Logger.LogInfo("Optimization complete");
                         
                         // Log what files exist after optimization

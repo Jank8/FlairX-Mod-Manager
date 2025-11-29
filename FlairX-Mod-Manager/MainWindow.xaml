@@ -275,5 +275,34 @@
                 Background="{ThemeResource LauncherAcrylicBrush}">
             <FontIcon x:Name="LauncherFabIcon" Glyph="&#xE768;" FontSize="28" Foreground="{ThemeResource ButtonForeground}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
+
+        <!-- Crop Inspection Sliding Panel -->
+        <Grid x:Name="CropInspectionOverlay" 
+              Visibility="Collapsed"
+              Background="#80000000"
+              PointerPressed="CropInspectionOverlay_PointerPressed">
+            
+            <Border x:Name="CropInspectionPanelContainer"
+                    MinWidth="600"
+                    MaxWidth="1200"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Stretch"
+                    Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+                    CornerRadius="12,0,0,12"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1,0,0,0">
+                <Border.RenderTransform>
+                    <TranslateTransform x:Name="CropPanelTransform" X="0"/>
+                </Border.RenderTransform>
+                <Border.Shadow>
+                    <ThemeShadow />
+                </Border.Shadow>
+                
+                <!-- Panel content will be added dynamically -->
+                <ContentControl x:Name="CropInspectionContent" 
+                               HorizontalAlignment="Stretch"
+                               VerticalAlignment="Stretch"/>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

@@ -1028,10 +1028,13 @@ namespace FlairX_Mod_Manager.Dialogs
                 var context = Services.ImageOptimizationService.GetOptimizationContext(
                     Services.OptimizationTrigger.GameBananaDownload);
                 
-                Logger.LogInfo($"Using AutoDownloadMode: {context.Mode}");
+                // Disable UI interaction for background processing
+                context.AllowUIInteraction = false;
                 
-                // Optimize only this specific mod directory
-                await Task.Run(() => Services.ImageOptimizationService.ProcessModPreviewImages(modPath, context.Mode));
+                Logger.LogInfo($"Using AutoDownloadMode: {context.Mode}, InspectAndEdit: {context.InspectAndEditEnabled} (UI disabled for background), CropStrategy: {context.CropStrategy}");
+                
+                // Optimize only this specific mod directory with full context
+                await Task.Run(() => Services.ImageOptimizationService.ProcessModPreviewImages(modPath, context));
                 
                 Logger.LogInfo($"Completed background image optimization for: {modPath}");
             }

@@ -2747,14 +2747,277 @@ namespace FlairX_Mod_Manager.Pages
         /// </summary>
         private static async Task ProcessModPreviewImagesWithDialogAsync(string modDir, OptimizationMode mode)
         {
-            // For RenameOnly mode, do nothing
-            if (mode == OptimizationMode.RenameOnly)
-                return;
+            try
+            {
+                // For RenameOnly mode, just copy files
+                if (mode == OptimizationMode.RenameOnly)
+                {
+                    CopyPreviewFilesStatic(modDir);
+                    return;
+                }
+                
+                // For Rename mode, generate thumbnails from existing files
+                if (mode == OptimizationMode.Rename)
+                {
+                    var previewPath = Path.Combine(modDir, "preview.jpg");
+                    var minitilePath = Path.Combine(modDir, "minitile.jpg");
+                    
+                    if (File.Exists(previewPath) && !File.Exists(minitilePath))
+                    {
+                        CreateMinitileStatic(previewPath, minitilePath);
+                    }
+                    return;
+                }
+                
+                // For Lite mode, convert to JPEG without resizing/cropping
+                if (mode == OptimizationMode.Lite)
+                {
+                    ProcessModLiteMode(modDir);
+                    return;
+                }
+                
+                // Check disk space
+                try
+                {
+                    var drive = new DriveInfo(Path.GetPathRoot(modDir) ?? "C:\\");
+                    long availableSpace = drive.AvailableFreeSpace;
+                    long requiredSpace = 100 * 1024 * 1024; // 100 MB minimum
+                    
+                    if (availableSpace < requiredSpace)
+                    {
+                        Logger.LogError($"Insufficient disk space: {availableSpace / (1024 * 1024)} MB available");
+                        throw new IOException($"Insufficient disk space");
+                    }
+                }
+                catch (Exception ex) when (!(ex is IOException))
+                {
+                    Logger.LogWarning($"Could not check disk space: {ex.Message}");
+                }
+                
+                // Create backup if enabled (for Full mode)
+                if (SettingsManager.Current.ImageOptimizerCreateBackups)
+                {
+                    var filesToBackup = Directory.GetFiles(modDir)
+                        .Where(f => 
+                        {
+                            var fileName = Path.GetFileName(f).ToLower();
+                            return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
+                                   (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                    f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                        })
+                        .ToList();
+                    
+                    if (filesToBackup.Count > 0)
+                    {
+                        CreateBackupZip(modDir, filesToBackup);
+                    }
+                }
+                
+                // Find all preview files
+                var previewFiles = Directory.GetFiles(modDir)
+                    .Where(f => 
+                    {
+                        var fileName = Path.GetFileName(f).ToLower();
+                        return fileName.StartsWith("preview") &&
+                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
+                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                    })
+                    .OrderBy(f => f)
+                    .ToList();
+
+                if (previewFiles.Count == 0) return;
+
+                var minitileJpgPath = Path.Combine(modDir, "minitile.jpg");
+                bool needsMinitile = !File.Exists(minitileJpgPath);
+
+                // Process each preview file with dialog support
+                for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
+                {
+                    var sourceFile = previewFiles[i];
+                    string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
+                    var targetPath = Path.Combine(modDir, targetFileName);
+
+                    // Skip if target already exists and is optimized
+                    if (File.Exists(targetPath) && IsImageOptimizedStatic(targetPath))
+                    {
+                        if (i == 0 && needsMinitile)
+                        {
+                            try
+                            {
+                                CreateMinitileStatic(targetPath, minitileJpgPath);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to create minitile for {targetPath}", ex);
+                            }
+                        }
+                        continue;
+                    }
+
+                    // Optimize with dialog support
+                    try
+                    {
+                        await OptimizePreviewImageWithDialogAsync(sourceFile, targetPath, mode);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to optimize {sourceFile}, continuing", ex);
+                        continue;
+                    }
+
+                    // Create minitile for main preview
+                    if (i == 0)
+                    {
+                        try
+                        {
+                            CreateMinitileStatic(targetPath, minitileJpgPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to create minitile for {targetPath}", ex);
+                        }
+                    }
+                }
+                
+                // Clean up excess preview files
+                var existingPreviews = Directory.GetFiles(modDir, "preview*.*")
+                    .Where(f => 
+                    {
+                        var name = Path.GetFileNameWithoutExtension(f);
+                        var ext = Path.GetExtension(f).ToLower();
+                        
+                        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png") return false;
+                        
+                        if (name == "preview") return false;
+                        if (name.StartsWith("preview-"))
+                        {
+                            var suffix = name.Substring(8);
+                            return !int.TryParse(suffix, out int num) || num > (AppConstants.MAX_PREVIEW_IMAGES - 1);
+                        }
+                        return true;
+                    })
+                    .ToList();
+
+                foreach (var extraFile in existingPreviews)
+                {
+                    try
+                    {
+                        File.Delete(extraFile);
+                        Logger.LogInfo($"Deleted excess preview file: {Path.GetFileName(extraFile)}");
+                    }
+                    catch (Exception deleteEx)
+                    {
+                        Logger.LogError($"Failed to delete excess file: {extraFile}", deleteEx);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to process preview images in {modDir}", ex);
+            }
+        }
+        
+        private static async Task OptimizePreviewImageWithDialogAsync(string sourcePath, string targetPath, OptimizationMode mode)
+        {
+            try
+            {
+                Logger.LogInfo($"Optimizing image with dialog: {sourcePath} -> {targetPath}");
+                
+                if (!File.Exists(sourcePath))
+                {
+                    Logger.LogError($"Source file does not exist: {sourcePath}");
+                    return;
+                }
+                
+                using (var src = System.Drawing.Image.FromFile(sourcePath))
+                {
+                    bool shouldCropAndResize = (mode == OptimizationMode.Full);
+                    bool needsCrop = shouldCropAndResize && (src.Width != src.Height);
+                    
+                    System.Drawing.Image squareImage = src;
+                    if (needsCrop)
+                    {
+                        // Get crop rectangle with dialog support
+                        int cropSize = Math.Min(src.Width, src.Height);
+                        var cropRect = await GetCropRectangleWithDialogAsync(src, cropSize, cropSize, "preview");
+                        
+                        if (cropRect == null)
+                        {
+                            Logger.LogInfo("Crop cancelled by user, skipping image");
+                            return;
+                        }
+                        
+                        var cropped = new System.Drawing.Bitmap(cropRect.Value.Width, cropRect.Value.Height);
+                        using (var g = System.Drawing.Graphics.FromImage(cropped))
+                        {
+                            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                            var destRect = new System.Drawing.Rectangle(0, 0, cropRect.Value.Width, cropRect.Value.Height);
+                            g.DrawImage(src, destRect, cropRect.Value, System.Drawing.GraphicsUnit.Pixel);
+                        }
+                        squareImage = cropped;
+                    }
+
+                    // Resize if needed
+                    int currentSize = squareImage.Width;
+                    int targetSize = shouldCropAndResize ? Math.Min(currentSize, 1000) : currentSize;
+                    System.Drawing.Image finalImage = squareImage;
+                    
+                    if (shouldCropAndResize && currentSize > 1000)
+                    {
+                        var resized = new System.Drawing.Bitmap(targetSize, targetSize);
+                        using (var g = System.Drawing.Graphics.FromImage(resized))
+                        {
+                            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                            g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                            g.DrawImage(squareImage, 0, 0, targetSize, targetSize);
+                        }
+                        finalImage = resized;
+                        if (squareImage != src) squareImage.Dispose();
+                    }
+
+                    // Save as JPEG
+                    var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders()
+                        .FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                    if (jpegEncoder != null)
+                    {
+                        var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                        jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(
+                            System.Drawing.Imaging.Encoder.Quality, 
+                            (long)SettingsManager.Current.ImageOptimizerJpegQuality);
+                        finalImage.Save(targetPath, jpegEncoder, jpegParams);
+                    }
+
+                    if (finalImage != src) finalImage.Dispose();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to optimize image {sourcePath}", ex);
+            }
             
-            // Similar to ProcessModPreviewImagesStatic but with dialog support
-            // This would need the full implementation from ProcessModPreviewImagesStatic
-            // For now, just call the static version as fallback
-            await Task.Run(() => ProcessModPreviewImagesStatic(modDir, mode));
+            // Delete original if needed
+            if (!SettingsManager.Current.ImageOptimizerKeepOriginals)
+            {
+                try
+                {
+                    if (!sourcePath.Equals(targetPath, StringComparison.OrdinalIgnoreCase) && File.Exists(sourcePath))
+                    {
+                        File.Delete(sourcePath);
+                        Logger.LogInfo($"Deleted original preview: {sourcePath}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to delete original preview: {sourcePath}", ex);
+                }
+            }
         }
 
         /// <summary>
