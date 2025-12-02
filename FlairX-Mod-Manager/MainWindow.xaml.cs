@@ -1090,7 +1090,6 @@ namespace FlairX_Mod_Manager
             
             Services.ImageOptimizationService.CropInspectionRequested += async (sourceImage, suggestedCrop, targetWidth, targetHeight, imageType) =>
             {
-                Services.CropInspectionResult? result = null;
                 var tcs = new TaskCompletionSource<Services.CropInspectionResult?>();
                 
                 window.DispatcherQueue.TryEnqueue(async () =>
@@ -1102,60 +1101,16 @@ namespace FlairX_Mod_Manager
                         
                         // Calculate aspect ratio
                         double aspectRatio = (double)targetWidth / targetHeight;
-                        bool maintainAspectRatio = Math.Abs(aspectRatio - 1.0) > 0.01; // Not square
+                        bool maintainAspectRatio = true; // Always maintain aspect ratio for consistency
                         
-                        // Add panel to container
-                        CropInspectionContent.Content = cropPanel;
+                        // Show as sliding panel
+                        ShowSlidingPanel(cropPanel, $"Crop Image - {imageType}");
                         
-                        // Show overlay
-                        CropInspectionOverlay.Visibility = Visibility.Visible;
-                        
-                        // Wait for layout to get actual panel width
-                        await Task.Delay(10);
-                        var panelWidth = CropInspectionPanelContainer.ActualWidth;
-                        if (panelWidth == 0) panelWidth = 800; // Fallback
-                        
-                        // Slide in animation from right
-                        var slideIn = new DoubleAnimation
-                        {
-                            From = panelWidth,
-                            To = 0,
-                            Duration = new Duration(TimeSpan.FromMilliseconds(300)),
-                            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-                        };
-                        var storyboard = new Storyboard();
-                        Storyboard.SetTarget(slideIn, CropPanelTransform);
-                        Storyboard.SetTargetProperty(slideIn, "X");
-                        storyboard.Children.Add(slideIn);
-                        storyboard.Begin();
-                        
-                        // Start showing the crop panel
-                        var showTask = cropPanel.ShowForImageAsync(sourceImage, suggestedCrop, aspectRatio, maintainAspectRatio, imageType);
-                        
-                        // Wait for user to confirm or skip
-                        var cropResult = await showTask;
-                        
-                        // Slide out animation to right
-                        var slideOut = new DoubleAnimation
-                        {
-                            From = 0,
-                            To = panelWidth,
-                            Duration = new Duration(TimeSpan.FromMilliseconds(300)),
-                            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
-                        };
-                        var storyboardOut = new Storyboard();
-                        Storyboard.SetTarget(slideOut, CropPanelTransform);
-                        Storyboard.SetTargetProperty(slideOut, "X");
-                        storyboardOut.Children.Add(slideOut);
-                        storyboardOut.Completed += (s, e) =>
-                        {
-                            CropInspectionOverlay.Visibility = Visibility.Collapsed;
-                            CropInspectionContent.Content = null;
-                        };
-                        storyboardOut.Begin();
+                        // Start showing the crop panel and wait for result
+                        var cropResult = await cropPanel.ShowForImageAsync(sourceImage, suggestedCrop, aspectRatio, maintainAspectRatio, imageType);
                         
                         // Convert result
-                        result = new Services.CropInspectionResult
+                        var result = new Services.CropInspectionResult
                         {
                             Confirmed = cropResult.Confirmed,
                             CropRectangle = cropResult.CropRectangle
@@ -1166,8 +1121,6 @@ namespace FlairX_Mod_Manager
                     catch (Exception ex)
                     {
                         Logger.LogError("Error showing crop inspection panel", ex);
-                        CropInspectionOverlay.Visibility = Visibility.Collapsed;
-                        CropInspectionContent.Content = null;
                         tcs.SetResult(null);
                     }
                 });
@@ -1178,17 +1131,7 @@ namespace FlairX_Mod_Manager
             Logger.LogInfo("Crop inspection handler setup complete");
         }
         
-        /// <summary>
-        /// Close crop inspection panel when clicking on overlay background
-        /// </summary>
-        private void CropInspectionOverlay_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            // Only close if clicking directly on overlay (not on panel)
-            if (e.OriginalSource == CropInspectionOverlay)
-            {
-                Logger.LogInfo("User clicked overlay background - panel will close via Skip");
-            }
-        }
+
     }
 
     // Helper class for system dispatcher queue

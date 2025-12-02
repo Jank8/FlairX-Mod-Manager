@@ -426,8 +426,14 @@ namespace FlairX_Mod_Manager.Dialogs
                 _extractProgressBar.Value = 100;
                 await Task.Delay(1000);
 
-                // Close dialog
+                // Close dialog - optimization will run in background after dialog closes
                 Hide();
+                
+                // Run optimization in background AFTER dialog closes
+                if (_downloadPreviews && !string.IsNullOrEmpty(_installedModPath))
+                {
+                    _ = Task.Run(() => OptimizeDownloadedPreviewsAsync(_installedModPath));
+                }
             }
             catch (Exception ex)
             {
@@ -976,26 +982,38 @@ namespace FlairX_Mod_Manager.Dialogs
                 var screenshots = _previewMedia.Images.Where(img => img.Type == "screenshot").ToList();
                 if (screenshots.Count == 0) return;
 
-                int downloaded = 0;
+                // Download all images in their original format
+                _downloadProgressBar.IsIndeterminate = false;
+                _downloadProgressBar.Value = 0;
+
                 using var httpClient = new System.Net.Http.HttpClient();
 
                 for (int i = 0; i < screenshots.Count; i++)
                 {
                     var screenshot = screenshots[i];
                     var imageUrl = $"{screenshot.BaseUrl}/{screenshot.File}";
-                    var fileName = $"preview{(startIndex + i + 1):D3}.jpg";
+                    
+                    // Get original file extension from URL or use jpg as default
+                    var urlPath = new Uri(imageUrl).AbsolutePath;
+                    var fileExtension = Path.GetExtension(urlPath);
+                    if (string.IsNullOrEmpty(fileExtension))
+                    {
+                        fileExtension = ".jpg"; // Default if no extension in URL
+                    }
+                    
+                    var fileName = $"preview{(startIndex + i + 1):D3}{fileExtension}";
                     var filePath = Path.Combine(modPath, fileName);
 
                     try
                     {
+                        _downloadStatusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "DownloadingPreviews_Progress"), 
+                            i + 1, screenshots.Count);
+                        _downloadProgressBar.Value = (double)i / screenshots.Count * 100;
+
+                        // Download image in original format
                         var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
                         await File.WriteAllBytesAsync(filePath, imageBytes);
-                        downloaded++;
-                        
-                        _downloadProgressBar.IsIndeterminate = false;
-                        _downloadProgressBar.Value = (double)downloaded / screenshots.Count * 100;
-                        _downloadStatusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "DownloadingPreviews_Progress"), 
-                            downloaded, screenshots.Count);
+                        Logger.LogInfo($"Downloaded: {fileName}");
                     }
                     catch (Exception ex)
                     {
@@ -1003,14 +1021,8 @@ namespace FlairX_Mod_Manager.Dialogs
                     }
                 }
 
-                // Run image optimization in background
-                if (downloaded > 0)
-                {
-                    _ = Task.Run(() => OptimizeImagesInBackground(modPath));
-                }
-
-                _downloadStatusText.Text = SharedUtilities.GetTranslation(_lang, "DownloadComplete");
                 _downloadProgressBar.Value = 100;
+                _downloadStatusText.Text = SharedUtilities.GetTranslation(_lang, "DownloadComplete");
             }
             catch (Exception ex)
             {
@@ -1022,25 +1034,23 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             try
             {
-                Logger.LogInfo($"Starting background image optimization for downloaded mod in: {modPath}");
+                Logger.LogInfo($"Starting image optimization for downloaded mod in: {modPath}");
                 
                 // Get optimization context for GameBanana download
                 var context = Services.ImageOptimizationService.GetOptimizationContext(
                     Services.OptimizationTrigger.GameBananaDownload);
                 
-                // Disable UI interaction for background processing
-                context.AllowUIInteraction = false;
+                Logger.LogInfo($"Using AutoDownloadMode: {context.Mode}, InspectAndEdit: {context.InspectAndEditEnabled}, CropStrategy: {context.CropStrategy}");
                 
-                Logger.LogInfo($"Using AutoDownloadMode: {context.Mode}, InspectAndEdit: {context.InspectAndEditEnabled} (UI disabled for background), CropStrategy: {context.CropStrategy}");
+                // Run optimization sequentially on UI thread to allow crop inspection panel
+                // This blocks the dialog, which is intentional - user reviews each crop one by one
+                await Services.ImageOptimizationService.ProcessModPreviewImagesAsync(modPath, context);
                 
-                // Optimize only this specific mod directory with full context
-                await Task.Run(() => Services.ImageOptimizationService.ProcessModPreviewImages(modPath, context));
-                
-                Logger.LogInfo($"Completed background image optimization for: {modPath}");
+                Logger.LogInfo($"Completed image optimization for: {modPath}");
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to optimize images in background", ex);
+                Logger.LogError("Failed to optimize images", ex);
             }
         }
 
@@ -1233,6 +1243,29 @@ namespace FlairX_Mod_Manager.Dialogs
                                    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
 
             return reserved.Contains(nameWithoutExt);
+        }
+
+        private async Task OptimizeDownloadedPreviewsAsync(string modPath)
+        {
+            try
+            {
+                Logger.LogInfo($"Starting preview optimization for downloaded mod in: {modPath}");
+                
+                // Get optimization context for GameBanana download
+                var context = Services.ImageOptimizationService.GetOptimizationContext(
+                    Services.OptimizationTrigger.GameBananaDownload);
+                
+                Logger.LogInfo($"Using AutoDownloadMode: {context.Mode}, InspectAndEdit: {context.InspectAndEditEnabled}, CropStrategy: {context.CropStrategy}");
+                
+                // Optimize sequentially (with crop inspection if enabled)
+                await Services.ImageOptimizationService.ProcessModPreviewImagesAsync(modPath, context);
+                
+                Logger.LogInfo($"Completed preview optimization for: {modPath}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to optimize downloaded preview images", ex);
+            }
         }
     }
 }

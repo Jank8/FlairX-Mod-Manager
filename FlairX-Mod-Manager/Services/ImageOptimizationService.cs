@@ -69,7 +69,7 @@ namespace FlairX_Mod_Manager.Services
                     break;
                     
                 case OptimizationMode.Rename:
-                    await ProcessCategoryPreviewRenameAsync(categoryDir, context);
+                    ProcessCategoryPreviewRename(categoryDir, context);
                     break;
                     
                 case OptimizationMode.RenameOnly:
@@ -342,9 +342,9 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
-        /// Process category preview in Rename mode - generate thumbnails and rename to standard names
+        /// Process category preview in Rename mode - only rename to standard names (no thumbnails)
         /// </summary>
-        private static async Task ProcessCategoryPreviewRenameAsync(string categoryDir, OptimizationContext context)
+        private static void ProcessCategoryPreviewRename(string categoryDir, OptimizationContext context)
         {
             try
             {
@@ -381,42 +381,7 @@ namespace FlairX_Mod_Manager.Services
                     Logger.LogInfo($"Renamed: {Path.GetFileName(sourceFile)} -> catprev{ext}");
                 }
                 
-                // Generate catmini.jpg thumbnail
-                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
-                using (var img = Image.FromFile(catprevPath))
-                {
-                    // Get crop rectangle with optional inspection
-                    var srcRect = await GetCropRectangleWithInspectionAsync(
-                        img, 600, 722, context, "catmini.jpg");
-                    
-                    if (srcRect == null)
-                    {
-                        Logger.LogInfo($"Skipped catmini.jpg generation");
-                        return; // User skipped
-                    }
-                    
-                    using (var catmini = new Bitmap(600, 722))
-                    using (var g = Graphics.FromImage(catmini))
-                    {
-                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                        g.CompositingQuality = CompositingQuality.HighQuality;
-                        g.SmoothingMode = SmoothingMode.HighQuality;
-                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                        
-                        var destRect = new Rectangle(0, 0, 600, 722);
-                        g.DrawImage(img, destRect, srcRect.Value, GraphicsUnit.Pixel);
-                        
-                        var jpegEncoder = ImageCodecInfo.GetImageEncoders()
-                            .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
-                        {
-                            var jpegParams = new EncoderParameters(1);
-                            jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            catmini.Save(catminiPath, jpegEncoder, jpegParams);
-                            Logger.LogInfo($"Generated catmini.jpg");
-                        }
-                    }
-                }
+                // Do NOT generate catmini in Rename mode for categories - only rename
                 
                 Logger.LogInfo($"Category preview processing (Rename mode) completed for: {categoryDir}");
             }
@@ -506,7 +471,7 @@ namespace FlairX_Mod_Manager.Services
                     break;
                     
                 case OptimizationMode.Lite:
-                    ProcessModPreviewImagesLite(modDir, context);
+                    await ProcessModPreviewImagesLiteAsync(modDir, context);
                     break;
                     
                 case OptimizationMode.Rename:
@@ -673,7 +638,7 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Process mod preview images in Lite mode - quality conversion without resizing or cropping
         /// </summary>
-        private static void ProcessModPreviewImagesLite(string modDir, OptimizationContext context)
+        private static async Task ProcessModPreviewImagesLiteAsync(string modDir, OptimizationContext context)
         {
             try
             {
@@ -749,7 +714,11 @@ namespace FlairX_Mod_Manager.Services
                     }
                 }
                 
-                // Do NOT generate minitile in Lite mode
+                // Generate minitile.jpg (600x722 thumbnail) from first preview
+                if (processedFiles.Count > 0)
+                {
+                    await GenerateMinitileAsync(modDir, processedFiles[0], context);
+                }
                 
                 // Clean up original files if not keeping originals
                 if (!context.KeepOriginals)
@@ -807,7 +776,12 @@ namespace FlairX_Mod_Manager.Services
                     return;
                 }
                 
-                // Rename files to standard names
+                // FIRST: Generate minitile.jpg from first preview (BEFORE renaming)
+                var firstPreviewPath = previewFiles[0];
+                Logger.LogInfo($"Generating minitile from: {Path.GetFileName(firstPreviewPath)}");
+                await GenerateMinitileAsync(modDir, firstPreviewPath, context);
+                
+                // SECOND: Rename files to standard names
                 for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
                 {
                     var sourceFile = previewFiles[i];
@@ -830,16 +804,6 @@ namespace FlairX_Mod_Manager.Services
                             Logger.LogError($"Failed to rename file: {sourceFile}", ex);
                         }
                     }
-                }
-                
-                // Generate minitile.jpg from first preview
-                var firstPreview = Path.Combine(modDir, previewFiles.Count > 0 ? 
-                    (Path.GetFileName(previewFiles[0]).StartsWith("preview.") ? previewFiles[0] : Path.Combine(modDir, "preview" + Path.GetExtension(previewFiles[0]))) 
-                    : "");
-                    
-                if (File.Exists(firstPreview))
-                {
-                    await GenerateMinitileAsync(modDir, firstPreview, context);
                 }
                 
                 Logger.LogInfo($"Mod preview processing (Rename mode) completed for: {modDir}");
@@ -993,7 +957,7 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Get crop rectangle with optional inspection
         /// </summary>
-        private static async Task<Rectangle?> GetCropRectangleWithInspectionAsync(
+        public static async Task<Rectangle?> GetCropRectangleWithInspectionAsync(
             Image image, 
             int targetWidth, 
             int targetHeight, 
@@ -1003,10 +967,12 @@ namespace FlairX_Mod_Manager.Services
             var cropType = ConvertCropStrategy(context.CropStrategy);
             var suggestedCrop = ImageCropService.CalculateCropRectangle(image, targetWidth, targetHeight, cropType);
 
-            // Check if inspection is needed AND UI interaction is allowed
+            // Show inspection panel ONLY IF:
+            // 1. UI interaction is allowed (not background processing)
+            // 2. AND (ManualOnly mode OR Inspect&Edit is enabled)
             bool needsInspection = context.AllowUIInteraction && 
                                   (context.CropStrategy == CropStrategy.ManualOnly || 
-                                   (context.InspectAndEditEnabled && context.CropStrategy != CropStrategy.ManualOnly));
+                                   context.InspectAndEditEnabled);
 
             if (needsInspection && CropInspectionRequested != null)
             {
@@ -1185,6 +1151,14 @@ namespace FlairX_Mod_Manager.Services
                 ? parsedStrategy
                 : CropStrategy.Center;
 
+            // Determine if UI interaction is allowed based on user preferences and crop strategy
+            // Manual and Drag&Drop operations should allow UI interaction if inspection is enabled
+            // GameBanana downloads in background typically shouldn't allow UI (but user can override if they want)
+            bool allowUIInteraction = true; // Default: allow UI interaction for user-initiated operations
+            
+            // For now, all triggers allow UI interaction if the user has enabled inspection
+            // This respects PreviewBeforeCrop setting for all contexts
+
             return new OptimizationContext
             {
                 Mode = mode,
@@ -1194,7 +1168,8 @@ namespace FlairX_Mod_Manager.Services
                 KeepOriginals = SettingsManager.Current.ImageOptimizerKeepOriginals,
                 CropStrategy = cropStrategy,
                 InspectAndEditEnabled = SettingsManager.Current.PreviewBeforeCrop,
-                Trigger = trigger
+                Trigger = trigger,
+                AllowUIInteraction = allowUIInteraction
             };
         }
     }

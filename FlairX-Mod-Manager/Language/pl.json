@@ -197,5 +197,12 @@
     "CurrentVersion": "Aktualna wersja",
     "ReadyToDownload": "Gotowe do pobrania i zainstalowania aktualizacji.",
     "UpdateFailed": "Aktualizacja nie powiodła się",
-    "Close": "Zamknij"
+    "Close": "Zamknij",
+    "Skip": "Pomiń",
+    "Confirm": "Potwierdź",
+    "CropPanel_Title": "Dostosuj obszar przycinania",
+    "CropPanel_AspectLocked": "Proporcje zablokowane na",
+    "CropPanel_FreeAspect": "Swobodne proporcje - przeciągnij uchwyty aby zmienić rozmiar",
+    "CropPanel_Reset": "Resetuj zaznaczenie",
+    "CropPanel_Hint": "Przeciągnij aby przesunąć • Rogi zachowują proporcje • Krawędzie zmieniają proporcje"
 }

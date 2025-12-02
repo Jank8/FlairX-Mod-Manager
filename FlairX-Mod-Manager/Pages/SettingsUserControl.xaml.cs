@@ -647,74 +647,9 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogInfo("Starting optimize previews via hotkey (no confirmation)");
                 
-                var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
-                if (string.IsNullOrEmpty(modLibraryPath) || !Directory.Exists(modLibraryPath))
-                {
-                    Logger.LogWarning("Mod library path not found for optimize previews hotkey");
-                    return;
-                }
-
-                // Get optimization mode from Manual Mode setting
-                var mode = Enum.TryParse<OptimizationMode>(SettingsManager.Current.ImageOptimizerManualMode, out var parsedMode) 
-                    ? parsedMode 
-                    : OptimizationMode.Full;
-
-                // Check if we need to show dialogs (ManualOnly or PreviewBeforeCrop)
-                var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
-                var needsDialog = cropTypeStr == "ManualOnly" || SettingsManager.Current.PreviewBeforeCrop;
-
-                if (needsDialog)
-                {
-                    // Sequential processing with dialogs
-                    Logger.LogInfo("Using sequential processing with crop dialogs");
-                    var categoryDirs = Directory.GetDirectories(modLibraryPath);
-                    
-                    foreach (var categoryDir in categoryDirs)
-                    {
-                        if (!Directory.Exists(categoryDir)) continue;
-                        
-                        // Process category preview with dialog
-                        await ProcessCategoryPreviewWithDialogAsync(categoryDir, mode);
-                        
-                        var modDirs = Directory.GetDirectories(categoryDir);
-                        foreach (var modDir in modDirs)
-                        {
-                            await ProcessModPreviewImagesWithDialogAsync(modDir, mode);
-                        }
-                    }
-                }
-                else
-                {
-                    // Parallel processing without dialogs (original behavior)
-                    Logger.LogInfo("Using parallel processing without dialogs");
-                    await Task.Run(() =>
-                    {
-                        var threadCount = SettingsManager.Current.ImageOptimizerThreadCount;
-                        // Auto-detect if 0: use CPU cores - 1 (leave 1 core free)
-                        if (threadCount <= 0)
-                        {
-                            threadCount = Math.Max(1, Environment.ProcessorCount - 1);
-                        }
-                        var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = threadCount };
-                        
-                        var categoryDirs = Directory.GetDirectories(modLibraryPath);
-                        
-                        Parallel.ForEach(categoryDirs, parallelOptions, categoryDir =>
-                        {
-                            if (!Directory.Exists(categoryDir)) return;
-                            
-                            // Process category preview (if exists) to create category minitile
-                            ProcessCategoryPreviewStatic(categoryDir, mode);
-                            
-                            var modDirs = Directory.GetDirectories(categoryDir);
-                            Parallel.ForEach(modDirs, parallelOptions, modDir =>
-                            {
-                                ProcessModPreviewImagesStatic(modDir, mode);
-                            });
-                        });
-                    });
-                }
-
+                // Use ImageOptimizationService which handles all the logic
+                await Services.ImageOptimizationService.OptimizeAllPreviewsAsync();
+                
                 Logger.LogInfo("Optimize previews completed via hotkey");
             }
             catch (Exception ex)
@@ -2592,12 +2527,25 @@ namespace FlairX_Mod_Manager.Pages
         }
         
         /// <summary>
+        /// DEPRECATED: Use ImageOptimizationService instead
         /// Process category preview with dialog support (async, sequential)
         /// </summary>
+        [Obsolete("Use ImageOptimizationService.ProcessCategoryPreviewAsync instead")]
         private static async Task ProcessCategoryPreviewWithDialogAsync(string categoryDir, OptimizationMode mode)
         {
+            // This method is deprecated - use ImageOptimizationService instead
+            await Task.CompletedTask;
+        }
+
+        /* DEPRECATED OLD CODE - COMMENTED OUT
+        /// <summary>
+        /// DEPRECATED PLACEHOLDER
+        /// </summary>
+        private static void DEPRECATED_ProcessCategoryPreviewWithDialogAsync_OLD()
+        {
+            // OLD CODE REMOVED - Use ImageOptimizationService instead
             // For RenameOnly mode, do nothing
-            if (mode == OptimizationMode.RenameOnly)
+            if (false)
                 return;
             
             // For Rename mode, generate thumbnails from existing preview.jpg
@@ -2741,12 +2689,26 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogError($"Failed to process category preview: {categoryDir}", ex);
             }
         }
+        END OF DEPRECATED CODE */
 
         /// <summary>
+        /// DEPRECATED: Use ImageOptimizationService instead
         /// Process mod preview images with dialog support (async, sequential)
         /// </summary>
+        [Obsolete("Use ImageOptimizationService.ProcessModPreviewImagesAsync instead")]
         private static async Task ProcessModPreviewImagesWithDialogAsync(string modDir, OptimizationMode mode)
         {
+            // This method is deprecated - use ImageOptimizationService instead
+            await Task.CompletedTask;
+        }
+
+        /* DEPRECATED OLD CODE - COMMENTED OUT
+        /// <summary>
+        /// DEPRECATED PLACEHOLDER
+        /// </summary>
+        private static void DEPRECATED_ProcessModPreviewImagesWithDialogAsync_OLD()
+        {
+            // OLD CODE REMOVED - Use ImageOptimizationService instead
             try
             {
                 // For RenameOnly mode, just copy files
@@ -3019,6 +2981,7 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
         }
+        END OF DEPRECATED CODE */
 
         /// <summary>
         /// Helper method to get crop rectangle based on settings
@@ -3033,44 +2996,7 @@ namespace FlairX_Mod_Manager.Pages
             return Services.ImageCropService.CalculateCropRectangle(img, targetWidth, targetHeight, cropType);
         }
 
-        /// <summary>
-        /// Async version that can show sliding panel for manual crop or preview
-        /// Must be called from UI thread
-        /// </summary>
-        private static async Task<System.Drawing.Rectangle?> GetCropRectangleWithDialogAsync(System.Drawing.Image img, int targetWidth, int targetHeight, string cropTypeLabel)
-        {
-            var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
-            var showPanel = cropTypeStr == "ManualOnly" || SettingsManager.Current.PreviewBeforeCrop;
-            
-            if (!showPanel)
-            {
-                // No panel needed, use automatic crop
-                return GetCropRectangleFromSettings(img, targetWidth, targetHeight);
-            }
-            
-            try
-            {
-                // Create a copy of the image to avoid disposal issues
-                var imgCopy = new System.Drawing.Bitmap(img);
-                
-                // Show sliding panel from MainWindow
-                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
-                {
-                    var result = await mainWindow.ShowImageCropPanelAsync(imgCopy, cropTypeLabel, targetWidth, targetHeight);
-                    return result;
-                }
-                
-                // Fallback if MainWindow not available
-                Logger.LogWarning("MainWindow not available for crop panel");
-                return GetCropRectangleFromSettings(img, targetWidth, targetHeight);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Error showing crop panel", ex);
-                // Fallback to automatic crop
-                return GetCropRectangleFromSettings(img, targetWidth, targetHeight);
-            }
-        }
+
 
         private static void ProcessModLiteMode(string modDir)
         {

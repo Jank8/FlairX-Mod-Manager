@@ -16,6 +16,7 @@ namespace FlairX_Mod_Manager.Controls
     {
         private System.Drawing.Image? _sourceImage;
         private Rectangle _cropRect;
+        private Rectangle _initialCropRect; // Store initial crop for reset
         private double _aspectRatio;
         private bool _maintainAspectRatio;
         private string? _dragHandle;
@@ -26,6 +27,8 @@ namespace FlairX_Mod_Manager.Controls
 
         private bool _isInitialized = false;
 
+        public event EventHandler? CloseRequested;
+
         public ImageCropInspectionPanel()
         {
             this.InitializeComponent();
@@ -35,15 +38,25 @@ namespace FlairX_Mod_Manager.Controls
         {
             _sourceImage = sourceImage;
             _cropRect = initialCropRect;
+            _initialCropRect = initialCropRect; // Store for reset
             _aspectRatio = targetAspectRatio;
             _maintainAspectRatio = maintainAspectRatio;
             _completionSource = new TaskCompletionSource<CropResult>();
 
+            // Load translations
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            
             // Update title based on image type
-            TitleText.Text = $"Adjust Crop Area - {imageType}";
+            TitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_Title") ?? "Adjust Crop Area"} - {imageType}";
             SubtitleText.Text = maintainAspectRatio 
-                ? $"Aspect ratio locked to {targetAspectRatio:F2}:1" 
-                : "Free aspect ratio - drag handles to resize";
+                ? $"{SharedUtilities.GetTranslation(lang, "CropPanel_AspectLocked") ?? "Aspect ratio locked to"} {targetAspectRatio:F2}:1" 
+                : SharedUtilities.GetTranslation(lang, "CropPanel_FreeAspect") ?? "Free aspect ratio - drag handles to resize";
+            
+            // Update button texts
+            ResetButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Reset") ?? "Reset";
+            SkipButton.Content = SharedUtilities.GetTranslation(lang, "Skip") ?? "Skip";
+            ConfirmButton.Content = SharedUtilities.GetTranslation(lang, "Confirm") ?? "Confirm";
+            HintText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Hint") ?? "Drag to move • Corners maintain ratio • Edges change ratio";
 
             // Load image
             LoadImage();
@@ -315,14 +328,16 @@ namespace FlairX_Mod_Manager.Controls
 
         private void AdjustForAspectRatio(ref Rectangle rect, string corner)
         {
-            // Maintain aspect ratio based on which corner is being dragged
+            // Use CURRENT crop aspect ratio (not initial _aspectRatio)
+            // This allows user to change aspect with edge handles, then maintain it with corners
+            double targetAspect = (double)_dragStartRect.Width / _dragStartRect.Height;
             double currentAspect = (double)rect.Width / rect.Height;
             
-            if (Math.Abs(currentAspect - _aspectRatio) > 0.01)
+            if (Math.Abs(currentAspect - targetAspect) > 0.01)
             {
                 // Adjust based on which dimension changed more
-                int newWidth = (int)(rect.Height * _aspectRatio);
-                int newHeight = (int)(rect.Width / _aspectRatio);
+                int newWidth = (int)(rect.Height * targetAspect);
+                int newHeight = (int)(rect.Width / targetAspect);
                 
                 // Choose adjustment that keeps crop area larger
                 if (newWidth >= rect.Width)
@@ -389,14 +404,25 @@ namespace FlairX_Mod_Manager.Controls
             return rect;
         }
 
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Reset crop to initial suggested crop
+            _cropRect = _initialCropRect;
+            UpdateCropOverlay();
+            UpdateInfoText();
+            Logger.LogInfo("Crop area reset to initial suggestion");
+        }
+
         private void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
             _completionSource?.SetResult(new CropResult { Confirmed = true, CropRectangle = _cropRect });
+            CloseRequested?.Invoke(this, EventArgs.Empty);
         }
 
         private void SkipButton_Click(object sender, RoutedEventArgs e)
         {
             _completionSource?.SetResult(new CropResult { Confirmed = false, CropRectangle = _cropRect });
+            CloseRequested?.Invoke(this, EventArgs.Empty);
         }
     }
 

@@ -197,5 +197,12 @@
     "CurrentVersion": "Current version",
     "ReadyToDownload": "Ready to download and install update.",
     "UpdateFailed": "Update failed",
-    "Close": "Close"
+    "Close": "Close",
+    "Skip": "Skip",
+    "Confirm": "Confirm",
+    "CropPanel_Title": "Adjust Crop Area",
+    "CropPanel_AspectLocked": "Aspect ratio locked to",
+    "CropPanel_FreeAspect": "Free aspect ratio - drag handles to resize",
+    "CropPanel_Reset": "Reset",
+    "CropPanel_Hint": "Drag to move • Corners maintain ratio • Edges change ratio"
 }

@@ -67,13 +67,7 @@ namespace FlairX_Mod_Manager
             ShowSlidingPanel(browserControl, title);
         }
 
-        public System.Threading.Tasks.Task<System.Drawing.Rectangle?> ShowImageCropPanelAsync(System.Drawing.Image sourceImage, string cropType, int targetWidth, int targetHeight)
-        {
-            var cropControl = new ImageCropUserControl();
-            var task = cropControl.ShowAsync(sourceImage, cropType, targetWidth, targetHeight);
-            ShowSlidingPanel(cropControl, "Crop Image");
-            return task;
-        }
+
 
         // Method to update panel background when theme changes
         public void UpdateSlidingPanelTheme()
@@ -405,6 +399,10 @@ namespace FlairX_Mod_Manager
                     else if (userControl is ModDetailUserControl modDetailControl)
                     {
                         modDetailControl.CloseRequested += (s, args) => closeWithAnimation();
+                    }
+                    else if (userControl is Controls.ImageCropInspectionPanel cropPanel)
+                    {
+                        cropPanel.CloseRequested += (s, args) => closeWithAnimation();
                     }
                     
                     // Click outside to close

@@ -155,6 +155,15 @@
                        Orientation="Horizontal" 
                        Spacing="8"
                        VerticalAlignment="Center">
+                <Button x:Name="ResetButton" 
+                       Click="ResetButton_Click"
+                       MinWidth="100"
+                       Height="40">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE72C;" FontSize="14"/>
+                        <TextBlock x:Name="ResetButtonText" Text="Reset"/>
+                    </StackPanel>
+                </Button>
                 <Button x:Name="SkipButton" 
                        Content="Skip" 
                        Click="SkipButton_Click"

@@ -259,24 +259,46 @@ namespace FlairX_Mod_Manager.Services
                 {
                     for (int x = 1; x < width - 1; x++)
                     {
-                        // Sobel operator
+                        // Sobel operator with proper kernels
+                        // Gx = [-1  0  1]    Gy = [-1 -2 -1]
+                        //      [-2  0  2]         [ 0  0  0]
+                        //      [-1  0  1]         [ 1  2  1]
                         int gx = 0, gy = 0;
                         
-                        for (int dy = -1; dy <= 1; dy++)
-                        {
-                            for (int dx = -1; dx <= 1; dx++)
-                            {
-                                int offset = (y + dy) * stride + (x + dx) * 3;
-                                int gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
-                                
-                                // Sobel kernels
-                                int kx = dx * (2 - Math.Abs(dy));
-                                int ky = dy * (2 - Math.Abs(dx));
-                                
-                                gx += gray * kx;
-                                gy += gray * ky;
-                            }
-                        }
+                        // Top row
+                        int offset = (y - 1) * stride + (x - 1) * 3;
+                        int gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gx += -1 * gray; gy += -1 * gray;
+                        
+                        offset = (y - 1) * stride + x * 3;
+                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gy += -2 * gray;
+                        
+                        offset = (y - 1) * stride + (x + 1) * 3;
+                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gx += 1 * gray; gy += -1 * gray;
+                        
+                        // Middle row
+                        offset = y * stride + (x - 1) * 3;
+                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gx += -2 * gray;
+                        
+                        offset = y * stride + (x + 1) * 3;
+                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gx += 2 * gray;
+                        
+                        // Bottom row
+                        offset = (y + 1) * stride + (x - 1) * 3;
+                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gx += -1 * gray; gy += 1 * gray;
+                        
+                        offset = (y + 1) * stride + x * 3;
+                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gy += 2 * gray;
+                        
+                        offset = (y + 1) * stride + (x + 1) * 3;
+                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gx += 1 * gray; gy += 1 * gray;
                         
                         edgeMap[x, y] = Math.Sqrt(gx * gx + gy * gy);
                     }
@@ -362,10 +384,10 @@ namespace FlairX_Mod_Manager.Services
                         int g = ptr[offset + 1];
                         int r = ptr[offset + 2];
                         
-                        // Calculate brightness
+                        // Calculate brightness (0-255)
                         double brightness = (r + g + b) / 3.0;
                         
-                        // Calculate saturation
+                        // Calculate saturation (0-1)
                         int max = Math.Max(r, Math.Max(g, b));
                         int min = Math.Min(r, Math.Min(g, b));
                         double saturation = max == 0 ? 0 : (max - min) / (double)max;
@@ -377,7 +399,9 @@ namespace FlairX_Mod_Manager.Services
                         double maxDistance = Math.Sqrt(centerX * centerX + centerY * centerY);
                         double centerBias = 1.0 - (distanceFromCenter / maxDistance) * 0.3; // 30% bias towards center
                         
-                        attentionMap[x, y] = (brightness * 0.7 + saturation * 255 * 0.3) * centerBias;
+                        // Normalize: brightness (0-255) * 0.7 + saturation (0-1) * 255 * 0.3
+                        // Both components now in same scale (0-255)
+                        attentionMap[x, y] = (brightness * 0.7 + saturation * 255.0 * 0.3) * centerBias;
                     }
                 }
             }
