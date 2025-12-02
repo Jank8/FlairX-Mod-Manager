@@ -996,7 +996,7 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             Background = dialogAcrylicBrush,
                             CornerRadius = new CornerRadius(12, 0, 0, 0), // Rounded only on top-left
-                            HorizontalAlignment = HorizontalAlignment.Right,
+                            HorizontalAlignment = HorizontalAlignment.Stretch, // Stretch to fill available width
                             VerticalAlignment = VerticalAlignment.Stretch,
                             Margin = new Thickness(320, 0, 0, 0), // Start after menu (320px menu width)
                             BorderBrush = borderBrush,

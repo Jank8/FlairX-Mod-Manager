@@ -277,31 +277,54 @@ namespace FlairX_Mod_Manager.Pages
                 CheckForUpdates(root);
                 
                 // Load hotkeys
+                ModHotkeysPanel.Children.Clear();
                 if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
                 {
-                    var hotkeyList = new List<HotkeyDisplay>();
+                    // First pass: collect all hotkeys and find max key width
+                    var hotkeyList = new List<(string key, string desc)>();
                     foreach (var hotkey in hotkeysProp.EnumerateArray())
                     {
+                        string? key = null;
+                        string? desc = null;
+                        
                         if (hotkey.ValueKind == JsonValueKind.Object)
                         {
-                            var key = hotkey.TryGetProperty("key", out var keyProp) ? keyProp.GetString() : null;
-                            var desc = hotkey.TryGetProperty("description", out var descProp) ? descProp.GetString() : null;
-                            if (!string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(desc))
-                                hotkeyList.Add(new HotkeyDisplay { Key = key, Description = desc });
-                            else if (!string.IsNullOrWhiteSpace(key))
-                                hotkeyList.Add(new HotkeyDisplay { Key = key, Description = string.Empty });
+                            key = hotkey.TryGetProperty("key", out var keyProp) ? keyProp.GetString() : null;
+                            desc = hotkey.TryGetProperty("description", out var descProp) ? descProp.GetString() : null;
                         }
                         else if (hotkey.ValueKind == JsonValueKind.String)
                         {
-                            var keyStr = hotkey.GetString() ?? "";
-                            hotkeyList.Add(new HotkeyDisplay { Key = keyStr, Description = string.Empty });
+                            key = hotkey.GetString() ?? "";
+                        }
+                        
+                        if (!string.IsNullOrWhiteSpace(key))
+                        {
+                            hotkeyList.Add((key, desc ?? string.Empty));
                         }
                     }
-                    ModHotkeysList.ItemsSource = hotkeyList;
-                }
-                else
-                {
-                    ModHotkeysList.ItemsSource = null;
+                    
+                    // Estimate max width based on key length (rough calculation)
+                    double maxKeyWidth = 0;
+                    foreach (var (key, _) in hotkeyList)
+                    {
+                        // Estimate: each char ~10px, padding 24px per key, spacing 12px per +
+                        var parts = key.Split('+');
+                        double estimatedWidth = 0;
+                        foreach (var part in parts)
+                        {
+                            estimatedWidth += part.Trim().Length * 10 + 24 + 36; // char width + padding + min width
+                        }
+                        estimatedWidth += (parts.Length - 1) * 20; // + separators
+                        if (estimatedWidth > maxKeyWidth) maxKeyWidth = estimatedWidth;
+                    }
+                    maxKeyWidth = Math.Max(maxKeyWidth, 150); // Minimum width
+                    
+                    // Second pass: create rows with fixed key column width
+                    foreach (var (key, desc) in hotkeyList)
+                    {
+                        var hotkeyRow = CreateHotkeyRow(key, desc, maxKeyWidth);
+                        ModHotkeysPanel.Children.Add(hotkeyRow);
+                    }
                 }
             }
             catch (Exception ex)
@@ -455,7 +478,7 @@ namespace FlairX_Mod_Manager.Pages
         private void SetDefaultValues()
         {
             ModImage.Source = null;
-            ModHotkeysList.ItemsSource = null;
+            ModHotkeysPanel.Children.Clear();
             ModAuthorTextBox.Text = "";
             ModUrlTextBox.Text = "https://";
             ModUrlTextBox.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray);
@@ -467,6 +490,91 @@ namespace FlairX_Mod_Manager.Pages
             _availablePreviewImages.Clear();
             _currentImageIndex = 0;
             UpdateImageNavigation();
+        }
+        
+        private Border CreateHotkeyRow(string keyCombo, string description, double keyColumnWidth = 200)
+        {
+            // Get theme-aware key background from resources
+            var keyBackground = (Brush)Application.Current.Resources["HotkeyKeyBackground"];
+            
+            var rowBorder = new Border
+            {
+                Background = (Brush)Application.Current.Resources["CardBackgroundFillColorSecondaryBrush"],
+                CornerRadius = new CornerRadius(8),
+                Padding = new Thickness(16, 12, 16, 12),
+                Margin = new Thickness(0, 0, 0, 6)
+            };
+            ToolTipService.SetToolTip(rowBorder, keyCombo);
+            
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(keyColumnWidth) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            
+            // Create keys panel with individual key backgrounds
+            var keysPanel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
+            
+            // Split key combo by + but keep track of the separator
+            var keyParts = keyCombo.Split('+');
+            for (int i = 0; i < keyParts.Length; i++)
+            {
+                var keyPart = keyParts[i].Trim();
+                if (string.IsNullOrEmpty(keyPart)) continue;
+                
+                // Add key with background
+                var keyBorder = new Border
+                {
+                    Background = keyBackground,
+                    CornerRadius = new CornerRadius(6),
+                    Padding = new Thickness(12, 6, 12, 6),
+                    MinWidth = 36,
+                    MinHeight = 32
+                };
+                var keyText = new TextBlock
+                {
+                    Text = keyPart,
+                    FontFamily = new FontFamily("Consolas"),
+                    FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                    FontSize = 14,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                keyBorder.Child = keyText;
+                keysPanel.Children.Add(keyBorder);
+                
+                // Add + separator (without background) if not last key
+                if (i < keyParts.Length - 1)
+                {
+                    var plusText = new TextBlock
+                    {
+                        Text = "+",
+                        FontFamily = new FontFamily("Consolas"),
+                        FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                        FontSize = 14,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Margin = new Thickness(4, 0, 4, 0),
+                        Opacity = 0.6
+                    };
+                    keysPanel.Children.Add(plusText);
+                }
+            }
+            
+            Grid.SetColumn(keysPanel, 0);
+            grid.Children.Add(keysPanel);
+            
+            // Description
+            var descText = new TextBlock
+            {
+                Text = description,
+                FontSize = 14,
+                VerticalAlignment = VerticalAlignment.Center,
+                Opacity = 0.9
+            };
+            Grid.SetColumn(descText, 2);
+            grid.Children.Add(descText);
+            
+            rowBorder.Child = grid;
+            return rowBorder;
         }
         
         private void ModUrlTextBox_GotFocus(object sender, RoutedEventArgs e)

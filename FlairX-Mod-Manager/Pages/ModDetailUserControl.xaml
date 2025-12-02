@@ -159,7 +159,7 @@
                             </StackPanel>
                             
                             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                                <CalendarDatePicker x:Name="ModDateCheckedPicker" Width="180" DateChanged="ModDateCheckedPicker_DateChanged" PlaceholderText="Select date"/>
+                                <CalendarDatePicker x:Name="ModDateCheckedPicker" Width="220" DateChanged="ModDateCheckedPicker_DateChanged" PlaceholderText="Select date"/>
                                 <Button x:Name="TodayDateCheckedButton" Width="32" Height="32" Click="TodayDateCheckedButton_Click" Padding="0" ToolTipService.ToolTip="Set to today">
                                     <FontIcon Glyph="&#xE823;" FontSize="16"/>
                                 </Button>
@@ -190,7 +190,7 @@
                             </StackPanel>
                             
                             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                                <CalendarDatePicker x:Name="ModDateUpdatedPicker" Width="180" DateChanged="ModDateUpdatedPicker_DateChanged" PlaceholderText="Select date"/>
+                                <CalendarDatePicker x:Name="ModDateUpdatedPicker" Width="220" DateChanged="ModDateUpdatedPicker_DateChanged" PlaceholderText="Select date"/>
                                 <Button x:Name="TodayDateUpdatedButton" Width="32" Height="32" Click="TodayDateUpdatedButton_Click" Padding="0" ToolTipService.ToolTip="Set to today">
                                     <FontIcon Glyph="&#xE823;" FontSize="16"/>
                                 </Button>
@@ -220,7 +220,7 @@
                                 <TextBlock Text="Creator of this mod" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
-                            <TextBox x:Name="ModAuthorTextBox" Grid.Column="3" Width="220" TextChanged="ModAuthorTextBox_TextChanged" VerticalAlignment="Center"/>
+                            <TextBox x:Name="ModAuthorTextBox" Grid.Column="3" Width="260" TextChanged="ModAuthorTextBox_TextChanged" VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
                     
@@ -247,7 +247,7 @@
                             </StackPanel>
                             
                             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                                <TextBox x:Name="ModUrlTextBox" Width="180" TextChanged="ModUrlTextBox_TextChanged" GotFocus="ModUrlTextBox_GotFocus" LostFocus="ModUrlTextBox_LostFocus"/>
+                                <TextBox x:Name="ModUrlTextBox" Width="220" TextChanged="ModUrlTextBox_TextChanged" GotFocus="ModUrlTextBox_GotFocus" LostFocus="ModUrlTextBox_LostFocus"/>
                                 <Button x:Name="OpenUrlButton" Click="OpenUrlButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Open URL">
                                     <FontIcon Glyph="&#xE71B;" FontSize="16"/>
                                 </Button>
@@ -335,43 +335,7 @@
                             CornerRadius="8" 
                             Padding="16" 
                             Margin="0,0,0,24">
-                        <ItemsControl x:Name="ModHotkeysList">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" 
-                                            CornerRadius="6" 
-                                            Padding="12,8" 
-                                            Margin="0,0,0,4"
-                                            ToolTipService.ToolTip="{Binding Key}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="150"/>
-                                                <ColumnDefinition Width="16"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Border Background="{ThemeResource AccentFillColorDefaultBrush}" 
-                                                    CornerRadius="4" 
-                                                    Padding="8,4" 
-                                                    HorizontalAlignment="Left">
-                                                <TextBlock Text="{Binding Key}" 
-                                                           FontFamily="Consolas" 
-                                                           FontWeight="SemiBold" 
-                                                           FontSize="13" 
-                                                           Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                                                           MaxWidth="130"
-                                                           TextTrimming="CharacterEllipsis"/>
-                                            </Border>
-                                            <TextBlock Grid.Column="2" 
-                                                       Text="{Binding Description}" 
-                                                       FontFamily="{StaticResource AppFontFamily}" 
-                                                       FontSize="14" 
-                                                       VerticalAlignment="Center"
-                                                       Opacity="0.9"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <StackPanel x:Name="ModHotkeysPanel" Spacing="4"/>
                     </Border>
                     
                     <!-- Hidden DetailsGrid for compatibility -->

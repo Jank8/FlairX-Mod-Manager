@@ -165,6 +165,11 @@
                                   AlwaysUseFallback="False" />
                     <SolidColorBrush x:Key="TileBorderBrush" Color="#D0D0D0" />
                     <SolidColorBrush x:Key="TileDescriptionBackground" Color="#FFFFFFFF" />
+                    <AcrylicBrush x:Key="HotkeyKeyBackground"
+                                  TintColor="#FF000000"
+                                  TintOpacity="0.15"
+                                  FallbackColor="#C8C8C8"
+                                  AlwaysUseFallback="False" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <AcrylicBrush x:Key="LauncherAcrylicBrush"
@@ -191,6 +196,11 @@
                                   AlwaysUseFallback="False" />
                     <SolidColorBrush x:Key="TileBorderBrush" Color="#333333" />
                     <SolidColorBrush x:Key="TileDescriptionBackground" Color="#FF222222" />
+                    <AcrylicBrush x:Key="HotkeyKeyBackground"
+                                  TintColor="#FFFFFFFF"
+                                  TintOpacity="0.15"
+                                  FallbackColor="#505050"
+                                  AlwaysUseFallback="False" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>
