@@ -6,7 +6,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    HorizontalAlignment="Stretch"
+    VerticalAlignment="Stretch">
     
     <Grid Margin="24" x:Name="MainGrid" PointerPressed="MainGrid_PointerPressed" PointerReleased="MainGrid_PointerReleased" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
@@ -14,8 +16,8 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <!-- Header with Back button (right arrow to close panel) -->
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+        <!-- Header with Back button -->
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,24">
             <Button x:Name="BackButton" Width="48" Height="48" Click="BackButton_Click" VerticalAlignment="Center"
                     PointerEntered="BackButton_PointerEntered" PointerExited="BackButton_PointerExited">
                 <FontIcon x:Name="BackIcon" Glyph="&#xE72A;" FontSize="20">
@@ -35,7 +37,7 @@
             <TextBlock x:Name="ModDetailTitle" Text="Mod Details" FontSize="24" FontWeight="Bold" Margin="16,0,16,0" VerticalAlignment="Center"/>
             <TextBox x:Name="ModVersionTextBox" FontSize="24" FontWeight="Bold" VerticalAlignment="Center" MinWidth="100" MaxWidth="200" PlaceholderText="Version" TextChanged="ModVersionTextBox_TextChanged" BorderThickness="0" Background="Transparent" Padding="0" Margin="0,2,0,0"/>
             
-            <!-- NSFW badge (after version) -->
+            <!-- NSFW badge -->
             <Border x:Name="NSFWBadge"
                     Background="#CCCC0000" 
                     CornerRadius="8" 
@@ -50,168 +52,269 @@
             </Border>
         </StackPanel>
         
-        <!-- Content exactly copied from ModDetailPage -->
-        <Grid Grid.Row="1" VerticalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" MinWidth="0"/>
-                <ColumnDefinition Width="32"/>
-                <ColumnDefinition Width="*" MinWidth="420"/>
-            </Grid.ColumnDefinitions>
-            <!-- Image Container with overlay buttons -->
-            <Viewbox Grid.Column="0" MaxWidth="700" MaxHeight="700" Stretch="Uniform" VerticalAlignment="Top" HorizontalAlignment="Left">
-                <!-- Main container -->
-                <Grid Width="700" Height="700">
-                    <!-- Coordinate field for tilt calculation - behind content -->
-                    <Grid x:Name="ModImageCoordinateField" 
-                          Width="700" Height="700" 
-                          Background="Transparent"
-                          PointerEntered="ModImageCoordinateField_PointerEntered"
-                          PointerExited="ModImageCoordinateField_PointerExited" />
-                    
-                    <!-- Content root with larger margin for stable hover - this gets animated -->
-                    <Grid x:Name="ModImageContentRoot" Margin="25" IsHitTestVisible="False">
-                        <Border x:Name="ModImageBorder" CornerRadius="12" BorderThickness="15" BorderBrush="{ThemeResource TileBorderBrush}">
-                        <Border CornerRadius="8">
-                            <Image x:Name="ModImage" Stretch="Uniform"/>
-                        </Border>
-                    </Border>
-                    
-                    </Grid>
-                    
-                    <!-- Navigation buttons - outside content root but positioned to look like they're inside -->
-                    <!-- Left Navigation Button - Overlay (XXMI Launcher Style) -->
-                    <Border x:Name="PrevImageButton" Width="48" Height="48" 
-                            VerticalAlignment="Bottom" HorizontalAlignment="Left"
-                            Margin="50,0,0,50" Visibility="Collapsed"
-                            CornerRadius="12"
-                            Background="{ThemeResource LauncherAcrylicBrush}"
-                            PointerPressed="PrevImageButton_Click"
-                            PointerEntered="ModImageCoordinateField_PointerEntered"
-                            PointerExited="ModImageCoordinateField_PointerExited"
-                            PointerMoved="ModImageCoordinateField_PointerMoved">
-                        <FontIcon Glyph="&#xE76B;" FontSize="20" 
-                                  Foreground="{ThemeResource ButtonForeground}" 
-                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    
-                    <!-- Right Navigation Button - Overlay (XXMI Launcher Style) -->
-                    <Border x:Name="NextImageButton" Width="48" Height="48" 
-                            VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                            Margin="0,0,50,50" Visibility="Collapsed"
-                            CornerRadius="12"
-                            Background="{ThemeResource LauncherAcrylicBrush}"
-                            PointerPressed="NextImageButton_Click"
-                            PointerEntered="ModImageCoordinateField_PointerEntered"
-                            PointerExited="ModImageCoordinateField_PointerExited"
-                            PointerMoved="ModImageCoordinateField_PointerMoved">
-                        <FontIcon Glyph="&#xE76C;" FontSize="20" 
-                                  Foreground="{ThemeResource ButtonForeground}" 
-                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    
-                    <!-- Image Counter - Centered (XXMI Launcher Style) -->
-                    <Border Background="{ThemeResource LauncherAcrylicBrush}" 
-                            CornerRadius="12" Padding="8,4" Margin="0,0,0,50" 
-                            VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                            x:Name="ImageCounterBorder" Visibility="Collapsed"
-                            PointerEntered="ModImageCoordinateField_PointerEntered"
-                            PointerExited="ModImageCoordinateField_PointerExited"
-                            PointerMoved="ModImageCoordinateField_PointerMoved">
-                        <TextBlock x:Name="ImageCounterText" Text="1 / 1" FontSize="12" 
-                                   Foreground="{ThemeResource ButtonForeground}"/>
-                    </Border>
-                    
-
-                </Grid>
-            </Viewbox>
-            <Grid Grid.Column="2" VerticalAlignment="Top" HorizontalAlignment="Stretch">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid x:Name="DetailsGrid" Grid.Row="0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="16"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="16"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="16"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="16"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="16"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+        <!-- Content -->
+        <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" 
+                          VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0,0,0,12">
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="8*" MaxWidth="1000"/>
+                        <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,0,0" HorizontalAlignment="Stretch">
+
+                    <!-- Image Section -->
+                    <TextBlock Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                    
+                    <Viewbox MaxWidth="600" MaxHeight="600" Stretch="Uniform" Margin="0,0,0,24" HorizontalAlignment="Center">
+                            <Grid Width="600" Height="600">
+                                <!-- Coordinate field for tilt calculation -->
+                                <Grid x:Name="ModImageCoordinateField" 
+                                      Width="600" Height="600" 
+                                      Background="Transparent"
+                                      PointerEntered="ModImageCoordinateField_PointerEntered"
+                                      PointerExited="ModImageCoordinateField_PointerExited" />
+                                
+                                <!-- Content root with margin for stable hover -->
+                                <Grid x:Name="ModImageContentRoot" Margin="20" IsHitTestVisible="False">
+                                    <Border x:Name="ModImageBorder" CornerRadius="12" BorderThickness="12" BorderBrush="{ThemeResource TileBorderBrush}">
+                                        <Border CornerRadius="8">
+                                            <Image x:Name="ModImage" Stretch="Uniform"/>
+                                        </Border>
+                                    </Border>
+                                </Grid>
+                                
+                                <!-- Left Navigation Button -->
+                                <Border x:Name="PrevImageButton" Width="44" Height="44" 
+                                        VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                                        Margin="40,0,0,40" Visibility="Collapsed"
+                                        CornerRadius="12"
+                                        Background="{ThemeResource LauncherAcrylicBrush}"
+                                        PointerPressed="PrevImageButton_Click"
+                                        PointerEntered="ModImageCoordinateField_PointerEntered"
+                                        PointerExited="ModImageCoordinateField_PointerExited"
+                                        PointerMoved="ModImageCoordinateField_PointerMoved">
+                                    <FontIcon Glyph="&#xE76B;" FontSize="18" 
+                                              Foreground="{ThemeResource ButtonForeground}" 
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                
+                                <!-- Right Navigation Button -->
+                                <Border x:Name="NextImageButton" Width="44" Height="44" 
+                                        VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                        Margin="0,0,40,40" Visibility="Collapsed"
+                                        CornerRadius="12"
+                                        Background="{ThemeResource LauncherAcrylicBrush}"
+                                        PointerPressed="NextImageButton_Click"
+                                        PointerEntered="ModImageCoordinateField_PointerEntered"
+                                        PointerExited="ModImageCoordinateField_PointerExited"
+                                        PointerMoved="ModImageCoordinateField_PointerMoved">
+                                    <FontIcon Glyph="&#xE76C;" FontSize="18" 
+                                              Foreground="{ThemeResource ButtonForeground}" 
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                
+                                <!-- Image Counter -->
+                                <Border Background="{ThemeResource LauncherAcrylicBrush}" 
+                                        CornerRadius="12" Padding="8,4" Margin="0,0,0,40" 
+                                        VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                        x:Name="ImageCounterBorder" Visibility="Collapsed"
+                                        PointerEntered="ModImageCoordinateField_PointerEntered"
+                                        PointerExited="ModImageCoordinateField_PointerExited"
+                                        PointerMoved="ModImageCoordinateField_PointerMoved">
+                                    <TextBlock x:Name="ImageCounterText" Text="1 / 1" FontSize="12" 
+                                               Foreground="{ThemeResource ButtonForeground}"/>
+                                </Border>
+                            </Grid>
+                        </Viewbox>
+
+                    <!-- Details Section -->
+                    <TextBlock Text="Details" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                    
                     <!-- Date Checked -->
-                    <TextBlock x:Name="ModDateCheckedLabel" Text="Date Checked:" FontWeight="Bold" Grid.Row="0" Grid.Column="0" Margin="0,0,0,2"/>
-                    <Grid Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" MinWidth="110" MaxWidth="250" Width="250" Height="32">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="210"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="32"/>
-                        </Grid.ColumnDefinitions>
-                        <CalendarDatePicker x:Name="ModDateCheckedPicker" Grid.Column="0" Margin="0,0,0,0" Width="210" DateChanged="ModDateCheckedPicker_DateChanged" PlaceholderText="Select date"/>
-                        <Border Grid.Column="1" Background="Transparent"/>
-                        <Button x:Name="TodayDateCheckedButton" Grid.Column="2" Width="32" Height="32" Click="TodayDateCheckedButton_Click" Padding="0">
-                            <FontIcon Glyph="&#xE823;" FontSize="16"/>
-                        </Button>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE8BF;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="ModDateCheckedLabel" Text="Date Checked" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="When you last verified this mod" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                                <CalendarDatePicker x:Name="ModDateCheckedPicker" Width="180" DateChanged="ModDateCheckedPicker_DateChanged" PlaceholderText="Select date"/>
+                                <Button x:Name="TodayDateCheckedButton" Width="32" Height="32" Click="TodayDateCheckedButton_Click" Padding="0" ToolTipService.ToolTip="Set to today">
+                                    <FontIcon Glyph="&#xE823;" FontSize="16"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
                     <!-- Date Updated -->
-                    <TextBlock x:Name="ModDateUpdatedLabel" Text="Date Updated:" FontWeight="Bold" Grid.Row="3" Grid.Column="0" Margin="0,0,0,2"/>
-                    <Grid Grid.Row="4" Grid.Column="0" HorizontalAlignment="Left" MinWidth="110" MaxWidth="250" Width="250" Height="32">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="210"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="32"/>
-                        </Grid.ColumnDefinitions>
-                        <CalendarDatePicker x:Name="ModDateUpdatedPicker" Grid.Column="0" Margin="0,0,0,0" Width="210" DateChanged="ModDateUpdatedPicker_DateChanged" PlaceholderText="Select date"/>
-                        <Border Grid.Column="1" Background="Transparent"/>
-                        <Button x:Name="TodayDateUpdatedButton" Grid.Column="2" Width="32" Height="32" Click="TodayDateUpdatedButton_Click" Padding="0">
-                            <FontIcon Glyph="&#xE823;" FontSize="16"/>
-                        </Button>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE787;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="ModDateUpdatedLabel" Text="Last Update" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="When this mod was last updated" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                                <CalendarDatePicker x:Name="ModDateUpdatedPicker" Width="180" DateChanged="ModDateUpdatedPicker_DateChanged" PlaceholderText="Select date"/>
+                                <Button x:Name="TodayDateUpdatedButton" Width="32" Height="32" Click="TodayDateUpdatedButton_Click" Padding="0" ToolTipService.ToolTip="Set to today">
+                                    <FontIcon Glyph="&#xE823;" FontSize="16"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
                     <!-- Author -->
-                    <TextBlock x:Name="ModAuthorLabel" Text="Author:" FontWeight="Bold" Grid.Row="6" Grid.Column="0" Margin="0,0,0,2"/>
-                    <TextBox x:Name="ModAuthorTextBox" Grid.Row="7" Grid.Column="0" Margin="0,0,0,0" TextAlignment="Left" HorizontalAlignment="Left" MinWidth="110" MaxWidth="250" Width="250" TextChanged="ModAuthorTextBox_TextChanged"/>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE77B;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="ModAuthorLabel" Text="Author" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="Creator of this mod" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <TextBox x:Name="ModAuthorTextBox" Grid.Column="3" Width="220" TextChanged="ModAuthorTextBox_TextChanged" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    
                     <!-- URL -->
-                    <TextBlock x:Name="ModUrlLabel" Text="URL:" FontWeight="Bold" Visibility="Visible" Grid.Row="9" Grid.Column="0" Margin="0,0,0,2" HorizontalAlignment="Left"/>
-                    <Grid Grid.Row="10" Grid.Column="0" HorizontalAlignment="Left" MinWidth="110" MaxWidth="250" Width="250" Height="32">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="210"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="32"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox x:Name="ModUrlTextBox" Grid.Column="0" Margin="0,0,0,0" TextAlignment="Left" HorizontalAlignment="Stretch" TextChanged="ModUrlTextBox_TextChanged" GotFocus="ModUrlTextBox_GotFocus" LostFocus="ModUrlTextBox_LostFocus"/>
-                        <Border Grid.Column="1" Background="Transparent"/>
-                        <Button x:Name="OpenUrlButton" Grid.Column="2" Click="OpenUrlButton_Click" Width="32" Height="32" Background="{ThemeResource ButtonBackground}" BorderBrush="{ThemeResource ButtonBorderBrush}" BorderThickness="1" Padding="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <FontIcon Glyph="&#xE71B;" FontSize="16"/>
-                        </Button>
-                    </Grid>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE71B;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="ModUrlLabel" Text="URL" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="Link to mod page" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                                <TextBox x:Name="ModUrlTextBox" Width="180" TextChanged="ModUrlTextBox_TextChanged" GotFocus="ModUrlTextBox_GotFocus" LostFocus="ModUrlTextBox_LostFocus"/>
+                                <Button x:Name="OpenUrlButton" Click="OpenUrlButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Open URL">
+                                    <FontIcon Glyph="&#xE71B;" FontSize="16"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
                     <!-- NSFW Checkbox -->
-                    <CheckBox x:Name="ModNSFWCheckBox" 
-                              Grid.Row="12" 
-                              Grid.Column="0" 
-                              Margin="0,0,0,0"
-                              Checked="ModNSFWCheckBox_Checked"
-                              Unchecked="ModNSFWCheckBox_Unchecked"
-                              Content="NSFW Content"/>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE7B3;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock Text="NSFW Content" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="Mark this mod as adult content" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <CheckBox x:Name="ModNSFWCheckBox" 
+                                      Grid.Column="3"
+                                      Checked="ModNSFWCheckBox_Checked"
+                                      Unchecked="ModNSFWCheckBox_Unchecked"
+                                      VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    
                     <!-- StatusKeeper Sync Checkbox -->
-                    <CheckBox x:Name="ModStatusKeeperSyncCheckBox" 
-                              Grid.Row="13" 
-                              Grid.Column="0" 
-                              Margin="0,0,0,0"
-                              Checked="ModStatusKeeperSyncCheckBox_Checked"
-                              Unchecked="ModStatusKeeperSyncCheckBox_Unchecked"
-                              Content="StatusKeeper Sync"/>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE895;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock Text="StatusKeeper Sync" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock Text="Synchronize mod status with game settings" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <CheckBox x:Name="ModStatusKeeperSyncCheckBox" 
+                                      Grid.Column="3"
+                                      Checked="ModStatusKeeperSyncCheckBox_Checked"
+                                      Unchecked="ModStatusKeeperSyncCheckBox_Unchecked"
+                                      VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    
                     <!-- Update Available Notification -->
                     <TextBlock x:Name="UpdateAvailableNotification" 
                                Text="" 
@@ -219,51 +322,64 @@
                                FontWeight="SemiBold"
                                FontSize="14"
                                Visibility="Collapsed"
-                               Grid.Row="14"
-                               Grid.Column="0"
                                HorizontalAlignment="Left"
-                               VerticalAlignment="Top"/>
-                </Grid>
-                <Grid Grid.Row="1" VerticalAlignment="Stretch" Margin="0,16,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock x:Name="ModHotkeysLabel" Text="Hotkeys: " FontWeight="Bold" Grid.Row="0" Margin="0,0,0,8"/>
-                    <ScrollViewer Grid.Row="1" Width="300" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Left">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="16"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="125"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <!-- Empty header row for spacing -->
-                            <TextBlock Text="" Grid.Row="0" Grid.Column="0"/>
-                            <TextBlock Text="" Grid.Row="0" Grid.Column="2"/>
-                            <ItemsControl x:Name="ModHotkeysList" Grid.Row="1" Grid.ColumnSpan="3">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Margin="0,0,0,4">
+                               VerticalAlignment="Top"
+                               Margin="0,8,0,0"/>
+                    
+                    <!-- Hotkeys Section -->
+                    <TextBlock x:Name="ModHotkeysLabel" Text="Hotkeys" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
+                    
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,24">
+                        <ItemsControl x:Name="ModHotkeysList">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" 
+                                            CornerRadius="6" 
+                                            Padding="12,8" 
+                                            Margin="0,0,0,4"
+                                            ToolTipService.ToolTip="{Binding Key}">
+                                        <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="125"/>
-                                                <ColumnDefinition Width="10"/>
+                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="16"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding Key}" FontFamily="{StaticResource AppFontFamily}" FontWeight="Bold" FontSize="16" Grid.Column="0" TextAlignment="Left"/>
-                                            <TextBlock Grid.Column="1"/>
-                                            <TextBlock Text="{Binding Description}" FontFamily="{StaticResource AppFontFamily}" FontSize="16" Grid.Column="2" TextAlignment="Left"/>
+                                            <Border Background="{ThemeResource AccentFillColorDefaultBrush}" 
+                                                    CornerRadius="4" 
+                                                    Padding="8,4" 
+                                                    HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding Key}" 
+                                                           FontFamily="Consolas" 
+                                                           FontWeight="SemiBold" 
+                                                           FontSize="13" 
+                                                           Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                                           MaxWidth="130"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </Border>
+                                            <TextBlock Grid.Column="2" 
+                                                       Text="{Binding Description}" 
+                                                       FontFamily="{StaticResource AppFontFamily}" 
+                                                       FontSize="14" 
+                                                       VerticalAlignment="Center"
+                                                       Opacity="0.9"/>
                                         </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </Grid>
-                    </ScrollViewer>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                    
+                    <!-- Hidden DetailsGrid for compatibility -->
+                    <Grid x:Name="DetailsGrid" Visibility="Collapsed"/>
+                    
+                    </StackPanel>
                 </Grid>
-            </Grid>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </UserControl>

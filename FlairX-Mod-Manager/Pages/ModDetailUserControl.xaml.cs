@@ -71,8 +71,6 @@ namespace FlairX_Mod_Manager.Pages
                 ModHotkeysLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Hotkeys");
                 ModUrlLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_URL");
                 UpdateAvailableNotification.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_UpdateAvailable");
-                ModNSFWCheckBox.Content = SharedUtilities.GetTranslation(lang, "ModDetail_NSFW_Label");
-                ModStatusKeeperSyncCheckBox.Content = SharedUtilities.GetTranslation(lang, "ModDetail_StatusKeeperSync_Label");
 
                 // Set tooltip for OpenUrlButton
                 ToolTipService.SetToolTip(OpenUrlButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_OpenURL_Tooltip"));
