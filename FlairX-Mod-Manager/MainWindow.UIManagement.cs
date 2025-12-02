@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -16,7 +17,7 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        private volatile bool _isGeneratingMenu = false;
+        private readonly SemaphoreSlim _menuGenerationLock = new SemaphoreSlim(1, 1);
         private volatile bool _suppressMenuRegeneration = false;
         private void UpdateGameSelectionComboBoxTexts()
         {
@@ -156,11 +157,12 @@ namespace FlairX_Mod_Manager
                 return;
             }
             
-            // Prevent race conditions caused by multiple asynchronous operations
-            if (_isGeneratingMenu)
+            // Use SemaphoreSlim for proper async synchronization
+            if (!await _menuGenerationLock.WaitAsync(0))
+            {
+                System.Diagnostics.Debug.WriteLine("[MENU DEBUG] Menu generation already in progress, skipping");
                 return;
-                
-            _isGeneratingMenu = true;
+            }
             
             try
             {
@@ -284,7 +286,7 @@ namespace FlairX_Mod_Manager
             }
             finally
             {
-                _isGeneratingMenu = false;
+                _menuGenerationLock.Release();
             }
         }
 

@@ -12,9 +12,9 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public static class ImageCacheManager
     {
-        private const long MAX_CACHE_SIZE_MB = -1; // Unlimited cache size
-        private const long MAX_CACHE_SIZE_BYTES = long.MaxValue; // No limit
-        private const long CLEANUP_THRESHOLD_BYTES = long.MaxValue; // Never cleanup
+        private const long MAX_CACHE_SIZE_MB = 1024; // 1GB cache limit
+        private const long MAX_CACHE_SIZE_BYTES = MAX_CACHE_SIZE_MB * 1024 * 1024;
+        private const long CLEANUP_THRESHOLD_BYTES = (long)(MAX_CACHE_SIZE_BYTES * 0.9); // Cleanup at 90% capacity
 
         private static readonly ConcurrentDictionary<string, CacheEntry> _imageCache = new();
         private static readonly ConcurrentDictionary<string, CacheEntry> _ramImageCache = new();

@@ -16,7 +16,6 @@ namespace FlairX_Mod_Manager.Services
         {
             var handler = new HttpClientHandler
             {
-                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
                 AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate | System.Net.DecompressionMethods.Brotli,
                 UseCookies = true,
                 AllowAutoRedirect = true
