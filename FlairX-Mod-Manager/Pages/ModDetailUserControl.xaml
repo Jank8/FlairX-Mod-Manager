@@ -10,7 +10,7 @@
     HorizontalAlignment="Stretch"
     VerticalAlignment="Stretch">
     
-    <Grid Margin="24" x:Name="MainGrid" PointerPressed="MainGrid_PointerPressed" PointerReleased="MainGrid_PointerReleased" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+    <Grid Margin="24" x:Name="MainGrid" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -53,14 +53,14 @@
         </StackPanel>
         
         <!-- Content -->
-        <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid Grid.Row="1" VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" 
-                          VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0,0,0,12">
-                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                          VerticalAlignment="Stretch" Padding="0,0,0,12">
+                <Grid HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="8*" MaxWidth="1000"/>
