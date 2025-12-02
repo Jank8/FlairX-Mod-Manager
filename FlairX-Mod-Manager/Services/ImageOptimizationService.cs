@@ -72,11 +72,13 @@ namespace FlairX_Mod_Manager.Services
                     break;
                     
                 case OptimizationMode.Lite:
-                    ProcessCategoryPreviewLite(categoryDir, context);
+                    // Lite mode not applicable for categories - skip
+                    Logger.LogInfo($"Skipping category (Lite mode not applicable): {categoryDir}");
                     break;
                     
                 case OptimizationMode.Rename:
-                    ProcessCategoryPreviewRename(categoryDir, context);
+                    // Rename mode not applicable for categories - skip
+                    Logger.LogInfo($"Skipping category (Rename mode not applicable): {categoryDir}");
                     break;
                     
                 case OptimizationMode.RenameOnly:
@@ -152,21 +154,68 @@ namespace FlairX_Mod_Manager.Services
                 
                 var allPreviewFiles = catprevFiles.Concat(otherPreviewFiles).ToArray();
                 
-                if (allPreviewFiles.Length == 0)
+                // Separate original files from regular files
+                var originalFiles = allPreviewFiles.Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).ToArray();
+                var regularFiles = allPreviewFiles.Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).ToArray();
+                
+                // Use original file if it exists, otherwise use regular file
+                var sourceFiles = originalFiles.Length > 0 ? originalFiles : regularFiles;
+                
+                if (sourceFiles.Length == 0)
                 {
                     Logger.LogInfo($"No preview files found in category: {categoryDir}");
                     return;
                 }
                 
-                var previewPath = allPreviewFiles[0];
+                // If using regular file and KeepOriginals is enabled, create _original copy first
+                bool needsOriginalCreation = (originalFiles.Length == 0 && context.KeepOriginals && regularFiles.Length > 0);
+                if (needsOriginalCreation)
+                {
+                    Logger.LogInfo("Creating original copy before optimization");
+                    var file = regularFiles[0];
+                    try
+                    {
+                        var directory = Path.GetDirectoryName(file);
+                        var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                        var extension = Path.GetExtension(file);
+                        var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                        
+                        if (!File.Exists(originalPath))
+                        {
+                            File.Copy(file, originalPath);
+                            Logger.LogInfo($"Created original: {Path.GetFileName(originalPath)}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to create original copy: {file}", ex);
+                    }
+                }
+                
+                var previewPath = sourceFiles[0];
                 var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
                 var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                
+                // Use temporary paths if reoptimizing existing files
+                var catprevTempPath = catprevPath;
+                var catminiTempPath = catminiPath;
+                bool isReoptimizingCatprev = previewPath.Equals(catprevPath, StringComparison.OrdinalIgnoreCase);
+                bool isReoptimizingCatmini = previewPath.Equals(catminiPath, StringComparison.OrdinalIgnoreCase);
+                
+                if (isReoptimizingCatprev)
+                {
+                    catprevTempPath = Path.Combine(categoryDir, "catprev_temp.jpg");
+                }
+                if (isReoptimizingCatmini)
+                {
+                    catminiTempPath = Path.Combine(categoryDir, "catmini_temp.jpg");
+                }
                 
                 using (var img = Image.FromFile(previewPath))
                 {
                     // Get crop rectangle with optional inspection for catprev
                     var catprevCropRect = await GetCropRectangleWithInspectionAsync(
-                        img, 600, 722, context, "catprev.jpg");
+                        img, 600, 600, context, "catprev.jpg");
                     
                     if (catprevCropRect == null)
                     {
@@ -174,8 +223,8 @@ namespace FlairX_Mod_Manager.Services
                         return; // User skipped
                     }
                     
-                    // Generate catprev.jpg (600x722)
-                    using (var catprev = new Bitmap(600, 722))
+                    // Generate catprev.jpg (600x600)
+                    using (var catprev = new Bitmap(600, 600))
                     using (var g = Graphics.FromImage(catprev))
                     {
                         g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -183,7 +232,7 @@ namespace FlairX_Mod_Manager.Services
                         g.SmoothingMode = SmoothingMode.HighQuality;
                         g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                         
-                        var destRect = new Rectangle(0, 0, 600, 722);
+                        var destRect = new Rectangle(0, 0, 600, 600);
                         g.DrawImage(img, destRect, catprevCropRect.Value, GraphicsUnit.Pixel);
                         
                         var jpegEncoder = ImageCodecInfo.GetImageEncoders()
@@ -192,7 +241,7 @@ namespace FlairX_Mod_Manager.Services
                         {
                             var jpegParams = new EncoderParameters(1);
                             jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            catprev.Save(catprevPath, jpegEncoder, jpegParams);
+                            catprev.Save(catprevTempPath, jpegEncoder, jpegParams);
                             Logger.LogInfo($"Generated catprev.jpg");
                         }
                     }
@@ -207,7 +256,7 @@ namespace FlairX_Mod_Manager.Services
                         return; // User skipped
                     }
                     
-                    // Generate catmini.jpg (600x722) - same dimensions as catprev
+                    // Generate catmini.jpg (600x722)
                     using (var catmini = new Bitmap(600, 722))
                     using (var g = Graphics.FromImage(catmini))
                     {
@@ -225,15 +274,59 @@ namespace FlairX_Mod_Manager.Services
                         {
                             var jpegParams = new EncoderParameters(1);
                             jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            catmini.Save(catminiPath, jpegEncoder, jpegParams);
+                            catmini.Save(catminiTempPath, jpegEncoder, jpegParams);
                             Logger.LogInfo($"Generated catmini.jpg");
                         }
                     }
                 }
                 
-                // Clean up original files if not keeping originals
-                if (!context.KeepOriginals)
+                // Replace original files if we used temporary paths
+                if (isReoptimizingCatprev)
                 {
+                    if (File.Exists(catprevPath))
+                        File.Delete(catprevPath);
+                    File.Move(catprevTempPath, catprevPath);
+                }
+                if (isReoptimizingCatmini)
+                {
+                    if (File.Exists(catminiPath))
+                        File.Delete(catminiPath);
+                    File.Move(catminiTempPath, catminiPath);
+                }
+                
+                // Handle original files based on KeepOriginals setting
+                if (context.KeepOriginals)
+                {
+                    // Rename original files with _original suffix
+                    foreach (var file in allPreviewFiles)
+                    {
+                        if (!file.Equals(catprevPath, StringComparison.OrdinalIgnoreCase) &&
+                            !file.Equals(catminiPath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            try
+                            {
+                                var directory = Path.GetDirectoryName(file);
+                                var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                                var extension = Path.GetExtension(file);
+                                var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                                
+                                // If _original already exists, delete it first
+                                if (File.Exists(originalPath))
+                                    File.Delete(originalPath);
+                                
+                                File.Move(file, originalPath);
+                                Logger.LogInfo($"Kept original: {Path.GetFileName(file)} -> {Path.GetFileName(originalPath)}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to keep original file: {file}", ex);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Delete original files
                     foreach (var file in allPreviewFiles)
                     {
                         if (!file.Equals(catprevPath, StringComparison.OrdinalIgnoreCase) &&
@@ -289,8 +382,8 @@ namespace FlairX_Mod_Manager.Services
                     }
                 }
                 
-                // Find preview files
-                var previewFiles = Directory.GetFiles(categoryDir)
+                // Find preview files (prefer _original files if they exist)
+                var allFiles = Directory.GetFiles(categoryDir)
                     .Where(f =>
                     {
                         var fileName = Path.GetFileName(f).ToLower();
@@ -301,10 +394,42 @@ namespace FlairX_Mod_Manager.Services
                     })
                     .ToList();
                 
+                // Separate original files from regular files
+                var originalFiles = allFiles.Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).ToList();
+                var regularFiles = allFiles.Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).ToList();
+                
+                // Use original file if it exists, otherwise use regular file
+                var previewFiles = originalFiles.Count > 0 ? originalFiles : regularFiles;
+                
                 if (previewFiles.Count == 0)
                 {
                     Logger.LogInfo($"No preview files found in category: {categoryDir}");
                     return;
+                }
+                
+                // If using regular file and KeepOriginals is enabled, create _original copy first
+                bool needsOriginalCreation = (originalFiles.Count == 0 && context.KeepOriginals && regularFiles.Count > 0);
+                if (needsOriginalCreation)
+                {
+                    Logger.LogInfo("Creating original copy before optimization");
+                    var file = regularFiles[0];
+                    try
+                    {
+                        var directory = Path.GetDirectoryName(file);
+                        var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                        var extension = Path.GetExtension(file);
+                        var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                        
+                        if (!File.Exists(originalPath))
+                        {
+                            File.Copy(file, originalPath);
+                            Logger.LogInfo($"Created original: {Path.GetFileName(originalPath)}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to create original copy: {file}", ex);
+                    }
                 }
                 
                 var sourceFile = previewFiles[0];
@@ -326,17 +451,43 @@ namespace FlairX_Mod_Manager.Services
                 
                 // Do NOT generate catmini in Lite mode
                 
-                // Clean up original files if not keeping originals
-                if (!context.KeepOriginals && !sourceFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase))
+                // Handle original file based on KeepOriginals setting
+                if (!sourceFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    try
+                    if (context.KeepOriginals)
                     {
-                        File.Delete(sourceFile);
-                        Logger.LogInfo($"Deleted original: {Path.GetFileName(sourceFile)}");
+                        // Rename original file with _original suffix
+                        try
+                        {
+                            var directory = Path.GetDirectoryName(sourceFile);
+                            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(sourceFile);
+                            var extension = Path.GetExtension(sourceFile);
+                            var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                            
+                            // If _original already exists, delete it first
+                            if (File.Exists(originalPath))
+                                File.Delete(originalPath);
+                            
+                            File.Move(sourceFile, originalPath);
+                            Logger.LogInfo($"Kept original: {Path.GetFileName(sourceFile)} -> {Path.GetFileName(originalPath)}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to keep original file: {sourceFile}", ex);
+                        }
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Logger.LogError($"Failed to delete original file: {sourceFile}", ex);
+                        // Delete original file
+                        try
+                        {
+                            File.Delete(sourceFile);
+                            Logger.LogInfo($"Deleted original: {Path.GetFileName(sourceFile)}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to delete original file: {sourceFile}", ex);
+                        }
                     }
                 }
                 
@@ -539,8 +690,8 @@ namespace FlairX_Mod_Manager.Services
                     }
                 }
                 
-                // Find all preview image files
-                var previewFiles = Directory.GetFiles(modDir)
+                // Find all preview image files (prefer _original files if they exist)
+                var allFiles = Directory.GetFiles(modDir)
                     .Where(f =>
                     {
                         var fileName = Path.GetFileName(f).ToLower();
@@ -549,13 +700,46 @@ namespace FlairX_Mod_Manager.Services
                                 f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
                                 f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
                     })
-                    .OrderBy(f => f)
                     .ToList();
+                
+                // Separate original files from regular files
+                var originalFiles = allFiles.Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).OrderBy(f => f).ToList();
+                var regularFiles = allFiles.Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).OrderBy(f => f).ToList();
+                
+                // Use original files if they exist, otherwise use regular files
+                var previewFiles = originalFiles.Count > 0 ? originalFiles : regularFiles;
                 
                 if (previewFiles.Count == 0)
                 {
                     Logger.LogInfo($"No preview files found in: {modDir}");
                     return;
+                }
+                
+                // If using regular files and KeepOriginals is enabled, create _original copies first
+                bool needsOriginalCreation = (originalFiles.Count == 0 && context.KeepOriginals && regularFiles.Count > 0);
+                if (needsOriginalCreation)
+                {
+                    Logger.LogInfo("Creating original copies before optimization");
+                    foreach (var file in regularFiles)
+                    {
+                        try
+                        {
+                            var directory = Path.GetDirectoryName(file);
+                            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                            var extension = Path.GetExtension(file);
+                            var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                            
+                            if (!File.Exists(originalPath))
+                            {
+                                File.Copy(file, originalPath);
+                                Logger.LogInfo($"Created original: {Path.GetFileName(originalPath)}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to create original copy: {file}", ex);
+                        }
+                    }
                 }
                 
                 // Process each preview file
@@ -566,12 +750,20 @@ namespace FlairX_Mod_Manager.Services
                     string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
                     var targetPath = Path.Combine(modDir, targetFileName);
                     
+                    // Use temporary path if reoptimizing existing file
+                    var outputPath = targetPath;
+                    bool isReoptimizing = sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
+                    if (isReoptimizing)
+                    {
+                        outputPath = Path.Combine(modDir, $"{Path.GetFileNameWithoutExtension(targetFileName)}_temp.jpg");
+                    }
+                    
                     try
                     {
                         using (var img = Image.FromFile(sourceFile))
                         {
-                            // For Full mode, we optimize the image (crop to square if needed, apply quality)
-                            int targetSize = Math.Min(img.Width, img.Height);
+                            // For Full mode, we optimize the image to 1000x1000 (crop to square and resize)
+                            const int targetSize = 1000;
                             
                             // Get crop rectangle with optional inspection
                             var squareCropRect = await GetCropRectangleWithInspectionAsync(
@@ -591,7 +783,7 @@ namespace FlairX_Mod_Manager.Services
                                 g.SmoothingMode = SmoothingMode.HighQuality;
                                 g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                                 
-                                // Crop to square
+                                // Crop to square and resize to 1000x1000
                                 var destRect = new Rectangle(0, 0, targetSize, targetSize);
                                 g.DrawImage(img, destRect, squareCropRect.Value, GraphicsUnit.Pixel);
                                 
@@ -602,7 +794,16 @@ namespace FlairX_Mod_Manager.Services
                                 {
                                     var jpegParams = new EncoderParameters(1);
                                     jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                                    optimized.Save(targetPath, jpegEncoder, jpegParams);
+                                    optimized.Save(outputPath, jpegEncoder, jpegParams);
+                                    
+                                    // Replace original if we used temporary path
+                                    if (isReoptimizing)
+                                    {
+                                        if (File.Exists(targetPath))
+                                            File.Delete(targetPath);
+                                        File.Move(outputPath, targetPath);
+                                    }
+                                    
                                     processedFiles.Add(targetPath);
                                     Logger.LogInfo($"Optimized: {Path.GetFileName(sourceFile)} -> {targetFileName}");
                                 }
@@ -621,9 +822,38 @@ namespace FlairX_Mod_Manager.Services
                     await GenerateMinitileAsync(modDir, processedFiles[0], context);
                 }
                 
-                // Clean up original files if not keeping originals
-                if (!context.KeepOriginals)
+                // Handle original files based on KeepOriginals setting
+                if (context.KeepOriginals)
                 {
+                    // Rename original files with _original suffix
+                    foreach (var file in previewFiles)
+                    {
+                        if (!processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
+                        {
+                            try
+                            {
+                                var directory = Path.GetDirectoryName(file);
+                                var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                                var extension = Path.GetExtension(file);
+                                var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                                
+                                // If _original already exists, delete it first
+                                if (File.Exists(originalPath))
+                                    File.Delete(originalPath);
+                                
+                                File.Move(file, originalPath);
+                                Logger.LogInfo($"Kept original: {Path.GetFileName(file)} -> {Path.GetFileName(originalPath)}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to keep original file: {file}", ex);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Delete original files
                     foreach (var file in previewFiles)
                     {
                         if (!processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
@@ -678,8 +908,8 @@ namespace FlairX_Mod_Manager.Services
                     }
                 }
                 
-                // Find all preview image files
-                var previewFiles = Directory.GetFiles(modDir)
+                // Find all preview image files (prefer _original files if they exist)
+                var allFiles = Directory.GetFiles(modDir)
                     .Where(f =>
                     {
                         var fileName = Path.GetFileName(f).ToLower();
@@ -688,13 +918,46 @@ namespace FlairX_Mod_Manager.Services
                                 f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
                                 f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
                     })
-                    .OrderBy(f => f)
                     .ToList();
+                
+                // Separate original files from regular files
+                var originalFiles = allFiles.Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).OrderBy(f => f).ToList();
+                var regularFiles = allFiles.Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).OrderBy(f => f).ToList();
+                
+                // Use original files if they exist, otherwise use regular files
+                var previewFiles = originalFiles.Count > 0 ? originalFiles : regularFiles;
                 
                 if (previewFiles.Count == 0)
                 {
                     Logger.LogInfo($"No preview files found in: {modDir}");
                     return;
+                }
+                
+                // If using regular files and KeepOriginals is enabled, create _original copies first
+                bool needsOriginalCreation = (originalFiles.Count == 0 && context.KeepOriginals && regularFiles.Count > 0);
+                if (needsOriginalCreation)
+                {
+                    Logger.LogInfo("Creating original copies before optimization");
+                    foreach (var file in regularFiles)
+                    {
+                        try
+                        {
+                            var directory = Path.GetDirectoryName(file);
+                            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                            var extension = Path.GetExtension(file);
+                            var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                            
+                            if (!File.Exists(originalPath))
+                            {
+                                File.Copy(file, originalPath);
+                                Logger.LogInfo($"Created original: {Path.GetFileName(originalPath)}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to create original copy: {file}", ex);
+                        }
+                    }
                 }
                 
                 // Process each preview file - convert to JPEG without resizing
@@ -704,6 +967,14 @@ namespace FlairX_Mod_Manager.Services
                     var sourceFile = previewFiles[i];
                     string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
                     var targetPath = Path.Combine(modDir, targetFileName);
+                    
+                    // Use temporary path if reoptimizing existing file
+                    var outputPath = targetPath;
+                    bool isReoptimizing = sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
+                    if (isReoptimizing)
+                    {
+                        outputPath = Path.Combine(modDir, $"{Path.GetFileNameWithoutExtension(targetFileName)}_temp.jpg");
+                    }
                     
                     try
                     {
@@ -716,7 +987,16 @@ namespace FlairX_Mod_Manager.Services
                             {
                                 var jpegParams = new EncoderParameters(1);
                                 jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                                img.Save(targetPath, jpegEncoder, jpegParams);
+                                img.Save(outputPath, jpegEncoder, jpegParams);
+                                
+                                // Replace original if we used temporary path
+                                if (isReoptimizing)
+                                {
+                                    if (File.Exists(targetPath))
+                                        File.Delete(targetPath);
+                                    File.Move(outputPath, targetPath);
+                                }
+                                
                                 processedFiles.Add(targetPath);
                                 Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> {targetFileName}");
                             }
@@ -734,9 +1014,38 @@ namespace FlairX_Mod_Manager.Services
                     await GenerateMinitileAsync(modDir, processedFiles[0], context);
                 }
                 
-                // Clean up original files if not keeping originals
-                if (!context.KeepOriginals)
+                // Handle original files based on KeepOriginals setting
+                if (context.KeepOriginals)
                 {
+                    // Rename original files with _original suffix
+                    foreach (var file in previewFiles)
+                    {
+                        if (!processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
+                        {
+                            try
+                            {
+                                var directory = Path.GetDirectoryName(file);
+                                var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                                var extension = Path.GetExtension(file);
+                                var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                                
+                                // If _original already exists, delete it first
+                                if (File.Exists(originalPath))
+                                    File.Delete(originalPath);
+                                
+                                File.Move(file, originalPath);
+                                Logger.LogInfo($"Kept original: {Path.GetFileName(file)} -> {Path.GetFileName(originalPath)}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to keep original file: {file}", ex);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    // Delete original files
                     foreach (var file in previewFiles)
                     {
                         if (!processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
@@ -902,6 +1211,14 @@ namespace FlairX_Mod_Manager.Services
                 
                 var minitilePath = Path.Combine(modDir, "minitile.jpg");
                 
+                // Use temporary path if reoptimizing existing minitile
+                var outputPath = minitilePath;
+                bool isReoptimizing = previewPath.Equals(minitilePath, StringComparison.OrdinalIgnoreCase);
+                if (isReoptimizing)
+                {
+                    outputPath = Path.Combine(modDir, "minitile_temp.jpg");
+                }
+                
                 using (var img = Image.FromFile(previewPath))
                 {
                     // Get crop rectangle with optional inspection
@@ -932,7 +1249,16 @@ namespace FlairX_Mod_Manager.Services
                         {
                             var jpegParams = new EncoderParameters(1);
                             jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            minitile.Save(minitilePath, jpegEncoder, jpegParams);
+                            minitile.Save(outputPath, jpegEncoder, jpegParams);
+                            
+                            // Replace original if we used temporary path
+                            if (isReoptimizing)
+                            {
+                                if (File.Exists(minitilePath))
+                                    File.Delete(minitilePath);
+                                File.Move(outputPath, minitilePath);
+                            }
+                            
                             Logger.LogInfo($"Minitile generated: {minitilePath}");
                         }
                     }
@@ -1279,22 +1605,17 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         public static bool IsCategoryAlreadyOptimized(string categoryDir)
         {
-            // Check if catprev exists (any extension)
-            var catprevFiles = Directory.GetFiles(categoryDir)
-                .Where(f =>
-                {
-                    var fileName = Path.GetFileNameWithoutExtension(f).ToLower();
-                    return fileName == "catprev";
-                })
-                .ToList();
-            
-            if (catprevFiles.Count == 0)
+            // Check if catprev.jpg exists (optimized format)
+            var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
+            if (!File.Exists(catprevPath))
                 return false;
             
-            // Check if catmini.jpg exists (for Full mode)
+            // Check if catmini.jpg exists (required for Full mode optimization)
             var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
-            // catmini is optional (only in Full mode), so we don't require it
+            if (!File.Exists(catminiPath))
+                return false;
             
+            // Both catprev.jpg and catmini.jpg exist - category is fully optimized
             return true;
         }
     }

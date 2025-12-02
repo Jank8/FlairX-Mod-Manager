@@ -195,6 +195,9 @@ namespace FlairX_Mod_Manager
                     UpdateAllModsButtonText(isCategoriesView);
                     UpdateViewModeTooltip(isCategoriesView);
                     
+                    // Refresh navigation menu to reload category icons and hover previews
+                    _ = GenerateModCharacterMenuAsync();
+                    
                     // Update menu items enabled state with a small delay to ensure menu is fully loaded
                     DispatcherQueue.TryEnqueue(async () =>
                     {
@@ -227,6 +230,10 @@ namespace FlairX_Mod_Manager
                     bool isCategoriesView = SettingsManager.Current.ViewMode == "Categories";
                     UpdateAllModsButtonText(isCategoriesView);
                     UpdateViewModeTooltip(isCategoriesView);
+                    
+                    // Refresh navigation menu to reload category icons and hover previews
+                    _ = GenerateModCharacterMenuAsync();
+                    
                     UpdateMenuItemsEnabledState(isCategoriesView);
                     
                     // Navigate to ModGridPage if not already there, or change mode if already there

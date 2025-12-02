@@ -5,10 +5,10 @@
     "AboutDialog_Author": "作者:",
     "AboutDialog_Fonts": "フォント:",
     "AboutDialog_Compression": "圧縮:",
-    "AboutDialog_For": "for",
+    "AboutDialog_For": "のために",
     "AboutDialog_License": "ライセンス: GPLv3",
     "AboutDialog_Thanks": "謝辞:",
-    "AboutDialog_With": "with",
+    "AboutDialog_With": "と共に",
     "AboutDialog_And": "と",
     "AboutDialog_Version": "バージョン",
     "All_Mods": "すべての Mod",
@@ -196,5 +196,13 @@
     "PresetsPage_ModsInPreset": "プリセット内のMod",
     "PresetsPage_LoadPresetLabel": "プリセットを読み込む",
     "PresetsPage_DeletePresetDescription": "選択したプリセットをリストから削除",
-    "PresetsPage_DeletePresetLabel": "プリセットを削除"
+    "PresetsPage_DeletePresetLabel": "プリセットを削除",
+    "Confirm": "確認",
+    "CropPanel_AspectLocked": "アスペクト比がロックされています",
+    "CropPanel_FreeAspect": "自由なアスペクト比 - ハンドルをドラッグしてサイズ変更",
+    "CropPanel_Hint": "ドラッグして移動 • 角は比率を維持 • 辺は比率を変更",
+    "CropPanel_Reset": "リセット",
+    "CropPanel_Title": "トリミング領域を調整",
+    "SettingsPage_ImageOptimizerHeader": "画像最適化",
+    "Skip": "スキップ"
 }

@@ -196,5 +196,13 @@
     "PresetsPage_ModsInPreset": "Mods dans le Preset",
     "PresetsPage_LoadPresetLabel": "Charger le preset",
     "PresetsPage_DeletePresetDescription": "Supprimer le preset sélectionné de la liste",
-    "PresetsPage_DeletePresetLabel": "Supprimer le preset"
+    "PresetsPage_DeletePresetLabel": "Supprimer le preset",
+    "Confirm": "Confirmer",
+    "CropPanel_AspectLocked": "Rapport d'aspect verrouillé à",
+    "CropPanel_FreeAspect": "Rapport d'aspect libre - faites glisser les poignées pour redimensionner",
+    "CropPanel_Hint": "Glisser pour déplacer • Coins maintiennent le ratio • Bords changent le ratio",
+    "CropPanel_Reset": "Réinitialiser",
+    "CropPanel_Title": "Ajuster la Zone de Recadrage",
+    "SettingsPage_ImageOptimizerHeader": "Optimiseur d'Images",
+    "Skip": "Passer"
 }

@@ -100,10 +100,10 @@ namespace FlairX_Mod_Manager.Pages
             var gameModsPath = AppConstants.GameConfig.GetModsPath(gameTag);
             string categoryPath = PathManager.GetAbsolutePath(Path.Combine(gameModsPath, categoryName));
             
-            // Look for category-specific preview image only
-            string categoryPreview = Path.Combine(categoryPath, "catprev.jpg");
-            LogToGridLog($"Looking for category preview: {categoryPreview}");
-            return categoryPreview;
+            // Look for category mini tile image
+            string categoryMini = Path.Combine(categoryPath, "catmini.jpg");
+            LogToGridLog($"Looking for category mini tile: {categoryMini}");
+            return categoryMini;
         }
 
         private void LoadCategoryMiniTile(ModTile categoryTile)

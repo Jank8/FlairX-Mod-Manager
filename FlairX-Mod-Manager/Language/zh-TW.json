@@ -196,5 +196,13 @@
     "PresetsPage_ModsInPreset": "預設中的模組",
     "PresetsPage_LoadPresetLabel": "載入預設",
     "PresetsPage_DeletePresetDescription": "從清單中移除所選預設",
-    "PresetsPage_DeletePresetLabel": "刪除預設"
+    "PresetsPage_DeletePresetLabel": "刪除預設",
+    "Confirm": "確認",
+    "CropPanel_AspectLocked": "縱橫比已鎖定",
+    "CropPanel_FreeAspect": "自由縱橫比 - 拖動手柄調整大小",
+    "CropPanel_Hint": "拖動移動 • 角落保持比例 • 邊緣改變比例",
+    "CropPanel_Reset": "重置",
+    "CropPanel_Title": "調整裁剪區域",
+    "SettingsPage_ImageOptimizerHeader": "圖像優化器",
+    "Skip": "跳過"
 }

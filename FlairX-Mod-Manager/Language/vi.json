@@ -196,5 +196,13 @@
     "PresetsPage_ModsInPreset": "Mod trong preset",
     "PresetsPage_LoadPresetLabel": "Tải preset",
     "PresetsPage_DeletePresetDescription": "Xóa preset đã chọn khỏi danh sách",
-    "PresetsPage_DeletePresetLabel": "Xóa preset"
+    "PresetsPage_DeletePresetLabel": "Xóa preset",
+    "Confirm": "Xác nhận",
+    "CropPanel_AspectLocked": "Tỷ lệ khung hình đã khóa",
+    "CropPanel_FreeAspect": "Tỷ lệ khung hình tự do - kéo các điểm để thay đổi kích thước",
+    "CropPanel_Hint": "Kéo để di chuyển • Góc giữ nguyên tỷ lệ • Cạnh thay đổi tỷ lệ",
+    "CropPanel_Reset": "Đặt lại",
+    "CropPanel_Title": "Điều chỉnh vùng cắt",
+    "SettingsPage_ImageOptimizerHeader": "Trình tối ưu hóa hình ảnh",
+    "Skip": "Bỏ qua"
 }

@@ -68,9 +68,9 @@
     "Search_Results": "Mga resulta ng paghahanap",
     "Exit_Table_View": "Lumabas sa table view",
     "SelectGame_Placeholder": "PUMILI NG LARO",
-    "SettingsPage_Backdrop": "Backdrop effect:",
+    "SettingsPage_Backdrop": "Epekto ng background:",
     "SettingsPage_Backdrop_Acrylic": "Acrylic",
-    "SettingsPage_Backdrop_AcrylicThin": "Acrylic thin",
+    "SettingsPage_Backdrop_AcrylicThin": "Acrylic na manipis",
     "SettingsPage_Backdrop_Mica": "Mica",
     "SettingsPage_Backdrop_MicaAlt": "Mica alt",
     "SettingsPage_DynamicModSearch_Label": "Dynamic na paghahanap ng mod",
@@ -196,5 +196,13 @@
     "PresetsPage_ModsInPreset": "Mga mod sa preset",
     "PresetsPage_LoadPresetLabel": "I-load ang preset",
     "PresetsPage_DeletePresetDescription": "Alisin ang napiling preset mula sa listahan",
-    "PresetsPage_DeletePresetLabel": "Tanggalin ang preset"
+    "PresetsPage_DeletePresetLabel": "Tanggalin ang preset",
+    "Confirm": "Kumpirmahin",
+    "CropPanel_AspectLocked": "Naka-lock ang aspect ratio sa",
+    "CropPanel_FreeAspect": "Libreng aspect ratio - i-drag ang mga handle para baguhin ang laki",
+    "CropPanel_Hint": "I-drag para ilipat • Ang mga sulok ay nagpapanatili ng ratio • Ang mga gilid ay nagbabago ng ratio",
+    "CropPanel_Reset": "I-reset",
+    "CropPanel_Title": "Ayusin ang Crop Area",
+    "SettingsPage_ImageOptimizerHeader": "Image Optimizer",
+    "Skip": "Laktawan"
 }

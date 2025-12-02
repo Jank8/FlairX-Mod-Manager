@@ -132,9 +132,9 @@
     "Welcome_Title": "ДОБРО ПОЖАЛОВАТЬ!",
     "XXMI_Download_Instructions": "После загрузки разархивируйте папку XXMI в каталог APP или обновите путь к каталогу модов XXMI в настройках.",
     "XXMI_Download_Required": "Launcher XXMI требуется для запуска модов. Загрузите портативную версию с GitHub:",
-    "ContextMenu_Activate": "Активированно",
-    "ContextMenu_Deactivate": "Деактивированно",
-    "ContextMenu_OpenFolder": "Оькрыть папку",
+    "ContextMenu_Activate": "Активировать",
+    "ContextMenu_Deactivate": "Деактивировать",
+    "ContextMenu_OpenFolder": "Открыть папку",
     "ContextMenu_ViewDetails": "Показать детали",
     "ContextMenu_OpenURL": "Открыть URL",
     "ContextMenu_CopyName": "Копировать имя",
@@ -196,5 +196,13 @@
     "PresetsPage_ModsInPreset": "Моды в пресете",
     "PresetsPage_LoadPresetLabel": "Загрузить пресет",
     "PresetsPage_DeletePresetDescription": "Удалить выбранный пресет из списка",
-    "PresetsPage_DeletePresetLabel": "Удалить пресет"
+    "PresetsPage_DeletePresetLabel": "Удалить пресет",
+    "Confirm": "Подтвердить",
+    "CropPanel_AspectLocked": "Соотношение сторон заблокировано",
+    "CropPanel_FreeAspect": "Свободное соотношение сторон - перетащите маркеры для изменения размера",
+    "CropPanel_Hint": "Перетащите для перемещения • Углы сохраняют пропорции • Края изменяют пропорции",
+    "CropPanel_Reset": "Сбросить",
+    "CropPanel_Title": "Настроить область обрезки",
+    "SettingsPage_ImageOptimizerHeader": "Оптимизатор изображений",
+    "Skip": "Пропустить"
 }

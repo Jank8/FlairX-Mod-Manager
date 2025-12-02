@@ -196,5 +196,13 @@
     "PresetsPage_ModsInPreset": "Ön ayardaki modlar",
     "PresetsPage_LoadPresetLabel": "Ön ayarı yükle",
     "PresetsPage_DeletePresetDescription": "Seçili ön ayarı listeden kaldır",
-    "PresetsPage_DeletePresetLabel": "Ön ayarı sil"
+    "PresetsPage_DeletePresetLabel": "Ön ayarı sil",
+    "Confirm": "Onayla",
+    "CropPanel_AspectLocked": "En boy oranı kilitli",
+    "CropPanel_FreeAspect": "Serbest en boy oranı - yeniden boyutlandırmak için tutamaçları sürükleyin",
+    "CropPanel_Hint": "Taşımak için sürükleyin • Köşeler oranı korur • Kenarlar oranı değiştirir",
+    "CropPanel_Reset": "Sıfırla",
+    "CropPanel_Title": "Kırpma Alanını Ayarla",
+    "SettingsPage_ImageOptimizerHeader": "Görüntü Optimize Edici",
+    "Skip": "Atla"
 }

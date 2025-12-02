@@ -196,5 +196,13 @@
     "PresetsPage_ModsInPreset": "프리셋의 모드",
     "PresetsPage_LoadPresetLabel": "프리셋 불러오기",
     "PresetsPage_DeletePresetDescription": "목록에서 선택한 프리셋 제거",
-    "PresetsPage_DeletePresetLabel": "프리셋 삭제"
+    "PresetsPage_DeletePresetLabel": "프리셋 삭제",
+    "Confirm": "확인",
+    "CropPanel_AspectLocked": "종횡비 고정됨",
+    "CropPanel_FreeAspect": "자유 종횡비 - 핸들을 드래그하여 크기 조정",
+    "CropPanel_Hint": "드래그하여 이동 • 모서리는 비율 유지 • 가장자리는 비율 변경",
+    "CropPanel_Reset": "재설정",
+    "CropPanel_Title": "자르기 영역 조정",
+    "SettingsPage_ImageOptimizerHeader": "이미지 최적화",
+    "Skip": "건너뛰기"
 }
