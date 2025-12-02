@@ -52,5 +52,7 @@
     "CropDialog_Catprev_Title": "Kadruj podgląd kategorii",
     "CropDialog_Catmini_Title": "Kadruj ikonę kategorii",
     "CropDialog_Description": "Przeciągnij obszar kadrowania lub zmień rozmiar używając uchwytów w rogach. Proporcje są zablokowane.",
-    "CropDialog_Info": "Kliknij i przeciągnij aby przesunąć obszar kadrowania. Użyj uchwytów w rogach aby zmienić rozmiar zachowując proporcje."
+    "CropDialog_Info": "Kliknij i przeciągnij aby przesunąć obszar kadrowania. Użyj uchwytów w rogach aby zmienić rozmiar zachowując proporcje.",
+    "ImageOptimizer_Reoptimize": "Ponowna optymalizacja",
+    "ImageOptimizer_Reoptimize_Description": "Optymalizuj ponownie pliki które już mają poprawne nazwy (catprev, catmini, minitile, preview-01, preview-02, etc.)"
 }

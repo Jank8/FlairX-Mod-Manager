@@ -56,6 +56,13 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogWarning($"Category directory not found: {categoryDir}");
                 return;
             }
+            
+            // Check if already optimized and skip if reoptimize is disabled
+            if (!context.Reoptimize && OptimizationHelper.IsCategoryAlreadyOptimized(categoryDir))
+            {
+                Logger.LogInfo($"Skipping already optimized category: {categoryDir}");
+                return;
+            }
 
             // Handle different optimization modes
             switch (context.Mode)
@@ -460,6 +467,13 @@ namespace FlairX_Mod_Manager.Services
             if (string.IsNullOrEmpty(modDir) || !Directory.Exists(modDir))
             {
                 Logger.LogWarning($"Mod directory not found: {modDir}");
+                return;
+            }
+            
+            // Check if already optimized and skip if reoptimize is disabled
+            if (!context.Reoptimize && OptimizationHelper.IsModAlreadyOptimized(modDir))
+            {
+                Logger.LogInfo($"Skipping already optimized mod: {modDir}");
                 return;
             }
 
@@ -1169,7 +1183,8 @@ namespace FlairX_Mod_Manager.Services
                 CropStrategy = cropStrategy,
                 InspectAndEditEnabled = SettingsManager.Current.PreviewBeforeCrop,
                 Trigger = trigger,
-                AllowUIInteraction = allowUIInteraction
+                AllowUIInteraction = allowUIInteraction,
+                Reoptimize = SettingsManager.Current.ImageOptimizerReoptimize
             };
         }
     }
@@ -1188,6 +1203,7 @@ namespace FlairX_Mod_Manager.Services
         public bool InspectAndEditEnabled { get; set; }
         public OptimizationTrigger Trigger { get; set; }
         public bool AllowUIInteraction { get; set; } = true; // Can show crop inspection UI
+        public bool Reoptimize { get; set; } = false; // Re-optimize already optimized files
     }
 
     /// <summary>
@@ -1211,5 +1227,75 @@ namespace FlairX_Mod_Manager.Services
         Entropy,
         Attention,
         ManualOnly
+    }
+    
+    /// <summary>
+    /// Helper methods for checking if files are already optimized
+    /// </summary>
+    public static class OptimizationHelper
+    {
+        /// <summary>
+        /// Check if a mod directory already has optimized files
+        /// </summary>
+        public static bool IsModAlreadyOptimized(string modDir)
+        {
+            // Check if minitile.jpg exists
+            var minitilePath = Path.Combine(modDir, "minitile.jpg");
+            if (!File.Exists(minitilePath))
+                return false;
+            
+            // Check if preview files have correct names (preview.jpg, preview-01.jpg, preview-02.jpg, etc.)
+            var previewFiles = Directory.GetFiles(modDir)
+                .Where(f =>
+                {
+                    var fileName = Path.GetFileName(f).ToLower();
+                    return fileName.StartsWith("preview") &&
+                           (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                            f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                })
+                .ToList();
+            
+            if (previewFiles.Count == 0)
+                return false;
+            
+            // Check if all preview files have correct naming pattern
+            foreach (var file in previewFiles)
+            {
+                var fileName = Path.GetFileNameWithoutExtension(file).ToLower();
+                if (fileName == "preview")
+                    continue;
+                if (fileName.StartsWith("preview-") && fileName.Length >= 10) // preview-XX
+                    continue;
+                    
+                // Found a file with incorrect name
+                return false;
+            }
+            
+            return true;
+        }
+        
+        /// <summary>
+        /// Check if a category directory already has optimized files
+        /// </summary>
+        public static bool IsCategoryAlreadyOptimized(string categoryDir)
+        {
+            // Check if catprev exists (any extension)
+            var catprevFiles = Directory.GetFiles(categoryDir)
+                .Where(f =>
+                {
+                    var fileName = Path.GetFileNameWithoutExtension(f).ToLower();
+                    return fileName == "catprev";
+                })
+                .ToList();
+            
+            if (catprevFiles.Count == 0)
+                return false;
+            
+            // Check if catmini.jpg exists (for Full mode)
+            var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+            // catmini is optional (only in Full mode), so we don't require it
+            
+            return true;
+        }
     }
 }

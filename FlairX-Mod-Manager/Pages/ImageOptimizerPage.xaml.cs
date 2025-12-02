@@ -91,6 +91,7 @@ namespace FlairX_Mod_Manager.Pages
             ImageCropTypeComboBox.SelectionChanged += ImageCropTypeComboBox_SelectionChanged;
             
             PreviewBeforeCropToggle.IsOn = SettingsManager.Current.PreviewBeforeCrop;
+            ReoptimizeCheckBox.IsOn = SettingsManager.Current.ImageOptimizerReoptimize;
         }
 
         private void InitializeUI()
@@ -116,6 +117,7 @@ namespace FlairX_Mod_Manager.Pages
             // Set toggle switches
             CreateBackupsCheckBox.IsOn = _createBackups;
             KeepOriginalsCheckBox.IsOn = _keepOriginals;
+            ReoptimizeCheckBox.IsOn = SettingsManager.Current.ImageOptimizerReoptimize;
             
             // Translate UI first (before setting combo box selections)
             TranslateUI();
@@ -171,6 +173,8 @@ namespace FlairX_Mod_Manager.Pages
             BackupDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_CreateBackups_Description");
             KeepOriginalsLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_KeepOriginals");
             KeepOriginalsDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_KeepOriginals_Description");
+            ReoptimizeLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Reoptimize");
+            ReoptimizeDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Reoptimize_Description");
             
             // ComboBox items
             TranslateComboBoxItems(lang);
@@ -253,6 +257,8 @@ namespace FlairX_Mod_Manager.Pages
                 KeepOriginalsToggleLabel.Text = KeepOriginalsCheckBox.IsOn ? onText : offText;
             if (PreviewBeforeCropToggleLabel != null && PreviewBeforeCropToggle != null)
                 PreviewBeforeCropToggleLabel.Text = PreviewBeforeCropToggle.IsOn ? onText : offText;
+            if (ReoptimizeToggleLabel != null && ReoptimizeCheckBox != null)
+                ReoptimizeToggleLabel.Text = ReoptimizeCheckBox.IsOn ? onText : offText;
         }
 
         private void ManualModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -332,6 +338,7 @@ namespace FlairX_Mod_Manager.Pages
             SettingsManager.Current.ImageOptimizerThreadCount = _threadCount;
             SettingsManager.Current.ImageOptimizerCreateBackups = _createBackups;
             SettingsManager.Current.ImageOptimizerKeepOriginals = _keepOriginals;
+            SettingsManager.Current.ImageOptimizerReoptimize = ReoptimizeCheckBox.IsOn;
             
             SettingsManager.Current.ImageOptimizerManualMode = _manualMode.ToString();
             SettingsManager.Current.ImageOptimizerDragDropModMode = _dragDropModMode.ToString();

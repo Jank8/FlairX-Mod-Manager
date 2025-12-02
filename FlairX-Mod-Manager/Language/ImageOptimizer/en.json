@@ -52,5 +52,7 @@
     "CropDialog_Catprev_Title": "Crop Category Preview",
     "CropDialog_Catmini_Title": "Crop Category Icon",
     "CropDialog_Description": "Drag the crop area or resize using corner handles. The aspect ratio is locked.",
-    "CropDialog_Info": "Click and drag to move the crop area. Use corner handles to resize while maintaining aspect ratio."
+    "CropDialog_Info": "Click and drag to move the crop area. Use corner handles to resize while maintaining aspect ratio.",
+    "ImageOptimizer_Reoptimize": "Re-optimize Already Optimized",
+    "ImageOptimizer_Reoptimize_Description": "Re-optimize files that already have correct names (catprev, catmini, minitile, preview-01, preview-02, etc.)"
 }
