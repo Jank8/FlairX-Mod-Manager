@@ -217,5 +217,6 @@
     "ModDetailPage_StatusKeeperSync_Label": "StatusKeeper Sync",
     "ModDetailPage_StatusKeeperSync_Desc": "Synchronize mod status with game settings",
     "ModDetailPage_Preview_Header": "Preview",
-    "ModDetailPage_Details_Header": "Details"
+    "ModDetailPage_Details_Header": "Details",
+    "ModDetailPage_SelectDate_Placeholder": "Select date"
 }

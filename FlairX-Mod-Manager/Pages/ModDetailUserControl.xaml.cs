@@ -88,6 +88,10 @@ namespace FlairX_Mod_Manager.Pages
                 // Set tooltips for Today buttons
                 ToolTipService.SetToolTip(TodayDateCheckedButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_SetToday_Tooltip"));
                 ToolTipService.SetToolTip(TodayDateUpdatedButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_SetToday_Tooltip"));
+                
+                // Set placeholder text for date pickers
+                ModDateCheckedPicker.PlaceholderText = SharedUtilities.GetTranslation(lang, "ModDetailPage_SelectDate_Placeholder");
+                ModDateUpdatedPicker.PlaceholderText = SharedUtilities.GetTranslation(lang, "ModDetailPage_SelectDate_Placeholder");
 
                 string modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modLibraryPath))
@@ -359,6 +363,14 @@ namespace FlairX_Mod_Manager.Pages
                         var hotkeyRow = CreateHotkeyRow(key, desc, origIdx, maxKeyWidth);
                         ModHotkeysPanel.Children.Add(hotkeyRow);
                     }
+                    
+                    // Show hotkeys section if there are any hotkeys
+                    HotkeysSection.Visibility = hotkeyList.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+                }
+                else
+                {
+                    // Hide hotkeys section if no hotkeys property
+                    HotkeysSection.Visibility = Visibility.Collapsed;
                 }
             }
             catch (Exception ex)
@@ -507,6 +519,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             ModImage.Source = null;
             ModHotkeysPanel.Children.Clear();
+            HotkeysSection.Visibility = Visibility.Collapsed;
             ModAuthorTextBox.Text = "";
             ModUrlTextBox.Text = "https://";
             ModUrlTextBox.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray);

@@ -217,5 +217,6 @@
     "ModDetailPage_StatusKeeperSync_Label": "Synchronizacja StatusKeeper",
     "ModDetailPage_StatusKeeperSync_Desc": "Synchronizuj status moda z ustawieniami gry",
     "ModDetailPage_Preview_Header": "Podgląd",
-    "ModDetailPage_Details_Header": "Szczegóły"
+    "ModDetailPage_Details_Header": "Szczegóły",
+    "ModDetailPage_SelectDate_Placeholder": "Wybierz datę"
 }

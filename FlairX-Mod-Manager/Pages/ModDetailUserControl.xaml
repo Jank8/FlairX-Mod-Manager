@@ -328,16 +328,18 @@
                                Margin="0,8,0,0"/>
                     
                     <!-- Hotkeys Section -->
-                    <TextBlock x:Name="ModHotkeysLabel" Text="Hotkeys" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
-                    
-                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                            BorderThickness="1" 
-                            CornerRadius="8" 
-                            Padding="16" 
-                            Margin="0,0,0,24">
-                        <StackPanel x:Name="ModHotkeysPanel" Spacing="4"/>
-                    </Border>
+                    <StackPanel x:Name="HotkeysSection" Visibility="Collapsed">
+                        <TextBlock x:Name="ModHotkeysLabel" Text="Hotkeys" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
+                        
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                                BorderThickness="1" 
+                                CornerRadius="8" 
+                                Padding="16" 
+                                Margin="0,0,0,24">
+                            <StackPanel x:Name="ModHotkeysPanel" Spacing="4"/>
+                        </Border>
+                    </StackPanel>
                     
                     <!-- Hidden DetailsGrid for compatibility -->
                     <Grid x:Name="DetailsGrid" Visibility="Collapsed"/>
