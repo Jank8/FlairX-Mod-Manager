@@ -284,189 +284,218 @@
         </Grid>
             </Grid>
         
-            <!-- Details panel (full view) -->
+            <!-- Details panel (full view) - vertical layout like ModDetailUserControl -->
             <Grid x:Name="DetailsPanel" 
-                  Visibility="Collapsed"
-                  Padding="24">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                
-                <!-- Top section: Image slider + Info -->
-                <Grid Grid.Row="0" Margin="0,0,0,24">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="24"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <!-- Image Container with navigation -->
-                    <Viewbox Grid.Column="0" MaxWidth="600" MaxHeight="600" Stretch="Uniform" VerticalAlignment="Top">
-                        <Grid Width="600" Height="600">
-                            <!-- Coordinate field for hover -->
-                            <Grid x:Name="DetailImageCoordinateField" 
-                                  Width="600" Height="600" 
-                                  Background="Transparent"
-                                  PointerEntered="DetailImageCoordinateField_PointerEntered"
-                                  PointerExited="DetailImageCoordinateField_PointerExited"
-                                  PointerMoved="DetailImageCoordinateField_PointerMoved"/>
-                            
-                            <!-- Content with tilt animation -->
-                            <Grid x:Name="DetailImageContentRoot" Margin="0" IsHitTestVisible="False">
-                                <Border x:Name="DetailImageBorder" CornerRadius="12" BorderThickness="15" BorderBrush="{ThemeResource TileBorderBrush}">
-                                    <Border CornerRadius="8">
-                                        <Image x:Name="DetailImage" Stretch="Uniform"/>
-                                    </Border>
-                                </Border>
-                            </Grid>
-                            
-                            <!-- Previous Button -->
-                            <Border x:Name="DetailPrevImageButton" Width="48" Height="48" 
-                                    VerticalAlignment="Bottom" HorizontalAlignment="Left"
-                                    Margin="20,0,0,20" Visibility="Collapsed"
-                                    CornerRadius="12"
-                                    Background="{ThemeResource LauncherAcrylicBrush}"
-                                    PointerPressed="DetailPrevImageButton_Click"
-                                    PointerEntered="DetailImageCoordinateField_PointerEntered"
-                                    PointerExited="DetailImageCoordinateField_PointerExited"
-                                    PointerMoved="DetailImageCoordinateField_PointerMoved">
-                                <FontIcon Glyph="&#xE76B;" FontSize="20" 
-                                          Foreground="{ThemeResource ButtonForeground}"/>
-                            </Border>
-                            
-                            <!-- Next Button -->
-                            <Border x:Name="DetailNextImageButton" Width="48" Height="48" 
-                                    VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                                    Margin="0,0,20,20" Visibility="Collapsed"
-                                    CornerRadius="12"
-                                    Background="{ThemeResource LauncherAcrylicBrush}"
-                                    PointerPressed="DetailNextImageButton_Click"
-                                    PointerEntered="DetailImageCoordinateField_PointerEntered"
-                                    PointerExited="DetailImageCoordinateField_PointerExited"
-                                    PointerMoved="DetailImageCoordinateField_PointerMoved">
-                                <FontIcon Glyph="&#xE76C;" FontSize="20" 
-                                          Foreground="{ThemeResource ButtonForeground}"/>
-                            </Border>
-                            
-                            <!-- Image Counter -->
-                            <Border Background="{ThemeResource LauncherAcrylicBrush}" 
-                                    CornerRadius="12" Padding="8,4" Margin="0,0,0,20" 
-                                    VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                                    x:Name="DetailImageCounterBorder" Visibility="Collapsed"
-                                    PointerEntered="DetailImageCoordinateField_PointerEntered"
-                                    PointerExited="DetailImageCoordinateField_PointerExited"
-                                    PointerMoved="DetailImageCoordinateField_PointerMoved">
-                                <TextBlock x:Name="DetailImageCounterText" Text="1 / 1" FontSize="12" 
-                                           Foreground="{ThemeResource ButtonForeground}"/>
-                            </Border>
-                        </Grid>
-                    </Viewbox>
-                    
-                    <!-- Right side: Author + Description -->
-                    <Grid Grid.Column="2" MaxHeight="600">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                  Visibility="Collapsed">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,0,12">
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="8*" MaxWidth="1000"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="1" Spacing="4" Margin="0,24,0,24">
                         
-                        <!-- Author and Category -->
-                        <Grid Grid.Row="0">
+                        <!-- 1. Author and Category Section -->
+                        <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             
-                            <!-- Author (left) -->
-                            <StackPanel Grid.Column="0" Spacing="8">
-                                <TextBlock x:Name="DetailAuthorLabel" Text="Author" FontSize="14" FontWeight="SemiBold" Opacity="0.7"/>
-                                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                                    <!-- Avatar with hover effect -->
-                                    <Border Width="48" Height="48"
+                            <!-- Author Card -->
+                            <Border Grid.Column="0" 
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                                    BorderThickness="1" 
+                                    CornerRadius="8" 
+                                    Padding="16" 
+                                    Margin="0,0,4,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <!-- Avatar -->
+                                    <Border Grid.Column="0" Width="48" Height="48"
                                             CornerRadius="8"
                                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                             BorderThickness="2"
                                             PointerEntered="AuthorAvatar_PointerEntered"
                                             PointerExited="AuthorAvatar_PointerExited"
-                                            Background="Transparent">
+                                            Background="Transparent"
+                                            VerticalAlignment="Center">
                                         <Border.RenderTransform>
                                             <ScaleTransform x:Name="DetailAuthorAvatarScale" 
                                                           ScaleX="1" ScaleY="1"
                                                           CenterX="24" CenterY="24"/>
                                         </Border.RenderTransform>
                                         <Border CornerRadius="6" Margin="2">
-                                            <Image x:Name="DetailAuthorAvatar" 
-                                                   Stretch="UniformToFill"/>
+                                            <Image x:Name="DetailAuthorAvatar" Stretch="UniformToFill"/>
                                         </Border>
                                     </Border>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock x:Name="DetailAuthor" FontSize="16" FontWeight="SemiBold"/>
+                                    
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                        <TextBlock x:Name="DetailAuthorLabel" Text="Author" FontWeight="SemiBold" FontSize="14"/>
+                                        <TextBlock x:Name="DetailAuthor" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                                         <HyperlinkButton x:Name="DetailAuthorProfileLink" 
-                                                        FontSize="12"
+                                                        FontSize="11"
                                                         Padding="0"
+                                                        Margin="0,2,0,0"
                                                         Click="DetailAuthorProfileLink_Click">
                                             <TextBlock x:Name="DetailViewProfileText" Text="View Profile"/>
                                         </HyperlinkButton>
                                     </StackPanel>
-                                </StackPanel>
-                            </StackPanel>
+                                </Grid>
+                            </Border>
                             
-                            <!-- Category (right) -->
-                            <StackPanel Grid.Column="2" Spacing="8" VerticalAlignment="Top">
-                                <TextBlock x:Name="DetailCategoryLabel" Text="Category" FontSize="14" FontWeight="SemiBold" Opacity="0.7"/>
-                                <HyperlinkButton x:Name="DetailCategoryLink"
-                                                Padding="0"
-                                                Click="DetailCategoryLink_Click">
-                                    <StackPanel Orientation="Horizontal" Spacing="12">
-                                        <!-- Category icon -->
-                                        <Border Width="48" Height="48"
-                                                CornerRadius="8"
-                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                                BorderThickness="2"
-                                                Background="Transparent">
-                                            <Border CornerRadius="6" Margin="2">
-                                                <Image x:Name="DetailCategoryIcon" 
-                                                       Stretch="UniformToFill"/>
-                                            </Border>
+                            <!-- Category Card -->
+                            <Border Grid.Column="1" 
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                                    BorderThickness="1" 
+                                    CornerRadius="8" 
+                                    Padding="16" 
+                                    Margin="4,0,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <!-- Category Icon with hover effect -->
+                                    <Border Grid.Column="0" Width="48" Height="48"
+                                            CornerRadius="8"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="2"
+                                            PointerEntered="CategoryIcon_PointerEntered"
+                                            PointerExited="CategoryIcon_PointerExited"
+                                            Background="Transparent"
+                                            VerticalAlignment="Center">
+                                        <Border.RenderTransform>
+                                            <ScaleTransform x:Name="DetailCategoryIconScale" 
+                                                          ScaleX="1" ScaleY="1"
+                                                          CenterX="24" CenterY="24"/>
+                                        </Border.RenderTransform>
+                                        <Border CornerRadius="6" Margin="2">
+                                            <Image x:Name="DetailCategoryIcon" Stretch="UniformToFill"/>
                                         </Border>
-                                        <StackPanel VerticalAlignment="Center">
-                                            <TextBlock x:Name="DetailCategory" 
-                                                       FontSize="16" 
-                                                       FontWeight="SemiBold"/>
-                                            <TextBlock x:Name="DetailCategoryViewText" 
-                                                       Text="View Category"
-                                                       FontSize="12"
-                                                       Opacity="0.7"/>
-                                        </StackPanel>
+                                    </Border>
+                                    
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                        <TextBlock x:Name="DetailCategoryLabel" Text="Category" FontWeight="SemiBold" FontSize="14"/>
+                                        <TextBlock x:Name="DetailCategory" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                                        <HyperlinkButton x:Name="DetailCategoryLink"
+                                                        FontSize="11"
+                                                        Padding="0"
+                                                        Margin="0,2,0,0"
+                                                        Click="DetailCategoryLink_Click">
+                                            <TextBlock x:Name="DetailCategoryViewText" Text="View Category"/>
+                                        </HyperlinkButton>
                                     </StackPanel>
-                                </HyperlinkButton>
-                            </StackPanel>
+                                </Grid>
+                            </Border>
                         </Grid>
                         
-                        <!-- Description with Markdown -->
-                        <StackPanel Grid.Row="1" Spacing="8" Margin="0,16,0,0">
-                            <TextBlock x:Name="DetailDescriptionTitle" FontSize="16" FontWeight="SemiBold"/>
+                        <!-- 2. Preview Section -->
+                        <TextBlock x:Name="DetailPreviewHeader" Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,12,0,12"/>
+                        
+                        <Viewbox MaxWidth="600" MaxHeight="600" Stretch="Uniform" Margin="0,0,0,24" HorizontalAlignment="Center">
+                            <Grid Width="600" Height="600">
+                                <!-- Coordinate field for tilt -->
+                                <Grid x:Name="DetailImageCoordinateField" 
+                                      Width="600" Height="600" 
+                                      Background="Transparent"
+                                      PointerEntered="DetailImageCoordinateField_PointerEntered"
+                                      PointerExited="DetailImageCoordinateField_PointerExited"
+                                      PointerMoved="DetailImageCoordinateField_PointerMoved"/>
+                                
+                                <!-- Content with tilt animation -->
+                                <Grid x:Name="DetailImageContentRoot" Margin="20" IsHitTestVisible="False">
+                                    <Border x:Name="DetailImageBorder" CornerRadius="12" BorderThickness="12" BorderBrush="{ThemeResource TileBorderBrush}">
+                                        <Border CornerRadius="8">
+                                            <Image x:Name="DetailImage" Stretch="Uniform"/>
+                                        </Border>
+                                    </Border>
+                                </Grid>
+                                
+                                <!-- Previous Button -->
+                                <Border x:Name="DetailPrevImageButton" Width="44" Height="44" 
+                                        VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                                        Margin="40,0,0,40" Visibility="Collapsed"
+                                        CornerRadius="12"
+                                        Background="{ThemeResource LauncherAcrylicBrush}"
+                                        PointerPressed="DetailPrevImageButton_Click"
+                                        PointerEntered="DetailImageCoordinateField_PointerEntered"
+                                        PointerExited="DetailImageCoordinateField_PointerExited"
+                                        PointerMoved="DetailImageCoordinateField_PointerMoved">
+                                    <FontIcon Glyph="&#xE76B;" FontSize="18" 
+                                              Foreground="{ThemeResource ButtonForeground}" 
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                
+                                <!-- Next Button -->
+                                <Border x:Name="DetailNextImageButton" Width="44" Height="44" 
+                                        VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                        Margin="0,0,40,40" Visibility="Collapsed"
+                                        CornerRadius="12"
+                                        Background="{ThemeResource LauncherAcrylicBrush}"
+                                        PointerPressed="DetailNextImageButton_Click"
+                                        PointerEntered="DetailImageCoordinateField_PointerEntered"
+                                        PointerExited="DetailImageCoordinateField_PointerExited"
+                                        PointerMoved="DetailImageCoordinateField_PointerMoved">
+                                    <FontIcon Glyph="&#xE76C;" FontSize="18" 
+                                              Foreground="{ThemeResource ButtonForeground}" 
+                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                
+                                <!-- Image Counter -->
+                                <Border Background="{ThemeResource LauncherAcrylicBrush}" 
+                                        CornerRadius="12" Padding="8,4" Margin="0,0,0,40" 
+                                        VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                        x:Name="DetailImageCounterBorder" Visibility="Collapsed"
+                                        PointerEntered="DetailImageCoordinateField_PointerEntered"
+                                        PointerExited="DetailImageCoordinateField_PointerExited"
+                                        PointerMoved="DetailImageCoordinateField_PointerMoved">
+                                    <TextBlock x:Name="DetailImageCounterText" Text="1 / 1" FontSize="12" 
+                                               Foreground="{ThemeResource ButtonForeground}"/>
+                                </Border>
+                            </Grid>
+                        </Viewbox>
+                        
+                        <!-- 3. Description Section -->
+                        <TextBlock x:Name="DetailDescriptionTitle" Text="Description" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                                BorderThickness="1" 
+                                CornerRadius="8" 
+                                Padding="16" 
+                                Margin="0,0,0,12">
                             <ScrollViewer x:Name="DetailDescriptionScrollViewer" 
-                                          Height="480" 
+                                          MaxHeight="400" 
                                           VerticalScrollBarVisibility="Auto"
                                           SizeChanged="DetailDescriptionScrollViewer_SizeChanged">
                                 <ctk:MarkdownTextBlock x:Name="DetailDescriptionMarkdown"
                                                       Loaded="DetailDescriptionMarkdown_Loaded"/>
                             </ScrollViewer>
-                        </StackPanel>
-                    </Grid>
-                </Grid>
-                
-                <!-- Bottom section: Files + Buttons -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                    <StackPanel Spacing="16">
-                        <!-- Files -->
-                        <StackPanel Spacing="12">
-                            <TextBlock x:Name="DetailFilesTitle" FontSize="16" FontWeight="SemiBold"/>
+                        </Border>
+                        
+                        <!-- 4. Files Section -->
+                        <TextBlock x:Name="DetailFilesTitle" Text="Files" FontSize="20" FontWeight="SemiBold" Margin="0,12,0,12"/>
+                        
+                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                                BorderThickness="1" 
+                                CornerRadius="8" 
+                                Padding="8" 
+                                Margin="0,0,0,12">
                             <ListView x:Name="DetailFilesList" 
                                       SelectionMode="None"
-                                      MaxHeight="400">
+                                      MaxHeight="300">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">
                                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -512,10 +541,10 @@
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
-                        </StackPanel>
+                        </Border>
                         
-                        <!-- Action buttons -->
-                        <Grid MaxWidth="600" HorizontalAlignment="Left">
+                        <!-- 5. Action Buttons -->
+                        <Grid Margin="0,12,0,0" HorizontalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="12"/>
@@ -552,11 +581,14 @@
                         <StackPanel x:Name="DetailLoadingPanel" 
                                     HorizontalAlignment="Center" 
                                     Spacing="12"
+                                    Margin="0,24,0,0"
                                     Visibility="Collapsed">
                             <ProgressRing IsActive="True" Width="48" Height="48"/>
                             <TextBlock Text="Loading details..." FontSize="14" Opacity="0.7"/>
                         </StackPanel>
-                    </StackPanel>
+                        
+                        </StackPanel>
+                    </Grid>
                 </ScrollViewer>
             </Grid>
         </Grid>

@@ -47,6 +47,7 @@ namespace FlairX_Mod_Manager.Pages
         
         private NavigationState _currentState = NavigationState.ModsList;
         private bool _openedDirectlyToModDetails = false;
+        private int? _returnToModId = null; // Remember mod ID when navigating to category search
 
         public class ModViewModel : INotifyPropertyChanged
         {
@@ -141,6 +142,7 @@ namespace FlairX_Mod_Manager.Pages
             DetailViewProfileText.Text = SharedUtilities.GetTranslation(_lang, "ViewProfile");
             DetailCategoryLabel.Text = SharedUtilities.GetTranslation(_lang, "Category");
             DetailCategoryViewText.Text = SharedUtilities.GetTranslation(_lang, "ViewCategory");
+            DetailPreviewHeader.Text = SharedUtilities.GetTranslation(_lang, "Preview");
             DetailDescriptionTitle.Text = SharedUtilities.GetTranslation(_lang, "Description");
             DetailFilesTitle.Text = SharedUtilities.GetTranslation(_lang, "Files");
             DetailOpenBrowserButtonText.Text = SharedUtilities.GetTranslation(_lang, "OpenInBrowser");
@@ -732,6 +734,13 @@ namespace FlairX_Mod_Manager.Pages
                     CloseDetailsPanel();
                 }
             }
+            else if (_returnToModId.HasValue)
+            {
+                // Return to mod details after category search
+                var modId = _returnToModId.Value;
+                _returnToModId = null;
+                _ = ShowModDetailsAsync(modId);
+            }
             else
             {
                 // Close the entire panel
@@ -1222,22 +1231,28 @@ namespace FlairX_Mod_Manager.Pages
 
         private void DetailPrevImageButton_Click(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (_currentDetailImageIndex > 0)
-            {
-                _currentDetailImageIndex--;
-                LoadCurrentDetailImage();
-                UpdateDetailImageNavigation();
-            }
+            e.Handled = true;
+            if (_detailPreviewImages.Count == 0) return;
+            
+            // Infinite carousel - wrap to last image
+            _currentDetailImageIndex = _currentDetailImageIndex > 0 
+                ? _currentDetailImageIndex - 1 
+                : _detailPreviewImages.Count - 1;
+            LoadCurrentDetailImage();
+            UpdateDetailImageNavigation();
         }
 
         private void DetailNextImageButton_Click(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (_currentDetailImageIndex < _detailPreviewImages.Count - 1)
-            {
-                _currentDetailImageIndex++;
-                LoadCurrentDetailImage();
-                UpdateDetailImageNavigation();
-            }
+            e.Handled = true;
+            if (_detailPreviewImages.Count == 0) return;
+            
+            // Infinite carousel - wrap to first image
+            _currentDetailImageIndex = _currentDetailImageIndex < _detailPreviewImages.Count - 1 
+                ? _currentDetailImageIndex + 1 
+                : 0;
+            LoadCurrentDetailImage();
+            UpdateDetailImageNavigation();
         }
 
         // Detail image tilt animation
@@ -1374,6 +1389,55 @@ namespace FlairX_Mod_Manager.Pages
                 Duration = new Duration(TimeSpan.FromMilliseconds(150))
             };
             Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimationY, DetailAuthorAvatarScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimationY, "ScaleY");
+            storyboard.Children.Add(scaleAnimationY);
+
+            storyboard.Begin();
+        }
+
+        // Category icon hover effect
+        private void CategoryIcon_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            var scaleAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.1,
+                Duration = new Duration(TimeSpan.FromMilliseconds(150))
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimation, DetailCategoryIconScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimation, "ScaleX");
+            storyboard.Children.Add(scaleAnimation);
+
+            var scaleAnimationY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.1,
+                Duration = new Duration(TimeSpan.FromMilliseconds(150))
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimationY, DetailCategoryIconScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimationY, "ScaleY");
+            storyboard.Children.Add(scaleAnimationY);
+
+            storyboard.Begin();
+        }
+
+        private void CategoryIcon_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            var scaleAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(150))
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimation, DetailCategoryIconScale);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimation, "ScaleX");
+            storyboard.Children.Add(scaleAnimation);
+
+            var scaleAnimationY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                To = 1.0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(150))
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimationY, DetailCategoryIconScale);
             Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimationY, "ScaleY");
             storyboard.Children.Add(scaleAnimationY);
 
@@ -1621,6 +1685,9 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     // Set search to category name BEFORE navigating back
                     var categoryName = _currentModDetails.Category.Name;
+                    
+                    // Remember current mod ID so we can return to it
+                    _returnToModId = _currentModDetails.Id;
                     
                     // If opened directly to mod details, we need to show the list first
                     if (_openedDirectlyToModDetails)
