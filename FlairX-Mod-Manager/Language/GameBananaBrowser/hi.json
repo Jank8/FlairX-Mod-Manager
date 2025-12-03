@@ -67,5 +67,6 @@
     "AvailableFiles": "उपलब्ध फ़ाइलें:",
     "FoundFilesSelectToDownload": "{0} फ़ाइल(ें) मिलीं। डाउनलोड करने के लिए फ़ाइलें चुनें।",
     "FailedToLoadFiles": "फ़ाइलें लोड करने में विफल। कृपया पुनः प्रयास करें।",
-    "XXMIModsDirectoryNotFound": "XXMI मॉड निर्देशिका नहीं मिली"
+    "XXMIModsDirectoryNotFound": "XXMI मॉड निर्देशिका नहीं मिली",
+    "Preview": "पूर्वावलोकन"
 }

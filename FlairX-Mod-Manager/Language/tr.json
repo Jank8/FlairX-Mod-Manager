@@ -204,5 +204,19 @@
     "CropPanel_Reset": "Sıfırla",
     "CropPanel_Title": "Kırpma Alanını Ayarla",
     "SettingsPage_ImageOptimizerHeader": "Görüntü Optimize Edici",
-    "Skip": "Atla"
+    "Skip": "Atla",
+    "Hotkey_Favorite_Tooltip": "Favorilere ekle",
+    "Hotkey_Unfavorite_Tooltip": "Favorilerden kaldır",
+    "ImagePreview_Close_Tooltip": "Önizlemeyi kapat",
+    "ModDetailPage_DateChecked_Desc": "Bu modu en son ne zaman kontrol ettiniz",
+    "ModDetailPage_DateUpdated_Desc": "Bu mod en son ne zaman güncellendi",
+    "ModDetailPage_Author_Desc": "Bu modun yaratıcısı",
+    "ModDetailPage_URL_Desc": "Mod sayfasına bağlantı",
+    "ModDetailPage_NSFW_Label": "Yetişkin içeriği",
+    "ModDetailPage_NSFW_Desc": "Bu modu yetişkin içeriği olarak işaretle",
+    "ModDetailPage_StatusKeeperSync_Label": "StatusKeeper Senkronizasyonu",
+    "ModDetailPage_StatusKeeperSync_Desc": "Mod durumunu oyun ayarlarıyla senkronize et",
+    "ModDetailPage_Preview_Header": "Önizleme",
+    "ModDetailPage_Details_Header": "Detaylar",
+    "ModDetailPage_SelectDate_Placeholder": "Tarih seçin"
 }

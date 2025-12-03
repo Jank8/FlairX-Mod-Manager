@@ -93,7 +93,6 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
             <!-- Search and filters -->
@@ -268,20 +267,7 @@
             </Grid>
         </ScrollViewer>
 
-        <!-- Loading more indicator -->
-        <Grid Grid.Row="3" 
-              Padding="16"
-              BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-              BorderThickness="0,1,0,0">
-            <StackPanel x:Name="LoadingMorePanel"
-                        Orientation="Horizontal" 
-                        HorizontalAlignment="Center" 
-                        Spacing="12"
-                        Visibility="Collapsed">
-                <ProgressRing IsActive="True" Width="24" Height="24"/>
-                <TextBlock Text="Loading more mods..." FontSize="14" Opacity="0.7" VerticalAlignment="Center"/>
-            </StackPanel>
-        </Grid>
+
             </Grid>
         
             <!-- Details panel (full view) - vertical layout like ModDetailUserControl -->

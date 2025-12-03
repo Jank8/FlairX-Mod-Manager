@@ -204,5 +204,19 @@
     "CropPanel_Reset": "Сбросить",
     "CropPanel_Title": "Настроить область обрезки",
     "SettingsPage_ImageOptimizerHeader": "Оптимизатор изображений",
-    "Skip": "Пропустить"
+    "Skip": "Пропустить",
+    "Hotkey_Favorite_Tooltip": "Добавить в избранное",
+    "Hotkey_Unfavorite_Tooltip": "Удалить из избранного",
+    "ImagePreview_Close_Tooltip": "Закрыть предпросмотр",
+    "ModDetailPage_DateChecked_Desc": "Когда вы последний раз проверяли этот мод",
+    "ModDetailPage_DateUpdated_Desc": "Когда этот мод был последний раз обновлён",
+    "ModDetailPage_Author_Desc": "Создатель этого мода",
+    "ModDetailPage_URL_Desc": "Ссылка на страницу мода",
+    "ModDetailPage_NSFW_Label": "Контент для взрослых",
+    "ModDetailPage_NSFW_Desc": "Отметить этот мод как контент для взрослых",
+    "ModDetailPage_StatusKeeperSync_Label": "Синхронизация StatusKeeper",
+    "ModDetailPage_StatusKeeperSync_Desc": "Синхронизировать статус мода с настройками игры",
+    "ModDetailPage_Preview_Header": "Предпросмотр",
+    "ModDetailPage_Details_Header": "Подробности",
+    "ModDetailPage_SelectDate_Placeholder": "Выберите дату"
 }

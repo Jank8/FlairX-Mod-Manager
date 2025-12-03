@@ -204,5 +204,19 @@
     "CropPanel_Reset": "Đặt lại",
     "CropPanel_Title": "Điều chỉnh vùng cắt",
     "SettingsPage_ImageOptimizerHeader": "Trình tối ưu hóa hình ảnh",
-    "Skip": "Bỏ qua"
+    "Skip": "Bỏ qua",
+    "Hotkey_Favorite_Tooltip": "Thêm vào yêu thích",
+    "Hotkey_Unfavorite_Tooltip": "Xóa khỏi yêu thích",
+    "ImagePreview_Close_Tooltip": "Đóng xem trước",
+    "ModDetailPage_DateChecked_Desc": "Lần cuối bạn kiểm tra mod này",
+    "ModDetailPage_DateUpdated_Desc": "Lần cuối mod này được cập nhật",
+    "ModDetailPage_Author_Desc": "Người tạo mod này",
+    "ModDetailPage_URL_Desc": "Liên kết đến trang mod",
+    "ModDetailPage_NSFW_Label": "Nội dung người lớn",
+    "ModDetailPage_NSFW_Desc": "Đánh dấu mod này là nội dung người lớn",
+    "ModDetailPage_StatusKeeperSync_Label": "Đồng bộ StatusKeeper",
+    "ModDetailPage_StatusKeeperSync_Desc": "Đồng bộ trạng thái mod với cài đặt game",
+    "ModDetailPage_Preview_Header": "Xem trước",
+    "ModDetailPage_Details_Header": "Chi tiết",
+    "ModDetailPage_SelectDate_Placeholder": "Chọn ngày"
 }

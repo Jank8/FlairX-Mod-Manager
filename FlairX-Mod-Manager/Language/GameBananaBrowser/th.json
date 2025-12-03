@@ -67,5 +67,6 @@
     "AvailableFiles": "ไฟล์ที่มี:",
     "FoundFilesSelectToDownload": "พบ {0} ไฟล์ เลือกไฟล์เพื่อดาวน์โหลด",
     "FailedToLoadFiles": "โหลดไฟล์ไม่สำเร็จ กรุณาลองอีกครั้ง",
-    "XXMIModsDirectoryNotFound": "ไม่พบไดเรกทอรีม็อด XXMI"
+    "XXMIModsDirectoryNotFound": "ไม่พบไดเรกทอรีม็อด XXMI",
+    "Preview": "ตัวอย่าง"
 }

@@ -204,5 +204,19 @@
     "CropPanel_Reset": "重置",
     "CropPanel_Title": "調整裁剪區域",
     "SettingsPage_ImageOptimizerHeader": "圖像優化器",
-    "Skip": "跳過"
+    "Skip": "跳過",
+    "Hotkey_Favorite_Tooltip": "加入收藏",
+    "Hotkey_Unfavorite_Tooltip": "從收藏中移除",
+    "ImagePreview_Close_Tooltip": "關閉預覽",
+    "ModDetailPage_DateChecked_Desc": "您上次檢查此模組的時間",
+    "ModDetailPage_DateUpdated_Desc": "此模組上次更新時間",
+    "ModDetailPage_Author_Desc": "此模組的創作者",
+    "ModDetailPage_URL_Desc": "模組頁面連結",
+    "ModDetailPage_NSFW_Label": "成人內容",
+    "ModDetailPage_NSFW_Desc": "將此模組標記為成人內容",
+    "ModDetailPage_StatusKeeperSync_Label": "StatusKeeper 同步",
+    "ModDetailPage_StatusKeeperSync_Desc": "將模組狀態與遊戲設定同步",
+    "ModDetailPage_Preview_Header": "預覽",
+    "ModDetailPage_Details_Header": "詳情",
+    "ModDetailPage_SelectDate_Placeholder": "選擇日期"
 }

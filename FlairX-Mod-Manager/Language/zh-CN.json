@@ -204,5 +204,19 @@
     "CropPanel_Reset": "重置",
     "CropPanel_Title": "调整裁剪区域",
     "SettingsPage_ImageOptimizerHeader": "图像优化器",
-    "Skip": "跳过"
+    "Skip": "跳过",
+    "Hotkey_Favorite_Tooltip": "添加到收藏",
+    "Hotkey_Unfavorite_Tooltip": "从收藏中移除",
+    "ImagePreview_Close_Tooltip": "关闭预览",
+    "ModDetailPage_DateChecked_Desc": "您上次检查此模组的时间",
+    "ModDetailPage_DateUpdated_Desc": "此模组上次更新时间",
+    "ModDetailPage_Author_Desc": "此模组的创作者",
+    "ModDetailPage_URL_Desc": "模组页面链接",
+    "ModDetailPage_NSFW_Label": "成人内容",
+    "ModDetailPage_NSFW_Desc": "将此模组标记为成人内容",
+    "ModDetailPage_StatusKeeperSync_Label": "StatusKeeper 同步",
+    "ModDetailPage_StatusKeeperSync_Desc": "将模组状态与游戏设置同步",
+    "ModDetailPage_Preview_Header": "预览",
+    "ModDetailPage_Details_Header": "详情",
+    "ModDetailPage_SelectDate_Placeholder": "选择日期"
 }

@@ -204,5 +204,19 @@
     "CropPanel_Reset": "Réinitialiser",
     "CropPanel_Title": "Ajuster la Zone de Recadrage",
     "SettingsPage_ImageOptimizerHeader": "Optimiseur d'Images",
-    "Skip": "Passer"
+    "Skip": "Passer",
+    "Hotkey_Favorite_Tooltip": "Ajouter aux favoris",
+    "Hotkey_Unfavorite_Tooltip": "Retirer des favoris",
+    "ImagePreview_Close_Tooltip": "Fermer l'aperçu",
+    "ModDetailPage_DateChecked_Desc": "Quand vous avez vérifié ce mod pour la dernière fois",
+    "ModDetailPage_DateUpdated_Desc": "Quand ce mod a été mis à jour pour la dernière fois",
+    "ModDetailPage_Author_Desc": "Créateur de ce mod",
+    "ModDetailPage_URL_Desc": "Lien vers la page du mod",
+    "ModDetailPage_NSFW_Label": "Contenu adulte",
+    "ModDetailPage_NSFW_Desc": "Marquer ce mod comme contenu adulte",
+    "ModDetailPage_StatusKeeperSync_Label": "Synchronisation StatusKeeper",
+    "ModDetailPage_StatusKeeperSync_Desc": "Synchroniser l'état du mod avec les paramètres du jeu",
+    "ModDetailPage_Preview_Header": "Aperçu",
+    "ModDetailPage_Details_Header": "Détails",
+    "ModDetailPage_SelectDate_Placeholder": "Sélectionner une date"
 }

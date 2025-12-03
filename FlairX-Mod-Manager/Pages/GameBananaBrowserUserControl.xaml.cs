@@ -481,6 +481,13 @@ namespace FlairX_Mod_Manager.Pages
                     _mods.Add(viewModel);
                 }
 
+                // If we have very few mods (likely due to NSFW filtering), load more automatically
+                if (_mods.Count < 20 && _hasMorePages)
+                {
+                    Logger.LogInfo($"Only {_mods.Count} mods loaded after NSFW filtering, auto-loading more pages...");
+                    await AutoLoadMorePagesAsync();
+                }
+                
                 if (_mods.Count == 0)
                 {
                     LoadingPanel.Visibility = Visibility.Collapsed;
@@ -496,13 +503,6 @@ namespace FlairX_Mod_Manager.Pages
 
                 LoadingPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Visible;
-                
-                // If we have very few mods (likely due to NSFW filtering), load more automatically
-                if (_mods.Count < 20 && _hasMorePages)
-                {
-                    Logger.LogInfo($"Only {_mods.Count} mods loaded, auto-loading more pages...");
-                    _ = AutoLoadMorePagesAsync();
-                }
             }
             catch (Exception ex)
             {
@@ -528,14 +528,15 @@ namespace FlairX_Mod_Manager.Pages
 
         private async Task AutoLoadMorePagesAsync()
         {
-            // Auto-load up to 3 more pages if we have too few mods
+            // Auto-load up to 5 more pages if we have too few mods (handles heavy NSFW filtering)
             int pagesLoaded = 0;
-            while (_mods.Count < 30 && _hasMorePages && pagesLoaded < 3)
+            while (_mods.Count < 20 && _hasMorePages && pagesLoaded < 5)
             {
                 await LoadMoreModsAsync();
                 pagesLoaded++;
                 await Task.Delay(100); // Small delay between requests
             }
+            Logger.LogInfo($"AutoLoadMorePages finished: {_mods.Count} mods after {pagesLoaded} extra pages");
         }
 
         private async Task LoadMoreModsAsync()
@@ -543,7 +544,6 @@ namespace FlairX_Mod_Manager.Pages
             if (_isLoadingMore || !_hasMorePages) return;
             
             _isLoadingMore = true;
-            LoadingMorePanel.Visibility = Visibility.Visible;
             
             try
             {
@@ -627,7 +627,6 @@ namespace FlairX_Mod_Manager.Pages
             finally
             {
                 _isLoadingMore = false;
-                LoadingMorePanel.Visibility = Visibility.Collapsed;
             }
         }
 

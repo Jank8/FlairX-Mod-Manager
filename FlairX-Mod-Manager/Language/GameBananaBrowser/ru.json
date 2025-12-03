@@ -67,5 +67,6 @@
     "AvailableFiles": "Доступные файлы:",
     "FoundFilesSelectToDownload": "Найдено {0} файл(ов). Выберите файлы для загрузки.",
     "FailedToLoadFiles": "Не удалось загрузить файлы. Пожалуйста, попробуйте снова.",
-    "XXMIModsDirectoryNotFound": "Каталог модов XXMI не найден"
+    "XXMIModsDirectoryNotFound": "Каталог модов XXMI не найден",
+    "Preview": "Предпросмотр"
 }

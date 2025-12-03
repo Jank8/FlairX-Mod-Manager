@@ -67,5 +67,6 @@
     "AvailableFiles": "利用可能なファイル:",
     "FoundFilesSelectToDownload": "{0}個のファイルが見つかりました。ダウンロードするファイルを選択してください。",
     "FailedToLoadFiles": "ファイルの読み込みに失敗しました。もう一度お試しください。",
-    "XXMIModsDirectoryNotFound": "XXMIモッドディレクトリが見つかりません"
+    "XXMIModsDirectoryNotFound": "XXMIモッドディレクトリが見つかりません",
+    "Preview": "プレビュー"
 }

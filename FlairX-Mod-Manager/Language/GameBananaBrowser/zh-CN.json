@@ -67,5 +67,6 @@
     "AvailableFiles": "可用文件:",
     "FoundFilesSelectToDownload": "找到{0}个文件。选择要下载的文件。",
     "FailedToLoadFiles": "加载文件失败。请重试。",
-    "XXMIModsDirectoryNotFound": "未找到XXMI模组目录"
+    "XXMIModsDirectoryNotFound": "未找到XXMI模组目录",
+    "Preview": "预览"
 }

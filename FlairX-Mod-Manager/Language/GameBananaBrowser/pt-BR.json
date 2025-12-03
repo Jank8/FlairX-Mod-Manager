@@ -67,5 +67,6 @@
     "AvailableFiles": "Arquivos disponíveis:",
     "FoundFilesSelectToDownload": "Encontrados {0} arquivo(s). Selecione arquivos para baixar.",
     "FailedToLoadFiles": "Falha ao carregar arquivos. Por favor, tente novamente.",
-    "XXMIModsDirectoryNotFound": "Diretório de mods XXMI não encontrado"
+    "XXMIModsDirectoryNotFound": "Diretório de mods XXMI não encontrado",
+    "Preview": "Visualização"
 }

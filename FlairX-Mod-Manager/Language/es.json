@@ -204,5 +204,19 @@
     "CropPanel_Reset": "Restablecer",
     "CropPanel_Title": "Ajustar Área de Recorte",
     "SettingsPage_ImageOptimizerHeader": "Optimizador de Imágenes",
-    "Skip": "Omitir"
+    "Skip": "Omitir",
+    "Hotkey_Favorite_Tooltip": "Añadir a favoritos",
+    "Hotkey_Unfavorite_Tooltip": "Quitar de favoritos",
+    "ImagePreview_Close_Tooltip": "Cerrar vista previa",
+    "ModDetailPage_DateChecked_Desc": "Cuándo verificaste este mod por última vez",
+    "ModDetailPage_DateUpdated_Desc": "Cuándo se actualizó este mod por última vez",
+    "ModDetailPage_Author_Desc": "Creador de este mod",
+    "ModDetailPage_URL_Desc": "Enlace a la página del mod",
+    "ModDetailPage_NSFW_Label": "Contenido para adultos",
+    "ModDetailPage_NSFW_Desc": "Marcar este mod como contenido para adultos",
+    "ModDetailPage_StatusKeeperSync_Label": "Sincronización StatusKeeper",
+    "ModDetailPage_StatusKeeperSync_Desc": "Sincronizar el estado del mod con la configuración del juego",
+    "ModDetailPage_Preview_Header": "Vista previa",
+    "ModDetailPage_Details_Header": "Detalles",
+    "ModDetailPage_SelectDate_Placeholder": "Seleccionar fecha"
 }

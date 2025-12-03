@@ -204,5 +204,19 @@
     "CropPanel_Reset": "リセット",
     "CropPanel_Title": "トリミング領域を調整",
     "SettingsPage_ImageOptimizerHeader": "画像最適化",
-    "Skip": "スキップ"
+    "Skip": "スキップ",
+    "Hotkey_Favorite_Tooltip": "お気に入りに追加",
+    "Hotkey_Unfavorite_Tooltip": "お気に入りから削除",
+    "ImagePreview_Close_Tooltip": "プレビューを閉じる",
+    "ModDetailPage_DateChecked_Desc": "このMODを最後に確認した日時",
+    "ModDetailPage_DateUpdated_Desc": "このMODが最後に更新された日時",
+    "ModDetailPage_Author_Desc": "このMODの作成者",
+    "ModDetailPage_URL_Desc": "MODページへのリンク",
+    "ModDetailPage_NSFW_Label": "成人向けコンテンツ",
+    "ModDetailPage_NSFW_Desc": "このMODを成人向けコンテンツとしてマーク",
+    "ModDetailPage_StatusKeeperSync_Label": "StatusKeeper同期",
+    "ModDetailPage_StatusKeeperSync_Desc": "MODの状態をゲーム設定と同期",
+    "ModDetailPage_Preview_Header": "プレビュー",
+    "ModDetailPage_Details_Header": "詳細",
+    "ModDetailPage_SelectDate_Placeholder": "日付を選択"
 }

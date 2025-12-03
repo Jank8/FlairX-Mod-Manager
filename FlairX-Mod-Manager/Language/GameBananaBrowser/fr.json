@@ -67,5 +67,6 @@
     "AvailableFiles": "Fichiers disponibles :",
     "FoundFilesSelectToDownload": "{0} fichier(s) trouvé(s). Sélectionnez les fichiers à télécharger.",
     "FailedToLoadFiles": "Échec du chargement des fichiers. Veuillez réessayer.",
-    "XXMIModsDirectoryNotFound": "Répertoire des mods XXMI introuvable"
+    "XXMIModsDirectoryNotFound": "Répertoire des mods XXMI introuvable",
+    "Preview": "Aperçu"
 }

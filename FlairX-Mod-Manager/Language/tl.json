@@ -204,5 +204,19 @@
     "CropPanel_Reset": "I-reset",
     "CropPanel_Title": "Ayusin ang Crop Area",
     "SettingsPage_ImageOptimizerHeader": "Image Optimizer",
-    "Skip": "Laktawan"
+    "Skip": "Laktawan",
+    "Hotkey_Favorite_Tooltip": "Idagdag sa mga paborito",
+    "Hotkey_Unfavorite_Tooltip": "Alisin sa mga paborito",
+    "ImagePreview_Close_Tooltip": "Isara ang preview",
+    "ModDetailPage_DateChecked_Desc": "Kailan mo huling sinuri ang mod na ito",
+    "ModDetailPage_DateUpdated_Desc": "Kailan huling na-update ang mod na ito",
+    "ModDetailPage_Author_Desc": "Tagalikha ng mod na ito",
+    "ModDetailPage_URL_Desc": "Link sa pahina ng mod",
+    "ModDetailPage_NSFW_Label": "Nilalaman para sa mga adulto",
+    "ModDetailPage_NSFW_Desc": "Markahan ang mod na ito bilang nilalaman para sa mga adulto",
+    "ModDetailPage_StatusKeeperSync_Label": "StatusKeeper Sync",
+    "ModDetailPage_StatusKeeperSync_Desc": "I-sync ang status ng mod sa mga setting ng laro",
+    "ModDetailPage_Preview_Header": "Preview",
+    "ModDetailPage_Details_Header": "Mga Detalye",
+    "ModDetailPage_SelectDate_Placeholder": "Pumili ng petsa"
 }

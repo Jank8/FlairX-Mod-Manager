@@ -86,8 +86,8 @@ Modern mod manager for miHoYo games built with **WinUI 3** and **.NET 10**. Hand
 - **No Admin Required** - Works on any Windows file system (NTFS, FAT32, exFAT)
 - **Preset System** - Save and load mod configurations
 - **StatusKeeper Integration** - Backup and restore mod states
-- **Global Hotkeys** - System-wide shortcuts (Ctrl+O, Ctrl+R, Ctrl+S, Ctrl+D)
-- **17 Languages** - Automatic detection with specialized fonts
+- **Global Hotkeys** - System-wide shortcuts (Ctrl+O, Ctrl+R, Ctrl+S, Ctrl+D, Ctrl+F)
+- **16 Languages** - Automatic detection with specialized fonts
 - **Zoom Support** - Ctrl + Mouse Wheel (100%-250%)
 - **Modern UI** - Fluent Design with Mica/Acrylic effects
 

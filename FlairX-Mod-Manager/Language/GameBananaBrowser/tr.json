@@ -67,5 +67,6 @@
     "AvailableFiles": "Mevcut dosyalar:",
     "FoundFilesSelectToDownload": "{0} dosya bulundu. İndirmek için dosyaları seçin.",
     "FailedToLoadFiles": "Dosyalar yüklenemedi. Lütfen tekrar deneyin.",
-    "XXMIModsDirectoryNotFound": "XXMI Modları dizini bulunamadı"
+    "XXMIModsDirectoryNotFound": "XXMI Modları dizini bulunamadı",
+    "Preview": "Önizleme"
 }

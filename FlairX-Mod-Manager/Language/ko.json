@@ -204,5 +204,19 @@
     "CropPanel_Reset": "재설정",
     "CropPanel_Title": "자르기 영역 조정",
     "SettingsPage_ImageOptimizerHeader": "이미지 최적화",
-    "Skip": "건너뛰기"
+    "Skip": "건너뛰기",
+    "Hotkey_Favorite_Tooltip": "즐겨찾기에 추가",
+    "Hotkey_Unfavorite_Tooltip": "즐겨찾기에서 제거",
+    "ImagePreview_Close_Tooltip": "미리보기 닫기",
+    "ModDetailPage_DateChecked_Desc": "이 모드를 마지막으로 확인한 날짜",
+    "ModDetailPage_DateUpdated_Desc": "이 모드가 마지막으로 업데이트된 날짜",
+    "ModDetailPage_Author_Desc": "이 모드의 제작자",
+    "ModDetailPage_URL_Desc": "모드 페이지 링크",
+    "ModDetailPage_NSFW_Label": "성인 콘텐츠",
+    "ModDetailPage_NSFW_Desc": "이 모드를 성인 콘텐츠로 표시",
+    "ModDetailPage_StatusKeeperSync_Label": "StatusKeeper 동기화",
+    "ModDetailPage_StatusKeeperSync_Desc": "모드 상태를 게임 설정과 동기화",
+    "ModDetailPage_Preview_Header": "미리보기",
+    "ModDetailPage_Details_Header": "세부 정보",
+    "ModDetailPage_SelectDate_Placeholder": "날짜 선택"
 }
