@@ -20,6 +20,9 @@ namespace FlairX_Mod_Manager
     {
         // Overlay window instance
         private OverlayWindow? _overlayWindow;
+        
+        // Global gamepad manager for overlay toggle
+        private GamepadManager? _globalGamepadManager;
 
         // Win32 API for checking window focus
         [DllImport("user32.dll")]
@@ -434,6 +437,115 @@ namespace FlairX_Mod_Manager
             await Task.CompletedTask;
         }
 
+        #region Global Gamepad Support
+
+        /// <summary>
+        /// Initialize global gamepad manager for overlay toggle
+        /// </summary>
+        public void InitializeGlobalGamepad()
+        {
+            if (!SettingsManager.Current.GamepadEnabled)
+            {
+                Logger.LogInfo("Global gamepad support disabled in settings");
+                return;
+            }
+
+            try
+            {
+                _globalGamepadManager = new GamepadManager();
+                _globalGamepadManager.ButtonPressed += OnGlobalGamepadButtonPressed;
+                _globalGamepadManager.ButtonReleased += OnGlobalGamepadButtonReleased;
+                _globalGamepadManager.ControllerConnected += (s, e) =>
+                {
+                    Logger.LogInfo("Global gamepad connected");
+                };
+                _globalGamepadManager.ControllerDisconnected += (s, e) =>
+                {
+                    Logger.LogInfo("Global gamepad disconnected");
+                    _heldButtons.Clear();
+                };
+                _globalGamepadManager.StartPolling();
+                Logger.LogInfo("Global gamepad manager initialized");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to initialize global gamepad", ex);
+            }
+        }
+
+        /// <summary>
+        /// Stop global gamepad manager
+        /// </summary>
+        public void StopGlobalGamepad()
+        {
+            if (_globalGamepadManager != null)
+            {
+                _globalGamepadManager.ButtonPressed -= OnGlobalGamepadButtonPressed;
+                _globalGamepadManager.ButtonReleased -= OnGlobalGamepadButtonReleased;
+                _globalGamepadManager.Dispose();
+                _globalGamepadManager = null;
+                Logger.LogInfo("Global gamepad manager stopped");
+            }
+        }
+
+        /// <summary>
+        /// Refresh global gamepad (call after settings change)
+        /// </summary>
+        public void RefreshGlobalGamepad()
+        {
+            StopGlobalGamepad();
+            InitializeGlobalGamepad();
+        }
+
+        private HashSet<string> _heldButtons = new();
+
+        private void OnGlobalGamepadButtonPressed(object? sender, GamepadButtonEventArgs e)
+        {
+            var buttonName = GetNormalizedButtonName(e.GetButtonDisplayName());
+            _heldButtons.Add(buttonName);
+
+            // Check if current held buttons match the configured combo
+            var configuredCombo = SettingsManager.Current.GamepadToggleOverlayCombo ?? "Back+Start";
+            var comboButtons = new HashSet<string>(configuredCombo.Split('+'));
+            
+            if (_heldButtons.SetEquals(comboButtons))
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    Logger.LogInfo($"Gamepad combo {configuredCombo} detected - toggling overlay");
+                    ToggleOverlayWindow();
+                    _globalGamepadManager?.Vibrate(25000, 25000, 100);
+                });
+                
+                // Reset to prevent repeated triggers
+                _heldButtons.Clear();
+            }
+        }
+
+        private void OnGlobalGamepadButtonReleased(object? sender, GamepadButtonEventArgs e)
+        {
+            var buttonName = GetNormalizedButtonName(e.GetButtonDisplayName());
+            _heldButtons.Remove(buttonName);
+        }
+
+        private string GetNormalizedButtonName(string displayName)
+        {
+            return displayName switch
+            {
+                "D-Pad Up" => "DPadUp",
+                "D-Pad Down" => "DPadDown",
+                "D-Pad Left" => "DPadLeft",
+                "D-Pad Right" => "DPadRight",
+                "Left Stick" => "LeftThumb",
+                "Right Stick" => "RightThumb",
+                "LB" => "LeftShoulder",
+                "RB" => "RightShoulder",
+                _ => displayName
+            };
+        }
+
+        #endregion
+
         /// <summary>
         /// Toggle the overlay window visibility
         /// </summary>
@@ -453,6 +565,7 @@ namespace FlairX_Mod_Manager
                 {
                     _overlayWindow = new OverlayWindow(this);
                     _overlayWindow.ModToggleRequested += OnOverlayModToggleRequested;
+                    _overlayWindow.WindowClosed += OnOverlayWindowClosed;
                     Logger.LogInfo("Overlay window created");
                 }
 
@@ -485,6 +598,30 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
+        /// Handle overlay window closed event
+        /// </summary>
+        private void OnOverlayWindowClosed(object? sender, EventArgs e)
+        {
+            try
+            {
+                Logger.LogInfo("Overlay window was closed by user");
+                
+                // Clean up reference so a new window can be created
+                if (_overlayWindow != null)
+                {
+                    _overlayWindow.ModToggleRequested -= OnOverlayModToggleRequested;
+                    _overlayWindow.WindowClosed -= OnOverlayWindowClosed;
+                    _overlayWindow = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error handling overlay window closed", ex);
+                _overlayWindow = null;
+            }
+        }
+
+        /// <summary>
         /// Close overlay window when main window closes
         /// </summary>
         public void CloseOverlayWindow()
@@ -493,8 +630,20 @@ namespace FlairX_Mod_Manager
             {
                 if (_overlayWindow != null)
                 {
+                    // Unsubscribe from events first
                     _overlayWindow.ModToggleRequested -= OnOverlayModToggleRequested;
-                    _overlayWindow.Close();
+                    _overlayWindow.WindowClosed -= OnOverlayWindowClosed;
+                    
+                    // Try to close the window safely
+                    try
+                    {
+                        _overlayWindow.Close();
+                    }
+                    catch
+                    {
+                        // Window may already be closed or in invalid state
+                    }
+                    
                     _overlayWindow = null;
                     Logger.LogInfo("Overlay window closed");
                 }
@@ -502,6 +651,7 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError("Error closing overlay window", ex);
+                _overlayWindow = null;
             }
         }
 

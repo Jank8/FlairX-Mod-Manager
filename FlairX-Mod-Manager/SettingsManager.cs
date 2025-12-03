@@ -68,6 +68,20 @@ namespace FlairX_Mod_Manager
         // Overlay settings
         public string OverlayTheme { get; set; } = "Auto";
         public string OverlayBackdrop { get; set; } = "AcrylicThin";
+        public int OverlayWidth { get; set; } = 300;
+        public int OverlayHeight { get; set; } = 450;
+        public int OverlayX { get; set; } = -1; // -1 means default position (top-right)
+        public int OverlayY { get; set; } = -1;
+        
+        // Gamepad settings
+        public bool GamepadEnabled { get; set; } = false;
+        public string GamepadToggleOverlayCombo { get; set; } = "Back+Start"; // Combo to toggle overlay
+        public string GamepadNavigateUpButton { get; set; } = "DPadUp";
+        public string GamepadNavigateDownButton { get; set; } = "DPadDown";
+        public string GamepadSelectButton { get; set; } = "A";
+        public string GamepadBackButton { get; set; } = "B";
+        public string GamepadNextCategoryButton { get; set; } = "RightShoulder";
+        public string GamepadPrevCategoryButton { get; set; } = "LeftShoulder";
         
         // Navigation state persistence
         public string? LastSelectedCategory { get; set; }

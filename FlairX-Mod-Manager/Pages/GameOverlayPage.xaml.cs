@@ -7,12 +7,22 @@ namespace FlairX_Mod_Manager.Pages
     public sealed partial class GameOverlayPage : Page
     {
         private bool _isInitializing = true;
+        private GamepadManager? _testGamepad;
 
         public GameOverlayPage()
         {
             InitializeComponent();
             LoadSettings();
             _isInitializing = false;
+            
+            // Check gamepad status on load
+            CheckGamepadStatus();
+            
+            this.Unloaded += (s, e) =>
+            {
+                _testGamepad?.Dispose();
+                _testGamepad = null;
+            };
         }
 
         private void LoadSettings()
@@ -22,8 +32,11 @@ namespace FlairX_Mod_Manager.Pages
             // Load hotkey
             OverlayHotkeyTextBox.Text = settings.ToggleOverlayHotkey ?? "Alt+W";
             
-            // Load always on top (default true)
-            AlwaysOnTopToggle.IsOn = true;
+            // Load gamepad enabled
+            GamepadEnabledToggle.IsOn = settings.GamepadEnabled;
+            
+            // Load gamepad combo
+            GamepadComboTextBox.Text = settings.GamepadToggleOverlayCombo ?? "Back+Start";
             
             // Load theme
             var theme = settings.OverlayTheme ?? "Auto";
@@ -45,6 +58,191 @@ namespace FlairX_Mod_Manager.Pages
                 _ => BackdropSelectorAcrylicThin
             };
         }
+
+        private void CheckGamepadStatus()
+        {
+            try
+            {
+                _testGamepad = new GamepadManager();
+                bool isConnected = _testGamepad.CheckConnection();
+                
+                UpdateGamepadStatusUI(isConnected);
+                
+                if (!isConnected)
+                {
+                    _testGamepad.Dispose();
+                    _testGamepad = null;
+                }
+            }
+            catch
+            {
+                UpdateGamepadStatusUI(false);
+            }
+        }
+
+        private void UpdateGamepadStatusUI(bool isConnected)
+        {
+            if (isConnected)
+            {
+                GamepadStatusIcon.Glyph = "\uE73E"; // Checkmark
+                GamepadStatusText.Text = "Controller connected";
+                GamepadStatusText.Opacity = 1.0;
+            }
+            else
+            {
+                GamepadStatusIcon.Glyph = "\uE711"; // X
+                GamepadStatusText.Text = "No controller detected";
+                GamepadStatusText.Opacity = 0.7;
+            }
+        }
+
+        private void GamepadEnabledToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (_isInitializing) return;
+            
+            SettingsManager.Current.GamepadEnabled = GamepadEnabledToggle.IsOn;
+            SettingsManager.Save();
+            
+            // Refresh global gamepad manager
+            var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+            mainWindow?.RefreshGlobalGamepad();
+            
+            Logger.LogInfo($"Gamepad enabled: {GamepadEnabledToggle.IsOn}");
+        }
+
+        private void GamepadTestButton_Click(object sender, RoutedEventArgs e)
+        {
+            CheckGamepadStatus();
+            
+            // Vibrate if connected
+            if (_testGamepad != null && _testGamepad.CheckConnection())
+            {
+                _testGamepad.Vibrate(40000, 40000, 200);
+            }
+        }
+
+        #region Gamepad Combo Recording
+
+        private bool _isRecordingCombo = false;
+        private HashSet<string> _recordedButtons = new();
+        private DispatcherTimer? _comboRecordTimer;
+
+        private void GamepadComboTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            // Show current combo
+            GamepadComboTextBox.Text = SettingsManager.Current.GamepadToggleOverlayCombo ?? "Back+Start";
+        }
+
+        private void GamepadComboRecordButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isRecordingCombo)
+            {
+                StopRecordingCombo();
+            }
+            else
+            {
+                StartRecordingCombo();
+            }
+        }
+
+        private void StartRecordingCombo()
+        {
+            // Ensure gamepad is available
+            if (_testGamepad == null)
+            {
+                _testGamepad = new GamepadManager();
+            }
+            
+            if (!_testGamepad.CheckConnection())
+            {
+                GamepadComboTextBox.Text = "No controller!";
+                return;
+            }
+
+            _isRecordingCombo = true;
+            _recordedButtons.Clear();
+            GamepadComboTextBox.Text = "Press buttons...";
+            GamepadComboRecordButton.Content = new FontIcon { Glyph = "\uE71A", FontSize = 14 }; // Stop icon
+            
+            // Subscribe to button events
+            _testGamepad.ButtonPressed += OnComboButtonPressed;
+            _testGamepad.StartPolling();
+            
+            // Auto-stop after 5 seconds
+            _comboRecordTimer = new DispatcherTimer();
+            _comboRecordTimer.Interval = System.TimeSpan.FromSeconds(5);
+            _comboRecordTimer.Tick += (s, e) => StopRecordingCombo();
+            _comboRecordTimer.Start();
+        }
+
+        private void StopRecordingCombo()
+        {
+            _isRecordingCombo = false;
+            _comboRecordTimer?.Stop();
+            _comboRecordTimer = null;
+            
+            if (_testGamepad != null)
+            {
+                _testGamepad.ButtonPressed -= OnComboButtonPressed;
+                _testGamepad.StopPolling();
+            }
+            
+            GamepadComboRecordButton.Content = new FontIcon { Glyph = "\uE7C8", FontSize = 14 }; // Record icon
+            
+            // Save combo if we recorded something
+            if (_recordedButtons.Count > 0)
+            {
+                var combo = string.Join("+", _recordedButtons);
+                GamepadComboTextBox.Text = combo;
+                SettingsManager.Current.GamepadToggleOverlayCombo = combo;
+                SettingsManager.Save();
+                
+                // Refresh global gamepad
+                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                mainWindow?.RefreshGlobalGamepad();
+                
+                Logger.LogInfo($"Gamepad overlay combo set to: {combo}");
+                
+                // Vibrate to confirm
+                _testGamepad?.Vibrate(30000, 30000, 100);
+            }
+            else
+            {
+                GamepadComboTextBox.Text = SettingsManager.Current.GamepadToggleOverlayCombo ?? "Back+Start";
+            }
+            
+            _recordedButtons.Clear();
+        }
+
+        private void OnComboButtonPressed(object? sender, GamepadButtonEventArgs e)
+        {
+            if (!_isRecordingCombo) return;
+            
+            var buttonName = e.GetButtonDisplayName();
+            
+            // Map display names to setting names
+            var settingName = buttonName switch
+            {
+                "D-Pad Up" => "DPadUp",
+                "D-Pad Down" => "DPadDown",
+                "D-Pad Left" => "DPadLeft",
+                "D-Pad Right" => "DPadRight",
+                "Left Stick" => "LeftThumb",
+                "Right Stick" => "RightThumb",
+                "LB" => "LeftShoulder",
+                "RB" => "RightShoulder",
+                _ => buttonName
+            };
+            
+            _recordedButtons.Add(settingName);
+            
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                GamepadComboTextBox.Text = string.Join("+", _recordedButtons);
+            });
+        }
+
+        #endregion
 
         private void HotkeyTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
         {
@@ -81,6 +279,11 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     SettingsManager.Current.ToggleOverlayHotkey = newHotkey;
                     SettingsManager.Save();
+                    
+                    // Refresh global hotkeys so the new hotkey works immediately
+                    var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                    mainWindow?.RefreshGlobalHotkeys();
+                    
                     Logger.LogInfo($"Overlay hotkey set to: {newHotkey}");
                 }
             }
@@ -90,12 +293,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             // Hotkey is now saved in KeyDown handler
             // This handler is kept for manual text entry compatibility
-        }
-
-        private void AlwaysOnTopToggle_Toggled(object sender, RoutedEventArgs e)
-        {
-            if (_isInitializing) return;
-            Logger.LogInfo($"Overlay always on top: {AlwaysOnTopToggle.IsOn}");
         }
 
         private void ThemeSelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)

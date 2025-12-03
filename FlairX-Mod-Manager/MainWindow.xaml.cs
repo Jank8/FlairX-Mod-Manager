@@ -366,6 +366,9 @@ namespace FlairX_Mod_Manager
                     SaveWindowState();
                     _globalHotkeyManager?.Dispose();
                     
+                    // Stop global gamepad
+                    StopGlobalGamepad();
+                    
                     // Close overlay window
                     CloseOverlayWindow();
                     
@@ -486,6 +489,9 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogError("Failed to initialize global hotkey manager", ex);
             }
+            
+            // Initialize global gamepad manager for overlay toggle
+            InitializeGlobalGamepad();
         }
 
         // Hotkey methods moved to MainWindow.Hotkeys.cs partial class

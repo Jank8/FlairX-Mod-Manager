@@ -14,38 +14,57 @@
 
         <!-- Custom Title Bar -->
         <Grid x:Name="AppTitleBar" Grid.Row="0" Background="Transparent">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
                 <Image Source="Assets/app.ico" Width="16" Height="16" Margin="0,0,8,0"/>
-                <TextBlock Text="FlairX Mod Manager - Overlay" FontSize="12" VerticalAlignment="Center"/>
-            </StackPanel>
-            
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" Margin="0,0,140,0">
-                <Button x:Name="PinButton" 
-                        Content="📌" 
-                        Click="PinButton_Click"
-                        ToolTipService.ToolTip="Toggle Always on Top"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Padding="8,4"
-                        VerticalAlignment="Center"/>
+                <TextBlock Text="FlairX Mod Manager" FontSize="12" VerticalAlignment="Center"/>
             </StackPanel>
         </Grid>
 
         <!-- Content -->
-        <Grid Grid.Row="1" Padding="12,0,12,12">
+        <Grid Grid.Row="1" Padding="8,0,8,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
+            <!-- Category Icons Column -->
+            <ScrollViewer Grid.Column="0" Grid.Row="0"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Margin="0,0,4,0">
+                <ItemsRepeater x:Name="CategoriesRepeater" 
+                               ItemsSource="{x:Bind OverlayCategories}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Orientation="Vertical" Spacing="4"/>
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="local:OverlayCategoryItem">
+                            <Grid Width="40" Height="40" 
+                                  Margin="4"
+                                  CornerRadius="4"
+                                  Background="{x:Bind SelectionBackground, Mode=OneWay}"
+                                  PointerPressed="CategoryItem_PointerPressed"
+                                  ToolTipService.ToolTip="{x:Bind Name}">
+                                <Border CornerRadius="4">
+                                    <Image Source="{x:Bind Thumbnail}" 
+                                           Stretch="UniformToFill"/>
+                                </Border>
+                                <!-- Selection indicator -->
+                                <Border CornerRadius="4"
+                                        BorderBrush="{x:Bind SelectionBorder, Mode=OneWay}"
+                                        BorderThickness="2"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+            </ScrollViewer>
+
             <!-- Mod List -->
-            <ScrollViewer Grid.Row="0" 
+            <ScrollViewer Grid.Column="1" Grid.Row="0" 
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
                 <ItemsRepeater x:Name="ModsRepeater" 
@@ -94,7 +113,7 @@
             </ScrollViewer>
 
             <!-- Footer -->
-            <StackPanel Grid.Row="1" 
+            <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" 
                         Orientation="Horizontal" 
                         HorizontalAlignment="Center"
                         Margin="0,8,0,0"
