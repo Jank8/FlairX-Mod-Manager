@@ -399,24 +399,88 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                string? exePath = Process.GetCurrentProcess().MainModule?.FileName;
-                if (!string.IsNullOrEmpty(exePath))
+                // Try multiple methods to get the executable path
+                string? exePath = null;
+                
+                // Method 1: Get from current process
+                try
+                {
+                    exePath = Process.GetCurrentProcess().MainModule?.FileName;
+                }
+                catch { }
+                
+                // Method 2: Get from Environment
+                if (string.IsNullOrEmpty(exePath))
+                {
+                    exePath = Environment.ProcessPath;
+                }
+                
+                // Method 3: Get from AppDomain
+                if (string.IsNullOrEmpty(exePath))
+                {
+                    var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                    var possibleExe = Path.Combine(baseDir, "FlairX Mod Manager.exe");
+                    if (File.Exists(possibleExe))
+                    {
+                        exePath = possibleExe;
+                    }
+                }
+                
+                Logger.LogInfo($"Restart: Executable path = {exePath}");
+                
+                if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
                 {
                     var psi = new ProcessStartInfo
                     {
                         FileName = exePath,
                         UseShellExecute = true,
-                        WorkingDirectory = Path.GetDirectoryName(exePath) ?? PathManager.GetAbsolutePath(".")
+                        WorkingDirectory = Path.GetDirectoryName(exePath) ?? AppDomain.CurrentDomain.BaseDirectory
                     };
+                    
+                    Logger.LogInfo($"Restart: Starting new process...");
                     Process.Start(psi);
+                    
+                    Logger.LogInfo($"Restart: Exiting current process...");
+                    Application.Current.Exit();
                 }
-                Application.Current.Exit();
+                else
+                {
+                    Logger.LogError($"Restart: Could not find executable at path: {exePath}");
+                    
+                    // Show error to user
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    ShowErrorInfo("Could not restart - executable not found", 3000);
+                }
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error restarting application", ex);
-                // Fallback - just exit
-                Application.Current.Exit();
+                
+                // Try fallback with cmd
+                try
+                {
+                    var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                    var exePath = Path.Combine(baseDir, "FlairX Mod Manager.exe");
+                    
+                    if (File.Exists(exePath))
+                    {
+                        // Use cmd to start the app after a delay
+                        var psi = new ProcessStartInfo
+                        {
+                            FileName = "cmd.exe",
+                            Arguments = $"/c timeout /t 1 /nobreak >nul && start \"\" \"{exePath}\"",
+                            UseShellExecute = true,
+                            CreateNoWindow = true,
+                            WindowStyle = ProcessWindowStyle.Hidden
+                        };
+                        Process.Start(psi);
+                        Application.Current.Exit();
+                    }
+                }
+                catch (Exception ex2)
+                {
+                    Logger.LogError("Fallback restart also failed", ex2);
+                }
             }
         }
 
