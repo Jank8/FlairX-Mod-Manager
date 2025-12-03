@@ -69,7 +69,7 @@
                     <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,0,0" HorizontalAlignment="Stretch">
 
                     <!-- Image Section -->
-                    <TextBlock Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                    <TextBlock x:Name="ModPreviewHeader" Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
                     
                     <Viewbox MaxWidth="600" MaxHeight="600" Stretch="Uniform" Margin="0,0,0,24" HorizontalAlignment="Center">
                             <Grid Width="600" Height="600">
@@ -78,7 +78,8 @@
                                       Width="600" Height="600" 
                                       Background="Transparent"
                                       PointerEntered="ModImageCoordinateField_PointerEntered"
-                                      PointerExited="ModImageCoordinateField_PointerExited" />
+                                      PointerExited="ModImageCoordinateField_PointerExited"
+                                      PointerPressed="ModImage_PointerPressed" />
                                 
                                 <!-- Content root with margin for stable hover -->
                                 <Grid x:Name="ModImageContentRoot" Margin="20" IsHitTestVisible="False">
@@ -134,7 +135,7 @@
                         </Viewbox>
 
                     <!-- Details Section -->
-                    <TextBlock Text="Details" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                    <TextBlock x:Name="ModDetailsHeader" Text="Details" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
                     
                     <!-- Date Checked -->
                     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -155,7 +156,7 @@
                             
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                 <TextBlock x:Name="ModDateCheckedLabel" Text="Date Checked" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock Text="When you last verified this mod" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                                <TextBlock x:Name="ModDateCheckedDesc" Text="When you last verified this mod" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
@@ -186,7 +187,7 @@
                             
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                 <TextBlock x:Name="ModDateUpdatedLabel" Text="Last Update" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock Text="When this mod was last updated" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                                <TextBlock x:Name="ModDateUpdatedDesc" Text="When this mod was last updated" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
@@ -217,7 +218,7 @@
                             
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                 <TextBlock x:Name="ModAuthorLabel" Text="Author" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock Text="Creator of this mod" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                                <TextBlock x:Name="ModAuthorDesc" Text="Creator of this mod" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
                             <TextBox x:Name="ModAuthorTextBox" Grid.Column="3" Width="260" TextChanged="ModAuthorTextBox_TextChanged" VerticalAlignment="Center"/>
@@ -243,7 +244,7 @@
                             
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                 <TextBlock x:Name="ModUrlLabel" Text="URL" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock Text="Link to mod page" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                                <TextBlock x:Name="ModUrlDesc" Text="Link to mod page" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
                             <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
@@ -273,8 +274,8 @@
                             <FontIcon Grid.Column="0" Glyph="&#xE7B3;" FontSize="20" VerticalAlignment="Center"/>
                             
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                <TextBlock Text="NSFW Content" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock Text="Mark this mod as adult content" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                                <TextBlock x:Name="ModNSFWLabel" Text="NSFW Content" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="ModNSFWDesc" Text="Mark this mod as adult content" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
                             <CheckBox x:Name="ModNSFWCheckBox" 
@@ -303,8 +304,8 @@
                             <FontIcon Grid.Column="0" Glyph="&#xE895;" FontSize="20" VerticalAlignment="Center"/>
                             
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                <TextBlock Text="StatusKeeper Sync" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock Text="Synchronize mod status with game settings" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                                <TextBlock x:Name="ModStatusKeeperSyncLabel" Text="StatusKeeper Sync" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="ModStatusKeeperSyncDesc" Text="Synchronize mod status with game settings" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
                             <CheckBox x:Name="ModStatusKeeperSyncCheckBox" 
@@ -345,5 +346,7 @@
                 </Grid>
             </ScrollViewer>
         </Grid>
+        
+
     </Grid>
 </UserControl>

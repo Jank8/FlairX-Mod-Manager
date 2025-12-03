@@ -204,5 +204,18 @@
     "CropPanel_AspectLocked": "Proporcje zablokowane na",
     "CropPanel_FreeAspect": "Swobodne proporcje - przeciągnij uchwyty aby zmienić rozmiar",
     "CropPanel_Reset": "Resetuj zaznaczenie",
-    "CropPanel_Hint": "Przeciągnij aby przesunąć • Rogi zachowują proporcje • Krawędzie zmieniają proporcje"
+    "CropPanel_Hint": "Przeciągnij aby przesunąć • Rogi zachowują proporcje • Krawędzie zmieniają proporcje",
+    "Hotkey_Favorite_Tooltip": "Dodaj do ulubionych",
+    "Hotkey_Unfavorite_Tooltip": "Usuń z ulubionych",
+    "ImagePreview_Close_Tooltip": "Zamknij podgląd",
+    "ModDetailPage_DateChecked_Desc": "Kiedy ostatnio sprawdzałeś ten mod",
+    "ModDetailPage_DateUpdated_Desc": "Kiedy ten mod był ostatnio aktualizowany",
+    "ModDetailPage_Author_Desc": "Twórca tego moda",
+    "ModDetailPage_URL_Desc": "Link do strony moda",
+    "ModDetailPage_NSFW_Label": "Treści dla dorosłych",
+    "ModDetailPage_NSFW_Desc": "Oznacz ten mod jako treść dla dorosłych",
+    "ModDetailPage_StatusKeeperSync_Label": "Synchronizacja StatusKeeper",
+    "ModDetailPage_StatusKeeperSync_Desc": "Synchronizuj status moda z ustawieniami gry",
+    "ModDetailPage_Preview_Header": "Podgląd",
+    "ModDetailPage_Details_Header": "Szczegóły"
 }

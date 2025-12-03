@@ -204,5 +204,18 @@
     "CropPanel_AspectLocked": "Aspect ratio locked to",
     "CropPanel_FreeAspect": "Free aspect ratio - drag handles to resize",
     "CropPanel_Reset": "Reset",
-    "CropPanel_Hint": "Drag to move • Corners maintain ratio • Edges change ratio"
+    "CropPanel_Hint": "Drag to move • Corners maintain ratio • Edges change ratio",
+    "Hotkey_Favorite_Tooltip": "Add to favorites",
+    "Hotkey_Unfavorite_Tooltip": "Remove from favorites",
+    "ImagePreview_Close_Tooltip": "Close preview",
+    "ModDetailPage_DateChecked_Desc": "When you last verified this mod",
+    "ModDetailPage_DateUpdated_Desc": "When this mod was last updated",
+    "ModDetailPage_Author_Desc": "Creator of this mod",
+    "ModDetailPage_URL_Desc": "Link to mod page",
+    "ModDetailPage_NSFW_Label": "NSFW Content",
+    "ModDetailPage_NSFW_Desc": "Mark this mod as adult content",
+    "ModDetailPage_StatusKeeperSync_Label": "StatusKeeper Sync",
+    "ModDetailPage_StatusKeeperSync_Desc": "Synchronize mod status with game settings",
+    "ModDetailPage_Preview_Header": "Preview",
+    "ModDetailPage_Details_Header": "Details"
 }

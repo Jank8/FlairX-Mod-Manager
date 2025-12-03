@@ -66,10 +66,20 @@ namespace FlairX_Mod_Manager.Pages
                 // Load language translations and set labels
                 var lang = SharedUtilities.LoadLanguageDictionary();
                 ModDateCheckedLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_DateChecked");
+                ModDateCheckedDesc.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_DateChecked_Desc");
                 ModDateUpdatedLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_DateUpdated");
+                ModDateUpdatedDesc.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_DateUpdated_Desc");
                 ModAuthorLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Author");
+                ModAuthorDesc.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Author_Desc");
                 ModHotkeysLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Hotkeys");
                 ModUrlLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_URL");
+                ModUrlDesc.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_URL_Desc");
+                ModNSFWLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_NSFW_Label");
+                ModNSFWDesc.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_NSFW_Desc");
+                ModStatusKeeperSyncLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_StatusKeeperSync_Label");
+                ModStatusKeeperSyncDesc.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_StatusKeeperSync_Desc");
+                ModPreviewHeader.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Preview_Header");
+                ModDetailsHeader.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Details_Header");
                 UpdateAvailableNotification.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_UpdateAvailable");
 
                 // Set tooltip for OpenUrlButton
@@ -487,13 +497,7 @@ namespace FlairX_Mod_Manager.Pages
             if (hasMultipleImages)
             {
                 ImageCounterText.Text = $"{_currentImageIndex + 1} / {_availablePreviewImages.Count}";
-                
-                // Enable/disable buttons based on current position using opacity and pointer capture
-                PrevImageButton.Opacity = _currentImageIndex > 0 ? 1.0 : 0.5;
-                PrevImageButton.IsHitTestVisible = _currentImageIndex > 0;
-                
-                NextImageButton.Opacity = _currentImageIndex < _availablePreviewImages.Count - 1 ? 1.0 : 0.5;
-                NextImageButton.IsHitTestVisible = _currentImageIndex < _availablePreviewImages.Count - 1;
+                // Infinite carousel - buttons always active
             }
         }
 
@@ -609,6 +613,11 @@ namespace FlairX_Mod_Manager.Pages
             var accentBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(accentColor.A, accentColor.R, accentColor.G, accentColor.B));
             // Default color for empty star (semi-transparent)
             var defaultStarBrush = new SolidColorBrush(Microsoft.UI.Colors.Gray) { Opacity = 0.5 };
+            // Get tooltip translations
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            var favoriteTooltip = SharedUtilities.GetTranslation(lang, "Hotkey_Favorite_Tooltip");
+            var unfavoriteTooltip = SharedUtilities.GetTranslation(lang, "Hotkey_Unfavorite_Tooltip");
+            
             var starIcon = new FontIcon
             {
                 Glyph = isFavorite ? "\uE735" : "\uE734", // Filled star vs outline star
@@ -620,6 +629,7 @@ namespace FlairX_Mod_Manager.Pages
                 RenderTransform = new ScaleTransform { ScaleX = 1, ScaleY = 1 },
                 RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5)
             };
+            ToolTipService.SetToolTip(starIcon, isFavorite ? unfavoriteTooltip : favoriteTooltip);
             starIcon.PointerPressed += StarIcon_PointerPressed;
             starIcon.PointerEntered += StarIcon_PointerEntered;
             starIcon.PointerExited += StarIcon_PointerExited;
@@ -1470,22 +1480,28 @@ namespace FlairX_Mod_Manager.Pages
 
         private void PrevImageButton_Click(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (_currentImageIndex > 0)
-            {
-                _currentImageIndex--;
-                LoadCurrentImage();
-                UpdateImageNavigation();
-            }
+            e.Handled = true;
+            if (_availablePreviewImages.Count == 0) return;
+            
+            // Infinite carousel - wrap to last image
+            _currentImageIndex = _currentImageIndex > 0 
+                ? _currentImageIndex - 1 
+                : _availablePreviewImages.Count - 1;
+            LoadCurrentImage();
+            UpdateImageNavigation();
         }
 
         private void NextImageButton_Click(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (_currentImageIndex < _availablePreviewImages.Count - 1)
-            {
-                _currentImageIndex++;
-                LoadCurrentImage();
-                UpdateImageNavigation();
-            }
+            e.Handled = true;
+            if (_availablePreviewImages.Count == 0) return;
+            
+            // Infinite carousel - wrap to first image
+            _currentImageIndex = _currentImageIndex < _availablePreviewImages.Count - 1 
+                ? _currentImageIndex + 1 
+                : 0;
+            LoadCurrentImage();
+            UpdateImageNavigation();
         }
 
         // MAIN HOVER TILT EFFECT - 6 degrees for entire preview area
@@ -1790,6 +1806,19 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             return projection;
+        }
+        
+        // Image Preview - opens sliding panel
+        private void ModImage_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            var point = e.GetCurrentPoint(ModImageCoordinateField);
+            if (point.Properties.IsLeftButtonPressed && _availablePreviewImages.Count > 0)
+            {
+                // Open image preview in sliding panel
+                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                var modName = ModDetailTitle.Text ?? "Preview";
+                mainWindow?.ShowImagePreviewPanel(_availablePreviewImages, _currentImageIndex, modName);
+            }
         }
     }
 }

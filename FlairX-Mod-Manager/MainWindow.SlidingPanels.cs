@@ -66,6 +66,13 @@ namespace FlairX_Mod_Manager
             var title = string.Format(SharedUtilities.GetTranslation(lang, "BrowseTitle"), gameName);
             ShowSlidingPanel(browserControl, title);
         }
+        
+        public void ShowImagePreviewPanel(System.Collections.Generic.List<string> imagePaths, int startIndex = 0, string title = "Preview")
+        {
+            var previewControl = new ImagePreviewUserControl();
+            previewControl.LoadImages(imagePaths, startIndex, title);
+            ShowSlidingPanel(previewControl, title);
+        }
 
 
 
@@ -403,6 +410,10 @@ namespace FlairX_Mod_Manager
                     else if (userControl is Controls.ImageCropInspectionPanel cropPanel)
                     {
                         cropPanel.CloseRequested += (s, args) => closeWithAnimation();
+                    }
+                    else if (userControl is ImagePreviewUserControl imagePreviewControl)
+                    {
+                        imagePreviewControl.CloseRequested += (s, args) => closeWithAnimation();
                     }
                     
                     // Click outside to close
