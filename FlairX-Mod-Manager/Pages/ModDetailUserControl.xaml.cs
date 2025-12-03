@@ -276,12 +276,28 @@ namespace FlairX_Mod_Manager.Pages
                 // Check for available updates
                 CheckForUpdates(root);
                 
+                // Load favorite hotkeys first
+                _favoriteHotkeys.Clear();
+                if (root.TryGetProperty("favoriteHotkeys", out var favHotkeysProp) && favHotkeysProp.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var fav in favHotkeysProp.EnumerateArray())
+                    {
+                        var favKey = fav.GetString();
+                        if (!string.IsNullOrEmpty(favKey))
+                        {
+                            _favoriteHotkeys.Add(favKey);
+                        }
+                    }
+                }
+                
                 // Load hotkeys
                 ModHotkeysPanel.Children.Clear();
+                _originalHotkeyOrder.Clear();
                 if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
                 {
-                    // First pass: collect all hotkeys and find max key width
-                    var hotkeyList = new List<(string key, string desc)>();
+                    // First pass: collect all hotkeys with original index and find max key width
+                    var hotkeyList = new List<(string key, string desc, int originalIndex)>();
+                    int index = 0;
                     foreach (var hotkey in hotkeysProp.EnumerateArray())
                     {
                         string? key = null;
@@ -299,13 +315,21 @@ namespace FlairX_Mod_Manager.Pages
                         
                         if (!string.IsNullOrWhiteSpace(key))
                         {
-                            hotkeyList.Add((key, desc ?? string.Empty));
+                            hotkeyList.Add((key, desc ?? string.Empty, index));
+                            _originalHotkeyOrder.Add(key);
                         }
+                        index++;
                     }
+                    
+                    // Sort: favorites first (maintaining original order within each group)
+                    hotkeyList = hotkeyList
+                        .OrderByDescending(x => _favoriteHotkeys.Contains(x.key))
+                        .ThenBy(x => x.originalIndex)
+                        .ToList();
                     
                     // Estimate max width based on key length (rough calculation)
                     double maxKeyWidth = 0;
-                    foreach (var (key, _) in hotkeyList)
+                    foreach (var (key, _, _) in hotkeyList)
                     {
                         // Estimate: each char ~10px, padding 24px per key, spacing 12px per +
                         var parts = key.Split('+');
@@ -320,9 +344,9 @@ namespace FlairX_Mod_Manager.Pages
                     maxKeyWidth = Math.Max(maxKeyWidth, 150); // Minimum width
                     
                     // Second pass: create rows with fixed key column width
-                    foreach (var (key, desc) in hotkeyList)
+                    foreach (var (key, desc, origIdx) in hotkeyList)
                     {
-                        var hotkeyRow = CreateHotkeyRow(key, desc, maxKeyWidth);
+                        var hotkeyRow = CreateHotkeyRow(key, desc, origIdx, maxKeyWidth);
                         ModHotkeysPanel.Children.Add(hotkeyRow);
                     }
                 }
@@ -492,24 +516,30 @@ namespace FlairX_Mod_Manager.Pages
             UpdateImageNavigation();
         }
         
-        private Border CreateHotkeyRow(string keyCombo, string description, double keyColumnWidth = 200)
+        private HashSet<string> _favoriteHotkeys = new HashSet<string>();
+        private List<string> _originalHotkeyOrder = new List<string>(); // Preserve original order
+        
+        private Border CreateHotkeyRow(string keyCombo, string description, int originalIndex, double keyColumnWidth = 200)
         {
             // Get theme-aware key background from resources
             var keyBackground = (Brush)Application.Current.Resources["HotkeyKeyBackground"];
+            bool isFavorite = _favoriteHotkeys.Contains(keyCombo);
             
             var rowBorder = new Border
             {
                 Background = (Brush)Application.Current.Resources["CardBackgroundFillColorSecondaryBrush"],
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(16, 12, 16, 12),
-                Margin = new Thickness(0, 0, 0, 6)
+                Margin = new Thickness(0, 0, 0, 6),
+                Tag = new HotkeyRowData { Key = keyCombo, OriginalIndex = originalIndex }, // Store key and original index
+                RenderTransform = new CompositeTransform()
             };
-            ToolTipService.SetToolTip(rowBorder, keyCombo);
             
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(keyColumnWidth) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) }); // Favorite star column
             
             // Create keys panel with individual key backgrounds
             var keysPanel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
@@ -573,8 +603,444 @@ namespace FlairX_Mod_Manager.Pages
             Grid.SetColumn(descText, 2);
             grid.Children.Add(descText);
             
+            // Clickable star icon (no checkbox)
+            // Use system accent color from UI settings
+            var accentColor = new Windows.UI.ViewManagement.UISettings().GetColorValue(Windows.UI.ViewManagement.UIColorType.Accent);
+            var accentBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(accentColor.A, accentColor.R, accentColor.G, accentColor.B));
+            // Default color for empty star (semi-transparent)
+            var defaultStarBrush = new SolidColorBrush(Microsoft.UI.Colors.Gray) { Opacity = 0.5 };
+            var starIcon = new FontIcon
+            {
+                Glyph = isFavorite ? "\uE735" : "\uE734", // Filled star vs outline star
+                FontSize = 18,
+                Foreground = isFavorite ? accentBrush : defaultStarBrush,
+                Tag = keyCombo,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                RenderTransform = new ScaleTransform { ScaleX = 1, ScaleY = 1 },
+                RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5)
+            };
+            starIcon.PointerPressed += StarIcon_PointerPressed;
+            starIcon.PointerEntered += StarIcon_PointerEntered;
+            starIcon.PointerExited += StarIcon_PointerExited;
+            
+            Grid.SetColumn(starIcon, 3);
+            grid.Children.Add(starIcon);
+            
             rowBorder.Child = grid;
             return rowBorder;
+        }
+        
+        // Helper class to store hotkey row data
+        private class HotkeyRowData
+        {
+            public string Key { get; set; } = string.Empty;
+            public int OriginalIndex { get; set; }
+        }
+        
+        private void StarIcon_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is FontIcon icon && icon.RenderTransform is ScaleTransform transform)
+            {
+                var scaleUp = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = 1.2,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(100)),
+                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+                };
+                var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleUp, transform);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleUp, "ScaleX");
+                storyboard.Children.Add(scaleUp);
+                
+                var scaleUpY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = 1.2,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(100)),
+                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleUpY, transform);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleUpY, "ScaleY");
+                storyboard.Children.Add(scaleUpY);
+                storyboard.Begin();
+            }
+        }
+        
+        private void StarIcon_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is FontIcon icon && icon.RenderTransform is ScaleTransform transform)
+            {
+                var scaleDown = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = 1.0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(100)),
+                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+                };
+                var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleDown, transform);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleDown, "ScaleX");
+                storyboard.Children.Add(scaleDown);
+                
+                var scaleDownY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = 1.0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(100)),
+                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleDownY, transform);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleDownY, "ScaleY");
+                storyboard.Children.Add(scaleDownY);
+                storyboard.Begin();
+            }
+        }
+        
+        private async void StarIcon_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is FontIcon icon && icon.Tag is string keyCombo)
+            {
+                var accentColor = new Windows.UI.ViewManagement.UISettings().GetColorValue(Windows.UI.ViewManagement.UIColorType.Accent);
+                var accentBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(accentColor.A, accentColor.R, accentColor.G, accentColor.B));
+                var defaultStarBrush = new SolidColorBrush(Microsoft.UI.Colors.Gray) { Opacity = 0.5 };
+                bool wasFavorite = _favoriteHotkeys.Contains(keyCombo);
+                
+                if (wasFavorite)
+                {
+                    // Remove from favorites
+                    _favoriteHotkeys.Remove(keyCombo);
+                    icon.Glyph = "\uE734"; // Outline star
+                    icon.Foreground = defaultStarBrush;
+                    await SaveFavoriteHotkeys();
+                    AnimateHotkeyFromFavorites(keyCombo);
+                }
+                else
+                {
+                    // Add to favorites
+                    _favoriteHotkeys.Add(keyCombo);
+                    icon.Glyph = "\uE735"; // Filled star
+                    icon.Foreground = accentBrush;
+                    await SaveFavoriteHotkeys();
+                    AnimateHotkeyToFavorites(keyCombo);
+                }
+            }
+        }
+        
+        private void AnimateHotkeyToFavorites(string keyCombo)
+        {
+            // Find the border with this key
+            Border? targetBorder = null;
+            int currentIndex = -1;
+            
+            for (int i = 0; i < ModHotkeysPanel.Children.Count; i++)
+            {
+                if (ModHotkeysPanel.Children[i] is Border border && border.Tag is HotkeyRowData data && data.Key == keyCombo)
+                {
+                    targetBorder = border;
+                    currentIndex = i;
+                    break;
+                }
+            }
+            
+            if (targetBorder == null || currentIndex <= 0)
+            {
+                // Already at top or not found - just reorder
+                ReorderHotkeys();
+                return;
+            }
+            
+            // Create slide-up animation for the target
+            var transform = targetBorder.RenderTransform as CompositeTransform ?? new CompositeTransform();
+            targetBorder.RenderTransform = transform;
+            
+            // Find target position (after existing favorites, maintaining original order)
+            int targetPosition = 0;
+            int targetOriginalIndex = -1;
+            if (targetBorder.Tag is HotkeyRowData targetData)
+            {
+                targetOriginalIndex = targetData.OriginalIndex;
+            }
+            
+            // Count how many favorites with lower original index exist
+            for (int i = 0; i < ModHotkeysPanel.Children.Count; i++)
+            {
+                if (ModHotkeysPanel.Children[i] is Border border && border.Tag is HotkeyRowData data)
+                {
+                    if (_favoriteHotkeys.Contains(data.Key) && data.Key != keyCombo && data.OriginalIndex < targetOriginalIndex)
+                    {
+                        targetPosition++;
+                    }
+                }
+            }
+            
+            // Calculate distance to move to target position
+            double totalHeight = 0;
+            for (int i = targetPosition; i < currentIndex; i++)
+            {
+                if (ModHotkeysPanel.Children[i] is FrameworkElement elem)
+                {
+                    totalHeight += elem.ActualHeight + 6; // 6 is margin
+                }
+            }
+            
+            if (totalHeight <= 0)
+            {
+                ReorderHotkeys();
+                return;
+            }
+            
+            var slideUp = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 0,
+                To = -totalHeight,
+                Duration = new Duration(TimeSpan.FromMilliseconds(300)),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase 
+                { 
+                    EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseInOut 
+                }
+            };
+            
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideUp, transform);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideUp, "TranslateY");
+            storyboard.Children.Add(slideUp);
+            
+            // Animate items between target position and current position sliding down
+            for (int i = targetPosition; i < currentIndex; i++)
+            {
+                if (ModHotkeysPanel.Children[i] is Border otherBorder)
+                {
+                    var otherTransform = otherBorder.RenderTransform as CompositeTransform ?? new CompositeTransform();
+                    otherBorder.RenderTransform = otherTransform;
+                    
+                    var slideDown = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        From = 0,
+                        To = targetBorder.ActualHeight + 6,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(300)),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase 
+                        { 
+                            EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseInOut 
+                        }
+                    };
+                    
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideDown, otherTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideDown, "TranslateY");
+                    storyboard.Children.Add(slideDown);
+                }
+            }
+            
+            storyboard.Completed += (s, args) =>
+            {
+                // Reset transforms and reorder
+                foreach (var child in ModHotkeysPanel.Children)
+                {
+                    if (child is Border border && border.RenderTransform is CompositeTransform ct)
+                    {
+                        ct.TranslateY = 0;
+                    }
+                }
+                ReorderHotkeys();
+            };
+            
+            storyboard.Begin();
+        }
+        
+        private void AnimateHotkeyFromFavorites(string keyCombo)
+        {
+            // Find the border with this key
+            Border? targetBorder = null;
+            int currentIndex = -1;
+            int targetOriginalIndex = -1;
+            
+            for (int i = 0; i < ModHotkeysPanel.Children.Count; i++)
+            {
+                if (ModHotkeysPanel.Children[i] is Border border && border.Tag is HotkeyRowData data && data.Key == keyCombo)
+                {
+                    targetBorder = border;
+                    currentIndex = i;
+                    targetOriginalIndex = data.OriginalIndex;
+                    break;
+                }
+            }
+            
+            if (targetBorder == null)
+            {
+                ReorderHotkeys();
+                return;
+            }
+            
+            // Calculate target position (where it should go based on original index, after all favorites)
+            int favoritesCount = 0;
+            int targetPosition = 0;
+            
+            foreach (var child in ModHotkeysPanel.Children)
+            {
+                if (child is Border border && border.Tag is HotkeyRowData data)
+                {
+                    if (_favoriteHotkeys.Contains(data.Key))
+                    {
+                        favoritesCount++;
+                    }
+                }
+            }
+            
+            // Find position among non-favorites based on original index
+            targetPosition = favoritesCount;
+            foreach (var child in ModHotkeysPanel.Children)
+            {
+                if (child is Border border && border.Tag is HotkeyRowData data)
+                {
+                    if (!_favoriteHotkeys.Contains(data.Key) && data.Key != keyCombo && data.OriginalIndex < targetOriginalIndex)
+                    {
+                        targetPosition++;
+                    }
+                }
+            }
+            
+            if (targetPosition <= currentIndex)
+            {
+                // Already in correct position or moving up (shouldn't happen when removing from favorites)
+                ReorderHotkeys();
+                return;
+            }
+            
+            // Calculate distance to move down
+            double totalHeight = 0;
+            for (int i = currentIndex + 1; i <= targetPosition && i < ModHotkeysPanel.Children.Count; i++)
+            {
+                if (ModHotkeysPanel.Children[i] is FrameworkElement elem)
+                {
+                    totalHeight += elem.ActualHeight + 6;
+                }
+            }
+            
+            if (totalHeight <= 0)
+            {
+                ReorderHotkeys();
+                return;
+            }
+            
+            var transform = targetBorder.RenderTransform as CompositeTransform ?? new CompositeTransform();
+            targetBorder.RenderTransform = transform;
+            
+            var slideDown = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 0,
+                To = totalHeight,
+                Duration = new Duration(TimeSpan.FromMilliseconds(300)),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase 
+                { 
+                    EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseInOut 
+                }
+            };
+            
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideDown, transform);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideDown, "TranslateY");
+            storyboard.Children.Add(slideDown);
+            
+            // Animate items between current position and target position sliding up
+            for (int i = currentIndex + 1; i <= targetPosition && i < ModHotkeysPanel.Children.Count; i++)
+            {
+                if (ModHotkeysPanel.Children[i] is Border otherBorder)
+                {
+                    var otherTransform = otherBorder.RenderTransform as CompositeTransform ?? new CompositeTransform();
+                    otherBorder.RenderTransform = otherTransform;
+                    
+                    var slideUp = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        From = 0,
+                        To = -(targetBorder.ActualHeight + 6),
+                        Duration = new Duration(TimeSpan.FromMilliseconds(300)),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase 
+                        { 
+                            EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseInOut 
+                        }
+                    };
+                    
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideUp, otherTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideUp, "TranslateY");
+                    storyboard.Children.Add(slideUp);
+                }
+            }
+            
+            storyboard.Completed += (s, args) =>
+            {
+                // Reset transforms and reorder
+                foreach (var child in ModHotkeysPanel.Children)
+                {
+                    if (child is Border border && border.RenderTransform is CompositeTransform ct)
+                    {
+                        ct.TranslateY = 0;
+                    }
+                }
+                ReorderHotkeys();
+            };
+            
+            storyboard.Begin();
+        }
+        
+        private void ReorderHotkeys()
+        {
+            // Collect all hotkey borders with their data
+            var hotkeyItems = new List<(Border border, string key, int originalIndex, bool isFavorite)>();
+            
+            foreach (var child in ModHotkeysPanel.Children)
+            {
+                if (child is Border border && border.Tag is HotkeyRowData data)
+                {
+                    hotkeyItems.Add((border, data.Key, data.OriginalIndex, _favoriteHotkeys.Contains(data.Key)));
+                }
+            }
+            
+            // Sort: favorites first (maintaining original order within favorites), then non-favorites (maintaining original order)
+            var sorted = hotkeyItems
+                .OrderByDescending(x => x.isFavorite)
+                .ThenBy(x => x.originalIndex)
+                .Select(x => x.border)
+                .ToList();
+            
+            // Clear and re-add in sorted order
+            ModHotkeysPanel.Children.Clear();
+            foreach (var border in sorted)
+            {
+                ModHotkeysPanel.Children.Add(border);
+            }
+        }
+        
+        private async Task SaveFavoriteHotkeys()
+        {
+            if (string.IsNullOrEmpty(_modJsonPath) || !File.Exists(_modJsonPath)) return;
+            
+            try
+            {
+                var json = File.ReadAllText(_modJsonPath);
+                var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                var dict = new Dictionary<string, object?>();
+                
+                foreach (var prop in root.EnumerateObject())
+                {
+                    if (prop.Name == "favoriteHotkeys")
+                        continue; // Will be replaced
+                    else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || 
+                             prop.Name == "dateChecked" || prop.Name == "dateUpdated")
+                        dict[prop.Name] = prop.Value.GetString();
+                    else if (prop.Name == "isNSFW" || prop.Name == "statusKeeperSync")
+                        dict[prop.Name] = prop.Value.GetBoolean();
+                    else
+                        dict[prop.Name] = prop.Value.Deserialize<object>();
+                }
+                
+                // Add favorite hotkeys array
+                dict["favoriteHotkeys"] = _favoriteHotkeys.ToList();
+                
+                var newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(_modJsonPath, newJson);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to save favorite hotkeys", ex);
+            }
         }
         
         private void ModUrlTextBox_GotFocus(object sender, RoutedEventArgs e)

@@ -460,11 +460,28 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 Dictionary<string, object> modData;
+                var existingFavorites = new HashSet<string>();
                 
                 if (File.Exists(modJsonPath))
                 {
                     var existingJson = await File.ReadAllTextAsync(modJsonPath, token);
                     modData = JsonSerializer.Deserialize<Dictionary<string, object>>(existingJson) ?? new();
+                    
+                    // Load existing favorite hotkeys
+                    if (modData.TryGetValue("favoriteHotkeys", out var favObj) && favObj is JsonElement favElement)
+                    {
+                        if (favElement.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var fav in favElement.EnumerateArray())
+                            {
+                                var favKey = fav.GetString();
+                                if (!string.IsNullOrEmpty(favKey))
+                                {
+                                    existingFavorites.Add(favKey);
+                                }
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -498,6 +515,20 @@ namespace FlairX_Mod_Manager.Pages
                 }).ToArray();
 
                 modData["hotkeys"] = hotkeyArray;
+                
+                // Update favorite hotkeys - keep only those that still exist in the new hotkey list
+                var newHotkeyKeys = new HashSet<string>(hotkeys.Select(h => h.Key));
+                var updatedFavorites = existingFavorites.Where(fav => newHotkeyKeys.Contains(fav)).ToList();
+                
+                if (updatedFavorites.Count > 0)
+                {
+                    modData["favoriteHotkeys"] = updatedFavorites;
+                }
+                else
+                {
+                    // Remove favoriteHotkeys if empty
+                    modData.Remove("favoriteHotkeys");
+                }
 
                 var json = JsonSerializer.Serialize(modData, new JsonSerializerOptions { WriteIndented = true });
                 await File.WriteAllTextAsync(modJsonPath, json, token);
