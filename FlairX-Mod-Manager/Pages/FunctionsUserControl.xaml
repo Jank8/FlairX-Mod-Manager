@@ -74,6 +74,11 @@
                             <FontIcon Glyph="&#xE91B;"/>
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
+                    <NavigationViewItem x:Name="GameOverlayNavItem" Content="Game Overlay" Tag="GameOverlay">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE7B3;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
                 </NavigationView.MenuItems>
                 <Frame x:Name="FunctionContentFrame"/>
             </NavigationView>

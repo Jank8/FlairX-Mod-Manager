@@ -366,6 +366,9 @@ namespace FlairX_Mod_Manager
                     SaveWindowState();
                     _globalHotkeyManager?.Dispose();
                     
+                    // Close overlay window
+                    CloseOverlayWindow();
+                    
                     // Clean up tray icon
                     if (_trayIconCreated)
                     {

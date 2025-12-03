@@ -18,6 +18,9 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        // Overlay window instance
+        private OverlayWindow? _overlayWindow;
+
         // Win32 API for checking window focus
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
@@ -429,6 +432,117 @@ namespace FlairX_Mod_Manager
             }
             
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Toggle the overlay window visibility
+        /// </summary>
+        public void ToggleOverlayWindow()
+        {
+            try
+            {
+                // Check if game is selected
+                if (SettingsManager.Current.SelectedGameIndex <= 0)
+                {
+                    Logger.LogInfo("Cannot show overlay - no game selected");
+                    return;
+                }
+
+                // Create overlay window if it doesn't exist
+                if (_overlayWindow == null)
+                {
+                    _overlayWindow = new OverlayWindow(this);
+                    _overlayWindow.ModToggleRequested += OnOverlayModToggleRequested;
+                    Logger.LogInfo("Overlay window created");
+                }
+
+                // Toggle visibility
+                _overlayWindow.Toggle();
+                Logger.LogInfo($"Overlay window toggled");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error toggling overlay window", ex);
+            }
+        }
+
+        /// <summary>
+        /// Handle mod toggle request from overlay
+        /// </summary>
+        private async void OnOverlayModToggleRequested(string modPath)
+        {
+            try
+            {
+                Logger.LogInfo($"Overlay requested mod toggle: {modPath}");
+                
+                // Reload mods to reflect changes
+                await ReloadModsAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error handling overlay mod toggle", ex);
+            }
+        }
+
+        /// <summary>
+        /// Close overlay window when main window closes
+        /// </summary>
+        public void CloseOverlayWindow()
+        {
+            try
+            {
+                if (_overlayWindow != null)
+                {
+                    _overlayWindow.ModToggleRequested -= OnOverlayModToggleRequested;
+                    _overlayWindow.Close();
+                    _overlayWindow = null;
+                    Logger.LogInfo("Overlay window closed");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error closing overlay window", ex);
+            }
+        }
+
+        /// <summary>
+        /// Update overlay window theme
+        /// </summary>
+        public void UpdateOverlayTheme()
+        {
+            try
+            {
+                if (_overlayWindow != null)
+                {
+                    // Re-apply backdrop to update theme
+                    var backdrop = SettingsManager.Current.OverlayBackdrop ?? "AcrylicThin";
+                    _overlayWindow.ApplyBackdrop(backdrop);
+                    Logger.LogInfo("Overlay theme updated");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error updating overlay theme", ex);
+            }
+        }
+
+        /// <summary>
+        /// Update overlay window backdrop
+        /// </summary>
+        public void UpdateOverlayBackdrop(string backdrop)
+        {
+            try
+            {
+                if (_overlayWindow != null)
+                {
+                    _overlayWindow.ApplyBackdrop(backdrop);
+                    Logger.LogInfo($"Overlay backdrop updated to: {backdrop}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error updating overlay backdrop", ex);
+            }
         }
     }
 }

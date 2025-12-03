@@ -90,6 +90,7 @@ namespace FlairX_Mod_Manager
         private const int HOTKEY_RELOAD_MANAGER = 2;
         private const int HOTKEY_SHUFFLE_ACTIVE_MODS = 3;
         private const int HOTKEY_DEACTIVATE_ALL_MODS = 4;
+        private const int HOTKEY_TOGGLE_OVERLAY = 5;
 
         private readonly IntPtr _windowHandle;
         private readonly MainWindow _mainWindow;
@@ -133,6 +134,13 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo("Global hotkey: Deactivate all mods triggered");
                 await Task.Run(() => _mainWindow.ExecuteDeactivateAllModsHotkey());
             };
+
+            _hotkeyActions[HOTKEY_TOGGLE_OVERLAY] = async () =>
+            {
+                Logger.LogInfo("Global hotkey: Toggle overlay triggered");
+                await Task.CompletedTask;
+                _mainWindow.DispatcherQueue.TryEnqueue(() => _mainWindow.ToggleOverlayWindow());
+            };
         }
 
         public void RegisterAllHotkeys()
@@ -170,6 +178,12 @@ namespace FlairX_Mod_Manager
                 if (!string.IsNullOrEmpty(settings.DeactivateAllModsHotkey))
                 {
                     RegisterHotkey(HOTKEY_DEACTIVATE_ALL_MODS, settings.DeactivateAllModsHotkey);
+                }
+
+                // Register toggle overlay hotkey
+                if (!string.IsNullOrEmpty(settings.ToggleOverlayHotkey))
+                {
+                    RegisterHotkey(HOTKEY_TOGGLE_OVERLAY, settings.ToggleOverlayHotkey);
                 }
 
                 Logger.LogInfo($"Registered {_registeredHotkeys.Count} global hotkeys");

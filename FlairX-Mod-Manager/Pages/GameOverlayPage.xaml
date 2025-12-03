@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="FlairX_Mod_Manager.Pages.GameOverlayPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:FlairX_Mod_Manager.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="24">
+        <Grid HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="8*" MaxWidth="1000"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="1" Spacing="0" HorizontalAlignment="Stretch">
+            
+            <!-- Hotkey Section -->
+            <TextBlock Text="Controls" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            
+            <!-- Hotkey -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="OverlayHotkeyLabel" Text="Toggle Hotkey" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="OverlayHotkeyDescription" Text="Keyboard shortcut to show/hide overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <TextBox Grid.Column="3" x:Name="OverlayHotkeyTextBox" Width="160" PlaceholderText="Alt+W" KeyDown="HotkeyTextBox_KeyDown" TextChanged="OverlayHotkeyTextBox_TextChanged" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            
+            <!-- Always on Top -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="150"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE718;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="AlwaysOnTopLabel" Text="Always on Top" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="AlwaysOnTopDescription" Text="Keep overlay above other windows" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                        <TextBlock x:Name="AlwaysOnTopToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                        <ToggleSwitch x:Name="AlwaysOnTopToggle" IsOn="True" Toggled="AlwaysOnTopToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Appearance Section -->
+            <TextBlock Text="Appearance" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            
+            <!-- Theme Setting -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE790;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="ThemeLabel" Text="Theme" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="ThemeDescription" Text="Overlay color theme" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                
+                    <SelectorBar Grid.Column="3" x:Name="ThemeSelectorBar" SelectionChanged="ThemeSelectorBar_SelectionChanged" VerticalAlignment="Center">
+                        <SelectorBarItem x:Name="ThemeSelectorAuto" Tag="Auto" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xE890;" FontSize="16"/>
+                                <TextBlock Text="Auto" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                        <SelectorBarItem x:Name="ThemeSelectorLight" Tag="Light" Margin="4,0,4,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xE706;" FontSize="16"/>
+                                <TextBlock Text="Light" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                        <SelectorBarItem x:Name="ThemeSelectorDark" Tag="Dark">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xE708;" FontSize="16"/>
+                                <TextBlock Text="Dark" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                    </SelectorBar>
+                </Grid>
+            </Border>
+            
+            <!-- Backdrop Setting -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xF4A5;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="BackdropLabel" Text="Backdrop" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="BackdropDescription" Text="Window background effect" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                
+                    <SelectorBar Grid.Column="3" x:Name="BackdropSelectorBar" SelectionChanged="BackdropSelectorBar_SelectionChanged" VerticalAlignment="Center">
+                        <SelectorBarItem x:Name="BackdropSelectorMica" Tag="Mica" Margin="0,0,4,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
+                                <TextBlock Text="Mica" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                        <SelectorBarItem x:Name="BackdropSelectorMicaAlt" Tag="MicaAlt" Margin="4,0,4,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
+                                <TextBlock Text="MicaAlt" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                        <SelectorBarItem x:Name="BackdropSelectorAcrylic" Tag="Acrylic" Margin="4,0,4,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
+                                <TextBlock Text="Acrylic" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                        <SelectorBarItem x:Name="BackdropSelectorAcrylicThin" Tag="AcrylicThin" Margin="4,0,4,0">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
+                                <TextBlock Text="Thin" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                        <SelectorBarItem x:Name="BackdropSelectorNone" Tag="None">
+                            <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
+                                <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
+                                <TextBlock Text="None" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </SelectorBarItem>
+                    </SelectorBar>
+                </Grid>
+            </Border>
+            
+            <!-- Test Section -->
+            <TextBlock Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            
+            <!-- Test Button -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE768;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="TestOverlayLabel" Text="Test Overlay" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="TestOverlayDescription" Text="Open overlay window to preview" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <Button Grid.Column="3" x:Name="TestOverlayButton" Click="TestOverlayButton_Click" VerticalAlignment="Center" Style="{StaticResource AccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE7B3;" FontSize="16"/>
+                            <TextBlock Text="Open Overlay"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+            
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</Page>

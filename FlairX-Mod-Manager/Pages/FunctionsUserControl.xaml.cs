@@ -327,6 +327,33 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             _functionInfos.Add(imageOptimizerFunction);
+
+            // Add GameOverlay function
+            var gameOverlayFunction = new FunctionInfo
+            {
+                FileName = "GameOverlay",
+                Name = "Game Overlay",
+                Enabled = true
+            };
+            string goJsonPath = Path.Combine(settingsDir, gameOverlayFunction.FileName + ".json");
+            if (File.Exists(goJsonPath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(goJsonPath);
+                    var loaded = JsonSerializer.Deserialize<FunctionInfo>(json);
+                    if (loaded != null)
+                    {
+                        gameOverlayFunction.Enabled = loaded.Enabled;
+                        gameOverlayFunction.Name = loaded.Name;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to load GameOverlay function settings", ex);
+                }
+            }
+            _functionInfos.Add(gameOverlayFunction);
         }
 
         private void PopulateFunctionButtons()
@@ -353,6 +380,11 @@ namespace FlairX_Mod_Manager.Pages
                     case "ImageOptimizer":
                         ImageOptimizerNavItem.Content = "Image Optimizer";
                         ImageOptimizerNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
+                        break;
+                    
+                    case "GameOverlay":
+                        GameOverlayNavItem.Content = "Game Overlay";
+                        GameOverlayNavItem.Visibility = function.Enabled ? Visibility.Visible : Visibility.Collapsed;
                         break;
                 }
             }
@@ -407,6 +439,10 @@ namespace FlairX_Mod_Manager.Pages
                 
                 case "ImageOptimizer":
                     FunctionContentFrame.Navigate(typeof(ImageOptimizerPage));
+                    break;
+                
+                case "GameOverlay":
+                    FunctionContentFrame.Navigate(typeof(GameOverlayPage));
                     break;
             }
         }

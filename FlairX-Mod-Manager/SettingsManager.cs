@@ -63,6 +63,11 @@ namespace FlairX_Mod_Manager
         public string ReloadManagerHotkey { get; set; } = "Ctrl+R";
         public string ShuffleActiveModsHotkey { get; set; } = "Ctrl+S";
         public string DeactivateAllModsHotkey { get; set; } = "Ctrl+D";
+        public string ToggleOverlayHotkey { get; set; } = "Alt+W";
+        
+        // Overlay settings
+        public string OverlayTheme { get; set; } = "Auto";
+        public string OverlayBackdrop { get; set; } = "AcrylicThin";
         
         // Navigation state persistence
         public string? LastSelectedCategory { get; set; }
