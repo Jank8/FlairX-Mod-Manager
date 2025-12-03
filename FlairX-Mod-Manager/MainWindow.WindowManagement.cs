@@ -413,6 +413,44 @@ namespace FlairX_Mod_Manager
             {
                 SetConfigurationSourceTheme();
             }
+            
+            // Update title bar button colors when theme changes (for Auto mode)
+            UpdateTitleBarColors();
+            
+            // Update sliding panel theme
+            UpdateSlidingPanelTheme();
+        }
+        
+        private void UpdateTitleBarColors()
+        {
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+            var appWindow = AppWindow.GetFromWindowId(windowId);
+            
+            if (appWindow == null || Content is not FrameworkElement root) return;
+            
+            var theme = SettingsManager.Current.Theme;
+            if (theme == "Auto" || string.IsNullOrEmpty(theme))
+            {
+                // For Auto mode, update based on actual theme
+                var actualTheme = root.ActualTheme;
+                if (actualTheme == ElementTheme.Light)
+                {
+                    appWindow.TitleBar.ButtonForegroundColor = Colors.Black;
+                    appWindow.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+                    appWindow.TitleBar.ButtonPressedForegroundColor = Colors.Black;
+                    appWindow.TitleBar.ButtonHoverBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(100, 230, 230, 230);
+                    appWindow.TitleBar.ButtonPressedBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(150, 210, 210, 210);
+                }
+                else
+                {
+                    appWindow.TitleBar.ButtonForegroundColor = Colors.White;
+                    appWindow.TitleBar.ButtonHoverForegroundColor = Colors.White;
+                    appWindow.TitleBar.ButtonPressedForegroundColor = Colors.White;
+                    appWindow.TitleBar.ButtonHoverBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 50, 50, 50);
+                    appWindow.TitleBar.ButtonPressedBackgroundColor = Microsoft.UI.ColorHelper.FromArgb(255, 30, 30, 30);
+                }
+            }
         }
 
         private void SetConfigurationSourceTheme()

@@ -91,6 +91,7 @@ namespace FlairX_Mod_Manager
         private const int HOTKEY_SHUFFLE_ACTIVE_MODS = 3;
         private const int HOTKEY_DEACTIVATE_ALL_MODS = 4;
         private const int HOTKEY_TOGGLE_OVERLAY = 5;
+        private const int HOTKEY_FILTER_ACTIVE = 6;
 
         private readonly IntPtr _windowHandle;
         private readonly MainWindow _mainWindow;
@@ -141,6 +142,13 @@ namespace FlairX_Mod_Manager
                 await Task.CompletedTask;
                 _mainWindow.DispatcherQueue.TryEnqueue(() => _mainWindow.ToggleOverlayWindow());
             };
+
+            _hotkeyActions[HOTKEY_FILTER_ACTIVE] = async () =>
+            {
+                Logger.LogInfo("Global hotkey: Filter active mods triggered");
+                await Task.CompletedTask;
+                _mainWindow.DispatcherQueue.TryEnqueue(() => _mainWindow.ToggleOverlayActiveFilter());
+            };
         }
 
         public void RegisterAllHotkeys()
@@ -184,6 +192,12 @@ namespace FlairX_Mod_Manager
                 if (!string.IsNullOrEmpty(settings.ToggleOverlayHotkey))
                 {
                     RegisterHotkey(HOTKEY_TOGGLE_OVERLAY, settings.ToggleOverlayHotkey);
+                }
+
+                // Register filter active mods hotkey
+                if (!string.IsNullOrEmpty(settings.FilterActiveHotkey))
+                {
+                    RegisterHotkey(HOTKEY_FILTER_ACTIVE, settings.FilterActiveHotkey);
                 }
 
                 Logger.LogInfo($"Registered {_registeredHotkeys.Count} global hotkeys");

@@ -7,10 +7,13 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Foundation;
 using WinRT;
 using WinRT.Interop;
 
@@ -24,6 +27,9 @@ namespace FlairX_Mod_Manager
         public string Name { get; set; } = "";
         public string Directory { get; set; } = "";
         public BitmapImage? Thumbnail { get; set; }
+        public Visibility ThumbnailVisibility => Thumbnail != null ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility FallbackVisibility => Thumbnail == null ? Visibility.Visible : Visibility.Collapsed;
+        public string FallbackGlyph { get; set; } = "\uEA8C"; // Default character icon
         
         private bool _isSelected;
         public bool IsSelected
@@ -41,16 +47,28 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        public SolidColorBrush SelectionBackground => IsSelected 
-            ? new SolidColorBrush(Windows.UI.Color.FromArgb(40, 0, 120, 212))
-            : new SolidColorBrush(Windows.UI.Color.FromArgb(0, 0, 0, 0));
+        public SolidColorBrush SelectionBackground
+        {
+            get
+            {
+                if (!IsSelected) return new SolidColorBrush(Windows.UI.Color.FromArgb(0, 0, 0, 0));
+                var accentColor = (Windows.UI.Color)Application.Current.Resources["SystemAccentColor"];
+                return new SolidColorBrush(Windows.UI.Color.FromArgb(40, accentColor.R, accentColor.G, accentColor.B));
+            }
+        }
 
-        public SolidColorBrush SelectionBorder => IsSelected 
-            ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 120, 212))
-            : new SolidColorBrush(Windows.UI.Color.FromArgb(0, 0, 0, 0));
+        public SolidColorBrush SelectionBorder
+        {
+            get
+            {
+                if (!IsSelected) return new SolidColorBrush(Windows.UI.Color.FromArgb(0, 0, 0, 0));
+                var accentColor = (Windows.UI.Color)Application.Current.Resources["SystemAccentColor"];
+                return new SolidColorBrush(accentColor);
+            }
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged(string name) => 
+        public void OnPropertyChanged(string name) => 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
@@ -74,6 +92,23 @@ namespace FlairX_Mod_Manager
                     _isActive = value;
                     OnPropertyChanged(nameof(IsActive));
                     OnPropertyChanged(nameof(StatusColor));
+                    OnPropertyChanged(nameof(ActiveVisibility));
+                    OnPropertyChanged(nameof(InactiveVisibility));
+                }
+            }
+        }
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected != value)
+                {
+                    _isSelected = value;
+                    OnPropertyChanged(nameof(IsSelected));
+                    OnPropertyChanged(nameof(SelectionBorderBrush));
                 }
             }
         }
@@ -82,8 +117,15 @@ namespace FlairX_Mod_Manager
             ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, 76, 175, 80))  // Green
             : new SolidColorBrush(Windows.UI.Color.FromArgb(255, 96, 96, 96));  // Gray
 
+        public Visibility ActiveVisibility => IsActive ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility InactiveVisibility => IsActive ? Visibility.Collapsed : Visibility.Visible;
+        
+        public SolidColorBrush SelectionBorderBrush => IsSelected 
+            ? new SolidColorBrush((Windows.UI.Color)Application.Current.Resources["SystemAccentColor"])
+            : new SolidColorBrush(Windows.UI.Color.FromArgb(0, 0, 0, 0));  // Transparent
+
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged(string name) => 
+        public void OnPropertyChanged(string name) => 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
@@ -108,12 +150,25 @@ namespace FlairX_Mod_Manager
         
         // Gamepad support
         private GamepadManager? _gamepadManager;
+        
+        // Theme change handler reference for cleanup
+        private TypedEventHandler<FrameworkElement, object>? _themeChangedHandler;
 
         // Event for mod toggle requests
         public event Action<string>? ModToggleRequested;
         
         // Event for window closed notification
         public event EventHandler? WindowClosed;
+        
+        // Flags to prevent concurrent loading
+        private bool _isLoadingMods;
+        private bool _isLoadingCategories;
+        
+        // Filter state
+        private bool _showActiveOnly;
+        
+        // Held buttons for combo detection
+        private HashSet<string> _heldButtons = new();
 
         public OverlayWindow(MainWindow mainWindow)
         {
@@ -140,6 +195,13 @@ namespace FlairX_Mod_Manager
             // Unsubscribe from events
             WindowStyleHelper.SettingsChanged -= OnSettingsChanged;
             
+            // Unsubscribe from theme changes
+            if (_themeChangedHandler != null && Content is FrameworkElement rootElement)
+            {
+                rootElement.ActualThemeChanged -= _themeChangedHandler;
+                _themeChangedHandler = null;
+            }
+            
             // Unsubscribe from window changes
             if (_appWindow != null)
             {
@@ -153,6 +215,8 @@ namespace FlairX_Mod_Manager
             if (_gamepadManager != null)
             {
                 _gamepadManager.ButtonPressed -= OnGamepadButtonPressed;
+                _gamepadManager.ButtonReleased -= OnGamepadButtonReleased;
+                _gamepadManager.LeftThumbstickMoved -= OnLeftThumbstickMoved;
                 _gamepadManager.Dispose();
                 _gamepadManager = null;
             }
@@ -396,7 +460,12 @@ namespace FlairX_Mod_Manager
                 // Subscribe to theme changes
                 if (Content is FrameworkElement rootElement)
                 {
-                    rootElement.ActualThemeChanged += (s, e) => SetConfigurationSourceTheme();
+                    _themeChangedHandler = (s, e) =>
+                    {
+                        SetConfigurationSourceTheme();
+                        RefreshUIForThemeChange();
+                    };
+                    rootElement.ActualThemeChanged += _themeChangedHandler;
                 }
             }
             catch (Exception ex)
@@ -416,6 +485,22 @@ namespace FlairX_Mod_Manager
                 "Dark" => SystemBackdropTheme.Dark,
                 _ => SystemBackdropTheme.Default
             };
+        }
+
+        private void RefreshUIForThemeChange()
+        {
+            // Force refresh of category and mod items to update colors
+            foreach (var cat in OverlayCategories)
+            {
+                cat.OnPropertyChanged(nameof(cat.SelectionBackground));
+                cat.OnPropertyChanged(nameof(cat.SelectionBorder));
+            }
+            
+            foreach (var mod in OverlayMods)
+            {
+                mod.OnPropertyChanged(nameof(mod.SelectionBorderBrush));
+                mod.OnPropertyChanged(nameof(mod.StatusColor));
+            }
         }
 
         private void OnSettingsChanged(object? sender, EventArgs e)
@@ -449,10 +534,12 @@ namespace FlairX_Mod_Manager
             {
                 _gamepadManager = new GamepadManager();
                 _gamepadManager.ButtonPressed += OnGamepadButtonPressed;
+                _gamepadManager.ButtonReleased += OnGamepadButtonReleased;
+                _gamepadManager.LeftThumbstickMoved += OnLeftThumbstickMoved;
                 _gamepadManager.ControllerConnected += (s, e) =>
                 {
                     Logger.LogInfo("Gamepad connected - overlay navigation enabled");
-                    DispatcherQueue.TryEnqueue(() => _gamepadManager?.Vibrate(20000, 20000, 100));
+                    DispatcherQueue.TryEnqueue(() => _gamepadManager?.Vibrate(20000, 20000, 300));
                 };
                 _gamepadManager.ControllerDisconnected += (s, e) =>
                 {
@@ -473,21 +560,57 @@ namespace FlairX_Mod_Manager
             {
                 try
                 {
+                    // Ignore input if overlay is not visible
+                    if (!IsOverlayVisible) return;
+                    
                     var settings = SettingsManager.Current;
                     var buttonName = e.GetButtonDisplayName();
+                    _heldButtons.Add(buttonName);
 
-                    // Navigate up
-                    if (IsButtonMatch(buttonName, settings.GamepadNavigateUpButton))
+                    Logger.LogInfo($"Overlay gamepad button: {buttonName}");
+                    
+                    // Check for filter active combo
+                    var filterCombo = settings.GamepadFilterActiveCombo ?? "Back+A";
+                    var filterComboButtons = new HashSet<string>(filterCombo.Split('+'));
+                    if (_heldButtons.SetEquals(filterComboButtons))
                     {
-                        NavigateModSelection(-1);
+                        ToggleActiveOnlyFilter();
+                        _gamepadManager?.Vibrate(0, 30000, 300);
+                        _heldButtons.Clear();
+                        return;
                     }
-                    // Navigate down
-                    else if (IsButtonMatch(buttonName, settings.GamepadNavigateDownButton))
+                    
+                    // Navigate in grid - D-Pad for 4-direction movement (only if left stick is disabled)
+                    if (!settings.GamepadUseLeftStick)
                     {
-                        NavigateModSelection(1);
+                        if (buttonName == "↑")
+                        {
+                            Logger.LogInfo("Navigate UP");
+                            NavigateModGrid(0, -1);
+                            return;
+                        }
+                        else if (buttonName == "↓")
+                        {
+                            Logger.LogInfo("Navigate DOWN");
+                            NavigateModGrid(0, 1);
+                            return;
+                        }
+                        else if (buttonName == "←")
+                        {
+                            Logger.LogInfo("Navigate LEFT");
+                            NavigateModGrid(-1, 0);
+                            return;
+                        }
+                        else if (buttonName == "→")
+                        {
+                            Logger.LogInfo("Navigate RIGHT");
+                            NavigateModGrid(1, 0);
+                            return;
+                        }
                     }
+                    
                     // Select/Toggle mod
-                    else if (IsButtonMatch(buttonName, settings.GamepadSelectButton))
+                    if (IsButtonMatch(buttonName, settings.GamepadSelectButton))
                     {
                         ToggleSelectedMod();
                     }
@@ -514,29 +637,136 @@ namespace FlairX_Mod_Manager
             });
         }
 
-        private bool IsButtonMatch(string pressedButton, string configuredButton)
+        private void OnGamepadButtonReleased(object? sender, GamepadButtonEventArgs e)
         {
-            return string.Equals(pressedButton, configuredButton, StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(pressedButton, GamepadManager.GetButtonName(
-                       Enum.TryParse<GamepadManager.GamepadButtons>(configuredButton, true, out var btn) ? btn : GamepadManager.GamepadButtons.None),
-                       StringComparison.OrdinalIgnoreCase);
+            var buttonName = e.GetButtonDisplayName();
+            _heldButtons.Remove(buttonName);
         }
 
-        private void NavigateModSelection(int direction)
+        private void OnLeftThumbstickMoved(object? sender, ThumbstickEventArgs e)
+        {
+            // Only handle if left stick navigation is enabled and overlay is visible
+            if (!SettingsManager.Current.GamepadUseLeftStick) return;
+            
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                try
+                {
+                    // Ignore input if overlay is not visible
+                    if (!IsOverlayVisible) return;
+                    
+                    if (e.IsUp)
+                    {
+                        Logger.LogInfo("Left stick UP");
+                        NavigateModGrid(0, -1);
+                    }
+                    else if (e.IsDown)
+                    {
+                        Logger.LogInfo("Left stick DOWN");
+                        NavigateModGrid(0, 1);
+                    }
+                    else if (e.IsLeft)
+                    {
+                        Logger.LogInfo("Left stick LEFT");
+                        NavigateModGrid(-1, 0);
+                    }
+                    else if (e.IsRight)
+                    {
+                        Logger.LogInfo("Left stick RIGHT");
+                        NavigateModGrid(1, 0);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error handling left thumbstick input", ex);
+                }
+            });
+        }
+
+        private bool IsButtonMatch(string pressedButton, string configuredButton)
+        {
+            return string.Equals(pressedButton, configuredButton, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private int GetItemsPerRow()
+        {
+            // Calculate items per row based on grid width
+            // Tile width is 208 + 16 spacing = 224 (from UniformGridLayout MinItemWidth=220)
+            var scrollViewer = ModsRepeater?.Parent as ScrollViewer;
+            if (scrollViewer == null) return 2; // Default fallback
+            
+            var availableWidth = scrollViewer.ActualWidth - 8; // Margin
+            var itemWidth = 220; // MinItemWidth from UniformGridLayout
+            return Math.Max(1, (int)(availableWidth / itemWidth));
+        }
+
+        private void NavigateModGrid(int deltaX, int deltaY)
         {
             if (OverlayMods.Count == 0) return;
 
-            _selectedModIndex += direction;
-            
-            // Wrap around
-            if (_selectedModIndex < 0)
-                _selectedModIndex = OverlayMods.Count - 1;
-            else if (_selectedModIndex >= OverlayMods.Count)
-                _selectedModIndex = 0;
+            // Deselect previous
+            if (_selectedModIndex >= 0 && _selectedModIndex < OverlayMods.Count)
+            {
+                OverlayMods[_selectedModIndex].IsSelected = false;
+            }
 
-            // Visual feedback - ItemsRepeater doesn't have selection, so we just track index
-            // The actual selection is handled by ToggleSelectedMod
-            Logger.LogInfo($"Gamepad navigation: mod index {_selectedModIndex}");
+            // Initialize selection if none
+            if (_selectedModIndex < 0)
+            {
+                _selectedModIndex = 0;
+                OverlayMods[_selectedModIndex].IsSelected = true;
+                return;
+            }
+
+            var itemsPerRow = GetItemsPerRow();
+            var currentRow = _selectedModIndex / itemsPerRow;
+            var currentCol = _selectedModIndex % itemsPerRow;
+            var totalRows = (OverlayMods.Count + itemsPerRow - 1) / itemsPerRow;
+
+            // Calculate new position
+            var newCol = currentCol + deltaX;
+            var newRow = currentRow + deltaY;
+
+            // Wrap columns
+            if (newCol < 0)
+            {
+                newCol = itemsPerRow - 1;
+                newRow--; // Move to previous row
+            }
+            else if (newCol >= itemsPerRow)
+            {
+                newCol = 0;
+                newRow++; // Move to next row
+            }
+
+            // Wrap rows
+            if (newRow < 0)
+                newRow = totalRows - 1;
+            else if (newRow >= totalRows)
+                newRow = 0;
+
+            // Calculate new index
+            var newIndex = newRow * itemsPerRow + newCol;
+            
+            // Clamp to valid range
+            if (newIndex >= OverlayMods.Count)
+            {
+                // If we went past the end, go to last item
+                newIndex = OverlayMods.Count - 1;
+            }
+            
+            _selectedModIndex = Math.Max(0, Math.Min(newIndex, OverlayMods.Count - 1));
+
+            // Select new
+            OverlayMods[_selectedModIndex].IsSelected = true;
+            
+            // Vibrate on navigation if enabled
+            if (SettingsManager.Current.GamepadVibrateOnNavigation)
+            {
+                _gamepadManager?.Vibrate(0, 15000, 50);
+            }
+            
+            Logger.LogInfo($"Gamepad grid navigation: index {_selectedModIndex} (row {newRow}, col {newCol})");
         }
 
         private void ToggleSelectedMod()
@@ -544,10 +774,7 @@ namespace FlairX_Mod_Manager
             if (_selectedModIndex >= 0 && _selectedModIndex < OverlayMods.Count)
             {
                 var mod = OverlayMods[_selectedModIndex];
-                ToggleMod(mod);
-                
-                // Vibrate on toggle
-                _gamepadManager?.Vibrate(30000, 30000, 80);
+                ToggleMod(mod, vibrate: true);
             }
         }
 
@@ -565,10 +792,12 @@ namespace FlairX_Mod_Manager
                 newIndex = 0;
 
             SelectCategory(OverlayCategories[newIndex]);
-            _selectedModIndex = -1; // Reset mod selection
             
-            // Vibrate on category change
-            _gamepadManager?.Vibrate(15000, 15000, 50);
+            // Reset mod selection
+            _selectedModIndex = -1;
+            
+            // Vibrate on category change (right motor only - small)
+            _gamepadManager?.Vibrate(0, 30000, 300);
         }
 
         #endregion
@@ -577,9 +806,9 @@ namespace FlairX_Mod_Manager
         /// <summary>
         /// Load categories and mods
         /// </summary>
-        public void LoadCurrentCategoryMods()
+        public async void LoadCurrentCategoryMods()
         {
-            LoadCategories();
+            await LoadCategoriesAsync();
             
             // Load mods from first category if none selected
             if (_selectedCategoryPath == null && OverlayCategories.Count > 0)
@@ -588,16 +817,34 @@ namespace FlairX_Mod_Manager
             }
             else if (_selectedCategoryPath != null)
             {
-                LoadModsFromCategory(_selectedCategoryPath);
+                // Find and select the category matching the path
+                var existingCategory = OverlayCategories.FirstOrDefault(c => c.Directory == _selectedCategoryPath);
+                if (existingCategory != null)
+                {
+                    SelectCategory(existingCategory);
+                }
+                else if (OverlayCategories.Count > 0)
+                {
+                    SelectCategory(OverlayCategories[0]);
+                }
             }
         }
 
-        private void LoadCategories()
+        private async System.Threading.Tasks.Task LoadCategoriesAsync()
         {
-            OverlayCategories.Clear();
-
+            // Prevent concurrent loading
+            if (_isLoadingCategories) return;
+            _isLoadingCategories = true;
+            
             try
             {
+                // Clear old thumbnails to prevent memory leak
+                foreach (var cat in OverlayCategories)
+                {
+                    cat.Thumbnail = null;
+                }
+                OverlayCategories.Clear();
+
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modsPath) || !System.IO.Directory.Exists(modsPath))
                     return;
@@ -614,8 +861,8 @@ namespace FlairX_Mod_Manager
                     {
                         Name = categoryName,
                         Directory = categoryDir,
-                        Thumbnail = LoadCategoryThumbnail(categoryDir),
-                        IsSelected = categoryDir == _selectedCategoryPath
+                        Thumbnail = await LoadCategoryThumbnailAsync(categoryDir),
+                        IsSelected = false // Don't set selection here, let SelectCategory handle it
                     };
                     
                     OverlayCategories.Add(item);
@@ -625,14 +872,27 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogError("Failed to load overlay categories", ex);
             }
+            finally
+            {
+                _isLoadingCategories = false;
+            }
         }
 
-        private void LoadModsFromCategory(string categoryPath)
+        private async void LoadModsFromCategory(string categoryPath, bool activeOnly = false)
         {
-            OverlayMods.Clear();
-
+            // Prevent concurrent loading
+            if (_isLoadingMods) return;
+            _isLoadingMods = true;
+            
             try
             {
+                // Clear old thumbnails to prevent memory leak
+                foreach (var mod in OverlayMods)
+                {
+                    mod.Thumbnail = null;
+                }
+                OverlayMods.Clear();
+
                 if (!System.IO.Directory.Exists(categoryPath))
                     return;
 
@@ -643,6 +903,10 @@ namespace FlairX_Mod_Manager
                     var modName = Path.GetFileName(modDir);
                     var isActive = !modName.StartsWith("DISABLED", StringComparison.OrdinalIgnoreCase);
                     
+                    // Skip inactive mods if filtering
+                    if (activeOnly && !isActive)
+                        continue;
+                    
                     // Clean name for display
                     var displayName = isActive ? modName : modName.Substring(8).TrimStart('_', '-', ' ');
                     
@@ -651,7 +915,7 @@ namespace FlairX_Mod_Manager
                         Name = displayName,
                         Directory = modDir,
                         IsActive = isActive,
-                        Thumbnail = LoadThumbnail(modDir)
+                        Thumbnail = await LoadThumbnailAsync(modDir)
                     };
                     
                     OverlayMods.Add(item);
@@ -660,6 +924,10 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError("Failed to load overlay mods", ex);
+            }
+            finally
+            {
+                _isLoadingMods = false;
             }
         }
 
@@ -674,78 +942,195 @@ namespace FlairX_Mod_Manager
             _selectedCategoryPath = category.Directory;
             
             // Load mods
-            LoadModsFromCategory(category.Directory);
+            LoadModsFromCategory(category.Directory, _showActiveOnly);
+        }
+        
+        /// <summary>
+        /// Toggle filter to show only active mods from all categories
+        /// </summary>
+        public void ToggleActiveOnlyFilter()
+        {
+            _showActiveOnly = !_showActiveOnly;
+            
+            if (_showActiveOnly)
+            {
+                // Load active mods from ALL categories
+                LoadAllActiveMods();
+            }
+            else
+            {
+                // Reload current category normally
+                if (_selectedCategoryPath != null)
+                {
+                    LoadModsFromCategory(_selectedCategoryPath, false);
+                }
+            }
+            
+            // Reset mod selection
+            _selectedModIndex = -1;
+            
+            Logger.LogInfo($"Overlay filter: show active only = {_showActiveOnly}");
+        }
+        
+        /// <summary>
+        /// Load all active mods from all categories
+        /// </summary>
+        private async void LoadAllActiveMods()
+        {
+            // Prevent concurrent loading
+            if (_isLoadingMods) return;
+            _isLoadingMods = true;
+            
+            try
+            {
+                // Clear old thumbnails to prevent memory leak
+                foreach (var mod in OverlayMods)
+                {
+                    mod.Thumbnail = null;
+                }
+                OverlayMods.Clear();
+
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath) || !System.IO.Directory.Exists(modsPath))
+                    return;
+
+                // Iterate through all categories
+                foreach (var categoryDir in System.IO.Directory.GetDirectories(modsPath))
+                {
+                    var categoryName = Path.GetFileName(categoryDir);
+                    if (categoryName.Equals("Other", StringComparison.OrdinalIgnoreCase))
+                        continue; // Skip Other category
+                    
+                    // Get all mods in this category
+                    foreach (var modDir in System.IO.Directory.GetDirectories(categoryDir))
+                    {
+                        var modName = Path.GetFileName(modDir);
+                        var isActive = !modName.StartsWith("DISABLED", StringComparison.OrdinalIgnoreCase);
+                        
+                        // Only show active mods
+                        if (!isActive)
+                            continue;
+                        
+                        var item = new OverlayModItem
+                        {
+                            Name = modName,
+                            Directory = modDir,
+                            IsActive = true,
+                            Thumbnail = await LoadThumbnailAsync(modDir)
+                        };
+                        
+                        OverlayMods.Add(item);
+                    }
+                }
+                
+                Logger.LogInfo($"Loaded {OverlayMods.Count} active mods from all categories");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to load all active mods", ex);
+            }
+            finally
+            {
+                _isLoadingMods = false;
+            }
         }
 
-        private void CategoryItem_PointerPressed(object sender, PointerRoutedEventArgs e)
+        private void CategoriesRepeater_ElementPrepared(ItemsRepeater sender, ItemsRepeaterElementPreparedEventArgs args)
         {
-            if (sender is Border border && border.DataContext is OverlayCategoryItem item)
+            if (args.Element is Button button && args.Index < OverlayCategories.Count)
+            {
+                button.DataContext = OverlayCategories[args.Index];
+            }
+        }
+
+        private void ModsRepeater_ElementPrepared(ItemsRepeater sender, ItemsRepeaterElementPreparedEventArgs args)
+        {
+            if (args.Element is Button button && args.Index < OverlayMods.Count)
+            {
+                button.DataContext = OverlayMods[args.Index];
+            }
+        }
+
+        private void CategoryItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is OverlayCategoryItem item)
             {
                 SelectCategory(item);
             }
         }
 
-        private BitmapImage? LoadCategoryThumbnail(string categoryDir)
+        private async System.Threading.Tasks.Task<BitmapImage?> LoadCategoryThumbnailAsync(string categoryDir)
         {
             try
             {
-                // Try catmini first, then catprev, then preview
-                var thumbPath = Path.Combine(categoryDir, "catmini.jpg");
-                if (!File.Exists(thumbPath))
-                    thumbPath = Path.Combine(categoryDir, "catprev.jpg");
-                if (!File.Exists(thumbPath))
-                    thumbPath = Path.Combine(categoryDir, "preview.jpg");
+                // Only use catprev.jpg, fallback to icon if not found
+                var thumbPath = Path.Combine(categoryDir, "catprev.jpg");
                 
                 if (File.Exists(thumbPath))
                 {
                     var bitmap = new BitmapImage();
-                    bitmap.UriSource = new Uri(thumbPath);
-                    bitmap.DecodePixelWidth = 48;
+                    bitmap.DecodePixelWidth = 64;  // 2x for high DPI
+                    bitmap.DecodePixelHeight = 64;
+                    
+                    using (var stream = File.OpenRead(thumbPath))
+                    {
+                        await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
+                    }
                     return bitmap;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to load category thumbnail for {categoryDir}", ex);
+            }
             
             return null;
         }
 
-        private BitmapImage? LoadThumbnail(string modDir)
+        private async System.Threading.Tasks.Task<BitmapImage?> LoadThumbnailAsync(string modDir)
         {
             try
             {
-                // Try minitile first, then preview
+                // Only use minitile.jpg like in main grid
                 var thumbPath = Path.Combine(modDir, "minitile.jpg");
-                if (!File.Exists(thumbPath))
-                    thumbPath = Path.Combine(modDir, "preview.jpg");
                 
                 if (File.Exists(thumbPath))
                 {
                     var bitmap = new BitmapImage();
-                    bitmap.UriSource = new Uri(thumbPath);
-                    bitmap.DecodePixelWidth = 48;
+                    bitmap.DecodePixelWidth = 208;
+                    bitmap.DecodePixelHeight = 250;
+                    
+                    using (var stream = File.OpenRead(thumbPath))
+                    {
+                        await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
+                    }
                     return bitmap;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to load mod thumbnail for {modDir}", ex);
+            }
             
             return null;
         }
 
-        private void ModItem_PointerPressed(object sender, PointerRoutedEventArgs e)
+        private void ModItem_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is Grid grid && grid.DataContext is OverlayModItem item)
+            if (sender is Button button && button.DataContext is OverlayModItem item)
             {
-                // Toggle mod
                 ToggleMod(item);
             }
         }
 
-        private void ToggleMod(OverlayModItem item)
+        private void ToggleMod(OverlayModItem item, bool vibrate = false)
         {
             try
             {
                 var dir = item.Directory;
                 var parentDir = Path.GetDirectoryName(dir);
+                if (string.IsNullOrEmpty(parentDir)) return;
+                
                 var currentName = Path.GetFileName(dir);
                 
                 string newName;
@@ -776,6 +1161,12 @@ namespace FlairX_Mod_Manager
                     
                     Logger.LogInfo($"Overlay toggled mod: {currentName} -> {newName}");
                     
+                    // Vibrate on toggle (only for gamepad)
+                    if (vibrate)
+                    {
+                        _gamepadManager?.Vibrate(30000, 30000, 300);
+                    }
+                    
                     // Notify main window
                     ModToggleRequested?.Invoke(newPath);
                 }
@@ -786,11 +1177,17 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        public void Show()
+        public void Show(bool vibrate = false)
         {
             _appWindow?.Show();
             LoadCurrentCategoryMods(); // Refresh on show
             UpdateHotkeyHint();
+            
+            // Vibrate on show (only for gamepad)
+            if (vibrate)
+            {
+                _gamepadManager?.Vibrate(0, 25000, 400);
+            }
         }
 
         public void Hide()
@@ -798,12 +1195,83 @@ namespace FlairX_Mod_Manager
             _appWindow?.Hide();
         }
 
-        public void Toggle()
+        public void Toggle(bool vibrate = false)
         {
             if (_appWindow?.IsVisible == true)
                 Hide();
             else
-                Show();
+                Show(vibrate);
         }
+
+        /// <summary>
+        /// Check if overlay window is currently visible
+        /// </summary>
+        public bool IsOverlayVisible => _appWindow?.IsVisible == true;
+
+        #region Tile Hover Effects
+
+        private void ModTile_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                try
+                {
+                    var tileBorder = FindChildByName<Border>(button, "TileBorder");
+                    
+                    // Show border on hover using system accent color
+                    if (tileBorder != null)
+                    {
+                        var accentColor = (Windows.UI.Color)Application.Current.Resources["SystemAccentColor"];
+                        tileBorder.BorderBrush = new SolidColorBrush(accentColor);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in ModTile_PointerEntered", ex);
+                }
+            }
+        }
+
+        private void ModTile_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                try
+                {
+                    var tileBorder = FindChildByName<Border>(button, "TileBorder");
+                    
+                    // Restore border based on selection state
+                    if (tileBorder != null && button.DataContext is OverlayModItem item)
+                    {
+                        tileBorder.BorderBrush = item.SelectionBorderBrush;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error in ModTile_PointerExited", ex);
+                }
+            }
+        }
+
+        private T? FindChildByName<T>(DependencyObject parent, string name) where T : FrameworkElement
+        {
+            int childCount = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childCount; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is T element && element.Name == name)
+                {
+                    return element;
+                }
+                var result = FindChildByName<T>(child, name);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
+        }
+
+        #endregion
     }
 }

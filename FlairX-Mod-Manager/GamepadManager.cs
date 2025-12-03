@@ -74,6 +74,7 @@ namespace FlairX_Mod_Manager
 
         public event EventHandler<GamepadButtonEventArgs>? ButtonPressed;
         public event EventHandler<GamepadButtonEventArgs>? ButtonReleased;
+        public event EventHandler<ThumbstickEventArgs>? LeftThumbstickMoved;
         public event EventHandler? ControllerConnected;
         public event EventHandler? ControllerDisconnected;
 
@@ -95,6 +96,9 @@ namespace FlairX_Mod_Manager
         private byte _previousLeftTrigger;
         private byte _previousRightTrigger;
         private int _pollIntervalMs = 16; // ~60Hz
+        
+        // Thumbstick direction tracking (for discrete navigation)
+        private int _previousLeftStickDirection = 0; // 0=none, 1=up, 2=down, 3=left, 4=right
 
         #endregion
 
@@ -175,14 +179,14 @@ namespace FlairX_Mod_Manager
         {
             return button switch
             {
-                GamepadButtons.DPadUp => "D-Pad Up",
-                GamepadButtons.DPadDown => "D-Pad Down",
-                GamepadButtons.DPadLeft => "D-Pad Left",
-                GamepadButtons.DPadRight => "D-Pad Right",
+                GamepadButtons.DPadUp => "↑",
+                GamepadButtons.DPadDown => "↓",
+                GamepadButtons.DPadLeft => "←",
+                GamepadButtons.DPadRight => "→",
                 GamepadButtons.Start => "Start",
                 GamepadButtons.Back => "Back",
-                GamepadButtons.LeftThumb => "Left Stick",
-                GamepadButtons.RightThumb => "Right Stick",
+                GamepadButtons.LeftThumb => "LS",
+                GamepadButtons.RightThumb => "RS",
                 GamepadButtons.LeftShoulder => "LB",
                 GamepadButtons.RightShoulder => "RB",
                 GamepadButtons.A => "A",
@@ -299,6 +303,24 @@ namespace FlairX_Mod_Manager
             _previousButtons = currentButtons;
             _previousLeftTrigger = gamepad.bLeftTrigger;
             _previousRightTrigger = gamepad.bRightTrigger;
+            
+            // Check left thumbstick for discrete navigation (like D-Pad)
+            int currentDirection = 0;
+            if (gamepad.sThumbLY > THUMBSTICK_DEADZONE)
+                currentDirection = 1; // Up
+            else if (gamepad.sThumbLY < -THUMBSTICK_DEADZONE)
+                currentDirection = 2; // Down
+            else if (gamepad.sThumbLX < -THUMBSTICK_DEADZONE)
+                currentDirection = 3; // Left
+            else if (gamepad.sThumbLX > THUMBSTICK_DEADZONE)
+                currentDirection = 4; // Right
+            
+            // Fire event only when direction changes (not continuously)
+            if (currentDirection != _previousLeftStickDirection && currentDirection != 0)
+            {
+                LeftThumbstickMoved?.Invoke(this, new ThumbstickEventArgs(currentDirection));
+            }
+            _previousLeftStickDirection = currentDirection;
         }
 
         #endregion
@@ -335,5 +357,20 @@ namespace FlairX_Mod_Manager
             if (IsRightTrigger) return "RT";
             return GamepadManager.GetButtonName(Button);
         }
+    }
+
+    public class ThumbstickEventArgs : EventArgs
+    {
+        public int Direction { get; } // 1=Up, 2=Down, 3=Left, 4=Right
+        
+        public ThumbstickEventArgs(int direction)
+        {
+            Direction = direction;
+        }
+        
+        public bool IsUp => Direction == 1;
+        public bool IsDown => Direction == 2;
+        public bool IsLeft => Direction == 3;
+        public bool IsRight => Direction == 4;
     }
 }

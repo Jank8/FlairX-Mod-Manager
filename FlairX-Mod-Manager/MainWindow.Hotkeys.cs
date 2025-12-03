@@ -501,7 +501,7 @@ namespace FlairX_Mod_Manager
 
         private void OnGlobalGamepadButtonPressed(object? sender, GamepadButtonEventArgs e)
         {
-            var buttonName = GetNormalizedButtonName(e.GetButtonDisplayName());
+            var buttonName = e.GetButtonDisplayName();
             _heldButtons.Add(buttonName);
 
             // Check if current held buttons match the configured combo
@@ -513,8 +513,7 @@ namespace FlairX_Mod_Manager
                 DispatcherQueue.TryEnqueue(() =>
                 {
                     Logger.LogInfo($"Gamepad combo {configuredCombo} detected - toggling overlay");
-                    ToggleOverlayWindow();
-                    _globalGamepadManager?.Vibrate(25000, 25000, 100);
+                    ToggleOverlayWindow(vibrate: true);
                 });
                 
                 // Reset to prevent repeated triggers
@@ -524,24 +523,8 @@ namespace FlairX_Mod_Manager
 
         private void OnGlobalGamepadButtonReleased(object? sender, GamepadButtonEventArgs e)
         {
-            var buttonName = GetNormalizedButtonName(e.GetButtonDisplayName());
+            var buttonName = e.GetButtonDisplayName();
             _heldButtons.Remove(buttonName);
-        }
-
-        private string GetNormalizedButtonName(string displayName)
-        {
-            return displayName switch
-            {
-                "D-Pad Up" => "DPadUp",
-                "D-Pad Down" => "DPadDown",
-                "D-Pad Left" => "DPadLeft",
-                "D-Pad Right" => "DPadRight",
-                "Left Stick" => "LeftThumb",
-                "Right Stick" => "RightThumb",
-                "LB" => "LeftShoulder",
-                "RB" => "RightShoulder",
-                _ => displayName
-            };
         }
 
         #endregion
@@ -549,7 +532,8 @@ namespace FlairX_Mod_Manager
         /// <summary>
         /// Toggle the overlay window visibility
         /// </summary>
-        public void ToggleOverlayWindow()
+        /// <param name="vibrate">Whether to vibrate gamepad on show (default false for keyboard)</param>
+        public void ToggleOverlayWindow(bool vibrate = false)
         {
             try
             {
@@ -570,12 +554,31 @@ namespace FlairX_Mod_Manager
                 }
 
                 // Toggle visibility
-                _overlayWindow.Toggle();
+                _overlayWindow.Toggle(vibrate);
                 Logger.LogInfo($"Overlay window toggled");
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error toggling overlay window", ex);
+            }
+        }
+
+        /// <summary>
+        /// Toggle active-only filter in overlay (only if overlay is visible)
+        /// </summary>
+        public void ToggleOverlayActiveFilter()
+        {
+            try
+            {
+                if (_overlayWindow != null && _overlayWindow.IsOverlayVisible)
+                {
+                    _overlayWindow.ToggleActiveOnlyFilter();
+                    Logger.LogInfo("Overlay active filter toggled");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error toggling overlay active filter", ex);
             }
         }
 
@@ -694,5 +697,6 @@ namespace FlairX_Mod_Manager
                 Logger.LogError("Error updating overlay backdrop", ex);
             }
         }
+
     }
 }

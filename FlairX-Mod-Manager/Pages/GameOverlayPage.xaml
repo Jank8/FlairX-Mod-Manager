@@ -18,158 +18,6 @@
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="1" Spacing="0" HorizontalAlignment="Stretch">
             
-            <!-- Hotkey Section -->
-            <TextBlock Text="Controls" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
-            
-            <!-- Hotkey -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="8" 
-                    Padding="16" 
-                    Margin="0,0,0,24">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
-                    
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="OverlayHotkeyLabel" Text="Toggle Hotkey" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="OverlayHotkeyDescription" Text="Keyboard shortcut to show/hide overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
-                    
-                    <TextBox Grid.Column="3" x:Name="OverlayHotkeyTextBox" Width="160" PlaceholderText="Alt+W" KeyDown="HotkeyTextBox_KeyDown" TextChanged="OverlayHotkeyTextBox_TextChanged" VerticalAlignment="Center"/>
-                </Grid>
-            </Border>
-            
-            <!-- Gamepad Section -->
-            <TextBlock Text="Gamepad (XInput)" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
-            
-            <!-- Gamepad Enable -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="8" 
-                    Padding="16" 
-                    Margin="0,0,0,2">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <FontIcon Grid.Column="0" Glyph="&#xE7FC;" FontSize="20" VerticalAlignment="Center"/>
-                    
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="GamepadEnabledLabel" Text="Enable Gamepad" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="GamepadEnabledDescription" Text="Use Xbox controller to navigate overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
-                    
-                    <ToggleSwitch Grid.Column="3" x:Name="GamepadEnabledToggle" Toggled="GamepadEnabledToggle_Toggled" VerticalAlignment="Center"/>
-                </Grid>
-            </Border>
-            
-            <!-- Gamepad Status -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="8" 
-                    Padding="16" 
-                    Margin="0,0,0,2">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <FontIcon Grid.Column="0" x:Name="GamepadStatusIcon" Glyph="&#xE836;" FontSize="20" VerticalAlignment="Center"/>
-                    
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="GamepadStatusLabel" Text="Controller Status" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="GamepadStatusText" Text="Not connected" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
-                    
-                    <Button Grid.Column="3" x:Name="GamepadTestButton" Click="GamepadTestButton_Click" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE768;" FontSize="16"/>
-                            <TextBlock Text="Test"/>
-                        </StackPanel>
-                    </Button>
-                </Grid>
-            </Border>
-            
-            <!-- Gamepad Toggle Overlay Combo -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="8" 
-                    Padding="16" 
-                    Margin="0,0,0,2">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
-                    
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="GamepadComboLabel" Text="Toggle Overlay Combo" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="GamepadComboDescription" Text="Button combination to show/hide overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
-                    
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBox x:Name="GamepadComboTextBox" Width="140" PlaceholderText="Back+Start" IsReadOnly="True" GotFocus="GamepadComboTextBox_GotFocus"/>
-                        <Button x:Name="GamepadComboRecordButton" Click="GamepadComboRecordButton_Click" ToolTipService.ToolTip="Record combo">
-                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
-                        </Button>
-                    </StackPanel>
-                </Grid>
-            </Border>
-            
-            <!-- Gamepad Controls Info -->
-            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                    BorderThickness="1" 
-                    CornerRadius="8" 
-                    Padding="16" 
-                    Margin="0,0,0,24">
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Other Controls" FontWeight="SemiBold" FontSize="14"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="D-Pad Up/Down" FontSize="12" Opacity="0.7"/>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Text="Navigate mods" FontSize="12"/>
-                        
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="LB / RB" FontSize="12" Opacity="0.7"/>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Text="Switch category" FontSize="12"/>
-                        
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="A / B" FontSize="12" Opacity="0.7"/>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Text="Toggle mod / Close" FontSize="12"/>
-                    </Grid>
-                </StackPanel>
-            </Border>
-            
             <!-- Appearance Section -->
             <TextBlock Text="Appearance" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
             
@@ -275,7 +123,7 @@
                 </Grid>
             </Border>
             
-            <!-- Test Section -->
+            <!-- Preview Section -->
             <TextBlock Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
             
             <!-- Test Button -->
@@ -284,7 +132,7 @@
                     BorderThickness="1" 
                     CornerRadius="8" 
                     Padding="16" 
-                    Margin="0,0,0,2">
+                    Margin="0,0,0,24">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -306,6 +154,372 @@
                             <TextBlock Text="Open Overlay"/>
                         </StackPanel>
                     </Button>
+                </Grid>
+            </Border>
+            
+            <!-- Controls Section -->
+            <TextBlock Text="Controls" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            
+            <!-- Hotkey -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="OverlayHotkeyLabel" Text="Toggle Hotkey" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="OverlayHotkeyDescription" Text="Keyboard shortcut to show/hide overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBox x:Name="OverlayHotkeyTextBox" Width="160" PlaceholderText="Alt+W" KeyDown="HotkeyTextBox_KeyDown" TextChanged="OverlayHotkeyTextBox_TextChanged"/>
+                        <Button x:Name="OverlayHotkeyConfirmButton" Click="OverlayHotkeyConfirmButton_Click" ToolTipService.ToolTip="Confirm hotkey">
+                            <FontIcon Glyph="&#xE73E;" FontSize="14"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Filter Active Hotkey -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE71C;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="FilterActiveHotkeyLabel" Text="Filter Active Hotkey" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="FilterActiveHotkeyDescription" Text="Show only active mods in overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBox x:Name="FilterActiveHotkeyTextBox" Width="160" PlaceholderText="Alt+A" KeyDown="HotkeyTextBox_KeyDown" TextChanged="FilterActiveHotkeyTextBox_TextChanged"/>
+                        <Button x:Name="FilterActiveHotkeyConfirmButton" Click="OverlayHotkeyConfirmButton_Click" ToolTipService.ToolTip="Confirm hotkey">
+                            <FontIcon Glyph="&#xE73E;" FontSize="14"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Gamepad Section -->
+            <TextBlock Text="Gamepad (XInput)" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            
+            <!-- Gamepad Enable -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE7FC;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="GamepadEnabledLabel" Text="Enable Gamepad" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="GamepadEnabledDescription" Text="Use Xbox controller to navigate overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <ToggleSwitch Grid.Column="3" x:Name="GamepadEnabledToggle" Toggled="GamepadEnabledToggle_Toggled" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            
+            <!-- Use Left Stick -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xF108;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="UseLeftStickLabel" Text="Use Left Stick" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="UseLeftStickDescription" Text="Navigate with left analog stick instead of D-Pad" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <ToggleSwitch Grid.Column="3" x:Name="UseLeftStickToggle" Toggled="UseLeftStickToggle_Toggled" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            
+            <!-- Vibrate on Navigation -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE877;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="VibrateOnNavLabel" Text="Vibrate on Navigation" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="VibrateOnNavDescription" Text="Haptic feedback when moving through mods" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <ToggleSwitch Grid.Column="3" x:Name="VibrateOnNavToggle" Toggled="VibrateOnNavToggle_Toggled" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            
+            <!-- Gamepad Status -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" x:Name="GamepadStatusIcon" Glyph="&#xE836;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="GamepadStatusLabel" Text="Controller Status" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="GamepadStatusText" Text="Not connected" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <Button Grid.Column="3" x:Name="GamepadTestButton" Click="GamepadTestButton_Click" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE768;" FontSize="16"/>
+                            <TextBlock Text="Test"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+            
+            <!-- Gamepad Hotkeys Section -->
+            <TextBlock Text="Gamepad Hotkeys" FontSize="20" FontWeight="SemiBold" Margin="0,22,0,12"/>
+            
+            <!-- Select/Toggle Button -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE73E;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="SelectButtonLabel" Text="Select / Toggle Mod" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="SelectButtonDescription" Text="Button to activate/deactivate selected mod" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBox x:Name="SelectButtonTextBox" Width="80" PlaceholderText="A" IsReadOnly="True" GotFocus="SelectButtonTextBox_GotFocus"/>
+                        <Button x:Name="SelectButtonRecordButton" Click="SelectButtonRecordButton_Click" ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Back/Close Button -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE72B;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="BackButtonLabel" Text="Back / Close Overlay" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="BackButtonDescription" Text="Button to close overlay window" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBox x:Name="BackButtonTextBox" Width="80" PlaceholderText="B" IsReadOnly="True" GotFocus="BackButtonTextBox_GotFocus"/>
+                        <Button x:Name="BackButtonRecordButton" Click="BackButtonRecordButton_Click" ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Next Category Button -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE76C;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="NextCategoryButtonLabel" Text="Next Category" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="NextCategoryButtonDescription" Text="Button to switch to next category" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBox x:Name="NextCategoryButtonTextBox" Width="80" PlaceholderText="RB" IsReadOnly="True" GotFocus="NextCategoryButtonTextBox_GotFocus"/>
+                        <Button x:Name="NextCategoryButtonRecordButton" Click="NextCategoryButtonRecordButton_Click" ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Previous Category Button -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE76B;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="PrevCategoryButtonLabel" Text="Previous Category" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="PrevCategoryButtonDescription" Text="Button to switch to previous category" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBox x:Name="PrevCategoryButtonTextBox" Width="80" PlaceholderText="LB" IsReadOnly="True" GotFocus="PrevCategoryButtonTextBox_GotFocus"/>
+                        <Button x:Name="PrevCategoryButtonRecordButton" Click="PrevCategoryButtonRecordButton_Click" ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Toggle Overlay Combo -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xEA40;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="GamepadComboLabel" Text="Toggle Overlay Combo" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="GamepadComboDescription" Text="Button combination to show/hide overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBox x:Name="GamepadComboTextBox" Width="160" PlaceholderText="Back+Start" IsReadOnly="True" GotFocus="GamepadComboTextBox_GotFocus"/>
+                        <Button x:Name="GamepadComboRecordButton" Click="GamepadComboRecordButton_Click" ToolTipService.ToolTip="Record combo">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Filter Active Combo -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE71C;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="FilterActiveComboLabel" Text="Filter Active Combo" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="FilterActiveComboDescription" Text="Show only active mods in overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBox x:Name="FilterActiveComboTextBox" Width="160" PlaceholderText="Back+A" IsReadOnly="True" GotFocus="FilterActiveComboTextBox_GotFocus"/>
+                        <Button x:Name="FilterActiveComboRecordButton" Click="FilterActiveComboRecordButton_Click" ToolTipService.ToolTip="Record combo">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
+                        </Button>
+                    </StackPanel>
                 </Grid>
             </Border>
             

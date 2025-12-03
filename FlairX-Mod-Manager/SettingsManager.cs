@@ -75,13 +75,15 @@ namespace FlairX_Mod_Manager
         
         // Gamepad settings
         public bool GamepadEnabled { get; set; } = false;
-        public string GamepadToggleOverlayCombo { get; set; } = "Back+Start"; // Combo to toggle overlay
-        public string GamepadNavigateUpButton { get; set; } = "DPadUp";
-        public string GamepadNavigateDownButton { get; set; } = "DPadDown";
+        public string GamepadToggleOverlayCombo { get; set; } = "Back+Start"; // Combo to toggle overlay (uses display names)
+        public string GamepadFilterActiveCombo { get; set; } = "Back+A"; // Combo to filter active mods only
+        public string FilterActiveHotkey { get; set; } = "Alt+A"; // Keyboard shortcut to filter active mods
+        public bool GamepadUseLeftStick { get; set; } = false; // Use left analog stick for navigation
+        public bool GamepadVibrateOnNavigation { get; set; } = false; // Vibrate when navigating
         public string GamepadSelectButton { get; set; } = "A";
         public string GamepadBackButton { get; set; } = "B";
-        public string GamepadNextCategoryButton { get; set; } = "RightShoulder";
-        public string GamepadPrevCategoryButton { get; set; } = "LeftShoulder";
+        public string GamepadNextCategoryButton { get; set; } = "RB";
+        public string GamepadPrevCategoryButton { get; set; } = "LB";
         
         // Navigation state persistence
         public string? LastSelectedCategory { get; set; }

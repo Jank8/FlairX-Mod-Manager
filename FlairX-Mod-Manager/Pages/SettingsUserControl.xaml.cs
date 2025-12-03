@@ -1662,6 +1662,15 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        private void HotkeyConfirmButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Remove focus from hotkey textbox by focusing the button
+            if (sender is Button button)
+            {
+                button.Focus(FocusState.Programmatic);
+            }
+        }
+
         private void ProcessModPreviewImages(string modDir)
         {
             try
