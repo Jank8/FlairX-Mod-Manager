@@ -537,23 +537,29 @@ namespace FlairX_Mod_Manager
         {
             try
             {
+                Logger.LogInfo("ToggleOverlayWindow: Starting");
+                
                 // Check if game is selected
                 if (SettingsManager.Current.SelectedGameIndex <= 0)
                 {
                     Logger.LogInfo("Cannot show overlay - no game selected");
                     return;
                 }
+                Logger.LogInfo($"ToggleOverlayWindow: Game selected index = {SettingsManager.Current.SelectedGameIndex}");
 
                 // Create overlay window if it doesn't exist
                 if (_overlayWindow == null)
                 {
+                    Logger.LogInfo("ToggleOverlayWindow: Creating new OverlayWindow");
                     _overlayWindow = new OverlayWindow(this);
+                    Logger.LogInfo("ToggleOverlayWindow: OverlayWindow created, subscribing events");
                     _overlayWindow.ModToggleRequested += OnOverlayModToggleRequested;
                     _overlayWindow.WindowClosed += OnOverlayWindowClosed;
-                    Logger.LogInfo("Overlay window created");
+                    Logger.LogInfo("Overlay window created and events subscribed");
                 }
 
                 // Toggle visibility
+                Logger.LogInfo("ToggleOverlayWindow: Calling Toggle()");
                 _overlayWindow.Toggle(vibrate);
                 Logger.LogInfo($"Overlay window toggled");
             }
@@ -585,18 +591,39 @@ namespace FlairX_Mod_Manager
         /// <summary>
         /// Handle mod toggle request from overlay
         /// </summary>
-        private async void OnOverlayModToggleRequested(string modPath)
+        private void OnOverlayModToggleRequested(string modPath)
         {
             try
             {
                 Logger.LogInfo($"Overlay requested mod toggle: {modPath}");
                 
-                // Reload mods to reflect changes
-                await ReloadModsAsync();
+                // Use lightweight refresh instead of full reload
+                RefreshModTileState(modPath);
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error handling overlay mod toggle", ex);
+            }
+        }
+
+        /// <summary>
+        /// Lightweight refresh of a single mod tile state (no loading window)
+        /// </summary>
+        private void RefreshModTileState(string modPath)
+        {
+            try
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    if (CurrentModGridPage != null)
+                    {
+                        CurrentModGridPage.RefreshSingleModState(modPath);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error refreshing mod tile state: {modPath}", ex);
             }
         }
 

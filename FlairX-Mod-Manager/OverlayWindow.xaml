@@ -24,7 +24,7 @@
         <!-- Content -->
         <Grid Grid.Row="1" Padding="8,0,8,8">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="220" MinWidth="220" MaxWidth="220"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
@@ -34,6 +34,7 @@
 
             <!-- Category Icons Column -->
             <ScrollViewer Grid.Column="0" Grid.Row="0"
+                          Width="220"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled"
                           Margin="0,0,8,0">
@@ -53,7 +54,7 @@
                                     HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Left"
                                     Click="CategoryItem_Click">
-                                <Grid Height="40" Margin="4">
+                                <Grid MinHeight="40" Margin="4">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="40"/>
                                         <ColumnDefinition Width="*"/>
@@ -88,9 +89,10 @@
                                                Text="{x:Bind Name}"
                                                VerticalAlignment="Center"
                                                Margin="8,0,0,0"
+                                               MaxWidth="160"
                                                FontSize="13"
                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                               TextTrimming="CharacterEllipsis"/>
+                                               TextWrapping="Wrap"/>
                                 </Grid>
                             </Button>
                         </DataTemplate>
@@ -109,6 +111,7 @@
             <!-- Mod Grid -->
             <ScrollViewer Grid.Column="1" Grid.Row="0" 
                           Margin="8,0,0,0"
+                          MinWidth="240"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
                 <ItemsRepeater x:Name="ModsRepeater" 
@@ -119,7 +122,8 @@
                                            MinItemWidth="220" 
                                            MinItemHeight="262"
                                            MinRowSpacing="16" 
-                                           MinColumnSpacing="16"/>
+                                           MinColumnSpacing="16"
+                                           ItemsStretch="None"/>
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="local:OverlayModItem">

@@ -44,8 +44,6 @@
     "ImageOptimizer_KeepOriginals_Toggle": "オフ/オン",
     "ImageOptimizer_Mode_RenameOnly": "標準名のみ",
     "ImageOptimizer_Mode_RenameOnly_Description": "最適化やサムネイル生成なしで、ファイル名を標準名（preview.jpg、preview-01.jpgなど）に変更するだけ",
-    "ImageOptimizer_Reoptimize": "最適化済みを再最適化",
-    "ImageOptimizer_Reoptimize_Description": "正しい名前（catprev、catmini、minitile、preview-01、preview-02など）を既に持つファイルを再最適化",
     "SettingsPage_CropType_Attention": "注目",
     "SettingsPage_CropType_Center": "中央",
     "SettingsPage_CropType_Entropy": "エントロピー",

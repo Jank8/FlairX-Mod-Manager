@@ -44,8 +44,6 @@
     "ImageOptimizer_KeepOriginals_Toggle": "ปิด/เปิด",
     "ImageOptimizer_Mode_RenameOnly": "เฉพาะชื่อมาตรฐาน",
     "ImageOptimizer_Mode_RenameOnly_Description": "เปลี่ยนชื่อไฟล์เป็นชื่อมาตรฐาน (preview.jpg, preview-01.jpg ฯลฯ) เท่านั้น โดยไม่มีการเพิ่มประสิทธิภาพหรือสร้างภาพขนาดย่อ",
-    "ImageOptimizer_Reoptimize": "เพิ่มประสิทธิภาพที่เพิ่มประสิทธิภาพแล้วอีกครั้ง",
-    "ImageOptimizer_Reoptimize_Description": "เพิ่มประสิทธิภาพไฟล์ที่มีชื่อที่ถูกต้องแล้ว (catprev, catmini, minitile, preview-01, preview-02 ฯลฯ) อีกครั้ง",
     "SettingsPage_CropType_Attention": "ความสนใจ",
     "SettingsPage_CropType_Center": "ตรงกลาง",
     "SettingsPage_CropType_Entropy": "เอนโทรปี",

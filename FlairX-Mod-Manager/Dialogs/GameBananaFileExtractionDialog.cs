@@ -46,6 +46,7 @@ namespace FlairX_Mod_Manager.Dialogs
         private System.Collections.Generic.Dictionary<string, string> _lang = new();
         private bool _isNSFW = false;
         private string? _version;
+        private string? _existingModPathForPreviewsOnly = null;
 
         public GameBananaFileExtractionDialog(
             List<Models.GameBananaFileViewModel> selectedFiles,
@@ -76,8 +77,12 @@ namespace FlairX_Mod_Manager.Dialogs
 
             Title = SharedUtilities.GetTranslation(_lang, "DownloadAndInstallMod");
             PrimaryButtonText = SharedUtilities.GetTranslation(_lang, "Start");
+            SecondaryButtonText = SharedUtilities.GetTranslation(_lang, "DownloadPreviewsOnly");
             CloseButtonText = SharedUtilities.GetTranslation(_lang, "Cancel");
             DefaultButton = ContentDialogButton.Primary;
+            
+            // Enable "Download Previews Only" button if previews are available
+            IsSecondaryButtonEnabled = _previewMedia?.Images != null && _previewMedia.Images.Any(img => img.Type == "screenshot");
 
             // Create content
             var stackPanel = new StackPanel { Spacing = 16 };
@@ -262,6 +267,9 @@ namespace FlairX_Mod_Manager.Dialogs
 
             // Handle primary button click
             PrimaryButtonClick += OnPrimaryButtonClick;
+            
+            // Handle secondary button click (Download Previews Only)
+            SecondaryButtonClick += OnSecondaryButtonClick;
         }
 
         private void CheckIfUpdateAndShowOptions(string category)
@@ -275,9 +283,15 @@ namespace FlairX_Mod_Manager.Dialogs
                 if (!Directory.Exists(categoryPath))
                     return;
 
-                // Check if mod already exists (with or without DISABLED_ prefix)
-                var cleanModName = SanitizeFileName(_modName);
-                var existingModPath = FindExistingModPath(categoryPath, cleanModName);
+                // First try to find by URL (handles renamed folders)
+                var existingModPath = FindExistingModPathByUrl(categoryPath, _modProfileUrl);
+                
+                // Fallback to name-based search if URL search fails
+                if (string.IsNullOrEmpty(existingModPath))
+                {
+                    var cleanModName = SanitizeFileName(_modName);
+                    existingModPath = FindExistingModPath(categoryPath, cleanModName);
+                }
 
                 // Check if mod exists and has same URL
                 if (!string.IsNullOrEmpty(existingModPath) && Directory.Exists(existingModPath))
@@ -301,6 +315,24 @@ namespace FlairX_Mod_Manager.Dialogs
                                     
                                     Title = SharedUtilities.GetTranslation(_lang, "DownloadAndUpdateMod");
                                     Logger.LogInfo($"Update detected for mod: {existingModPath}");
+                                    
+                                    // Use existing folder name instead of GameBanana name
+                                    var existingFolderName = Path.GetFileName(existingModPath);
+                                    // Remove DISABLED_ prefix if present
+                                    if (existingFolderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        existingFolderName = existingFolderName.Substring(9);
+                                    }
+                                    _modNameTextBox.Text = existingFolderName;
+                                    Logger.LogInfo($"Using existing folder name: {existingFolderName}");
+                                    
+                                    // Enable "Download Previews Only" button if previews are available
+                                    if (_previewMedia?.Images != null && _previewMedia.Images.Any(img => img.Type == "screenshot"))
+                                    {
+                                        _existingModPathForPreviewsOnly = existingModPath;
+                                        IsSecondaryButtonEnabled = true;
+                                        Logger.LogInfo($"Previews available for download-only option");
+                                    }
                                 }
                             }
                         }
@@ -439,6 +471,88 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 Logger.LogError("Failed to download and install mod", ex);
                 await ShowError(string.Format(SharedUtilities.GetTranslation(_lang, "InstallationFailed"), ex.Message));
+                IsPrimaryButtonEnabled = true;
+                IsSecondaryButtonEnabled = true;
+            }
+        }
+
+        private async void OnSecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        {
+            // Prevent dialog from closing immediately
+            args.Cancel = true;
+
+            try
+            {
+                IsPrimaryButtonEnabled = false;
+                IsSecondaryButtonEnabled = false;
+
+                // Determine target mod path
+                string modPath;
+                
+                if (!string.IsNullOrEmpty(_existingModPathForPreviewsOnly))
+                {
+                    // Use existing mod path
+                    modPath = _existingModPathForPreviewsOnly;
+                }
+                else
+                {
+                    // Create new mod folder for previews only
+                    var category = _categoryTextBox.Text.Trim();
+                    if (string.IsNullOrWhiteSpace(category))
+                        category = "Characters";
+                    
+                    // Normalize category name
+                    string categoryFolderName = category.Replace("/", "-");
+                    if (categoryFolderName.Equals("Other", StringComparison.OrdinalIgnoreCase) || 
+                        categoryFolderName.Equals("Other-Misc", StringComparison.OrdinalIgnoreCase))
+                    {
+                        categoryFolderName = "Other";
+                    }
+                    
+                    var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                    var categoryPath = Path.Combine(modsPath, categoryFolderName);
+                    Directory.CreateDirectory(categoryPath);
+                    
+                    var cleanModName = SanitizeFileName(_modNameTextBox.Text.Trim());
+                    modPath = Path.Combine(categoryPath, "DISABLED_" + cleanModName);
+                    
+                    // Check if already exists
+                    var existingPath = FindExistingModPath(categoryPath, cleanModName);
+                    if (!string.IsNullOrEmpty(existingPath))
+                    {
+                        modPath = existingPath;
+                    }
+                    else
+                    {
+                        Directory.CreateDirectory(modPath);
+                        // Create mod.json for new mod
+                        await CreateModJson(modPath);
+                    }
+                }
+
+                // Download preview images only
+                _downloadStatusText.Text = SharedUtilities.GetTranslation(_lang, "DownloadingPreviews");
+                _downloadProgressBar.IsIndeterminate = true;
+                _extractStatusText.Text = "";
+                _extractProgressBar.Value = 0;
+
+                await DownloadPreviewImagesAsync(modPath);
+
+                // Success
+                _downloadStatusText.Text = SharedUtilities.GetTranslation(_lang, "DownloadComplete");
+                _downloadProgressBar.Value = 100;
+                await Task.Delay(1000);
+
+                // Close dialog
+                Hide();
+
+                // Run optimization in background AFTER dialog closes
+                _ = Task.Run(() => OptimizeDownloadedPreviewsAsync(modPath));
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to download previews only", ex);
+                await ShowError(string.Format(SharedUtilities.GetTranslation(_lang, "DownloadPreviewsFailed"), ex.Message));
                 IsPrimaryButtonEnabled = true;
                 IsSecondaryButtonEnabled = true;
             }
@@ -1154,6 +1268,50 @@ namespace FlairX_Mod_Manager.Dialogs
         }
         
         /// <summary>
+        /// Find existing mod path by URL in mod.json (handles renamed folders)
+        /// </summary>
+        private string? FindExistingModPathByUrl(string categoryPath, string? url)
+        {
+            if (string.IsNullOrEmpty(url) || !Directory.Exists(categoryPath))
+                return null;
+            
+            try
+            {
+                foreach (var modDir in Directory.GetDirectories(categoryPath))
+                {
+                    var modJsonPath = Path.Combine(modDir, "mod.json");
+                    if (!File.Exists(modJsonPath))
+                        continue;
+                    
+                    try
+                    {
+                        var modJsonContent = File.ReadAllText(modJsonPath);
+                        var modJson = System.Text.Json.JsonDocument.Parse(modJsonContent);
+                        if (modJson.RootElement.TryGetProperty("url", out var urlProp))
+                        {
+                            var existingUrl = urlProp.GetString();
+                            if (existingUrl == url)
+                            {
+                                Logger.LogInfo($"Found existing mod by URL: {modDir}");
+                                return modDir;
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Skip invalid mod.json files
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error searching for mod by URL", ex);
+            }
+            
+            return null;
+        }
+
+        /// <summary>
         /// Find existing mod path (with or without DISABLED_ prefix)
         /// </summary>
         private string? FindExistingModPath(string categoryPath, string modName)
@@ -1261,10 +1419,26 @@ namespace FlairX_Mod_Manager.Dialogs
                 await Services.ImageOptimizationService.ProcessModPreviewImagesAsync(modPath, context);
                 
                 Logger.LogInfo($"Completed preview optimization for: {modPath}");
+                
+                // Refresh the mod tile in UI after optimization
+                RefreshModTileInUI(modPath);
             }
             catch (Exception ex)
             {
                 Logger.LogError("Failed to optimize downloaded preview images", ex);
+            }
+        }
+
+        private void RefreshModTileInUI(string modPath)
+        {
+            try
+            {
+                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                mainWindow?.CurrentModGridPage?.RefreshModTileImage(modPath);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to refresh mod tile in UI: {modPath}", ex);
             }
         }
     }

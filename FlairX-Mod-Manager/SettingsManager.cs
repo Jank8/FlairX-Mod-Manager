@@ -68,9 +68,9 @@ namespace FlairX_Mod_Manager
         // Overlay settings
         public string OverlayTheme { get; set; } = "Auto";
         public string OverlayBackdrop { get; set; } = "AcrylicThin";
-        public int OverlayWidth { get; set; } = 300;
-        public int OverlayHeight { get; set; } = 450;
-        public int OverlayX { get; set; } = -1; // -1 means default position (top-right)
+        public int OverlayWidth { get; set; } = 1200;
+        public int OverlayHeight { get; set; } = 720;
+        public int OverlayX { get; set; } = -1; // -1 means center on screen
         public int OverlayY { get; set; } = -1;
         
         // Gamepad settings
@@ -105,7 +105,6 @@ namespace FlairX_Mod_Manager
         public string ImageOptimizerAutoDownloadMode { get; set; } = "Full";
         public string ImageCropType { get; set; } = "Center"; // Center, Smart, Entropy, Attention, ManualOnly
         public bool PreviewBeforeCrop { get; set; } = false; // Show preview dialog before each crop
-        public bool ImageOptimizerReoptimize { get; set; } = false; // Re-optimize already optimized files
     }
 
     public static class SettingsManager

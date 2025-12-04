@@ -68,5 +68,8 @@
     "AvailableFiles": "Dostępne pliki:",
     "FoundFilesSelectToDownload": "Znaleziono {0} plik(ów). Wybierz pliki do pobrania.",
     "FailedToLoadFiles": "Nie udało się załadować plików. Spróbuj ponownie.",
-    "XXMIModsDirectoryNotFound": "Nie znaleziono katalogu XXMI Mods"
+    "XXMIModsDirectoryNotFound": "Nie znaleziono katalogu XXMI Mods",
+    "DownloadPreviewsOnly": "Tylko podglądy",
+    "NoExistingModFound": "Nie znaleziono istniejącego moda do pobrania podglądów.",
+    "DownloadPreviewsFailed": "Nie udało się pobrać podglądów: {0}"
 }

@@ -44,8 +44,6 @@
     "ImageOptimizer_KeepOriginals_Toggle": "ВЫКЛ/ВКЛ",
     "ImageOptimizer_Mode_RenameOnly": "Только стандартные имена",
     "ImageOptimizer_Mode_RenameOnly_Description": "Только переименовать файлы в стандартные имена (preview.jpg, preview-01.jpg и т.д.) без оптимизации или создания миниатюр",
-    "ImageOptimizer_Reoptimize": "Переоптимизировать уже оптимизированные",
-    "ImageOptimizer_Reoptimize_Description": "Переоптимизировать файлы, которые уже имеют правильные имена (catprev, catmini, minitile, preview-01, preview-02 и т.д.)",
     "SettingsPage_CropType_Attention": "Внимание",
     "SettingsPage_CropType_Center": "Центр",
     "SettingsPage_CropType_Entropy": "Энтропия",

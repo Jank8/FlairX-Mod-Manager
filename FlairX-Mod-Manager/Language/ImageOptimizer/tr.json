@@ -44,8 +44,6 @@
     "ImageOptimizer_KeepOriginals_Toggle": "KAPALI/AÇIK",
     "ImageOptimizer_Mode_RenameOnly": "Yalnızca Standart Adlar",
     "ImageOptimizer_Mode_RenameOnly_Description": "Yalnızca dosyaları standart adlara yeniden adlandır (preview.jpg, preview-01.jpg, vb.) optimizasyon veya küçük resim oluşturma olmadan",
-    "ImageOptimizer_Reoptimize": "Zaten Optimize Edilenleri Yeniden Optimize Et",
-    "ImageOptimizer_Reoptimize_Description": "Zaten doğru adlara sahip dosyaları yeniden optimize et (catprev, catmini, minitile, preview-01, preview-02, vb.)",
     "SettingsPage_CropType_Attention": "Dikkat",
     "SettingsPage_CropType_Center": "Merkez",
     "SettingsPage_CropType_Entropy": "Entropi",

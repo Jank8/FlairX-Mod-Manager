@@ -4,50 +4,6 @@
 
 Modern mod manager for miHoYo games built with **WinUI 3** and **.NET 10**. Handles **1100+ mods** using less than **600MB RAM** with smooth performance and intuitive interface.
 
-## What's New in v3.1.0
-
-### 🎨 Advanced Image Optimization System
-- **4 Optimization Modes:**
-  - **Full** - Resize to 1000×1000, smart crop, JPEG conversion, generate all thumbnails
-  - **Lite** - JPEG compression only, preserve original dimensions, generate thumbnails
-  - **Rename + Thumbnails** - Standardize filenames and create thumbnails
-  - **Rename Only** - Just rename files, no processing
-- **Smart Cropping Algorithms:**
-  - **Center** - Traditional center crop
-  - **Smart** - Edge detection for optimal framing
-  - **Entropy** - Focus on high-detail areas
-  - **Attention** - Detect faces and important regions
-  - **Manual** - Interactive crop adjustment with live preview
-- **Original File Preservation** - Keep source files with `_original` suffix for unlimited reoptimization attempts
-- **Parallel Processing** - Configure thread count (auto-detect or manual) for faster batch optimization
-- **Crop Inspection Panel** - Preview and adjust crops before applying with drag-and-resize interface
-
-### 🌐 GameBanana Enhancements
-- **Cloudflare Bypass** - Automatic handling of Cloudflare protection with browser verification dialog
-- **Improved Download Reliability** - Better error handling and retry logic
-- **Auto-Optimization** - Downloaded mods automatically optimized with configurable settings
-- **Smart Extraction** - Handles nested folders and complex archive structures
-
-### 🖼️ Category Image System
-- **Dual Image Types:**
-  - `catprev.jpg` (600×600) - Square format for navigation icons and hover previews
-  - `catmini.jpg` (600×722) - Portrait format for category grid tiles
-- **Auto-Refresh** - Navigation menu updates when switching view modes
-- **Optimized Loading** - Separate images for different UI contexts improve performance
-
-### ⚙️ Settings & Configuration
-- **Dedicated Image Optimizer Page** - Comprehensive settings for all optimization features
-- **Per-Context Settings** - Different modes for manual, drag-drop, and auto-download optimization
-- **JPEG Quality Control** - Adjustable compression (1-100)
-- **Backup Options** - Optional ZIP backup before optimization
-- **Reoptimization Toggle** - Choose whether to reprocess already optimized files
-
-### 🔧 Technical Improvements
-- **Thread-Safe Operations** - Proper file locking prevention during reoptimization
-- **Memory Efficient** - Optimized image processing pipeline
-- **Better Error Handling** - Detailed logging and graceful failure recovery
-- **Archive Helper** - Unified archive extraction (ZIP, 7z, RAR)
-
 ## Supported Games
 
 - **Zenless Zone Zero** (ZZMI)
@@ -86,10 +42,21 @@ Modern mod manager for miHoYo games built with **WinUI 3** and **.NET 10**. Hand
 - **No Admin Required** - Works on any Windows file system (NTFS, FAT32, exFAT)
 - **Preset System** - Save and load mod configurations
 - **StatusKeeper Integration** - Backup and restore mod states
-- **Global Hotkeys** - System-wide shortcuts (Ctrl+O, Ctrl+R, Ctrl+S, Ctrl+D, Ctrl+F)
+- **Global Hotkeys** - System-wide shortcuts (Ctrl+O, Ctrl+R, Ctrl+S, Ctrl+D, Alt+W)
+- **Xbox Controller Support** - Full gamepad navigation for overlay (XInput)
+- **Game Overlay** - Quick mod toggle window with keyboard/gamepad controls
 - **16 Languages** - Automatic detection with specialized fonts
 - **Zoom Support** - Ctrl + Mouse Wheel (100%-250%)
 - **Modern UI** - Fluent Design with Mica/Acrylic effects
+
+### Overlay & Gamepad
+- **Quick Overlay** - Alt+W or Back+Start (gamepad) to toggle overlay window
+- **Grid Navigation** - D-Pad or Left Stick for mod selection
+- **Category Switching** - LB/RB to change categories
+- **Mod Toggle** - A to activate/deactivate, B to close
+- **Active Filter** - Back+A to show only active mods
+- **Haptic Feedback** - Optional vibration on actions
+- **Always On Top** - Overlay stays visible over games
 
 ## System Requirements
 

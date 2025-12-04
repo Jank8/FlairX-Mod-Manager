@@ -172,22 +172,45 @@ namespace FlairX_Mod_Manager
 
         public OverlayWindow(MainWindow mainWindow)
         {
-            InitializeComponent();
-            _mainWindow = mainWindow;
-            
-            SetupWindow();
-            ApplyWindowStyle();
-            LoadCurrentCategoryMods();
-            UpdateHotkeyHint();
-            
-            // Subscribe to settings changes
-            WindowStyleHelper.SettingsChanged += OnSettingsChanged;
-            
-            // Handle window closing to clean up resources
-            this.Closed += OverlayWindow_Closed;
-            
-            // Initialize gamepad if enabled
-            InitializeGamepad();
+            try
+            {
+                Logger.LogInfo("OverlayWindow: Starting constructor");
+                InitializeComponent();
+                Logger.LogInfo("OverlayWindow: InitializeComponent done");
+                _mainWindow = mainWindow;
+                
+                Logger.LogInfo("OverlayWindow: SetupWindow starting");
+                SetupWindow();
+                Logger.LogInfo("OverlayWindow: SetupWindow done");
+                
+                Logger.LogInfo("OverlayWindow: ApplyWindowStyle starting");
+                ApplyWindowStyle();
+                Logger.LogInfo("OverlayWindow: ApplyWindowStyle done");
+                
+                Logger.LogInfo("OverlayWindow: LoadCurrentCategoryMods starting");
+                LoadCurrentCategoryMods();
+                Logger.LogInfo("OverlayWindow: LoadCurrentCategoryMods done");
+                
+                Logger.LogInfo("OverlayWindow: UpdateHotkeyHint starting");
+                UpdateHotkeyHint();
+                Logger.LogInfo("OverlayWindow: UpdateHotkeyHint done");
+                
+                // Subscribe to settings changes
+                WindowStyleHelper.SettingsChanged += OnSettingsChanged;
+                
+                // Handle window closing to clean up resources
+                this.Closed += OverlayWindow_Closed;
+                
+                Logger.LogInfo("OverlayWindow: InitializeGamepad starting");
+                // Initialize gamepad if enabled
+                InitializeGamepad();
+                Logger.LogInfo("OverlayWindow: Constructor completed successfully");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("OverlayWindow: Constructor failed", ex);
+                throw;
+            }
         }
 
         private void OverlayWindow_Closed(object sender, WindowEventArgs args)
@@ -249,8 +272,8 @@ namespace FlairX_Mod_Manager
             {
                 // Restore saved size or use defaults
                 var settings = SettingsManager.Current;
-                var width = settings.OverlayWidth > 0 ? settings.OverlayWidth : 300;
-                var height = settings.OverlayHeight > 0 ? settings.OverlayHeight : 450;
+                var width = settings.OverlayWidth > 0 ? settings.OverlayWidth : 1200;
+                var height = settings.OverlayHeight > 0 ? settings.OverlayHeight : 720;
                 _appWindow.Resize(new Windows.Graphics.SizeInt32(width, height));
                 
                 // Extend title bar into content
@@ -270,7 +293,7 @@ namespace FlairX_Mod_Manager
                     presenter.IsMaximizable = false;
                 }
 
-                // Restore saved position or use default (top-right corner)
+                // Restore saved position or center on screen
                 var displayArea = DisplayArea.GetFromWindowId(windowId, DisplayAreaFallback.Primary);
                 if (displayArea != null)
                 {
@@ -283,10 +306,10 @@ namespace FlairX_Mod_Manager
                     }
                     else
                     {
-                        // Default to top-right corner
+                        // Default to center of screen
                         _appWindow.Move(new Windows.Graphics.PointInt32(
-                            workArea.Width - width - 20,
-                            100
+                            (workArea.Width - width) / 2,
+                            (workArea.Height - height) / 2
                         ));
                     }
                 }
@@ -690,14 +713,26 @@ namespace FlairX_Mod_Manager
 
         private int GetItemsPerRow()
         {
-            // Calculate items per row based on grid width
-            // Tile width is 208 + 16 spacing = 224 (from UniformGridLayout MinItemWidth=220)
-            var scrollViewer = ModsRepeater?.Parent as ScrollViewer;
-            if (scrollViewer == null) return 2; // Default fallback
-            
-            var availableWidth = scrollViewer.ActualWidth - 8; // Margin
-            var itemWidth = 220; // MinItemWidth from UniformGridLayout
-            return Math.Max(1, (int)(availableWidth / itemWidth));
+            try
+            {
+                // Calculate items per row based on grid width
+                // Tile width is 208 + 16 spacing = 224 (from UniformGridLayout MinItemWidth=220)
+                var scrollViewer = ModsRepeater?.Parent as ScrollViewer;
+                if (scrollViewer == null) return 2; // Default fallback
+                
+                var availableWidth = scrollViewer.ActualWidth - 8; // Margin
+                if (availableWidth <= 0) return 2; // Window not yet loaded
+                
+                var itemWidth = 220.0; // MinItemWidth from UniformGridLayout
+                if (itemWidth <= 0) return 2; // Safety check
+                
+                var result = (int)(availableWidth / itemWidth);
+                return Math.Max(1, result);
+            }
+            catch
+            {
+                return 2; // Safe fallback
+            }
         }
 
         private void NavigateModGrid(int deltaX, int deltaY)
@@ -714,14 +749,18 @@ namespace FlairX_Mod_Manager
             if (_selectedModIndex < 0)
             {
                 _selectedModIndex = 0;
-                OverlayMods[_selectedModIndex].IsSelected = true;
+                if (OverlayMods.Count > 0)
+                    OverlayMods[_selectedModIndex].IsSelected = true;
                 return;
             }
 
             var itemsPerRow = GetItemsPerRow();
+            if (itemsPerRow <= 0) itemsPerRow = 1; // Safety: prevent division by zero
+            
             var currentRow = _selectedModIndex / itemsPerRow;
             var currentCol = _selectedModIndex % itemsPerRow;
             var totalRows = (OverlayMods.Count + itemsPerRow - 1) / itemsPerRow;
+            if (totalRows <= 0) totalRows = 1; // Safety
 
             // Calculate new position
             var newCol = currentCol + deltaX;
@@ -808,25 +847,38 @@ namespace FlairX_Mod_Manager
         /// </summary>
         public async void LoadCurrentCategoryMods()
         {
-            await LoadCategoriesAsync();
-            
-            // Load mods from first category if none selected
-            if (_selectedCategoryPath == null && OverlayCategories.Count > 0)
+            try
             {
-                SelectCategory(OverlayCategories[0]);
-            }
-            else if (_selectedCategoryPath != null)
-            {
-                // Find and select the category matching the path
-                var existingCategory = OverlayCategories.FirstOrDefault(c => c.Directory == _selectedCategoryPath);
-                if (existingCategory != null)
+                Logger.LogInfo("LoadCurrentCategoryMods: Starting");
+                await LoadCategoriesAsync();
+                Logger.LogInfo($"LoadCurrentCategoryMods: Loaded {OverlayCategories.Count} categories");
+                
+                // Load mods from first category if none selected
+                if (_selectedCategoryPath == null && OverlayCategories.Count > 0)
                 {
-                    SelectCategory(existingCategory);
-                }
-                else if (OverlayCategories.Count > 0)
-                {
+                    Logger.LogInfo("LoadCurrentCategoryMods: Selecting first category");
                     SelectCategory(OverlayCategories[0]);
                 }
+                else if (_selectedCategoryPath != null)
+                {
+                    // Find and select the category matching the path
+                    var existingCategory = OverlayCategories.FirstOrDefault(c => c.Directory == _selectedCategoryPath);
+                    if (existingCategory != null)
+                    {
+                        Logger.LogInfo($"LoadCurrentCategoryMods: Selecting existing category {existingCategory.Name}");
+                        SelectCategory(existingCategory);
+                    }
+                    else if (OverlayCategories.Count > 0)
+                    {
+                        Logger.LogInfo("LoadCurrentCategoryMods: Category not found, selecting first");
+                        SelectCategory(OverlayCategories[0]);
+                    }
+                }
+                Logger.LogInfo("LoadCurrentCategoryMods: Completed");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("LoadCurrentCategoryMods: Failed", ex);
             }
         }
 
@@ -1179,14 +1231,26 @@ namespace FlairX_Mod_Manager
 
         public void Show(bool vibrate = false)
         {
-            _appWindow?.Show();
-            LoadCurrentCategoryMods(); // Refresh on show
-            UpdateHotkeyHint();
-            
-            // Vibrate on show (only for gamepad)
-            if (vibrate)
+            try
             {
-                _gamepadManager?.Vibrate(0, 25000, 400);
+                Logger.LogInfo("OverlayWindow.Show: Starting");
+                _appWindow?.Show();
+                Logger.LogInfo("OverlayWindow.Show: Window shown");
+                LoadCurrentCategoryMods(); // Refresh on show
+                Logger.LogInfo("OverlayWindow.Show: Categories loaded");
+                UpdateHotkeyHint();
+                Logger.LogInfo("OverlayWindow.Show: Hotkey hint updated");
+                
+                // Vibrate on show (only for gamepad)
+                if (vibrate)
+                {
+                    _gamepadManager?.Vibrate(0, 25000, 400);
+                }
+                Logger.LogInfo("OverlayWindow.Show: Completed");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("OverlayWindow.Show: Failed", ex);
             }
         }
 

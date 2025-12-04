@@ -380,17 +380,11 @@ namespace FlairX_Mod_Manager
             var modsPath = SharedUtilities.GetSafeXXMIModsPath();
             if (!Directory.Exists(modsPath)) return;
             
-            var totalMods = 0;
-            var processedMods = 0;
+            loadingWindow.UpdateStatus("Scanning for images...");
+            loadingWindow.SetIndeterminate(true);
             
-            // Count total mods first
-            foreach (var categoryDir in Directory.GetDirectories(modsPath))
-            {
-                if (Directory.Exists(categoryDir))
-                {
-                    totalMods += Directory.GetDirectories(categoryDir).Length;
-                }
-            }
+            // Quick scan: collect only paths with existing minitile.jpg
+            var imagesToLoad = new List<(string minitilePath, string dirName)>();
             
             foreach (var categoryDir in Directory.GetDirectories(modsPath))
             {
@@ -398,47 +392,60 @@ namespace FlairX_Mod_Manager
                 
                 foreach (var modDir in Directory.GetDirectories(categoryDir))
                 {
-                    try
+                    var minitilePath = System.IO.Path.Combine(modDir, "minitile.jpg");
+                    if (File.Exists(minitilePath))
                     {
-                        var modJsonPath = System.IO.Path.Combine(modDir, "mod.json");
-                        if (!File.Exists(modJsonPath)) continue;
-                        
-                        var minitilePath = System.IO.Path.Combine(modDir, "minitile.jpg");
-                        if (File.Exists(minitilePath))
-                        {
-                            var dirName = System.IO.Path.GetFileName(modDir);
-                        
-                        // Load image into cache
-                        var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                        using (var stream = File.OpenRead(minitilePath))
-                        {
-                            bitmap.SetSource(stream.AsRandomAccessStream());
-                        }
-                        
-                        // Cache the image
-                        ImageCacheManager.CacheImage(minitilePath, bitmap);
-                        ImageCacheManager.CacheRamImage(dirName, bitmap);
-                    }
-                    
-                    processedMods++;
-                    var progress = (double)processedMods / totalMods * 100;
-                    
-                    loadingWindow.SetIndeterminate(false);
-                    loadingWindow.SetProgress(progress);
-                    loadingWindow.UpdateStatus($"Loading images... {processedMods}/{totalMods}");
-                    
-                    // Small delay to prevent overwhelming the system
-                    await Task.Delay(10);
-                }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"Error preloading image for {modDir}: {ex.Message}");
+                        imagesToLoad.Add((minitilePath, System.IO.Path.GetFileName(modDir)));
                     }
                 }
             }
             
-            loadingWindow.UpdateStatus("Images loaded successfully!");
-            await Task.Delay(500); // Brief pause to show completion
+            if (imagesToLoad.Count == 0)
+            {
+                loadingWindow.UpdateStatus("No images to load");
+                await Task.Delay(200);
+                return;
+            }
+            
+            // Now load only the images that exist
+            loadingWindow.SetIndeterminate(false);
+            var lastUpdateTime = DateTime.Now;
+            
+            for (int i = 0; i < imagesToLoad.Count; i++)
+            {
+                var (minitilePath, dirName) = imagesToLoad[i];
+                
+                try
+                {
+                    var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+                    using (var stream = File.OpenRead(minitilePath))
+                    {
+                        bitmap.SetSource(stream.AsRandomAccessStream());
+                    }
+                    
+                    ImageCacheManager.CacheImage(minitilePath, bitmap);
+                    ImageCacheManager.CacheRamImage(dirName, bitmap);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error preloading image {minitilePath}: {ex.Message}");
+                }
+                
+                // Update UI every 50ms
+                var now = DateTime.Now;
+                if ((now - lastUpdateTime).TotalMilliseconds >= 50)
+                {
+                    var progress = (double)(i + 1) / imagesToLoad.Count * 100;
+                    loadingWindow.SetProgress(progress);
+                    loadingWindow.UpdateStatus($"Loading images... {i + 1}/{imagesToLoad.Count}");
+                    lastUpdateTime = now;
+                    await Task.Delay(1);
+                }
+            }
+            
+            loadingWindow.SetProgress(100);
+            loadingWindow.UpdateStatus($"Loaded {imagesToLoad.Count} images");
+            await Task.Delay(200);
         }
 
         public void RefreshUIAfterLanguageChange()

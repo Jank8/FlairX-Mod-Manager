@@ -44,8 +44,6 @@
     "ImageOptimizer_KeepOriginals_Toggle": "बंद/चालू",
     "ImageOptimizer_Mode_RenameOnly": "केवल मानक नाम",
     "ImageOptimizer_Mode_RenameOnly_Description": "केवल फ़ाइलों का नाम मानक नामों में बदलें (preview.jpg, preview-01.jpg, आदि) बिना अनुकूलन या थंबनेल निर्माण के",
-    "ImageOptimizer_Reoptimize": "पहले से अनुकूलित को पुनः अनुकूलित करें",
-    "ImageOptimizer_Reoptimize_Description": "उन फ़ाइलों को पुनः अनुकूलित करें जिनके पास पहले से सही नाम हैं (catprev, catmini, minitile, preview-01, preview-02, आदि)",
     "SettingsPage_CropType_Attention": "ध्यान",
     "SettingsPage_CropType_Center": "केंद्र",
     "SettingsPage_CropType_Entropy": "एन्ट्रॉपी",

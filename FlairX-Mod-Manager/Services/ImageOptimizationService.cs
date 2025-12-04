@@ -57,8 +57,8 @@ namespace FlairX_Mod_Manager.Services
                 return;
             }
             
-            // Check if already optimized and skip if reoptimize is disabled
-            if (!context.Reoptimize && OptimizationHelper.IsCategoryAlreadyOptimized(categoryDir))
+            // Skip already optimized categories
+            if (OptimizationHelper.IsCategoryAlreadyOptimized(categoryDir))
             {
                 Logger.LogInfo($"Skipping already optimized category: {categoryDir}");
                 return;
@@ -621,8 +621,8 @@ namespace FlairX_Mod_Manager.Services
                 return;
             }
             
-            // Check if already optimized and skip if reoptimize is disabled
-            if (!context.Reoptimize && OptimizationHelper.IsModAlreadyOptimized(modDir))
+            // Skip already optimized mods
+            if (OptimizationHelper.IsModAlreadyOptimized(modDir))
             {
                 Logger.LogInfo($"Skipping already optimized mod: {modDir}");
                 return;
@@ -758,6 +758,7 @@ namespace FlairX_Mod_Manager.Services
                         outputPath = Path.Combine(modDir, $"{Path.GetFileNameWithoutExtension(targetFileName)}_temp.jpg");
                     }
                     
+                    bool savedSuccessfully = false;
                     try
                     {
                         using (var img = Image.FromFile(sourceFile))
@@ -795,24 +796,34 @@ namespace FlairX_Mod_Manager.Services
                                     var jpegParams = new EncoderParameters(1);
                                     jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
                                     optimized.Save(outputPath, jpegEncoder, jpegParams);
-                                    
-                                    // Replace original if we used temporary path
-                                    if (isReoptimizing)
-                                    {
-                                        if (File.Exists(targetPath))
-                                            File.Delete(targetPath);
-                                        File.Move(outputPath, targetPath);
-                                    }
-                                    
-                                    processedFiles.Add(targetPath);
+                                    savedSuccessfully = true;
                                     Logger.LogInfo($"Optimized: {Path.GetFileName(sourceFile)} -> {targetFileName}");
                                 }
                             }
+                        }
+                        
+                        // Replace original AFTER closing the source file (outside using block)
+                        if (savedSuccessfully && isReoptimizing)
+                        {
+                            if (File.Exists(targetPath))
+                                File.Delete(targetPath);
+                            File.Move(outputPath, targetPath);
+                            Logger.LogInfo($"Replaced: {targetFileName}");
+                        }
+                        
+                        if (savedSuccessfully)
+                        {
+                            processedFiles.Add(targetPath);
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError($"Failed to process preview file: {sourceFile}", ex);
+                        // Clean up temp file if it exists
+                        if (isReoptimizing && File.Exists(outputPath))
+                        {
+                            try { File.Delete(outputPath); } catch { }
+                        }
                     }
                 }
                 
@@ -976,6 +987,7 @@ namespace FlairX_Mod_Manager.Services
                         outputPath = Path.Combine(modDir, $"{Path.GetFileNameWithoutExtension(targetFileName)}_temp.jpg");
                     }
                     
+                    bool savedSuccessfully = false;
                     try
                     {
                         using (var img = Image.FromFile(sourceFile))
@@ -988,23 +1000,33 @@ namespace FlairX_Mod_Manager.Services
                                 var jpegParams = new EncoderParameters(1);
                                 jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
                                 img.Save(outputPath, jpegEncoder, jpegParams);
-                                
-                                // Replace original if we used temporary path
-                                if (isReoptimizing)
-                                {
-                                    if (File.Exists(targetPath))
-                                        File.Delete(targetPath);
-                                    File.Move(outputPath, targetPath);
-                                }
-                                
-                                processedFiles.Add(targetPath);
+                                savedSuccessfully = true;
                                 Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> {targetFileName}");
                             }
+                        }
+                        
+                        // Replace original AFTER closing the source file (outside using block)
+                        if (savedSuccessfully && isReoptimizing)
+                        {
+                            if (File.Exists(targetPath))
+                                File.Delete(targetPath);
+                            File.Move(outputPath, targetPath);
+                            Logger.LogInfo($"Replaced: {targetFileName}");
+                        }
+                        
+                        if (savedSuccessfully)
+                        {
+                            processedFiles.Add(targetPath);
                         }
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError($"Failed to process preview file: {sourceFile}", ex);
+                        // Clean up temp file if it exists
+                        if (isReoptimizing && File.Exists(outputPath))
+                        {
+                            try { File.Delete(outputPath); } catch { }
+                        }
                     }
                 }
                 
@@ -1211,14 +1233,11 @@ namespace FlairX_Mod_Manager.Services
                 
                 var minitilePath = Path.Combine(modDir, "minitile.jpg");
                 
-                // Use temporary path if reoptimizing existing minitile
-                var outputPath = minitilePath;
-                bool isReoptimizing = previewPath.Equals(minitilePath, StringComparison.OrdinalIgnoreCase);
-                if (isReoptimizing)
-                {
-                    outputPath = Path.Combine(modDir, "minitile_temp.jpg");
-                }
+                // Always use temporary path first, then replace - safer approach
+                var outputPath = Path.Combine(modDir, "minitile_temp.jpg");
+                bool minitileExists = File.Exists(minitilePath);
                 
+                bool savedSuccessfully = false;
                 using (var img = Image.FromFile(previewPath))
                 {
                     // Get crop rectangle with optional inspection
@@ -1250,22 +1269,28 @@ namespace FlairX_Mod_Manager.Services
                             var jpegParams = new EncoderParameters(1);
                             jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
                             minitile.Save(outputPath, jpegEncoder, jpegParams);
-                            
-                            // Replace original if we used temporary path
-                            if (isReoptimizing)
-                            {
-                                if (File.Exists(minitilePath))
-                                    File.Delete(minitilePath);
-                                File.Move(outputPath, minitilePath);
-                            }
-                            
-                            Logger.LogInfo($"Minitile generated: {minitilePath}");
+                            savedSuccessfully = true;
                         }
                     }
+                }
+                
+                // Move temp file to final location AFTER closing source image
+                if (savedSuccessfully)
+                {
+                    if (minitileExists)
+                        File.Delete(minitilePath);
+                    File.Move(outputPath, minitilePath);
+                    Logger.LogInfo($"Minitile generated: {minitilePath}");
                 }
             }
             catch (Exception ex)
             {
+                // Clean up temp file if it exists
+                var tempPath = Path.Combine(modDir, "minitile_temp.jpg");
+                if (File.Exists(tempPath))
+                {
+                    try { File.Delete(tempPath); } catch { }
+                }
                 Logger.LogError($"Failed to generate minitile for {modDir}", ex);
             }
         }
@@ -1509,8 +1534,7 @@ namespace FlairX_Mod_Manager.Services
                 CropStrategy = cropStrategy,
                 InspectAndEditEnabled = SettingsManager.Current.PreviewBeforeCrop,
                 Trigger = trigger,
-                AllowUIInteraction = allowUIInteraction,
-                Reoptimize = SettingsManager.Current.ImageOptimizerReoptimize
+                AllowUIInteraction = allowUIInteraction
             };
         }
     }
@@ -1529,7 +1553,6 @@ namespace FlairX_Mod_Manager.Services
         public bool InspectAndEditEnabled { get; set; }
         public OptimizationTrigger Trigger { get; set; }
         public bool AllowUIInteraction { get; set; } = true; // Can show crop inspection UI
-        public bool Reoptimize { get; set; } = false; // Re-optimize already optimized files
     }
 
     /// <summary>

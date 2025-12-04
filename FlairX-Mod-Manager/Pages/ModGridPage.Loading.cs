@@ -578,5 +578,135 @@ namespace FlairX_Mod_Manager.Pages
                 DisposeDistantImages(itemsToDispose);
             }
         }
+
+        /// <summary>
+        /// Refresh a single mod tile's image after preview download/optimization
+        /// </summary>
+        public void RefreshModTileImage(string modPath)
+        {
+            try
+            {
+                var modDirName = Path.GetFileName(modPath);
+                
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    // Find the tile in grid view
+                    if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> gridCollection)
+                    {
+                        var tile = gridCollection.FirstOrDefault(t => 
+                            t.Directory.Equals(modDirName, StringComparison.OrdinalIgnoreCase) ||
+                            t.Directory.EndsWith("\\" + modDirName, StringComparison.OrdinalIgnoreCase) ||
+                            t.Directory.EndsWith("/" + modDirName, StringComparison.OrdinalIgnoreCase));
+                        
+                        if (tile != null)
+                        {
+                            // Clear image to force reload
+                            tile.ImageSource = null;
+                            
+                            // Update image path to new minitile if exists
+                            var minitilePath = Path.Combine(modPath, "minitile.jpg");
+                            if (File.Exists(minitilePath))
+                            {
+                                tile.ImagePath = minitilePath;
+                            }
+                            
+                            Logger.LogInfo($"Refreshing tile image for: {modDirName}");
+                        }
+                    }
+                    
+                    // Find the tile in table view
+                    if (ModsTableList?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> tableCollection)
+                    {
+                        var tile = tableCollection.FirstOrDefault(t => 
+                            t.Directory.Equals(modDirName, StringComparison.OrdinalIgnoreCase) ||
+                            t.Directory.EndsWith("\\" + modDirName, StringComparison.OrdinalIgnoreCase) ||
+                            t.Directory.EndsWith("/" + modDirName, StringComparison.OrdinalIgnoreCase));
+                        
+                        if (tile != null)
+                        {
+                            tile.ImageSource = null;
+                            
+                            var minitilePath = Path.Combine(modPath, "minitile.jpg");
+                            if (File.Exists(minitilePath))
+                            {
+                                tile.ImagePath = minitilePath;
+                            }
+                        }
+                    }
+                    
+                    // Reload visible images
+                    LoadVisibleImages();
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to refresh mod tile image for: {modPath}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Lightweight refresh of a single mod's active state (for overlay toggle)
+        /// </summary>
+        public void RefreshSingleModState(string modPath)
+        {
+            try
+            {
+                var modDirName = Path.GetFileName(modPath);
+                var cleanName = GetCleanModName(modDirName);
+                var isActive = !modDirName.StartsWith("DISABLED", StringComparison.OrdinalIgnoreCase);
+                
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    // Update in grid view
+                    if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> gridCollection)
+                    {
+                        var tile = gridCollection.FirstOrDefault(t => 
+                            GetCleanModName(t.Directory).Equals(cleanName, StringComparison.OrdinalIgnoreCase));
+                        
+                        if (tile != null)
+                        {
+                            tile.IsActive = isActive;
+                            tile.Directory = modDirName; // Update directory name (with or without DISABLED_)
+                            Logger.LogInfo($"Updated grid tile state: {cleanName} -> IsActive={isActive}");
+                        }
+                    }
+                    
+                    // Update in table view
+                    if (ModsTableList?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> tableCollection)
+                    {
+                        var tile = tableCollection.FirstOrDefault(t => 
+                            GetCleanModName(t.Directory).Equals(cleanName, StringComparison.OrdinalIgnoreCase));
+                        
+                        if (tile != null)
+                        {
+                            tile.IsActive = isActive;
+                            tile.Directory = modDirName;
+                        }
+                    }
+                    
+                    // Update in _allMods
+                    var allModsTile = _allMods?.FirstOrDefault(t => 
+                        GetCleanModName(t.Directory).Equals(cleanName, StringComparison.OrdinalIgnoreCase));
+                    if (allModsTile != null)
+                    {
+                        allModsTile.IsActive = isActive;
+                        allModsTile.Directory = modDirName;
+                    }
+                    
+                    // Update in _allModData cache
+                    var modData = _allModData?.FirstOrDefault(m => 
+                        GetCleanModName(m.Directory).Equals(cleanName, StringComparison.OrdinalIgnoreCase));
+                    if (modData != null)
+                    {
+                        modData.IsActive = isActive;
+                        modData.Directory = cleanName; // Keep clean name in data
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to refresh single mod state: {modPath}", ex);
+            }
+        }
     }
 }

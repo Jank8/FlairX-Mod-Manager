@@ -44,8 +44,6 @@
     "ImageOptimizer_KeepOriginals_Toggle": "끄기/켜기",
     "ImageOptimizer_Mode_RenameOnly": "표준 이름만",
     "ImageOptimizer_Mode_RenameOnly_Description": "최적화나 썸네일 생성 없이 파일 이름만 표준 이름(preview.jpg, preview-01.jpg 등)으로 변경",
-    "ImageOptimizer_Reoptimize": "이미 최적화된 항목 재최적화",
-    "ImageOptimizer_Reoptimize_Description": "이미 올바른 이름(catprev, catmini, minitile, preview-01, preview-02 등)을 가진 파일 재최적화",
     "SettingsPage_CropType_Attention": "주목",
     "SettingsPage_CropType_Center": "중앙",
     "SettingsPage_CropType_Entropy": "엔트로피",

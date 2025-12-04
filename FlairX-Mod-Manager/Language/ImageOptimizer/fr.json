@@ -44,8 +44,6 @@
     "ImageOptimizer_KeepOriginals_Toggle": "OFF/ON",
     "ImageOptimizer_Mode_RenameOnly": "Noms Standard Uniquement",
     "ImageOptimizer_Mode_RenameOnly_Description": "Renommer uniquement les fichiers en noms standard (preview.jpg, preview-01.jpg, etc.) sans optimisation ni génération de miniatures",
-    "ImageOptimizer_Reoptimize": "Ré-optimiser Déjà Optimisés",
-    "ImageOptimizer_Reoptimize_Description": "Ré-optimiser les fichiers qui ont déjà les noms corrects (catprev, catmini, minitile, preview-01, preview-02, etc.)",
     "SettingsPage_CropType_Attention": "Attention",
     "SettingsPage_CropType_Center": "Centre",
     "SettingsPage_CropType_Entropy": "Entropie",

@@ -44,8 +44,6 @@
     "ImageOptimizer_KeepOriginals_Toggle": "关/开",
     "ImageOptimizer_Mode_RenameOnly": "仅标准名称",
     "ImageOptimizer_Mode_RenameOnly_Description": "仅将文件重命名为标准名称（preview.jpg、preview-01.jpg等），不进行优化或缩略图生成",
-    "ImageOptimizer_Reoptimize": "重新优化已优化的",
-    "ImageOptimizer_Reoptimize_Description": "重新优化已具有正确名称的文件（catprev、catmini、minitile、preview-01、preview-02等）",
     "SettingsPage_CropType_Attention": "注意力",
     "SettingsPage_CropType_Center": "中心",
     "SettingsPage_CropType_Entropy": "熵",
