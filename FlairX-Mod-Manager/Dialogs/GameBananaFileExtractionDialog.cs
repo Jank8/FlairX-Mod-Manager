@@ -283,63 +283,35 @@ namespace FlairX_Mod_Manager.Dialogs
                 if (!Directory.Exists(categoryPath))
                     return;
 
-                // First try to find by URL (handles renamed folders)
-                var existingModPath = FindExistingModPathByUrl(categoryPath, _modProfileUrl);
-                
-                // Fallback to name-based search if URL search fails
-                if (string.IsNullOrEmpty(existingModPath))
-                {
-                    var cleanModName = SanitizeFileName(_modName);
-                    existingModPath = FindExistingModPath(categoryPath, cleanModName);
-                }
+                // Find by mod ID only (handles renamed folders)
+                var existingModPath = FindExistingModPathByModId(categoryPath, _modProfileUrl);
 
-                // Check if mod exists and has same URL
+                // Check if mod exists - this is an update
                 if (!string.IsNullOrEmpty(existingModPath) && Directory.Exists(existingModPath))
                 {
-                    var modJsonPath = Path.Combine(existingModPath, "mod.json");
-                    if (File.Exists(modJsonPath))
+                    // Show update-specific options grid
+                    if (_updateOptionsGrid != null)
+                        _updateOptionsGrid.Visibility = Visibility.Visible;
+                    
+                    Title = SharedUtilities.GetTranslation(_lang, "DownloadAndUpdateMod");
+                    Logger.LogInfo($"Update detected for mod: {existingModPath}");
+                    
+                    // Use existing folder name instead of GameBanana name
+                    var existingFolderName = Path.GetFileName(existingModPath);
+                    // Remove DISABLED_ prefix if present
+                    if (existingFolderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
                     {
-                        try
-                        {
-                            var modJsonContent = File.ReadAllText(modJsonPath);
-                            var modJson = System.Text.Json.JsonDocument.Parse(modJsonContent);
-                            if (modJson.RootElement.TryGetProperty("url", out var urlProp))
-                            {
-                                var existingUrl = urlProp.GetString();
-                                // If URLs match, this is an update
-                                if (existingUrl == _modProfileUrl)
-                                {
-                                    // Show update-specific options grid
-                                    if (_updateOptionsGrid != null)
-                                        _updateOptionsGrid.Visibility = Visibility.Visible;
-                                    
-                                    Title = SharedUtilities.GetTranslation(_lang, "DownloadAndUpdateMod");
-                                    Logger.LogInfo($"Update detected for mod: {existingModPath}");
-                                    
-                                    // Use existing folder name instead of GameBanana name
-                                    var existingFolderName = Path.GetFileName(existingModPath);
-                                    // Remove DISABLED_ prefix if present
-                                    if (existingFolderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        existingFolderName = existingFolderName.Substring(9);
-                                    }
-                                    _modNameTextBox.Text = existingFolderName;
-                                    Logger.LogInfo($"Using existing folder name: {existingFolderName}");
-                                    
-                                    // Enable "Download Previews Only" button if previews are available
-                                    if (_previewMedia?.Images != null && _previewMedia.Images.Any(img => img.Type == "screenshot"))
-                                    {
-                                        _existingModPathForPreviewsOnly = existingModPath;
-                                        IsSecondaryButtonEnabled = true;
-                                        Logger.LogInfo($"Previews available for download-only option");
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError("Failed to check for update in constructor", ex);
-                        }
+                        existingFolderName = existingFolderName.Substring(9);
+                    }
+                    _modNameTextBox.Text = existingFolderName;
+                    Logger.LogInfo($"Using existing folder name: {existingFolderName}");
+                    
+                    // Enable "Download Previews Only" button if previews are available
+                    if (_previewMedia?.Images != null && _previewMedia.Images.Any(img => img.Type == "screenshot"))
+                    {
+                        _existingModPathForPreviewsOnly = existingModPath;
+                        IsSecondaryButtonEnabled = true;
+                        Logger.LogInfo($"Previews available for download-only option");
                     }
                 }
             }
@@ -1268,11 +1240,16 @@ namespace FlairX_Mod_Manager.Dialogs
         }
         
         /// <summary>
-        /// Find existing mod path by URL in mod.json (handles renamed folders)
+        /// Find existing mod path by mod ID extracted from URL (handles renamed folders)
         /// </summary>
-        private string? FindExistingModPathByUrl(string categoryPath, string? url)
+        private string? FindExistingModPathByModId(string categoryPath, string? url)
         {
             if (string.IsNullOrEmpty(url) || !Directory.Exists(categoryPath))
+                return null;
+            
+            // Extract mod ID from the URL we're looking for
+            var targetModId = ExtractModIdFromUrl(url);
+            if (string.IsNullOrEmpty(targetModId))
                 return null;
             
             try
@@ -1290,9 +1267,11 @@ namespace FlairX_Mod_Manager.Dialogs
                         if (modJson.RootElement.TryGetProperty("url", out var urlProp))
                         {
                             var existingUrl = urlProp.GetString();
-                            if (existingUrl == url)
+                            var existingModId = ExtractModIdFromUrl(existingUrl);
+                            
+                            if (!string.IsNullOrEmpty(existingModId) && existingModId == targetModId)
                             {
-                                Logger.LogInfo($"Found existing mod by URL: {modDir}");
+                                Logger.LogInfo($"Found existing mod by ID {targetModId}: {modDir}");
                                 return modDir;
                             }
                         }
@@ -1305,8 +1284,29 @@ namespace FlairX_Mod_Manager.Dialogs
             }
             catch (Exception ex)
             {
-                Logger.LogError("Error searching for mod by URL", ex);
+                Logger.LogError("Error searching for mod by ID", ex);
             }
+            
+            return null;
+        }
+
+        /// <summary>
+        /// Extract mod ID from GameBanana URL
+        /// </summary>
+        private string? ExtractModIdFromUrl(string? url)
+        {
+            if (string.IsNullOrEmpty(url))
+                return null;
+            
+            try
+            {
+                var match = System.Text.RegularExpressions.Regex.Match(url, @"gamebanana\.com/mods/(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                if (match.Success)
+                {
+                    return match.Groups[1].Value;
+                }
+            }
+            catch { }
             
             return null;
         }
