@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -245,141 +246,150 @@ namespace FlairX_Mod_Manager.Pages
                 
                 _totalMods = allModDirs.Count;
                 int processed = 0;
-                foreach (var dir in allModDirs)
+                
+                // Process in parallel with max 5 concurrent requests
+                var semaphore = new SemaphoreSlim(5);
+                var isSmartUpdate = IsSmartUpdate;
+                var isFullUpdate = IsFullUpdate;
+                
+                var tasks = allModDirs.Select(async dir =>
                 {
-                    if (token.IsCancellationRequested)
-                    {
-                        ResetButtonToUpdateState();
-                        var cancelDialog = new ContentDialog
-                        {
-                            Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                            Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                            CloseButtonText = "OK",
-                            XamlRoot = this.XamlRoot
-                        };
-                        await cancelDialog.ShowAsync();
-                        return;
-                    }
-                    var modJsonPath = Path.Combine(dir, "mod.json");
-                    var modFolderName = Path.GetFileName(dir);
-                    
-                    // Skip directories without mod.json - don't count them
-                    if (!File.Exists(modJsonPath)) 
-                    { 
-                        processed++; 
-                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; } 
-                        NotifyProgressChanged(); 
-                        continue; 
-                    }
-                    
-                    var json = File.ReadAllText(modJsonPath);
-                    using var doc = JsonDocument.Parse(json);
-                    var root = doc.RootElement;
-                    
-                    // Get mod name from mod.json, fallback to folder name
-                    string modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString()) 
-                        ? nameProp.GetString()! 
-                        : modFolderName;
-                    if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) { SafeIncrementSkip(); SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); processed++; lock (_lockObject) { _progressValue = (double)processed / _totalMods; } NotifyProgressChanged(); continue; }
-                    string currentAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? string.Empty : string.Empty;
-                    bool shouldUpdate = string.IsNullOrWhiteSpace(currentAuthor) || currentAuthor.Equals("unknown", StringComparison.OrdinalIgnoreCase);
-                    
-                    // For smart update, skip mods that already have known authors
-                    if (IsSmartUpdate && !shouldUpdate)
-                    {
-                        SafeIncrementSkip();
-                        SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "AlreadyHasAuthor")} ({currentAuthor})");
-                        processed++;
-                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                        NotifyProgressChanged();
-                        continue;
-                    }
-                    
-                    string url = urlProp.GetString()!;
-                    if (string.IsNullOrWhiteSpace(url) || !url.Contains("gamebanana.com")) { _skip++; _skippedMods.Add($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); processed++; _progressValue = (double)processed / _totalMods; NotifyProgressChanged(); continue; }
-                    bool urlWorks = false;
+                    await semaphore.WaitAsync(token);
                     try
                     {
-                        var response = await _httpClient.GetAsync(url, token);
-                        urlWorks = response.IsSuccessStatusCode;
-                    }
-                    catch (OperationCanceledException) { return; }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Failed to check URL availability: {url}", ex);
-                        urlWorks = false;
-                    }
-                    if (!urlWorks) { _fail++; _failedMods.Add($"{modName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}"); processed++; _progressValue = (double)processed / _totalMods; NotifyProgressChanged(); continue; }
-                    try
-                    {
-                        var author = await FetchAuthorFromApi(url, token);
-                        if (!string.IsNullOrWhiteSpace(author))
+                        if (token.IsCancellationRequested) return;
+                        
+                        var modJsonPath = Path.Combine(dir, "mod.json");
+                        var modFolderName = Path.GetFileName(dir);
+                        
+                        // Skip directories without mod.json
+                        if (!File.Exists(modJsonPath)) 
+                        { 
+                            Interlocked.Increment(ref processed);
+                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; } 
+                            NotifyProgressChanged(); 
+                            return; 
+                        }
+                        
+                        var json = File.ReadAllText(modJsonPath);
+                        using var doc = JsonDocument.Parse(json);
+                        var root = doc.RootElement;
+                        
+                        // Get mod name from mod.json, fallback to folder name
+                        string modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString()) 
+                            ? nameProp.GetString()! 
+                            : modFolderName;
+                        
+                        if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || 
+                            string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) 
+                        { 
+                            SafeIncrementSkip(); 
+                            SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); 
+                            Interlocked.Increment(ref processed);
+                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; } 
+                            NotifyProgressChanged(); 
+                            return; 
+                        }
+                        
+                        string currentAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? string.Empty : string.Empty;
+                        bool shouldUpdate = string.IsNullOrWhiteSpace(currentAuthor) || currentAuthor.Equals("unknown", StringComparison.OrdinalIgnoreCase);
+                        
+                        // For smart update, skip mods that already have known authors
+                        if (isSmartUpdate && !shouldUpdate)
                         {
-                            if (IsFullUpdate)
+                            SafeIncrementSkip();
+                            SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "AlreadyHasAuthor")} ({currentAuthor})");
+                            Interlocked.Increment(ref processed);
+                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                            NotifyProgressChanged();
+                            return;
+                        }
+                        
+                        string url = urlProp.GetString()!;
+                        
+                        try
+                        {
+                            var author = await FetchAuthorFromApi(url, token);
+                            if (!string.IsNullOrWhiteSpace(author))
                             {
-                                // Full: count only if GameBanana author is different from current (i.e. we're changing value),
-                                // or if it was empty/unknown and got updated
-                                if (!author.Equals(currentAuthor, StringComparison.Ordinal))
+                                if (isFullUpdate)
                                 {
-                                    // Add path validation for security
-                                    if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
+                                    if (!author.Equals(currentAuthor, StringComparison.Ordinal))
                                     {
-                                        SafeIncrementSkip();
-                                        SafeAddSkippedMod($"{modName}: Invalid directory name");
-                                        processed++;
-                                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                        NotifyProgressChanged();
-                                        continue;
-                                    }
-                                    
-                                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
-                                    dict["author"] = author;
-                                    File.WriteAllText(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
-                                    lock (_lockObject) { _success++; }
-                                }
-                                // if author is the same, don't count
-                            }
-                            else if (IsSmartUpdate)
-                            {
-                                // Smart: check ONLY mods with empty/unknown author
-                                if (shouldUpdate)
-                                {
-                                    if (!string.IsNullOrWhiteSpace(author) && !author.Equals(currentAuthor, StringComparison.Ordinal))
-                                    {
-                                        // Add path validation for security
-                                        var modDirName = Path.GetFileName(dir);
-                                        if (!SecurityValidator.IsValidModDirectoryName(modDirName))
+                                        if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
                                         {
                                             SafeIncrementSkip();
                                             SafeAddSkippedMod($"{modName}: Invalid directory name");
-                                            continue;
+                                            Interlocked.Increment(ref processed);
+                                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                            NotifyProgressChanged();
+                                            return;
                                         }
                                         
                                         var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
                                         dict["author"] = author;
-                                        File.WriteAllText(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
+                                        await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
                                         lock (_lockObject) { _success++; }
                                     }
-                                    // if not updated, don't count
                                 }
-                                // if not shouldUpdate, don't count and don't check
+                                else if (isSmartUpdate && shouldUpdate)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(author) && !author.Equals(currentAuthor, StringComparison.Ordinal))
+                                    {
+                                        if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
+                                        {
+                                            SafeIncrementSkip();
+                                            SafeAddSkippedMod($"{modName}: Invalid directory name");
+                                            Interlocked.Increment(ref processed);
+                                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                            NotifyProgressChanged();
+                                            return;
+                                        }
+                                        
+                                        var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
+                                        dict["author"] = author;
+                                        await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
+                                        lock (_lockObject) { _success++; }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                SafeIncrementSkip();
                             }
                         }
-                        else
+                        catch (OperationCanceledException) { }
+                        catch (Exception ex)
                         {
-                            _skip++;
+                            Logger.LogError($"Failed to fetch author for {modName}", ex);
+                            SafeIncrementFail();
+                            SafeAddFailedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "AuthorFetchError")}");
                         }
+                        
+                        Interlocked.Increment(ref processed);
+                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                        NotifyProgressChanged();
                     }
-                    catch (OperationCanceledException) { return; }
-                    catch (Exception ex)
+                    finally
                     {
-                        Logger.LogError($"Failed to fetch author for {modName}", ex);
-                        SafeIncrementFail();
-                        SafeAddFailedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "AuthorFetchError")}");
+                        semaphore.Release();
                     }
-                    processed++;
-                    _progressValue = (double)processed / _totalMods;
-                    NotifyProgressChanged();
+                }).ToList();
+                
+                await Task.WhenAll(tasks);
+                
+                if (token.IsCancellationRequested)
+                {
+                    ResetButtonToUpdateState();
+                    var cancelDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                        Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await cancelDialog.ShowAsync();
+                    return;
                 }
                 
                 // Successful completion - reset button state and show summary
@@ -728,91 +738,105 @@ namespace FlairX_Mod_Manager.Pages
                 _totalMods = allModDirs.Count;
                 int processed = 0;
 
-                foreach (var dir in allModDirs)
+                // Process in parallel with max 5 concurrent requests
+                var semaphore = new SemaphoreSlim(5);
+                var tasks = allModDirs.Select(async dir =>
                 {
-                    if (token.IsCancellationRequested)
-                    {
-                        ResetDatesButtonToFetchState();
-                        var cancelDialog = new ContentDialog
-                        {
-                            Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                            Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                            CloseButtonText = "OK",
-                            XamlRoot = this.XamlRoot
-                        };
-                        await cancelDialog.ShowAsync();
-                        return;
-                    }
-
-                    var modJsonPath = Path.Combine(dir, "mod.json");
-                    var modFolderName = Path.GetFileName(dir);
-
-                    if (!File.Exists(modJsonPath))
-                    {
-                        processed++;
-                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                        NotifyProgressChanged();
-                        continue;
-                    }
-
-                    var json = File.ReadAllText(modJsonPath);
-                    using var doc = JsonDocument.Parse(json);
-                    var root = doc.RootElement;
-
-                    string modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
-                        ? nameProp.GetString()!
-                        : modFolderName;
-
-                    if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
-                        string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
-                    {
-                        SafeIncrementSkip();
-                        SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
-                        processed++;
-                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                        NotifyProgressChanged();
-                        continue;
-                    }
-
-                    string url = urlProp.GetString()!;
-
+                    await semaphore.WaitAsync(token);
                     try
                     {
-                        var dateUpdated = await FetchDateFromApi(url, token);
-                        if (!string.IsNullOrWhiteSpace(dateUpdated))
-                        {
-                            if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
-                            {
-                                SafeIncrementSkip();
-                                SafeAddSkippedMod($"{modName}: Invalid directory name");
-                                processed++;
-                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                NotifyProgressChanged();
-                                continue;
-                            }
+                        if (token.IsCancellationRequested) return;
 
-                            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
-                            dict["gbChangeDate"] = dateUpdated;
-                            File.WriteAllText(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
-                            SafeIncrementSuccess();
+                        var modJsonPath = Path.Combine(dir, "mod.json");
+                        var modFolderName = Path.GetFileName(dir);
+
+                        if (!File.Exists(modJsonPath))
+                        {
+                            Interlocked.Increment(ref processed);
+                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                            NotifyProgressChanged();
+                            return;
                         }
-                        else
+
+                        var json = File.ReadAllText(modJsonPath);
+                        using var doc = JsonDocument.Parse(json);
+                        var root = doc.RootElement;
+
+                        string modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
+                            ? nameProp.GetString()!
+                            : modFolderName;
+
+                        if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
+                            string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
                         {
                             SafeIncrementSkip();
-                            SafeAddSkippedMod($"{modName}: Nie udało się pobrać daty");
+                            SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
+                            Interlocked.Increment(ref processed);
+                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                            NotifyProgressChanged();
+                            return;
                         }
-                    }
-                    catch (OperationCanceledException) { return; }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Failed to fetch date for {modName}", ex);
-                        SafeIncrementFail();
-                        SafeAddFailedMod($"{modName}: Błąd pobierania daty");
-                    }
 
-                    processed++;
-                    lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                    NotifyProgressChanged();
+                        string url = urlProp.GetString()!;
+
+                        try
+                        {
+                            var dateUpdated = await FetchDateFromApi(url, token);
+                            if (!string.IsNullOrWhiteSpace(dateUpdated))
+                            {
+                                if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
+                                {
+                                    SafeIncrementSkip();
+                                    SafeAddSkippedMod($"{modName}: Invalid directory name");
+                                    Interlocked.Increment(ref processed);
+                                    lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                    NotifyProgressChanged();
+                                    return;
+                                }
+
+                                var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
+                                dict["gbChangeDate"] = dateUpdated;
+                                await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
+                                SafeIncrementSuccess();
+                            }
+                            else
+                            {
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{modName}: Nie udało się pobrać daty");
+                            }
+                        }
+                        catch (OperationCanceledException) { }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to fetch date for {modName}", ex);
+                            SafeIncrementFail();
+                            SafeAddFailedMod($"{modName}: Błąd pobierania daty");
+                        }
+
+                        Interlocked.Increment(ref processed);
+                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                        NotifyProgressChanged();
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }).ToList();
+
+                await Task.WhenAll(tasks);
+
+                if (token.IsCancellationRequested)
+                {
+                    ResetDatesButtonToFetchState();
+                    var cancelDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                        Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await cancelDialog.ShowAsync();
+                    return;
                 }
 
                 ResetDatesButtonToFetchState();
@@ -1036,85 +1060,99 @@ namespace FlairX_Mod_Manager.Pages
                 _totalMods = allModDirs.Count;
                 int processed = 0;
 
-                foreach (var dir in allModDirs)
+                // Process in parallel with max 5 concurrent requests
+                var semaphore = new SemaphoreSlim(5);
+                var tasks = allModDirs.Select(async dir =>
                 {
-                    if (token.IsCancellationRequested)
-                    {
-                        ResetVersionsButtonToFetchState();
-                        var cancelDialog = new ContentDialog
-                        {
-                            Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                            Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                            CloseButtonText = "OK",
-                            XamlRoot = this.XamlRoot
-                        };
-                        await cancelDialog.ShowAsync();
-                        return;
-                    }
-
-                    var modJsonPath = Path.Combine(dir, "mod.json");
-                    var modFolderName = Path.GetFileName(dir);
-
-                    if (!File.Exists(modJsonPath))
-                    {
-                        processed++;
-                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                        NotifyProgressChanged();
-                        continue;
-                    }
-
-                    var json = File.ReadAllText(modJsonPath);
-                    using var doc = JsonDocument.Parse(json);
-                    var root = doc.RootElement;
-
-                    string modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
-                        ? nameProp.GetString()!
-                        : modFolderName;
-
-                    if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
-                        string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
-                    {
-                        SafeIncrementSkip();
-                        SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
-                        processed++;
-                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                        NotifyProgressChanged();
-                        continue;
-                    }
-
-                    string url = urlProp.GetString()!;
-
+                    await semaphore.WaitAsync(token);
                     try
                     {
-                        var version = await FetchVersionFromApi(url, token);
-                        
-                        if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
+                        if (token.IsCancellationRequested) return;
+
+                        var modJsonPath = Path.Combine(dir, "mod.json");
+                        var modFolderName = Path.GetFileName(dir);
+
+                        if (!File.Exists(modJsonPath))
                         {
-                            SafeIncrementSkip();
-                            SafeAddSkippedMod($"{modName}: Invalid directory name");
-                            processed++;
+                            Interlocked.Increment(ref processed);
                             lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
                             NotifyProgressChanged();
-                            continue;
+                            return;
                         }
 
-                        var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
-                        // Use space if version is null/empty, otherwise use the fetched version
-                        dict["version"] = string.IsNullOrWhiteSpace(version) ? " " : version;
-                        File.WriteAllText(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
-                        SafeIncrementSuccess();
-                    }
-                    catch (OperationCanceledException) { return; }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Failed to fetch version for {modName}", ex);
-                        SafeIncrementFail();
-                        SafeAddFailedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "VersionFetchError")}");
-                    }
+                        var json = File.ReadAllText(modJsonPath);
+                        using var doc = JsonDocument.Parse(json);
+                        var root = doc.RootElement;
 
-                    processed++;
-                    lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                    NotifyProgressChanged();
+                        string modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
+                            ? nameProp.GetString()!
+                            : modFolderName;
+
+                        if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
+                            string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
+                        {
+                            SafeIncrementSkip();
+                            SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
+                            Interlocked.Increment(ref processed);
+                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                            NotifyProgressChanged();
+                            return;
+                        }
+
+                        string url = urlProp.GetString()!;
+
+                        try
+                        {
+                            var version = await FetchVersionFromApi(url, token);
+                            
+                            if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
+                            {
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{modName}: Invalid directory name");
+                                Interlocked.Increment(ref processed);
+                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                NotifyProgressChanged();
+                                return;
+                            }
+
+                            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
+                            // Use space if version is null/empty, otherwise use the fetched version
+                            dict["version"] = string.IsNullOrWhiteSpace(version) ? " " : version;
+                            await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
+                            SafeIncrementSuccess();
+                        }
+                        catch (OperationCanceledException) { }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to fetch version for {modName}", ex);
+                            SafeIncrementFail();
+                            SafeAddFailedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "VersionFetchError")}");
+                        }
+
+                        Interlocked.Increment(ref processed);
+                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                        NotifyProgressChanged();
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }).ToList();
+
+                await Task.WhenAll(tasks);
+
+                if (token.IsCancellationRequested)
+                {
+                    ResetVersionsButtonToFetchState();
+                    var cancelDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                        Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await cancelDialog.ShowAsync();
+                    return;
                 }
 
                 ResetVersionsButtonToFetchState();
