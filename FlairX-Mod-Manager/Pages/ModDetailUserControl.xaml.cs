@@ -1036,29 +1036,32 @@ namespace FlairX_Mod_Manager.Pages
             
             try
             {
-                var json = File.ReadAllText(_modJsonPath);
-                var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-                var dict = new Dictionary<string, object?>();
-                
-                foreach (var prop in root.EnumerateObject())
+                await Services.FileAccessQueue.ExecuteAsync(_modJsonPath, async () =>
                 {
-                    if (prop.Name == "favoriteHotkeys")
-                        continue; // Will be replaced
-                    else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || 
-                             prop.Name == "dateChecked" || prop.Name == "dateUpdated")
-                        dict[prop.Name] = prop.Value.GetString();
-                    else if (prop.Name == "isNSFW" || prop.Name == "statusKeeperSync")
-                        dict[prop.Name] = prop.Value.GetBoolean();
-                    else
-                        dict[prop.Name] = prop.Value.Deserialize<object>();
-                }
-                
-                // Add favorite hotkeys array
-                dict["favoriteHotkeys"] = _favoriteHotkeys.ToList();
-                
-                var newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_modJsonPath, newJson);
+                    var json = await File.ReadAllTextAsync(_modJsonPath);
+                    var doc = JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    var dict = new Dictionary<string, object?>();
+                    
+                    foreach (var prop in root.EnumerateObject())
+                    {
+                        if (prop.Name == "favoriteHotkeys")
+                            continue; // Will be replaced
+                        else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || 
+                                 prop.Name == "dateChecked" || prop.Name == "dateUpdated")
+                            dict[prop.Name] = prop.Value.GetString();
+                        else if (prop.Name == "isNSFW" || prop.Name == "statusKeeperSync")
+                            dict[prop.Name] = prop.Value.GetBoolean();
+                        else
+                            dict[prop.Name] = prop.Value.Deserialize<object>();
+                    }
+                    
+                    // Add favorite hotkeys array
+                    dict["favoriteHotkeys"] = _favoriteHotkeys.ToList();
+                    
+                    var newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
+                    await File.WriteAllTextAsync(_modJsonPath, newJson);
+                });
             }
             catch (Exception ex)
             {
@@ -1342,38 +1345,35 @@ namespace FlairX_Mod_Manager.Pages
             if (string.IsNullOrEmpty(_modJsonPath)) return;
             if (!File.Exists(_modJsonPath))
             {
-                // If mod.json doesn't exist, ensure default mod.json is created first
-                // EnsureModJsonInModLibrary removed - no longer needed
-                
-                // Check if mod.json was created successfully
-                if (!File.Exists(_modJsonPath))
-                {
-                    Logger.LogError($"Failed to create default mod.json at: {_modJsonPath}");
-                    return;
-                }
+                Logger.LogError($"mod.json does not exist at: {_modJsonPath}");
+                return;
             }
             try
             {
-                var json = File.ReadAllText(_modJsonPath);
-                var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-                var dict = new Dictionary<string, object?>();
-                foreach (var prop in root.EnumerateObject())
+                string? newJson = null;
+                await Services.FileAccessQueue.ExecuteAsync(_modJsonPath, async () =>
                 {
-                    if (prop.Name == field)
+                    var json = await File.ReadAllTextAsync(_modJsonPath);
+                    var doc = JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    var dict = new Dictionary<string, object?>();
+                    foreach (var prop in root.EnumerateObject())
+                    {
+                        if (prop.Name == field)
+                            dict[field] = value;
+                        else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
+                            dict[prop.Name] = prop.Value.GetString();
+                        else
+                            dict[prop.Name] = prop.Value.Deserialize<object>();
+                    }
+                    if (!dict.ContainsKey(field))
                         dict[field] = value;
-                    else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
-                        dict[prop.Name] = prop.Value.GetString();
-                    else
-                        dict[prop.Name] = prop.Value.Deserialize<object>();
-                }
-                if (!dict.ContainsKey(field))
-                    dict[field] = value;
-                var newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_modJsonPath, newJson);
+                    newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
+                    await File.WriteAllTextAsync(_modJsonPath, newJson);
+                });
                 
                 // Re-check for updates after saving dateUpdated
-                if (field == "dateUpdated")
+                if (field == "dateUpdated" && newJson != null)
                 {
                     var updatedDoc = JsonDocument.Parse(newJson);
                     CheckForUpdates(updatedDoc.RootElement);
@@ -1390,34 +1390,33 @@ namespace FlairX_Mod_Manager.Pages
             if (string.IsNullOrEmpty(_modJsonPath)) return;
             if (!File.Exists(_modJsonPath))
             {
-                // EnsureModJsonInModLibrary removed - no longer needed
-                if (!File.Exists(_modJsonPath))
-                {
-                    Logger.LogError($"Failed to create default mod.json at: {_modJsonPath}");
-                    return;
-                }
+                Logger.LogError($"mod.json does not exist at: {_modJsonPath}");
+                return;
             }
             try
             {
-                var json = File.ReadAllText(_modJsonPath);
-                var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-                var dict = new Dictionary<string, object?>();
-                foreach (var prop in root.EnumerateObject())
+                await Services.FileAccessQueue.ExecuteAsync(_modJsonPath, async () =>
                 {
-                    if (prop.Name == field)
+                    var json = await File.ReadAllTextAsync(_modJsonPath);
+                    var doc = JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    var dict = new Dictionary<string, object?>();
+                    foreach (var prop in root.EnumerateObject())
+                    {
+                        if (prop.Name == field)
+                            dict[field] = value;
+                        else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
+                            dict[prop.Name] = prop.Value.GetString();
+                        else if (prop.Name == "isNSFW" || prop.Name == "statusKeeperSync")
+                            dict[prop.Name] = prop.Value.GetBoolean();
+                        else
+                            dict[prop.Name] = prop.Value.Deserialize<object>();
+                    }
+                    if (!dict.ContainsKey(field))
                         dict[field] = value;
-                    else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
-                        dict[prop.Name] = prop.Value.GetString();
-                    else if (prop.Name == "isNSFW" || prop.Name == "statusKeeperSync")
-                        dict[prop.Name] = prop.Value.GetBoolean();
-                    else
-                        dict[prop.Name] = prop.Value.Deserialize<object>();
-                }
-                if (!dict.ContainsKey(field))
-                    dict[field] = value;
-                var newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(_modJsonPath, newJson);
+                    var newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
+                    await File.WriteAllTextAsync(_modJsonPath, newJson);
+                });
                 
                 // Trigger NSFW filtering if enabled
                 if (field == "isNSFW")

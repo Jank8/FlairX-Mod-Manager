@@ -928,7 +928,7 @@ namespace FlairX_Mod_Manager.Dialogs
             };
 
             var json = System.Text.Json.JsonSerializer.Serialize(modJson, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-            await File.WriteAllTextAsync(modJsonPath, json);
+            await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, json);
         }
         
         private async Task<string> FetchVersionFromGameBanana(string url)

@@ -92,16 +92,17 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
-                if (!Directory.Exists(modLibraryPath))
+                var xxmiModsPath = SharedUtilities.GetSafeXXMIModsPath();
+                if (string.IsNullOrEmpty(xxmiModsPath) || !Directory.Exists(xxmiModsPath))
                 {
-                    Logger.LogWarning("Mod library path not found for hotkey detection");
+                    // Normal when no game is selected yet
+                    Logger.LogInfo("XXMI Mods path not configured - skipping hotkey detection");
                     return;
                 }
                 
                 // Get all mod directories from all categories
                 var modDirectories = new List<string>();
-                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                foreach (var categoryDir in Directory.GetDirectories(xxmiModsPath))
                 {
                     if (Directory.Exists(categoryDir))
                     {
@@ -459,44 +460,36 @@ namespace FlairX_Mod_Manager.Pages
             
             try
             {
-                Dictionary<string, object> modData;
-                var existingFavorites = new HashSet<string>();
-                
-                if (File.Exists(modJsonPath))
+                // Use FileAccessQueue to prevent race conditions with other parts of the app
+                await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
                 {
-                    var existingJson = await File.ReadAllTextAsync(modJsonPath, token);
-                    modData = JsonSerializer.Deserialize<Dictionary<string, object>>(existingJson) ?? new();
+                    Dictionary<string, object> modData;
+                    var existingFavorites = new HashSet<string>();
                     
-                    // Load existing favorite hotkeys
-                    if (modData.TryGetValue("favoriteHotkeys", out var favObj) && favObj is JsonElement favElement)
-                    {
-                        if (favElement.ValueKind == JsonValueKind.Array)
-                        {
-                            foreach (var fav in favElement.EnumerateArray())
-                            {
-                                var favKey = fav.GetString();
-                                if (!string.IsNullOrEmpty(favKey))
-                                {
-                                    existingFavorites.Add(favKey);
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    // If mod.json doesn't exist, ensure default mod.json is created first
-                    // EnsureModJsonInModLibrary removed - no longer needed
-                    
-                    // Now try to read the newly created mod.json
                     if (File.Exists(modJsonPath))
                     {
                         var existingJson = await File.ReadAllTextAsync(modJsonPath, token);
                         modData = JsonSerializer.Deserialize<Dictionary<string, object>>(existingJson) ?? new();
+                        
+                        // Load existing favorite hotkeys
+                        if (modData.TryGetValue("favoriteHotkeys", out var favObj) && favObj is JsonElement favElement)
+                        {
+                            if (favElement.ValueKind == JsonValueKind.Array)
+                            {
+                                foreach (var fav in favElement.EnumerateArray())
+                                {
+                                    var favKey = fav.GetString();
+                                    if (!string.IsNullOrEmpty(favKey))
+                                    {
+                                        existingFavorites.Add(favKey);
+                                    }
+                                }
+                            }
+                        }
                     }
                     else
                     {
-                        // Fallback: create minimal structure if default creation failed
+                        // Fallback: create minimal structure if mod.json doesn't exist
                         modData = new Dictionary<string, object>
                         {
                             ["author"] = "unknown",
@@ -506,32 +499,36 @@ namespace FlairX_Mod_Manager.Pages
                             ["dateUpdated"] = "0000-00-00"
                         };
                     }
-                }
 
-                var hotkeyArray = hotkeys.Select(h => new Dictionary<string, string>
-                {
-                    ["key"] = h.Key,
-                    ["description"] = h.Description
-                }).ToArray();
+                    var hotkeyArray = hotkeys.Select(h => new Dictionary<string, string>
+                    {
+                        ["key"] = h.Key,
+                        ["description"] = h.Description
+                    }).ToArray();
 
-                modData["hotkeys"] = hotkeyArray;
-                
-                // Update favorite hotkeys - keep only those that still exist in the new hotkey list
-                var newHotkeyKeys = new HashSet<string>(hotkeys.Select(h => h.Key));
-                var updatedFavorites = existingFavorites.Where(fav => newHotkeyKeys.Contains(fav)).ToList();
-                
-                if (updatedFavorites.Count > 0)
-                {
-                    modData["favoriteHotkeys"] = updatedFavorites;
-                }
-                else
-                {
-                    // Remove favoriteHotkeys if empty
-                    modData.Remove("favoriteHotkeys");
-                }
+                    modData["hotkeys"] = hotkeyArray;
+                    
+                    // Update favorite hotkeys - keep only those that still exist in the new hotkey list
+                    var newHotkeyKeys = new HashSet<string>(hotkeys.Select(h => h.Key));
+                    var updatedFavorites = existingFavorites.Where(fav => newHotkeyKeys.Contains(fav)).ToList();
+                    
+                    if (updatedFavorites.Count > 0)
+                    {
+                        modData["favoriteHotkeys"] = updatedFavorites;
+                    }
+                    else
+                    {
+                        // Remove favoriteHotkeys if empty
+                        modData.Remove("favoriteHotkeys");
+                    }
 
-                var json = JsonSerializer.Serialize(modData, new JsonSerializerOptions { WriteIndented = true });
-                await File.WriteAllTextAsync(modJsonPath, json, token);
+                    var json = JsonSerializer.Serialize(modData, new JsonSerializerOptions { WriteIndented = true });
+                    await File.WriteAllTextAsync(modJsonPath, json, token);
+                }, token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancelled - don't log as error
             }
             catch (Exception ex)
             {

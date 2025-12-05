@@ -1358,24 +1358,27 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var jsonContent = File.ReadAllText(modJsonPath);
-                using var doc = JsonDocument.Parse(jsonContent);
-                var root = doc.RootElement;
-                
-                // Rebuild mod.json without namespace sync method
-                var dict = new Dictionary<string, object?>();
-                foreach (var prop in root.EnumerateObject())
+                Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
                 {
-                    // Remove namespace-related fields
-                    if (prop.Name == "syncMethod" || prop.Name == "namespaces")
-                        continue;
+                    var jsonContent = await File.ReadAllTextAsync(modJsonPath);
+                    using var doc = JsonDocument.Parse(jsonContent);
+                    var root = doc.RootElement;
                     
-                    dict[prop.Name] = prop.Value.Deserialize<object>();
-                }
-                
-                var newJson = System.Text.Json.JsonSerializer.Serialize(dict, new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
-                File.WriteAllText(modJsonPath, newJson, System.Text.Encoding.UTF8);
-                LogStatic($"✅ Converted mod.json to classic format (removed namespace sync): {modJsonPath}");
+                    // Rebuild mod.json without namespace sync method
+                    var dict = new Dictionary<string, object?>();
+                    foreach (var prop in root.EnumerateObject())
+                    {
+                        // Remove namespace-related fields
+                        if (prop.Name == "syncMethod" || prop.Name == "namespaces")
+                            continue;
+                        
+                        dict[prop.Name] = prop.Value.Deserialize<object>();
+                    }
+                    
+                    var newJson = System.Text.Json.JsonSerializer.Serialize(dict, new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
+                    await File.WriteAllTextAsync(modJsonPath, newJson, System.Text.Encoding.UTF8);
+                    LogStatic($"✅ Converted mod.json to classic format (removed namespace sync): {modJsonPath}");
+                }).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
@@ -1387,35 +1390,38 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var jsonContent = File.ReadAllText(modJsonPath);
-                using var doc = JsonDocument.Parse(jsonContent);
-                var root = doc.RootElement;
-                
-                // Rebuild mod.json with namespace sync method
-                var dict = new Dictionary<string, object?>();
-                foreach (var prop in root.EnumerateObject())
+                Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
                 {
-                    // Skip old syncMethod if it exists
-                    if (prop.Name == "syncMethod")
-                        continue;
+                    var jsonContent = await File.ReadAllTextAsync(modJsonPath);
+                    using var doc = JsonDocument.Parse(jsonContent);
+                    var root = doc.RootElement;
                     
-                    dict[prop.Name] = prop.Value.Deserialize<object>();
-                }
-                
-                // Add namespace sync method
-                dict["syncMethod"] = "namespace";
-                dict["namespaces"] = new List<Dictionary<string, object>>
-                {
-                    new Dictionary<string, object>
+                    // Rebuild mod.json with namespace sync method
+                    var dict = new Dictionary<string, object?>();
+                    foreach (var prop in root.EnumerateObject())
                     {
-                        ["namespace"] = namespaceName,
-                        ["iniFiles"] = iniFiles
+                        // Skip old syncMethod if it exists
+                        if (prop.Name == "syncMethod")
+                            continue;
+                        
+                        dict[prop.Name] = prop.Value.Deserialize<object>();
                     }
-                };
-                
-                var newJson = System.Text.Json.JsonSerializer.Serialize(dict, new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
-                File.WriteAllText(modJsonPath, newJson, System.Text.Encoding.UTF8);
-                LogStatic($"✅ Converted mod.json to namespace sync method: {modJsonPath}");
+                    
+                    // Add namespace sync method
+                    dict["syncMethod"] = "namespace";
+                    dict["namespaces"] = new List<Dictionary<string, object>>
+                    {
+                        new Dictionary<string, object>
+                        {
+                            ["namespace"] = namespaceName,
+                            ["iniFiles"] = iniFiles
+                        }
+                    };
+                    
+                    var newJson = System.Text.Json.JsonSerializer.Serialize(dict, new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
+                    await File.WriteAllTextAsync(modJsonPath, newJson, System.Text.Encoding.UTF8);
+                    LogStatic($"✅ Converted mod.json to namespace sync method: {modJsonPath}");
+                }).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {
@@ -1456,33 +1462,36 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var jsonContent = File.ReadAllText(modJsonPath);
-                using var doc = JsonDocument.Parse(jsonContent);
-                var root = doc.RootElement;
-                
-                // Rebuild mod.json with updated namespaces
-                var dict = new Dictionary<string, object?>();
-                foreach (var prop in root.EnumerateObject())
+                Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
                 {
-                    if (prop.Name == "namespaces")
+                    var jsonContent = await File.ReadAllTextAsync(modJsonPath);
+                    using var doc = JsonDocument.Parse(jsonContent);
+                    var root = doc.RootElement;
+                    
+                    // Rebuild mod.json with updated namespaces
+                    var dict = new Dictionary<string, object?>();
+                    foreach (var prop in root.EnumerateObject())
                     {
-                        // Replace with updated namespaces
-                        var namespacesArray = namespaces.Select(ns => new Dictionary<string, object>
+                        if (prop.Name == "namespaces")
                         {
-                            ["namespace"] = ns.namespacePath,
-                            ["iniFiles"] = ns.iniFiles
-                        }).ToList();
-                        dict["namespaces"] = namespacesArray;
+                            // Replace with updated namespaces
+                            var namespacesArray = namespaces.Select(ns => new Dictionary<string, object>
+                            {
+                                ["namespace"] = ns.namespacePath,
+                                ["iniFiles"] = ns.iniFiles
+                            }).ToList();
+                            dict["namespaces"] = namespacesArray;
+                        }
+                        else
+                        {
+                            dict[prop.Name] = prop.Value.Deserialize<object>();
+                        }
                     }
-                    else
-                    {
-                        dict[prop.Name] = prop.Value.Deserialize<object>();
-                    }
-                }
-                
-                var newJson = System.Text.Json.JsonSerializer.Serialize(dict, new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
-                File.WriteAllText(modJsonPath, newJson, System.Text.Encoding.UTF8);
-                LogStatic($"✅ Updated mod.json with corrected namespaces: {modJsonPath}");
+                    
+                    var newJson = System.Text.Json.JsonSerializer.Serialize(dict, new System.Text.Json.JsonSerializerOptions { WriteIndented = false });
+                    await File.WriteAllTextAsync(modJsonPath, newJson, System.Text.Encoding.UTF8);
+                    LogStatic($"✅ Updated mod.json with corrected namespaces: {modJsonPath}");
+                }).GetAwaiter().GetResult();
             }
             catch (Exception ex)
             {

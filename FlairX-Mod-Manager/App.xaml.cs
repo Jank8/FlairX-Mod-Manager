@@ -266,11 +266,9 @@ namespace FlairX_Mod_Manager
             }
             else
             {
-                Logger.LogWarning("XXMI directory path is empty or null");
+                // This is normal when no game is selected yet
+                Logger.LogInfo("XXMI directory path not configured - no game selected");
             }
-            
-            // Mods are now stored directly in XXMI/Mods - no separate ModLibrary needed
-            Logger.LogInfo("Mods will be stored in XXMI/Mods directory");
         }
 
 
@@ -451,7 +449,7 @@ namespace FlairX_Mod_Manager
                 {
                     var jsonOptions = new System.Text.Json.JsonSerializerOptions { WriteIndented = true };
                     var jsonContent = System.Text.Json.JsonSerializer.Serialize(modData, jsonOptions);
-                    System.IO.File.WriteAllText(modJsonPath, jsonContent);
+                    Services.FileAccessQueue.WriteAllText(modJsonPath, jsonContent);
                 }
                 }
             }

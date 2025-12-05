@@ -263,7 +263,7 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             try
                             {
-                                var jsonContent = await System.IO.File.ReadAllTextAsync(modJsonPath);
+                                var jsonContent = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath);
                                 var modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonContent);
                                 
                                 if (modData != null && modData.TryGetValue("url", out var urlObj))
@@ -276,7 +276,7 @@ namespace FlairX_Mod_Manager.Pages
                                         
                                         var jsonOptions = new System.Text.Json.JsonSerializerOptions { WriteIndented = true };
                                         var updatedJson = System.Text.Json.JsonSerializer.Serialize(modData, jsonOptions);
-                                        await System.IO.File.WriteAllTextAsync(modJsonPath, updatedJson);
+                                        await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, updatedJson);
                                         
                                         Logger.LogInfo($"Updated dateChecked for mod at {modJsonPath}");
                                         return;
