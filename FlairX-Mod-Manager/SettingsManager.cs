@@ -105,6 +105,7 @@ namespace FlairX_Mod_Manager
         public string ImageOptimizerAutoDownloadMode { get; set; } = "Full";
         public string ImageCropType { get; set; } = "Center"; // Center, Smart, Entropy, Attention, ManualOnly
         public bool PreviewBeforeCrop { get; set; } = false; // Show preview dialog before each crop
+        public bool ImageOptimizerReoptimize { get; set; } = false; // Re-optimize already optimized files
     }
 
     public static class SettingsManager

@@ -278,13 +278,23 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 // Get mod library path
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
-
-                var categoryPath = Path.Combine(modsPath, category);
-                if (!Directory.Exists(categoryPath))
+                if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))
                     return;
 
-                // Find by mod ID only (handles renamed folders)
-                var existingModPath = FindExistingModPathByModId(categoryPath, _modProfileUrl);
+                // Search ALL categories for existing mod by ID (user may have moved it)
+                string? existingModPath = null;
+                string? foundInCategory = null;
+                
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
+                {
+                    var found = FindExistingModPathByModId(categoryDir, _modProfileUrl);
+                    if (!string.IsNullOrEmpty(found))
+                    {
+                        existingModPath = found;
+                        foundInCategory = Path.GetFileName(categoryDir);
+                        break;
+                    }
+                }
 
                 // Check if mod exists - this is an update
                 if (!string.IsNullOrEmpty(existingModPath) && Directory.Exists(existingModPath))
@@ -305,6 +315,13 @@ namespace FlairX_Mod_Manager.Dialogs
                     }
                     _modNameTextBox.Text = existingFolderName;
                     Logger.LogInfo($"Using existing folder name: {existingFolderName}");
+                    
+                    // Update category to where mod actually is
+                    if (!string.IsNullOrEmpty(foundInCategory))
+                    {
+                        _categoryTextBox.Text = foundInCategory;
+                        Logger.LogInfo($"Using existing category: {foundInCategory}");
+                    }
                     
                     // Enable "Download Previews Only" button if previews are available
                     if (_previewMedia?.Images != null && _previewMedia.Images.Any(img => img.Type == "screenshot"))

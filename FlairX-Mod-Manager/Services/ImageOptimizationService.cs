@@ -57,8 +57,8 @@ namespace FlairX_Mod_Manager.Services
                 return;
             }
             
-            // Skip already optimized categories
-            if (OptimizationHelper.IsCategoryAlreadyOptimized(categoryDir))
+            // Check if already optimized and skip if reoptimize is disabled
+            if (!context.Reoptimize && OptimizationHelper.IsCategoryAlreadyOptimized(categoryDir))
             {
                 Logger.LogInfo($"Skipping already optimized category: {categoryDir}");
                 return;
@@ -107,6 +107,12 @@ namespace FlairX_Mod_Manager.Services
             try
             {
                 Logger.LogInfo($"Processing category preview (Full mode) in: {categoryDir}");
+                
+                // If reoptimizing, prepare by renaming source to _original and deleting generated files
+                if (context.Reoptimize)
+                {
+                    OptimizationHelper.PrepareForReoptimization(categoryDir, isCategory: true);
+                }
                 
                 // Create backup if enabled
                 if (context.CreateBackups)
@@ -196,21 +202,6 @@ namespace FlairX_Mod_Manager.Services
                 var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
                 var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
                 
-                // Use temporary paths if reoptimizing existing files
-                var catprevTempPath = catprevPath;
-                var catminiTempPath = catminiPath;
-                bool isReoptimizingCatprev = previewPath.Equals(catprevPath, StringComparison.OrdinalIgnoreCase);
-                bool isReoptimizingCatmini = previewPath.Equals(catminiPath, StringComparison.OrdinalIgnoreCase);
-                
-                if (isReoptimizingCatprev)
-                {
-                    catprevTempPath = Path.Combine(categoryDir, "catprev_temp.jpg");
-                }
-                if (isReoptimizingCatmini)
-                {
-                    catminiTempPath = Path.Combine(categoryDir, "catmini_temp.jpg");
-                }
-                
                 using (var img = Image.FromFile(previewPath))
                 {
                     // Get crop rectangle with optional inspection for catprev
@@ -241,7 +232,7 @@ namespace FlairX_Mod_Manager.Services
                         {
                             var jpegParams = new EncoderParameters(1);
                             jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            catprev.Save(catprevTempPath, jpegEncoder, jpegParams);
+                            catprev.Save(catprevPath, jpegEncoder, jpegParams);
                             Logger.LogInfo($"Generated catprev.jpg");
                         }
                     }
@@ -274,25 +265,13 @@ namespace FlairX_Mod_Manager.Services
                         {
                             var jpegParams = new EncoderParameters(1);
                             jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            catmini.Save(catminiTempPath, jpegEncoder, jpegParams);
+                            catmini.Save(catminiPath, jpegEncoder, jpegParams);
                             Logger.LogInfo($"Generated catmini.jpg");
                         }
                     }
                 }
                 
-                // Replace original files if we used temporary paths
-                if (isReoptimizingCatprev)
-                {
-                    if (File.Exists(catprevPath))
-                        File.Delete(catprevPath);
-                    File.Move(catprevTempPath, catprevPath);
-                }
-                if (isReoptimizingCatmini)
-                {
-                    if (File.Exists(catminiPath))
-                        File.Delete(catminiPath);
-                    File.Move(catminiTempPath, catminiPath);
-                }
+
                 
                 // Handle original files based on KeepOriginals setting
                 if (context.KeepOriginals)
@@ -300,47 +279,52 @@ namespace FlairX_Mod_Manager.Services
                     // Rename original files with _original suffix
                     foreach (var file in allPreviewFiles)
                     {
-                        if (!file.Equals(catprevPath, StringComparison.OrdinalIgnoreCase) &&
-                            !file.Equals(catminiPath, StringComparison.OrdinalIgnoreCase))
+                        var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                        // Skip if already _original or is output file
+                        if (fileNameWithoutExt.EndsWith("_original", StringComparison.OrdinalIgnoreCase) ||
+                            file.Equals(catprevPath, StringComparison.OrdinalIgnoreCase) ||
+                            file.Equals(catminiPath, StringComparison.OrdinalIgnoreCase))
+                            continue;
+                            
+                        try
                         {
-                            try
-                            {
-                                var directory = Path.GetDirectoryName(file);
-                                var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
-                                var extension = Path.GetExtension(file);
-                                var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
-                                
-                                // If _original already exists, delete it first
-                                if (File.Exists(originalPath))
-                                    File.Delete(originalPath);
-                                
-                                File.Move(file, originalPath);
-                                Logger.LogInfo($"Kept original: {Path.GetFileName(file)} -> {Path.GetFileName(originalPath)}");
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.LogError($"Failed to keep original file: {file}", ex);
-                            }
+                            var directory = Path.GetDirectoryName(file);
+                            var extension = Path.GetExtension(file);
+                            var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                            
+                            // If _original already exists, delete it first
+                            if (File.Exists(originalPath))
+                                File.Delete(originalPath);
+                            
+                            File.Move(file, originalPath);
+                            Logger.LogInfo($"Kept original: {Path.GetFileName(file)} -> {Path.GetFileName(originalPath)}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to keep original file: {file}", ex);
                         }
                     }
                 }
                 else
                 {
-                    // Delete original files
+                    // Delete original files (but keep _original files as they are source)
                     foreach (var file in allPreviewFiles)
                     {
-                        if (!file.Equals(catprevPath, StringComparison.OrdinalIgnoreCase) &&
-                            !file.Equals(catminiPath, StringComparison.OrdinalIgnoreCase))
+                        var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                        // Skip _original files and output files
+                        if (fileNameWithoutExt.EndsWith("_original", StringComparison.OrdinalIgnoreCase) ||
+                            file.Equals(catprevPath, StringComparison.OrdinalIgnoreCase) ||
+                            file.Equals(catminiPath, StringComparison.OrdinalIgnoreCase))
+                            continue;
+                            
+                        try
                         {
-                            try
-                            {
-                                File.Delete(file);
-                                Logger.LogInfo($"Deleted original: {Path.GetFileName(file)}");
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.LogError($"Failed to delete original file: {file}", ex);
-                            }
+                            File.Delete(file);
+                            Logger.LogInfo($"Deleted original: {Path.GetFileName(file)}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to delete original file: {file}", ex);
                         }
                     }
                 }
@@ -452,7 +436,10 @@ namespace FlairX_Mod_Manager.Services
                 // Do NOT generate catmini in Lite mode
                 
                 // Handle original file based on KeepOriginals setting
-                if (!sourceFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase))
+                var sourceFileNameWithoutExt = Path.GetFileNameWithoutExtension(sourceFile);
+                // Skip if already _original or is output file
+                if (!sourceFileNameWithoutExt.EndsWith("_original", StringComparison.OrdinalIgnoreCase) &&
+                    !sourceFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase))
                 {
                     if (context.KeepOriginals)
                     {
@@ -460,9 +447,8 @@ namespace FlairX_Mod_Manager.Services
                         try
                         {
                             var directory = Path.GetDirectoryName(sourceFile);
-                            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(sourceFile);
                             var extension = Path.GetExtension(sourceFile);
-                            var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                            var originalPath = Path.Combine(directory!, $"{sourceFileNameWithoutExt}_original{extension}");
                             
                             // If _original already exists, delete it first
                             if (File.Exists(originalPath))
@@ -621,8 +607,8 @@ namespace FlairX_Mod_Manager.Services
                 return;
             }
             
-            // Skip already optimized mods
-            if (OptimizationHelper.IsModAlreadyOptimized(modDir))
+            // Check if already optimized and skip if reoptimize is disabled
+            if (!context.Reoptimize && OptimizationHelper.IsModAlreadyOptimized(modDir))
             {
                 Logger.LogInfo($"Skipping already optimized mod: {modDir}");
                 return;
@@ -669,6 +655,12 @@ namespace FlairX_Mod_Manager.Services
             try
             {
                 Logger.LogInfo($"Processing mod preview images (Full mode) in: {modDir}");
+                
+                // If reoptimizing, prepare by renaming preview files to _original
+                if (context.Reoptimize)
+                {
+                    OptimizationHelper.PrepareForReoptimization(modDir, isCategory: false);
+                }
                 
                 // Create backup if enabled
                 if (context.CreateBackups)
@@ -750,14 +742,6 @@ namespace FlairX_Mod_Manager.Services
                     string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
                     var targetPath = Path.Combine(modDir, targetFileName);
                     
-                    // Use temporary path if reoptimizing existing file
-                    var outputPath = targetPath;
-                    bool isReoptimizing = sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
-                    if (isReoptimizing)
-                    {
-                        outputPath = Path.Combine(modDir, $"{Path.GetFileNameWithoutExtension(targetFileName)}_temp.jpg");
-                    }
-                    
                     bool savedSuccessfully = false;
                     try
                     {
@@ -795,20 +779,11 @@ namespace FlairX_Mod_Manager.Services
                                 {
                                     var jpegParams = new EncoderParameters(1);
                                     jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                                    optimized.Save(outputPath, jpegEncoder, jpegParams);
+                                    optimized.Save(targetPath, jpegEncoder, jpegParams);
                                     savedSuccessfully = true;
                                     Logger.LogInfo($"Optimized: {Path.GetFileName(sourceFile)} -> {targetFileName}");
                                 }
                             }
-                        }
-                        
-                        // Replace original AFTER closing the source file (outside using block)
-                        if (savedSuccessfully && isReoptimizing)
-                        {
-                            if (File.Exists(targetPath))
-                                File.Delete(targetPath);
-                            File.Move(outputPath, targetPath);
-                            Logger.LogInfo($"Replaced: {targetFileName}");
                         }
                         
                         if (savedSuccessfully)
@@ -819,11 +794,6 @@ namespace FlairX_Mod_Manager.Services
                     catch (Exception ex)
                     {
                         Logger.LogError($"Failed to process preview file: {sourceFile}", ex);
-                        // Clean up temp file if it exists
-                        if (isReoptimizing && File.Exists(outputPath))
-                        {
-                            try { File.Delete(outputPath); } catch { }
-                        }
                     }
                 }
                 
@@ -839,45 +809,50 @@ namespace FlairX_Mod_Manager.Services
                     // Rename original files with _original suffix
                     foreach (var file in previewFiles)
                     {
-                        if (!processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
+                        var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                        // Skip if already _original or is processed output file
+                        if (fileNameWithoutExt.EndsWith("_original", StringComparison.OrdinalIgnoreCase) ||
+                            processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
+                            continue;
+                            
+                        try
                         {
-                            try
-                            {
-                                var directory = Path.GetDirectoryName(file);
-                                var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
-                                var extension = Path.GetExtension(file);
-                                var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
-                                
-                                // If _original already exists, delete it first
-                                if (File.Exists(originalPath))
-                                    File.Delete(originalPath);
-                                
-                                File.Move(file, originalPath);
-                                Logger.LogInfo($"Kept original: {Path.GetFileName(file)} -> {Path.GetFileName(originalPath)}");
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.LogError($"Failed to keep original file: {file}", ex);
-                            }
+                            var directory = Path.GetDirectoryName(file);
+                            var extension = Path.GetExtension(file);
+                            var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                            
+                            // If _original already exists, delete it first
+                            if (File.Exists(originalPath))
+                                File.Delete(originalPath);
+                            
+                            File.Move(file, originalPath);
+                            Logger.LogInfo($"Kept original: {Path.GetFileName(file)} -> {Path.GetFileName(originalPath)}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to keep original file: {file}", ex);
                         }
                     }
                 }
                 else
                 {
-                    // Delete original files
+                    // Delete original files (but keep _original files as they are source)
                     foreach (var file in previewFiles)
                     {
-                        if (!processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
+                        var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                        // Skip _original files and processed output files
+                        if (fileNameWithoutExt.EndsWith("_original", StringComparison.OrdinalIgnoreCase) ||
+                            processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
+                            continue;
+                            
+                        try
                         {
-                            try
-                            {
-                                File.Delete(file);
-                                Logger.LogInfo($"Deleted original: {Path.GetFileName(file)}");
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.LogError($"Failed to delete original file: {file}", ex);
-                            }
+                            File.Delete(file);
+                            Logger.LogInfo($"Deleted original: {Path.GetFileName(file)}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to delete original file: {file}", ex);
                         }
                     }
                 }
@@ -979,14 +954,6 @@ namespace FlairX_Mod_Manager.Services
                     string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
                     var targetPath = Path.Combine(modDir, targetFileName);
                     
-                    // Use temporary path if reoptimizing existing file
-                    var outputPath = targetPath;
-                    bool isReoptimizing = sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
-                    if (isReoptimizing)
-                    {
-                        outputPath = Path.Combine(modDir, $"{Path.GetFileNameWithoutExtension(targetFileName)}_temp.jpg");
-                    }
-                    
                     bool savedSuccessfully = false;
                     try
                     {
@@ -999,19 +966,10 @@ namespace FlairX_Mod_Manager.Services
                             {
                                 var jpegParams = new EncoderParameters(1);
                                 jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                                img.Save(outputPath, jpegEncoder, jpegParams);
+                                img.Save(targetPath, jpegEncoder, jpegParams);
                                 savedSuccessfully = true;
                                 Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> {targetFileName}");
                             }
-                        }
-                        
-                        // Replace original AFTER closing the source file (outside using block)
-                        if (savedSuccessfully && isReoptimizing)
-                        {
-                            if (File.Exists(targetPath))
-                                File.Delete(targetPath);
-                            File.Move(outputPath, targetPath);
-                            Logger.LogInfo($"Replaced: {targetFileName}");
                         }
                         
                         if (savedSuccessfully)
@@ -1022,11 +980,6 @@ namespace FlairX_Mod_Manager.Services
                     catch (Exception ex)
                     {
                         Logger.LogError($"Failed to process preview file: {sourceFile}", ex);
-                        // Clean up temp file if it exists
-                        if (isReoptimizing && File.Exists(outputPath))
-                        {
-                            try { File.Delete(outputPath); } catch { }
-                        }
                     }
                 }
                 
@@ -1042,45 +995,50 @@ namespace FlairX_Mod_Manager.Services
                     // Rename original files with _original suffix
                     foreach (var file in previewFiles)
                     {
-                        if (!processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
+                        var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                        // Skip if already _original or is processed output file
+                        if (fileNameWithoutExt.EndsWith("_original", StringComparison.OrdinalIgnoreCase) ||
+                            processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
+                            continue;
+                            
+                        try
                         {
-                            try
-                            {
-                                var directory = Path.GetDirectoryName(file);
-                                var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
-                                var extension = Path.GetExtension(file);
-                                var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
-                                
-                                // If _original already exists, delete it first
-                                if (File.Exists(originalPath))
-                                    File.Delete(originalPath);
-                                
-                                File.Move(file, originalPath);
-                                Logger.LogInfo($"Kept original: {Path.GetFileName(file)} -> {Path.GetFileName(originalPath)}");
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.LogError($"Failed to keep original file: {file}", ex);
-                            }
+                            var directory = Path.GetDirectoryName(file);
+                            var extension = Path.GetExtension(file);
+                            var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
+                            
+                            // If _original already exists, delete it first
+                            if (File.Exists(originalPath))
+                                File.Delete(originalPath);
+                            
+                            File.Move(file, originalPath);
+                            Logger.LogInfo($"Kept original: {Path.GetFileName(file)} -> {Path.GetFileName(originalPath)}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to keep original file: {file}", ex);
                         }
                     }
                 }
                 else
                 {
-                    // Delete original files
+                    // Delete original files (but keep _original files as they are source)
                     foreach (var file in previewFiles)
                     {
-                        if (!processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
+                        var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                        // Skip _original files and processed output files
+                        if (fileNameWithoutExt.EndsWith("_original", StringComparison.OrdinalIgnoreCase) ||
+                            processedFiles.Contains(file, StringComparer.OrdinalIgnoreCase))
+                            continue;
+                            
+                        try
                         {
-                            try
-                            {
-                                File.Delete(file);
-                                Logger.LogInfo($"Deleted original: {Path.GetFileName(file)}");
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.LogError($"Failed to delete original file: {file}", ex);
-                            }
+                            File.Delete(file);
+                            Logger.LogInfo($"Deleted original: {Path.GetFileName(file)}");
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to delete original file: {file}", ex);
                         }
                     }
                 }
@@ -1233,11 +1191,6 @@ namespace FlairX_Mod_Manager.Services
                 
                 var minitilePath = Path.Combine(modDir, "minitile.jpg");
                 
-                // Always use temporary path first, then replace - safer approach
-                var outputPath = Path.Combine(modDir, "minitile_temp.jpg");
-                bool minitileExists = File.Exists(minitilePath);
-                
-                bool savedSuccessfully = false;
                 using (var img = Image.FromFile(previewPath))
                 {
                     // Get crop rectangle with optional inspection
@@ -1261,36 +1214,21 @@ namespace FlairX_Mod_Manager.Services
                         var destRect = new Rectangle(0, 0, 600, 722);
                         g.DrawImage(img, destRect, srcRect.Value, GraphicsUnit.Pixel);
                         
-                        // Save as JPEG with quality setting
+                        // Save as JPEG with quality setting (overwrites existing)
                         var jpegEncoder = ImageCodecInfo.GetImageEncoders()
                             .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
                         if (jpegEncoder != null)
                         {
                             var jpegParams = new EncoderParameters(1);
                             jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            minitile.Save(outputPath, jpegEncoder, jpegParams);
-                            savedSuccessfully = true;
+                            minitile.Save(minitilePath, jpegEncoder, jpegParams);
+                            Logger.LogInfo($"Minitile generated: {minitilePath}");
                         }
                     }
-                }
-                
-                // Move temp file to final location AFTER closing source image
-                if (savedSuccessfully)
-                {
-                    if (minitileExists)
-                        File.Delete(minitilePath);
-                    File.Move(outputPath, minitilePath);
-                    Logger.LogInfo($"Minitile generated: {minitilePath}");
                 }
             }
             catch (Exception ex)
             {
-                // Clean up temp file if it exists
-                var tempPath = Path.Combine(modDir, "minitile_temp.jpg");
-                if (File.Exists(tempPath))
-                {
-                    try { File.Delete(tempPath); } catch { }
-                }
                 Logger.LogError($"Failed to generate minitile for {modDir}", ex);
             }
         }
@@ -1534,7 +1472,8 @@ namespace FlairX_Mod_Manager.Services
                 CropStrategy = cropStrategy,
                 InspectAndEditEnabled = SettingsManager.Current.PreviewBeforeCrop,
                 Trigger = trigger,
-                AllowUIInteraction = allowUIInteraction
+                AllowUIInteraction = allowUIInteraction,
+                Reoptimize = SettingsManager.Current.ImageOptimizerReoptimize
             };
         }
     }
@@ -1553,6 +1492,7 @@ namespace FlairX_Mod_Manager.Services
         public bool InspectAndEditEnabled { get; set; }
         public OptimizationTrigger Trigger { get; set; }
         public bool AllowUIInteraction { get; set; } = true; // Can show crop inspection UI
+        public bool Reoptimize { get; set; } = false; // Re-optimize already optimized files
     }
 
     /// <summary>
@@ -1640,6 +1580,62 @@ namespace FlairX_Mod_Manager.Services
             
             // Both catprev.jpg and catmini.jpg exist - category is fully optimized
             return true;
+        }
+
+        /// <summary>
+        /// Prepare directory for reoptimization by deleting generated files (keeps _original files as source)
+        /// </summary>
+        public static void PrepareForReoptimization(string directory, bool isCategory)
+        {
+            try
+            {
+                if (isCategory)
+                {
+                    // For categories: rename catprev.jpg to catprev_original.jpg
+                    // catmini.jpg will be overwritten by optimizer
+                    var catprevPath = Path.Combine(directory, "catprev.jpg");
+                    var catprevOriginalPath = Path.Combine(directory, "catprev_original.jpg");
+                    
+                    if (File.Exists(catprevPath) && !File.Exists(catprevOriginalPath))
+                    {
+                        File.Move(catprevPath, catprevOriginalPath);
+                        Logger.LogInfo($"Renamed catprev.jpg to catprev_original.jpg for reoptimization");
+                    }
+                }
+                else
+                {
+                    // For mods: rename preview.jpg/preview-XX.jpg to _original
+                    // minitile.jpg will be overwritten by optimizer
+                    var previewFiles = Directory.GetFiles(directory)
+                        .Where(f =>
+                        {
+                            var fileName = Path.GetFileName(f).ToLower();
+                            return fileName.StartsWith("preview") &&
+                                   !fileName.Contains("_original") &&
+                                   (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                        })
+                        .ToList();
+                    
+                    foreach (var file in previewFiles)
+                    {
+                        var dir = Path.GetDirectoryName(file)!;
+                        var nameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                        var ext = Path.GetExtension(file);
+                        var originalPath = Path.Combine(dir, $"{nameWithoutExt}_original{ext}");
+                        
+                        if (!File.Exists(originalPath))
+                        {
+                            File.Move(file, originalPath);
+                            Logger.LogInfo($"Renamed {Path.GetFileName(file)} to {Path.GetFileName(originalPath)} for reoptimization");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to prepare for reoptimization: {directory}", ex);
+            }
         }
     }
 }
