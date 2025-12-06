@@ -1,0 +1,11 @@
+{
+    "WindowTitle": "FlairX 覆盖层",
+    "TitleBarText": "FlairX Mod Manager",
+    "HotkeyHint": "{0} 隐藏",
+    "ClickToToggle": "点击切换",
+    "GamepadHint": "{0} 切换 | {1}/{2} 分类 | {3} 关闭",
+    "NoCategories": "未找到分类",
+    "NoMods": "此分类中没有模组",
+    "ActiveOnly": "仅显示已启用",
+    "AllMods": "所有模组"
+}

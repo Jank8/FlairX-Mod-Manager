@@ -534,12 +534,58 @@ namespace FlairX_Mod_Manager
 
         private void UpdateHotkeyHint()
         {
-            var hotkey = SettingsManager.Current.ToggleOverlayHotkey ?? "Alt+W";
-            var gamepadCombo = SettingsManager.Current.GamepadToggleOverlayCombo ?? "Back+Start";
-            var gamepadHint = SettingsManager.Current.GamepadEnabled ? $" | {gamepadCombo}" : "";
+            var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
+            var settings = SettingsManager.Current;
+            
+            // Keyboard hotkey hint
+            var hotkey = settings.ToggleOverlayHotkey ?? "Alt+W";
+            var gamepadCombo = settings.GamepadToggleOverlayCombo ?? "Back+Start";
+            var gamepadHideHint = settings.GamepadEnabled ? $" | {gamepadCombo}" : "";
+            
+            // Format: "{hotkey} | {gamepadCombo} to hide" or "{hotkey} to hide"
+            var hotkeyString = $"{hotkey}{gamepadHideHint}";
+            var hintTemplate = SharedUtilities.GetTranslation(lang, "HotkeyHint");
+            
             if (HotkeyHintText != null)
             {
-                HotkeyHintText.Text = $"{hotkey}{gamepadHint} to hide";
+                HotkeyHintText.Text = string.Format(hintTemplate, hotkeyString);
+            }
+            
+            if (ClickToToggleText != null)
+            {
+                ClickToToggleText.Text = SharedUtilities.GetTranslation(lang, "ClickToToggle");
+            }
+            
+            // Gamepad controls hint (only shown when gamepad is enabled)
+            if (settings.GamepadEnabled)
+            {
+                var selectBtn = settings.GamepadSelectButton ?? "A";
+                var prevCatBtn = settings.GamepadPrevCategoryButton ?? "LB";
+                var nextCatBtn = settings.GamepadNextCategoryButton ?? "RB";
+                var backBtn = settings.GamepadBackButton ?? "B";
+                
+                var gamepadHintTemplate = SharedUtilities.GetTranslation(lang, "GamepadHint");
+                
+                if (GamepadHintText != null)
+                {
+                    GamepadHintText.Text = string.Format(gamepadHintTemplate, selectBtn, prevCatBtn, nextCatBtn, backBtn);
+                    GamepadHintText.Visibility = Visibility.Visible;
+                }
+                if (GamepadSeparator != null)
+                {
+                    GamepadSeparator.Visibility = Visibility.Visible;
+                }
+            }
+            else
+            {
+                if (GamepadHintText != null)
+                {
+                    GamepadHintText.Visibility = Visibility.Collapsed;
+                }
+                if (GamepadSeparator != null)
+                {
+                    GamepadSeparator.Visibility = Visibility.Collapsed;
+                }
             }
         }
 

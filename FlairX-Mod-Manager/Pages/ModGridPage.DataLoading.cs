@@ -241,7 +241,7 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             Name = name,  // Already cleaned by GetCleanModName above
                             ImagePath = previewPath,
-                            Directory = name,  // Use clean name (same as Name)
+                            Directory = dirName,  // Use actual folder name for file operations
                             IsActive = isActive,
                             Character = modCharacter,
                             Author = modAuthor,
@@ -421,9 +421,9 @@ namespace FlairX_Mod_Manager.Pages
                 // Check if file has been modified since last cache
                 var lastWriteTime = File.GetLastWriteTime(modJsonPath);
                 
-                // Use clean name for cache lookup
-                if (_modJsonCache.TryGetValue(cleanName, out var cachedData) &&
-                    _modFileTimestamps.TryGetValue(cleanName, out var cachedTime) &&
+                // Use actual folder name for cache lookup
+                if (_modJsonCache.TryGetValue(dirName, out var cachedData) &&
+                    _modFileTimestamps.TryGetValue(dirName, out var cachedTime) &&
                     cachedTime >= lastWriteTime)
                 {
                     // Cache hit - return cached data
@@ -489,7 +489,7 @@ namespace FlairX_Mod_Manager.Pages
                     { 
                         Name = cleanName,  // Display name without DISABLED_ prefix
                         ImagePath = previewPath, 
-                        Directory = cleanName,  // Use clean name for directory reference
+                        Directory = dirName,  // Use actual folder name for file operations
                         IsActive = isActive,
                         Character = modCharacter,
                         Author = modAuthor,
@@ -500,9 +500,9 @@ namespace FlairX_Mod_Manager.Pages
                         IsNSFW = isNSFW
                     };
                     
-                    // Cache the data using clean name as key
-                    _modJsonCache[cleanName] = modData;
-                    _modFileTimestamps[cleanName] = lastWriteTime;
+                    // Cache the data using actual folder name as key
+                    _modJsonCache[dirName] = modData;
+                    _modFileTimestamps[dirName] = lastWriteTime;
                     
                     return modData;
                 }

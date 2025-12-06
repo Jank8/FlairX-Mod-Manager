@@ -1,0 +1,11 @@
+{
+    "WindowTitle": "FlairX Overlay",
+    "TitleBarText": "FlairX Mod Manager",
+    "HotkeyHint": "{0} para itago",
+    "ClickToToggle": "I-click para i-toggle",
+    "GamepadHint": "{0} toggle | {1}/{2} kategorya | {3} isara",
+    "NoCategories": "Walang nahanap na kategorya",
+    "NoMods": "Walang mod sa kategoryang ito",
+    "ActiveOnly": "Aktibo lamang",
+    "AllMods": "Lahat ng mod"
+}

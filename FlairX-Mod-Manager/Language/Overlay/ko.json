@@ -1,0 +1,11 @@
+{
+    "WindowTitle": "FlairX 오버레이",
+    "TitleBarText": "FlairX Mod Manager",
+    "HotkeyHint": "{0} 숨기기",
+    "ClickToToggle": "클릭하여 전환",
+    "GamepadHint": "{0} 전환 | {1}/{2} 카테고리 | {3} 닫기",
+    "NoCategories": "카테고리를 찾을 수 없습니다",
+    "NoMods": "이 카테고리에 모드가 없습니다",
+    "ActiveOnly": "활성화된 것만",
+    "AllMods": "모든 모드"
+}

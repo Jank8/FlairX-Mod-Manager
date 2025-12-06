@@ -1,0 +1,11 @@
+{
+    "WindowTitle": "FlairX Overlay",
+    "TitleBarText": "FlairX Mod Manager",
+    "HotkeyHint": "{0} để ẩn",
+    "ClickToToggle": "Nhấp để chuyển đổi",
+    "GamepadHint": "{0} chuyển | {1}/{2} danh mục | {3} đóng",
+    "NoCategories": "Không tìm thấy danh mục",
+    "NoMods": "Không có mod trong danh mục này",
+    "ActiveOnly": "Chỉ đang hoạt động",
+    "AllMods": "Tất cả mod"
+}

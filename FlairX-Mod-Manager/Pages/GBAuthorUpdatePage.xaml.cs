@@ -271,28 +271,37 @@ namespace FlairX_Mod_Manager.Pages
                             return; 
                         }
                         
-                        var json = File.ReadAllText(modJsonPath);
-                        using var doc = JsonDocument.Parse(json);
-                        var root = doc.RootElement;
+                        // Read mod.json through queue
+                        var json = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
+                        string? url = null;
+                        string modName = modFolderName;
+                        string currentAuthor = string.Empty;
+                        bool shouldUpdate = false;
                         
-                        // Get mod name from mod.json, fallback to folder name
-                        string modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString()) 
-                            ? nameProp.GetString()! 
-                            : modFolderName;
-                        
-                        if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || 
-                            string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) 
-                        { 
-                            SafeIncrementSkip(); 
-                            SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); 
-                            Interlocked.Increment(ref processed);
-                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; } 
-                            NotifyProgressChanged(); 
-                            return; 
+                        using (var doc = JsonDocument.Parse(json))
+                        {
+                            var root = doc.RootElement;
+                            
+                            // Get mod name from mod.json, fallback to folder name
+                            modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString()) 
+                                ? nameProp.GetString()! 
+                                : modFolderName;
+                            
+                            if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || 
+                                string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) 
+                            { 
+                                SafeIncrementSkip(); 
+                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); 
+                                Interlocked.Increment(ref processed);
+                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; } 
+                                NotifyProgressChanged(); 
+                                return; 
+                            }
+                            
+                            currentAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? string.Empty : string.Empty;
+                            shouldUpdate = string.IsNullOrWhiteSpace(currentAuthor) || currentAuthor.Equals("unknown", StringComparison.OrdinalIgnoreCase);
+                            url = urlProp.GetString()!;
                         }
-                        
-                        string currentAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? string.Empty : string.Empty;
-                        bool shouldUpdate = string.IsNullOrWhiteSpace(currentAuthor) || currentAuthor.Equals("unknown", StringComparison.OrdinalIgnoreCase);
                         
                         // For smart update, skip mods that already have known authors
                         if (isSmartUpdate && !shouldUpdate)
@@ -305,52 +314,42 @@ namespace FlairX_Mod_Manager.Pages
                             return;
                         }
                         
-                        string url = urlProp.GetString()!;
-                        
                         try
                         {
                             var author = await FetchAuthorFromApi(url, token);
                             if (!string.IsNullOrWhiteSpace(author))
                             {
-                                if (isFullUpdate)
+                                bool needsUpdate = false;
+                                if (isFullUpdate && !author.Equals(currentAuthor, StringComparison.Ordinal))
                                 {
-                                    if (!author.Equals(currentAuthor, StringComparison.Ordinal))
-                                    {
-                                        if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
-                                        {
-                                            SafeIncrementSkip();
-                                            SafeAddSkippedMod($"{modName}: Invalid directory name");
-                                            Interlocked.Increment(ref processed);
-                                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                            NotifyProgressChanged();
-                                            return;
-                                        }
-                                        
-                                        var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
-                                        dict["author"] = author;
-                                        await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
-                                        lock (_lockObject) { _success++; }
-                                    }
+                                    needsUpdate = true;
                                 }
-                                else if (isSmartUpdate && shouldUpdate)
+                                else if (isSmartUpdate && shouldUpdate && !string.IsNullOrWhiteSpace(author) && !author.Equals(currentAuthor, StringComparison.Ordinal))
                                 {
-                                    if (!string.IsNullOrWhiteSpace(author) && !author.Equals(currentAuthor, StringComparison.Ordinal))
+                                    needsUpdate = true;
+                                }
+                                
+                                if (needsUpdate)
+                                {
+                                    if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
                                     {
-                                        if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
-                                        {
-                                            SafeIncrementSkip();
-                                            SafeAddSkippedMod($"{modName}: Invalid directory name");
-                                            Interlocked.Increment(ref processed);
-                                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                            NotifyProgressChanged();
-                                            return;
-                                        }
-                                        
-                                        var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
-                                        dict["author"] = author;
-                                        await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
-                                        lock (_lockObject) { _success++; }
+                                        SafeIncrementSkip();
+                                        SafeAddSkippedMod($"{modName}: Invalid directory name");
+                                        Interlocked.Increment(ref processed);
+                                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                        NotifyProgressChanged();
+                                        return;
                                     }
+                                    
+                                    // Atomic read-modify-write operation
+                                    await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
+                                    {
+                                        var currentJson = await File.ReadAllTextAsync(modJsonPath, token);
+                                        var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(currentJson) ?? new();
+                                        dict["author"] = author;
+                                        await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
+                                    }, token);
+                                    lock (_lockObject) { _success++; }
                                 }
                             }
                             else
@@ -758,26 +757,32 @@ namespace FlairX_Mod_Manager.Pages
                             return;
                         }
 
-                        var json = File.ReadAllText(modJsonPath);
-                        using var doc = JsonDocument.Parse(json);
-                        var root = doc.RootElement;
-
-                        string modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
-                            ? nameProp.GetString()!
-                            : modFolderName;
-
-                        if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
-                            string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
+                        // Read mod.json to get URL (quick read, no queue needed for read-only)
+                        var json = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
+                        string? url = null;
+                        string modName = modFolderName;
+                        
+                        using (var doc = JsonDocument.Parse(json))
                         {
-                            SafeIncrementSkip();
-                            SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
-                            Interlocked.Increment(ref processed);
-                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                            NotifyProgressChanged();
-                            return;
-                        }
+                            var root = doc.RootElement;
 
-                        string url = urlProp.GetString()!;
+                            modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
+                                ? nameProp.GetString()!
+                                : modFolderName;
+
+                            if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
+                                string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
+                            {
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
+                                Interlocked.Increment(ref processed);
+                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                NotifyProgressChanged();
+                                return;
+                            }
+
+                            url = urlProp.GetString()!;
+                        }
 
                         try
                         {
@@ -794,9 +799,14 @@ namespace FlairX_Mod_Manager.Pages
                                     return;
                                 }
 
-                                var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
-                                dict["gbChangeDate"] = dateUpdated;
-                                await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
+                                // Atomic read-modify-write operation
+                                await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
+                                {
+                                    var currentJson = await File.ReadAllTextAsync(modJsonPath, token);
+                                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(currentJson) ?? new();
+                                    dict["gbChangeDate"] = dateUpdated;
+                                    await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
+                                }, token);
                                 SafeIncrementSuccess();
                             }
                             else
@@ -931,11 +941,13 @@ namespace FlairX_Mod_Manager.Pages
 
                 // Try _tsDateUpdated first, fallback to _tsDateAdded
                 long timestamp = 0;
-                if (root.TryGetProperty("_tsDateUpdated", out var dateUpdated))
+                if (root.TryGetProperty("_tsDateUpdated", out var dateUpdated) && dateUpdated.ValueKind == JsonValueKind.Number)
                 {
                     timestamp = dateUpdated.GetInt64();
                 }
-                else if (root.TryGetProperty("_tsDateAdded", out var dateAdded))
+                
+                // Fallback to _tsDateAdded if _tsDateUpdated is 0 or missing
+                if (timestamp == 0 && root.TryGetProperty("_tsDateAdded", out var dateAdded) && dateAdded.ValueKind == JsonValueKind.Number)
                 {
                     timestamp = dateAdded.GetInt64();
                 }
@@ -943,9 +955,12 @@ namespace FlairX_Mod_Manager.Pages
                 if (timestamp > 0)
                 {
                     var date = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime;
-                    return date.ToString("yyyy-MM-dd");
+                    var result = date.ToString("yyyy-MM-dd");
+                    Logger.LogInfo($"FetchDateFromApi: URL={url}, timestamp={timestamp}, date={result}");
+                    return result;
                 }
 
+                Logger.LogWarning($"FetchDateFromApi: No valid timestamp found for URL={url}");
                 return null;
             }
             catch (Exception ex)
@@ -1080,26 +1095,32 @@ namespace FlairX_Mod_Manager.Pages
                             return;
                         }
 
-                        var json = File.ReadAllText(modJsonPath);
-                        using var doc = JsonDocument.Parse(json);
-                        var root = doc.RootElement;
-
-                        string modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
-                            ? nameProp.GetString()!
-                            : modFolderName;
-
-                        if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
-                            string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
+                        // Read mod.json through queue
+                        var json = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
+                        string? url = null;
+                        string modName = modFolderName;
+                        
+                        using (var doc = JsonDocument.Parse(json))
                         {
-                            SafeIncrementSkip();
-                            SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
-                            Interlocked.Increment(ref processed);
-                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                            NotifyProgressChanged();
-                            return;
-                        }
+                            var root = doc.RootElement;
 
-                        string url = urlProp.GetString()!;
+                            modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
+                                ? nameProp.GetString()!
+                                : modFolderName;
+
+                            if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
+                                string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
+                            {
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
+                                Interlocked.Increment(ref processed);
+                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                NotifyProgressChanged();
+                                return;
+                            }
+
+                            url = urlProp.GetString()!;
+                        }
 
                         try
                         {
@@ -1115,10 +1136,15 @@ namespace FlairX_Mod_Manager.Pages
                                 return;
                             }
 
-                            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
-                            // Use space if version is null/empty, otherwise use the fetched version
-                            dict["version"] = string.IsNullOrWhiteSpace(version) ? " " : version;
-                            await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }));
+                            // Atomic read-modify-write operation
+                            await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
+                            {
+                                var currentJson = await File.ReadAllTextAsync(modJsonPath, token);
+                                var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(currentJson) ?? new();
+                                // Use space if version is null/empty, otherwise use the fetched version
+                                dict["version"] = string.IsNullOrWhiteSpace(version) ? " " : version;
+                                await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
+                            }, token);
                             SafeIncrementSuccess();
                         }
                         catch (OperationCanceledException) { }

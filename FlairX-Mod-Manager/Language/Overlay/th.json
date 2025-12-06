@@ -1,0 +1,11 @@
+{
+    "WindowTitle": "FlairX โอเวอร์เลย์",
+    "TitleBarText": "FlairX Mod Manager",
+    "HotkeyHint": "{0} เพื่อซ่อน",
+    "ClickToToggle": "คลิกเพื่อสลับ",
+    "GamepadHint": "{0} สลับ | {1}/{2} หมวดหมู่ | {3} ปิด",
+    "NoCategories": "ไม่พบหมวดหมู่",
+    "NoMods": "ไม่มีม็อดในหมวดหมู่นี้",
+    "ActiveOnly": "เฉพาะที่เปิดใช้งาน",
+    "AllMods": "ม็อดทั้งหมด"
+}

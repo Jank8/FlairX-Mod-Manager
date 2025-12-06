@@ -203,7 +203,7 @@
                         Margin="0,8,0,0"
                         Spacing="8">
                 <TextBlock x:Name="HotkeyHintText"
-                           Text="Alt+W to hide" 
+                           Text="" 
                            Opacity="0.5"
                            FontSize="11"
                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
@@ -211,9 +211,22 @@
                            Opacity="0.5"
                            FontSize="11"
                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                <TextBlock Text="Click to toggle" 
+                <TextBlock x:Name="ClickToToggleText"
+                           Text="" 
                            Opacity="0.5"
                            FontSize="11"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                <TextBlock x:Name="GamepadSeparator"
+                           Text="•" 
+                           Opacity="0.5"
+                           FontSize="11"
+                           Visibility="Collapsed"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                <TextBlock x:Name="GamepadHintText"
+                           Text="" 
+                           Opacity="0.5"
+                           FontSize="11"
+                           Visibility="Collapsed"
                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
             </StackPanel>
         </Grid>

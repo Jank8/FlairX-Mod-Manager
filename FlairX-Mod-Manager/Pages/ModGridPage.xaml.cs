@@ -954,7 +954,6 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                 
-
                 // Find the mod.json file
                 string? modJsonPath = null;
                 foreach (var categoryDir in Directory.GetDirectories(modsPath))
@@ -968,7 +967,9 @@ namespace FlairX_Mod_Manager.Pages
                 }
 
                 if (string.IsNullOrEmpty(modJsonPath) || !File.Exists(modJsonPath))
+                {
                     return false;
+                }
 
                 // Read fresh data from mod.json (no cache)
                 var json = File.ReadAllText(modJsonPath);
@@ -976,20 +977,42 @@ namespace FlairX_Mod_Manager.Pages
                 var root = doc.RootElement;
 
                 // Check if gbChangeDate > dateUpdated
-                if (root.TryGetProperty("gbChangeDate", out var gbChangeProp) && gbChangeProp.ValueKind == JsonValueKind.String &&
-                    root.TryGetProperty("dateUpdated", out var dateUpdProp) && dateUpdProp.ValueKind == JsonValueKind.String)
+                string? gbChangeDateStr = null;
+                string? dateUpdatedStr = null;
+                
+                if (root.TryGetProperty("gbChangeDate", out var gbChangeProp) && gbChangeProp.ValueKind == JsonValueKind.String)
                 {
-                    if (DateTime.TryParse(gbChangeProp.GetString(), out var gbDate) &&
-                        DateTime.TryParse(dateUpdProp.GetString(), out var updatedDate))
+                    gbChangeDateStr = gbChangeProp.GetString();
+                }
+                
+                if (root.TryGetProperty("dateUpdated", out var dateUpdProp) && dateUpdProp.ValueKind == JsonValueKind.String)
+                {
+                    dateUpdatedStr = dateUpdProp.GetString();
+                }
+                
+                if (!string.IsNullOrEmpty(gbChangeDateStr) && !string.IsNullOrEmpty(dateUpdatedStr))
+                {
+                    if (DateTime.TryParse(gbChangeDateStr, out var gbDate) &&
+                        DateTime.TryParse(dateUpdatedStr, out var updatedDate))
                     {
-                        return gbDate > updatedDate;
+                        var hasUpdate = gbDate > updatedDate;
+                        if (hasUpdate)
+                        {
+                            Logger.LogInfo($"CheckForUpdateLive: {modDirectory} has update - gbChangeDate={gbChangeDateStr}, dateUpdated={dateUpdatedStr}");
+                        }
+                        return hasUpdate;
+                    }
+                    else
+                    {
+                        Logger.LogWarning($"CheckForUpdateLive: Failed to parse dates for {modDirectory} - gbChangeDate={gbChangeDateStr}, dateUpdated={dateUpdatedStr}");
                     }
                 }
 
                 return false;
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.LogError($"CheckForUpdateLive error for {modDirectory}", ex);
                 return false;
             }
         }

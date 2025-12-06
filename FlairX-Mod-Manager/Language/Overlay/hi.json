@@ -1,0 +1,11 @@
+{
+    "WindowTitle": "FlairX ओवरले",
+    "TitleBarText": "FlairX Mod Manager",
+    "HotkeyHint": "छिपाने के लिए {0}",
+    "ClickToToggle": "टॉगल करने के लिए क्लिक करें",
+    "GamepadHint": "{0} टॉगल | {1}/{2} श्रेणी | {3} बंद",
+    "NoCategories": "कोई श्रेणी नहीं मिली",
+    "NoMods": "इस श्रेणी में कोई मॉड नहीं",
+    "ActiveOnly": "केवल सक्रिय",
+    "AllMods": "सभी मॉड"
+}

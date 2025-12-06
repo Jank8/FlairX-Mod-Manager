@@ -1,0 +1,11 @@
+{
+    "WindowTitle": "FlairX オーバーレイ",
+    "TitleBarText": "FlairX Mod Manager",
+    "HotkeyHint": "{0} で非表示",
+    "ClickToToggle": "クリックで切り替え",
+    "GamepadHint": "{0} 切替 | {1}/{2} カテゴリ | {3} 閉じる",
+    "NoCategories": "カテゴリが見つかりません",
+    "NoMods": "このカテゴリにMODがありません",
+    "ActiveOnly": "アクティブのみ",
+    "AllMods": "すべてのMOD"
+}

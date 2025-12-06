@@ -263,20 +263,28 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             try
                             {
+                                // First check if this is the right mod (read-only check)
                                 var jsonContent = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath);
-                                var modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonContent);
+                                var checkData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonContent);
                                 
-                                if (modData != null && modData.TryGetValue("url", out var urlObj))
+                                if (checkData != null && checkData.TryGetValue("url", out var urlObj))
                                 {
                                     var url = urlObj?.ToString();
                                     if (!string.IsNullOrEmpty(url) && url.Equals(profileUrl, StringComparison.OrdinalIgnoreCase))
                                     {
-                                        // Update dateChecked to current date
-                                        modData["dateChecked"] = DateTime.Now.ToString("yyyy-MM-dd");
-                                        
-                                        var jsonOptions = new System.Text.Json.JsonSerializerOptions { WriteIndented = true };
-                                        var updatedJson = System.Text.Json.JsonSerializer.Serialize(modData, jsonOptions);
-                                        await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, updatedJson);
+                                        // Found the mod - do atomic read-modify-write
+                                        await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
+                                        {
+                                            var currentJson = await System.IO.File.ReadAllTextAsync(modJsonPath);
+                                            var modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(currentJson);
+                                            if (modData != null)
+                                            {
+                                                modData["dateChecked"] = DateTime.Now.ToString("yyyy-MM-dd");
+                                                var jsonOptions = new System.Text.Json.JsonSerializerOptions { WriteIndented = true };
+                                                var updatedJson = System.Text.Json.JsonSerializer.Serialize(modData, jsonOptions);
+                                                await System.IO.File.WriteAllTextAsync(modJsonPath, updatedJson);
+                                            }
+                                        });
                                         
                                         Logger.LogInfo($"Updated dateChecked for mod at {modJsonPath}");
                                         return;

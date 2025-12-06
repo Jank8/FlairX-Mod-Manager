@@ -1,0 +1,11 @@
+{
+    "WindowTitle": "FlairX Overlay",
+    "TitleBarText": "FlairX Mod Manager",
+    "HotkeyHint": "Gizlemek için {0}",
+    "ClickToToggle": "Değiştirmek için tıklayın",
+    "GamepadHint": "{0} değiştir | {1}/{2} kategori | {3} kapat",
+    "NoCategories": "Kategori bulunamadı",
+    "NoMods": "Bu kategoride mod yok",
+    "ActiveOnly": "Sadece aktif",
+    "AllMods": "Tüm modlar"
+}

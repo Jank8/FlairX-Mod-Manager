@@ -1,0 +1,11 @@
+{
+    "WindowTitle": "FlairX Overlay",
+    "TitleBarText": "FlairX Mod Manager",
+    "HotkeyHint": "{0} para ocultar",
+    "ClickToToggle": "Clic para alternar",
+    "GamepadHint": "{0} alternar | {1}/{2} categoría | {3} cerrar",
+    "NoCategories": "No se encontraron categorías",
+    "NoMods": "No hay mods en esta categoría",
+    "ActiveOnly": "Solo activos",
+    "AllMods": "Todos los mods"
+}
