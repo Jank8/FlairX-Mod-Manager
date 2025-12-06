@@ -878,11 +878,61 @@ namespace FlairX_Mod_Manager
 
             SelectCategory(OverlayCategories[newIndex]);
             
+            // Scroll to make selected category visible
+            ScrollCategoryIntoView(newIndex);
+            
             // Reset mod selection
             _selectedModIndex = -1;
             
             // Vibrate on category change (right motor only - small)
             _gamepadManager?.Vibrate(0, 30000, 300);
+        }
+        
+        private void ScrollCategoryIntoView(int index)
+        {
+            try
+            {
+                // Try to get the actual element from ItemsRepeater
+                var element = CategoriesRepeater.TryGetElement(index);
+                if (element != null)
+                {
+                    // Get element's position relative to the ScrollViewer
+                    var transform = element.TransformToVisual(CategoriesScrollViewer);
+                    var position = transform.TransformPoint(new Windows.Foundation.Point(0, 0));
+                    
+                    var elementHeight = element.ActualSize.Y;
+                    var currentOffset = CategoriesScrollViewer.VerticalOffset;
+                    var viewportHeight = CategoriesScrollViewer.ViewportHeight;
+                    
+                    // Calculate absolute position in scrollable content
+                    var absoluteTop = currentOffset + position.Y;
+                    var absoluteBottom = absoluteTop + elementHeight;
+                    
+                    // Check if item is above visible area
+                    if (absoluteTop < currentOffset)
+                    {
+                        CategoriesScrollViewer.ChangeView(null, absoluteTop, null);
+                    }
+                    // Check if item is below visible area
+                    else if (absoluteBottom > currentOffset + viewportHeight)
+                    {
+                        var newOffset = absoluteBottom - viewportHeight;
+                        CategoriesScrollViewer.ChangeView(null, newOffset, null);
+                    }
+                }
+                else
+                {
+                    // Fallback: estimate position based on index
+                    // Each category item is approximately 56px tall
+                    const double itemHeight = 56;
+                    var targetOffset = index * itemHeight;
+                    CategoriesScrollViewer.ChangeView(null, targetOffset, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to scroll category into view", ex);
+            }
         }
 
         #endregion

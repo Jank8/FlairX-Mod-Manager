@@ -146,11 +146,12 @@ namespace FlairX_Mod_Manager.Pages
                             }
                             
                             var name = Path.GetFileName(modDir);
+                            var cleanName = GetCleanModName(name);
                             string previewPath = GetOptimalImagePathStatic(modDir);
                             
                             var modData = new ModData
                             { 
-                                Name = name, 
+                                Name = cleanName, 
                                 ImagePath = previewPath, 
                                 Directory = dirName, 
                                 IsActive = false, // Will be updated when actually used

@@ -33,7 +33,8 @@
             </Grid.RowDefinitions>
 
             <!-- Category Icons Column -->
-            <ScrollViewer Grid.Column="0" Grid.Row="0"
+            <ScrollViewer x:Name="CategoriesScrollViewer"
+                          Grid.Column="0" Grid.Row="0"
                           Width="220"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled"
