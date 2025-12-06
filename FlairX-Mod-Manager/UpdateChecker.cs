@@ -13,15 +13,25 @@ namespace FlairX_Mod_Manager
         private const string GITHUB_REPO_OWNER = "Jank8";
         private const string GITHUB_REPO_NAME = "FlairX-Mod-Manager";
         
-        private static readonly HttpClient _httpClient = new HttpClient
-        {
-            Timeout = TimeSpan.FromMinutes(2)
-        };
+        private static readonly HttpClient _httpClient = CreateHttpClient();
 
-        static UpdateChecker()
+        private static HttpClient CreateHttpClient()
         {
-            _httpClient.DefaultRequestHeaders.Add("User-Agent", $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) FlairX-Mod-Manager/{AppConstants.APP_VERSION}");
-            _httpClient.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+            var handler = new HttpClientHandler
+            {
+                AllowAutoRedirect = true,
+                AutomaticDecompression = System.Net.DecompressionMethods.GZip | System.Net.DecompressionMethods.Deflate
+            };
+            
+            var client = new HttpClient(handler)
+            {
+                Timeout = TimeSpan.FromMinutes(2)
+            };
+            
+            client.DefaultRequestHeaders.Add("User-Agent", $"Mozilla/5.0 (Windows NT 10.0; Win64; x64) FlairX-Mod-Manager/{AppConstants.APP_VERSION}");
+            client.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+            
+            return client;
         }
 
         public static async Task<(bool updateAvailable, string latestVersion, string downloadUrl, string changelog)?> CheckForUpdatesAsync()
@@ -102,7 +112,14 @@ namespace FlairX_Mod_Manager
             }
             catch (HttpRequestException ex)
             {
-                Logger.LogError($"HTTP error checking for updates: {ex.Message}", ex);
+                // Log detailed information about the HTTP error
+                var innerMessage = ex.InnerException?.Message ?? "No inner exception";
+                Logger.LogError($"HTTP error checking for updates: {ex.Message} | Inner: {innerMessage} | StatusCode: {ex.StatusCode}", ex);
+                return null;
+            }
+            catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+            {
+                Logger.LogError($"Timeout while checking for updates (2 min limit exceeded)", ex);
                 return null;
             }
             catch (JsonException ex)
@@ -112,7 +129,9 @@ namespace FlairX_Mod_Manager
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Unexpected error checking for updates: {ex.Message}", ex);
+                // Log the full exception chain for debugging SSL/network issues
+                var fullError = ex.ToString();
+                Logger.LogError($"Unexpected error checking for updates: {ex.Message} | Full: {fullError}", ex);
                 return null;
             }
         }
