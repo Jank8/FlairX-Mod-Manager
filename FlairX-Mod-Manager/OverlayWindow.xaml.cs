@@ -845,6 +845,9 @@ namespace FlairX_Mod_Manager
             // Select new
             OverlayMods[_selectedModIndex].IsSelected = true;
             
+            // Scroll selected mod into view
+            ScrollModIntoView(_selectedModIndex);
+            
             // Vibrate on navigation if enabled
             if (SettingsManager.Current.GamepadVibrateOnNavigation)
             {
@@ -852,6 +855,41 @@ namespace FlairX_Mod_Manager
             }
             
             Logger.LogInfo($"Gamepad grid navigation: index {_selectedModIndex} (row {newRow}, col {newCol})");
+        }
+        
+        private void ScrollModIntoView(int index)
+        {
+            if (ModsScrollViewer == null || ModsRepeater == null) return;
+            if (index < 0 || index >= OverlayMods.Count) return;
+            
+            try
+            {
+                var element = ModsRepeater.TryGetElement(index);
+                if (element == null) return;
+                
+                var transform = element.TransformToVisual(ModsScrollViewer);
+                var position = transform.TransformPoint(new Windows.Foundation.Point(0, 0));
+                
+                var elementHeight = element.ActualSize.Y;
+                var viewportHeight = ModsScrollViewer.ViewportHeight;
+                var currentOffset = ModsScrollViewer.VerticalOffset;
+                
+                // If element is above viewport, scroll up
+                if (position.Y < 0)
+                {
+                    ModsScrollViewer.ChangeView(null, currentOffset + position.Y - 8, null);
+                }
+                // If element is below viewport, scroll down
+                else if (position.Y + elementHeight > viewportHeight)
+                {
+                    var scrollAmount = position.Y + elementHeight - viewportHeight + 8;
+                    ModsScrollViewer.ChangeView(null, currentOffset + scrollAmount, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"ScrollModIntoView error: {ex.Message}");
+            }
         }
 
         private void ToggleSelectedMod()

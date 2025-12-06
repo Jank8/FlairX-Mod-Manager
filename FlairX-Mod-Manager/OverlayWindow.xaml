@@ -110,7 +110,8 @@
                     Opacity="0.3"/>
 
             <!-- Mod Grid -->
-            <ScrollViewer Grid.Column="1" Grid.Row="0" 
+            <ScrollViewer x:Name="ModsScrollViewer"
+                          Grid.Column="1" Grid.Row="0" 
                           Margin="8,0,0,0"
                           MinWidth="240"
                           VerticalScrollBarVisibility="Auto"
