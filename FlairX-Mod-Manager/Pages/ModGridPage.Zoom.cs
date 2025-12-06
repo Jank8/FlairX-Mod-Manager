@@ -83,7 +83,6 @@ namespace FlairX_Mod_Manager.Pages
 
         private void UpdateGridItemSizes()
         {
-            // Use ScaleTransform approach instead of manual resizing
             if (ModsGrid == null) return;
             
             // Update WrapGrid ItemWidth/ItemHeight for proportional layout
@@ -103,10 +102,18 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
 
-            // ContainerContentChanging handles scaling for new containers
-            // Just invalidate layout to trigger re-measure with new sizes
+            // Apply scaling to all realized containers
+            // ContainerFromIndex returns null for non-realized items, so this only processes visible ones
+            for (int i = 0; i < ModsGrid.Items.Count; i++)
+            {
+                var container = ModsGrid.ContainerFromIndex(i) as GridViewItem;
+                if (container?.ContentTemplateRoot is FrameworkElement root)
+                {
+                    ApplyScalingToContainer(container, root);
+                }
+            }
+
             ModsGrid.InvalidateArrange();
-            ModsGrid.InvalidateMeasure();
             ModsGrid.UpdateLayout();
             
             if (ModsScrollViewer != null)
@@ -120,16 +127,27 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (args.InRecycleQueue) return;
             
-            // Apply scaling to ALL newly generated containers, not just when zoom != 1.0
+            // Apply scaling immediately when container content changes
             if (args.ItemContainer is GridViewItem container)
             {
-                container.Loaded += (s, e) => 
+                // Try to apply scaling immediately if content is ready
+                if (container.ContentTemplateRoot is FrameworkElement root)
                 {
-                    if (container.ContentTemplateRoot is FrameworkElement root)
+                    ApplyScalingToContainer(container, root);
+                }
+                else
+                {
+                    // Content not ready yet - wait for Loaded event (only once)
+                    void OnLoaded(object s, RoutedEventArgs e)
                     {
-                        ApplyScalingToContainer(container, root);
+                        container.Loaded -= OnLoaded;
+                        if (container.ContentTemplateRoot is FrameworkElement r)
+                        {
+                            ApplyScalingToContainer(container, r);
+                        }
                     }
-                };
+                    container.Loaded += OnLoaded;
+                }
             }
         }
 

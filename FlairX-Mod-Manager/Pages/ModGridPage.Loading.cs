@@ -357,6 +357,29 @@ namespace FlairX_Mod_Manager.Pages
                 };
                 _allMods.Add(modTile);
             }
+            
+            // Apply zoom scaling to newly added containers after they're realized
+            if (Math.Abs(_zoomFactor - 1.0) > 0.001)
+            {
+                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+                {
+                    ApplyZoomToNewContainers(currentCount, endIndex);
+                });
+            }
+        }
+        
+        private void ApplyZoomToNewContainers(int startIndex, int endIndex)
+        {
+            if (ModsGrid == null) return;
+            
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                var container = ModsGrid.ContainerFromIndex(i) as GridViewItem;
+                if (container?.ContentTemplateRoot is FrameworkElement root)
+                {
+                    ApplyScalingToContainer(container, root);
+                }
+            }
         }
 
         // Fixed tile dimensions for index-based visibility
