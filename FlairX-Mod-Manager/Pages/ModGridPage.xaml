@@ -289,7 +289,11 @@
                 <GridView x:Name="ModsGrid"
                       IsItemClickEnabled="False"
                       SelectionMode="None"
-                      Background="Transparent">
+                      Background="Transparent"
+                      ScrollViewer.HorizontalScrollMode="Disabled"
+                      ScrollViewer.VerticalScrollMode="Disabled"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      ScrollViewer.VerticalScrollBarVisibility="Disabled">
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapGrid Orientation="Horizontal" />

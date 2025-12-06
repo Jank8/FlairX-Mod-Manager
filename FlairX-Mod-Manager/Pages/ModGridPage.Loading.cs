@@ -250,22 +250,30 @@ namespace FlairX_Mod_Manager.Pages
             this.PointerPressed += (s, e) => ModsScrollViewer?.Focus(Microsoft.UI.Xaml.FocusState.Pointer);
         }
 
+        private System.Threading.CancellationTokenSource? _resizeDebounceToken;
+        
         private void ModGridPage_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            // Debounce resize events - cancel previous pending reload
+            _resizeDebounceToken?.Cancel();
+            _resizeDebounceToken = new System.Threading.CancellationTokenSource();
+            var token = _resizeDebounceToken.Token;
+            
             // When window is resized, the viewport changes so we need to reload visible images
-            _ = Task.Run(async () =>
+            DispatcherQueue.TryEnqueue(async () =>
             {
-                await Task.Delay(100); // Small delay to let the layout update
-                DispatcherQueue.TryEnqueue(() => 
+                try
                 {
-                    LoadVisibleImages();
+                    await Task.Delay(100, token); // Small delay to let the layout update
+                    if (token.IsCancellationRequested) return;
                     
-                    // Force ScrollViewer reset for WinUI 3 wheel issues
-                    if (ModsScrollViewer != null)
-                    {
-                        ModsScrollViewer.UpdateLayout();
-                    }
-                });
+                    LoadVisibleImages();
+                    ModsScrollViewer?.UpdateLayout();
+                }
+                catch (TaskCanceledException)
+                {
+                    // Debounced - ignore
+                }
             });
         }
 
@@ -274,9 +282,9 @@ namespace FlairX_Mod_Manager.Pages
         private const int LOAD_THROTTLE_MS = 200; // Check every 200ms max
         
         // Limit concurrent image loads to prevent overwhelming the system
-        private static readonly SemaphoreSlim _imageLoadSemaphore = new SemaphoreSlim(5, 5); // Max 5 concurrent
-        private static readonly HashSet<string> _currentlyLoading = new HashSet<string>();
-        private static readonly object _loadingLock = new object();
+        private readonly SemaphoreSlim _imageLoadSemaphore = new SemaphoreSlim(5, 5); // Max 5 concurrent
+        private readonly HashSet<string> _currentlyLoading = new HashSet<string>();
+        private readonly object _loadingLock = new object();
         
         private void ModsScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
         {
@@ -420,70 +428,68 @@ namespace FlairX_Mod_Manager.Pages
         
         private async Task LoadImageAsync(ModTile mod)
         {
-            // Skip if already loading this image
+            var imagePath = mod.ImagePath;
+            
+            // Skip if already loading this image (thread-safe check and add)
             lock (_loadingLock)
             {
-                if (_currentlyLoading.Contains(mod.ImagePath))
+                if (_currentlyLoading.Contains(imagePath))
                     return;
-                _currentlyLoading.Add(mod.ImagePath);
+                _currentlyLoading.Add(imagePath);
             }
             
             try
             {
-                // Wait for semaphore slot (max 5 concurrent loads)
-                await _imageLoadSemaphore.WaitAsync();
-                
-                try
+                // Read file on background thread with semaphore - don't block UI thread!
+                var imageData = await Task.Run(async () =>
                 {
-                    // Read file on background thread to avoid blocking UI
-                    var imageData = await Task.Run(() =>
+                    // Wait for semaphore slot on background thread (max 5 concurrent loads)
+                    await _imageLoadSemaphore.WaitAsync();
+                    try
                     {
-                        try
+                        if (File.Exists(imagePath))
                         {
-                            if (File.Exists(mod.ImagePath))
-                            {
-                                return File.ReadAllBytes(mod.ImagePath);
-                            }
-                            return null;
+                            return File.ReadAllBytes(imagePath);
                         }
-                        catch
-                        {
-                            return null;
-                        }
-                    });
+                        return null;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
+                    finally
+                    {
+                        _imageLoadSemaphore.Release();
+                    }
+                });
+                
+                // Decode on UI thread (required by WinUI 3)
+                if (imageData != null)
+                {
+                    var bitmap = new BitmapImage();
+                    using (var memStream = new MemoryStream(imageData))
+                    {
+                        await bitmap.SetSourceAsync(memStream.AsRandomAccessStream());
+                    }
                     
-                    // Decode on UI thread (required by WinUI 3)
-                    if (imageData != null)
+                    mod.ImageSource = bitmap;
+                    
+                    // Apply scaling only if not at 100% zoom
+                    if (Math.Abs(ZoomFactor - 1.0) > 0.001)
                     {
-                        var bitmap = new BitmapImage();
-                        using (var memStream = new MemoryStream(imageData))
+                        var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
+                        if (container?.ContentTemplateRoot is FrameworkElement root)
                         {
-                            await bitmap.SetSourceAsync(memStream.AsRandomAccessStream());
-                        }
-                        
-                        mod.ImageSource = bitmap;
-                        
-                        // Apply scaling only if not at 100% zoom
-                        if (Math.Abs(ZoomFactor - 1.0) > 0.001)
-                        {
-                            var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
-                            if (container?.ContentTemplateRoot is FrameworkElement root)
-                            {
-                                ApplyScalingToContainer(container, root);
-                            }
+                            ApplyScalingToContainer(container, root);
                         }
                     }
-                }
-                finally
-                {
-                    _imageLoadSemaphore.Release();
                 }
             }
             finally
             {
                 lock (_loadingLock)
                 {
-                    _currentlyLoading.Remove(mod.ImagePath);
+                    _currentlyLoading.Remove(imagePath);
                 }
             }
         }

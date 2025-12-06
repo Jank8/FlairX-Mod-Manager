@@ -81,60 +81,38 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async void UpdateGridItemSizes()
+        private void UpdateGridItemSizes()
         {
             // Use ScaleTransform approach instead of manual resizing
-            if (ModsGrid != null)
+            if (ModsGrid == null) return;
+            
+            // Update WrapGrid ItemWidth/ItemHeight for proportional layout
+            if (ModsGrid.ItemsPanelRoot is WrapGrid wrapGrid)
             {
-                // Update WrapGrid ItemWidth/ItemHeight for proportional layout
-                if (ModsGrid.ItemsPanelRoot is WrapGrid wrapGrid)
+                if (Math.Abs(ZoomFactor - 1.0) < 0.001) // At 100% zoom
                 {
-                    if (Math.Abs(ZoomFactor - 1.0) < 0.001) // At 100% zoom
-                    {
-                        // Reset to original auto-sizing at 100%
-                        wrapGrid.ClearValue(WrapGrid.ItemWidthProperty);
-                        wrapGrid.ClearValue(WrapGrid.ItemHeightProperty);
-                    }
-                    else
-                    {
-                        var scaledMargin = 24 * ZoomFactor;
-                        wrapGrid.ItemWidth = _baseTileSize * ZoomFactor + scaledMargin;
-                        wrapGrid.ItemHeight = (_baseTileSize + _baseDescHeight) * ZoomFactor + scaledMargin;
-                    }
+                    // Reset to original auto-sizing at 100%
+                    wrapGrid.ClearValue(WrapGrid.ItemWidthProperty);
+                    wrapGrid.ClearValue(WrapGrid.ItemHeightProperty);
                 }
+                else
+                {
+                    var scaledMargin = 24 * ZoomFactor;
+                    wrapGrid.ItemWidth = _baseTileSize * ZoomFactor + scaledMargin;
+                    wrapGrid.ItemHeight = (_baseTileSize + _baseDescHeight) * ZoomFactor + scaledMargin;
+                }
+            }
 
-                // ONLY update visible containers, not all 1100+ items!
-                // This is the key fix for zoom scroll performance
-                var items = ModsGrid.Items.ToList();
-                var batchSize = 20; // Process 20 items at a time
-                
-                for (int i = 0; i < items.Count; i += batchSize)
-                {
-                    // Yield to UI thread every batch to keep scroll responsive
-                    await Task.Yield();
-                    
-                    var batchEnd = Math.Min(i + batchSize, items.Count);
-                    for (int j = i; j < batchEnd; j++)
-                    {
-                        var item = items[j];
-                        var container = ModsGrid.ContainerFromItem(item) as GridViewItem;
-                        if (container?.ContentTemplateRoot is FrameworkElement root)
-                        {
-                            ApplyScalingToContainer(container, root);
-                        }
-                    }
-                }
-
-                ModsGrid.InvalidateArrange();
-                ModsGrid.UpdateLayout();
-                
-                // Force extents recalculation for zoom - fixes wheel event routing
-                ModsGrid.InvalidateMeasure();
-                if (ModsScrollViewer != null)
-                {
-                    ModsScrollViewer.InvalidateScrollInfo();
-                    ModsScrollViewer.UpdateLayout();
-                }
+            // ContainerContentChanging handles scaling for new containers
+            // Just invalidate layout to trigger re-measure with new sizes
+            ModsGrid.InvalidateArrange();
+            ModsGrid.InvalidateMeasure();
+            ModsGrid.UpdateLayout();
+            
+            if (ModsScrollViewer != null)
+            {
+                ModsScrollViewer.InvalidateScrollInfo();
+                ModsScrollViewer.UpdateLayout();
             }
         }
 
