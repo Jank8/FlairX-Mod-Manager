@@ -36,8 +36,13 @@
     "FilterActiveHotkey_Label": "Фильтр активных",
     "FilterActiveHotkey_Description": "Показать только активные моды в оверлее",
     
-    "SendF10OnOverlayClose_Label": "Отправить F10 при закрытии",
-    "SendF10OnOverlayClose_Description": "Автоматически отправлять F10 для перезагрузки модов при закрытии оверлея",
+    "SendF10OnOverlayClose_Label": "Авто-перезагрузка модов",
+    "SendF10OnOverlayClose_Description": "Автоматически перезагружать моды при изменении активации",
+    
+    "AutoReload_AdminRequired_Title": "Требуются права администратора",
+    "AutoReload_AdminRequired_Content": "Авто-перезагрузка требует прав администратора для отправки клавиш в игру.\n\nХотите запускать FlairX от имени администратора?",
+    "AutoReload_AdminRequired_Yes": "Да",
+    "AutoReload_AdminRequired_Cancel": "Нет",
     
     "GamepadEnabled_Label": "Включить геймпад",
     "GamepadEnabled_Description": "Использовать контроллер Xbox для навигации в оверлее",

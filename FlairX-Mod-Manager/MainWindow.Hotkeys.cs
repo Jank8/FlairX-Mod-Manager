@@ -28,54 +28,31 @@ namespace FlairX_Mod_Manager
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
-        // Win32 API for finding window by title
-        [DllImport("user32.dll", SetLastError = true)]
-        private static extern IntPtr FindWindow(string? lpClassName, string lpWindowName);
-
-        // Win32 API for posting message to window
-        [DllImport("user32.dll")]
-        private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
-
-        // Win32 API for setting foreground window
-        [DllImport("user32.dll")]
-        private static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        // Win32 API for allowing set foreground window
-        [DllImport("user32.dll")]
-        private static extern bool AllowSetForegroundWindow(int dwProcessId);
-
-        // Win32 API for getting window thread process id
-        [DllImport("user32.dll")]
-        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
-
-        private const uint WM_KEYDOWN = 0x0100;
-        private const uint WM_KEYUP = 0x0101;
-
         // Win32 API for sending keyboard input
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
-
-        // Legacy keyboard input API (sometimes bypasses anti-cheat)
-        [DllImport("user32.dll")]
-        private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
         // Get extra info for input simulation (important for some games)
         [DllImport("user32.dll")]
         private static extern IntPtr GetMessageExtraInfo();
 
+        // INPUT structure for SendInput - must match Windows API exactly
+        // On 64-bit Windows, INPUT is 40 bytes: 4 (type) + 4 (padding) + 32 (union)
         [StructLayout(LayoutKind.Sequential)]
         private struct INPUT
         {
             public uint type;
-            public InputUnion u;
+            public INPUTUNION u;
         }
 
+        // Union must be the size of the largest member (MOUSEINPUT = 32 bytes on x64)
         [StructLayout(LayoutKind.Explicit)]
-        private struct InputUnion
+        private struct INPUTUNION
         {
-            [FieldOffset(0)] public KEYBDINPUT ki;
-            [FieldOffset(0)] public MOUSEINPUT mi;
-            [FieldOffset(0)] public HARDWAREINPUT hi;
+            [FieldOffset(0)]
+            public KEYBDINPUT ki;
+            [FieldOffset(0)]
+            public MOUSEINPUT mi;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -99,17 +76,8 @@ namespace FlairX_Mod_Manager
             public IntPtr dwExtraInfo;
         }
 
-        [StructLayout(LayoutKind.Sequential)]
-        private struct HARDWAREINPUT
-        {
-            public uint uMsg;
-            public ushort wParamL;
-            public ushort wParamH;
-        }
-
         private const uint INPUT_KEYBOARD = 1;
         private const uint KEYEVENTF_KEYUP = 0x0002;
-        private const uint KEYEVENTF_SCANCODE = 0x0008;
         private const ushort VK_F10 = 0x79;
 
         // Helper method to check if this window is currently in focus
@@ -684,6 +652,12 @@ namespace FlairX_Mod_Manager
                 
                 // Use lightweight refresh instead of full reload
                 RefreshModTileState(modPath);
+                
+                // Send F10 to reload mods in game if enabled
+                if (SettingsManager.Current.SendF10OnOverlayClose)
+                {
+                    SendF10KeyPress();
+                }
             }
             catch (Exception ex)
             {
@@ -745,18 +719,7 @@ namespace FlairX_Mod_Manager
             try
             {
                 Logger.LogInfo("Overlay window was hidden");
-                
-                // Send F10 to reload mods if enabled
-                Logger.LogInfo($"SendF10OnOverlayClose setting: {SettingsManager.Current.SendF10OnOverlayClose}");
-                if (SettingsManager.Current.SendF10OnOverlayClose)
-                {
-                    Logger.LogInfo("Sending F10 key press...");
-                    SendF10KeyPress();
-                }
-                else
-                {
-                    Logger.LogInfo("SendF10OnOverlayClose is disabled, skipping F10");
-                }
+                // F10 is now sent on each mod toggle, not on overlay close
             }
             catch (Exception ex)
             {
@@ -773,16 +736,18 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogInfo("SendF10KeyPress: Starting...");
                 
+                const ushort SCAN_F10 = 0x44; // Scan code for F10
+                
                 // Send F10 key down
                 var inputDown = new INPUT
                 {
                     type = INPUT_KEYBOARD,
-                    u = new InputUnion
+                    u = new INPUTUNION
                     {
                         ki = new KEYBDINPUT
                         {
                             wVk = VK_F10,
-                            wScan = 0,
+                            wScan = SCAN_F10,
                             dwFlags = 0,
                             time = 0,
                             dwExtraInfo = GetMessageExtraInfo()
@@ -790,7 +755,10 @@ namespace FlairX_Mod_Manager
                     }
                 };
                 
-                var resultDown = SendInput(1, new[] { inputDown }, Marshal.SizeOf<INPUT>());
+                var sizeOfInput = Marshal.SizeOf<INPUT>();
+                Logger.LogInfo($"SendF10KeyPress: INPUT struct size = {sizeOfInput}, VK=0x{VK_F10:X2}, Scan=0x{SCAN_F10:X2}");
+                
+                var resultDown = SendInput(1, new[] { inputDown }, sizeOfInput);
                 Logger.LogInfo($"SendF10KeyPress: SendInput key down result: {resultDown}");
                 
                 await Task.Delay(50);
@@ -799,12 +767,12 @@ namespace FlairX_Mod_Manager
                 var inputUp = new INPUT
                 {
                     type = INPUT_KEYBOARD,
-                    u = new InputUnion
+                    u = new INPUTUNION
                     {
                         ki = new KEYBDINPUT
                         {
                             wVk = VK_F10,
-                            wScan = 0,
+                            wScan = SCAN_F10,
                             dwFlags = KEYEVENTF_KEYUP,
                             time = 0,
                             dwExtraInfo = GetMessageExtraInfo()
@@ -812,33 +780,15 @@ namespace FlairX_Mod_Manager
                     }
                 };
                 
-                var resultUp = SendInput(1, new[] { inputUp }, Marshal.SizeOf<INPUT>());
+                var resultUp = SendInput(1, new[] { inputUp }, sizeOfInput);
                 Logger.LogInfo($"SendF10KeyPress: SendInput key up result: {resultUp}");
                 
-                Logger.LogInfo("F10 key press sent via SendInput with GetMessageExtraInfo");
+                Logger.LogInfo("F10 key press sent via SendInput");
             }
             catch (Exception ex)
             {
                 Logger.LogError("Failed to send F10 key press", ex);
             }
-        }
-
-        /// <summary>
-        /// Get the window title for the currently selected game
-        /// </summary>
-        private string? GetCurrentGameWindowTitle()
-        {
-            // Game index matches SettingsManager.GetGameTagFromIndex:
-            // 1=GIMI (Genshin), 2=HIMI (Honkai Impact 3rd), 3=SRMI (Star Rail), 4=WWMI (Wuthering Waves), 5=ZZMI (ZZZ)
-            return SettingsManager.Current.SelectedGameIndex switch
-            {
-                1 => "Genshin Impact",      // GIMI
-                2 => "Honkai Impact 3rd",   // HIMI
-                3 => "Honkai: Star Rail",   // SRMI
-                4 => "Wuthering Waves",     // WWMI
-                5 => "ZenlessZoneZero",     // ZZMI
-                _ => null
-            };
         }
 
         /// <summary>

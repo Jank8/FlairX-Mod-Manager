@@ -36,8 +36,13 @@
     "FilterActiveHotkey_Label": "활성 필터 단축키",
     "FilterActiveHotkey_Description": "오버레이에서 활성 모드만 표시",
     
-    "SendF10OnOverlayClose_Label": "닫을 때 F10 전송",
-    "SendF10OnOverlayClose_Description": "오버레이 닫을 때 자동으로 F10을 전송하여 모드 다시 로드",
+    "SendF10OnOverlayClose_Label": "모드 자동 다시 로드",
+    "SendF10OnOverlayClose_Description": "활성화 변경 시 모드 자동 다시 로드",
+    
+    "AutoReload_AdminRequired_Title": "관리자 권한 필요",
+    "AutoReload_AdminRequired_Content": "자동 다시 로드는 게임에 키보드 입력을 보내기 위해 관리자 권한이 필요합니다.\n\n지금부터 FlairX를 관리자로 실행하시겠습니까?",
+    "AutoReload_AdminRequired_Yes": "예",
+    "AutoReload_AdminRequired_Cancel": "아니요",
     
     "GamepadEnabled_Label": "게임패드 활성화",
     "GamepadEnabled_Description": "Xbox 컨트롤러로 오버레이 탐색",

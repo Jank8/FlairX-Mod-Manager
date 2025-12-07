@@ -36,8 +36,13 @@
     "FilterActiveHotkey_Label": "Phím tắt lọc hoạt động",
     "FilterActiveHotkey_Description": "Chỉ hiện mod đang hoạt động trong overlay",
     
-    "SendF10OnOverlayClose_Label": "Gửi F10 khi đóng",
-    "SendF10OnOverlayClose_Description": "Tự động gửi F10 để tải lại mod khi đóng overlay",
+    "SendF10OnOverlayClose_Label": "Tự động tải lại mod",
+    "SendF10OnOverlayClose_Description": "Tự động tải lại mod khi thay đổi kích hoạt",
+    
+    "AutoReload_AdminRequired_Title": "Cần quyền Quản trị viên",
+    "AutoReload_AdminRequired_Content": "Tự động tải lại cần quyền quản trị viên để gửi đầu vào bàn phím đến game.\n\nBạn có muốn FlairX chạy với quyền quản trị viên từ bây giờ không?",
+    "AutoReload_AdminRequired_Yes": "Có",
+    "AutoReload_AdminRequired_Cancel": "Không",
     
     "GamepadEnabled_Label": "Bật Gamepad",
     "GamepadEnabled_Description": "Dùng tay cầm Xbox để điều hướng overlay",

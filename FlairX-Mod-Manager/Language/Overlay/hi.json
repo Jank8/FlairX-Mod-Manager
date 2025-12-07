@@ -36,8 +36,13 @@
     "FilterActiveHotkey_Label": "सक्रिय फ़िल्टर हॉटकी",
     "FilterActiveHotkey_Description": "ओवरले में केवल सक्रिय मॉड दिखाएं",
     
-    "SendF10OnOverlayClose_Label": "बंद करने पर F10 भेजें",
-    "SendF10OnOverlayClose_Description": "ओवरले बंद करने पर मॉड रीलोड करने के लिए स्वचालित रूप से F10 भेजें",
+    "SendF10OnOverlayClose_Label": "मॉड ऑटो-रीलोड",
+    "SendF10OnOverlayClose_Description": "सक्रियण बदलने पर मॉड स्वचालित रूप से रीलोड करें",
+    
+    "AutoReload_AdminRequired_Title": "व्यवस्थापक आवश्यक",
+    "AutoReload_AdminRequired_Content": "ऑटो-रीलोड के लिए गेम को कीबोर्ड इनपुट भेजने के लिए व्यवस्थापक विशेषाधिकार आवश्यक हैं।\n\nक्या आप चाहते हैं कि FlairX अब से व्यवस्थापक के रूप में चले?",
+    "AutoReload_AdminRequired_Yes": "हां",
+    "AutoReload_AdminRequired_Cancel": "नहीं",
     
     "GamepadEnabled_Label": "गेमपैड सक्षम करें",
     "GamepadEnabled_Description": "ओवरले में नेविगेट करने के लिए Xbox कंट्रोलर का उपयोग करें",

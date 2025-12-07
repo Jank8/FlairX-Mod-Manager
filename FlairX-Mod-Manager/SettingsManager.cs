@@ -72,7 +72,8 @@ namespace FlairX_Mod_Manager
         public int OverlayHeight { get; set; } = 720;
         public int OverlayX { get; set; } = -1; // -1 means center on screen
         public int OverlayY { get; set; } = -1;
-        public bool SendF10OnOverlayClose { get; set; } = false; // Send F10 to reload mods when overlay closes
+        public bool SendF10OnOverlayClose { get; set; } = false; // Send F10 to reload mods when mod is toggled in overlay (requires admin)
+        public bool RunAsAdminEnabled { get; set; } = false; // Run FlairX as administrator on startup
         
         // Gamepad settings
         public bool GamepadEnabled { get; set; } = false;

@@ -36,8 +36,13 @@
     "FilterActiveHotkey_Label": "アクティブフィルターホットキー",
     "FilterActiveHotkey_Description": "オーバーレイでアクティブなMODのみ表示",
     
-    "SendF10OnOverlayClose_Label": "終了時にF10を送信",
-    "SendF10OnOverlayClose_Description": "オーバーレイ終了時に自動的にF10を送信してModをリロード",
+    "SendF10OnOverlayClose_Label": "MOD自動リロード",
+    "SendF10OnOverlayClose_Description": "有効化変更時にMODを自動リロード",
+    
+    "AutoReload_AdminRequired_Title": "管理者権限が必要",
+    "AutoReload_AdminRequired_Content": "自動リロードにはゲームにキーボード入力を送信するための管理者権限が必要です。\n\n今後FlairXを管理者として実行しますか？",
+    "AutoReload_AdminRequired_Yes": "はい",
+    "AutoReload_AdminRequired_Cancel": "いいえ",
     
     "GamepadEnabled_Label": "ゲームパッドを有効化",
     "GamepadEnabled_Description": "Xboxコントローラーでオーバーレイをナビゲート",

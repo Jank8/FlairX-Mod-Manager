@@ -36,8 +36,13 @@
     "FilterActiveHotkey_Label": "Filter Active Hotkey",
     "FilterActiveHotkey_Description": "Ipakita lamang ang mga aktibong mod sa overlay",
     
-    "SendF10OnOverlayClose_Label": "Magpadala ng F10 kapag isinara",
-    "SendF10OnOverlayClose_Description": "Awtomatikong magpadala ng F10 para i-reload ang mga mod kapag isinara ang overlay",
+    "SendF10OnOverlayClose_Label": "Auto-reload ng mod",
+    "SendF10OnOverlayClose_Description": "Awtomatikong i-reload ang mga mod kapag nagbago ang activation",
+    
+    "AutoReload_AdminRequired_Title": "Kailangan ng Administrator",
+    "AutoReload_AdminRequired_Content": "Ang auto-reload ay nangangailangan ng administrator privileges para magpadala ng keyboard input sa laro.\n\nGusto mo bang patakbuhin ang FlairX bilang administrator mula ngayon?",
+    "AutoReload_AdminRequired_Yes": "Oo",
+    "AutoReload_AdminRequired_Cancel": "Hindi",
     
     "GamepadEnabled_Label": "I-enable ang Gamepad",
     "GamepadEnabled_Description": "Gamitin ang Xbox controller para mag-navigate sa overlay",

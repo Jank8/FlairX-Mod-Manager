@@ -36,8 +36,13 @@
     "FilterActiveHotkey_Label": "Atalho de filtro ativos",
     "FilterActiveHotkey_Description": "Mostrar apenas mods ativos no overlay",
     
-    "SendF10OnOverlayClose_Label": "Enviar F10 ao fechar",
-    "SendF10OnOverlayClose_Description": "Enviar F10 automaticamente para recarregar mods ao fechar overlay",
+    "SendF10OnOverlayClose_Label": "Auto-recarregar mods",
+    "SendF10OnOverlayClose_Description": "Recarregar mods automaticamente ao alterar ativação",
+    
+    "AutoReload_AdminRequired_Title": "Administrador necessário",
+    "AutoReload_AdminRequired_Content": "O recarregamento automático requer privilégios de administrador para enviar entrada de teclado ao jogo.\n\nDeseja que o FlairX seja executado como administrador a partir de agora?",
+    "AutoReload_AdminRequired_Yes": "Sim",
+    "AutoReload_AdminRequired_Cancel": "Não",
     
     "GamepadEnabled_Label": "Ativar Gamepad",
     "GamepadEnabled_Description": "Usar comando Xbox para navegar no overlay",

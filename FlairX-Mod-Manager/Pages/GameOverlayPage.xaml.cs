@@ -1,6 +1,8 @@
+using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace FlairX_Mod_Manager.Pages
 {
@@ -148,6 +150,12 @@ namespace FlairX_Mod_Manager.Pages
             // Load Send F10 on overlay close
             SendF10OnOverlayCloseToggle.IsOn = settings.SendF10OnOverlayClose;
             
+            // Ensure background_keypress.ini exists if setting is enabled
+            if (settings.SendF10OnOverlayClose)
+            {
+                EnsureBackgroundKeypressIni(true);
+            }
+            
             // Load gamepad enabled
             GamepadEnabledToggle.IsOn = settings.GamepadEnabled;
             
@@ -225,14 +233,153 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void SendF10OnOverlayCloseToggle_Toggled(object sender, RoutedEventArgs e)
+        private async void SendF10OnOverlayCloseToggle_Toggled(object sender, RoutedEventArgs e)
         {
             if (_isInitializing) return;
             
-            SettingsManager.Current.SendF10OnOverlayClose = SendF10OnOverlayCloseToggle.IsOn;
-            SettingsManager.Save();
-            
-            Logger.LogInfo($"Send F10 on overlay close: {SendF10OnOverlayCloseToggle.IsOn}");
+            // If enabling and not already running as admin, show admin requirement dialog
+            if (SendF10OnOverlayCloseToggle.IsOn && !IsRunningAsAdmin())
+            {
+                var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
+                
+                var dialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "AutoReload_AdminRequired_Title"),
+                    Content = SharedUtilities.GetTranslation(lang, "AutoReload_AdminRequired_Content"),
+                    PrimaryButtonText = SharedUtilities.GetTranslation(lang, "AutoReload_AdminRequired_Yes"),
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "AutoReload_AdminRequired_Cancel"),
+                    XamlRoot = this.XamlRoot
+                };
+                
+                var result = await dialog.ShowAsync();
+                
+                if (result == ContentDialogResult.Primary)
+                {
+                    // Save settings before restart - enable both auto-reload and run as admin
+                    SettingsManager.Current.SendF10OnOverlayClose = true;
+                    SettingsManager.Current.RunAsAdminEnabled = true;
+                    SettingsManager.Save();
+                    
+                    // Create background_keypress.ini
+                    EnsureBackgroundKeypressIni(true);
+                    
+                    Logger.LogInfo("Auto-reload enabled, RunAsAdminEnabled set to true, restarting as admin...");
+                    
+                    // Restart application as administrator
+                    RestartAsAdmin();
+                }
+                else
+                {
+                    // User cancelled - revert toggle
+                    _isInitializing = true;
+                    SendF10OnOverlayCloseToggle.IsOn = false;
+                    _isInitializing = false;
+                    return;
+                }
+            }
+            else
+            {
+                SettingsManager.Current.SendF10OnOverlayClose = SendF10OnOverlayCloseToggle.IsOn;
+                
+                // If disabling auto-reload, also disable run as admin
+                if (!SendF10OnOverlayCloseToggle.IsOn)
+                {
+                    SettingsManager.Current.RunAsAdminEnabled = false;
+                }
+                
+                SettingsManager.Save();
+                
+                // Create or remove background_keypress.ini file
+                EnsureBackgroundKeypressIni(SendF10OnOverlayCloseToggle.IsOn);
+                
+                Logger.LogInfo($"Auto-reload mods: {SendF10OnOverlayCloseToggle.IsOn}, RunAsAdminEnabled: {SettingsManager.Current.RunAsAdminEnabled}");
+            }
+        }
+        
+        /// <summary>
+        /// Check if the application is running with administrator privileges
+        /// </summary>
+        private static bool IsRunningAsAdmin()
+        {
+            try
+            {
+                using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+                var principal = new System.Security.Principal.WindowsPrincipal(identity);
+                return principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// Restart the application with administrator privileges
+        /// </summary>
+        private static void RestartAsAdmin()
+        {
+            try
+            {
+                var exePath = System.Environment.ProcessPath;
+                if (string.IsNullOrEmpty(exePath)) return;
+                
+                var startInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = exePath,
+                    UseShellExecute = true,
+                    Verb = "runas",
+                    WorkingDirectory = System.IO.Path.GetDirectoryName(exePath)
+                };
+                
+                System.Diagnostics.Process.Start(startInfo);
+                
+                // Close current application
+                System.Environment.Exit(0);
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("Failed to restart as admin", ex);
+            }
+        }
+        
+        /// <summary>
+        /// Creates or removes background_keypress.ini file in Mods folder.
+        /// This file tells 3DMigoto to accept keypresses even when game is not in foreground.
+        /// </summary>
+        private void EnsureBackgroundKeypressIni(bool enabled)
+        {
+            try
+            {
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath) || !System.IO.Directory.Exists(modsPath))
+                {
+                    Logger.LogWarning("Cannot create background_keypress.ini - Mods directory not found");
+                    return;
+                }
+                
+                var iniPath = System.IO.Path.Combine(modsPath, "background_keypress.ini");
+                
+                if (enabled)
+                {
+                    // Create the ini file with setting to accept background keypresses
+                    var content = "[System]\ncheck_foreground_window = 0\n";
+                    System.IO.File.WriteAllText(iniPath, content);
+                    Logger.LogInfo($"Created background_keypress.ini at: {iniPath}");
+                }
+                else
+                {
+                    // Remove the ini file if it exists
+                    if (System.IO.File.Exists(iniPath))
+                    {
+                        System.IO.File.Delete(iniPath);
+                        Logger.LogInfo($"Removed background_keypress.ini from: {iniPath}");
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("Failed to manage background_keypress.ini", ex);
+            }
         }
 
         private void GamepadEnabledToggle_Toggled(object sender, RoutedEventArgs e)

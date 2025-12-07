@@ -36,8 +36,13 @@
     "FilterActiveHotkey_Label": "ปุ่มลัดกรองที่ใช้งาน",
     "FilterActiveHotkey_Description": "แสดงเฉพาะม็อดที่เปิดใช้งานในโอเวอร์เลย์",
     
-    "SendF10OnOverlayClose_Label": "ส่ง F10 เมื่อปิด",
-    "SendF10OnOverlayClose_Description": "ส่ง F10 โดยอัตโนมัติเพื่อโหลดม็อดใหม่เมื่อปิดโอเวอร์เลย์",
+    "SendF10OnOverlayClose_Label": "โหลดม็อดอัตโนมัติ",
+    "SendF10OnOverlayClose_Description": "โหลดม็อดใหม่โดยอัตโนมัติเมื่อเปลี่ยนการเปิดใช้งาน",
+    
+    "AutoReload_AdminRequired_Title": "ต้องการสิทธิ์ผู้ดูแลระบบ",
+    "AutoReload_AdminRequired_Content": "การโหลดอัตโนมัติต้องการสิทธิ์ผู้ดูแลระบบเพื่อส่งการป้อนข้อมูลแป้นพิมพ์ไปยังเกม\n\nคุณต้องการให้ FlairX ทำงานในฐานะผู้ดูแลระบบตั้งแต่นี้ไปหรือไม่?",
+    "AutoReload_AdminRequired_Yes": "ใช่",
+    "AutoReload_AdminRequired_Cancel": "ไม่",
     
     "GamepadEnabled_Label": "เปิดใช้เกมแพด",
     "GamepadEnabled_Description": "ใช้คอนโทรลเลอร์ Xbox เพื่อนำทางในโอเวอร์เลย์",
