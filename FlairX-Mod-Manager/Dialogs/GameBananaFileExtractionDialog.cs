@@ -48,6 +48,15 @@ namespace FlairX_Mod_Manager.Dialogs
         private string? _version;
         private string? _existingModPathForPreviewsOnly = null;
 
+        // Event fired when mod is successfully installed
+        public event EventHandler<ModInstalledEventArgs>? ModInstalled;
+        
+        public class ModInstalledEventArgs : EventArgs
+        {
+            public string? ModProfileUrl { get; set; }
+            public int ModId { get; set; }
+        }
+
         public GameBananaFileExtractionDialog(
             List<Models.GameBananaFileViewModel> selectedFiles,
             string modName,
@@ -446,6 +455,13 @@ namespace FlairX_Mod_Manager.Dialogs
                 _downloadProgressBar.Value = 100;
                 _extractProgressBar.Value = 100;
                 await Task.Delay(1000);
+
+                // Fire event to notify that mod was installed
+                ModInstalled?.Invoke(this, new ModInstalledEventArgs 
+                { 
+                    ModProfileUrl = _modProfileUrl,
+                    ModId = _modId
+                });
 
                 // Close dialog - optimization will run in background after dialog closes
                 Hide();

@@ -68,7 +68,21 @@ namespace FlairX_Mod_Manager.Pages
             public long DateModified { get; set; }
             public long DateUpdated { get; set; }
             public bool IsRated { get; set; } = false;
-            public bool IsInstalled { get; set; } = false;
+            
+            private bool _isInstalled = false;
+            public bool IsInstalled 
+            { 
+                get => _isInstalled;
+                set
+                {
+                    if (_isInstalled != value)
+                    {
+                        _isInstalled = value;
+                        OnPropertyChanged(nameof(IsInstalled));
+                        OnPropertyChanged(nameof(IsInstalledVisibility));
+                    }
+                }
+            }
             public Visibility IsInstalledVisibility => IsInstalled ? Visibility.Visible : Visibility.Collapsed;
             public string InstalledText { get; set; } = "Installed";
             
@@ -1131,12 +1145,30 @@ namespace FlairX_Mod_Manager.Pages
                 _currentModIsNSFW, // Pass NSFW status from mod list
                 _currentModDetails.Version); // Pass version from API (_sVersion)
             extractDialog.XamlRoot = XamlRoot;
+            
+            // Subscribe to ModInstalled event to refresh tile
+            extractDialog.ModInstalled += OnModInstalled;
+            
             var result = await extractDialog.ShowAsync();
 
             if (result == ContentDialogResult.Primary)
             {
                 CloseDetailsPanel();
             }
+        }
+        
+        private void OnModInstalled(object? sender, Dialogs.GameBananaFileExtractionDialog.ModInstalledEventArgs e)
+        {
+            // Find the mod in the list and update IsInstalled
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                var mod = _mods.FirstOrDefault(m => m.ProfileUrl == e.ModProfileUrl || m.Id == e.ModId);
+                if (mod != null)
+                {
+                    mod.IsInstalled = true;
+                    Logger.LogInfo($"Updated IsInstalled for mod: {mod.Name}");
+                }
+            });
         }
 
         private async void DetailOpenBrowserButton_Click(object sender, RoutedEventArgs e)
