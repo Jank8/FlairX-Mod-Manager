@@ -36,6 +36,18 @@ namespace FlairX_Mod_Manager
         [DllImport("user32.dll")]
         private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
+        // Win32 API for setting foreground window
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        // Win32 API for allowing set foreground window
+        [DllImport("user32.dll")]
+        private static extern bool AllowSetForegroundWindow(int dwProcessId);
+
+        // Win32 API for getting window thread process id
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
         private const uint WM_KEYDOWN = 0x0100;
         private const uint WM_KEYUP = 0x0101;
 
@@ -46,6 +58,10 @@ namespace FlairX_Mod_Manager
         // Legacy keyboard input API (sometimes bypasses anti-cheat)
         [DllImport("user32.dll")]
         private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+
+        // Get extra info for input simulation (important for some games)
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetMessageExtraInfo();
 
         [StructLayout(LayoutKind.Sequential)]
         private struct INPUT
@@ -749,61 +765,57 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
-        /// Send F10 key press to reload mods in game
+        /// Send F10 key press to reload mods in game (using SendInput like No-Reload-Mod-Manager)
         /// </summary>
         private async void SendF10KeyPress()
         {
             try
             {
-                Logger.LogInfo("SendF10KeyPress: Starting, waiting 300ms for game to become active...");
+                Logger.LogInfo("SendF10KeyPress: Starting...");
                 
-                // Longer delay to let the game window become active
-                await Task.Delay(300);
-                
-                const int VK_F10_INT = 0x79;
-                
-                // Try to find game window and send directly via PostMessage
-                var gameWindowTitle = GetCurrentGameWindowTitle();
-                if (!string.IsNullOrEmpty(gameWindowTitle))
+                // Send F10 key down
+                var inputDown = new INPUT
                 {
-                    Logger.LogInfo($"SendF10KeyPress: Trying PostMessage to window '{gameWindowTitle}'...");
-                    var hWnd = FindWindow(null, gameWindowTitle);
-                    
-                    if (hWnd != IntPtr.Zero)
+                    type = INPUT_KEYBOARD,
+                    u = new InputUnion
                     {
-                        Logger.LogInfo($"SendF10KeyPress: Found window handle: {hWnd}");
-                        
-                        // Send WM_KEYDOWN and WM_KEYUP
-                        var downResult = PostMessage(hWnd, WM_KEYDOWN, (IntPtr)VK_F10_INT, IntPtr.Zero);
-                        await Task.Delay(50);
-                        var upResult = PostMessage(hWnd, WM_KEYUP, (IntPtr)VK_F10_INT, IntPtr.Zero);
-                        
-                        Logger.LogInfo($"SendF10KeyPress: PostMessage results - down: {downResult}, up: {upResult}");
-                        
-                        if (downResult && upResult)
+                        ki = new KEYBDINPUT
                         {
-                            Logger.LogInfo("F10 key press sent via PostMessage to game window");
-                            return;
+                            wVk = VK_F10,
+                            wScan = 0,
+                            dwFlags = 0,
+                            time = 0,
+                            dwExtraInfo = GetMessageExtraInfo()
                         }
                     }
-                    else
-                    {
-                        Logger.LogWarning($"SendF10KeyPress: Could not find window '{gameWindowTitle}'");
-                    }
-                }
+                };
                 
-                // Fallback to keybd_event
-                Logger.LogInfo("SendF10KeyPress: Falling back to keybd_event...");
+                var resultDown = SendInput(1, new[] { inputDown }, Marshal.SizeOf<INPUT>());
+                Logger.LogInfo($"SendF10KeyPress: SendInput key down result: {resultDown}");
                 
-                const byte VK_F10_BYTE = 0x79;
-                const byte SCAN_F10 = 0x44;
-                const uint KEYEVENTF_KEYUP_FLAG = 0x0002;
-                
-                keybd_event(VK_F10_BYTE, SCAN_F10, 0, UIntPtr.Zero);
                 await Task.Delay(50);
-                keybd_event(VK_F10_BYTE, SCAN_F10, KEYEVENTF_KEYUP_FLAG, UIntPtr.Zero);
                 
-                Logger.LogInfo("F10 key press sent via keybd_event");
+                // Send F10 key up
+                var inputUp = new INPUT
+                {
+                    type = INPUT_KEYBOARD,
+                    u = new InputUnion
+                    {
+                        ki = new KEYBDINPUT
+                        {
+                            wVk = VK_F10,
+                            wScan = 0,
+                            dwFlags = KEYEVENTF_KEYUP,
+                            time = 0,
+                            dwExtraInfo = GetMessageExtraInfo()
+                        }
+                    }
+                };
+                
+                var resultUp = SendInput(1, new[] { inputUp }, Marshal.SizeOf<INPUT>());
+                Logger.LogInfo($"SendF10KeyPress: SendInput key up result: {resultUp}");
+                
+                Logger.LogInfo("F10 key press sent via SendInput with GetMessageExtraInfo");
             }
             catch (Exception ex)
             {
@@ -816,14 +828,15 @@ namespace FlairX_Mod_Manager
         /// </summary>
         private string? GetCurrentGameWindowTitle()
         {
-            // Game index: 1=ZZMI, 2=GIMI, 3=SRMI, 4=HIMI, 5=WWMI
+            // Game index matches SettingsManager.GetGameTagFromIndex:
+            // 1=GIMI (Genshin), 2=HIMI (Honkai Impact 3rd), 3=SRMI (Star Rail), 4=WWMI (Wuthering Waves), 5=ZZMI (ZZZ)
             return SettingsManager.Current.SelectedGameIndex switch
             {
-                1 => "ZenlessZoneZero", // ZZZ
-                2 => "Genshin Impact", // Genshin
-                3 => "Honkai: Star Rail", // HSR
-                4 => "Honkai Impact 3rd", // HI3
-                5 => "Wuthering Waves", // WuWa
+                1 => "Genshin Impact",      // GIMI
+                2 => "Honkai Impact 3rd",   // HIMI
+                3 => "Honkai: Star Rail",   // SRMI
+                4 => "Wuthering Waves",     // WWMI
+                5 => "ZenlessZoneZero",     // ZZMI
                 _ => null
             };
         }
