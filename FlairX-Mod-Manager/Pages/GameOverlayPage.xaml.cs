@@ -67,6 +67,10 @@ namespace FlairX_Mod_Manager.Pages
             if (FilterActiveHotkeyLabel != null) FilterActiveHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "FilterActiveHotkey_Label");
             if (FilterActiveHotkeyDescription != null) FilterActiveHotkeyDescription.Text = SharedUtilities.GetTranslation(lang, "FilterActiveHotkey_Description");
             
+            // Send F10 on Overlay Close
+            if (SendF10OnOverlayCloseLabel != null) SendF10OnOverlayCloseLabel.Text = SharedUtilities.GetTranslation(lang, "SendF10OnOverlayClose_Label");
+            if (SendF10OnOverlayCloseDescription != null) SendF10OnOverlayCloseDescription.Text = SharedUtilities.GetTranslation(lang, "SendF10OnOverlayClose_Description");
+            
             // Gamepad Enabled
             if (GamepadEnabledLabel != null) GamepadEnabledLabel.Text = SharedUtilities.GetTranslation(lang, "GamepadEnabled_Label");
             if (GamepadEnabledDescription != null) GamepadEnabledDescription.Text = SharedUtilities.GetTranslation(lang, "GamepadEnabled_Description");
@@ -140,6 +144,9 @@ namespace FlairX_Mod_Manager.Pages
             // Load hotkey
             OverlayHotkeyTextBox.Text = settings.ToggleOverlayHotkey ?? "Alt+W";
             FilterActiveHotkeyTextBox.Text = settings.FilterActiveHotkey ?? "Alt+A";
+            
+            // Load Send F10 on overlay close
+            SendF10OnOverlayCloseToggle.IsOn = settings.SendF10OnOverlayClose;
             
             // Load gamepad enabled
             GamepadEnabledToggle.IsOn = settings.GamepadEnabled;
@@ -216,6 +223,16 @@ namespace FlairX_Mod_Manager.Pages
                 GamepadStatusText.Text = SharedUtilities.GetTranslation(lang, "ControllerStatus_NotConnected");
                 GamepadStatusText.Opacity = 0.7;
             }
+        }
+
+        private void SendF10OnOverlayCloseToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (_isInitializing) return;
+            
+            SettingsManager.Current.SendF10OnOverlayClose = SendF10OnOverlayCloseToggle.IsOn;
+            SettingsManager.Save();
+            
+            Logger.LogInfo($"Send F10 on overlay close: {SendF10OnOverlayCloseToggle.IsOn}");
         }
 
         private void GamepadEnabledToggle_Toggled(object sender, RoutedEventArgs e)

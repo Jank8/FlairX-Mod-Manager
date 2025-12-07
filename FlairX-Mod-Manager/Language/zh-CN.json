@@ -166,6 +166,8 @@
     "SettingsPage_ReloadManagerHotkey_Description": "重新加载管理器的键盘快捷键",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "随机排列活跃模组的键盘快捷键",
     "SettingsPage_DeactivateAllModsHotkey_Description": "停用所有模组的键盘快捷键",
+    "SettingsPage_SendF10OnOverlayClose_Label": "关闭覆盖层时发送F10",
+    "SettingsPage_SendF10OnOverlayClose_Description": "关闭覆盖层时自动发送F10以重新加载模组",
     "ModDetail_NSFW_Label": "NSFW内容",
     "ModDetail_StatusKeeperSync_Label": "从游戏同步设置",
     "ToggleSwitch_On": "开启",

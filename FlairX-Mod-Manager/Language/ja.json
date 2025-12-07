@@ -166,6 +166,8 @@
     "SettingsPage_ReloadManagerHotkey_Description": "マネージャー再読み込みのキーボードショートカット",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "アクティブMod シャッフルのキーボードショートカット",
     "SettingsPage_DeactivateAllModsHotkey_Description": "全Mod無効化のキーボードショートカット",
+    "SettingsPage_SendF10OnOverlayClose_Label": "オーバーレイ終了時にF10を送信",
+    "SettingsPage_SendF10OnOverlayClose_Description": "オーバーレイ終了時に自動的にF10を送信してModをリロード",
     "ModDetail_NSFW_Label": "NSFWコンテンツ",
     "ModDetail_StatusKeeperSync_Label": "ゲームから設定を同期",
     "ToggleSwitch_On": "オン",

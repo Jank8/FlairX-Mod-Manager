@@ -176,6 +176,8 @@
     "SettingsPage_ReloadManagerHotkey_Description": "Keyboard shortcut for reloading the manager",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "Keyboard shortcut for shuffling active mods",
     "SettingsPage_DeactivateAllModsHotkey_Description": "Keyboard shortcut for deactivating all mods",
+    "SettingsPage_SendF10OnOverlayClose_Label": "Send F10 on overlay close",
+    "SettingsPage_SendF10OnOverlayClose_Description": "Automatically send F10 to reload mods when overlay closes",
     "ModDetail_NSFW_Label": "NSFW Content",
     "ModDetail_StatusKeeperSync_Label": "Sync settings from game",
     "DragDrop_DropImagesHere": "Drop images here",

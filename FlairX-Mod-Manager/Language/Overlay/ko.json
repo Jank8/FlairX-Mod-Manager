@@ -36,6 +36,9 @@
     "FilterActiveHotkey_Label": "활성 필터 단축키",
     "FilterActiveHotkey_Description": "오버레이에서 활성 모드만 표시",
     
+    "SendF10OnOverlayClose_Label": "닫을 때 F10 전송",
+    "SendF10OnOverlayClose_Description": "오버레이 닫을 때 자동으로 F10을 전송하여 모드 다시 로드",
+    
     "GamepadEnabled_Label": "게임패드 활성화",
     "GamepadEnabled_Description": "Xbox 컨트롤러로 오버레이 탐색",
     

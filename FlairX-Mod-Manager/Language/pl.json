@@ -176,6 +176,8 @@
     "SettingsPage_ReloadManagerHotkey_Description": "Skrót klawiszowy do przeładowania menedżera",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "Skrót klawiszowy do tasowania aktywnych modów",
     "SettingsPage_DeactivateAllModsHotkey_Description": "Skrót klawiszowy do dezaktywacji wszystkich modów",
+    "SettingsPage_SendF10OnOverlayClose_Label": "Wyślij F10 po zamknięciu overlay",
+    "SettingsPage_SendF10OnOverlayClose_Description": "Automatycznie wyślij F10 do przeładowania modów po zamknięciu overlay",
     "ModDetail_NSFW_Label": "Treści NSFW",
     "ModDetail_StatusKeeperSync_Label": "Synchronizuj ustawienia z gry",
     "DragDrop_DropImagesHere": "Upuść obrazy tutaj",

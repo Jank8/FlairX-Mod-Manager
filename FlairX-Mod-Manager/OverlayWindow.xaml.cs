@@ -1105,6 +1105,8 @@ namespace FlairX_Mod_Manager
 
                 var modDirs = System.IO.Directory.GetDirectories(categoryPath);
                 
+                // Build list of mods with their active status
+                var modItems = new List<(string dir, string name, bool isActive)>();
                 foreach (var modDir in modDirs)
                 {
                     var modName = Path.GetFileName(modDir);
@@ -1114,6 +1116,17 @@ namespace FlairX_Mod_Manager
                     if (activeOnly && !isActive)
                         continue;
                     
+                    modItems.Add((modDir, modName, isActive));
+                }
+                
+                // Sort: active mods first, then alphabetically by name
+                var sortedMods = modItems
+                    .OrderByDescending(m => m.isActive)
+                    .ThenBy(m => m.isActive ? m.name : m.name.Substring(8).TrimStart('_', '-', ' '))
+                    .ToList();
+                
+                foreach (var (modDir, modName, isActive) in sortedMods)
+                {
                     // Clean name for display
                     var displayName = isActive ? modName : modName.Substring(8).TrimStart('_', '-', ' ');
                     
@@ -1201,7 +1214,9 @@ namespace FlairX_Mod_Manager
                 if (string.IsNullOrEmpty(modsPath) || !System.IO.Directory.Exists(modsPath))
                     return;
 
-                // Iterate through all categories
+                // Collect all active mods from all categories
+                var allActiveMods = new List<(string dir, string name)>();
+                
                 foreach (var categoryDir in System.IO.Directory.GetDirectories(modsPath))
                 {
                     var categoryName = Path.GetFileName(categoryDir);
@@ -1218,16 +1233,24 @@ namespace FlairX_Mod_Manager
                         if (!isActive)
                             continue;
                         
-                        var item = new OverlayModItem
-                        {
-                            Name = modName,
-                            Directory = modDir,
-                            IsActive = true,
-                            Thumbnail = await LoadThumbnailAsync(modDir)
-                        };
-                        
-                        OverlayMods.Add(item);
+                        allActiveMods.Add((modDir, modName));
                     }
+                }
+                
+                // Sort alphabetically by name
+                var sortedMods = allActiveMods.OrderBy(m => m.name).ToList();
+                
+                foreach (var (modDir, modName) in sortedMods)
+                {
+                    var item = new OverlayModItem
+                    {
+                        Name = modName,
+                        Directory = modDir,
+                        IsActive = true,
+                        Thumbnail = await LoadThumbnailAsync(modDir)
+                    };
+                    
+                    OverlayMods.Add(item);
                 }
                 
                 Logger.LogInfo($"Loaded {OverlayMods.Count} active mods from all categories");

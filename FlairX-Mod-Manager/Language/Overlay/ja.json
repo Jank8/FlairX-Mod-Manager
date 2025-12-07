@@ -36,6 +36,9 @@
     "FilterActiveHotkey_Label": "アクティブフィルターホットキー",
     "FilterActiveHotkey_Description": "オーバーレイでアクティブなMODのみ表示",
     
+    "SendF10OnOverlayClose_Label": "終了時にF10を送信",
+    "SendF10OnOverlayClose_Description": "オーバーレイ終了時に自動的にF10を送信してModをリロード",
+    
     "GamepadEnabled_Label": "ゲームパッドを有効化",
     "GamepadEnabled_Description": "Xboxコントローラーでオーバーレイをナビゲート",
     

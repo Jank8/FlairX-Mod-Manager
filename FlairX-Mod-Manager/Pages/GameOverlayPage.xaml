@@ -222,6 +222,32 @@
                 </Grid>
             </Border>
             
+            <!-- Send F10 on Overlay Close -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE72C;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="SendF10OnOverlayCloseLabel" Text="Send F10 on close" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="SendF10OnOverlayCloseDescription" Text="Automatically send F10 to reload mods when overlay closes" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <ToggleSwitch Grid.Column="3" x:Name="SendF10OnOverlayCloseToggle" Toggled="SendF10OnOverlayCloseToggle_Toggled" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            
             <!-- Gamepad Section -->
             <TextBlock x:Name="GamepadSectionHeader" Text="Gamepad (XInput)" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
             

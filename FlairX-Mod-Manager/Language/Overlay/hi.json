@@ -36,6 +36,9 @@
     "FilterActiveHotkey_Label": "सक्रिय फ़िल्टर हॉटकी",
     "FilterActiveHotkey_Description": "ओवरले में केवल सक्रिय मॉड दिखाएं",
     
+    "SendF10OnOverlayClose_Label": "बंद करने पर F10 भेजें",
+    "SendF10OnOverlayClose_Description": "ओवरले बंद करने पर मॉड रीलोड करने के लिए स्वचालित रूप से F10 भेजें",
+    
     "GamepadEnabled_Label": "गेमपैड सक्षम करें",
     "GamepadEnabled_Description": "ओवरले में नेविगेट करने के लिए Xbox कंट्रोलर का उपयोग करें",
     

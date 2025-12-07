@@ -300,7 +300,6 @@ namespace FlairX_Mod_Manager.Pages
             if (ShuffleActiveModsHotkeyDescription != null) ShuffleActiveModsHotkeyDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShuffleActiveModsHotkey_Description");
             if (DeactivateAllModsHotkeyLabel != null) DeactivateAllModsHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DeactivateAllMods_Label");
             if (DeactivateAllModsHotkeyDescription != null) DeactivateAllModsHotkeyDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DeactivateAllModsHotkey_Description");
-            
             // Theme SelectorBar texts - use null checks
             if (ThemeSelectorAutoText != null) ThemeSelectorAutoText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Auto");
             if (ThemeSelectorLightText != null) ThemeSelectorLightText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Light");

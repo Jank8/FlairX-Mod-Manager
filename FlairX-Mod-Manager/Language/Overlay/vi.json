@@ -36,6 +36,9 @@
     "FilterActiveHotkey_Label": "Phím tắt lọc hoạt động",
     "FilterActiveHotkey_Description": "Chỉ hiện mod đang hoạt động trong overlay",
     
+    "SendF10OnOverlayClose_Label": "Gửi F10 khi đóng",
+    "SendF10OnOverlayClose_Description": "Tự động gửi F10 để tải lại mod khi đóng overlay",
+    
     "GamepadEnabled_Label": "Bật Gamepad",
     "GamepadEnabled_Description": "Dùng tay cầm Xbox để điều hướng overlay",
     

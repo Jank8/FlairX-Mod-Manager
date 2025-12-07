@@ -36,6 +36,9 @@
     "FilterActiveHotkey_Label": "篩選已啟用快捷鍵",
     "FilterActiveHotkey_Description": "在覆蓋層中僅顯示已啟用的模組",
     
+    "SendF10OnOverlayClose_Label": "關閉時發送F10",
+    "SendF10OnOverlayClose_Description": "關閉覆蓋層時自動發送F10以重新載入模組",
+    
     "GamepadEnabled_Label": "啟用手把",
     "GamepadEnabled_Description": "使用Xbox手把導航覆蓋層",
     

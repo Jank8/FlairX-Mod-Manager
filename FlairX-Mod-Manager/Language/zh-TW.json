@@ -165,6 +165,8 @@
     "SettingsPage_ReloadManagerHotkey_Description": "重新載入管理器的鍵盤快速鍵",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "隨機排列活躍模組的鍵盤快速鍵",
     "SettingsPage_DeactivateAllModsHotkey_Description": "停用所有模組的鍵盤快速鍵",
+    "SettingsPage_SendF10OnOverlayClose_Label": "關閉覆蓋層時發送F10",
+    "SettingsPage_SendF10OnOverlayClose_Description": "關閉覆蓋層時自動發送F10以重新載入模組",
     "ModDetail_NSFW_Label": "NSFW內容",
     "ModDetail_StatusKeeperSync_Label": "從遊戲同步設定",
     "Optimize": "最佳化",

@@ -165,6 +165,8 @@
     "SettingsPage_ReloadManagerHotkey_Description": "Phím tắt bàn phím để tải lại trình quản lý",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "Phím tắt bàn phím để xáo trộn các mod đang hoạt động",
     "SettingsPage_DeactivateAllModsHotkey_Description": "Phím tắt bàn phím để vô hiệu hóa tất cả mod",
+    "SettingsPage_SendF10OnOverlayClose_Label": "Gửi F10 khi đóng overlay",
+    "SettingsPage_SendF10OnOverlayClose_Description": "Tự động gửi F10 để tải lại mod khi đóng overlay",
     "ModDetail_NSFW_Label": "Nội dung NSFW",
     "ModDetail_StatusKeeperSync_Label": "Đồng bộ cài đặt từ trò chơi",
     "Optimize": "Tối ưu hóa",

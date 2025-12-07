@@ -36,6 +36,9 @@
     "FilterActiveHotkey_Label": "Filter Active Hotkey",
     "FilterActiveHotkey_Description": "Ipakita lamang ang mga aktibong mod sa overlay",
     
+    "SendF10OnOverlayClose_Label": "Magpadala ng F10 kapag isinara",
+    "SendF10OnOverlayClose_Description": "Awtomatikong magpadala ng F10 para i-reload ang mga mod kapag isinara ang overlay",
+    
     "GamepadEnabled_Label": "I-enable ang Gamepad",
     "GamepadEnabled_Description": "Gamitin ang Xbox controller para mag-navigate sa overlay",
     

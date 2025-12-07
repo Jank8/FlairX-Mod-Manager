@@ -166,6 +166,8 @@
     "SettingsPage_ReloadManagerHotkey_Description": "매니저 다시 로드를 위한 키보드 단축키",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "활성 모드 셔플을 위한 키보드 단축키",
     "SettingsPage_DeactivateAllModsHotkey_Description": "모든 모드 비활성화를 위한 키보드 단축키",
+    "SettingsPage_SendF10OnOverlayClose_Label": "오버레이 닫을 때 F10 전송",
+    "SettingsPage_SendF10OnOverlayClose_Description": "오버레이 닫을 때 자동으로 F10을 전송하여 모드 다시 로드",
     "ModDetail_NSFW_Label": "NSFW 콘텐츠",
     "ModDetail_StatusKeeperSync_Label": "게임에서 설정 동기화",
     "ToggleSwitch_On": "켜짐",

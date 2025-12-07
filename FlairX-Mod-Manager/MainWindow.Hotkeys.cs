@@ -28,6 +28,59 @@ namespace FlairX_Mod_Manager
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
+        // Win32 API for sending keyboard input
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct INPUT
+        {
+            public uint type;
+            public InputUnion u;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        private struct InputUnion
+        {
+            [FieldOffset(0)] public KEYBDINPUT ki;
+            [FieldOffset(0)] public MOUSEINPUT mi;
+            [FieldOffset(0)] public HARDWAREINPUT hi;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct KEYBDINPUT
+        {
+            public ushort wVk;
+            public ushort wScan;
+            public uint dwFlags;
+            public uint time;
+            public IntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MOUSEINPUT
+        {
+            public int dx;
+            public int dy;
+            public uint mouseData;
+            public uint dwFlags;
+            public uint time;
+            public IntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct HARDWAREINPUT
+        {
+            public uint uMsg;
+            public ushort wParamL;
+            public ushort wParamH;
+        }
+
+        private const uint INPUT_KEYBOARD = 1;
+        private const uint KEYEVENTF_KEYUP = 0x0002;
+        private const uint KEYEVENTF_SCANCODE = 0x0008;
+        private const ushort VK_F10 = 0x79;
+
         // Helper method to check if this window is currently in focus
         private bool IsWindowInFocus()
         {
@@ -643,11 +696,63 @@ namespace FlairX_Mod_Manager
                     _overlayWindow.WindowClosed -= OnOverlayWindowClosed;
                     _overlayWindow = null;
                 }
+                
+                // Send F10 to reload mods if enabled
+                if (SettingsManager.Current.SendF10OnOverlayClose)
+                {
+                    SendF10KeyPress();
+                }
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error handling overlay window closed", ex);
                 _overlayWindow = null;
+            }
+        }
+
+        /// <summary>
+        /// Send F10 key press to reload mods in game
+        /// </summary>
+        private async void SendF10KeyPress()
+        {
+            try
+            {
+                // Small delay to let the game window become active
+                await Task.Delay(100);
+                
+                var inputs = new INPUT[2];
+                int inputSize = Marshal.SizeOf(typeof(INPUT));
+                
+                // Key down - use both virtual key and scan code for better compatibility
+                inputs[0].type = INPUT_KEYBOARD;
+                inputs[0].u.ki.wVk = VK_F10;
+                inputs[0].u.ki.wScan = 0x44; // F10 scan code
+                inputs[0].u.ki.dwFlags = 0;
+                inputs[0].u.ki.time = 0;
+                inputs[0].u.ki.dwExtraInfo = IntPtr.Zero;
+                
+                // Key up
+                inputs[1].type = INPUT_KEYBOARD;
+                inputs[1].u.ki.wVk = VK_F10;
+                inputs[1].u.ki.wScan = 0x44; // F10 scan code
+                inputs[1].u.ki.dwFlags = KEYEVENTF_KEYUP;
+                inputs[1].u.ki.time = 0;
+                inputs[1].u.ki.dwExtraInfo = IntPtr.Zero;
+                
+                var result = SendInput(2, inputs, inputSize);
+                if (result == 2)
+                {
+                    Logger.LogInfo("F10 key press sent to reload mods");
+                }
+                else
+                {
+                    var error = Marshal.GetLastWin32Error();
+                    Logger.LogWarning($"SendInput returned {result}, expected 2. Error: {error}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to send F10 key press", ex);
             }
         }
 

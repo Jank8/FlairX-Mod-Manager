@@ -166,6 +166,8 @@
     "SettingsPage_ReloadManagerHotkey_Description": "Raccourci clavier pour recharger le gestionnaire",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "Raccourci clavier pour mélanger les mods actifs",
     "SettingsPage_DeactivateAllModsHotkey_Description": "Raccourci clavier pour désactiver tous les mods",
+    "SettingsPage_SendF10OnOverlayClose_Label": "Envoyer F10 à la fermeture de l'overlay",
+    "SettingsPage_SendF10OnOverlayClose_Description": "Envoyer automatiquement F10 pour recharger les mods à la fermeture de l'overlay",
     "ModDetail_NSFW_Label": "Contenu NSFW",
     "ModDetail_StatusKeeperSync_Label": "Synchroniser les paramètres du jeu",
     "ToggleSwitch_On": "Activé",

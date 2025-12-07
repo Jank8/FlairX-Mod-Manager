@@ -36,6 +36,9 @@
     "FilterActiveHotkey_Label": "Skrót filtrowania aktywnych",
     "FilterActiveHotkey_Description": "Pokaż tylko aktywne mody w overlay",
     
+    "SendF10OnOverlayClose_Label": "Wyślij F10 przy zamknięciu",
+    "SendF10OnOverlayClose_Description": "Automatycznie wyślij F10 do przeładowania modów po zamknięciu overlay",
+    
     "GamepadEnabled_Label": "Włącz gamepad",
     "GamepadEnabled_Description": "Używaj kontrolera Xbox do nawigacji w overlay",
     

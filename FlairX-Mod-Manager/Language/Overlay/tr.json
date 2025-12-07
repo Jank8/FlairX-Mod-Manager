@@ -36,6 +36,9 @@
     "FilterActiveHotkey_Label": "Aktif filtre kısayolu",
     "FilterActiveHotkey_Description": "Overlay'de sadece aktif modları göster",
     
+    "SendF10OnOverlayClose_Label": "Kapatıldığında F10 gönder",
+    "SendF10OnOverlayClose_Description": "Overlay kapatıldığında modları yeniden yüklemek için otomatik F10 gönder",
+    
     "GamepadEnabled_Label": "Gamepad'i Etkinleştir",
     "GamepadEnabled_Description": "Overlay'de gezinmek için Xbox kumandası kullan",
     

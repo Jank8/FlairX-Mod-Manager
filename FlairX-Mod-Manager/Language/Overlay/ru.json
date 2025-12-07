@@ -36,6 +36,9 @@
     "FilterActiveHotkey_Label": "Фильтр активных",
     "FilterActiveHotkey_Description": "Показать только активные моды в оверлее",
     
+    "SendF10OnOverlayClose_Label": "Отправить F10 при закрытии",
+    "SendF10OnOverlayClose_Description": "Автоматически отправлять F10 для перезагрузки модов при закрытии оверлея",
+    
     "GamepadEnabled_Label": "Включить геймпад",
     "GamepadEnabled_Description": "Использовать контроллер Xbox для навигации в оверлее",
     
