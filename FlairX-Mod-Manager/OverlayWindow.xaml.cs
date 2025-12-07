@@ -160,6 +160,9 @@ namespace FlairX_Mod_Manager
         // Event for window closed notification
         public event EventHandler? WindowClosed;
         
+        // Event for window hidden notification (when overlay is toggled off)
+        public event EventHandler? WindowHidden;
+        
         // Flags to prevent concurrent loading
         private bool _isLoadingMods;
         private bool _isLoadingCategories;
@@ -1435,6 +1438,10 @@ namespace FlairX_Mod_Manager
         public void Hide()
         {
             _appWindow?.Hide();
+            
+            // Notify that window was hidden
+            WindowHidden?.Invoke(this, EventArgs.Empty);
+            Logger.LogInfo("OverlayWindow hidden, WindowHidden event fired");
         }
 
         public void Toggle(bool vibrate = false)

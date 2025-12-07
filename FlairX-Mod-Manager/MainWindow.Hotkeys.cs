@@ -28,9 +28,24 @@ namespace FlairX_Mod_Manager
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
 
+        // Win32 API for finding window by title
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern IntPtr FindWindow(string? lpClassName, string lpWindowName);
+
+        // Win32 API for posting message to window
+        [DllImport("user32.dll")]
+        private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        private const uint WM_KEYDOWN = 0x0100;
+        private const uint WM_KEYUP = 0x0101;
+
         // Win32 API for sending keyboard input
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+
+        // Legacy keyboard input API (sometimes bypasses anti-cheat)
+        [DllImport("user32.dll")]
+        private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
 
         [StructLayout(LayoutKind.Sequential)]
         private struct INPUT
@@ -608,6 +623,7 @@ namespace FlairX_Mod_Manager
                     Logger.LogInfo("ToggleOverlayWindow: OverlayWindow created, subscribing events");
                     _overlayWindow.ModToggleRequested += OnOverlayModToggleRequested;
                     _overlayWindow.WindowClosed += OnOverlayWindowClosed;
+                    _overlayWindow.WindowHidden += OnOverlayWindowHidden;
                     Logger.LogInfo("Overlay window created and events subscribed");
                 }
 
@@ -694,13 +710,8 @@ namespace FlairX_Mod_Manager
                 {
                     _overlayWindow.ModToggleRequested -= OnOverlayModToggleRequested;
                     _overlayWindow.WindowClosed -= OnOverlayWindowClosed;
+                    _overlayWindow.WindowHidden -= OnOverlayWindowHidden;
                     _overlayWindow = null;
-                }
-                
-                // Send F10 to reload mods if enabled
-                if (SettingsManager.Current.SendF10OnOverlayClose)
-                {
-                    SendF10KeyPress();
                 }
             }
             catch (Exception ex)
@@ -711,49 +722,110 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
+        /// Handle overlay window hidden event (when toggled off)
+        /// </summary>
+        private void OnOverlayWindowHidden(object? sender, EventArgs e)
+        {
+            try
+            {
+                Logger.LogInfo("Overlay window was hidden");
+                
+                // Send F10 to reload mods if enabled
+                Logger.LogInfo($"SendF10OnOverlayClose setting: {SettingsManager.Current.SendF10OnOverlayClose}");
+                if (SettingsManager.Current.SendF10OnOverlayClose)
+                {
+                    Logger.LogInfo("Sending F10 key press...");
+                    SendF10KeyPress();
+                }
+                else
+                {
+                    Logger.LogInfo("SendF10OnOverlayClose is disabled, skipping F10");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error handling overlay window hidden", ex);
+            }
+        }
+
+        /// <summary>
         /// Send F10 key press to reload mods in game
         /// </summary>
         private async void SendF10KeyPress()
         {
             try
             {
-                // Small delay to let the game window become active
-                await Task.Delay(100);
+                Logger.LogInfo("SendF10KeyPress: Starting, waiting 300ms for game to become active...");
                 
-                var inputs = new INPUT[2];
-                int inputSize = Marshal.SizeOf(typeof(INPUT));
+                // Longer delay to let the game window become active
+                await Task.Delay(300);
                 
-                // Key down - use both virtual key and scan code for better compatibility
-                inputs[0].type = INPUT_KEYBOARD;
-                inputs[0].u.ki.wVk = VK_F10;
-                inputs[0].u.ki.wScan = 0x44; // F10 scan code
-                inputs[0].u.ki.dwFlags = 0;
-                inputs[0].u.ki.time = 0;
-                inputs[0].u.ki.dwExtraInfo = IntPtr.Zero;
+                const int VK_F10_INT = 0x79;
                 
-                // Key up
-                inputs[1].type = INPUT_KEYBOARD;
-                inputs[1].u.ki.wVk = VK_F10;
-                inputs[1].u.ki.wScan = 0x44; // F10 scan code
-                inputs[1].u.ki.dwFlags = KEYEVENTF_KEYUP;
-                inputs[1].u.ki.time = 0;
-                inputs[1].u.ki.dwExtraInfo = IntPtr.Zero;
-                
-                var result = SendInput(2, inputs, inputSize);
-                if (result == 2)
+                // Try to find game window and send directly via PostMessage
+                var gameWindowTitle = GetCurrentGameWindowTitle();
+                if (!string.IsNullOrEmpty(gameWindowTitle))
                 {
-                    Logger.LogInfo("F10 key press sent to reload mods");
+                    Logger.LogInfo($"SendF10KeyPress: Trying PostMessage to window '{gameWindowTitle}'...");
+                    var hWnd = FindWindow(null, gameWindowTitle);
+                    
+                    if (hWnd != IntPtr.Zero)
+                    {
+                        Logger.LogInfo($"SendF10KeyPress: Found window handle: {hWnd}");
+                        
+                        // Send WM_KEYDOWN and WM_KEYUP
+                        var downResult = PostMessage(hWnd, WM_KEYDOWN, (IntPtr)VK_F10_INT, IntPtr.Zero);
+                        await Task.Delay(50);
+                        var upResult = PostMessage(hWnd, WM_KEYUP, (IntPtr)VK_F10_INT, IntPtr.Zero);
+                        
+                        Logger.LogInfo($"SendF10KeyPress: PostMessage results - down: {downResult}, up: {upResult}");
+                        
+                        if (downResult && upResult)
+                        {
+                            Logger.LogInfo("F10 key press sent via PostMessage to game window");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogWarning($"SendF10KeyPress: Could not find window '{gameWindowTitle}'");
+                    }
                 }
-                else
-                {
-                    var error = Marshal.GetLastWin32Error();
-                    Logger.LogWarning($"SendInput returned {result}, expected 2. Error: {error}");
-                }
+                
+                // Fallback to keybd_event
+                Logger.LogInfo("SendF10KeyPress: Falling back to keybd_event...");
+                
+                const byte VK_F10_BYTE = 0x79;
+                const byte SCAN_F10 = 0x44;
+                const uint KEYEVENTF_KEYUP_FLAG = 0x0002;
+                
+                keybd_event(VK_F10_BYTE, SCAN_F10, 0, UIntPtr.Zero);
+                await Task.Delay(50);
+                keybd_event(VK_F10_BYTE, SCAN_F10, KEYEVENTF_KEYUP_FLAG, UIntPtr.Zero);
+                
+                Logger.LogInfo("F10 key press sent via keybd_event");
             }
             catch (Exception ex)
             {
                 Logger.LogError("Failed to send F10 key press", ex);
             }
+        }
+
+        /// <summary>
+        /// Get the window title for the currently selected game
+        /// </summary>
+        private string? GetCurrentGameWindowTitle()
+        {
+            // Game index: 1=ZZMI, 2=GIMI, 3=SRMI, 4=HIMI, 5=WWMI
+            return SettingsManager.Current.SelectedGameIndex switch
+            {
+                1 => "ZenlessZoneZero", // ZZZ
+                2 => "Genshin Impact", // Genshin
+                3 => "Honkai: Star Rail", // HSR
+                4 => "Honkai Impact 3rd", // HI3
+                5 => "Wuthering Waves", // WuWa
+                _ => null
+            };
         }
 
         /// <summary>
@@ -768,6 +840,7 @@ namespace FlairX_Mod_Manager
                     // Unsubscribe from events first
                     _overlayWindow.ModToggleRequested -= OnOverlayModToggleRequested;
                     _overlayWindow.WindowClosed -= OnOverlayWindowClosed;
+                    _overlayWindow.WindowHidden -= OnOverlayWindowHidden;
                     
                     // Try to close the window safely
                     try
