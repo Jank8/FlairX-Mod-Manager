@@ -13,6 +13,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             InitializeComponent();
             LoadSettings();
+            UpdateTexts();
             _isInitializing = false;
             
             // Check gamepad status on load
@@ -23,6 +24,113 @@ namespace FlairX_Mod_Manager.Pages
                 _testGamepad?.Dispose();
                 _testGamepad = null;
             };
+        }
+
+        /// <summary>
+        /// Updates all UI texts with translations from language file
+        /// </summary>
+        public void UpdateTexts()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
+            var mainLang = SharedUtilities.LoadLanguageDictionary();
+            
+            // Section headers
+            if (AppearanceSectionHeader != null) AppearanceSectionHeader.Text = SharedUtilities.GetTranslation(lang, "Section_Appearance");
+            if (PreviewSectionHeader != null) PreviewSectionHeader.Text = SharedUtilities.GetTranslation(lang, "Section_Preview");
+            if (ControlsSectionHeader != null) ControlsSectionHeader.Text = SharedUtilities.GetTranslation(lang, "Section_Controls");
+            if (GamepadSectionHeader != null) GamepadSectionHeader.Text = SharedUtilities.GetTranslation(lang, "Section_Gamepad");
+            if (GamepadHotkeysSectionHeader != null) GamepadHotkeysSectionHeader.Text = SharedUtilities.GetTranslation(lang, "Section_GamepadHotkeys");
+            
+            // Theme
+            if (ThemeLabel != null) ThemeLabel.Text = SharedUtilities.GetTranslation(lang, "Theme_Label");
+            if (ThemeDescription != null) ThemeDescription.Text = SharedUtilities.GetTranslation(lang, "Theme_Description");
+            if (ThemeAutoText != null) ThemeAutoText.Text = SharedUtilities.GetTranslation(lang, "Theme_Auto");
+            if (ThemeLightText != null) ThemeLightText.Text = SharedUtilities.GetTranslation(lang, "Theme_Light");
+            if (ThemeDarkText != null) ThemeDarkText.Text = SharedUtilities.GetTranslation(lang, "Theme_Dark");
+            
+            // Backdrop
+            if (BackdropLabel != null) BackdropLabel.Text = SharedUtilities.GetTranslation(lang, "Backdrop_Label");
+            if (BackdropDescription != null) BackdropDescription.Text = SharedUtilities.GetTranslation(lang, "Backdrop_Description");
+            if (BackdropThinText != null) BackdropThinText.Text = SharedUtilities.GetTranslation(lang, "Backdrop_Thin");
+            if (BackdropNoneText != null) BackdropNoneText.Text = SharedUtilities.GetTranslation(lang, "Backdrop_None");
+            
+            // Test Overlay
+            if (TestOverlayLabel != null) TestOverlayLabel.Text = SharedUtilities.GetTranslation(lang, "TestOverlay_Label");
+            if (TestOverlayDescription != null) TestOverlayDescription.Text = SharedUtilities.GetTranslation(lang, "TestOverlay_Description");
+            if (OpenOverlayButtonText != null) OpenOverlayButtonText.Text = SharedUtilities.GetTranslation(lang, "TestOverlay_Button");
+            
+            // Toggle Hotkey
+            if (OverlayHotkeyLabel != null) OverlayHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "ToggleHotkey_Label");
+            if (OverlayHotkeyDescription != null) OverlayHotkeyDescription.Text = SharedUtilities.GetTranslation(lang, "ToggleHotkey_Description");
+            
+            // Filter Active Hotkey
+            if (FilterActiveHotkeyLabel != null) FilterActiveHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "FilterActiveHotkey_Label");
+            if (FilterActiveHotkeyDescription != null) FilterActiveHotkeyDescription.Text = SharedUtilities.GetTranslation(lang, "FilterActiveHotkey_Description");
+            
+            // Gamepad Enabled
+            if (GamepadEnabledLabel != null) GamepadEnabledLabel.Text = SharedUtilities.GetTranslation(lang, "GamepadEnabled_Label");
+            if (GamepadEnabledDescription != null) GamepadEnabledDescription.Text = SharedUtilities.GetTranslation(lang, "GamepadEnabled_Description");
+            
+            // Use Left Stick
+            if (UseLeftStickLabel != null) UseLeftStickLabel.Text = SharedUtilities.GetTranslation(lang, "UseLeftStick_Label");
+            if (UseLeftStickDescription != null) UseLeftStickDescription.Text = SharedUtilities.GetTranslation(lang, "UseLeftStick_Description");
+            
+            // Vibrate on Navigation
+            if (VibrateOnNavLabel != null) VibrateOnNavLabel.Text = SharedUtilities.GetTranslation(lang, "VibrateOnNav_Label");
+            if (VibrateOnNavDescription != null) VibrateOnNavDescription.Text = SharedUtilities.GetTranslation(lang, "VibrateOnNav_Description");
+            
+            // Controller Status
+            if (GamepadStatusLabel != null) GamepadStatusLabel.Text = SharedUtilities.GetTranslation(lang, "ControllerStatus_Label");
+            if (TestButtonText != null) TestButtonText.Text = SharedUtilities.GetTranslation(lang, "ControllerStatus_Test");
+            
+            // Select Button
+            if (SelectButtonLabel != null) SelectButtonLabel.Text = SharedUtilities.GetTranslation(lang, "SelectButton_Label");
+            if (SelectButtonDescription != null) SelectButtonDescription.Text = SharedUtilities.GetTranslation(lang, "SelectButton_Description");
+            
+            // Back Button
+            if (BackButtonLabel != null) BackButtonLabel.Text = SharedUtilities.GetTranslation(lang, "BackButton_Label");
+            if (BackButtonDescription != null) BackButtonDescription.Text = SharedUtilities.GetTranslation(lang, "BackButton_Description");
+            
+            // Next Category
+            if (NextCategoryButtonLabel != null) NextCategoryButtonLabel.Text = SharedUtilities.GetTranslation(lang, "NextCategory_Label");
+            if (NextCategoryButtonDescription != null) NextCategoryButtonDescription.Text = SharedUtilities.GetTranslation(lang, "NextCategory_Description");
+            
+            // Previous Category
+            if (PrevCategoryButtonLabel != null) PrevCategoryButtonLabel.Text = SharedUtilities.GetTranslation(lang, "PrevCategory_Label");
+            if (PrevCategoryButtonDescription != null) PrevCategoryButtonDescription.Text = SharedUtilities.GetTranslation(lang, "PrevCategory_Description");
+            
+            // Toggle Overlay Combo
+            if (GamepadComboLabel != null) GamepadComboLabel.Text = SharedUtilities.GetTranslation(lang, "ToggleOverlayCombo_Label");
+            if (GamepadComboDescription != null) GamepadComboDescription.Text = SharedUtilities.GetTranslation(lang, "ToggleOverlayCombo_Description");
+            
+            // Filter Active Combo
+            if (FilterActiveComboLabel != null) FilterActiveComboLabel.Text = SharedUtilities.GetTranslation(lang, "FilterActiveCombo_Label");
+            if (FilterActiveComboDescription != null) FilterActiveComboDescription.Text = SharedUtilities.GetTranslation(lang, "FilterActiveCombo_Description");
+            
+            // Toggle switch labels
+            UpdateToggleSwitchLabels(lang);
+        }
+
+        private void UpdateToggleSwitchLabels(Dictionary<string, string> lang)
+        {
+            var onText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_On");
+            var offText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_Off");
+            
+            if (GamepadEnabledToggle != null)
+            {
+                GamepadEnabledToggle.OnContent = onText;
+                GamepadEnabledToggle.OffContent = offText;
+            }
+            if (UseLeftStickToggle != null)
+            {
+                UseLeftStickToggle.OnContent = onText;
+                UseLeftStickToggle.OffContent = offText;
+            }
+            if (VibrateOnNavToggle != null)
+            {
+                VibrateOnNavToggle.OnContent = onText;
+                VibrateOnNavToggle.OffContent = offText;
+            }
         }
 
         private void LoadSettings()
@@ -94,16 +202,18 @@ namespace FlairX_Mod_Manager.Pages
 
         private void UpdateGamepadStatusUI(bool isConnected)
         {
+            var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
+            
             if (isConnected)
             {
                 GamepadStatusIcon.Glyph = "\uE73E"; // Checkmark
-                GamepadStatusText.Text = "Controller connected";
+                GamepadStatusText.Text = SharedUtilities.GetTranslation(lang, "ControllerStatus_Connected");
                 GamepadStatusText.Opacity = 1.0;
             }
             else
             {
                 GamepadStatusIcon.Glyph = "\uE711"; // X
-                GamepadStatusText.Text = "No controller detected";
+                GamepadStatusText.Text = SharedUtilities.GetTranslation(lang, "ControllerStatus_NotConnected");
                 GamepadStatusText.Opacity = 0.7;
             }
         }
@@ -200,6 +310,8 @@ namespace FlairX_Mod_Manager.Pages
 
         private void StartRecordingCombo()
         {
+            var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
+            
             // Ensure gamepad is available
             if (_testGamepad == null)
             {
@@ -208,24 +320,26 @@ namespace FlairX_Mod_Manager.Pages
             
             if (!_testGamepad.CheckConnection())
             {
+                var noControllerText = SharedUtilities.GetTranslation(lang, "Recording_NoController");
                 if (_isRecordingFilterCombo)
-                    FilterActiveComboTextBox.Text = "No controller!";
+                    FilterActiveComboTextBox.Text = noControllerText;
                 else
-                    GamepadComboTextBox.Text = "No controller!";
+                    GamepadComboTextBox.Text = noControllerText;
                 return;
             }
 
             _isRecordingCombo = true;
             _recordedButtons.Clear();
             
+            var pressButtonsText = SharedUtilities.GetTranslation(lang, "Recording_PressButtons");
             if (_isRecordingFilterCombo)
             {
-                FilterActiveComboTextBox.Text = "Press buttons...";
+                FilterActiveComboTextBox.Text = pressButtonsText;
                 FilterActiveComboRecordButton.Content = new FontIcon { Glyph = "\uE71A", FontSize = 14 };
             }
             else
             {
-                GamepadComboTextBox.Text = "Press buttons...";
+                GamepadComboTextBox.Text = pressButtonsText;
                 GamepadComboRecordButton.Content = new FontIcon { Glyph = "\uE71A", FontSize = 14 };
             }
             
@@ -482,6 +596,8 @@ namespace FlairX_Mod_Manager.Pages
 
         private void StartRecordingSingleButton(string buttonType, TextBox textBox, Button recordButton)
         {
+            var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
+            
             if (_testGamepad == null)
             {
                 _testGamepad = new GamepadManager();
@@ -489,7 +605,7 @@ namespace FlairX_Mod_Manager.Pages
             
             if (!_testGamepad.CheckConnection())
             {
-                textBox.Text = "No controller!";
+                textBox.Text = SharedUtilities.GetTranslation(lang, "Recording_NoController");
                 return;
             }
 
@@ -498,7 +614,7 @@ namespace FlairX_Mod_Manager.Pages
             _currentRecordingTextBox = textBox;
             _currentRecordingButton = recordButton;
             
-            textBox.Text = "Press button...";
+            textBox.Text = SharedUtilities.GetTranslation(lang, "Recording_PressButton");
             recordButton.Content = new FontIcon { Glyph = "\uE71A", FontSize = 14 };
             
             _testGamepad.ButtonPressed += OnSingleButtonPressed;
@@ -522,7 +638,9 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             // Restore text if nothing recorded
-            if (_currentRecordingTextBox?.Text == "Press button...")
+            var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
+            var pressButtonText = SharedUtilities.GetTranslation(lang, "Recording_PressButton");
+            if (_currentRecordingTextBox?.Text == pressButtonText)
             {
                 switch (_recordingButtonType)
                 {

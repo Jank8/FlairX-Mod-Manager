@@ -7,5 +7,71 @@
     "NoCategories": "カテゴリが見つかりません",
     "NoMods": "このカテゴリにMODがありません",
     "ActiveOnly": "アクティブのみ",
-    "AllMods": "すべてのMOD"
+    "AllMods": "すべてのMOD",
+    
+    "Section_Appearance": "外観",
+    "Section_Preview": "プレビュー",
+    "Section_Controls": "コントロール",
+    "Section_Gamepad": "ゲームパッド (XInput)",
+    "Section_GamepadHotkeys": "ゲームパッドボタン",
+    
+    "Theme_Label": "テーマ",
+    "Theme_Description": "オーバーレイのカラーテーマ",
+    "Theme_Auto": "自動",
+    "Theme_Light": "ライト",
+    "Theme_Dark": "ダーク",
+    
+    "Backdrop_Label": "背景",
+    "Backdrop_Description": "ウィンドウ背景効果",
+    "Backdrop_Thin": "Thin",
+    "Backdrop_None": "なし",
+    
+    "TestOverlay_Label": "オーバーレイをテスト",
+    "TestOverlay_Description": "プレビュー用にオーバーレイウィンドウを開く",
+    "TestOverlay_Button": "オーバーレイを開く",
+    
+    "ToggleHotkey_Label": "切り替えホットキー",
+    "ToggleHotkey_Description": "オーバーレイの表示/非表示のキーボードショートカット",
+    
+    "FilterActiveHotkey_Label": "アクティブフィルターホットキー",
+    "FilterActiveHotkey_Description": "オーバーレイでアクティブなMODのみ表示",
+    
+    "GamepadEnabled_Label": "ゲームパッドを有効化",
+    "GamepadEnabled_Description": "Xboxコントローラーでオーバーレイをナビゲート",
+    
+    "UseLeftStick_Label": "左スティックを使用",
+    "UseLeftStick_Description": "D-Padの代わりに左アナログスティックでナビゲート",
+    
+    "VibrateOnNav_Label": "ナビゲーション時に振動",
+    "VibrateOnNav_Description": "MOD間を移動する際の触覚フィードバック",
+    
+    "ControllerStatus_Label": "コントローラーの状態",
+    "ControllerStatus_Connected": "コントローラー接続済み",
+    "ControllerStatus_NotConnected": "コントローラーが検出されません",
+    "ControllerStatus_Test": "テスト",
+    
+    "SelectButton_Label": "選択 / MOD切り替え",
+    "SelectButton_Description": "選択したMODを有効化/無効化するボタン",
+    
+    "BackButton_Label": "戻る / オーバーレイを閉じる",
+    "BackButton_Description": "オーバーレイウィンドウを閉じるボタン",
+    
+    "NextCategory_Label": "次のカテゴリ",
+    "NextCategory_Description": "次のカテゴリに切り替えるボタン",
+    
+    "PrevCategory_Label": "前のカテゴリ",
+    "PrevCategory_Description": "前のカテゴリに切り替えるボタン",
+    
+    "ToggleOverlayCombo_Label": "オーバーレイ切り替えコンボ",
+    "ToggleOverlayCombo_Description": "オーバーレイの表示/非表示のボタン組み合わせ",
+    
+    "FilterActiveCombo_Label": "アクティブフィルターコンボ",
+    "FilterActiveCombo_Description": "オーバーレイでアクティブなMODのみ表示",
+    
+    "Recording_PressButton": "ボタンを押してください...",
+    "Recording_PressButtons": "ボタンを押してください...",
+    "Recording_NoController": "コントローラーなし!",
+    
+    "ToggleSwitch_On": "オン",
+    "ToggleSwitch_Off": "オフ"
 }

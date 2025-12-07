@@ -19,7 +19,7 @@
             <StackPanel Grid.Column="1" Spacing="0" HorizontalAlignment="Stretch">
             
             <!-- Appearance Section -->
-            <TextBlock Text="Appearance" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            <TextBlock x:Name="AppearanceSectionHeader" Text="Appearance" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
             
             <!-- Theme Setting -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -47,19 +47,19 @@
                         <SelectorBarItem x:Name="ThemeSelectorAuto" Tag="Auto" Margin="0,0,8,0">
                             <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
                                 <FontIcon Glyph="&#xE890;" FontSize="16"/>
-                                <TextBlock Text="Auto" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="ThemeAutoText" Text="Auto" VerticalAlignment="Center"/>
                             </StackPanel>
                         </SelectorBarItem>
                         <SelectorBarItem x:Name="ThemeSelectorLight" Tag="Light" Margin="4,0,4,0">
                             <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
                                 <FontIcon Glyph="&#xE706;" FontSize="16"/>
-                                <TextBlock Text="Light" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="ThemeLightText" Text="Light" VerticalAlignment="Center"/>
                             </StackPanel>
                         </SelectorBarItem>
                         <SelectorBarItem x:Name="ThemeSelectorDark" Tag="Dark">
                             <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
                                 <FontIcon Glyph="&#xE708;" FontSize="16"/>
-                                <TextBlock Text="Dark" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="ThemeDarkText" Text="Dark" VerticalAlignment="Center"/>
                             </StackPanel>
                         </SelectorBarItem>
                     </SelectorBar>
@@ -110,13 +110,13 @@
                         <SelectorBarItem x:Name="BackdropSelectorAcrylicThin" Tag="AcrylicThin" Margin="4,0,4,0">
                             <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
                                 <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
-                                <TextBlock Text="Thin" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="BackdropThinText" Text="Thin" VerticalAlignment="Center"/>
                             </StackPanel>
                         </SelectorBarItem>
                         <SelectorBarItem x:Name="BackdropSelectorNone" Tag="None">
                             <StackPanel Orientation="Horizontal" Spacing="6" Margin="8,4,8,4">
                                 <FontIcon Glyph="&#xF4A5;" FontSize="16"/>
-                                <TextBlock Text="None" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="BackdropNoneText" Text="None" VerticalAlignment="Center"/>
                             </StackPanel>
                         </SelectorBarItem>
                     </SelectorBar>
@@ -124,7 +124,7 @@
             </Border>
             
             <!-- Preview Section -->
-            <TextBlock Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            <TextBlock x:Name="PreviewSectionHeader" Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
             
             <!-- Test Button -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -151,14 +151,14 @@
                     <Button Grid.Column="3" x:Name="TestOverlayButton" Click="TestOverlayButton_Click" VerticalAlignment="Center" Style="{StaticResource AccentButtonStyle}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE7B3;" FontSize="16"/>
-                            <TextBlock Text="Open Overlay"/>
+                            <TextBlock x:Name="OpenOverlayButtonText" Text="Open Overlay"/>
                         </StackPanel>
                     </Button>
                 </Grid>
             </Border>
             
             <!-- Controls Section -->
-            <TextBlock Text="Controls" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            <TextBlock x:Name="ControlsSectionHeader" Text="Controls" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
             
             <!-- Hotkey -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -223,7 +223,7 @@
             </Border>
             
             <!-- Gamepad Section -->
-            <TextBlock Text="Gamepad (XInput)" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+            <TextBlock x:Name="GamepadSectionHeader" Text="Gamepad (XInput)" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
             
             <!-- Gamepad Enable -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -328,14 +328,14 @@
                     <Button Grid.Column="3" x:Name="GamepadTestButton" Click="GamepadTestButton_Click" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <FontIcon Glyph="&#xE768;" FontSize="16"/>
-                            <TextBlock Text="Test"/>
+                            <TextBlock x:Name="TestButtonText" Text="Test"/>
                         </StackPanel>
                     </Button>
                 </Grid>
             </Border>
             
             <!-- Gamepad Hotkeys Section -->
-            <TextBlock Text="Gamepad Hotkeys" FontSize="20" FontWeight="SemiBold" Margin="0,22,0,12"/>
+            <TextBlock x:Name="GamepadHotkeysSectionHeader" Text="Gamepad Hotkeys" FontSize="20" FontWeight="SemiBold" Margin="0,22,0,12"/>
             
             <!-- Select/Toggle Button -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 

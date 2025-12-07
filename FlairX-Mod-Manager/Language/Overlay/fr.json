@@ -7,5 +7,71 @@
     "NoCategories": "Aucune catégorie trouvée",
     "NoMods": "Aucun mod dans cette catégorie",
     "ActiveOnly": "Actifs uniquement",
-    "AllMods": "Tous les mods"
+    "AllMods": "Tous les mods",
+    
+    "Section_Appearance": "Apparence",
+    "Section_Preview": "Aperçu",
+    "Section_Controls": "Contrôles",
+    "Section_Gamepad": "Gamepad (XInput)",
+    "Section_GamepadHotkeys": "Boutons gamepad",
+    
+    "Theme_Label": "Thème",
+    "Theme_Description": "Thème de couleur de l'overlay",
+    "Theme_Auto": "Auto",
+    "Theme_Light": "Clair",
+    "Theme_Dark": "Sombre",
+    
+    "Backdrop_Label": "Arrière-plan",
+    "Backdrop_Description": "Effet d'arrière-plan de fenêtre",
+    "Backdrop_Thin": "Thin",
+    "Backdrop_None": "Aucun",
+    
+    "TestOverlay_Label": "Tester l'Overlay",
+    "TestOverlay_Description": "Ouvrir la fenêtre overlay pour aperçu",
+    "TestOverlay_Button": "Ouvrir Overlay",
+    
+    "ToggleHotkey_Label": "Raccourci de basculement",
+    "ToggleHotkey_Description": "Raccourci clavier pour afficher/masquer l'overlay",
+    
+    "FilterActiveHotkey_Label": "Raccourci filtre actifs",
+    "FilterActiveHotkey_Description": "Afficher uniquement les mods actifs dans l'overlay",
+    
+    "GamepadEnabled_Label": "Activer Gamepad",
+    "GamepadEnabled_Description": "Utiliser la manette Xbox pour naviguer dans l'overlay",
+    
+    "UseLeftStick_Label": "Utiliser stick gauche",
+    "UseLeftStick_Description": "Naviguer avec le stick analogique gauche au lieu du D-Pad",
+    
+    "VibrateOnNav_Label": "Vibrer lors de la navigation",
+    "VibrateOnNav_Description": "Retour haptique lors du déplacement dans les mods",
+    
+    "ControllerStatus_Label": "État de la manette",
+    "ControllerStatus_Connected": "Manette connectée",
+    "ControllerStatus_NotConnected": "Aucune manette détectée",
+    "ControllerStatus_Test": "Tester",
+    
+    "SelectButton_Label": "Sélectionner / Basculer Mod",
+    "SelectButton_Description": "Bouton pour activer/désactiver le mod sélectionné",
+    
+    "BackButton_Label": "Retour / Fermer Overlay",
+    "BackButton_Description": "Bouton pour fermer la fenêtre overlay",
+    
+    "NextCategory_Label": "Catégorie suivante",
+    "NextCategory_Description": "Bouton pour passer à la catégorie suivante",
+    
+    "PrevCategory_Label": "Catégorie précédente",
+    "PrevCategory_Description": "Bouton pour passer à la catégorie précédente",
+    
+    "ToggleOverlayCombo_Label": "Combo basculement Overlay",
+    "ToggleOverlayCombo_Description": "Combinaison de boutons pour afficher/masquer l'overlay",
+    
+    "FilterActiveCombo_Label": "Combo filtre actifs",
+    "FilterActiveCombo_Description": "Afficher uniquement les mods actifs dans l'overlay",
+    
+    "Recording_PressButton": "Appuyez sur un bouton...",
+    "Recording_PressButtons": "Appuyez sur des boutons...",
+    "Recording_NoController": "Pas de manette!",
+    
+    "ToggleSwitch_On": "Activé",
+    "ToggleSwitch_Off": "Désactivé"
 }

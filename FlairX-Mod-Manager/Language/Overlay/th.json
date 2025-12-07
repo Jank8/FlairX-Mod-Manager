@@ -7,5 +7,71 @@
     "NoCategories": "ไม่พบหมวดหมู่",
     "NoMods": "ไม่มีม็อดในหมวดหมู่นี้",
     "ActiveOnly": "เฉพาะที่เปิดใช้งาน",
-    "AllMods": "ม็อดทั้งหมด"
+    "AllMods": "ม็อดทั้งหมด",
+    
+    "Section_Appearance": "รูปลักษณ์",
+    "Section_Preview": "ตัวอย่าง",
+    "Section_Controls": "การควบคุม",
+    "Section_Gamepad": "เกมแพด (XInput)",
+    "Section_GamepadHotkeys": "ปุ่มเกมแพด",
+    
+    "Theme_Label": "ธีม",
+    "Theme_Description": "ธีมสีโอเวอร์เลย์",
+    "Theme_Auto": "อัตโนมัติ",
+    "Theme_Light": "สว่าง",
+    "Theme_Dark": "มืด",
+    
+    "Backdrop_Label": "พื้นหลัง",
+    "Backdrop_Description": "เอฟเฟกต์พื้นหลังหน้าต่าง",
+    "Backdrop_Thin": "บาง",
+    "Backdrop_None": "ไม่มี",
+    
+    "TestOverlay_Label": "ทดสอบโอเวอร์เลย์",
+    "TestOverlay_Description": "เปิดหน้าต่างโอเวอร์เลย์เพื่อดูตัวอย่าง",
+    "TestOverlay_Button": "เปิดโอเวอร์เลย์",
+    
+    "ToggleHotkey_Label": "ปุ่มลัดสลับ",
+    "ToggleHotkey_Description": "ปุ่มลัดแป้นพิมพ์เพื่อแสดง/ซ่อนโอเวอร์เลย์",
+    
+    "FilterActiveHotkey_Label": "ปุ่มลัดกรองที่ใช้งาน",
+    "FilterActiveHotkey_Description": "แสดงเฉพาะม็อดที่เปิดใช้งานในโอเวอร์เลย์",
+    
+    "GamepadEnabled_Label": "เปิดใช้เกมแพด",
+    "GamepadEnabled_Description": "ใช้คอนโทรลเลอร์ Xbox เพื่อนำทางในโอเวอร์เลย์",
+    
+    "UseLeftStick_Label": "ใช้สติ๊กซ้าย",
+    "UseLeftStick_Description": "นำทางด้วยสติ๊กอนาล็อกซ้ายแทน D-Pad",
+    
+    "VibrateOnNav_Label": "สั่นเมื่อนำทาง",
+    "VibrateOnNav_Description": "การตอบสนองแบบสัมผัสเมื่อเลื่อนผ่านม็อด",
+    
+    "ControllerStatus_Label": "สถานะคอนโทรลเลอร์",
+    "ControllerStatus_Connected": "คอนโทรลเลอร์เชื่อมต่อแล้ว",
+    "ControllerStatus_NotConnected": "ไม่พบคอนโทรลเลอร์",
+    "ControllerStatus_Test": "ทดสอบ",
+    
+    "SelectButton_Label": "เลือก / สลับม็อด",
+    "SelectButton_Description": "ปุ่มเพื่อเปิด/ปิดม็อดที่เลือก",
+    
+    "BackButton_Label": "กลับ / ปิดโอเวอร์เลย์",
+    "BackButton_Description": "ปุ่มเพื่อปิดหน้าต่างโอเวอร์เลย์",
+    
+    "NextCategory_Label": "หมวดหมู่ถัดไป",
+    "NextCategory_Description": "ปุ่มเพื่อสลับไปหมวดหมู่ถัดไป",
+    
+    "PrevCategory_Label": "หมวดหมู่ก่อนหน้า",
+    "PrevCategory_Description": "ปุ่มเพื่อสลับไปหมวดหมู่ก่อนหน้า",
+    
+    "ToggleOverlayCombo_Label": "คอมโบสลับโอเวอร์เลย์",
+    "ToggleOverlayCombo_Description": "การกดปุ่มรวมกันเพื่อแสดง/ซ่อนโอเวอร์เลย์",
+    
+    "FilterActiveCombo_Label": "คอมโบกรองที่ใช้งาน",
+    "FilterActiveCombo_Description": "แสดงเฉพาะม็อดที่เปิดใช้งานในโอเวอร์เลย์",
+    
+    "Recording_PressButton": "กดปุ่ม...",
+    "Recording_PressButtons": "กดปุ่ม...",
+    "Recording_NoController": "ไม่มีคอนโทรลเลอร์!",
+    
+    "ToggleSwitch_On": "เปิด",
+    "ToggleSwitch_Off": "ปิด"
 }

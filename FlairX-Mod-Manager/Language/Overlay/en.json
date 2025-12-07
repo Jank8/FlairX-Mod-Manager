@@ -7,5 +7,71 @@
     "NoCategories": "No categories found",
     "NoMods": "No mods in this category",
     "ActiveOnly": "Active only",
-    "AllMods": "All mods"
+    "AllMods": "All mods",
+    
+    "Section_Appearance": "Appearance",
+    "Section_Preview": "Preview",
+    "Section_Controls": "Controls",
+    "Section_Gamepad": "Gamepad (XInput)",
+    "Section_GamepadHotkeys": "Gamepad Hotkeys",
+    
+    "Theme_Label": "Theme",
+    "Theme_Description": "Overlay color theme",
+    "Theme_Auto": "Auto",
+    "Theme_Light": "Light",
+    "Theme_Dark": "Dark",
+    
+    "Backdrop_Label": "Backdrop",
+    "Backdrop_Description": "Window background effect",
+    "Backdrop_Thin": "Thin",
+    "Backdrop_None": "None",
+    
+    "TestOverlay_Label": "Test Overlay",
+    "TestOverlay_Description": "Open overlay window to preview",
+    "TestOverlay_Button": "Open Overlay",
+    
+    "ToggleHotkey_Label": "Toggle Hotkey",
+    "ToggleHotkey_Description": "Keyboard shortcut to show/hide overlay",
+    
+    "FilterActiveHotkey_Label": "Filter Active Hotkey",
+    "FilterActiveHotkey_Description": "Show only active mods in overlay",
+    
+    "GamepadEnabled_Label": "Enable Gamepad",
+    "GamepadEnabled_Description": "Use Xbox controller to navigate overlay",
+    
+    "UseLeftStick_Label": "Use Left Stick",
+    "UseLeftStick_Description": "Navigate with left analog stick instead of D-Pad",
+    
+    "VibrateOnNav_Label": "Vibrate on Navigation",
+    "VibrateOnNav_Description": "Haptic feedback when moving through mods",
+    
+    "ControllerStatus_Label": "Controller Status",
+    "ControllerStatus_Connected": "Controller connected",
+    "ControllerStatus_NotConnected": "No controller detected",
+    "ControllerStatus_Test": "Test",
+    
+    "SelectButton_Label": "Select / Toggle Mod",
+    "SelectButton_Description": "Button to activate/deactivate selected mod",
+    
+    "BackButton_Label": "Back / Close Overlay",
+    "BackButton_Description": "Button to close overlay window",
+    
+    "NextCategory_Label": "Next Category",
+    "NextCategory_Description": "Button to switch to next category",
+    
+    "PrevCategory_Label": "Previous Category",
+    "PrevCategory_Description": "Button to switch to previous category",
+    
+    "ToggleOverlayCombo_Label": "Toggle Overlay Combo",
+    "ToggleOverlayCombo_Description": "Button combination to show/hide overlay",
+    
+    "FilterActiveCombo_Label": "Filter Active Combo",
+    "FilterActiveCombo_Description": "Show only active mods in overlay",
+    
+    "Recording_PressButton": "Press button...",
+    "Recording_PressButtons": "Press buttons...",
+    "Recording_NoController": "No controller!",
+    
+    "ToggleSwitch_On": "On",
+    "ToggleSwitch_Off": "Off"
 }

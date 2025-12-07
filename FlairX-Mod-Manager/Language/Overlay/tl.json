@@ -7,5 +7,71 @@
     "NoCategories": "Walang nahanap na kategorya",
     "NoMods": "Walang mod sa kategoryang ito",
     "ActiveOnly": "Aktibo lamang",
-    "AllMods": "Lahat ng mod"
+    "AllMods": "Lahat ng mod",
+    
+    "Section_Appearance": "Hitsura",
+    "Section_Preview": "Preview",
+    "Section_Controls": "Mga Kontrol",
+    "Section_Gamepad": "Gamepad (XInput)",
+    "Section_GamepadHotkeys": "Mga button ng gamepad",
+    
+    "Theme_Label": "Tema",
+    "Theme_Description": "Kulay ng tema ng overlay",
+    "Theme_Auto": "Auto",
+    "Theme_Light": "Maliwanag",
+    "Theme_Dark": "Madilim",
+    
+    "Backdrop_Label": "Background",
+    "Backdrop_Description": "Epekto ng background ng window",
+    "Backdrop_Thin": "Manipis",
+    "Backdrop_None": "Wala",
+    
+    "TestOverlay_Label": "Subukan ang Overlay",
+    "TestOverlay_Description": "Buksan ang overlay window para sa preview",
+    "TestOverlay_Button": "Buksan ang Overlay",
+    
+    "ToggleHotkey_Label": "Toggle Hotkey",
+    "ToggleHotkey_Description": "Keyboard shortcut para ipakita/itago ang overlay",
+    
+    "FilterActiveHotkey_Label": "Filter Active Hotkey",
+    "FilterActiveHotkey_Description": "Ipakita lamang ang mga aktibong mod sa overlay",
+    
+    "GamepadEnabled_Label": "I-enable ang Gamepad",
+    "GamepadEnabled_Description": "Gamitin ang Xbox controller para mag-navigate sa overlay",
+    
+    "UseLeftStick_Label": "Gamitin ang kaliwang stick",
+    "UseLeftStick_Description": "Mag-navigate gamit ang kaliwang analog stick sa halip na D-Pad",
+    
+    "VibrateOnNav_Label": "Mag-vibrate sa navigation",
+    "VibrateOnNav_Description": "Haptic feedback kapag gumagalaw sa mga mod",
+    
+    "ControllerStatus_Label": "Status ng controller",
+    "ControllerStatus_Connected": "Nakakonekta ang controller",
+    "ControllerStatus_NotConnected": "Walang nakitang controller",
+    "ControllerStatus_Test": "Subukan",
+    
+    "SelectButton_Label": "Pumili / I-toggle ang Mod",
+    "SelectButton_Description": "Button para i-activate/i-deactivate ang napiling mod",
+    
+    "BackButton_Label": "Bumalik / Isara ang Overlay",
+    "BackButton_Description": "Button para isara ang overlay window",
+    
+    "NextCategory_Label": "Susunod na kategorya",
+    "NextCategory_Description": "Button para lumipat sa susunod na kategorya",
+    
+    "PrevCategory_Label": "Nakaraang kategorya",
+    "PrevCategory_Description": "Button para lumipat sa nakaraang kategorya",
+    
+    "ToggleOverlayCombo_Label": "Toggle Overlay Combo",
+    "ToggleOverlayCombo_Description": "Kombinasyon ng button para ipakita/itago ang overlay",
+    
+    "FilterActiveCombo_Label": "Filter Active Combo",
+    "FilterActiveCombo_Description": "Ipakita lamang ang mga aktibong mod sa overlay",
+    
+    "Recording_PressButton": "Pindutin ang button...",
+    "Recording_PressButtons": "Pindutin ang mga button...",
+    "Recording_NoController": "Walang controller!",
+    
+    "ToggleSwitch_On": "Bukas",
+    "ToggleSwitch_Off": "Sarado"
 }

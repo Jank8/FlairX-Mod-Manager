@@ -17,7 +17,7 @@
         <Grid x:Name="AppTitleBar" Grid.Row="0" Background="Transparent">
             <StackPanel Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
                 <Image Source="Assets/app.ico" Width="16" Height="16" Margin="0,0,8,0"/>
-                <TextBlock Text="FlairX Mod Manager" FontSize="12" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                <TextBlock x:Name="TitleBarTextBlock" Text="FlairX Mod Manager" FontSize="12" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
             </StackPanel>
         </Grid>
 

@@ -7,5 +7,71 @@
     "NoCategories": "Nenhuma categoria encontrada",
     "NoMods": "Nenhum mod nesta categoria",
     "ActiveOnly": "Apenas ativos",
-    "AllMods": "Todos os mods"
+    "AllMods": "Todos os mods",
+    
+    "Section_Appearance": "Aparência",
+    "Section_Preview": "Pré-visualização",
+    "Section_Controls": "Controles",
+    "Section_Gamepad": "Gamepad (XInput)",
+    "Section_GamepadHotkeys": "Botões do gamepad",
+    
+    "Theme_Label": "Tema",
+    "Theme_Description": "Tema de cor do overlay",
+    "Theme_Auto": "Auto",
+    "Theme_Light": "Claro",
+    "Theme_Dark": "Escuro",
+    
+    "Backdrop_Label": "Fundo",
+    "Backdrop_Description": "Efeito de fundo da janela",
+    "Backdrop_Thin": "Fino",
+    "Backdrop_None": "Nenhum",
+    
+    "TestOverlay_Label": "Testar Overlay",
+    "TestOverlay_Description": "Abrir janela de overlay para pré-visualização",
+    "TestOverlay_Button": "Abrir Overlay",
+    
+    "ToggleHotkey_Label": "Atalho de alternância",
+    "ToggleHotkey_Description": "Atalho de teclado para mostrar/ocultar overlay",
+    
+    "FilterActiveHotkey_Label": "Atalho de filtro ativos",
+    "FilterActiveHotkey_Description": "Mostrar apenas mods ativos no overlay",
+    
+    "GamepadEnabled_Label": "Ativar Gamepad",
+    "GamepadEnabled_Description": "Usar controle Xbox para navegar no overlay",
+    
+    "UseLeftStick_Label": "Usar stick esquerdo",
+    "UseLeftStick_Description": "Navegar com stick analógico esquerdo em vez do D-Pad",
+    
+    "VibrateOnNav_Label": "Vibrar ao navegar",
+    "VibrateOnNav_Description": "Feedback háptico ao mover pelos mods",
+    
+    "ControllerStatus_Label": "Status do controle",
+    "ControllerStatus_Connected": "Controle conectado",
+    "ControllerStatus_NotConnected": "Nenhum controle detectado",
+    "ControllerStatus_Test": "Testar",
+    
+    "SelectButton_Label": "Selecionar / Alternar Mod",
+    "SelectButton_Description": "Botão para ativar/desativar mod selecionado",
+    
+    "BackButton_Label": "Voltar / Fechar Overlay",
+    "BackButton_Description": "Botão para fechar janela de overlay",
+    
+    "NextCategory_Label": "Próxima categoria",
+    "NextCategory_Description": "Botão para mudar para próxima categoria",
+    
+    "PrevCategory_Label": "Categoria anterior",
+    "PrevCategory_Description": "Botão para mudar para categoria anterior",
+    
+    "ToggleOverlayCombo_Label": "Combo de alternância Overlay",
+    "ToggleOverlayCombo_Description": "Combinação de botões para mostrar/ocultar overlay",
+    
+    "FilterActiveCombo_Label": "Combo de filtro ativos",
+    "FilterActiveCombo_Description": "Mostrar apenas mods ativos no overlay",
+    
+    "Recording_PressButton": "Pressione botão...",
+    "Recording_PressButtons": "Pressione botões...",
+    "Recording_NoController": "Sem controle!",
+    
+    "ToggleSwitch_On": "Ligado",
+    "ToggleSwitch_Off": "Desligado"
 }

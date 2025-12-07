@@ -191,6 +191,10 @@ namespace FlairX_Mod_Manager
                 LoadCurrentCategoryMods();
                 Logger.LogInfo("OverlayWindow: LoadCurrentCategoryMods done");
                 
+                Logger.LogInfo("OverlayWindow: UpdateUITexts starting");
+                UpdateUITexts();
+                Logger.LogInfo("OverlayWindow: UpdateUITexts done");
+                
                 Logger.LogInfo("OverlayWindow: UpdateHotkeyHint starting");
                 UpdateHotkeyHint();
                 Logger.LogInfo("OverlayWindow: UpdateHotkeyHint done");
@@ -586,6 +590,23 @@ namespace FlairX_Mod_Manager
                 {
                     GamepadSeparator.Visibility = Visibility.Collapsed;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Updates all UI texts with translations
+        /// </summary>
+        private void UpdateUITexts()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
+            
+            // Update window title
+            Title = SharedUtilities.GetTranslation(lang, "WindowTitle");
+            
+            // Update title bar text
+            if (TitleBarTextBlock != null)
+            {
+                TitleBarTextBlock.Text = SharedUtilities.GetTranslation(lang, "TitleBarText");
             }
         }
 

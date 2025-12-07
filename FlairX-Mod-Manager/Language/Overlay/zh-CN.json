@@ -7,5 +7,71 @@
     "NoCategories": "未找到分类",
     "NoMods": "此分类中没有模组",
     "ActiveOnly": "仅显示已启用",
-    "AllMods": "所有模组"
+    "AllMods": "所有模组",
+    
+    "Section_Appearance": "外观",
+    "Section_Preview": "预览",
+    "Section_Controls": "控制",
+    "Section_Gamepad": "手柄 (XInput)",
+    "Section_GamepadHotkeys": "手柄按键",
+    
+    "Theme_Label": "主题",
+    "Theme_Description": "覆盖层颜色主题",
+    "Theme_Auto": "自动",
+    "Theme_Light": "浅色",
+    "Theme_Dark": "深色",
+    
+    "Backdrop_Label": "背景",
+    "Backdrop_Description": "窗口背景效果",
+    "Backdrop_Thin": "Thin",
+    "Backdrop_None": "无",
+    
+    "TestOverlay_Label": "测试覆盖层",
+    "TestOverlay_Description": "打开覆盖层窗口预览",
+    "TestOverlay_Button": "打开覆盖层",
+    
+    "ToggleHotkey_Label": "切换快捷键",
+    "ToggleHotkey_Description": "显示/隐藏覆盖层的键盘快捷键",
+    
+    "FilterActiveHotkey_Label": "筛选已启用快捷键",
+    "FilterActiveHotkey_Description": "在覆盖层中仅显示已启用的模组",
+    
+    "GamepadEnabled_Label": "启用手柄",
+    "GamepadEnabled_Description": "使用Xbox手柄导航覆盖层",
+    
+    "UseLeftStick_Label": "使用左摇杆",
+    "UseLeftStick_Description": "使用左模拟摇杆代替十字键导航",
+    
+    "VibrateOnNav_Label": "导航时振动",
+    "VibrateOnNav_Description": "在模组间移动时的触觉反馈",
+    
+    "ControllerStatus_Label": "手柄状态",
+    "ControllerStatus_Connected": "手柄已连接",
+    "ControllerStatus_NotConnected": "未检测到手柄",
+    "ControllerStatus_Test": "测试",
+    
+    "SelectButton_Label": "选择 / 切换模组",
+    "SelectButton_Description": "激活/停用所选模组的按钮",
+    
+    "BackButton_Label": "返回 / 关闭覆盖层",
+    "BackButton_Description": "关闭覆盖层窗口的按钮",
+    
+    "NextCategory_Label": "下一分类",
+    "NextCategory_Description": "切换到下一分类的按钮",
+    
+    "PrevCategory_Label": "上一分类",
+    "PrevCategory_Description": "切换到上一分类的按钮",
+    
+    "ToggleOverlayCombo_Label": "切换覆盖层组合键",
+    "ToggleOverlayCombo_Description": "显示/隐藏覆盖层的按钮组合",
+    
+    "FilterActiveCombo_Label": "筛选已启用组合键",
+    "FilterActiveCombo_Description": "在覆盖层中仅显示已启用的模组",
+    
+    "Recording_PressButton": "按下按钮...",
+    "Recording_PressButtons": "按下按钮...",
+    "Recording_NoController": "无手柄!",
+    
+    "ToggleSwitch_On": "开",
+    "ToggleSwitch_Off": "关"
 }

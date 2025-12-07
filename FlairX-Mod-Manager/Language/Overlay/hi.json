@@ -7,5 +7,71 @@
     "NoCategories": "कोई श्रेणी नहीं मिली",
     "NoMods": "इस श्रेणी में कोई मॉड नहीं",
     "ActiveOnly": "केवल सक्रिय",
-    "AllMods": "सभी मॉड"
+    "AllMods": "सभी मॉड",
+    
+    "Section_Appearance": "दिखावट",
+    "Section_Preview": "पूर्वावलोकन",
+    "Section_Controls": "नियंत्रण",
+    "Section_Gamepad": "गेमपैड (XInput)",
+    "Section_GamepadHotkeys": "गेमपैड बटन",
+    
+    "Theme_Label": "थीम",
+    "Theme_Description": "ओवरले रंग थीम",
+    "Theme_Auto": "स्वचालित",
+    "Theme_Light": "हल्का",
+    "Theme_Dark": "गहरा",
+    
+    "Backdrop_Label": "पृष्ठभूमि",
+    "Backdrop_Description": "विंडो पृष्ठभूमि प्रभाव",
+    "Backdrop_Thin": "पतला",
+    "Backdrop_None": "कोई नहीं",
+    
+    "TestOverlay_Label": "ओवरले परीक्षण",
+    "TestOverlay_Description": "पूर्वावलोकन के लिए ओवरले विंडो खोलें",
+    "TestOverlay_Button": "ओवरले खोलें",
+    
+    "ToggleHotkey_Label": "टॉगल हॉटकी",
+    "ToggleHotkey_Description": "ओवरले दिखाने/छिपाने के लिए कीबोर्ड शॉर्टकट",
+    
+    "FilterActiveHotkey_Label": "सक्रिय फ़िल्टर हॉटकी",
+    "FilterActiveHotkey_Description": "ओवरले में केवल सक्रिय मॉड दिखाएं",
+    
+    "GamepadEnabled_Label": "गेमपैड सक्षम करें",
+    "GamepadEnabled_Description": "ओवरले में नेविगेट करने के लिए Xbox कंट्रोलर का उपयोग करें",
+    
+    "UseLeftStick_Label": "बाएं स्टिक का उपयोग करें",
+    "UseLeftStick_Description": "D-Pad के बजाय बाएं एनालॉग स्टिक से नेविगेट करें",
+    
+    "VibrateOnNav_Label": "नेविगेशन पर कंपन",
+    "VibrateOnNav_Description": "मॉड के बीच जाने पर हैप्टिक फीडबैक",
+    
+    "ControllerStatus_Label": "कंट्रोलर स्थिति",
+    "ControllerStatus_Connected": "कंट्रोलर जुड़ा हुआ",
+    "ControllerStatus_NotConnected": "कोई कंट्रोलर नहीं मिला",
+    "ControllerStatus_Test": "परीक्षण",
+    
+    "SelectButton_Label": "चुनें / मॉड टॉगल करें",
+    "SelectButton_Description": "चयनित मॉड को सक्रिय/निष्क्रिय करने का बटन",
+    
+    "BackButton_Label": "वापस / ओवरले बंद करें",
+    "BackButton_Description": "ओवरले विंडो बंद करने का बटन",
+    
+    "NextCategory_Label": "अगली श्रेणी",
+    "NextCategory_Description": "अगली श्रेणी पर जाने का बटन",
+    
+    "PrevCategory_Label": "पिछली श्रेणी",
+    "PrevCategory_Description": "पिछली श्रेणी पर जाने का बटन",
+    
+    "ToggleOverlayCombo_Label": "ओवरले टॉगल कॉम्बो",
+    "ToggleOverlayCombo_Description": "ओवरले दिखाने/छिपाने के लिए बटन संयोजन",
+    
+    "FilterActiveCombo_Label": "सक्रिय फ़िल्टर कॉम्बो",
+    "FilterActiveCombo_Description": "ओवरले में केवल सक्रिय मॉड दिखाएं",
+    
+    "Recording_PressButton": "बटन दबाएं...",
+    "Recording_PressButtons": "बटन दबाएं...",
+    "Recording_NoController": "कोई कंट्रोलर नहीं!",
+    
+    "ToggleSwitch_On": "चालू",
+    "ToggleSwitch_Off": "बंद"
 }

@@ -7,5 +7,71 @@
     "NoCategories": "Nie znaleziono kategorii",
     "NoMods": "Brak modów w tej kategorii",
     "ActiveOnly": "Tylko aktywne",
-    "AllMods": "Wszystkie mody"
+    "AllMods": "Wszystkie mody",
+    
+    "Section_Appearance": "Wygląd",
+    "Section_Preview": "Podgląd",
+    "Section_Controls": "Sterowanie",
+    "Section_Gamepad": "Gamepad (XInput)",
+    "Section_GamepadHotkeys": "Przyciski gamepada",
+    
+    "Theme_Label": "Motyw",
+    "Theme_Description": "Motyw kolorystyczny overlay",
+    "Theme_Auto": "Auto",
+    "Theme_Light": "Jasny",
+    "Theme_Dark": "Ciemny",
+    
+    "Backdrop_Label": "Tło",
+    "Backdrop_Description": "Efekt tła okna",
+    "Backdrop_Thin": "Cienki",
+    "Backdrop_None": "Brak",
+    
+    "TestOverlay_Label": "Testuj Overlay",
+    "TestOverlay_Description": "Otwórz okno overlay aby zobaczyć podgląd",
+    "TestOverlay_Button": "Otwórz Overlay",
+    
+    "ToggleHotkey_Label": "Skrót przełączania",
+    "ToggleHotkey_Description": "Skrót klawiszowy do pokazania/ukrycia overlay",
+    
+    "FilterActiveHotkey_Label": "Skrót filtrowania aktywnych",
+    "FilterActiveHotkey_Description": "Pokaż tylko aktywne mody w overlay",
+    
+    "GamepadEnabled_Label": "Włącz gamepad",
+    "GamepadEnabled_Description": "Używaj kontrolera Xbox do nawigacji w overlay",
+    
+    "UseLeftStick_Label": "Użyj lewego drążka",
+    "UseLeftStick_Description": "Nawiguj lewym drążkiem analogowym zamiast D-Pad",
+    
+    "VibrateOnNav_Label": "Wibracje przy nawigacji",
+    "VibrateOnNav_Description": "Wibracje podczas poruszania się po modach",
+    
+    "ControllerStatus_Label": "Status kontrolera",
+    "ControllerStatus_Connected": "Kontroler podłączony",
+    "ControllerStatus_NotConnected": "Nie wykryto kontrolera",
+    "ControllerStatus_Test": "Test",
+    
+    "SelectButton_Label": "Wybierz / Przełącz mod",
+    "SelectButton_Description": "Przycisk do aktywacji/dezaktywacji wybranego moda",
+    
+    "BackButton_Label": "Wstecz / Zamknij Overlay",
+    "BackButton_Description": "Przycisk do zamknięcia okna overlay",
+    
+    "NextCategory_Label": "Następna kategoria",
+    "NextCategory_Description": "Przycisk do przejścia do następnej kategorii",
+    
+    "PrevCategory_Label": "Poprzednia kategoria",
+    "PrevCategory_Description": "Przycisk do przejścia do poprzedniej kategorii",
+    
+    "ToggleOverlayCombo_Label": "Combo przełączania Overlay",
+    "ToggleOverlayCombo_Description": "Kombinacja przycisków do pokazania/ukrycia overlay",
+    
+    "FilterActiveCombo_Label": "Combo filtrowania aktywnych",
+    "FilterActiveCombo_Description": "Pokaż tylko aktywne mody w overlay",
+    
+    "Recording_PressButton": "Naciśnij przycisk...",
+    "Recording_PressButtons": "Naciśnij przyciski...",
+    "Recording_NoController": "Brak kontrolera!",
+    
+    "ToggleSwitch_On": "Włączone",
+    "ToggleSwitch_Off": "Wyłączone"
 }

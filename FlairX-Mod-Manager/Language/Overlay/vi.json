@@ -7,5 +7,71 @@
     "NoCategories": "Không tìm thấy danh mục",
     "NoMods": "Không có mod trong danh mục này",
     "ActiveOnly": "Chỉ đang hoạt động",
-    "AllMods": "Tất cả mod"
+    "AllMods": "Tất cả mod",
+    
+    "Section_Appearance": "Giao diện",
+    "Section_Preview": "Xem trước",
+    "Section_Controls": "Điều khiển",
+    "Section_Gamepad": "Gamepad (XInput)",
+    "Section_GamepadHotkeys": "Nút gamepad",
+    
+    "Theme_Label": "Chủ đề",
+    "Theme_Description": "Chủ đề màu overlay",
+    "Theme_Auto": "Tự động",
+    "Theme_Light": "Sáng",
+    "Theme_Dark": "Tối",
+    
+    "Backdrop_Label": "Nền",
+    "Backdrop_Description": "Hiệu ứng nền cửa sổ",
+    "Backdrop_Thin": "Mỏng",
+    "Backdrop_None": "Không",
+    
+    "TestOverlay_Label": "Thử Overlay",
+    "TestOverlay_Description": "Mở cửa sổ overlay để xem trước",
+    "TestOverlay_Button": "Mở Overlay",
+    
+    "ToggleHotkey_Label": "Phím tắt chuyển đổi",
+    "ToggleHotkey_Description": "Phím tắt để hiện/ẩn overlay",
+    
+    "FilterActiveHotkey_Label": "Phím tắt lọc hoạt động",
+    "FilterActiveHotkey_Description": "Chỉ hiện mod đang hoạt động trong overlay",
+    
+    "GamepadEnabled_Label": "Bật Gamepad",
+    "GamepadEnabled_Description": "Dùng tay cầm Xbox để điều hướng overlay",
+    
+    "UseLeftStick_Label": "Dùng cần trái",
+    "UseLeftStick_Description": "Điều hướng bằng cần analog trái thay vì D-Pad",
+    
+    "VibrateOnNav_Label": "Rung khi điều hướng",
+    "VibrateOnNav_Description": "Phản hồi xúc giác khi di chuyển qua các mod",
+    
+    "ControllerStatus_Label": "Trạng thái tay cầm",
+    "ControllerStatus_Connected": "Tay cầm đã kết nối",
+    "ControllerStatus_NotConnected": "Không phát hiện tay cầm",
+    "ControllerStatus_Test": "Thử",
+    
+    "SelectButton_Label": "Chọn / Chuyển Mod",
+    "SelectButton_Description": "Nút để bật/tắt mod đã chọn",
+    
+    "BackButton_Label": "Quay lại / Đóng Overlay",
+    "BackButton_Description": "Nút để đóng cửa sổ overlay",
+    
+    "NextCategory_Label": "Danh mục tiếp",
+    "NextCategory_Description": "Nút để chuyển sang danh mục tiếp theo",
+    
+    "PrevCategory_Label": "Danh mục trước",
+    "PrevCategory_Description": "Nút để chuyển sang danh mục trước",
+    
+    "ToggleOverlayCombo_Label": "Combo chuyển Overlay",
+    "ToggleOverlayCombo_Description": "Tổ hợp nút để hiện/ẩn overlay",
+    
+    "FilterActiveCombo_Label": "Combo lọc hoạt động",
+    "FilterActiveCombo_Description": "Chỉ hiện mod đang hoạt động trong overlay",
+    
+    "Recording_PressButton": "Nhấn nút...",
+    "Recording_PressButtons": "Nhấn các nút...",
+    "Recording_NoController": "Không có tay cầm!",
+    
+    "ToggleSwitch_On": "Bật",
+    "ToggleSwitch_Off": "Tắt"
 }

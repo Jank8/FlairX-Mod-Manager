@@ -7,5 +7,71 @@
     "NoCategories": "Категории не найдены",
     "NoMods": "В этой категории нет модов",
     "ActiveOnly": "Только активные",
-    "AllMods": "Все моды"
+    "AllMods": "Все моды",
+    
+    "Section_Appearance": "Внешний вид",
+    "Section_Preview": "Предпросмотр",
+    "Section_Controls": "Управление",
+    "Section_Gamepad": "Геймпад (XInput)",
+    "Section_GamepadHotkeys": "Кнопки геймпада",
+    
+    "Theme_Label": "Тема",
+    "Theme_Description": "Цветовая тема оверлея",
+    "Theme_Auto": "Авто",
+    "Theme_Light": "Светлая",
+    "Theme_Dark": "Тёмная",
+    
+    "Backdrop_Label": "Фон",
+    "Backdrop_Description": "Эффект фона окна",
+    "Backdrop_Thin": "Thin",
+    "Backdrop_None": "Нет",
+    
+    "TestOverlay_Label": "Тест оверлея",
+    "TestOverlay_Description": "Открыть окно оверлея для предпросмотра",
+    "TestOverlay_Button": "Открыть оверлей",
+    
+    "ToggleHotkey_Label": "Горячая клавиша",
+    "ToggleHotkey_Description": "Сочетание клавиш для показа/скрытия оверлея",
+    
+    "FilterActiveHotkey_Label": "Фильтр активных",
+    "FilterActiveHotkey_Description": "Показать только активные моды в оверлее",
+    
+    "GamepadEnabled_Label": "Включить геймпад",
+    "GamepadEnabled_Description": "Использовать контроллер Xbox для навигации в оверлее",
+    
+    "UseLeftStick_Label": "Левый стик",
+    "UseLeftStick_Description": "Навигация левым аналоговым стиком вместо D-Pad",
+    
+    "VibrateOnNav_Label": "Вибрация при навигации",
+    "VibrateOnNav_Description": "Тактильная обратная связь при перемещении по модам",
+    
+    "ControllerStatus_Label": "Статус контроллера",
+    "ControllerStatus_Connected": "Контроллер подключён",
+    "ControllerStatus_NotConnected": "Контроллер не обнаружен",
+    "ControllerStatus_Test": "Тест",
+    
+    "SelectButton_Label": "Выбрать / Переключить мод",
+    "SelectButton_Description": "Кнопка для активации/деактивации выбранного мода",
+    
+    "BackButton_Label": "Назад / Закрыть оверлей",
+    "BackButton_Description": "Кнопка для закрытия окна оверлея",
+    
+    "NextCategory_Label": "Следующая категория",
+    "NextCategory_Description": "Кнопка для перехода к следующей категории",
+    
+    "PrevCategory_Label": "Предыдущая категория",
+    "PrevCategory_Description": "Кнопка для перехода к предыдущей категории",
+    
+    "ToggleOverlayCombo_Label": "Комбо переключения оверлея",
+    "ToggleOverlayCombo_Description": "Комбинация кнопок для показа/скрытия оверлея",
+    
+    "FilterActiveCombo_Label": "Комбо фильтра активных",
+    "FilterActiveCombo_Description": "Показать только активные моды в оверлее",
+    
+    "Recording_PressButton": "Нажмите кнопку...",
+    "Recording_PressButtons": "Нажмите кнопки...",
+    "Recording_NoController": "Нет контроллера!",
+    
+    "ToggleSwitch_On": "Вкл",
+    "ToggleSwitch_Off": "Выкл"
 }
