@@ -13,7 +13,6 @@ namespace FlairX_Mod_Manager.Pages
     {
         private bool _isInitialized = false;
         private bool _isOptimizing = false;
-        private CancellationTokenSource? _cts;
         
         private int _jpegQuality = 80;
         private int _threadCount = 4;
@@ -395,8 +394,8 @@ namespace FlairX_Mod_Manager.Pages
             // Check if already optimizing (from service state)
             if (Services.ImageOptimizationService.IsOptimizing)
             {
-                // Cancel operation
-                _cts?.Cancel();
+                // Request safe cancellation - will finish current tasks
+                Services.ImageOptimizationService.RequestCancellation();
                 return;
             }
 
@@ -414,9 +413,6 @@ namespace FlairX_Mod_Manager.Pages
             var result = await confirmDialog.ShowAsync();
             if (result != ContentDialogResult.Primary)
                 return;
-
-            // Start optimization
-            _cts = new CancellationTokenSource();
 
             try
             {
@@ -457,11 +453,7 @@ namespace FlairX_Mod_Manager.Pages
                 };
                 await errorDialog.ShowAsync();
             }
-            finally
-            {
-                _cts = null;
-                // UI state is managed by UpdateProgressBarUI via event
-            }
+            // UI state is managed by UpdateProgressBarUI via event
         }
 
         private void ImageCropTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -39,6 +39,7 @@ namespace FlairX_Mod_Manager.Services
         // Progress tracking for manual optimization
         private static readonly object _progressLock = new();
         private static volatile bool _isOptimizing = false;
+        private static volatile bool _cancellationRequested = false;
         private static int _totalFiles = 0;
         private static int _processedFiles = 0;
         private static double _progressValue = 0;
@@ -52,6 +53,14 @@ namespace FlairX_Mod_Manager.Services
         /// Whether manual optimization is currently running
         /// </summary>
         public static bool IsOptimizing => _isOptimizing;
+        
+        /// <summary>
+        /// Request cancellation of current optimization (will finish current tasks)
+        /// </summary>
+        public static void RequestCancellation()
+        {
+            _cancellationRequested = true;
+        }
         
         /// <summary>
         /// Current progress value (0.0 to 1.0)
@@ -1420,10 +1429,11 @@ namespace FlairX_Mod_Manager.Services
                     return;
                 }
 
-                // Reset progress tracking
+                // Reset progress tracking and cancellation flag
                 lock (_progressLock)
                 {
                     _isOptimizing = true;
+                    _cancellationRequested = false;
                     _totalFiles = 0;
                     _processedFiles = 0;
                     _progressValue = 0;
@@ -1451,6 +1461,7 @@ namespace FlairX_Mod_Manager.Services
                 
                 // Check if we need sequential processing for crop inspection
                 bool needsSequentialProcessing = context.InspectAndEditEnabled || context.CropStrategy == CropStrategy.ManualOnly;
+                bool wasCancelled = false;
                 
                 if (needsSequentialProcessing)
                 {
@@ -1459,6 +1470,7 @@ namespace FlairX_Mod_Manager.Services
                     
                     foreach (var categoryDir in categoryDirs)
                     {
+                        if (_cancellationRequested) { wasCancelled = true; break; }
                         if (!Directory.Exists(categoryDir)) continue;
                         
                         // Process category preview
@@ -1469,9 +1481,12 @@ namespace FlairX_Mod_Manager.Services
                         var modDirs = Directory.GetDirectories(categoryDir);
                         foreach (var modDir in modDirs)
                         {
+                            if (_cancellationRequested) { wasCancelled = true; break; }
                             await ProcessModPreviewImagesAsync(modDir, context);
                             IncrementProcessed();
                         }
+                        
+                        if (wasCancelled) break;
                     }
                 }
                 else
@@ -1488,26 +1503,42 @@ namespace FlairX_Mod_Manager.Services
                         
                         var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = threadCount };
                         
-                        Parallel.ForEach(categoryDirs, parallelOptions, categoryDir =>
+                        Parallel.ForEach(categoryDirs, parallelOptions, (categoryDir, loopState) =>
                         {
+                            if (_cancellationRequested) { loopState.Break(); return; }
                             if (!Directory.Exists(categoryDir)) return;
                             
                             // Process category preview
                             ProcessCategoryPreview(categoryDir, context);
                             IncrementProcessed();
                             
+                            if (_cancellationRequested) { loopState.Break(); return; }
+                            
                             // Process all mods in category
                             var modDirs = Directory.GetDirectories(categoryDir);
-                            Parallel.ForEach(modDirs, parallelOptions, modDir =>
+                            Parallel.ForEach(modDirs, parallelOptions, (modDir, innerLoopState) =>
                             {
+                                if (_cancellationRequested) { innerLoopState.Break(); return; }
                                 ProcessModPreviewImages(modDir, context);
                                 IncrementProcessed();
                             });
                         });
+                        
+                        wasCancelled = _cancellationRequested;
                     });
                 }
                 
+                if (wasCancelled)
+                {
+                    Logger.LogInfo("Manual preview optimization cancelled by user");
+                    throw new OperationCanceledException("Optimization cancelled by user");
+                }
+                
                 Logger.LogInfo("Manual preview optimization completed");
+            }
+            catch (OperationCanceledException)
+            {
+                throw; // Re-throw cancellation
             }
             catch (Exception ex)
             {
@@ -1519,6 +1550,7 @@ namespace FlairX_Mod_Manager.Services
                 lock (_progressLock)
                 {
                     _isOptimizing = false;
+                    _cancellationRequested = false;
                 }
                 NotifyProgressChanged();
             }
