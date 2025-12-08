@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "Resumen de actualización de versiones",
     "ModsWithIssues": "Mods con problemas:",
     "SmartUpdateToggleLabel": "OFF/ON",
-    "UpdateAuthorsToggleLabel": "OFF/ON"
+    "UpdateAuthorsToggleLabel": "OFF/ON",
+    "FetchAllPreviewsButton": "Obtener todas las vistas previas",
+    "FetchAllPreviewsButton_Tooltip": "Descarga imágenes de vista previa para todos los mods (sobrescribe existentes)",
+    "ConfirmFetchAllPreviews": "Esto descargará imágenes de vista previa de GameBanana para todos los mods, sobrescribiendo las existentes. ¿Deseas continuar?",
+    "FetchMissingPreviewsButton": "Obtener vistas previas faltantes",
+    "FetchMissingPreviewsButton_Tooltip": "Descarga imágenes de vista previa solo para mods sin vistas previas",
+    "ConfirmFetchMissingPreviews": "Esto descargará imágenes de vista previa de GameBanana para mods que aún no las tienen. ¿Deseas continuar?",
+    "PreviewsSummaryTitle": "Resumen de descarga de vistas previas",
+    "AlreadyHasPreviews": "Ya tiene imágenes de vista previa",
+    "NoPreviewsAvailable": "No hay vistas previas disponibles en GameBanana",
+    "PreviewFetchError": "Error al obtener vistas previas"
 }

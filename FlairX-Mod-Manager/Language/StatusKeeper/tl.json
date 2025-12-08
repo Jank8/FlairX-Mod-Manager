@@ -1,7 +1,7 @@
 {
     "Title": "Status keeper",
     "StatusKeeper_Function": "Status keeper",
-    "Browse": "Mag-browse",
+    "Browse": "Buksan ang folder",
     "StatusKeeper_BackupConfirmation_Description": "Kumpirmahin na gumawa ka ng mga backup bago paganahin ang sync",
     "StatusKeeper_DynamicSync_Description": "Awtomatikong i-sync ang status ng mod kapag nagbago ang d3dx_user.ini",
     "StatusKeeper_ManualSync_Description": "Manu-manong i-trigger ang pag-sync ng status ng mod",

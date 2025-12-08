@@ -1,7 +1,7 @@
 {
     "Title": "Резервирование",
     "StatusKeeper_Function": "Резервирование",
-    "Browse": "Обзор",
+    "Browse": "Открыть папку",
     "StatusKeeper_BackupConfirmation_Description": "Подтвердите, что вы создали резервные копии перед включением синхронизации",
     "StatusKeeper_DynamicSync_Description": "Автоматически синхронизировать статус модов при изменении d3dx_user.ini",
     "StatusKeeper_ManualSync_Description": "Вручную запустить синхронизацию статуса модов",

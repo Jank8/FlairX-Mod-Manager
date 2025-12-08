@@ -1,7 +1,7 @@
 {
     "Title": "Status Keeper",
     "StatusKeeper_Function": "Status Keeper",
-    "Browse": "Browse",
+    "Browse": "Open folder",
     "StatusKeeper_BackupConfirmation_Description": "Confirm that you have created backups before enabling sync",
     "StatusKeeper_DynamicSync_Description": "Automatically sync mod status when d3dx_user.ini changes",
     "StatusKeeper_ManualSync_Description": "Manually trigger synchronization of mod status",

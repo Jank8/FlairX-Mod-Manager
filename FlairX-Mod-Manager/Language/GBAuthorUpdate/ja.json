@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "バージョンの更新概要",
     "ModsWithIssues": "問題のあるMod:",
     "SmartUpdateToggleLabel": "オフ/オン",
-    "UpdateAuthorsToggleLabel": "オフ/オン"
+    "UpdateAuthorsToggleLabel": "オフ/オン",
+    "FetchAllPreviewsButton": "すべてのプレビューを取得",
+    "FetchAllPreviewsButton_Tooltip": "すべてのModのプレビュー画像をダウンロードします（既存を上書き）",
+    "ConfirmFetchAllPreviews": "GameBananaからすべてのModのプレビュー画像をダウンロードし、既存のものを上書きします。続行しますか？",
+    "FetchMissingPreviewsButton": "不足しているプレビューを取得",
+    "FetchMissingPreviewsButton_Tooltip": "プレビューがないModのみプレビュー画像をダウンロードします",
+    "ConfirmFetchMissingPreviews": "GameBananaからプレビューがないModのプレビュー画像をダウンロードします。続行しますか？",
+    "PreviewsSummaryTitle": "プレビューダウンロードの概要",
+    "AlreadyHasPreviews": "既にプレビュー画像があります",
+    "NoPreviewsAvailable": "GameBananaにプレビューがありません",
+    "PreviewFetchError": "プレビューの取得中にエラーが発生しました"
 }

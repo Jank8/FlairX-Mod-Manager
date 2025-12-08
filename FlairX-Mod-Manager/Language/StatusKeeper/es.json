@@ -1,7 +1,7 @@
 {
     "Title": "Mantenedor de estado",
     "StatusKeeper_Function": "Mantenedor de estado",
-    "Browse": "Examinar",
+    "Browse": "Abrir carpeta",
     "StatusKeeper_BackupConfirmation_Description": "Confirmar que has creado copias de seguridad antes de habilitar la sincronización",
     "StatusKeeper_DynamicSync_Description": "Sincronizar automáticamente el estado de los mods cuando cambie d3dx_user.ini",
     "StatusKeeper_ManualSync_Description": "Activar manualmente la sincronización del estado de los mods",

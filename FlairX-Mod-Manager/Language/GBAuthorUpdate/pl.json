@@ -38,5 +38,15 @@
     "ConfirmUpdateOtherData": "To zaktualizuje tagi NSFW i inne metadane z GameBanana dla wszystkich modów z URL. Kontynuować?",
     "VersionFetchError": "Błąd podczas pobierania wersji",
     "VersionSummaryTitle": "Podsumowanie aktualizacji wersji",
-    "ModsWithIssues": "Mody z problemami:"
+    "ModsWithIssues": "Mody z problemami:",
+    "FetchAllPreviewsButton": "Pobierz wszystkie podglądy",
+    "FetchAllPreviewsButton_Tooltip": "Pobiera obrazy podglądu dla wszystkich modów (nadpisuje istniejące)",
+    "ConfirmFetchAllPreviews": "Spowoduje to pobranie obrazów podglądu z GameBanana dla wszystkich modów, nadpisując istniejące podglądy. Czy chcesz kontynuować?",
+    "FetchMissingPreviewsButton": "Pobierz brakujące podglądy",
+    "FetchMissingPreviewsButton_Tooltip": "Pobiera obrazy podglądu tylko dla modów bez podglądów",
+    "ConfirmFetchMissingPreviews": "Spowoduje to pobranie obrazów podglądu z GameBanana dla modów, które jeszcze ich nie mają. Czy chcesz kontynuować?",
+    "PreviewsSummaryTitle": "Podsumowanie pobierania podglądów",
+    "AlreadyHasPreviews": "Ma już obrazy podglądu",
+    "NoPreviewsAvailable": "Brak podglądów na GameBanana",
+    "PreviewFetchError": "Błąd podczas pobierania podglądów"
 }

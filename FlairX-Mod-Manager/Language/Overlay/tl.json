@@ -37,7 +37,7 @@
     "FilterActiveHotkey_Description": "Ipakita lamang ang mga aktibong mod sa overlay",
     
     "SendF10OnOverlayClose_Label": "Auto-reload ng mod",
-    "SendF10OnOverlayClose_Description": "Awtomatikong i-reload ang mga mod kapag nagbago ang activation",
+    "SendF10OnOverlayClose_Description": "Awtomatikong i-reload ang mga mod kapag nagbago ang activation (kailangan admin - hindi gumagana ang folder picker at drag)",
     
     "AutoReload_AdminRequired_Title": "Kailangan ng Administrator",
     "AutoReload_AdminRequired_Content": "Ang auto-reload ay nangangailangan ng administrator privileges para magpadala ng keyboard input sa laro.\n\nGusto mo bang patakbuhin ang FlairX bilang administrator mula ngayon?",

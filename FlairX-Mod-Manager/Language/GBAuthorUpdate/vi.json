@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "Tóm tắt cập nhật phiên bản",
     "ModsWithIssues": "Các mod có vấn đề:",
     "SmartUpdateToggleLabel": "TẮT/BẬT",
-    "UpdateAuthorsToggleLabel": "TẮT/BẬT"
+    "UpdateAuthorsToggleLabel": "TẮT/BẬT",
+    "FetchAllPreviewsButton": "Lấy tất cả bản xem trước",
+    "FetchAllPreviewsButton_Tooltip": "Tải xuống hình ảnh xem trước cho tất cả các mod (ghi đè hiện có)",
+    "ConfirmFetchAllPreviews": "Điều này sẽ tải xuống hình ảnh xem trước từ GameBanana cho tất cả các mod, ghi đè hiện có. Tiếp tục?",
+    "FetchMissingPreviewsButton": "Lấy bản xem trước còn thiếu",
+    "FetchMissingPreviewsButton_Tooltip": "Tải xuống hình ảnh xem trước chỉ cho các mod chưa có",
+    "ConfirmFetchMissingPreviews": "Điều này sẽ tải xuống hình ảnh xem trước từ GameBanana cho các mod chưa có. Tiếp tục?",
+    "PreviewsSummaryTitle": "Tóm tắt tải xuống bản xem trước",
+    "AlreadyHasPreviews": "Đã có bản xem trước",
+    "NoPreviewsAvailable": "Không có bản xem trước",
+    "PreviewFetchError": "Lỗi khi tải xuống bản xem trước"
 }

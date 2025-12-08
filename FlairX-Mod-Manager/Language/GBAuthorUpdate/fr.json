@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "Résumé de mise à jour des versions",
     "ModsWithIssues": "Mods avec problèmes:",
     "SmartUpdateToggleLabel": "OFF/ON",
-    "UpdateAuthorsToggleLabel": "OFF/ON"
+    "UpdateAuthorsToggleLabel": "OFF/ON",
+    "FetchAllPreviewsButton": "Récupérer tous les aperçus",
+    "FetchAllPreviewsButton_Tooltip": "Télécharge les images d'aperçu pour tous les mods (écrase les existants)",
+    "ConfirmFetchAllPreviews": "Cela téléchargera les images d'aperçu de GameBanana pour tous les mods, en écrasant les existants. Voulez-vous continuer ?",
+    "FetchMissingPreviewsButton": "Récupérer les aperçus manquants",
+    "FetchMissingPreviewsButton_Tooltip": "Télécharge les images d'aperçu uniquement pour les mods sans aperçus",
+    "ConfirmFetchMissingPreviews": "Cela téléchargera les images d'aperçu de GameBanana pour les mods qui n'en ont pas encore. Voulez-vous continuer ?",
+    "PreviewsSummaryTitle": "Résumé du téléchargement des aperçus",
+    "AlreadyHasPreviews": "A déjà des images d'aperçu",
+    "NoPreviewsAvailable": "Aucun aperçu disponible sur GameBanana",
+    "PreviewFetchError": "Erreur lors de la récupération des aperçus"
 }

@@ -37,7 +37,7 @@
     "FilterActiveHotkey_Description": "Mostrar solo mods activos en overlay",
     
     "SendF10OnOverlayClose_Label": "Auto-recargar mods",
-    "SendF10OnOverlayClose_Description": "Recargar mods automáticamente al cambiar activación",
+    "SendF10OnOverlayClose_Description": "Recargar mods automáticamente al cambiar activación (requiere admin - desactiva selector de carpeta y arrastrar)",
     
     "AutoReload_AdminRequired_Title": "Se requiere administrador",
     "AutoReload_AdminRequired_Content": "La recarga automática requiere privilegios de administrador para enviar entrada de teclado al juego.\n\n¿Desea que FlairX se ejecute como administrador a partir de ahora?",

@@ -48,6 +48,16 @@ namespace FlairX_Mod_Manager.Pages
             FetchVersionsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton");
             FetchVersionsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton_Tooltip");
             FetchVersionsButton.Content = _isFetchingVersions ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            
+            // Fetch all previews card
+            FetchAllPreviewsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchAllPreviewsButton");
+            FetchAllPreviewsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchAllPreviewsButton_Tooltip");
+            FetchAllPreviewsButton.Content = _isFetchingAllPreviews ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            
+            // Fetch missing previews card
+            FetchMissingPreviewsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchMissingPreviewsButton");
+            FetchMissingPreviewsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchMissingPreviewsButton_Tooltip");
+            FetchMissingPreviewsButton.Content = _isFetchingMissingPreviews ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
         }
         
         private void UpdateToggleLabels()
@@ -98,6 +108,8 @@ namespace FlairX_Mod_Manager.Pages
         private static volatile bool _isUpdatingAuthors = false;
         private static volatile bool _isFetchingDates = false;
         private static volatile bool _isFetchingVersions = false;
+        private static volatile bool _isFetchingAllPreviews = false;
+        private static volatile bool _isFetchingMissingPreviews = false;
         private static int _success = 0, _fail = 0, _skip = 0;
         private static List<string> _skippedMods = new();
         private static List<string> _failedMods = new();
@@ -570,6 +582,38 @@ namespace FlairX_Mod_Manager.Pages
                     FetchVersionsProgressBar.Value = 0;
                     FetchVersionsProgressBar.IsIndeterminate = false;
                     FetchVersionsProgressBar.Visibility = Visibility.Collapsed;                }
+            }
+            
+            if (FetchAllPreviewsProgressBar != null)
+            {
+                if (_isFetchingAllPreviews)
+                {
+                    FetchAllPreviewsProgressBar.Visibility = Visibility.Visible;
+                    FetchAllPreviewsProgressBar.IsIndeterminate = false;
+                    FetchAllPreviewsProgressBar.Value = _progressValue * 100;
+                }
+                else
+                {
+                    FetchAllPreviewsProgressBar.Value = 0;
+                    FetchAllPreviewsProgressBar.IsIndeterminate = false;
+                    FetchAllPreviewsProgressBar.Visibility = Visibility.Collapsed;
+                }
+            }
+            
+            if (FetchMissingPreviewsProgressBar != null)
+            {
+                if (_isFetchingMissingPreviews)
+                {
+                    FetchMissingPreviewsProgressBar.Visibility = Visibility.Visible;
+                    FetchMissingPreviewsProgressBar.IsIndeterminate = false;
+                    FetchMissingPreviewsProgressBar.Value = _progressValue * 100;
+                }
+                else
+                {
+                    FetchMissingPreviewsProgressBar.Value = 0;
+                    FetchMissingPreviewsProgressBar.IsIndeterminate = false;
+                    FetchMissingPreviewsProgressBar.Visibility = Visibility.Collapsed;
+                }
             }
         }
 
@@ -1283,6 +1327,462 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogError($"Failed to fetch version from API for URL: {url}", ex);
                 return null;
+            }
+        }
+
+        // Fetch All Previews functionality
+        private CancellationTokenSource? _ctsAllPreviews;
+
+        private async void FetchAllPreviewsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await FetchAllPreviewsButtonClickAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in FetchAllPreviewsButton_Click", ex);
+                ResetAllPreviewsButtonToFetchState();
+            }
+        }
+
+        private async Task FetchAllPreviewsButtonClickAsync()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            var mainLang = SharedUtilities.LoadLanguageDictionary();
+
+            if (_isFetchingAllPreviews)
+            {
+                _ctsAllPreviews?.Cancel();
+                _isFetchingAllPreviews = false;
+                ResetAllPreviewsButtonToFetchState();
+                var cancelDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await cancelDialog.ShowAsync();
+                return;
+            }
+
+            var confirmDialog = new ContentDialog
+            {
+                Title = SharedUtilities.GetTranslation(lang, "FetchAllPreviewsButton"),
+                Content = SharedUtilities.GetTranslation(lang, "ConfirmFetchAllPreviews"),
+                PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
+                CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
+                XamlRoot = this.XamlRoot
+            };
+            var result = await confirmDialog.ShowAsync();
+            if (result != ContentDialogResult.Primary)
+            {
+                return;
+            }
+
+            _ctsAllPreviews = new CancellationTokenSource();
+            SetAllPreviewsButtonToCancelState();
+            _isFetchingAllPreviews = true;
+            lock (_lockObject)
+            {
+                _success = 0; _fail = 0; _skip = 0;
+                _skippedMods.Clear();
+                _failedMods.Clear();
+                _progressValue = 0;
+                _totalMods = 0;
+            }
+            NotifyProgressChanged();
+            await FetchPreviewsAsync(_ctsAllPreviews.Token, fetchAll: true);
+            ResetAllPreviewsButtonToFetchState();
+        }
+
+        private void SetAllPreviewsButtonToCancelState()
+        {
+            var mainLang = SharedUtilities.LoadLanguageDictionary();
+            FetchAllPreviewsButton.Content = SharedUtilities.GetTranslation(mainLang, "Cancel");
+            FetchAllPreviewsButton.IsEnabled = true;
+            FetchAllPreviewsProgressBar.Visibility = Visibility.Visible;
+        }
+
+        private void ResetAllPreviewsButtonToFetchState()
+        {
+            _isFetchingAllPreviews = false;
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            FetchAllPreviewsButton.Content = SharedUtilities.GetTranslation(lang, "Start");
+            FetchAllPreviewsButton.IsEnabled = true;
+            FetchAllPreviewsProgressBar.Visibility = Visibility.Collapsed;
+        }
+
+        // Fetch Missing Previews functionality
+        private CancellationTokenSource? _ctsMissingPreviews;
+
+        private async void FetchMissingPreviewsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await FetchMissingPreviewsButtonClickAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in FetchMissingPreviewsButton_Click", ex);
+                ResetMissingPreviewsButtonToFetchState();
+            }
+        }
+
+        private async Task FetchMissingPreviewsButtonClickAsync()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            var mainLang = SharedUtilities.LoadLanguageDictionary();
+
+            if (_isFetchingMissingPreviews)
+            {
+                _ctsMissingPreviews?.Cancel();
+                _isFetchingMissingPreviews = false;
+                ResetMissingPreviewsButtonToFetchState();
+                var cancelDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await cancelDialog.ShowAsync();
+                return;
+            }
+
+            var confirmDialog = new ContentDialog
+            {
+                Title = SharedUtilities.GetTranslation(lang, "FetchMissingPreviewsButton"),
+                Content = SharedUtilities.GetTranslation(lang, "ConfirmFetchMissingPreviews"),
+                PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
+                CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
+                XamlRoot = this.XamlRoot
+            };
+            var result = await confirmDialog.ShowAsync();
+            if (result != ContentDialogResult.Primary)
+            {
+                return;
+            }
+
+            _ctsMissingPreviews = new CancellationTokenSource();
+            SetMissingPreviewsButtonToCancelState();
+            _isFetchingMissingPreviews = true;
+            lock (_lockObject)
+            {
+                _success = 0; _fail = 0; _skip = 0;
+                _skippedMods.Clear();
+                _failedMods.Clear();
+                _progressValue = 0;
+                _totalMods = 0;
+            }
+            NotifyProgressChanged();
+            await FetchPreviewsAsync(_ctsMissingPreviews.Token, fetchAll: false);
+            ResetMissingPreviewsButtonToFetchState();
+        }
+
+        private void SetMissingPreviewsButtonToCancelState()
+        {
+            var mainLang = SharedUtilities.LoadLanguageDictionary();
+            FetchMissingPreviewsButton.Content = SharedUtilities.GetTranslation(mainLang, "Cancel");
+            FetchMissingPreviewsButton.IsEnabled = true;
+            FetchMissingPreviewsProgressBar.Visibility = Visibility.Visible;
+        }
+
+        private void ResetMissingPreviewsButtonToFetchState()
+        {
+            _isFetchingMissingPreviews = false;
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            FetchMissingPreviewsButton.Content = SharedUtilities.GetTranslation(lang, "Start");
+            FetchMissingPreviewsButton.IsEnabled = true;
+            FetchMissingPreviewsProgressBar.Visibility = Visibility.Collapsed;
+        }
+
+        private async Task FetchPreviewsAsync(CancellationToken token, bool fetchAll)
+        {
+            try
+            {
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+                string modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
+
+                var allModDirs = new List<string>();
+                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                {
+                    if (Directory.Exists(categoryDir))
+                    {
+                        allModDirs.AddRange(Directory.GetDirectories(categoryDir));
+                    }
+                }
+
+                _totalMods = allModDirs.Count;
+                int processed = 0;
+
+                // Process sequentially to avoid overwhelming the server
+                var semaphore = new SemaphoreSlim(3);
+                var tasks = allModDirs.Select(async dir =>
+                {
+                    await semaphore.WaitAsync(token);
+                    try
+                    {
+                        if (token.IsCancellationRequested) return;
+
+                        var modJsonPath = Path.Combine(dir, "mod.json");
+                        var modFolderName = Path.GetFileName(dir);
+
+                        if (!File.Exists(modJsonPath))
+                        {
+                            Interlocked.Increment(ref processed);
+                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                            NotifyProgressChanged();
+                            return;
+                        }
+
+                        var json = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
+                        string? url = null;
+                        string modName = modFolderName;
+
+                        using (var doc = JsonDocument.Parse(json))
+                        {
+                            var root = doc.RootElement;
+
+                            modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
+                                ? nameProp.GetString()!
+                                : modFolderName;
+
+                            if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
+                                string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
+                            {
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
+                                Interlocked.Increment(ref processed);
+                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                NotifyProgressChanged();
+                                return;
+                            }
+
+                            url = urlProp.GetString()!;
+                        }
+
+                        // Check if mod already has preview images
+                        var existingPreviews = Directory.GetFiles(dir)
+                            .Where(f =>
+                            {
+                                var fileName = Path.GetFileName(f).ToLower();
+                                return fileName.StartsWith("preview") &&
+                                       (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                        f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                        f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                            }).ToList();
+
+                        // If not fetchAll mode, skip mods that already have previews
+                        if (!fetchAll && existingPreviews.Count > 0)
+                        {
+                            SafeIncrementSkip();
+                            SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "AlreadyHasPreviews")}");
+                            Interlocked.Increment(ref processed);
+                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                            NotifyProgressChanged();
+                            return;
+                        }
+
+                        // If fetchAll mode, delete existing previews first
+                        if (fetchAll && existingPreviews.Count > 0)
+                        {
+                            foreach (var preview in existingPreviews)
+                            {
+                                try { File.Delete(preview); } catch { }
+                            }
+                        }
+
+                        try
+                        {
+                            var downloadedCount = await DownloadPreviewsFromApi(url, dir, token);
+                            if (downloadedCount > 0)
+                            {
+                                SafeIncrementSuccess();
+                            }
+                            else
+                            {
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "NoPreviewsAvailable")}");
+                            }
+                        }
+                        catch (OperationCanceledException) { }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to fetch previews for {modName}", ex);
+                            SafeIncrementFail();
+                            SafeAddFailedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "PreviewFetchError")}");
+                        }
+
+                        Interlocked.Increment(ref processed);
+                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                        NotifyProgressChanged();
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                }).ToList();
+
+                await Task.WhenAll(tasks);
+
+                if (token.IsCancellationRequested)
+                {
+                    return;
+                }
+
+                string summary = string.Format(SharedUtilities.GetTranslation(lang, "TotalChecked"), _totalMods) + "\n" +
+                                string.Format(SharedUtilities.GetTranslation(lang, "SuccessCount"), _success) + "\n" +
+                                string.Format(SharedUtilities.GetTranslation(lang, "SkippedCount"), _skip);
+
+                var allIssues = new List<string>();
+                // Only show mods without previews available or with errors (not "already has previews")
+                foreach (var skipped in _skippedMods)
+                {
+                    if (!skipped.Contains(SharedUtilities.GetTranslation(lang, "AlreadyHasPreviews")))
+                    {
+                        allIssues.Add(skipped);
+                    }
+                }
+                allIssues.AddRange(_failedMods);
+
+                if (allIssues.Count > 0)
+                {
+                    summary += "\n\n" + SharedUtilities.GetTranslation(lang, "ModsWithIssues") + "\n" + string.Join("\n", allIssues);
+                }
+
+                var textBlock = new TextBlock
+                {
+                    Text = summary,
+                    TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap,
+                    IsTextSelectionEnabled = true,
+                    Width = 500
+                };
+
+                var scrollViewer = new ScrollViewer
+                {
+                    Content = textBlock,
+                    VerticalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Auto,
+                    HorizontalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Disabled,
+                    MaxHeight = 400,
+                    Padding = new Microsoft.UI.Xaml.Thickness(10)
+                };
+
+                var dialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "PreviewsSummaryTitle"),
+                    Content = scrollViewer,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                // Cancelled - no dialog needed, already shown in button click handler
+            }
+            catch (Exception ex)
+            {
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+                var dialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
+                    Content = ex.Message,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+        }
+
+        private async Task<int> DownloadPreviewsFromApi(string url, string modPath, CancellationToken token)
+        {
+            try
+            {
+                var match = _urlPattern.Match(url);
+                if (!match.Success)
+                {
+                    Logger.LogError($"Failed to parse GameBanana URL: {url}");
+                    return 0;
+                }
+
+                string itemType = match.Groups[1].Value;
+                string itemId = match.Groups[2].Value;
+                itemType = char.ToUpper(itemType[0]) + itemType.Substring(1).TrimEnd('s');
+
+                string apiUrl = $"https://gamebanana.com/apiv11/{itemType}/{itemId}?_csvProperties=_aPreviewMedia";
+
+                _httpClient.DefaultRequestHeaders.Clear();
+                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+
+                var response = await _httpClient.GetStringAsync(apiUrl, token);
+                using var doc = JsonDocument.Parse(response);
+                var root = doc.RootElement;
+
+                if (!root.TryGetProperty("_aPreviewMedia", out var previewMedia))
+                {
+                    return 0;
+                }
+
+                if (!previewMedia.TryGetProperty("_aImages", out var images) || images.ValueKind != JsonValueKind.Array)
+                {
+                    return 0;
+                }
+
+                var screenshots = new List<(string baseUrl, string file)>();
+                foreach (var img in images.EnumerateArray())
+                {
+                    if (img.TryGetProperty("_sType", out var typeProp) && typeProp.GetString() == "screenshot")
+                    {
+                        if (img.TryGetProperty("_sBaseUrl", out var baseUrlProp) &&
+                            img.TryGetProperty("_sFile", out var fileProp))
+                        {
+                            screenshots.Add((baseUrlProp.GetString()!, fileProp.GetString()!));
+                        }
+                    }
+                }
+
+                if (screenshots.Count == 0)
+                {
+                    return 0;
+                }
+
+                int downloaded = 0;
+                for (int i = 0; i < screenshots.Count; i++)
+                {
+                    var (baseUrl, file) = screenshots[i];
+                    var imageUrl = $"{baseUrl}/{file}";
+
+                    var urlPath = new Uri(imageUrl).AbsolutePath;
+                    var fileExtension = Path.GetExtension(urlPath);
+                    if (string.IsNullOrEmpty(fileExtension))
+                    {
+                        fileExtension = ".jpg";
+                    }
+
+                    var fileName = $"preview{(i + 1):D3}{fileExtension}";
+                    var filePath = Path.Combine(modPath, fileName);
+
+                    try
+                    {
+                        var imageBytes = await _httpClient.GetByteArrayAsync(imageUrl, token);
+                        await File.WriteAllBytesAsync(filePath, imageBytes, token);
+                        downloaded++;
+                        Logger.LogInfo($"Downloaded preview: {fileName} for {Path.GetFileName(modPath)}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to download preview image {i + 1} for {Path.GetFileName(modPath)}", ex);
+                    }
+                }
+
+                return downloaded;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to fetch previews from API for URL: {url}", ex);
+                return 0;
             }
         }
 

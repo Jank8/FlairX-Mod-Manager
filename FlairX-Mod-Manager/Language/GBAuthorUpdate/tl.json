@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "Buod ng pag-update ng mga bersyon",
     "ModsWithIssues": "Mga mod na may problema:",
     "SmartUpdateToggleLabel": "OFF/ON",
-    "UpdateAuthorsToggleLabel": "OFF/ON"
+    "UpdateAuthorsToggleLabel": "OFF/ON",
+    "FetchAllPreviewsButton": "Kunin ang lahat ng preview",
+    "FetchAllPreviewsButton_Tooltip": "Nagda-download ng mga preview na larawan para sa lahat ng mod (i-overwrite ang mga umiiral)",
+    "ConfirmFetchAllPreviews": "Magda-download ito ng mga preview na larawan mula sa GameBanana para sa lahat ng mod, i-overwrite ang mga umiiral. Magpatuloy?",
+    "FetchMissingPreviewsButton": "Kunin ang mga nawawalang preview",
+    "FetchMissingPreviewsButton_Tooltip": "Nagda-download ng mga preview na larawan para lang sa mga mod na walang preview",
+    "ConfirmFetchMissingPreviews": "Magda-download ito ng mga preview na larawan mula sa GameBanana para sa mga mod na wala pa nito. Magpatuloy?",
+    "PreviewsSummaryTitle": "Buod ng pag-download ng mga preview",
+    "AlreadyHasPreviews": "May mga preview na",
+    "NoPreviewsAvailable": "Walang available na preview",
+    "PreviewFetchError": "Error habang nagda-download ng preview"
 }

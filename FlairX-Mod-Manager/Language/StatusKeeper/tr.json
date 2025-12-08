@@ -1,7 +1,7 @@
 {
     "Title": "Durum koruyucu",
     "StatusKeeper_Function": "Durum koruyucu",
-    "Browse": "Gözat",
+    "Browse": "Klasörü aç",
     "StatusKeeper_BackupConfirmation_Description": "Senkronizasyonu etkinleştirmeden önce yedek oluşturduğunuzu onaylayın",
     "StatusKeeper_DynamicSync_Description": "d3dx_user.ini değiştiğinde mod durumunu otomatik olarak senkronize et",
     "StatusKeeper_ManualSync_Description": "Mod durumu senkronizasyonunu manuel olarak tetikle",

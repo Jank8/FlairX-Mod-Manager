@@ -1,7 +1,7 @@
 {
     "Title": "Strażnik statusu",
     "StatusKeeper_Function": "Strażnik statusu",
-    "Browse": "Przeglądaj",
+    "Browse": "Otwórz katalog",
     "StatusKeeper_BackupConfirmation_Description": "Potwierdź że utworzyłeś kopie zapasowe przed włączeniem synchronizacji",
     "StatusKeeper_DynamicSync_Description": "Automatycznie synchronizuj status modów gdy zmieni się d3dx_user.ini",
     "StatusKeeper_ManualSync_Description": "Ręcznie uruchom synchronizację statusu modów",

@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "Resumo de actualização de versões",
     "ModsWithIssues": "Mods com problemas:",
     "SmartUpdateToggleLabel": "OFF/ON",
-    "UpdateAuthorsToggleLabel": "OFF/ON"
+    "UpdateAuthorsToggleLabel": "OFF/ON",
+    "FetchAllPreviewsButton": "Obter todas as pré-visualizações",
+    "FetchAllPreviewsButton_Tooltip": "Transfere imagens de pré-visualização para todos os mods (substitui existentes)",
+    "ConfirmFetchAllPreviews": "Isto irá transferir imagens de pré-visualização do GameBanana para todos os mods, substituindo as existentes. Deseja continuar?",
+    "FetchMissingPreviewsButton": "Obter pré-visualizações em falta",
+    "FetchMissingPreviewsButton_Tooltip": "Transfere imagens de pré-visualização apenas para mods sem pré-visualizações",
+    "ConfirmFetchMissingPreviews": "Isto irá transferir imagens de pré-visualização do GameBanana para mods que ainda não as têm. Deseja continuar?",
+    "PreviewsSummaryTitle": "Resumo de transferência de pré-visualizações",
+    "AlreadyHasPreviews": "Já tem imagens de pré-visualização",
+    "NoPreviewsAvailable": "Sem pré-visualizações disponíveis no GameBanana",
+    "PreviewFetchError": "Erro ao obter pré-visualizações"
 }

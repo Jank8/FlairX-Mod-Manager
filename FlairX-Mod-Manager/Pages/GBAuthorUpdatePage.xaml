@@ -151,7 +151,7 @@
                         BorderThickness="1" 
                         CornerRadius="8" 
                         Padding="16" 
-                        Margin="0,0,0,24">
+                        Margin="0,0,0,2">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -173,6 +173,72 @@
                                     MinWidth="80"
                                     Click="FetchVersionsButton_Click">
                                 <TextBlock x:Name="FetchVersionsButtonText"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- Fetch All Previews Card -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Padding="16" 
+                        Margin="0,0,0,2">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE8B9;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock x:Name="FetchAllPreviewsTitle" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="FetchAllPreviewsDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                            <ProgressBar x:Name="FetchAllPreviewsProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
+                            <Button x:Name="FetchAllPreviewsButton" 
+                                    MinWidth="80"
+                                    Click="FetchAllPreviewsButton_Click">
+                                <TextBlock x:Name="FetchAllPreviewsButtonText"/>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- Fetch Missing Previews Card -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                        BorderThickness="1" 
+                        CornerRadius="8" 
+                        Padding="16" 
+                        Margin="0,0,0,24">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <FontIcon Grid.Column="0" Glyph="&#xE8B9;" FontSize="20" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock x:Name="FetchMissingPreviewsTitle" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="FetchMissingPreviewsDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                            <ProgressBar x:Name="FetchMissingPreviewsProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
+                            <Button x:Name="FetchMissingPreviewsButton" 
+                                    MinWidth="80"
+                                    Click="FetchMissingPreviewsButton_Click">
+                                <TextBlock x:Name="FetchMissingPreviewsButtonText"/>
                             </Button>
                         </StackPanel>
                     </Grid>

@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "संस्करण अपडेट सारांश",
     "ModsWithIssues": "समस्याओं वाले मॉड:",
     "SmartUpdateToggleLabel": "बंद/चालू",
-    "UpdateAuthorsToggleLabel": "बंद/चालू"
+    "UpdateAuthorsToggleLabel": "बंद/चालू",
+    "FetchAllPreviewsButton": "सभी प्रीव्यू प्राप्त करें",
+    "FetchAllPreviewsButton_Tooltip": "सभी मॉड्स के लिए प्रीव्यू इमेज डाउनलोड करता है (मौजूदा को ओवरराइट करता है)",
+    "ConfirmFetchAllPreviews": "यह GameBanana से सभी मॉड्स के लिए प्रीव्यू इमेज डाउनलोड करेगा, मौजूदा को ओवरराइट करेगा। जारी रखें?",
+    "FetchMissingPreviewsButton": "गायब प्रीव्यू प्राप्त करें",
+    "FetchMissingPreviewsButton_Tooltip": "केवल बिना प्रीव्यू वाले मॉड्स के लिए प्रीव्यू इमेज डाउनलोड करता है",
+    "ConfirmFetchMissingPreviews": "यह GameBanana से उन मॉड्स के लिए प्रीव्यू इमेज डाउनलोड करेगा जिनके पास नहीं है। जारी रखें?",
+    "PreviewsSummaryTitle": "प्रीव्यू डाउनलोड सारांश",
+    "AlreadyHasPreviews": "पहले से प्रीव्यू है",
+    "NoPreviewsAvailable": "कोई प्रीव्यू उपलब्ध नहीं",
+    "PreviewFetchError": "प्रीव्यू डाउनलोड करने में त्रुटि"
 }

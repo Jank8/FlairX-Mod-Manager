@@ -1,7 +1,7 @@
 {
     "Title": "ตัวรักษาสถานะ",
     "StatusKeeper_Function": "ตัวรักษาสถานะ",
-    "Browse": "เรียกดู",
+    "Browse": "เปิดโฟลเดอร์",
     "StatusKeeper_BackupConfirmation_Description": "ยนยนวาคณไดสรางขอมลสำรองกอนเปดใชงานการซงค",
     "StatusKeeper_DynamicSync_Description": "ซงคสถานะมอดโดยอตโนมตเมอ d3dx_user.ini เปลยนแปลง",
     "StatusKeeper_ManualSync_Description": "เรยกใชการซงคสถานะมอดดวยตนเอง",

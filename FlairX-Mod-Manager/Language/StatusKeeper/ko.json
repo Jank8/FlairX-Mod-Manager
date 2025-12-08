@@ -1,7 +1,7 @@
 {
     "Title": "상태 유지기",
     "StatusKeeper_Function": "상태 유지기",
-    "Browse": "찾아보기",
+    "Browse": "폴더 열기",
     "StatusKeeper_BackupConfirmation_Description": "동기화를 활성화하기 전에 백업을 생성했는지 확인",
     "StatusKeeper_DynamicSync_Description": "d3dx_user.ini가 변경될 때 모드 상태를 자동으로 동기화",
     "StatusKeeper_ManualSync_Description": "모드 상태 동기화를 수동으로 트리거",

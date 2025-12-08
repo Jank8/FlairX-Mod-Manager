@@ -1,7 +1,7 @@
 {
     "Title": "狀態保持器",
     "StatusKeeper_Function": "狀態保持器",
-    "Browse": "瀏覽",
+    "Browse": "開啟資料夾",
     "StatusKeeper_BackupConfirmation_Description": "在啟用同步之前確認您已建立備份",
     "StatusKeeper_DynamicSync_Description": "當d3dx_user.ini更改時自動同步模組狀態",
     "StatusKeeper_ManualSync_Description": "手動觸發模組狀態同步",

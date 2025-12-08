@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "Resumo da atualização de versões",
     "ModsWithIssues": "Mods com problemas:",
     "SmartUpdateToggleLabel": "OFF/ON",
-    "UpdateAuthorsToggleLabel": "OFF/ON"
+    "UpdateAuthorsToggleLabel": "OFF/ON",
+    "FetchAllPreviewsButton": "Buscar todas as prévias",
+    "FetchAllPreviewsButton_Tooltip": "Baixa imagens de prévia para todos os mods (sobrescreve existentes)",
+    "ConfirmFetchAllPreviews": "Isso baixará imagens de prévia do GameBanana para todos os mods, sobrescrevendo as existentes. Continuar?",
+    "FetchMissingPreviewsButton": "Buscar prévias faltantes",
+    "FetchMissingPreviewsButton_Tooltip": "Baixa imagens de prévia apenas para mods sem prévias",
+    "ConfirmFetchMissingPreviews": "Isso baixará imagens de prévia do GameBanana para mods que não as possuem. Continuar?",
+    "PreviewsSummaryTitle": "Resumo do download de prévias",
+    "AlreadyHasPreviews": "Já possui prévias",
+    "NoPreviewsAvailable": "Sem prévias disponíveis",
+    "PreviewFetchError": "Erro ao baixar prévia"
 }

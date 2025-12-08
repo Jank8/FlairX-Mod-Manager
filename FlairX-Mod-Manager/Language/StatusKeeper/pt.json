@@ -1,7 +1,7 @@
 {
     "Title": "Guardião de estado",
     "StatusKeeper_Function": "Guardião de estado",
-    "Browse": "Procurar",
+    "Browse": "Abrir pasta",
     "StatusKeeper_BackupConfirmation_Description": "Confirme que você criou backups antes de ativar a sincronização",
     "StatusKeeper_DynamicSync_Description": "Sincronizar automaticamente o status dos mods quando d3dx_user.ini mudar",
     "StatusKeeper_ManualSync_Description": "Acionar manualmente a sincronização do status dos mods",

@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "สรุปการอัปเดตเวอร์ชัน",
     "ModsWithIssues": "มอดที่มีปัญหา:",
     "SmartUpdateToggleLabel": "ปิด/เปิด",
-    "UpdateAuthorsToggleLabel": "ปิด/เปิด"
+    "UpdateAuthorsToggleLabel": "ปิด/เปิด",
+    "FetchAllPreviewsButton": "ดึงตัวอย่างทั้งหมด",
+    "FetchAllPreviewsButton_Tooltip": "ดาวน์โหลดรูปภาพตัวอย่างสำหรับ mod ทั้งหมด (เขียนทับที่มีอยู่)",
+    "ConfirmFetchAllPreviews": "การดำเนินการนี้จะดาวน์โหลดรูปภาพตัวอย่างจาก GameBanana สำหรับ mod ทั้งหมด เขียนทับที่มีอยู่ ดำเนินการต่อหรือไม่?",
+    "FetchMissingPreviewsButton": "ดึงตัวอย่างที่ขาดหายไป",
+    "FetchMissingPreviewsButton_Tooltip": "ดาวน์โหลดรูปภาพตัวอย่างเฉพาะสำหรับ mod ที่ไม่มีตัวอย่าง",
+    "ConfirmFetchMissingPreviews": "การดำเนินการนี้จะดาวน์โหลดรูปภาพตัวอย่างจาก GameBanana สำหรับ mod ที่ยังไม่มี ดำเนินการต่อหรือไม่?",
+    "PreviewsSummaryTitle": "สรุปการดาวน์โหลดตัวอย่าง",
+    "AlreadyHasPreviews": "มีตัวอย่างแล้ว",
+    "NoPreviewsAvailable": "ไม่มีตัวอย่างที่พร้อมใช้งาน",
+    "PreviewFetchError": "ข้อผิดพลาดขณะดาวน์โหลดตัวอย่าง"
 }

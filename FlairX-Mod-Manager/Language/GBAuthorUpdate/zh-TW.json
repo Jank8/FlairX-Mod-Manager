@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "版本更新摘要",
     "ModsWithIssues": "有問題的模組:",
     "SmartUpdateToggleLabel": "關/開",
-    "UpdateAuthorsToggleLabel": "關/開"
+    "UpdateAuthorsToggleLabel": "關/開",
+    "FetchAllPreviewsButton": "取得所有預覽",
+    "FetchAllPreviewsButton_Tooltip": "為所有模組下載預覽圖片（覆蓋現有）",
+    "ConfirmFetchAllPreviews": "這將從GameBanana下載所有模組的預覽圖片，覆蓋現有的。是否繼續？",
+    "FetchMissingPreviewsButton": "取得缺失的預覽",
+    "FetchMissingPreviewsButton_Tooltip": "僅為沒有預覽的模組下載預覽圖片",
+    "ConfirmFetchMissingPreviews": "這將從GameBanana下載沒有預覽的模組的預覽圖片。是否繼續？",
+    "PreviewsSummaryTitle": "預覽下載摘要",
+    "AlreadyHasPreviews": "已有預覽圖片",
+    "NoPreviewsAvailable": "GameBanana上沒有預覽",
+    "PreviewFetchError": "取得預覽時出錯"
 }

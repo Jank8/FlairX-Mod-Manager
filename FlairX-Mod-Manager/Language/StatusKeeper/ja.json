@@ -1,7 +1,7 @@
 {
     "Title": "ステータスキーパー",
     "StatusKeeper_Function": "ステータスキーパー",
-    "Browse": "参照",
+    "Browse": "フォルダを開く",
     "StatusKeeper_BackupConfirmation_Description": "同期を有効にする前にバックアップを作成したことを確認",
     "StatusKeeper_DynamicSync_Description": "d3dx_user.iniが変更されたときにModステータスを自動的に同期",
     "StatusKeeper_ManualSync_Description": "Modステータスの同期を手動でトリガー",

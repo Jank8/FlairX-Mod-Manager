@@ -37,7 +37,7 @@
     "FilterActiveHotkey_Description": "Show only active mods in overlay",
     
     "SendF10OnOverlayClose_Label": "Auto-reload mods",
-    "SendF10OnOverlayClose_Description": "Automatically reload mods when activation changes",
+    "SendF10OnOverlayClose_Description": "Automatically reload mods when activation changes (requires admin - disables folder picker and drag & drop)",
     
     "AutoReload_AdminRequired_Title": "Administrator Required",
     "AutoReload_AdminRequired_Content": "Auto-reload requires administrator privileges to send keyboard input to the game.\n\nDo you want FlairX to run as administrator from now on?",

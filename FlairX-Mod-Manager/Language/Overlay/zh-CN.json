@@ -37,7 +37,7 @@
     "FilterActiveHotkey_Description": "在覆盖层中仅显示已启用的模组",
     
     "SendF10OnOverlayClose_Label": "自动重载模组",
-    "SendF10OnOverlayClose_Description": "激活状态更改时自动重载模组",
+    "SendF10OnOverlayClose_Description": "激活状态更改时自动重载模组（需要管理员权限 - 禁用文件夹选择和拖放）",
     
     "AutoReload_AdminRequired_Title": "需要管理员权限",
     "AutoReload_AdminRequired_Content": "自动重载需要管理员权限才能向游戏发送键盘输入。\n\n是否希望FlairX以管理员身份运行？",

@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "Краткое содержание обновления версий",
     "ModsWithIssues": "Моды с проблемами:",
     "SmartUpdateToggleLabel": "ВЫКЛ/ВКЛ",
-    "UpdateAuthorsToggleLabel": "ВЫКЛ/ВКЛ"
+    "UpdateAuthorsToggleLabel": "ВЫКЛ/ВКЛ",
+    "FetchAllPreviewsButton": "Получить все превью",
+    "FetchAllPreviewsButton_Tooltip": "Загружает изображения превью для всех модов (перезаписывает существующие)",
+    "ConfirmFetchAllPreviews": "Это загрузит изображения превью с GameBanana для всех модов, перезаписывая существующие. Хотите продолжить?",
+    "FetchMissingPreviewsButton": "Получить недостающие превью",
+    "FetchMissingPreviewsButton_Tooltip": "Загружает изображения превью только для модов без превью",
+    "ConfirmFetchMissingPreviews": "Это загрузит изображения превью с GameBanana для модов, у которых их еще нет. Хотите продолжить?",
+    "PreviewsSummaryTitle": "Сводка загрузки превью",
+    "AlreadyHasPreviews": "Уже есть изображения превью",
+    "NoPreviewsAvailable": "Превью недоступны на GameBanana",
+    "PreviewFetchError": "Ошибка при получении превью"
 }

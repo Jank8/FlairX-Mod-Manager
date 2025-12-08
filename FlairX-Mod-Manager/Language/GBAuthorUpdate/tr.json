@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "Sürüm güncelleme özeti",
     "ModsWithIssues": "Sorunlu modlar:",
     "SmartUpdateToggleLabel": "KAPALI/AÇIK",
-    "UpdateAuthorsToggleLabel": "KAPALI/AÇIK"
+    "UpdateAuthorsToggleLabel": "KAPALI/AÇIK",
+    "FetchAllPreviewsButton": "Tüm önizlemeleri al",
+    "FetchAllPreviewsButton_Tooltip": "Tüm modlar için önizleme resimlerini indirir (mevcut olanları üzerine yazar)",
+    "ConfirmFetchAllPreviews": "Bu, GameBanana'dan tüm modlar için önizleme resimlerini indirecek ve mevcut olanları üzerine yazacaktır. Devam edilsin mi?",
+    "FetchMissingPreviewsButton": "Eksik önizlemeleri al",
+    "FetchMissingPreviewsButton_Tooltip": "Yalnızca önizlemesi olmayan modlar için önizleme resimlerini indirir",
+    "ConfirmFetchMissingPreviews": "Bu, GameBanana'dan önizlemesi olmayan modlar için önizleme resimlerini indirecektir. Devam edilsin mi?",
+    "PreviewsSummaryTitle": "Önizleme indirme özeti",
+    "AlreadyHasPreviews": "Zaten önizlemeleri var",
+    "NoPreviewsAvailable": "Önizleme mevcut değil",
+    "PreviewFetchError": "Önizleme indirilirken hata"
 }

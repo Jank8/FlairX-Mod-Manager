@@ -37,7 +37,7 @@
     "FilterActiveHotkey_Description": "Overlay'de sadece aktif modları göster",
     
     "SendF10OnOverlayClose_Label": "Otomatik mod yenileme",
-    "SendF10OnOverlayClose_Description": "Etkinleştirme değiştiğinde modları otomatik yeniden yükle",
+    "SendF10OnOverlayClose_Description": "Etkinleştirme değiştiğinde modları otomatik yeniden yükle (yönetici gerekli - klasör seçici ve sürükle bırak devre dışı)",
     
     "AutoReload_AdminRequired_Title": "Yönetici Gerekli",
     "AutoReload_AdminRequired_Content": "Otomatik yenileme, oyuna klavye girişi göndermek için yönetici ayrıcalıkları gerektirir.\n\nFlairX'in bundan sonra yönetici olarak çalışmasını ister misiniz?",

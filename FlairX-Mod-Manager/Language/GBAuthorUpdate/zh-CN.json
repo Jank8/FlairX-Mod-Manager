@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "版本更新摘要",
     "ModsWithIssues": "有问题的模组:",
     "SmartUpdateToggleLabel": "关/开",
-    "UpdateAuthorsToggleLabel": "关/开"
+    "UpdateAuthorsToggleLabel": "关/开",
+    "FetchAllPreviewsButton": "获取所有预览",
+    "FetchAllPreviewsButton_Tooltip": "为所有模组下载预览图片（覆盖现有）",
+    "ConfirmFetchAllPreviews": "这将从GameBanana下载所有模组的预览图片，覆盖现有的。是否继续？",
+    "FetchMissingPreviewsButton": "获取缺失的预览",
+    "FetchMissingPreviewsButton_Tooltip": "仅为没有预览的模组下载预览图片",
+    "ConfirmFetchMissingPreviews": "这将从GameBanana下载没有预览的模组的预览图片。是否继续？",
+    "PreviewsSummaryTitle": "预览下载摘要",
+    "AlreadyHasPreviews": "已有预览图片",
+    "NoPreviewsAvailable": "GameBanana上没有预览",
+    "PreviewFetchError": "获取预览时出错"
 }

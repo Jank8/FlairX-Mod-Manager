@@ -38,5 +38,15 @@
     "VersionSummaryTitle": "버전 업데이트 요약",
     "ModsWithIssues": "문제가 있는 모드:",
     "SmartUpdateToggleLabel": "끄기/켜기",
-    "UpdateAuthorsToggleLabel": "끄기/켜기"
+    "UpdateAuthorsToggleLabel": "끄기/켜기",
+    "FetchAllPreviewsButton": "모든 미리보기 가져오기",
+    "FetchAllPreviewsButton_Tooltip": "모든 모드의 미리보기 이미지를 다운로드합니다 (기존 덮어쓰기)",
+    "ConfirmFetchAllPreviews": "GameBanana에서 모든 모드의 미리보기 이미지를 다운로드하고 기존 것을 덮어씁니다. 계속하시겠습니까?",
+    "FetchMissingPreviewsButton": "누락된 미리보기 가져오기",
+    "FetchMissingPreviewsButton_Tooltip": "미리보기가 없는 모드만 미리보기 이미지를 다운로드합니다",
+    "ConfirmFetchMissingPreviews": "GameBanana에서 미리보기가 없는 모드의 미리보기 이미지를 다운로드합니다. 계속하시겠습니까?",
+    "PreviewsSummaryTitle": "미리보기 다운로드 요약",
+    "AlreadyHasPreviews": "이미 미리보기 이미지가 있음",
+    "NoPreviewsAvailable": "GameBanana에 미리보기가 없음",
+    "PreviewFetchError": "미리보기 가져오기 중 오류"
 }

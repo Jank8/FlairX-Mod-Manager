@@ -54,7 +54,6 @@ namespace FlairX_Mod_Manager.Pages
             // File path card
             D3dxFilePathLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_D3dxFilePath_Label");
             D3dxFilePathOpenButtonText.Text = SharedUtilities.GetTranslation(lang, "Browse");
-            ToolTipService.SetToolTip(D3dxFilePathOpenButton, SharedUtilities.GetTranslation(lang, "StatusKeeper_Tooltip_D3dxFilePath"));
             
             // Backup confirmation card
             BackupConfirmationLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_BackupConfirmation_Label");
