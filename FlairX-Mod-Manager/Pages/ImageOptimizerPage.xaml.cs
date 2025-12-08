@@ -29,6 +29,39 @@ namespace FlairX_Mod_Manager.Pages
         {
             this.InitializeComponent();
             this.Loaded += ImageOptimizerPage_Loaded;
+            Services.ImageOptimizationService.OptimizationProgressChanged += OnOptimizationProgressChanged;
+        }
+        
+        private void OnOptimizationProgressChanged()
+        {
+            DispatcherQueue.TryEnqueue(UpdateProgressBarUI);
+        }
+        
+        private void UpdateProgressBarUI()
+        {
+            var isOptimizing = Services.ImageOptimizationService.IsOptimizing;
+            var progress = Services.ImageOptimizationService.ProgressValue;
+            
+            _isOptimizing = isOptimizing;
+            
+            if (isOptimizing)
+            {
+                OptimizeProgressBar.Visibility = Visibility.Visible;
+                OptimizeProgressBar.IsIndeterminate = false;
+                OptimizeProgressBar.Value = progress * 100;
+                
+                var lang = SharedUtilities.LoadLanguageDictionary("ImageOptimizer");
+                OptimizeButtonText.Text = SharedUtilities.GetTranslation(lang, "Cancel");
+            }
+            else
+            {
+                OptimizeProgressBar.Value = 0;
+                OptimizeProgressBar.IsIndeterminate = false;
+                OptimizeProgressBar.Visibility = Visibility.Collapsed;
+                
+                var lang = SharedUtilities.LoadLanguageDictionary("ImageOptimizer");
+                OptimizeButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
+            }
         }
 
         private void ImageOptimizerPage_Loaded(object sender, RoutedEventArgs e)
@@ -50,6 +83,15 @@ namespace FlairX_Mod_Manager.Pages
                 UpdateAllDescriptions();
                 UpdateToggleLabels();
             }
+            
+            // Restore progress bar state if optimization is running
+            UpdateProgressBarUI();
+        }
+        
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            // Keep subscription active - don't unsubscribe so progress continues
         }
 
         private void LoadSettings()
@@ -350,7 +392,8 @@ namespace FlairX_Mod_Manager.Pages
 
         private async void OptimizeButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_isOptimizing)
+            // Check if already optimizing (from service state)
+            if (Services.ImageOptimizationService.IsOptimizing)
             {
                 // Cancel operation
                 _cts?.Cancel();
@@ -373,12 +416,7 @@ namespace FlairX_Mod_Manager.Pages
                 return;
 
             // Start optimization
-            _isOptimizing = true;
             _cts = new CancellationTokenSource();
-            
-            OptimizeButton.IsEnabled = true;
-            OptimizeProgressBar.Visibility = Visibility.Visible;
-            OptimizeButtonText.Text = SharedUtilities.GetTranslation(lang, "Cancel");
 
             try
             {
@@ -421,11 +459,8 @@ namespace FlairX_Mod_Manager.Pages
             }
             finally
             {
-                _isOptimizing = false;
                 _cts = null;
-                OptimizeButton.IsEnabled = true;
-                OptimizeProgressBar.Visibility = Visibility.Collapsed;
-                OptimizeButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
+                // UI state is managed by UpdateProgressBarUI via event
             }
         }
 

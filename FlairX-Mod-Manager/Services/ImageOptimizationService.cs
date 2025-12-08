@@ -35,6 +35,62 @@ namespace FlairX_Mod_Manager.Services
         /// Event raised when crop inspection is needed
         /// </summary>
         public static event CropInspectionHandler? CropInspectionRequested;
+        
+        // Progress tracking for manual optimization
+        private static readonly object _progressLock = new();
+        private static volatile bool _isOptimizing = false;
+        private static int _totalFiles = 0;
+        private static int _processedFiles = 0;
+        private static double _progressValue = 0;
+        
+        /// <summary>
+        /// Event raised when optimization progress changes
+        /// </summary>
+        public static event Action? OptimizationProgressChanged;
+        
+        /// <summary>
+        /// Whether manual optimization is currently running
+        /// </summary>
+        public static bool IsOptimizing => _isOptimizing;
+        
+        /// <summary>
+        /// Current progress value (0.0 to 1.0)
+        /// </summary>
+        public static double ProgressValue
+        {
+            get { lock (_progressLock) { return _progressValue; } }
+        }
+        
+        /// <summary>
+        /// Total files to process
+        /// </summary>
+        public static int TotalFiles
+        {
+            get { lock (_progressLock) { return _totalFiles; } }
+        }
+        
+        /// <summary>
+        /// Files processed so far
+        /// </summary>
+        public static int ProcessedFiles
+        {
+            get { lock (_progressLock) { return _processedFiles; } }
+        }
+        
+        private static void NotifyProgressChanged()
+        {
+            OptimizationProgressChanged?.Invoke();
+        }
+        
+        private static void IncrementProcessed()
+        {
+            lock (_progressLock)
+            {
+                _processedFiles++;
+                _progressValue = _totalFiles > 0 ? (double)_processedFiles / _totalFiles : 0;
+            }
+            NotifyProgressChanged();
+        }
         /// <summary>
         /// Process category preview image with specified optimization mode (backward compatibility)
         /// </summary>
@@ -1364,7 +1420,34 @@ namespace FlairX_Mod_Manager.Services
                     return;
                 }
 
+                // Reset progress tracking
+                lock (_progressLock)
+                {
+                    _isOptimizing = true;
+                    _totalFiles = 0;
+                    _processedFiles = 0;
+                    _progressValue = 0;
+                }
+                NotifyProgressChanged();
+
                 var context = GetOptimizationContext(OptimizationTrigger.Manual);
+                
+                // Count total files first
+                var categoryDirs = Directory.GetDirectories(modLibraryPath);
+                int totalCount = 0;
+                foreach (var categoryDir in categoryDirs)
+                {
+                    if (!Directory.Exists(categoryDir)) continue;
+                    totalCount++; // category preview
+                    var modDirs = Directory.GetDirectories(categoryDir);
+                    totalCount += modDirs.Length; // each mod
+                }
+                
+                lock (_progressLock)
+                {
+                    _totalFiles = totalCount;
+                }
+                NotifyProgressChanged();
                 
                 // Check if we need sequential processing for crop inspection
                 bool needsSequentialProcessing = context.InspectAndEditEnabled || context.CropStrategy == CropStrategy.ManualOnly;
@@ -1373,7 +1456,6 @@ namespace FlairX_Mod_Manager.Services
                 {
                     // Sequential processing with potential user interaction
                     Logger.LogInfo("Using sequential processing (crop inspection enabled)");
-                    var categoryDirs = Directory.GetDirectories(modLibraryPath);
                     
                     foreach (var categoryDir in categoryDirs)
                     {
@@ -1381,12 +1463,14 @@ namespace FlairX_Mod_Manager.Services
                         
                         // Process category preview
                         await ProcessCategoryPreviewAsync(categoryDir, context);
+                        IncrementProcessed();
                         
                         // Process all mods in category
                         var modDirs = Directory.GetDirectories(categoryDir);
                         foreach (var modDir in modDirs)
                         {
                             await ProcessModPreviewImagesAsync(modDir, context);
+                            IncrementProcessed();
                         }
                     }
                 }
@@ -1403,7 +1487,6 @@ namespace FlairX_Mod_Manager.Services
                         }
                         
                         var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = threadCount };
-                        var categoryDirs = Directory.GetDirectories(modLibraryPath);
                         
                         Parallel.ForEach(categoryDirs, parallelOptions, categoryDir =>
                         {
@@ -1411,12 +1494,14 @@ namespace FlairX_Mod_Manager.Services
                             
                             // Process category preview
                             ProcessCategoryPreview(categoryDir, context);
+                            IncrementProcessed();
                             
                             // Process all mods in category
                             var modDirs = Directory.GetDirectories(categoryDir);
                             Parallel.ForEach(modDirs, parallelOptions, modDir =>
                             {
                                 ProcessModPreviewImages(modDir, context);
+                                IncrementProcessed();
                             });
                         });
                     });
@@ -1428,6 +1513,14 @@ namespace FlairX_Mod_Manager.Services
             {
                 Logger.LogError("Error during manual preview optimization", ex);
                 throw;
+            }
+            finally
+            {
+                lock (_progressLock)
+                {
+                    _isOptimizing = false;
+                }
+                NotifyProgressChanged();
             }
         }
 
