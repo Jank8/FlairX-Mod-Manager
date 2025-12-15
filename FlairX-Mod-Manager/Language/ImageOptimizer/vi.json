@@ -52,5 +52,9 @@
     "SettingsPage_ImageCropType_Label": "Loại cắt hình ảnh",
     "SettingsPage_PreviewBeforeCrop_Description": "Xem xét và điều chỉnh các vùng cắt được chọn tự động trước khi xử lý",
     "SettingsPage_PreviewBeforeCrop_Label": "Kiểm tra và chỉnh sửa",
-    "OK": "Đồng ý"
+    "OK": "Đồng ý",
+    "ImageOptimizer_Reoptimize": "Tối ưu hóa lại đã tối ưu",
+    "ImageOptimizer_Reoptimize_Description": "Tối ưu hóa lại các tệp đã có tên đúng (catprev, catmini, minitile, preview-01, preview-02, v.v.)",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Chỉ kiểm tra hình thu nhỏ",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Chỉ hiển thị kiểm tra cắt cho hình thu nhỏ minitile và catmini, xử lý tự động các hình ảnh khác"
 }

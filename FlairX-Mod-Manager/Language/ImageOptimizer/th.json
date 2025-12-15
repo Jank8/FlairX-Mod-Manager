@@ -52,5 +52,9 @@
     "SettingsPage_ImageCropType_Description": "เลือกวิธีการครอบตัดสำหรับภาพขนาดย่อของม็อด",
     "SettingsPage_ImageCropType_Label": "ประเภทการครอบตัดรูปภาพ",
     "SettingsPage_PreviewBeforeCrop_Description": "ตรวจสอบและปรับพื้นที่ครอบตัดที่เลือกโดยอัตโนมัติก่อนการประมวลผล",
-    "SettingsPage_PreviewBeforeCrop_Label": "ตรวจสอบและแก้ไข"
+    "SettingsPage_PreviewBeforeCrop_Label": "ตรวจสอบและแก้ไข",
+    "ImageOptimizer_Reoptimize": "เพิ่มประสิทธิภาพใหม่",
+    "ImageOptimizer_Reoptimize_Description": "เพิ่มประสิทธิภาพไฟล์ที่มีชื่อถูกต้องแล้วอีกครั้ง (catprev, catmini, minitile, preview-01, preview-02 ฯลฯ)",
+    "SettingsPage_InspectThumbnailsOnly_Label": "ตรวจสอบเฉพาะภาพขนาดย่อ",
+    "SettingsPage_InspectThumbnailsOnly_Description": "แสดงการตรวจสอบการครอบตัดเฉพาะสำหรับภาพขนาดย่อ minitile และ catmini ประมวลผลภาพอื่นโดยอัตโนมัติ"
 }

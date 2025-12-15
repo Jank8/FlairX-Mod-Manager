@@ -52,5 +52,9 @@
     "SettingsPage_ImageCropType_Label": "Tipo de corte de imagem",
     "SettingsPage_PreviewBeforeCrop_Description": "Revisar e ajustar áreas de corte selecionadas automaticamente antes do processamento",
     "SettingsPage_PreviewBeforeCrop_Label": "Inspecionar e editar",
-    "OK": "OK"
+    "OK": "OK",
+    "ImageOptimizer_Reoptimize": "Re-otimizar já otimizados",
+    "ImageOptimizer_Reoptimize_Description": "Re-otimizar arquivos que já têm nomes corretos (catprev, catmini, minitile, preview-01, preview-02, etc.)",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Inspecionar apenas miniaturas",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Mostrar inspeção de corte apenas para miniaturas minitile e catmini, processar outras imagens automaticamente"
 }

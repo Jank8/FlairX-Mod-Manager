@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "Sincronizar el estado del mod con la configuración del juego",
     "ModDetailPage_Preview_Header": "Vista previa",
     "ModDetailPage_Details_Header": "Detalles",
-    "ModDetailPage_SelectDate_Placeholder": "Seleccionar fecha"
+    "ModDetailPage_SelectDate_Placeholder": "Seleccionar fecha",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Inspeccionar solo miniaturas",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Mostrar inspección de recorte solo para miniaturas minitile y catmini, procesar otras imágenes automáticamente"
 }

@@ -52,5 +52,9 @@
     "SettingsPage_ImageCropType_Description": "मॉड थंबनेल के लिए क्रॉपिंग विधि चुनें",
     "SettingsPage_ImageCropType_Label": "छवि क्रॉप प्रकार",
     "SettingsPage_PreviewBeforeCrop_Description": "प्रसंस्करण से पहले स्वचालित रूप से चयनित क्रॉप क्षेत्रों की समीक्षा और समायोजन करें",
-    "SettingsPage_PreviewBeforeCrop_Label": "निरीक्षण और संपादन"
+    "SettingsPage_PreviewBeforeCrop_Label": "निरीक्षण और संपादन",
+    "ImageOptimizer_Reoptimize": "पहले से अनुकूलित को पुनः अनुकूलित करें",
+    "ImageOptimizer_Reoptimize_Description": "सही नाम वाली फ़ाइलों को पुनः अनुकूलित करें (catprev, catmini, minitile, preview-01, preview-02, आदि)",
+    "SettingsPage_InspectThumbnailsOnly_Label": "केवल थंबनेल का निरीक्षण करें",
+    "SettingsPage_InspectThumbnailsOnly_Description": "केवल minitile और catmini थंबनेल के लिए क्रॉप निरीक्षण दिखाएं, अन्य छवियों को स्वचालित रूप से संसाधित करें"
 }

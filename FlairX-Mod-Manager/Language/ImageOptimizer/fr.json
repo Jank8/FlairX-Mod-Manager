@@ -52,5 +52,9 @@
     "SettingsPage_ImageCropType_Description": "Choisissez la méthode de recadrage pour les miniatures de mods",
     "SettingsPage_ImageCropType_Label": "Type de Recadrage d'Image",
     "SettingsPage_PreviewBeforeCrop_Description": "Examiner et ajuster les zones de recadrage sélectionnées automatiquement avant le traitement",
-    "SettingsPage_PreviewBeforeCrop_Label": "Inspecter et Éditer"
+    "SettingsPage_PreviewBeforeCrop_Label": "Inspecter et Éditer",
+    "ImageOptimizer_Reoptimize": "Ré-optimiser les fichiers déjà optimisés",
+    "ImageOptimizer_Reoptimize_Description": "Ré-optimiser les fichiers qui ont déjà des noms corrects (catprev, catmini, minitile, preview-01, preview-02, etc.)",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Inspecter les miniatures uniquement",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Afficher l'inspection de recadrage uniquement pour les miniatures minitile et catmini, traiter les autres images automatiquement"
 }

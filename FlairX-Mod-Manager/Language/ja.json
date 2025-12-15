@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "MODの状態をゲーム設定と同期",
     "ModDetailPage_Preview_Header": "プレビュー",
     "ModDetailPage_Details_Header": "詳細",
-    "ModDetailPage_SelectDate_Placeholder": "日付を選択"
+    "ModDetailPage_SelectDate_Placeholder": "日付を選択",
+    "SettingsPage_InspectThumbnailsOnly_Label": "サムネイルのみ検査",
+    "SettingsPage_InspectThumbnailsOnly_Description": "minitileとcatminiのサムネイルのみクロップ検査を表示し、他の画像は自動処理"
 }

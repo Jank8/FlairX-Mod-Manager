@@ -52,5 +52,9 @@
     "SettingsPage_ImageCropType_Description": "选择模组缩略图的裁剪方法",
     "SettingsPage_ImageCropType_Label": "图像裁剪类型",
     "SettingsPage_PreviewBeforeCrop_Description": "在处理前查看和调整自动选择的裁剪区域",
-    "SettingsPage_PreviewBeforeCrop_Label": "检查和编辑"
+    "SettingsPage_PreviewBeforeCrop_Label": "检查和编辑",
+    "ImageOptimizer_Reoptimize": "重新优化已优化的文件",
+    "ImageOptimizer_Reoptimize_Description": "重新优化已有正确名称的文件（catprev、catmini、minitile、preview-01、preview-02等）",
+    "SettingsPage_InspectThumbnailsOnly_Label": "仅检查缩略图",
+    "SettingsPage_InspectThumbnailsOnly_Description": "仅对minitile和catmini缩略图显示裁剪检查，其他图像自动处理"
 }

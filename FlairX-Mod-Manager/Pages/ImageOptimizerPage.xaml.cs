@@ -132,6 +132,7 @@ namespace FlairX_Mod_Manager.Pages
             ImageCropTypeComboBox.SelectionChanged += ImageCropTypeComboBox_SelectionChanged;
             
             PreviewBeforeCropToggle.IsOn = SettingsManager.Current.PreviewBeforeCrop;
+            InspectThumbnailsOnlyToggle.IsOn = SettingsManager.Current.InspectThumbnailsOnly;
             ReoptimizeCheckBox.IsOn = SettingsManager.Current.ImageOptimizerReoptimize;
         }
 
@@ -201,6 +202,8 @@ namespace FlairX_Mod_Manager.Pages
             ImageCropTypeDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ImageCropType_Description");
             PreviewBeforeCropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewBeforeCrop_Label");
             PreviewBeforeCropDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewBeforeCrop_Description");
+            InspectThumbnailsOnlyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_InspectThumbnailsOnly_Label");
+            InspectThumbnailsOnlyDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_InspectThumbnailsOnly_Description");
             
             // Crop type ComboBox items
             CropTypeCenterText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Center");
@@ -298,6 +301,8 @@ namespace FlairX_Mod_Manager.Pages
                 KeepOriginalsToggleLabel.Text = KeepOriginalsCheckBox.IsOn ? onText : offText;
             if (PreviewBeforeCropToggleLabel != null && PreviewBeforeCropToggle != null)
                 PreviewBeforeCropToggleLabel.Text = PreviewBeforeCropToggle.IsOn ? onText : offText;
+            if (InspectThumbnailsOnlyToggleLabel != null && InspectThumbnailsOnlyToggle != null)
+                InspectThumbnailsOnlyToggleLabel.Text = InspectThumbnailsOnlyToggle.IsOn ? onText : offText;
             if (ReoptimizeToggleLabel != null && ReoptimizeCheckBox != null)
                 ReoptimizeToggleLabel.Text = ReoptimizeCheckBox.IsOn ? onText : offText;
         }
@@ -469,6 +474,13 @@ namespace FlairX_Mod_Manager.Pages
         private void PreviewBeforeCropToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.PreviewBeforeCrop = PreviewBeforeCropToggle.IsOn;
+            SettingsManager.Save();
+            UpdateToggleLabels();
+        }
+
+        private void InspectThumbnailsOnlyToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.InspectThumbnailsOnly = InspectThumbnailsOnlyToggle.IsOn;
             SettingsManager.Save();
             UpdateToggleLabels();
         }

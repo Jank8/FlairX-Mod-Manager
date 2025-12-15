@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "모드 상태를 게임 설정과 동기화",
     "ModDetailPage_Preview_Header": "미리보기",
     "ModDetailPage_Details_Header": "세부 정보",
-    "ModDetailPage_SelectDate_Placeholder": "날짜 선택"
+    "ModDetailPage_SelectDate_Placeholder": "날짜 선택",
+    "SettingsPage_InspectThumbnailsOnly_Label": "썸네일만 검사",
+    "SettingsPage_InspectThumbnailsOnly_Description": "minitile 및 catmini 썸네일에 대해서만 자르기 검사 표시, 다른 이미지는 자동 처리"
 }

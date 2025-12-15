@@ -52,5 +52,9 @@
     "SettingsPage_ImageCropType_Label": "Uri ng Image Crop",
     "SettingsPage_PreviewBeforeCrop_Description": "Suriin at ayusin ang awtomatikong napiling crop areas bago mag-process",
     "SettingsPage_PreviewBeforeCrop_Label": "Siyasatin at I-edit",
-    "OK": "OK"
+    "OK": "OK",
+    "ImageOptimizer_Reoptimize": "Muling i-optimize ang na-optimize na",
+    "ImageOptimizer_Reoptimize_Description": "Muling i-optimize ang mga file na may tamang pangalan na (catprev, catmini, minitile, preview-01, preview-02, atbp.)",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Suriin ang mga thumbnail lamang",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Ipakita ang inspeksyon ng pag-crop para sa mga thumbnail na minitile at catmini lamang, awtomatikong iproseso ang ibang mga larawan"
 }

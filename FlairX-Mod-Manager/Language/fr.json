@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "Synchroniser l'état du mod avec les paramètres du jeu",
     "ModDetailPage_Preview_Header": "Aperçu",
     "ModDetailPage_Details_Header": "Détails",
-    "ModDetailPage_SelectDate_Placeholder": "Sélectionner une date"
+    "ModDetailPage_SelectDate_Placeholder": "Sélectionner une date",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Inspecter les miniatures uniquement",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Afficher l'inspection de recadrage uniquement pour les miniatures minitile et catmini, traiter les autres images automatiquement"
 }

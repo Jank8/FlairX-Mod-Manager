@@ -52,5 +52,9 @@
     "SettingsPage_ImageCropType_Description": "Modサムネイルのトリミング方法を選択",
     "SettingsPage_ImageCropType_Label": "画像トリミングタイプ",
     "SettingsPage_PreviewBeforeCrop_Description": "処理前に自動選択されたトリミング領域を確認および調整",
-    "SettingsPage_PreviewBeforeCrop_Label": "検査と編集"
+    "SettingsPage_PreviewBeforeCrop_Label": "検査と編集",
+    "ImageOptimizer_Reoptimize": "最適化済みを再最適化",
+    "ImageOptimizer_Reoptimize_Description": "正しい名前を持つファイルを再最適化（catprev、catmini、minitile、preview-01、preview-02など）",
+    "SettingsPage_InspectThumbnailsOnly_Label": "サムネイルのみ検査",
+    "SettingsPage_InspectThumbnailsOnly_Description": "minitileとcatminiのサムネイルのみクロップ検査を表示し、他の画像は自動処理"
 }

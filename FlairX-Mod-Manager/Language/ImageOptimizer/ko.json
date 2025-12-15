@@ -52,5 +52,9 @@
     "SettingsPage_ImageCropType_Description": "모드 썸네일의 자르기 방법 선택",
     "SettingsPage_ImageCropType_Label": "이미지 자르기 유형",
     "SettingsPage_PreviewBeforeCrop_Description": "처리 전에 자동으로 선택된 자르기 영역 검토 및 조정",
-    "SettingsPage_PreviewBeforeCrop_Label": "검사 및 편집"
+    "SettingsPage_PreviewBeforeCrop_Label": "검사 및 편집",
+    "ImageOptimizer_Reoptimize": "이미 최적화된 파일 재최적화",
+    "ImageOptimizer_Reoptimize_Description": "이미 올바른 이름을 가진 파일 재최적화 (catprev, catmini, minitile, preview-01, preview-02 등)",
+    "SettingsPage_InspectThumbnailsOnly_Label": "썸네일만 검사",
+    "SettingsPage_InspectThumbnailsOnly_Description": "minitile 및 catmini 썸네일에 대해서만 자르기 검사 표시, 다른 이미지는 자동 처리"
 }

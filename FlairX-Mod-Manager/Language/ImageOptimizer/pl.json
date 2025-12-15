@@ -54,5 +54,7 @@
     "CropDialog_Description": "Przeciągnij obszar kadrowania lub zmień rozmiar używając uchwytów w rogach. Proporcje są zablokowane.",
     "CropDialog_Info": "Kliknij i przeciągnij aby przesunąć obszar kadrowania. Użyj uchwytów w rogach aby zmienić rozmiar zachowując proporcje.",
     "ImageOptimizer_Reoptimize": "Ponowna optymalizacja",
-    "ImageOptimizer_Reoptimize_Description": "Optymalizuj ponownie pliki które już mają poprawne nazwy (catprev, catmini, minitile, preview-01, preview-02, etc.)"
+    "ImageOptimizer_Reoptimize_Description": "Optymalizuj ponownie pliki które już mają poprawne nazwy (catprev, catmini, minitile, preview-01, preview-02, etc.)",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Inspekcja tylko miniatur",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Pokaż inspekcję przycinania tylko dla miniatur minitile i catmini, pozostałe obrazy przetwarzaj automatycznie"
 }

@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "I-sync ang status ng mod sa mga setting ng laro",
     "ModDetailPage_Preview_Header": "Preview",
     "ModDetailPage_Details_Header": "Mga Detalye",
-    "ModDetailPage_SelectDate_Placeholder": "Pumili ng petsa"
+    "ModDetailPage_SelectDate_Placeholder": "Pumili ng petsa",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Suriin ang mga thumbnail lamang",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Ipakita ang inspeksyon ng pag-crop para sa mga thumbnail na minitile at catmini lamang, awtomatikong iproseso ang ibang mga larawan"
 }

@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "मॉड स्थिति को गेम सेटिंग्स के साथ सिंक करें",
     "ModDetailPage_Preview_Header": "पूर्वावलोकन",
     "ModDetailPage_Details_Header": "विवरण",
-    "ModDetailPage_SelectDate_Placeholder": "तारीख चुनें"
+    "ModDetailPage_SelectDate_Placeholder": "तारीख चुनें",
+    "SettingsPage_InspectThumbnailsOnly_Label": "केवल थंबनेल का निरीक्षण करें",
+    "SettingsPage_InspectThumbnailsOnly_Description": "केवल minitile और catmini थंबनेल के लिए क्रॉप निरीक्षण दिखाएं, अन्य छवियों को स्वचालित रूप से संसाधित करें"
 }

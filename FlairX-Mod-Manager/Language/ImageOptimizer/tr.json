@@ -52,5 +52,9 @@
     "SettingsPage_ImageCropType_Description": "Mod küçük resimleri için kırpma yöntemini seçin",
     "SettingsPage_ImageCropType_Label": "Görüntü Kırpma Türü",
     "SettingsPage_PreviewBeforeCrop_Description": "İşlemeden önce otomatik olarak seçilen kırpma alanlarını inceleyin ve ayarlayın",
-    "SettingsPage_PreviewBeforeCrop_Label": "İncele ve Düzenle"
+    "SettingsPage_PreviewBeforeCrop_Label": "İncele ve Düzenle",
+    "ImageOptimizer_Reoptimize": "Zaten optimize edilmişleri yeniden optimize et",
+    "ImageOptimizer_Reoptimize_Description": "Zaten doğru isimlere sahip dosyaları yeniden optimize et (catprev, catmini, minitile, preview-01, preview-02, vb.)",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Yalnızca küçük resimleri incele",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Yalnızca minitile ve catmini küçük resimleri için kırpma incelemesi göster, diğer resimleri otomatik işle"
 }

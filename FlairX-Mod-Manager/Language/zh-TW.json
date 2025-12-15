@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "將模組狀態與遊戲設定同步",
     "ModDetailPage_Preview_Header": "預覽",
     "ModDetailPage_Details_Header": "詳情",
-    "ModDetailPage_SelectDate_Placeholder": "選擇日期"
+    "ModDetailPage_SelectDate_Placeholder": "選擇日期",
+    "SettingsPage_InspectThumbnailsOnly_Label": "僅檢查縮圖",
+    "SettingsPage_InspectThumbnailsOnly_Description": "僅對minitile和catmini縮圖顯示裁剪檢查，其他圖像自動處理"
 }

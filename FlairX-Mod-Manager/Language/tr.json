@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "Mod durumunu oyun ayarlarıyla senkronize et",
     "ModDetailPage_Preview_Header": "Önizleme",
     "ModDetailPage_Details_Header": "Detaylar",
-    "ModDetailPage_SelectDate_Placeholder": "Tarih seçin"
+    "ModDetailPage_SelectDate_Placeholder": "Tarih seçin",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Yalnızca küçük resimleri incele",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Yalnızca minitile ve catmini küçük resimleri için kırpma incelemesi göster, diğer resimleri otomatik işle"
 }

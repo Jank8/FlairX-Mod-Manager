@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "ซิงค์สถานะม็อดกับการตั้งค่าเกม",
     "ModDetailPage_Preview_Header": "ตัวอย่าง",
     "ModDetailPage_Details_Header": "รายละเอียด",
-    "ModDetailPage_SelectDate_Placeholder": "เลือกวันที่"
+    "ModDetailPage_SelectDate_Placeholder": "เลือกวันที่",
+    "SettingsPage_InspectThumbnailsOnly_Label": "ตรวจสอบเฉพาะภาพขนาดย่อ",
+    "SettingsPage_InspectThumbnailsOnly_Description": "แสดงการตรวจสอบการครอบตัดเฉพาะสำหรับภาพขนาดย่อ minitile และ catmini ประมวลผลภาพอื่นโดยอัตโนมัติ"
 }

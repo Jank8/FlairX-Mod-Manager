@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "Синхронизировать статус мода с настройками игры",
     "ModDetailPage_Preview_Header": "Предпросмотр",
     "ModDetailPage_Details_Header": "Подробности",
-    "ModDetailPage_SelectDate_Placeholder": "Выберите дату"
+    "ModDetailPage_SelectDate_Placeholder": "Выберите дату",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Проверять только миниатюры",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Показывать проверку обрезки только для миниатюр minitile и catmini, остальные изображения обрабатывать автоматически"
 }

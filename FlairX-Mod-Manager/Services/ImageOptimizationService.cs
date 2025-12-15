@@ -344,9 +344,9 @@ namespace FlairX_Mod_Manager.Services
                         }
                     }
                     
-                    // Get crop rectangle with optional inspection for catmini
+                    // Get crop rectangle with optional inspection for catmini (thumbnail)
                     var catminiCropRect = await GetCropRectangleWithInspectionAsync(
-                        img, 600, 722, context, "catmini.jpg");
+                        img, 600, 722, context, "catmini.jpg", isProtected: false, isThumbnail: true);
                     
                     if (catminiCropRect == null)
                     {
@@ -1346,14 +1346,22 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         private static async Task<string?> SelectMinitileSourceAsync(List<string> availableFiles, string modDir, OptimizationContext context)
         {
-            // If only one file or UI interaction not allowed, use first file
-            if (availableFiles.Count <= 1 || !context.AllowUIInteraction || !context.InspectAndEditEnabled)
+            // If only one file, use it directly
+            if (availableFiles.Count <= 1)
             {
                 return availableFiles.FirstOrDefault();
             }
             
-            // Multiple files and inspection enabled - ask user to select
-            if (MinitileSourceSelectionRequested != null)
+            // If UI interaction not allowed and InspectThumbnailsOnly is not enabled, use first file
+            if (!context.AllowUIInteraction && !context.InspectThumbnailsOnly)
+            {
+                return availableFiles.FirstOrDefault();
+            }
+            
+            // Multiple files - ask user to select if:
+            // - UI interaction is allowed (always show selection panel)
+            // - OR InspectThumbnailsOnly is enabled (show selection even without full inspection)
+            if (MinitileSourceSelectionRequested != null && (context.AllowUIInteraction || context.InspectThumbnailsOnly))
             {
                 try
                 {
@@ -1398,9 +1406,9 @@ namespace FlairX_Mod_Manager.Services
                 
                 using (var img = Image.FromFile(previewPath))
                 {
-                    // Get crop rectangle with optional inspection
+                    // Get crop rectangle with optional inspection (minitile is a thumbnail)
                     var srcRect = await GetCropRectangleWithInspectionAsync(
-                        img, 600, 722, context, "minitile.jpg");
+                        img, 600, 722, context, "minitile.jpg", isProtected: false, isThumbnail: true);
                     
                     if (srcRect == null)
                     {
@@ -1479,17 +1487,22 @@ namespace FlairX_Mod_Manager.Services
             int targetHeight, 
             OptimizationContext context,
             string imageType,
-            bool isProtected = false)
+            bool isProtected = false,
+            bool isThumbnail = false)
         {
             var cropType = ConvertCropStrategy(context.CropStrategy);
             var suggestedCrop = ImageCropService.CalculateCropRectangle(image, targetWidth, targetHeight, cropType);
 
             // Show inspection panel ONLY IF:
             // 1. UI interaction is allowed (not background processing)
-            // 2. AND (ManualOnly mode OR Inspect&Edit is enabled)
+            // 2. AND one of:
+            //    a) ManualOnly mode
+            //    b) Inspect&Edit is enabled (for all images)
+            //    c) InspectThumbnailsOnly is enabled AND this is a thumbnail (minitile/catmini)
             bool needsInspection = context.AllowUIInteraction && 
                                   (context.CropStrategy == CropStrategy.ManualOnly || 
-                                   context.InspectAndEditEnabled);
+                                   context.InspectAndEditEnabled ||
+                                   (context.InspectThumbnailsOnly && isThumbnail));
 
             if (needsInspection && CropInspectionRequested != null)
             {
@@ -1753,6 +1766,7 @@ namespace FlairX_Mod_Manager.Services
                 KeepOriginals = SettingsManager.Current.ImageOptimizerKeepOriginals,
                 CropStrategy = cropStrategy,
                 InspectAndEditEnabled = SettingsManager.Current.PreviewBeforeCrop,
+                InspectThumbnailsOnly = SettingsManager.Current.InspectThumbnailsOnly,
                 Trigger = trigger,
                 AllowUIInteraction = allowUIInteraction,
                 Reoptimize = SettingsManager.Current.ImageOptimizerReoptimize
@@ -1772,6 +1786,7 @@ namespace FlairX_Mod_Manager.Services
         public bool KeepOriginals { get; set; }
         public CropStrategy CropStrategy { get; set; }
         public bool InspectAndEditEnabled { get; set; }
+        public bool InspectThumbnailsOnly { get; set; } = false; // Only show crop inspection for minitile/catmini
         public OptimizationTrigger Trigger { get; set; }
         public bool AllowUIInteraction { get; set; } = true; // Can show crop inspection UI
         public bool Reoptimize { get; set; } = false; // Re-optimize already optimized files

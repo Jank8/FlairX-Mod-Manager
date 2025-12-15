@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "Đồng bộ trạng thái mod với cài đặt game",
     "ModDetailPage_Preview_Header": "Xem trước",
     "ModDetailPage_Details_Header": "Chi tiết",
-    "ModDetailPage_SelectDate_Placeholder": "Chọn ngày"
+    "ModDetailPage_SelectDate_Placeholder": "Chọn ngày",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Chỉ kiểm tra hình thu nhỏ",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Chỉ hiển thị kiểm tra cắt cho hình thu nhỏ minitile và catmini, xử lý tự động các hình ảnh khác"
 }

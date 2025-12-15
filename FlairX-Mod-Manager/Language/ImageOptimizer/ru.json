@@ -52,5 +52,9 @@
     "SettingsPage_ImageCropType_Description": "Выберите метод обрезки для миниатюр модов",
     "SettingsPage_ImageCropType_Label": "Тип обрезки изображения",
     "SettingsPage_PreviewBeforeCrop_Description": "Просмотр и настройка автоматически выбранных областей обрезки перед обработкой",
-    "SettingsPage_PreviewBeforeCrop_Label": "Проверка и редактирование"
+    "SettingsPage_PreviewBeforeCrop_Label": "Проверка и редактирование",
+    "ImageOptimizer_Reoptimize": "Повторная оптимизация",
+    "ImageOptimizer_Reoptimize_Description": "Повторно оптимизировать файлы с правильными именами (catprev, catmini, minitile, preview-01, preview-02 и т.д.)",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Проверять только миниатюры",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Показывать проверку обрезки только для миниатюр minitile и catmini, остальные изображения обрабатывать автоматически"
 }

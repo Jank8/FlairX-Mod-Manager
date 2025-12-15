@@ -226,5 +226,7 @@
     "ModDetailPage_StatusKeeperSync_Desc": "Synchronize mod status with game settings",
     "ModDetailPage_Preview_Header": "Preview",
     "ModDetailPage_Details_Header": "Details",
-    "ModDetailPage_SelectDate_Placeholder": "Select date"
+    "ModDetailPage_SelectDate_Placeholder": "Select date",
+    "SettingsPage_InspectThumbnailsOnly_Label": "Inspect Thumbnails Only",
+    "SettingsPage_InspectThumbnailsOnly_Description": "Show crop inspection only for minitile and catmini thumbnails, process other images automatically"
 }
