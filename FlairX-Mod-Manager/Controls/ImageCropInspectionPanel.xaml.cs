@@ -166,7 +166,7 @@ namespace FlairX_Mod_Manager.Controls
             
             // Show batch mode UI
             BatchListPanel.Visibility = Visibility.Visible;
-            BatchListColumn.Width = new GridLength(220);
+            BatchListColumn.Width = new GridLength(240);
             BatchCounterText.Visibility = Visibility.Visible;
             NextButton.Visibility = Visibility.Visible;
             FinalizeButton.Visibility = Visibility.Visible;

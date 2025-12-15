@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
+using FlairX_Mod_Manager.Services;
 
 namespace FlairX_Mod_Manager
 {
@@ -484,7 +485,7 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        private void LauncherFabBorder_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private async void LauncherFabBorder_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             Logger.LogInfo("LauncherFabBorder_PointerPressed called");
             try
@@ -519,33 +520,7 @@ namespace FlairX_Mod_Manager
                 }
                 else
                 {
-                    var dialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(_lang, "LauncherNotFound"),
-                        Content = CreateXXMIDownloadContent(exePath),
-                        PrimaryButtonText = SharedUtilities.GetTranslation(_lang, "Download_XXMI"),
-                        CloseButtonText = SharedUtilities.GetTranslation(_lang, "OK"),
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    
-                    dialog.PrimaryButtonClick += (s, e) =>
-                    {
-                        try
-                        {
-                            var psi = new System.Diagnostics.ProcessStartInfo
-                            {
-                                FileName = "https://github.com/SpectrumQT/XXMI-Launcher/releases",
-                                UseShellExecute = true
-                            };
-                            System.Diagnostics.Process.Start(psi);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError("Failed to start process", ex);
-                        }
-                    };
-                    
-                    _ = dialog.ShowAsync();
+                    await ShowXXMIDownloadDialogAsync(exePath);
                 }
             }
             catch (Exception ex)
@@ -558,6 +533,100 @@ namespace FlairX_Mod_Manager
                     XamlRoot = this.Content.XamlRoot
                 };
                 _ = dialog.ShowAsync();
+            }
+        }
+
+        private async Task ShowXXMIDownloadDialogAsync(string expectedPath)
+        {
+            var progressBar = new ProgressBar
+            {
+                IsIndeterminate = false,
+                Value = 0,
+                Minimum = 0,
+                Maximum = 100,
+                Width = 300,
+                Visibility = Visibility.Collapsed
+            };
+            
+            var statusText = new TextBlock
+            {
+                Text = SharedUtilities.GetTranslation(_lang, "LauncherNotFoundDescription"),
+                Margin = new Thickness(0, 8, 0, 0),
+                TextWrapping = TextWrapping.Wrap
+            };
+            
+            var contentPanel = new StackPanel { Spacing = 8 };
+            contentPanel.Children.Add(statusText);
+            contentPanel.Children.Add(progressBar);
+
+            var dialog = new ContentDialog
+            {
+                Title = SharedUtilities.GetTranslation(_lang, "LauncherNotFound"),
+                Content = contentPanel,
+                PrimaryButtonText = SharedUtilities.GetTranslation(_lang, "Download_XXMI"),
+                CloseButtonText = SharedUtilities.GetTranslation(_lang, "Cancel"),
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            bool isDownloading = false;
+            bool downloadSuccess = false;
+
+            dialog.CloseButtonClick += (s, e) =>
+            {
+                if (isDownloading)
+                {
+                    XXMIDownloader.CancelDownload();
+                }
+            };
+
+            dialog.PrimaryButtonClick += async (s, e) =>
+            {
+                var deferral = e.GetDeferral();
+                
+                try
+                {
+                    isDownloading = true;
+                    
+                    dialog.IsPrimaryButtonEnabled = false;
+                    progressBar.Visibility = Visibility.Visible;
+                    progressBar.IsIndeterminate = true;
+                    statusText.Text = SharedUtilities.GetTranslation(_lang, "XXMI_Download_Starting") ?? "Starting download...";
+
+                    var progress = new Progress<(int percent, string status)>(p =>
+                    {
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            progressBar.IsIndeterminate = false;
+                            progressBar.Value = p.percent;
+                            statusText.Text = p.status;
+                        });
+                    });
+
+                    downloadSuccess = await XXMIDownloader.DownloadAndInstallAsync(progress, _lang);
+                    
+                    if (downloadSuccess)
+                    {
+                        statusText.Text = SharedUtilities.GetTranslation(_lang, "XXMI_Download_Success") ?? "XXMI Launcher installed successfully!";
+                        progressBar.Value = 100;
+                    }
+                    else
+                    {
+                        statusText.Text = SharedUtilities.GetTranslation(_lang, "XXMI_Download_Failed") ?? "Failed to download XXMI Launcher";
+                        dialog.IsPrimaryButtonEnabled = true;
+                    }
+                }
+                finally
+                {
+                    isDownloading = false;
+                    deferral.Complete();
+                }
+            };
+
+            await dialog.ShowAsync();
+            
+            if (downloadSuccess)
+            {
+                ShowSuccessInfo(SharedUtilities.GetTranslation(_lang, "XXMI_Download_Success") ?? "XXMI Launcher installed successfully!", 3000);
             }
         }
 
