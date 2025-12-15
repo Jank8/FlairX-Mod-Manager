@@ -183,7 +183,7 @@
                     </StackPanel>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBox x:Name="OverlayHotkeyTextBox" Width="160" PlaceholderText="Alt+W" KeyDown="HotkeyTextBox_KeyDown" TextChanged="OverlayHotkeyTextBox_TextChanged"/>
+                        <TextBox x:Name="OverlayHotkeyTextBox" Width="160" PlaceholderText="Alt+W" KeyDown="HotkeyTextBox_KeyDown" TextChanged="OverlayHotkeyTextBox_TextChanged" GotFocus="OverlayHotkeyTextBox_GotFocus" LostFocus="OverlayHotkeyTextBox_LostFocus"/>
                         <Button x:Name="OverlayHotkeyConfirmButton" Click="OverlayHotkeyConfirmButton_Click" ToolTipService.ToolTip="Confirm hotkey">
                             <FontIcon Glyph="&#xE73E;" FontSize="14"/>
                         </Button>
@@ -214,7 +214,7 @@
                     </StackPanel>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBox x:Name="FilterActiveHotkeyTextBox" Width="160" PlaceholderText="Alt+A" KeyDown="HotkeyTextBox_KeyDown" TextChanged="FilterActiveHotkeyTextBox_TextChanged"/>
+                        <TextBox x:Name="FilterActiveHotkeyTextBox" Width="160" PlaceholderText="Alt+A" KeyDown="HotkeyTextBox_KeyDown" TextChanged="FilterActiveHotkeyTextBox_TextChanged" GotFocus="FilterActiveHotkeyTextBox_GotFocus" LostFocus="FilterActiveHotkeyTextBox_LostFocus"/>
                         <Button x:Name="FilterActiveHotkeyConfirmButton" Click="OverlayHotkeyConfirmButton_Click" ToolTipService.ToolTip="Confirm hotkey">
                             <FontIcon Glyph="&#xE73E;" FontSize="14"/>
                         </Button>

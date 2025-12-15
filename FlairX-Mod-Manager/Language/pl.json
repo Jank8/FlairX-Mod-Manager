@@ -226,8 +226,7 @@
     "MinitileSelection_Subtitle": "Wybierz obraz do użycia jako miniatura",
     "MinitileSelection_NoSelection": "Nie wybrano obrazu",
     "MinitileSelection_Selected": "Wybrano: {0}",
-    "Hotkey_Favorite_Tooltip": "Dodaj do ulubionych",
-    "Hotkey_Unfavorite_Tooltip": "Usuń z ulubionych",
+
     "ImagePreview_Close_Tooltip": "Zamknij podgląd",
     "ModDetailPage_DateChecked_Desc": "Kiedy ostatnio sprawdzałeś ten mod",
     "ModDetailPage_DateUpdated_Desc": "Kiedy ten mod był ostatnio aktualizowany",

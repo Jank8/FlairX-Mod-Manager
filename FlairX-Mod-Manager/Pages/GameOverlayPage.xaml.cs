@@ -10,6 +10,7 @@ namespace FlairX_Mod_Manager.Pages
     {
         private bool _isInitializing = true;
         private GamepadManager? _testGamepad;
+        private bool _previousHotkeysEnabled = true;
 
         public GameOverlayPage()
         {
@@ -623,6 +624,28 @@ namespace FlairX_Mod_Manager.Pages
                 var newHotkey = string.Join("+", hotkeyParts);
                 textBox.Text = newHotkey;
             }
+        }
+
+        private void OverlayHotkeyTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            _previousHotkeysEnabled = SettingsManager.Current.HotkeysEnabled;
+            SettingsManager.Current.HotkeysEnabled = false;
+        }
+        
+        private void OverlayHotkeyTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.HotkeysEnabled = _previousHotkeysEnabled;
+        }
+        
+        private void FilterActiveHotkeyTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            _previousHotkeysEnabled = SettingsManager.Current.HotkeysEnabled;
+            SettingsManager.Current.HotkeysEnabled = false;
+        }
+        
+        private void FilterActiveHotkeyTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.HotkeysEnabled = _previousHotkeysEnabled;
         }
 
         private void OverlayHotkeyTextBox_TextChanged(object sender, TextChangedEventArgs e)

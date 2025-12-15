@@ -226,8 +226,7 @@
     "MinitileSelection_Subtitle": "Choose which image to use for the thumbnail",
     "MinitileSelection_NoSelection": "No image selected",
     "MinitileSelection_Selected": "Selected: {0}",
-    "Hotkey_Favorite_Tooltip": "Add to favorites",
-    "Hotkey_Unfavorite_Tooltip": "Remove from favorites",
+
     "ImagePreview_Close_Tooltip": "Close preview",
     "ModDetailPage_DateChecked_Desc": "When you last verified this mod",
     "ModDetailPage_DateUpdated_Desc": "When this mod was last updated",
