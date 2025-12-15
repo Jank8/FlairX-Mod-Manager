@@ -56,5 +56,8 @@
     "ImageOptimizer_Reoptimize": "Zaten optimize edilmişleri yeniden optimize et",
     "ImageOptimizer_Reoptimize_Description": "Zaten doğru isimlere sahip dosyaları yeniden optimize et (catprev, catmini, minitile, preview-01, preview-02, vb.)",
     "SettingsPage_InspectThumbnailsOnly_Label": "Yalnızca küçük resimleri incele",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Yalnızca minitile ve catmini küçük resimleri için kırpma incelemesi göster, diğer resimleri otomatik işle"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Yalnızca minitile ve catmini küçük resimleri için kırpma incelemesi göster, diğer resimleri otomatik işle",
+    "CropPanel_Next": "Sonraki",
+    "CropPanel_FinalizeAll": "Tümünü tamamla",
+    "CropPanel_FilesToProcess": "İşlenecek dosyalar"
 }

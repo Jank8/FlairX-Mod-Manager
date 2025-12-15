@@ -56,5 +56,8 @@
     "ImageOptimizer_Reoptimize": "重新優化已優化的檔案",
     "ImageOptimizer_Reoptimize_Description": "重新優化已有正確名稱的檔案（catprev、catmini、minitile、preview-01、preview-02等）",
     "SettingsPage_InspectThumbnailsOnly_Label": "僅檢查縮圖",
-    "SettingsPage_InspectThumbnailsOnly_Description": "僅對minitile和catmini縮圖顯示裁剪檢查，其他圖像自動處理"
+    "SettingsPage_InspectThumbnailsOnly_Description": "僅對minitile和catmini縮圖顯示裁剪檢查，其他圖像自動處理",
+    "CropPanel_Next": "下一個",
+    "CropPanel_FinalizeAll": "全部完成",
+    "CropPanel_FilesToProcess": "待處理檔案"
 }

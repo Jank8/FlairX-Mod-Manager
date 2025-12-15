@@ -28,10 +28,24 @@
                       Opacity="0.7" 
                       VerticalAlignment="Center"
                       Margin="0,2,0,0"/>
+            <!-- Batch mode counter -->
+            <TextBlock x:Name="BatchCounterText" 
+                      FontSize="14"
+                      Opacity="0.7" 
+                      VerticalAlignment="Center"
+                      Margin="16,2,0,0"
+                      Visibility="Collapsed"/>
         </StackPanel>
 
-        <!-- Image Canvas with crop overlay -->
+        <!-- Main content area with crop editor and batch list -->
         <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="BatchListColumn" Width="0"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- Image Canvas with crop overlay -->
+            <Grid Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Grid x:Name="ImageContentRoot" Margin="25">
                 <Border x:Name="ImageBorder" 
                        CornerRadius="12" 
@@ -125,6 +139,93 @@
                     </Border>
                 </Border>
             </Grid>
+            </Grid>
+            
+            <!-- Batch preview list (right side) -->
+            <Border x:Name="BatchListPanel" 
+                    Grid.Column="1" 
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1,0,0,0"
+                    Visibility="Collapsed"
+                    Margin="16,0,0,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Batch list header -->
+                    <TextBlock x:Name="BatchListHeader" 
+                              Text="Files to Process" 
+                              FontSize="14" 
+                              FontWeight="SemiBold"
+                              Margin="12,12,12,8"/>
+                    
+                    <!-- Scrollable list of thumbnails -->
+                    <ScrollViewer Grid.Row="1" 
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Padding="8,0,8,8">
+                        <ItemsRepeater x:Name="BatchItemsRepeater">
+                            <ItemsRepeater.Layout>
+                                <StackLayout Orientation="Vertical" Spacing="8"/>
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate>
+                                    <Border x:Name="ItemBorder"
+                                            Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="6"
+                                            Padding="8"
+                                            PointerPressed="BatchItem_PointerPressed"
+                                            PointerEntered="BatchItem_PointerEntered"
+                                            PointerExited="BatchItem_PointerExited">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                            <!-- Thumbnail -->
+                                            <Border Grid.Column="0" 
+                                                    CornerRadius="4" 
+                                                    Width="56" Height="56"
+                                                    Background="{ThemeResource LayerFillColorDefaultBrush}">
+                                                <Image Source="{Binding Thumbnail}" 
+                                                       Stretch="UniformToFill"/>
+                                            </Border>
+                                            
+                                            <!-- File info -->
+                                            <StackPanel Grid.Column="1" 
+                                                        VerticalAlignment="Center" 
+                                                        Margin="8,0,0,0">
+                                                <TextBlock Text="{Binding DisplayName}" 
+                                                           FontSize="12" 
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding StatusText}" 
+                                                           FontSize="11" 
+                                                           Opacity="0.7"
+                                                           Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                            
+                                            <!-- Status icon -->
+                                            <FontIcon Grid.Column="2" 
+                                                      Glyph="{Binding StatusIcon}"
+                                                      FontSize="16"
+                                                      Foreground="{Binding StatusColor}"
+                                                      VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
         </Grid>
 
         <!-- Footer with info and buttons -->
@@ -182,12 +283,35 @@
                         <TextBlock x:Name="SkipButtonText" Text="Skip"/>
                     </StackPanel>
                 </Button>
+                <!-- Single mode: Confirm button -->
                 <Button x:Name="ConfirmButton" 
                        Content="Confirm" 
                        Style="{StaticResource AccentButtonStyle}"
                        Click="ConfirmButton_Click"
                        MinWidth="100"
                        Height="40"/>
+                <!-- Batch mode: Next/Finalize buttons -->
+                <Button x:Name="NextButton" 
+                       Click="NextButton_Click"
+                       MinWidth="100"
+                       Height="40"
+                       Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock x:Name="NextButtonText" Text="Next"/>
+                        <FontIcon Glyph="&#xE72A;" FontSize="14"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="FinalizeButton" 
+                       Style="{StaticResource AccentButtonStyle}"
+                       Click="FinalizeButton_Click"
+                       MinWidth="120"
+                       Height="40"
+                       Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE73E;" FontSize="14"/>
+                        <TextBlock x:Name="FinalizeButtonText" Text="Finalize All"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
         </Grid>
     </Grid>

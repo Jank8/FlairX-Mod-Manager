@@ -56,5 +56,8 @@
     "ImageOptimizer_Reoptimize": "이미 최적화된 파일 재최적화",
     "ImageOptimizer_Reoptimize_Description": "이미 올바른 이름을 가진 파일 재최적화 (catprev, catmini, minitile, preview-01, preview-02 등)",
     "SettingsPage_InspectThumbnailsOnly_Label": "썸네일만 검사",
-    "SettingsPage_InspectThumbnailsOnly_Description": "minitile 및 catmini 썸네일에 대해서만 자르기 검사 표시, 다른 이미지는 자동 처리"
+    "SettingsPage_InspectThumbnailsOnly_Description": "minitile 및 catmini 썸네일에 대해서만 자르기 검사 표시, 다른 이미지는 자동 처리",
+    "CropPanel_Next": "다음",
+    "CropPanel_FinalizeAll": "모두 완료",
+    "CropPanel_FilesToProcess": "처리할 파일"
 }

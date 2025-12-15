@@ -56,5 +56,8 @@
     "ImageOptimizer_Reoptimize": "पहले से अनुकूलित को पुनः अनुकूलित करें",
     "ImageOptimizer_Reoptimize_Description": "सही नाम वाली फ़ाइलों को पुनः अनुकूलित करें (catprev, catmini, minitile, preview-01, preview-02, आदि)",
     "SettingsPage_InspectThumbnailsOnly_Label": "केवल थंबनेल का निरीक्षण करें",
-    "SettingsPage_InspectThumbnailsOnly_Description": "केवल minitile और catmini थंबनेल के लिए क्रॉप निरीक्षण दिखाएं, अन्य छवियों को स्वचालित रूप से संसाधित करें"
+    "SettingsPage_InspectThumbnailsOnly_Description": "केवल minitile और catmini थंबनेल के लिए क्रॉप निरीक्षण दिखाएं, अन्य छवियों को स्वचालित रूप से संसाधित करें",
+    "CropPanel_Next": "अगला",
+    "CropPanel_FinalizeAll": "सभी को अंतिम रूप दें",
+    "CropPanel_FilesToProcess": "संसाधित करने के लिए फ़ाइलें"
 }

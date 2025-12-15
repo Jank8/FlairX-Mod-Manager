@@ -56,5 +56,8 @@
     "ImageOptimizer_Reoptimize": "Muling i-optimize ang na-optimize na",
     "ImageOptimizer_Reoptimize_Description": "Muling i-optimize ang mga file na may tamang pangalan na (catprev, catmini, minitile, preview-01, preview-02, atbp.)",
     "SettingsPage_InspectThumbnailsOnly_Label": "Suriin ang mga thumbnail lamang",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Ipakita ang inspeksyon ng pag-crop para sa mga thumbnail na minitile at catmini lamang, awtomatikong iproseso ang ibang mga larawan"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Ipakita ang inspeksyon ng pag-crop para sa mga thumbnail na minitile at catmini lamang, awtomatikong iproseso ang ibang mga larawan",
+    "CropPanel_Next": "Susunod",
+    "CropPanel_FinalizeAll": "Tapusin lahat",
+    "CropPanel_FilesToProcess": "Mga file na ipoproseso"
 }

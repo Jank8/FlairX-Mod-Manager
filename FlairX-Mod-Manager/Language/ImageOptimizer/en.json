@@ -56,5 +56,8 @@
     "ImageOptimizer_Reoptimize": "Re-optimize Already Optimized",
     "ImageOptimizer_Reoptimize_Description": "Re-optimize files that already have correct names (catprev, catmini, minitile, preview-01, preview-02, etc.)",
     "SettingsPage_InspectThumbnailsOnly_Label": "Inspect Thumbnails Only",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Show crop inspection only for minitile and catmini thumbnails, process other images automatically"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Show crop inspection only for minitile and catmini thumbnails, process other images automatically",
+    "CropPanel_Next": "Next",
+    "CropPanel_FinalizeAll": "Finalize All",
+    "CropPanel_FilesToProcess": "Files to Process"
 }

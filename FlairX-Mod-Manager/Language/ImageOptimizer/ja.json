@@ -56,5 +56,8 @@
     "ImageOptimizer_Reoptimize": "最適化済みを再最適化",
     "ImageOptimizer_Reoptimize_Description": "正しい名前を持つファイルを再最適化（catprev、catmini、minitile、preview-01、preview-02など）",
     "SettingsPage_InspectThumbnailsOnly_Label": "サムネイルのみ検査",
-    "SettingsPage_InspectThumbnailsOnly_Description": "minitileとcatminiのサムネイルのみクロップ検査を表示し、他の画像は自動処理"
+    "SettingsPage_InspectThumbnailsOnly_Description": "minitileとcatminiのサムネイルのみクロップ検査を表示し、他の画像は自動処理",
+    "CropPanel_Next": "次へ",
+    "CropPanel_FinalizeAll": "すべて確定",
+    "CropPanel_FilesToProcess": "処理するファイル"
 }

@@ -1,22 +1,73 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Media.Animation;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace FlairX_Mod_Manager.Controls
 {
+    /// <summary>
+    /// Item for batch crop processing
+    /// </summary>
+    public class BatchCropItem : INotifyPropertyChanged
+    {
+        public string FilePath { get; set; } = "";
+        public string DisplayName { get; set; } = "";
+        public string ImageType { get; set; } = "";
+        public BitmapImage? Thumbnail { get; set; }
+        public System.Drawing.Image? SourceImage { get; set; }
+        public Rectangle InitialCropRect { get; set; }
+        public Rectangle? CropRect { get; set; }
+        public int TargetWidth { get; set; }
+        public int TargetHeight { get; set; }
+        public bool IsProtected { get; set; }
+        public CropAction Action { get; set; } = CropAction.Confirm;
+        
+        private bool _isSelected;
+        public bool IsSelected 
+        { 
+            get => _isSelected;
+            set { _isSelected = value; OnPropertyChanged(nameof(IsSelected)); OnPropertyChanged(nameof(StatusIcon)); OnPropertyChanged(nameof(StatusColor)); }
+        }
+        
+        private bool _isEdited;
+        public bool IsEdited 
+        { 
+            get => _isEdited;
+            set { _isEdited = value; OnPropertyChanged(nameof(IsEdited)); OnPropertyChanged(nameof(StatusText)); OnPropertyChanged(nameof(StatusIcon)); OnPropertyChanged(nameof(StatusColor)); }
+        }
+        
+        public string StatusText => Action == CropAction.Delete ? "Will be deleted" : 
+                                    Action == CropAction.Skip ? "Skip optimization" :
+                                    IsEdited ? "Edited" : "Pending";
+        public string StatusIcon => Action == CropAction.Delete ? "\uE74D" : 
+                                    Action == CropAction.Skip ? "\uE8BB" :
+                                    IsEdited ? "\uE73E" : "\uE8B7";
+        public SolidColorBrush StatusColor => Action == CropAction.Delete ? new SolidColorBrush(Microsoft.UI.Colors.Red) :
+                                              Action == CropAction.Skip ? new SolidColorBrush(Microsoft.UI.Colors.Orange) :
+                                              IsEdited ? new SolidColorBrush(Microsoft.UI.Colors.Green) : 
+                                              new SolidColorBrush(Microsoft.UI.Colors.Gray);
+        
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
+
     public sealed partial class ImageCropInspectionPanel : UserControl
     {
         private System.Drawing.Image? _sourceImage;
         private Rectangle _cropRect;
-        private Rectangle _initialCropRect; // Store initial crop for reset
+        private Rectangle _initialCropRect;
         private double _aspectRatio;
         private bool _maintainAspectRatio;
         private string? _dragHandle;
@@ -24,8 +75,14 @@ namespace FlairX_Mod_Manager.Controls
         private Rectangle _dragStartRect;
         private bool _isDragging;
         private TaskCompletionSource<CropResult>? _completionSource;
+        private TaskCompletionSource<List<BatchCropResult>>? _batchCompletionSource;
 
         private bool _isInitialized = false;
+        
+        // Batch mode
+        private bool _isBatchMode = false;
+        private ObservableCollection<BatchCropItem> _batchItems = new();
+        private int _currentBatchIndex = 0;
 
         public event EventHandler? CloseRequested;
 
@@ -34,11 +91,15 @@ namespace FlairX_Mod_Manager.Controls
             this.InitializeComponent();
         }
 
+        /// <summary>
+        /// Single image mode - original behavior
+        /// </summary>
         public Task<CropResult> ShowForImageAsync(System.Drawing.Image sourceImage, Rectangle initialCropRect, double targetAspectRatio, bool maintainAspectRatio, string imageType, bool isProtected = false)
         {
+            _isBatchMode = false;
             _sourceImage = sourceImage;
             _cropRect = initialCropRect;
-            _initialCropRect = initialCropRect; // Store for reset
+            _initialCropRect = initialCropRect;
             _aspectRatio = targetAspectRatio;
             _maintainAspectRatio = maintainAspectRatio;
             _completionSource = new TaskCompletionSource<CropResult>();
@@ -59,8 +120,16 @@ namespace FlairX_Mod_Manager.Controls
             ConfirmButton.Content = SharedUtilities.GetTranslation(lang, "Confirm") ?? "Confirm";
             HintText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Hint") ?? "Drag to move • Corners maintain ratio • Edges change ratio";
             
-            // Disable Delete button if this file is protected (selected as minitile source)
+            // Disable Delete button if this file is protected
             DeleteButton.IsEnabled = !isProtected;
+            
+            // Hide batch mode UI
+            BatchListPanel.Visibility = Visibility.Collapsed;
+            BatchListColumn.Width = new GridLength(0);
+            BatchCounterText.Visibility = Visibility.Collapsed;
+            NextButton.Visibility = Visibility.Collapsed;
+            FinalizeButton.Visibility = Visibility.Collapsed;
+            ConfirmButton.Visibility = Visibility.Visible;
 
             // Load image
             LoadImage();
@@ -73,13 +142,137 @@ namespace FlairX_Mod_Manager.Controls
             return _completionSource.Task;
         }
 
+        /// <summary>
+        /// Batch mode - process multiple images at once
+        /// </summary>
+        public Task<List<BatchCropResult>> ShowForBatchAsync(List<BatchCropItem> items)
+        {
+            _isBatchMode = true;
+            _batchItems = new ObservableCollection<BatchCropItem>(items);
+            _currentBatchIndex = 0;
+            _batchCompletionSource = new TaskCompletionSource<List<BatchCropResult>>();
+
+            // Load translations
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            
+            // Update button texts
+            ResetButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Reset") ?? "Crop Reset";
+            DeleteButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Delete") ?? "Delete";
+            SkipButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Skip") ?? "Skip";
+            NextButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Next") ?? "Next";
+            FinalizeButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_FinalizeAll") ?? "Finalize All";
+            HintText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Hint") ?? "Drag to move • Corners maintain ratio • Edges change ratio";
+            BatchListHeader.Text = SharedUtilities.GetTranslation(lang, "CropPanel_FilesToProcess") ?? "Files to Process";
+            
+            // Show batch mode UI
+            BatchListPanel.Visibility = Visibility.Visible;
+            BatchListColumn.Width = new GridLength(220);
+            BatchCounterText.Visibility = Visibility.Visible;
+            NextButton.Visibility = Visibility.Visible;
+            FinalizeButton.Visibility = Visibility.Visible;
+            ConfirmButton.Visibility = Visibility.Collapsed;
+            
+            // Setup items repeater
+            BatchItemsRepeater.ItemsSource = _batchItems;
+            
+            // Load first item (this will set up the image and crop rect)
+            if (_batchItems.Count > 0)
+            {
+                // Don't call LoadBatchItem here - it adds its own LayoutUpdated handler
+                // Instead, manually set up the first item
+                var item = _batchItems[0];
+                item.IsSelected = true;
+                
+                _sourceImage = item.SourceImage;
+                _cropRect = item.CropRect ?? item.InitialCropRect;
+                _initialCropRect = item.InitialCropRect;
+                _aspectRatio = (double)item.TargetWidth / item.TargetHeight;
+                _maintainAspectRatio = true;
+                
+                // Update UI
+                TitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_Title") ?? "Adjust Crop Area"} - {item.ImageType}";
+                SubtitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_AspectLocked") ?? "Aspect ratio locked to"} {_aspectRatio:F2}:1";
+                BatchCounterText.Text = $"(1/{_batchItems.Count})";
+                
+                DeleteButton.IsEnabled = !item.IsProtected;
+                NextButton.IsEnabled = _batchItems.Count > 1;
+                
+                LoadImage();
+                UpdateInfoText();
+            }
+            
+            // Update overlay after layout is ready
+            _isInitialized = false;
+            this.LayoutUpdated += OnLayoutUpdated;
+
+            return _batchCompletionSource.Task;
+        }
+
+        private void LoadBatchItem(int index)
+        {
+            if (index < 0 || index >= _batchItems.Count) return;
+            
+            // Save current item's crop rect before switching
+            if (_currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
+            {
+                var currentItem = _batchItems[_currentBatchIndex];
+                currentItem.CropRect = _cropRect;
+                currentItem.IsSelected = false;
+            }
+            
+            _currentBatchIndex = index;
+            var item = _batchItems[index];
+            item.IsSelected = true;
+            
+            _sourceImage = item.SourceImage;
+            _cropRect = item.CropRect ?? item.InitialCropRect;
+            _initialCropRect = item.InitialCropRect;
+            _aspectRatio = (double)item.TargetWidth / item.TargetHeight;
+            _maintainAspectRatio = true;
+            
+            // Update UI
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            TitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_Title") ?? "Adjust Crop Area"} - {item.ImageType}";
+            SubtitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_AspectLocked") ?? "Aspect ratio locked to"} {_aspectRatio:F2}:1";
+            BatchCounterText.Text = $"({index + 1}/{_batchItems.Count})";
+            
+            // Update delete button state
+            DeleteButton.IsEnabled = !item.IsProtected;
+            
+            // Update Next button state
+            NextButton.IsEnabled = index < _batchItems.Count - 1;
+            
+            // Load image
+            LoadImage();
+            UpdateInfoText();
+            
+            // Need to wait for layout to update before updating crop overlay
+            _isInitialized = false;
+            this.LayoutUpdated += OnLayoutUpdated;
+        }
+
+        private void SaveCurrentBatchItem()
+        {
+            if (!_isBatchMode || _currentBatchIndex < 0 || _currentBatchIndex >= _batchItems.Count) return;
+            
+            var item = _batchItems[_currentBatchIndex];
+            item.CropRect = _cropRect;
+            item.IsEdited = true;
+        }
+
         private void OnLayoutUpdated(object? sender, object e)
         {
             if (!_isInitialized && ImageCanvas.ActualWidth > 0 && ImageCanvas.ActualHeight > 0)
             {
                 _isInitialized = true;
-                this.LayoutUpdated -= OnLayoutUpdated;
-                UpdateCropOverlay();
+                // Unsubscribe immediately to prevent multiple calls
+                try { this.LayoutUpdated -= OnLayoutUpdated; } catch { }
+                
+                // Delay slightly to ensure transforms are ready
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    UpdateCropOverlay();
+                });
             }
         }
 
@@ -111,33 +304,48 @@ namespace FlairX_Mod_Manager.Controls
         private void UpdateCropOverlay()
         {
             if (_sourceImage == null) return;
+            
+            // Check if layout is ready
+            if (ImageCanvas.ActualWidth <= 0 || ImageCanvas.ActualHeight <= 0 ||
+                CropOverlayCanvas.ActualWidth <= 0 || CropOverlayCanvas.ActualHeight <= 0)
+            {
+                return; // Layout not ready yet
+            }
 
             try
             {
                 // Update dimmed areas in image space
                 DimTop.Width = _sourceImage.Width;
-                DimTop.Height = _cropRect.Y;
+                DimTop.Height = Math.Max(0, _cropRect.Y);
                 Canvas.SetLeft(DimTop, 0);
                 Canvas.SetTop(DimTop, 0);
 
-                DimLeft.Width = _cropRect.X;
+                DimLeft.Width = Math.Max(0, _cropRect.X);
                 DimLeft.Height = _cropRect.Height;
                 Canvas.SetLeft(DimLeft, 0);
                 Canvas.SetTop(DimLeft, _cropRect.Y);
 
-                DimRight.Width = _sourceImage.Width - (_cropRect.X + _cropRect.Width);
+                DimRight.Width = Math.Max(0, _sourceImage.Width - (_cropRect.X + _cropRect.Width));
                 DimRight.Height = _cropRect.Height;
                 Canvas.SetLeft(DimRight, _cropRect.X + _cropRect.Width);
                 Canvas.SetTop(DimRight, _cropRect.Y);
 
                 DimBottom.Width = _sourceImage.Width;
-                DimBottom.Height = _sourceImage.Height - (_cropRect.Y + _cropRect.Height);
+                DimBottom.Height = Math.Max(0, _sourceImage.Height - (_cropRect.Y + _cropRect.Height));
                 Canvas.SetLeft(DimBottom, 0);
                 Canvas.SetTop(DimBottom, _cropRect.Y + _cropRect.Height);
 
                 // Convert crop rect from image space to screen space
                 var topLeft = ImageCanvas.TransformToVisual(CropOverlayCanvas).TransformPoint(new Windows.Foundation.Point(_cropRect.X, _cropRect.Y));
                 var bottomRight = ImageCanvas.TransformToVisual(CropOverlayCanvas).TransformPoint(new Windows.Foundation.Point(_cropRect.X + _cropRect.Width, _cropRect.Y + _cropRect.Height));
+                
+                // Validate transform results
+                if (double.IsNaN(topLeft.X) || double.IsNaN(topLeft.Y) || 
+                    double.IsNaN(bottomRight.X) || double.IsNaN(bottomRight.Y))
+                {
+                    Logger.LogWarning("Invalid transform results in UpdateCropOverlay");
+                    return;
+                }
                 
                 double screenX = topLeft.X;
                 double screenY = topLeft.Y;
@@ -425,16 +633,131 @@ namespace FlairX_Mod_Manager.Controls
 
         private void SkipButton_Click(object sender, RoutedEventArgs e)
         {
-            // Skip optimization, only rename file
-            _completionSource?.SetResult(new CropResult { Action = CropAction.Skip, CropRectangle = _cropRect });
-            CloseRequested?.Invoke(this, EventArgs.Empty);
+            if (_isBatchMode)
+            {
+                // Mark current item as skip and move to next
+                if (_currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
+                {
+                    var item = _batchItems[_currentBatchIndex];
+                    item.Action = CropAction.Skip;
+                    item.CropRect = _cropRect;
+                    item.IsEdited = true;
+                }
+                MoveToNextBatchItem();
+            }
+            else
+            {
+                _completionSource?.SetResult(new CropResult { Action = CropAction.Skip, CropRectangle = _cropRect });
+                CloseRequested?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            // Delete/remove file completely (old Skip behavior)
-            _completionSource?.SetResult(new CropResult { Action = CropAction.Delete, CropRectangle = _cropRect });
+            if (_isBatchMode)
+            {
+                // Mark current item as delete and move to next
+                if (_currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
+                {
+                    var item = _batchItems[_currentBatchIndex];
+                    item.Action = CropAction.Delete;
+                    item.CropRect = _cropRect;
+                    item.IsEdited = true;
+                }
+                MoveToNextBatchItem();
+            }
+            else
+            {
+                _completionSource?.SetResult(new CropResult { Action = CropAction.Delete, CropRectangle = _cropRect });
+                CloseRequested?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Save current and move to next
+            SaveCurrentBatchItem();
+            if (_currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
+            {
+                _batchItems[_currentBatchIndex].Action = CropAction.Confirm;
+            }
+            MoveToNextBatchItem();
+        }
+
+        private void MoveToNextBatchItem()
+        {
+            if (_currentBatchIndex < _batchItems.Count - 1)
+            {
+                LoadBatchItem(_currentBatchIndex + 1);
+            }
+        }
+
+        private void FinalizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Save current item
+            SaveCurrentBatchItem();
+            if (_currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
+            {
+                var currentItem = _batchItems[_currentBatchIndex];
+                if (!currentItem.IsEdited)
+                {
+                    currentItem.Action = CropAction.Confirm;
+                    currentItem.IsEdited = true;
+                }
+            }
+            
+            // Build results
+            var results = _batchItems.Select(item => new BatchCropResult
+            {
+                FilePath = item.FilePath,
+                ImageType = item.ImageType,
+                Action = item.Action,
+                CropRectangle = item.CropRect ?? item.InitialCropRect,
+                TargetWidth = item.TargetWidth,
+                TargetHeight = item.TargetHeight
+            }).ToList();
+            
+            _batchCompletionSource?.SetResult(results);
             CloseRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        // Batch list item handlers
+        private void BatchItem_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.DataContext is BatchCropItem item)
+            {
+                int index = _batchItems.IndexOf(item);
+                if (index >= 0 && index != _currentBatchIndex)
+                {
+                    SaveCurrentBatchItem();
+                    if (_currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
+                    {
+                        var currentItem = _batchItems[_currentBatchIndex];
+                        if (!currentItem.IsEdited)
+                        {
+                            currentItem.Action = CropAction.Confirm;
+                            currentItem.IsEdited = true;
+                        }
+                    }
+                    LoadBatchItem(index);
+                }
+            }
+        }
+
+        private void BatchItem_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Border border)
+            {
+                border.Background = (SolidColorBrush)Application.Current.Resources["SubtleFillColorTertiaryBrush"];
+            }
+        }
+
+        private void BatchItem_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Border border)
+            {
+                border.Background = (SolidColorBrush)Application.Current.Resources["SubtleFillColorSecondaryBrush"];
+            }
         }
     }
 
@@ -449,5 +772,15 @@ namespace FlairX_Mod_Manager.Controls
     {
         public CropAction Action { get; set; }
         public Rectangle CropRectangle { get; set; }
+    }
+
+    public class BatchCropResult
+    {
+        public string FilePath { get; set; } = "";
+        public string ImageType { get; set; } = "";
+        public CropAction Action { get; set; }
+        public Rectangle CropRectangle { get; set; }
+        public int TargetWidth { get; set; }
+        public int TargetHeight { get; set; }
     }
 }

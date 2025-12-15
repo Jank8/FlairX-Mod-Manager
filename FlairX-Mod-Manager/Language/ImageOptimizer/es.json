@@ -56,5 +56,8 @@
     "ImageOptimizer_Reoptimize": "Re-optimizar ya optimizados",
     "ImageOptimizer_Reoptimize_Description": "Re-optimizar archivos que ya tienen nombres correctos (catprev, catmini, minitile, preview-01, preview-02, etc.)",
     "SettingsPage_InspectThumbnailsOnly_Label": "Inspeccionar solo miniaturas",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Mostrar inspección de recorte solo para miniaturas minitile y catmini, procesar otras imágenes automáticamente"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Mostrar inspección de recorte solo para miniaturas minitile y catmini, procesar otras imágenes automáticamente",
+    "CropPanel_Next": "Siguiente",
+    "CropPanel_FinalizeAll": "Finalizar todo",
+    "CropPanel_FilesToProcess": "Archivos a procesar"
 }

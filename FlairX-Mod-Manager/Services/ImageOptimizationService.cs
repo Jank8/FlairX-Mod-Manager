@@ -55,14 +55,51 @@ namespace FlairX_Mod_Manager.Services
     }
 
     /// <summary>
+    /// Delegate for batch crop inspection callback
+    /// </summary>
+    public delegate Task<List<BatchCropInspectionResult>?> BatchCropInspectionHandler(List<BatchCropItem> items);
+
+    /// <summary>
+    /// Item for batch crop inspection
+    /// </summary>
+    public class BatchCropItem
+    {
+        public string FilePath { get; set; } = "";
+        public string ImageType { get; set; } = "";
+        public Image? SourceImage { get; set; }
+        public Rectangle InitialCropRect { get; set; }
+        public int TargetWidth { get; set; }
+        public int TargetHeight { get; set; }
+        public bool IsProtected { get; set; }
+    }
+
+    /// <summary>
+    /// Result from batch crop inspection
+    /// </summary>
+    public class BatchCropInspectionResult
+    {
+        public string FilePath { get; set; } = "";
+        public string ImageType { get; set; } = "";
+        public CropInspectionAction Action { get; set; }
+        public Rectangle CropRectangle { get; set; }
+        public int TargetWidth { get; set; }
+        public int TargetHeight { get; set; }
+    }
+
+    /// <summary>
     /// Service for image optimization operations across all contexts (Manual, Drag&Drop, Auto)
     /// </summary>
     public static class ImageOptimizationService
     {
         /// <summary>
-        /// Event raised when crop inspection is needed
+        /// Event raised when crop inspection is needed (single image)
         /// </summary>
         public static event CropInspectionHandler? CropInspectionRequested;
+        
+        /// <summary>
+        /// Event raised when batch crop inspection is needed (multiple images)
+        /// </summary>
+        public static event BatchCropInspectionHandler? BatchCropInspectionRequested;
         
         /// <summary>
         /// Event raised when minitile source selection is needed (for mods with multiple preview images)
@@ -862,85 +899,23 @@ namespace FlairX_Mod_Manager.Services
                     }
                 }
                 
-                // Process each preview file
+                // Determine if we should use batch mode
+                bool useBatchMode = context.AllowUIInteraction && 
+                                   context.InspectAndEditEnabled && 
+                                   previewFiles.Count > 1 &&
+                                   BatchCropInspectionRequested != null;
+                
                 var processedFiles = new List<string>();
-                for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
+                
+                if (useBatchMode)
                 {
-                    var sourceFile = previewFiles[i];
-                    string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
-                    var targetPath = Path.Combine(modDir, targetFileName);
-                    
-                    bool savedSuccessfully = false;
-                    try
-                    {
-                        using (var img = Image.FromFile(sourceFile))
-                        {
-                            // For Full mode, we optimize the image to 1000x1000 (crop to square and resize)
-                            const int targetSize = 1000;
-                            
-                            // Get crop rectangle with optional inspection
-                            // Mark as protected if this file is selected as minitile source
-                            bool isMinitileSource = sourceFile.Equals(selectedMinitileSource, StringComparison.OrdinalIgnoreCase);
-                            var squareCropRect = await GetCropRectangleWithInspectionAsync(
-                                img, targetSize, targetSize, context, $"preview.jpg #{i + 1}", isMinitileSource);
-                            
-                            if (squareCropRect == null)
-                            {
-                                Logger.LogInfo($"Deleted: {Path.GetFileName(sourceFile)}");
-                                continue; // User chose to delete this image
-                            }
-                            
-                            // Check if user chose to skip optimization (rename only)
-                            if (squareCropRect.Value.X == -1 && squareCropRect.Value.Y == -1)
-                            {
-                                Logger.LogInfo($"Skipping optimization for: {Path.GetFileName(sourceFile)}, rename only");
-                                // Just rename the file to target name without optimization
-                                var ext = Path.GetExtension(sourceFile);
-                                var renameTarget = Path.Combine(modDir, Path.GetFileNameWithoutExtension(targetFileName) + ext);
-                                if (!sourceFile.Equals(renameTarget, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    File.Copy(sourceFile, renameTarget, true);
-                                    Logger.LogInfo($"Renamed: {Path.GetFileName(sourceFile)} -> {Path.GetFileName(renameTarget)}");
-                                }
-                                processedFiles.Add(renameTarget);
-                                continue;
-                            }
-                            
-                            using (var optimized = new Bitmap(targetSize, targetSize))
-                            using (var g = Graphics.FromImage(optimized))
-                            {
-                                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                                g.CompositingQuality = CompositingQuality.HighQuality;
-                                g.SmoothingMode = SmoothingMode.HighQuality;
-                                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                                
-                                // Crop to square and resize to 1000x1000
-                                var destRect = new Rectangle(0, 0, targetSize, targetSize);
-                                g.DrawImage(img, destRect, squareCropRect.Value, GraphicsUnit.Pixel);
-                                
-                                // Save as JPEG with quality setting
-                                var jpegEncoder = ImageCodecInfo.GetImageEncoders()
-                                    .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                                if (jpegEncoder != null)
-                                {
-                                    var jpegParams = new EncoderParameters(1);
-                                    jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                                    optimized.Save(targetPath, jpegEncoder, jpegParams);
-                                    savedSuccessfully = true;
-                                    Logger.LogInfo($"Optimized: {Path.GetFileName(sourceFile)} -> {targetFileName}");
-                                }
-                            }
-                        }
-                        
-                        if (savedSuccessfully)
-                        {
-                            processedFiles.Add(targetPath);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Failed to process preview file: {sourceFile}", ex);
-                    }
+                    // BATCH MODE: Collect all files, show batch panel, then process
+                    await ProcessPreviewFilesBatchAsync(modDir, previewFiles, selectedMinitileSource, context, processedFiles);
+                }
+                else
+                {
+                    // SINGLE MODE: Process each file one by one (original behavior)
+                    await ProcessPreviewFilesSingleAsync(modDir, previewFiles, selectedMinitileSource, context, processedFiles);
                 }
                 
                 // Generate minitile.jpg (600x722 thumbnail) from selected source
@@ -1009,6 +984,205 @@ namespace FlairX_Mod_Manager.Services
             {
                 Logger.LogError($"Failed to process mod preview images (Full mode) in {modDir}", ex);
             }
+        }
+
+        /// <summary>
+        /// Process preview files in single mode (one by one with individual crop inspection)
+        /// </summary>
+        private static async Task ProcessPreviewFilesSingleAsync(string modDir, List<string> previewFiles, string? selectedMinitileSource, OptimizationContext context, List<string> processedFiles)
+        {
+            const int targetSize = 1000;
+            
+            for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
+            {
+                var sourceFile = previewFiles[i];
+                string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
+                var targetPath = Path.Combine(modDir, targetFileName);
+                
+                bool savedSuccessfully = false;
+                try
+                {
+                    using (var img = Image.FromFile(sourceFile))
+                    {
+                        bool isMinitileSource = sourceFile.Equals(selectedMinitileSource, StringComparison.OrdinalIgnoreCase);
+                        var squareCropRect = await GetCropRectangleWithInspectionAsync(
+                            img, targetSize, targetSize, context, $"preview.jpg #{i + 1}", isMinitileSource);
+                        
+                        if (squareCropRect == null)
+                        {
+                            Logger.LogInfo($"Deleted: {Path.GetFileName(sourceFile)}");
+                            continue;
+                        }
+                        
+                        if (squareCropRect.Value.X == -1 && squareCropRect.Value.Y == -1)
+                        {
+                            Logger.LogInfo($"Skipping optimization for: {Path.GetFileName(sourceFile)}, rename only");
+                            var ext = Path.GetExtension(sourceFile);
+                            var renameTarget = Path.Combine(modDir, Path.GetFileNameWithoutExtension(targetFileName) + ext);
+                            if (!sourceFile.Equals(renameTarget, StringComparison.OrdinalIgnoreCase))
+                            {
+                                File.Copy(sourceFile, renameTarget, true);
+                                Logger.LogInfo($"Renamed: {Path.GetFileName(sourceFile)} -> {Path.GetFileName(renameTarget)}");
+                            }
+                            processedFiles.Add(renameTarget);
+                            continue;
+                        }
+                        
+                        savedSuccessfully = SaveOptimizedImage(img, targetPath, squareCropRect.Value, targetSize, context.JpegQuality);
+                        if (savedSuccessfully)
+                        {
+                            Logger.LogInfo($"Optimized: {Path.GetFileName(sourceFile)} -> {targetFileName}");
+                            processedFiles.Add(targetPath);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to process preview file: {sourceFile}", ex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Process preview files in batch mode (collect all, show batch panel, then process)
+        /// </summary>
+        private static async Task ProcessPreviewFilesBatchAsync(string modDir, List<string> previewFiles, string? selectedMinitileSource, OptimizationContext context, List<string> processedFiles)
+        {
+            const int targetSize = 1000;
+            
+            // Collect all files with their suggested crop rectangles
+            var batchItems = new List<BatchCropItem>();
+            var loadedImages = new Dictionary<string, Image>();
+            
+            try
+            {
+                for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
+                {
+                    var sourceFile = previewFiles[i];
+                    try
+                    {
+                        var img = Image.FromFile(sourceFile);
+                        loadedImages[sourceFile] = img;
+                        
+                        var suggestedCrop = GetSuggestedCropRectangle(img, targetSize, targetSize, context.CropStrategy);
+                        bool isMinitileSource = sourceFile.Equals(selectedMinitileSource, StringComparison.OrdinalIgnoreCase);
+                        
+                        batchItems.Add(new BatchCropItem
+                        {
+                            FilePath = sourceFile,
+                            ImageType = $"preview.jpg #{i + 1}",
+                            SourceImage = img,
+                            InitialCropRect = suggestedCrop,
+                            TargetWidth = targetSize,
+                            TargetHeight = targetSize,
+                            IsProtected = isMinitileSource
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to load image for batch: {sourceFile}", ex);
+                    }
+                }
+                
+                if (batchItems.Count == 0)
+                {
+                    Logger.LogWarning("No images loaded for batch processing");
+                    return;
+                }
+                
+                // Show batch crop inspection panel
+                Logger.LogInfo($"Requesting batch crop inspection for {batchItems.Count} files");
+                var results = await BatchCropInspectionRequested!(batchItems);
+                
+                if (results == null || results.Count == 0)
+                {
+                    Logger.LogInfo("Batch crop inspection cancelled or returned no results");
+                    return;
+                }
+                
+                // Process results
+                for (int i = 0; i < results.Count; i++)
+                {
+                    var result = results[i];
+                    string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
+                    var targetPath = Path.Combine(modDir, targetFileName);
+                    
+                    if (result.Action == CropInspectionAction.Delete)
+                    {
+                        Logger.LogInfo($"Deleted: {Path.GetFileName(result.FilePath)}");
+                        continue;
+                    }
+                    
+                    if (result.Action == CropInspectionAction.Skip)
+                    {
+                        Logger.LogInfo($"Skipping optimization for: {Path.GetFileName(result.FilePath)}, rename only");
+                        var ext = Path.GetExtension(result.FilePath);
+                        var renameTarget = Path.Combine(modDir, Path.GetFileNameWithoutExtension(targetFileName) + ext);
+                        if (!result.FilePath.Equals(renameTarget, StringComparison.OrdinalIgnoreCase))
+                        {
+                            File.Copy(result.FilePath, renameTarget, true);
+                            Logger.LogInfo($"Renamed: {Path.GetFileName(result.FilePath)} -> {Path.GetFileName(renameTarget)}");
+                        }
+                        processedFiles.Add(renameTarget);
+                        continue;
+                    }
+                    
+                    // Confirm action - optimize the image
+                    if (loadedImages.TryGetValue(result.FilePath, out var img))
+                    {
+                        bool savedSuccessfully = SaveOptimizedImage(img, targetPath, result.CropRectangle, targetSize, context.JpegQuality);
+                        if (savedSuccessfully)
+                        {
+                            Logger.LogInfo($"Optimized: {Path.GetFileName(result.FilePath)} -> {targetFileName}");
+                            processedFiles.Add(targetPath);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                // Dispose all loaded images
+                foreach (var img in loadedImages.Values)
+                {
+                    img.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Save optimized image with crop and resize
+        /// </summary>
+        private static bool SaveOptimizedImage(Image sourceImage, string targetPath, Rectangle cropRect, int targetSize, int jpegQuality)
+        {
+            try
+            {
+                using (var optimized = new Bitmap(targetSize, targetSize))
+                using (var g = Graphics.FromImage(optimized))
+                {
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.CompositingQuality = CompositingQuality.HighQuality;
+                    g.SmoothingMode = SmoothingMode.HighQuality;
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    
+                    var destRect = new Rectangle(0, 0, targetSize, targetSize);
+                    g.DrawImage(sourceImage, destRect, cropRect, GraphicsUnit.Pixel);
+                    
+                    var jpegEncoder = ImageCodecInfo.GetImageEncoders()
+                        .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                    if (jpegEncoder != null)
+                    {
+                        var jpegParams = new EncoderParameters(1);
+                        jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)jpegQuality);
+                        optimized.Save(targetPath, jpegEncoder, jpegParams);
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to save optimized image: {targetPath}", ex);
+            }
+            return false;
         }
 
         /// <summary>
@@ -1476,6 +1650,15 @@ namespace FlairX_Mod_Manager.Services
                 CropStrategy.ManualOnly => CropType.ManualOnly,
                 _ => CropType.Center
             };
+        }
+
+        /// <summary>
+        /// Get suggested crop rectangle without inspection (for batch mode)
+        /// </summary>
+        private static Rectangle GetSuggestedCropRectangle(Image image, int targetWidth, int targetHeight, CropStrategy strategy)
+        {
+            var cropType = ConvertCropStrategy(strategy);
+            return ImageCropService.CalculateCropRectangle(image, targetWidth, targetHeight, cropType);
         }
 
         /// <summary>

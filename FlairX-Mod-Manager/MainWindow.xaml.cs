@@ -1145,8 +1145,100 @@ namespace FlairX_Mod_Manager
             
             Logger.LogInfo("Crop inspection handler setup complete");
             
+            // Setup batch crop inspection handler
+            SetupBatchCropInspectionHandler();
+            
             // Also setup minitile source selection handler
             SetupMinitileSourceSelectionHandler();
+        }
+
+        /// <summary>
+        /// Setup handler for batch crop inspection events from ImageOptimizationService
+        /// </summary>
+        private void SetupBatchCropInspectionHandler()
+        {
+            var window = this;
+            
+            Services.ImageOptimizationService.BatchCropInspectionRequested += async (items) =>
+            {
+                var tcs = new TaskCompletionSource<List<Services.BatchCropInspectionResult>?>();
+                
+                window.DispatcherQueue.TryEnqueue(async () =>
+                {
+                    try
+                    {
+                        var cropPanel = new Controls.ImageCropInspectionPanel();
+                        
+                        // Convert service items to control items
+                        var controlItems = items.Select(item => new Controls.BatchCropItem
+                        {
+                            FilePath = item.FilePath,
+                            DisplayName = Path.GetFileName(item.FilePath),
+                            ImageType = item.ImageType,
+                            SourceImage = item.SourceImage,
+                            InitialCropRect = item.InitialCropRect,
+                            TargetWidth = item.TargetWidth,
+                            TargetHeight = item.TargetHeight,
+                            IsProtected = item.IsProtected,
+                            Thumbnail = CreateThumbnailFromImage(item.SourceImage)
+                        }).ToList();
+                        
+                        var lang = SharedUtilities.LoadLanguageDictionary();
+                        var title = SharedUtilities.GetTranslation(lang, "CropPanel_Title") ?? "Adjust Crop Area";
+                        ShowSlidingPanel(cropPanel, $"{title} ({items.Count} files)");
+                        
+                        var batchResults = await cropPanel.ShowForBatchAsync(controlItems);
+                        
+                        // Convert results back to service format
+                        var results = batchResults.Select(r => new Services.BatchCropInspectionResult
+                        {
+                            FilePath = r.FilePath,
+                            ImageType = r.ImageType,
+                            Action = r.Action switch
+                            {
+                                Controls.CropAction.Confirm => Services.CropInspectionAction.Confirm,
+                                Controls.CropAction.Skip => Services.CropInspectionAction.Skip,
+                                Controls.CropAction.Delete => Services.CropInspectionAction.Delete,
+                                _ => Services.CropInspectionAction.Delete
+                            },
+                            CropRectangle = r.CropRectangle,
+                            TargetWidth = r.TargetWidth,
+                            TargetHeight = r.TargetHeight
+                        }).ToList();
+                        
+                        tcs.SetResult(results);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Error showing batch crop inspection panel", ex);
+                        tcs.SetResult(null);
+                    }
+                });
+                
+                return await tcs.Task;
+            };
+            
+            Logger.LogInfo("Batch crop inspection handler setup complete");
+        }
+
+        private static Microsoft.UI.Xaml.Media.Imaging.BitmapImage? CreateThumbnailFromImage(System.Drawing.Image? sourceImage)
+        {
+            if (sourceImage == null) return null;
+            
+            try
+            {
+                using var ms = new MemoryStream();
+                sourceImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                ms.Position = 0;
+                
+                var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
+                bitmap.SetSource(ms.AsRandomAccessStream());
+                return bitmap;
+            }
+            catch
+            {
+                return null;
+            }
         }
         
         /// <summary>

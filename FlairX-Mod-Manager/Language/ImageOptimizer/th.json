@@ -56,5 +56,8 @@
     "ImageOptimizer_Reoptimize": "เพิ่มประสิทธิภาพใหม่",
     "ImageOptimizer_Reoptimize_Description": "เพิ่มประสิทธิภาพไฟล์ที่มีชื่อถูกต้องแล้วอีกครั้ง (catprev, catmini, minitile, preview-01, preview-02 ฯลฯ)",
     "SettingsPage_InspectThumbnailsOnly_Label": "ตรวจสอบเฉพาะภาพขนาดย่อ",
-    "SettingsPage_InspectThumbnailsOnly_Description": "แสดงการตรวจสอบการครอบตัดเฉพาะสำหรับภาพขนาดย่อ minitile และ catmini ประมวลผลภาพอื่นโดยอัตโนมัติ"
+    "SettingsPage_InspectThumbnailsOnly_Description": "แสดงการตรวจสอบการครอบตัดเฉพาะสำหรับภาพขนาดย่อ minitile และ catmini ประมวลผลภาพอื่นโดยอัตโนมัติ",
+    "CropPanel_Next": "ถัดไป",
+    "CropPanel_FinalizeAll": "เสร็จสิ้นทั้งหมด",
+    "CropPanel_FilesToProcess": "ไฟล์ที่จะประมวลผล"
 }

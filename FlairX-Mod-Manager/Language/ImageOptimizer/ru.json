@@ -56,5 +56,8 @@
     "ImageOptimizer_Reoptimize": "Повторная оптимизация",
     "ImageOptimizer_Reoptimize_Description": "Повторно оптимизировать файлы с правильными именами (catprev, catmini, minitile, preview-01, preview-02 и т.д.)",
     "SettingsPage_InspectThumbnailsOnly_Label": "Проверять только миниатюры",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Показывать проверку обрезки только для миниатюр minitile и catmini, остальные изображения обрабатывать автоматически"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Показывать проверку обрезки только для миниатюр minitile и catmini, остальные изображения обрабатывать автоматически",
+    "CropPanel_Next": "Далее",
+    "CropPanel_FinalizeAll": "Завершить все",
+    "CropPanel_FilesToProcess": "Файлы для обработки"
 }
