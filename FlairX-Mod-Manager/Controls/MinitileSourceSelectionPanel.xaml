@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="FlairX_Mod_Manager.Controls.MinitileSourceSelectionPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Margin="24" x:Name="MainGrid" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="0,0,0,16">
+            <TextBlock x:Name="TitleText" 
+                      Text="Select Minitile Source" 
+                      FontSize="24" 
+                      FontWeight="Bold" 
+                      Margin="0,0,16,0" 
+                      VerticalAlignment="Center"/>
+            <TextBlock x:Name="SubtitleText" 
+                      Text="Choose which image to use for the thumbnail" 
+                      FontSize="14"
+                      Opacity="0.7" 
+                      VerticalAlignment="Center"
+                      Margin="0,2,0,0"/>
+        </StackPanel>
+
+        <!-- Image Grid -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <GridView x:Name="ImageGridView" 
+                      SelectionMode="Single"
+                      SelectionChanged="ImageGridView_SelectionChanged"
+                      Padding="8">
+            </GridView>
+        </ScrollViewer>
+
+        <!-- Footer with buttons -->
+        <Grid Grid.Row="2" Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Column="0" 
+                       x:Name="SelectedInfoText" 
+                       Text="No image selected"
+                       VerticalAlignment="Center"
+                       FontSize="14"
+                       Opacity="0.7"/>
+            
+            <StackPanel Grid.Column="1" 
+                       Orientation="Horizontal" 
+                       Spacing="8"
+                       VerticalAlignment="Center">
+                <Button x:Name="CancelButton" 
+                       Click="CancelButton_Click"
+                       MinWidth="100"
+                       Height="40">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE711;" FontSize="14"/>
+                        <TextBlock x:Name="CancelButtonText" Text="Cancel"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ConfirmButton" 
+                       Style="{StaticResource AccentButtonStyle}"
+                       Click="ConfirmButton_Click"
+                       MinWidth="100"
+                       Height="40"
+                       IsEnabled="False">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE8FB;" FontSize="14"/>
+                        <TextBlock x:Name="ConfirmButtonText" Text="Confirm"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -34,7 +34,7 @@ namespace FlairX_Mod_Manager.Controls
             this.InitializeComponent();
         }
 
-        public Task<CropResult> ShowForImageAsync(System.Drawing.Image sourceImage, Rectangle initialCropRect, double targetAspectRatio, bool maintainAspectRatio, string imageType)
+        public Task<CropResult> ShowForImageAsync(System.Drawing.Image sourceImage, Rectangle initialCropRect, double targetAspectRatio, bool maintainAspectRatio, string imageType, bool isProtected = false)
         {
             _sourceImage = sourceImage;
             _cropRect = initialCropRect;
@@ -53,10 +53,14 @@ namespace FlairX_Mod_Manager.Controls
                 : SharedUtilities.GetTranslation(lang, "CropPanel_FreeAspect") ?? "Free aspect ratio - drag handles to resize";
             
             // Update button texts
-            ResetButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Reset") ?? "Reset";
-            SkipButton.Content = SharedUtilities.GetTranslation(lang, "Skip") ?? "Skip";
+            ResetButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Reset") ?? "Crop Reset";
+            DeleteButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Delete") ?? "Delete";
+            SkipButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Skip") ?? "Skip";
             ConfirmButton.Content = SharedUtilities.GetTranslation(lang, "Confirm") ?? "Confirm";
             HintText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Hint") ?? "Drag to move • Corners maintain ratio • Edges change ratio";
+            
+            // Disable Delete button if this file is protected (selected as minitile source)
+            DeleteButton.IsEnabled = !isProtected;
 
             // Load image
             LoadImage();
@@ -415,20 +419,35 @@ namespace FlairX_Mod_Manager.Controls
 
         private void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
-            _completionSource?.SetResult(new CropResult { Confirmed = true, CropRectangle = _cropRect });
+            _completionSource?.SetResult(new CropResult { Action = CropAction.Confirm, CropRectangle = _cropRect });
             CloseRequested?.Invoke(this, EventArgs.Empty);
         }
 
         private void SkipButton_Click(object sender, RoutedEventArgs e)
         {
-            _completionSource?.SetResult(new CropResult { Confirmed = false, CropRectangle = _cropRect });
+            // Skip optimization, only rename file
+            _completionSource?.SetResult(new CropResult { Action = CropAction.Skip, CropRectangle = _cropRect });
+            CloseRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Delete/remove file completely (old Skip behavior)
+            _completionSource?.SetResult(new CropResult { Action = CropAction.Delete, CropRectangle = _cropRect });
             CloseRequested?.Invoke(this, EventArgs.Empty);
         }
     }
 
+    public enum CropAction
+    {
+        Confirm,    // Proceed with cropping and optimization
+        Skip,       // Skip optimization, only rename file
+        Delete      // Delete/remove file completely
+    }
+
     public class CropResult
     {
-        public bool Confirmed { get; set; }
+        public CropAction Action { get; set; }
         public Rectangle CropRectangle { get; set; }
     }
 }

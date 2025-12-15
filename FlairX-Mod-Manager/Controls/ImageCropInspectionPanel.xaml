@@ -164,11 +164,24 @@
                         <TextBlock x:Name="ResetButtonText" Text="Reset"/>
                     </StackPanel>
                 </Button>
+                <Button x:Name="DeleteButton" 
+                       Click="DeleteButton_Click"
+                       MinWidth="100"
+                       Height="40">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                        <TextBlock x:Name="DeleteButtonText" Text="Delete"/>
+                    </StackPanel>
+                </Button>
                 <Button x:Name="SkipButton" 
-                       Content="Skip" 
                        Click="SkipButton_Click"
                        MinWidth="100"
-                       Height="40"/>
+                       Height="40">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE8BB;" FontSize="14"/>
+                        <TextBlock x:Name="SkipButtonText" Text="Skip"/>
+                    </StackPanel>
+                </Button>
                 <Button x:Name="ConfirmButton" 
                        Content="Confirm" 
                        Style="{StaticResource AccentButtonStyle}"

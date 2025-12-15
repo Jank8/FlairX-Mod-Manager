@@ -1097,7 +1097,7 @@ namespace FlairX_Mod_Manager
         {
             var window = this; // Capture window reference for lambda
             
-            Services.ImageOptimizationService.CropInspectionRequested += async (sourceImage, suggestedCrop, targetWidth, targetHeight, imageType) =>
+            Services.ImageOptimizationService.CropInspectionRequested += async (sourceImage, suggestedCrop, targetWidth, targetHeight, imageType, isProtected) =>
             {
                 var tcs = new TaskCompletionSource<Services.CropInspectionResult?>();
                 
@@ -1116,12 +1116,18 @@ namespace FlairX_Mod_Manager
                         ShowSlidingPanel(cropPanel, $"Crop Image - {imageType}");
                         
                         // Start showing the crop panel and wait for result
-                        var cropResult = await cropPanel.ShowForImageAsync(sourceImage, suggestedCrop, aspectRatio, maintainAspectRatio, imageType);
+                        var cropResult = await cropPanel.ShowForImageAsync(sourceImage, suggestedCrop, aspectRatio, maintainAspectRatio, imageType, isProtected);
                         
                         // Convert result
                         var result = new Services.CropInspectionResult
                         {
-                            Confirmed = cropResult.Confirmed,
+                            Action = cropResult.Action switch
+                            {
+                                Controls.CropAction.Confirm => Services.CropInspectionAction.Confirm,
+                                Controls.CropAction.Skip => Services.CropInspectionAction.Skip,
+                                Controls.CropAction.Delete => Services.CropInspectionAction.Delete,
+                                _ => Services.CropInspectionAction.Delete
+                            },
                             CropRectangle = cropResult.CropRectangle
                         };
                         
@@ -1138,8 +1144,54 @@ namespace FlairX_Mod_Manager
             };
             
             Logger.LogInfo("Crop inspection handler setup complete");
+            
+            // Also setup minitile source selection handler
+            SetupMinitileSourceSelectionHandler();
         }
         
+        /// <summary>
+        /// Setup handler for minitile source selection events from ImageOptimizationService
+        /// </summary>
+        private void SetupMinitileSourceSelectionHandler()
+        {
+            var window = this;
+            
+            Services.ImageOptimizationService.MinitileSourceSelectionRequested += async (availableFiles, modDirectory) =>
+            {
+                var tcs = new TaskCompletionSource<Services.MinitileSourceResult?>();
+                
+                window.DispatcherQueue.TryEnqueue(async () =>
+                {
+                    try
+                    {
+                        var selectionPanel = new Controls.MinitileSourceSelectionPanel();
+                        
+                        var lang = SharedUtilities.LoadLanguageDictionary();
+                        var title = SharedUtilities.GetTranslation(lang, "MinitileSelection_Title") ?? "Select Minitile Source";
+                        ShowSlidingPanel(selectionPanel, title);
+                        
+                        var selectionResult = await selectionPanel.ShowForSelectionAsync(availableFiles, modDirectory);
+                        
+                        var result = new Services.MinitileSourceResult
+                        {
+                            SelectedFilePath = selectionResult.SelectedFilePath,
+                            Cancelled = selectionResult.Cancelled
+                        };
+                        
+                        tcs.SetResult(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Error showing minitile source selection panel", ex);
+                        tcs.SetResult(null);
+                    }
+                });
+                
+                return await tcs.Task;
+            };
+            
+            Logger.LogInfo("Minitile source selection handler setup complete");
+        }
 
     }
 

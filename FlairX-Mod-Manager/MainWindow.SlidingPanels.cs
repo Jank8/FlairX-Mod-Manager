@@ -411,6 +411,10 @@ namespace FlairX_Mod_Manager
                     {
                         cropPanel.CloseRequested += (s, args) => closeWithAnimation();
                     }
+                    else if (userControl is Controls.MinitileSourceSelectionPanel minitilePanel)
+                    {
+                        minitilePanel.CloseRequested += (s, args) => closeWithAnimation();
+                    }
                     else if (userControl is ImagePreviewUserControl imagePreviewControl)
                     {
                         imagePreviewControl.CloseRequested += (s, args) => closeWithAnimation();
