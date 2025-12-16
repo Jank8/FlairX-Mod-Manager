@@ -82,7 +82,12 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (hotkeys.Count > 0)
                 {
+                    Logger.LogInfo($"Found {hotkeys.Count} hotkeys in mod: {Path.GetFileName(modDir)}");
                     await UpdateModJsonWithHotkeysCommonAsync(modDir, hotkeys, token);
+                }
+                else
+                {
+                    Logger.LogInfo($"No hotkeys found in mod: {Path.GetFileName(modDir)}");
                 }
             }
         }
@@ -110,7 +115,11 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
                 
+                // Detect hotkeys from .ini files and create hotkeys.json
                 await DetectAndUpdateHotkeysAsync(modDirectories.ToArray(), true);
+                
+                // Clean up old hotkeys sections from mod.json files
+                await CleanupOldHotkeysFromModJsonAsync(modDirectories);
                 Logger.LogInfo($"Refreshed hotkeys for {modDirectories.Count} mods");
             }
             catch (Exception ex)
@@ -506,24 +515,8 @@ namespace FlairX_Mod_Manager.Pages
                         ["description"] = h.Description
                     }).ToArray();
 
-                    modData["hotkeys"] = hotkeyArray;
-                    
-                    // Update favorite hotkeys - keep only those that still exist in the new hotkey list
-                    var newHotkeyKeys = new HashSet<string>(hotkeys.Select(h => h.Key));
-                    var updatedFavorites = existingFavorites.Where(fav => newHotkeyKeys.Contains(fav)).ToList();
-                    
-                    if (updatedFavorites.Count > 0)
-                    {
-                        modData["favoriteHotkeys"] = updatedFavorites;
-                    }
-                    else
-                    {
-                        // Remove favoriteHotkeys if empty
-                        modData.Remove("favoriteHotkeys");
-                    }
-
-                    var json = JsonSerializer.Serialize(modData, new JsonSerializerOptions { WriteIndented = true });
-                    await File.WriteAllTextAsync(modJsonPath, json, token);
+                    // Only create/update hotkeys.json file - don't modify mod.json
+                    await CreateOrUpdateHotkeysJsonAsync(modPath, hotkeyArray, token);
                 }, token);
             }
             catch (OperationCanceledException)
@@ -533,6 +526,171 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 Logger.LogError($"File update failed for {modJsonPath}", ex);
+            }
+        }
+
+        // Method to clean up old hotkeys sections from mod.json files
+        private static async Task CleanupOldHotkeysFromModJsonAsync(List<string> modDirectories)
+        {
+            try
+            {
+                Logger.LogInfo("Cleaning up old hotkeys sections from mod.json files");
+                int cleanedCount = 0;
+                
+                foreach (var modDir in modDirectories)
+                {
+                    try
+                    {
+                        var modJsonPath = Path.Combine(modDir, "mod.json");
+                        
+                        if (!File.Exists(modJsonPath))
+                            continue;
+                        
+                        var modJson = await File.ReadAllTextAsync(modJsonPath);
+                        using var doc = JsonDocument.Parse(modJson);
+                        var root = doc.RootElement;
+                        
+                        // Check if mod.json has hotkeys section
+                        if (root.TryGetProperty("hotkeys", out _))
+                        {
+                            // Remove hotkeys section from mod.json
+                            await RemoveHotkeysFromModJsonAsync(modJsonPath);
+                            cleanedCount++;
+                            Logger.LogInfo($"Removed old hotkeys section from: {Path.GetFileName(modDir)}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to clean hotkeys from mod: {Path.GetFileName(modDir)}", ex);
+                    }
+                }
+                
+                if (cleanedCount > 0)
+                {
+                    Logger.LogInfo($"Cleanup completed: removed hotkeys sections from {cleanedCount} mod.json files");
+                }
+                else
+                {
+                    Logger.LogInfo("No mod.json files had hotkeys sections to remove");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to cleanup old hotkeys sections", ex);
+            }
+        }
+
+        // Method to remove hotkeys section from mod.json
+        private static async Task RemoveHotkeysFromModJsonAsync(string modJsonPath)
+        {
+            try
+            {
+                var json = await File.ReadAllTextAsync(modJsonPath);
+                var modData = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
+                
+                // Remove hotkeys section
+                modData.Remove("hotkeys");
+                
+                var newJson = JsonSerializer.Serialize(modData, new JsonSerializerOptions { WriteIndented = true });
+                await File.WriteAllTextAsync(modJsonPath, newJson);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to remove hotkeys from {modJsonPath}", ex);
+            }
+        }
+
+        // Method to create or update hotkeys.json file
+        private static async Task CreateOrUpdateHotkeysJsonAsync(string modPath, Dictionary<string, string>[] hotkeyArray, CancellationToken token = default)
+        {
+            try
+            {
+                Logger.LogInfo($"CreateOrUpdateHotkeysJsonAsync called for mod: {Path.GetFileName(modPath)} with {hotkeyArray.Length} hotkeys");
+                var hotkeysJsonPath = Path.Combine(modPath, "hotkeys.json");
+                
+                var existingDefaultHotkeys = new List<Dictionary<string, string>>();
+                var existingHotkeys = new List<Dictionary<string, string>>();
+                
+                // If hotkeys.json already exists, preserve defaultHotkeys and load existing hotkeys
+                if (File.Exists(hotkeysJsonPath))
+                {
+                    var existingJson = await File.ReadAllTextAsync(hotkeysJsonPath, token);
+                    using var doc = JsonDocument.Parse(existingJson);
+                    var root = doc.RootElement;
+                    
+                    // Preserve existing defaultHotkeys
+                    if (root.TryGetProperty("defaultHotkeys", out var defaultProp) && defaultProp.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var h in defaultProp.EnumerateArray())
+                        {
+                            existingDefaultHotkeys.Add(new Dictionary<string, string>
+                            {
+                                ["key"] = h.GetProperty("key").GetString() ?? "",
+                                ["description"] = h.GetProperty("description").GetString() ?? ""
+                            });
+                        }
+                    }
+                    
+                    // Load existing hotkeys (user modifications)
+                    if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var h in hotkeysProp.EnumerateArray())
+                        {
+                            existingHotkeys.Add(new Dictionary<string, string>
+                            {
+                                ["key"] = h.GetProperty("key").GetString() ?? "",
+                                ["description"] = h.GetProperty("description").GetString() ?? ""
+                            });
+                        }
+                    }
+                }
+                
+                // Convert new hotkeys from finder
+                var newHotkeys = hotkeyArray.ToList();
+                
+                // If no existing hotkeys.json, use new hotkeys as both current and default
+                if (!File.Exists(hotkeysJsonPath))
+                {
+                    existingDefaultHotkeys = new List<Dictionary<string, string>>(newHotkeys);
+                    existingHotkeys = new List<Dictionary<string, string>>(newHotkeys);
+                }
+                else
+                {
+                    // Update defaultHotkeys with any new keys found by hotkey finder
+                    var existingDefaultKeys = new HashSet<string>(existingDefaultHotkeys.Select(h => h["description"]));
+                    
+                    foreach (var newHotkey in newHotkeys)
+                    {
+                        if (!existingDefaultKeys.Contains(newHotkey["description"]))
+                        {
+                            // New hotkey found - add to defaults
+                            existingDefaultHotkeys.Add(new Dictionary<string, string>(newHotkey));
+                            
+                            // Also add to current hotkeys if not already there
+                            var existingCurrentKeys = new HashSet<string>(existingHotkeys.Select(h => h["description"]));
+                            if (!existingCurrentKeys.Contains(newHotkey["description"]))
+                            {
+                                existingHotkeys.Add(new Dictionary<string, string>(newHotkey));
+                            }
+                        }
+                    }
+                }
+                
+                // Create hotkeys.json structure
+                var hotkeysData = new
+                {
+                    hotkeys = existingHotkeys,
+                    defaultHotkeys = existingDefaultHotkeys
+                };
+                
+                var json = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
+                await File.WriteAllTextAsync(hotkeysJsonPath, json, token);
+                
+                Logger.LogInfo($"Created/updated hotkeys.json for mod: {Path.GetFileName(modPath)}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to create/update hotkeys.json for {modPath}", ex);
             }
         }
 

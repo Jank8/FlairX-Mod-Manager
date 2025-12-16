@@ -942,7 +942,7 @@ namespace FlairX_Mod_Manager.Pages
                         
                         // Create UserControl for mod details
                         var modDetailControl = new ModDetailUserControl();
-                        modDetailControl.LoadModDetails(tile.Directory, _currentCategory ?? "", 
+                        _ = modDetailControl.LoadModDetails(tile.Directory, _currentCategory ?? "", 
                             CurrentViewMode == ViewMode.Categories ? "Categories" : "Mods");
 
                         // Get current app theme and create appropriate background

@@ -41,6 +41,8 @@ namespace FlairX_Mod_Manager.Pages
         private List<string> _recordedGamepadButtons = new();
         private bool _isSettingHotkeyText = false;
         private bool _previousHotkeysEnabled = true;
+        
+
 
         public ModDetailUserControl()
         {
@@ -67,7 +69,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
         
-        public void LoadModDetails(string modDirectory, string category = "", string viewMode = "")
+        public async Task LoadModDetails(string modDirectory, string category = "", string viewMode = "")
         {
             _categoryParam = category;
             _viewModeParam = viewMode;
@@ -146,7 +148,7 @@ namespace FlairX_Mod_Manager.Pages
                         System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: Looking for mod.json at: {_modJsonPath}");
                         
                         // Load mod.json data
-                        LoadModJsonData();
+                        await LoadModJsonData();
                         
                         // Load preview images
                         LoadPreviewImages(fullModDir);
@@ -232,7 +234,7 @@ namespace FlairX_Mod_Manager.Pages
             return null;
         }
 
-        private void LoadModJsonData()
+        private async Task LoadModJsonData()
         {
             if (string.IsNullOrEmpty(_modJsonPath) || !File.Exists(_modJsonPath))
             {
@@ -315,58 +317,8 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
                 
-                // Load hotkeys
-                ModHotkeysPanel.Children.Clear();
-                _originalHotkeyOrder.Clear();
-                if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
-                {
-                    // First pass: collect all hotkeys with original index and find max key width
-                    var hotkeyList = new List<(string key, string desc, int originalIndex)>();
-                    int index = 0;
-                    foreach (var hotkey in hotkeysProp.EnumerateArray())
-                    {
-                        string? key = null;
-                        string? desc = null;
-                        
-                        if (hotkey.ValueKind == JsonValueKind.Object)
-                        {
-                            key = hotkey.TryGetProperty("key", out var keyProp) ? keyProp.GetString() : null;
-                            desc = hotkey.TryGetProperty("description", out var descProp) ? descProp.GetString() : null;
-                        }
-                        else if (hotkey.ValueKind == JsonValueKind.String)
-                        {
-                            key = hotkey.GetString() ?? "";
-                        }
-                        
-                        if (!string.IsNullOrWhiteSpace(key))
-                        {
-                            hotkeyList.Add((key, desc ?? string.Empty, index));
-                            _originalHotkeyOrder.Add(key);
-                        }
-                        index++;
-                    }
-                    
-                    // Sort: favorites first (maintaining original order within each group)
-                    hotkeyList = hotkeyList
-                        .OrderByDescending(x => _favoriteHotkeys.Contains(x.key))
-                        .ThenBy(x => x.originalIndex)
-                        .ToList();
-                    
-                    // Create rows - column width will auto-adjust
-                    foreach (var (key, desc, origIdx) in hotkeyList)
-                    {
-                        var hotkeyRow = CreateHotkeyRow(key, desc, origIdx);
-                        ModHotkeysPanel.Children.Add(hotkeyRow);
-                    }
-                    
-                    // Show hotkeys section if there are any hotkeys
-                    HotkeysSection.Visibility = hotkeyList.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-                }
-                else
-                {
-                    // Hide hotkeys section if no hotkeys property
-                    HotkeysSection.Visibility = Visibility.Collapsed;
-                }
+                // Load hotkeys from hotkeys.json (cleanup already done at startup by hotkey finder)
+                await LoadHotkeysFromFile();
             }
             catch (Exception ex)
             {
@@ -600,6 +552,12 @@ namespace FlairX_Mod_Manager.Pages
             saveBtn.PointerPressed += SaveButton_PointerPressed;
             buttonsPanel.Children.Add(saveBtn);
             
+            // Restore default button (always visible)
+            var restoreBtn = CreateHotkeyActionButton("\uE777", defaultBrush);
+            restoreBtn.Tag = new HotkeyButtonData { KeyCombo = keyCombo, Description = description, OriginalIndex = originalIndex };
+            restoreBtn.PointerPressed += RestoreDefaultButton_PointerPressed;
+            buttonsPanel.Children.Add(restoreBtn);
+            
             Grid.SetColumn(buttonsPanel, 3);
             grid.Children.Add(buttonsPanel);
             
@@ -607,153 +565,134 @@ namespace FlairX_Mod_Manager.Pages
             return rowBorder;
         }
         
-        private const string PromptFontFamily = "ms-appx:///Assets/promptfont/promptfont.ttf#promptfont";
+        // Kenney Input Prompts font paths
+        private const string KenneyXboxFont = "ms-appx:///Assets/KenneyFonts/kenney_input_xbox_series.ttf#Kenney Input Xbox Series";
+        private const string KenneyPlayStationFont = "ms-appx:///Assets/KenneyFonts/kenney_input_playstation_series.ttf#Kenney Input PlayStation Series";
+        private const string KenneySwitchFont = "ms-appx:///Assets/KenneyFonts/kenney_input_nintendo_switch.ttf#Kenney Input Nintendo Switch";
+        private const string KenneyKeyboardFont = "ms-appx:///Assets/KenneyFonts/kenney_input_keyboard_mouse.ttf#Kenney Input Keyboard & Mouse";
+        private const string KenneyGenericFont = "ms-appx:///Assets/KenneyFonts/kenney_input_generic.ttf#Kenney Input Generic";
+        private const string KenneySteamDeckFont = "ms-appx:///Assets/KenneyFonts/kenney_input_steam_deck.ttf#Kenney Input Steam Deck";
         
-        private static readonly Dictionary<string, string> HotkeyIconMap = new()
+        private static readonly Dictionary<string, (string Glyph, string Font)> HotkeyIconMap = new()
         {
-            // Xbox
-            ["XB A"] = "\u21D3", ["XB B"] = "\u21D2", ["XB X"] = "\u21D0", ["XB Y"] = "\u21D1",
-            ["XB LS"] = "\u21BA", ["XB RS"] = "\u21BB", ["XB LT"] = "\u2196", ["XB RT"] = "\u2197",
-            ["XB LB"] = "\u2198", ["XB RB"] = "\u2199", ["XB Start"] = "\u21FB", ["XB Back"] = "\u21FA",
-            ["XB Home"] = "\u21F9", ["XB ↑"] = "\u227B", ["XB ↓"] = "\u227D", ["XB ←"] = "\u227A", ["XB →"] = "\u227C",
-            ["XB LT Pull"] = "\u21DC", ["XB RT Pull"] = "\u21DD", ["XB DPAD"] = "\u2284",
-            ["XB ↑↓"] = "\u227F", ["XB ←→"] = "\u227E", ["XB ↖"] = "\u2280", ["XB ↗"] = "\u2281", ["XB ↙"] = "\u2282", ["XB ↘"] = "\u2283",
-            // PlayStation
-            ["PS ×"] = "\u21E3", ["PS ○"] = "\u21E2", ["PS □"] = "\u21E0", ["PS △"] = "\u21E1",
-            ["PS L1"] = "\u21B0", ["PS R1"] = "\u21B1", ["PS L2"] = "\u21B2", ["PS R2"] = "\u21B3",
-            ["PS L3"] = "\u21EF", ["PS R3"] = "\u21F0", ["PS Share"] = "\u21E6", ["PS Options"] = "\u21E8", ["PS Touchpad"] = "\u21E7",
-            ["PS DS Share"] = "\u2206", ["PS DS Touchpad"] = "\u2207", ["PS DS Options"] = "\u2208",
-            // Nintendo
-            ["NIN A"] = "\u21A7", ["NIN B"] = "\u21A6", ["NIN X"] = "\u21A4", ["NIN Y"] = "\u21A5",
-            ["NIN L"] = "\u219C", ["NIN R"] = "\u219D", ["NIN ZL"] = "\u219A", ["NIN ZR"] = "\u219B",
-            ["NIN +"] = "\u21FE", ["NIN -"] = "\u21FD", ["NIN Z"] = "\u21E9", ["NIN ZT"] = "\u21EA",
-            ["NIN C"] = "\u21EB", ["NIN Zb"] = "\u21EC", ["NIN 1"] = "\u21ED", ["NIN 2"] = "\u21EE",
-            ["NIN ↑"] = "\u2200", ["NIN ↓"] = "\u2202", ["NIN ←"] = "\u21FF", ["NIN →"] = "\u2201",
-            ["NIN SL"] = "\u2203", ["NIN SR"] = "\u2204",
-            // Generic gamepad
-            ["DPAD ↑"] = "\u219F", ["DPAD ↓"] = "\u21A1", ["DPAD ←"] = "\u219E", ["DPAD →"] = "\u21A0",
-            ["DPAD"] = "\u21CE", ["L STICK"] = "\u21CB", ["R STICK"] = "\u21CC",
-            ["SELECT"] = "\u21F7", ["START"] = "\u21F8", ["HOME"] = "\u21F9",
-            ["DPAD ↑↓"] = "\u21A3", ["DPAD ←→"] = "\u21A2", ["DPAD ↙"] = "\u21B4", ["DPAD ↘"] = "\u21DE", ["DPAD ↖"] = "\u21DF",
-            ["GP A"] = "\u21A7", ["GP B"] = "\u21A6", ["GP X"] = "\u21A4", ["GP Y"] = "\u21A5", ["GP BTNS"] = "\u21A8",
-            ["GP X+B"] = "\u2225", ["GP A+Y"] = "\u2226", ["GP X+Y"] = "\u2227", ["GP B+Y"] = "\u2228", ["GP A+B"] = "\u2229", ["GP X+A"] = "\u222A",
-            ["GP M1"] = "\u2212", ["GP M2"] = "\u2213", ["GP M3"] = "\u2214", ["GP Y1"] = "\u2215", ["GP Y2"] = "\u2216", ["GP Y3"] = "\u2217",
-            ["GP L4"] = "\u2276", ["GP R4"] = "\u2277", ["GP L5"] = "\u2278", ["GP R5"] = "\u2279",
-            // Analog sticks
-            ["ANALOG"] = "\u21CD", ["ANALOG L"] = "\u21CB", ["ANALOG R"] = "\u21CC",
-            ["ANALOG ↑"] = "\u21C8", ["ANALOG ↓"] = "\u21CA", ["ANALOG ←"] = "\u21C7", ["ANALOG →"] = "\u21C9",
-            ["ANALOG ↑↓"] = "\u21D5", ["ANALOG ←→"] = "\u21D4", ["ANALOG ↖"] = "\u21D6", ["ANALOG ↗"] = "\u21D7", ["ANALOG ↙"] = "\u21D9", ["ANALOG ↘"] = "\u21D8",
-            ["ANALOG L↑"] = "\u21BE", ["ANALOG L↓"] = "\u21C2", ["ANALOG L←"] = "\u21BC", ["ANALOG L→"] = "\u21C0",
-            ["ANALOG R↑"] = "\u21BF", ["ANALOG R↓"] = "\u21C3", ["ANALOG R←"] = "\u21BD", ["ANALOG R→"] = "\u21C1",
-            ["ANALOG L↑↓"] = "\u21C5", ["ANALOG L←→"] = "\u21C4", ["ANALOG R↑↓"] = "\u21F5", ["ANALOG R←→"] = "\u21C6",
-            ["ANALOG L ANY"] = "\u21F1", ["ANALOG R ANY"] = "\u21F2", ["ANALOG ANY"] = "\u21F3",
-            ["ANALOG CW"] = "\u21B6", ["ANALOG CCW"] = "\u21B7", ["ANALOG L CW"] = "\u21A9", ["ANALOG L CCW"] = "\u21AA",
-            ["ANALOG R CW"] = "\u21AB", ["ANALOG R CCW"] = "\u21AC", ["ANALOG LR CW"] = "\u21AD", ["ANALOG LR CCW"] = "\u21AE",
-            ["ANALOG CLICK"] = "\u21B9", ["ANALOG L CLICK"] = "\u21BA", ["ANALOG R CLICK"] = "\u21BB", ["ANALOG STICK CLICK"] = "\u21B8",
-            ["ANALOG L TOUCH"] = "\u21DA", ["ANALOG R TOUCH"] = "\u21DB",
-            // Trackpads
-            ["TRACKPAD L"] = "\u2264", ["TRACKPAD R"] = "\u2265", ["TRACKPAD L CLICK"] = "\u2266", ["TRACKPAD R CLICK"] = "\u2267",
-            ["TRACKPAD L TOUCH"] = "\u2268", ["TRACKPAD R TOUCH"] = "\u2269",
-            ["TRACKPAD L←→"] = "\u226A", ["TRACKPAD L↑↓"] = "\u226B", ["TRACKPAD R←→"] = "\u226C", ["TRACKPAD R↑↓"] = "\u226D",
-            ["TRACKPAD L←"] = "\u226E", ["TRACKPAD R←"] = "\u226F", ["TRACKPAD L↑"] = "\u2270", ["TRACKPAD R↑"] = "\u2271",
-            ["TRACKPAD L→"] = "\u2272", ["TRACKPAD R→"] = "\u2273", ["TRACKPAD L↓"] = "\u2274", ["TRACKPAD R↓"] = "\u2275",
-            // Button actions
-            ["BTN PRESS"] = "\u222B", ["BTN 2X"] = "\u222C", ["BTN HOLD PRESS"] = "\u222D", ["BTN HOLD REL"] = "\u222E", ["BTN HOLD"] = "\u222F",
-            // Steam
-            ["STEAM MENU"] = "\u21E4", ["STEAM OPTIONS"] = "\u21E5",
-            // Handheld devices
-            ["LEGION"] = "\u2205", ["AYANEO LC"] = "\u2209", ["AYANEO RC"] = "\u220A", ["AYANEO WAVE"] = "\u220B",
-            ["AYN HOME"] = "\u220C", ["AYN LCC"] = "\u220D", ["GPD C1"] = "\u220E", ["GPD C2"] = "\u220F", ["GPD MENU"] = "\u221A",
-            ["ONEX KB"] = "\u2210", ["ONEX TURBO"] = "\u2211", ["ONEX FN"] = "\u2218", ["ONEX HOME"] = "\u2219",
-            ["ORANGEPI CTRL"] = "\u221B", ["ORANGEPI HOME"] = "\u221C",
-            ["ZOTAC LOGO"] = "\u221D", ["ZOTAC MENU"] = "\u221E",
-            ["ROG ARMOURY"] = "\uE005", ["ROG CMD"] = "\uE006",
-            ["MSI CENTER"] = "\uE010", ["MSI QUICK"] = "\uE011",
-            // Android
-            ["ANDROID TABS"] = "\u23CD", ["ANDROID BACK"] = "\u23CE", ["ANDROID HOME"] = "\u23CF",
-            ["ANDROID HDOTS"] = "\u23D0", ["ANDROID VDOTS"] = "\u23D1", ["ANDROID MENU"] = "\u23D2",
-            // Keyboard arrows
-            ["↑"] = "\u23F6", ["↓"] = "\u23F7", ["←"] = "\u23F4", ["→"] = "\u23F5",
-            ["WASD"] = "\u2423", ["ARROWS"] = "\u2424", ["IJKL"] = "\u2425", ["84562"] = "\u2422",
+            // Xbox Series (kenney_input_xbox_series font)
+            ["XB A"] = ("\uE004", KenneyXboxFont), ["XB B"] = ("\uE006", KenneyXboxFont), ["XB X"] = ("\uE01E", KenneyXboxFont), ["XB Y"] = ("\uE020", KenneyXboxFont),
+            ["XB A Color"] = ("\uE00C", KenneyXboxFont), ["XB B Color"] = ("\uE00E", KenneyXboxFont), ["XB X Color"] = ("\uE010", KenneyXboxFont), ["XB Y Color"] = ("\uE012", KenneyXboxFont),
+            ["XB LB"] = ("\uE043", KenneyXboxFont), ["XB RB"] = ("\uE049", KenneyXboxFont), ["XB LT"] = ("\uE047", KenneyXboxFont), ["XB RT"] = ("\uE04D", KenneyXboxFont),
+            ["XB LS"] = ("\uE045", KenneyXboxFont), ["XB RS"] = ("\uE04B", KenneyXboxFont),
+            ["XB Start"] = ("\uE018", KenneyXboxFont), ["XB Back"] = ("\uE008", KenneyXboxFont), ["XB Menu"] = ("\uE014", KenneyXboxFont), ["XB View"] = ("\uE01C", KenneyXboxFont),
+            ["XB Home"] = ("\uE041", KenneyXboxFont), ["XB Share"] = ("\uE016", KenneyXboxFont),
+            ["XB ↑"] = ("\uE035", KenneyXboxFont), ["XB ↓"] = ("\uE024", KenneyXboxFont), ["XB ←"] = ("\uE028", KenneyXboxFont), ["XB →"] = ("\uE02B", KenneyXboxFont),
+            ["XB DPAD"] = ("\uE022", KenneyXboxFont), ["XB ↑↓"] = ("\uE037", KenneyXboxFont), ["XB ←→"] = ("\uE026", KenneyXboxFont),
+            ["XB L↑"] = ("\uE055", KenneyXboxFont), ["XB L↓"] = ("\uE050", KenneyXboxFont), ["XB L←"] = ("\uE052", KenneyXboxFont), ["XB L→"] = ("\uE054", KenneyXboxFont),
+            ["XB R↑"] = ("\uE05D", KenneyXboxFont), ["XB R↓"] = ("\uE058", KenneyXboxFont), ["XB R←"] = ("\uE05A", KenneyXboxFont), ["XB R→"] = ("\uE05C", KenneyXboxFont),
+            ["XB L CLICK"] = ("\uE053", KenneyXboxFont), ["XB R CLICK"] = ("\uE05B", KenneyXboxFont),
+            ["XB LS"] = ("\uE045", KenneyXboxFont), ["XB RS"] = ("\uE04B", KenneyXboxFont), // Aliases for stick buttons
+            ["XB P1"] = ("\uE043", KenneyXboxFont), ["XB P2"] = ("\uE043", KenneyXboxFont), ["XB P3"] = ("\uE049", KenneyXboxFont), ["XB P4"] = ("\uE049", KenneyXboxFont), // Paddles (using LB/RB icons as fallback)
+            
+            // PlayStation Series (kenney_input_playstation_series font)
+            ["PS ×"] = ("\uE049", KenneyPlayStationFont), ["PS ○"] = ("\uE03F", KenneyPlayStationFont), ["PS □"] = ("\uE04F", KenneyPlayStationFont), ["PS △"] = ("\uE051", KenneyPlayStationFont),
+            ["PS × Color"] = ("\uE043", KenneyPlayStationFont), ["PS ○ Color"] = ("\uE041", KenneyPlayStationFont), ["PS □ Color"] = ("\uE045", KenneyPlayStationFont), ["PS △ Color"] = ("\uE047", KenneyPlayStationFont),
+            ["PS L1"] = ("\uE076", KenneyPlayStationFont), ["PS R1"] = ("\uE07E", KenneyPlayStationFont), ["PS L2"] = ("\uE07A", KenneyPlayStationFont), ["PS R2"] = ("\uE082", KenneyPlayStationFont),
+            ["PS L3"] = ("\uE04B", KenneyPlayStationFont), ["PS R3"] = ("\uE04D", KenneyPlayStationFont),
+            ["PS Share"] = ("\uE00B", KenneyPlayStationFont), ["PS Options"] = ("\uE022", KenneyPlayStationFont), ["PS Touchpad"] = ("\uE030", KenneyPlayStationFont),
+            ["PS4 Share"] = ("\uE00B", KenneyPlayStationFont), ["PS4 Options"] = ("\uE009", KenneyPlayStationFont), ["PS4 Touchpad"] = ("\uE030", KenneyPlayStationFont),
+            ["PS SHARE"] = ("\uE00B", KenneyPlayStationFont), ["PS OPTIONS"] = ("\uE022", KenneyPlayStationFont), ["PS TOUCHPAD"] = ("\uE030", KenneyPlayStationFont),
+            ["PS4 SHARE"] = ("\uE00B", KenneyPlayStationFont), ["PS4 OPTIONS"] = ("\uE009", KenneyPlayStationFont), ["PS4 TOUCHPAD"] = ("\uE030", KenneyPlayStationFont),
+            ["PS Home"] = ("\uE007", KenneyPlayStationFont), ["PS HOME"] = ("\uE007", KenneyPlayStationFont), // PS button
+            ["PS5 Create"] = ("\uE01C", KenneyPlayStationFont), ["PS5 Options"] = ("\uE022", KenneyPlayStationFont), ["PS5 Mute"] = ("\uE020", KenneyPlayStationFont),
+            ["PS5 MUTE"] = ("\uE020", KenneyPlayStationFont), ["PS MUTE"] = ("\uE020", KenneyPlayStationFont),
+            ["PS ↑"] = ("\uE05F", KenneyPlayStationFont), ["PS ↓"] = ("\uE056", KenneyPlayStationFont), ["PS ←"] = ("\uE05A", KenneyPlayStationFont), ["PS →"] = ("\uE05D", KenneyPlayStationFont),
+            ["PS DPAD"] = ("\uE053", KenneyPlayStationFont), ["PS ↑↓"] = ("\uE060", KenneyPlayStationFont), ["PS ←→"] = ("\uE057", KenneyPlayStationFont),
+            ["PS L↑"] = ("\uE068", KenneyPlayStationFont), ["PS L↓"] = ("\uE063", KenneyPlayStationFont), ["PS L←"] = ("\uE065", KenneyPlayStationFont), ["PS L→"] = ("\uE067", KenneyPlayStationFont),
+            ["PS R↑"] = ("\uE070", KenneyPlayStationFont), ["PS R↓"] = ("\uE06B", KenneyPlayStationFont), ["PS R←"] = ("\uE06D", KenneyPlayStationFont), ["PS R→"] = ("\uE06F", KenneyPlayStationFont),
+            ["PS L CLICK"] = ("\uE066", KenneyPlayStationFont), ["PS R CLICK"] = ("\uE06E", KenneyPlayStationFont),
+            ["PS L3"] = ("\uE04B", KenneyPlayStationFont), ["PS R3"] = ("\uE04D", KenneyPlayStationFont), // Aliases for stick buttons
+            ["PS Home"] = ("\uE007", KenneyPlayStationFont), // PS button
+            
+            // Nintendo Switch (kenney_input_nintendo_switch font)
+            ["NIN A"] = ("\uE004", KenneySwitchFont), ["NIN B"] = ("\uE006", KenneySwitchFont), ["NIN X"] = ("\uE018", KenneySwitchFont), ["NIN Y"] = ("\uE01A", KenneySwitchFont),
+            ["NIN L"] = ("\uE00A", KenneySwitchFont), ["NIN R"] = ("\uE010", KenneySwitchFont), ["NIN ZL"] = ("\uE01C", KenneySwitchFont), ["NIN ZR"] = ("\uE01E", KenneySwitchFont),
+            ["NIN +"] = ("\uE00E", KenneySwitchFont), ["NIN -"] = ("\uE00C", KenneySwitchFont), ["NIN Home"] = ("\uE008", KenneySwitchFont),
+            ["NIN ↑"] = ("\uE03C", KenneySwitchFont), ["NIN ↓"] = ("\uE033", KenneySwitchFont), ["NIN ←"] = ("\uE037", KenneySwitchFont), ["NIN →"] = ("\uE03A", KenneySwitchFont),
+            ["NIN DPAD"] = ("\uE031", KenneySwitchFont), ["NIN ↑↓"] = ("\uE03E", KenneySwitchFont), ["NIN ←→"] = ("\uE035", KenneySwitchFont),
+            ["NIN SL"] = ("\uE012", KenneySwitchFont), ["NIN SR"] = ("\uE014", KenneySwitchFont),
+            ["NIN L↑"] = ("\uE060", KenneySwitchFont), ["NIN L↓"] = ("\uE05B", KenneySwitchFont), ["NIN L←"] = ("\uE05D", KenneySwitchFont), ["NIN L→"] = ("\uE05F", KenneySwitchFont),
+            ["NIN R↑"] = ("\uE068", KenneySwitchFont), ["NIN R↓"] = ("\uE063", KenneySwitchFont), ["NIN R←"] = ("\uE065", KenneySwitchFont), ["NIN R→"] = ("\uE067", KenneySwitchFont),
+            ["NIN L CLICK"] = ("\uE05E", KenneySwitchFont), ["NIN R CLICK"] = ("\uE066", KenneySwitchFont),
+            ["NIN Capture"] = ("\uE016", KenneySwitchFont), // Capture button
+            
+            // Generic gamepad (kenney_input_generic font)
+            ["GP STICK"] = ("\uE01B", KenneyGenericFont), ["GP STICK↑"] = ("\uE022", KenneyGenericFont), ["GP STICK↓"] = ("\uE01C", KenneyGenericFont),
+            ["GP STICK←"] = ("\uE01E", KenneyGenericFont), ["GP STICK→"] = ("\uE020", KenneyGenericFont), ["GP STICK CLICK"] = ("\uE01F", KenneyGenericFont),
+            ["GP STICK↑↓"] = ("\uE023", KenneyGenericFont), ["GP STICK←→"] = ("\uE01D", KenneyGenericFont),
+            ["GP BTN"] = ("\uE000", KenneyGenericFont), ["GP BTN CIRCLE"] = ("\uE001", KenneyGenericFont), ["GP BTN SQUARE"] = ("\uE007", KenneyGenericFont),
+            ["GP TRIGGER A"] = ("\uE00A", KenneyGenericFont), ["GP TRIGGER B"] = ("\uE00D", KenneyGenericFont), ["GP TRIGGER C"] = ("\uE010", KenneyGenericFont),
+            ["GP JOYSTICK"] = ("\uE013", KenneyGenericFont), ["GP JOYSTICK←"] = ("\uE015", KenneyGenericFont), ["GP JOYSTICK→"] = ("\uE01A", KenneyGenericFont),
+            
+            // Steam Deck (kenney_input_steam_deck font)
+            ["SD A"] = ("\uE001", KenneySteamDeckFont), ["SD B"] = ("\uE003", KenneySteamDeckFont), ["SD X"] = ("\uE01D", KenneySteamDeckFont), ["SD Y"] = ("\uE01F", KenneySteamDeckFont),
+            ["SD L1"] = ("\uE007", KenneySteamDeckFont), ["SD R1"] = ("\uE013", KenneySteamDeckFont), ["SD L2"] = ("\uE009", KenneySteamDeckFont), ["SD R2"] = ("\uE015", KenneySteamDeckFont),
+            ["SD L4"] = ("\uE00B", KenneySteamDeckFont), ["SD R4"] = ("\uE017", KenneySteamDeckFont), ["SD L5"] = ("\uE00D", KenneySteamDeckFont), ["SD R5"] = ("\uE019", KenneySteamDeckFont),
+            ["SD Guide"] = ("\uE005", KenneySteamDeckFont), ["SD Options"] = ("\uE00F", KenneySteamDeckFont), ["SD View"] = ("\uE01B", KenneySteamDeckFont), ["SD Quick"] = ("\uE011", KenneySteamDeckFont),
+            ["SD ↑"] = ("\uE02C", KenneySteamDeckFont), ["SD ↓"] = ("\uE023", KenneySteamDeckFont), ["SD ←"] = ("\uE027", KenneySteamDeckFont), ["SD →"] = ("\uE02A", KenneySteamDeckFont),
+            ["SD DPAD"] = ("\uE021", KenneySteamDeckFont), ["SD ↑↓"] = ("\uE02E", KenneySteamDeckFont), ["SD ←→"] = ("\uE025", KenneySteamDeckFont),
+            ["SD L↑"] = ("\uE036", KenneySteamDeckFont), ["SD L↓"] = ("\uE031", KenneySteamDeckFont), ["SD L←"] = ("\uE033", KenneySteamDeckFont), ["SD L→"] = ("\uE035", KenneySteamDeckFont),
+            ["SD R↑"] = ("\uE03E", KenneySteamDeckFont), ["SD R↓"] = ("\uE039", KenneySteamDeckFont), ["SD R←"] = ("\uE03B", KenneySteamDeckFont), ["SD R→"] = ("\uE03D", KenneySteamDeckFont),
+            ["SD L CLICK"] = ("\uE034", KenneySteamDeckFont), ["SD R CLICK"] = ("\uE03C", KenneySteamDeckFont),
+            ["SD TRACKPAD L"] = ("\uE04B", KenneySteamDeckFont), ["SD TRACKPAD R"] = ("\uE05E", KenneySteamDeckFont),
+            // Keyboard & Mouse (kenney_input_keyboard_&_mouse font)
+            ["↑"] = ("\uE023", KenneyKeyboardFont), ["↓"] = ("\uE01D", KenneyKeyboardFont), ["←"] = ("\uE01F", KenneyKeyboardFont), ["→"] = ("\uE021", KenneyKeyboardFont),
+            ["ARROWS"] = ("\uE025", KenneyKeyboardFont),
+            
             // Keyboard modifiers
-            ["CTRL"] = "\u2427", ["ALT"] = "\u2428", ["SHIFT"] = "\u2429", ["TAB"] = "\u242B",
-            ["ENTER"] = "\u242E", ["ESC"] = "\u242F", ["SPACE"] = "\u243A", ["BACKSPACE"] = "\u242D",
-            ["DEL"] = "\u2437", ["INS"] = "\u2434", ["KB HOME"] = "\u2435", ["END"] = "\u2438",
-            ["PAGE UP"] = "\u2436", ["PAGE DOWN"] = "\u2439", ["CAPS"] = "\u242C",
-            ["FN"] = "\u2426", ["PRINT"] = "\u2430", ["SCROLL"] = "\u2431", ["PAUSE"] = "\u2432", ["NUM"] = "\u2433",
-            ["SUPER"] = "\u242A", ["ALT GR"] = "\u244A", ["ALT L"] = "\u244B", ["ALT R"] = "\u244C",
-            ["CTRL L"] = "\u244D", ["CTRL R"] = "\u244E", ["SHIFT L"] = "\u244F", ["SHIFT R"] = "\u2450",
-            ["OPTION"] = "\u2451", ["CMD"] = "\u2452", ["KEY"] = "\u248F",
-            // Numpad
-            ["NUM0"] = "\u247D", ["NUM1"] = "\u2474", ["NUM2"] = "\u2475", ["NUM3"] = "\u2476", ["NUM4"] = "\u2477",
-            ["NUM5"] = "\u2478", ["NUM6"] = "\u2479", ["NUM7"] = "\u247A", ["NUM8"] = "\u247B", ["NUM9"] = "\u247C",
-            ["NUM."] = "\u247E", ["NUM ENTER"] = "\u247F", ["NUM-"] = "\u2480", ["NUM+"] = "\u2481",
-            ["NUM/"] = "\u2482", ["NUM*"] = "\u2483", ["NUM="] = "\u2484",
-            // Function keys (icon style)
-            ["F1"] = "\u2460", ["F2"] = "\u2461", ["F3"] = "\u2462", ["F4"] = "\u2463", ["F5"] = "\u2464", ["F6"] = "\u2465",
-            ["F7"] = "\u2466", ["F8"] = "\u2467", ["F9"] = "\u2468", ["F10"] = "\u2469", ["F11"] = "\u246A", ["F12"] = "\u246B",
-            // Letters A-Z (keyboard icon style 0xFF21-0xFF3A)
-            ["A"] = "\uFF21", ["B"] = "\uFF22", ["C"] = "\uFF23", ["D"] = "\uFF24", ["E"] = "\uFF25", ["F"] = "\uFF26",
-            ["G"] = "\uFF27", ["H"] = "\uFF28", ["I"] = "\uFF29", ["J"] = "\uFF2A", ["K"] = "\uFF2B", ["L"] = "\uFF2C",
-            ["M"] = "\uFF2D", ["N"] = "\uFF2E", ["O"] = "\uFF2F", ["P"] = "\uFF30", ["Q"] = "\uFF31", ["R"] = "\uFF32",
-            ["S"] = "\uFF33", ["T"] = "\uFF34", ["U"] = "\uFF35", ["V"] = "\uFF36", ["W"] = "\uFF37", ["X"] = "\uFF38",
-            ["Y"] = "\uFF39", ["Z"] = "\uFF3A",
-            // Lowercase a-z
-            ["a"] = "a", ["b"] = "b", ["c"] = "c", ["d"] = "d", ["e"] = "e", ["f"] = "f",
-            ["g"] = "g", ["h"] = "h", ["i"] = "i", ["j"] = "j", ["k"] = "k", ["l"] = "l",
-            ["m"] = "m", ["n"] = "n", ["o"] = "o", ["p"] = "p", ["q"] = "q", ["r"] = "r",
-            ["s"] = "s", ["t"] = "t", ["u"] = "u", ["v"] = "v", ["w"] = "w", ["x"] = "x",
-            ["y"] = "y", ["z"] = "z",
-            // Numbers 0-9 (keyboard icon style 0xFF10-0xFF19)
-            ["0"] = "\uFF10", ["1"] = "\uFF11", ["2"] = "\uFF12", ["3"] = "\uFF13", ["4"] = "\uFF14",
-            ["5"] = "\uFF15", ["6"] = "\uFF16", ["7"] = "\uFF17", ["8"] = "\uFF18", ["9"] = "\uFF19",
+            ["CTRL"] = ("\uE054", KenneyKeyboardFont), ["ALT"] = ("\uE017", KenneyKeyboardFont), ["SHIFT"] = ("\uE0BD", KenneyKeyboardFont), ["TAB"] = ("\uE0CB", KenneyKeyboardFont),
+            ["ENTER"] = ("\uE05E", KenneyKeyboardFont), ["ESC"] = ("\uE062", KenneyKeyboardFont), ["SPACE"] = ("\uE0C5", KenneyKeyboardFont), ["BACKSPACE"] = ("\uE038", KenneyKeyboardFont),
+            ["DEL"] = ("\uE058", KenneyKeyboardFont), ["INS"] = ("\uE08A", KenneyKeyboardFont), ["HOME"] = ("\uE086", KenneyKeyboardFont), ["END"] = ("\uE05C", KenneyKeyboardFont),
+            ["PAGE UP"] = ("\uE0A7", KenneyKeyboardFont), ["PAGE DOWN"] = ("\uE0A5", KenneyKeyboardFont), ["CAPS"] = ("\uE048", KenneyKeyboardFont),
+            ["FN"] = ("\uE080", KenneyKeyboardFont), ["PRINT"] = ("\uE0AD", KenneyKeyboardFont), ["NUMLOCK"] = ("\uE098", KenneyKeyboardFont),
+            ["WIN"] = ("\uE0D9", KenneyKeyboardFont), ["CMD"] = ("\uE052", KenneyKeyboardFont), ["OPTION"] = ("\uE0A0", KenneyKeyboardFont),
+            
+            // Function keys
+            ["F1"] = ("\uE067", KenneyKeyboardFont), ["F2"] = ("\uE06F", KenneyKeyboardFont), ["F3"] = ("\uE071", KenneyKeyboardFont), ["F4"] = ("\uE073", KenneyKeyboardFont),
+            ["F5"] = ("\uE075", KenneyKeyboardFont), ["F6"] = ("\uE077", KenneyKeyboardFont), ["F7"] = ("\uE079", KenneyKeyboardFont), ["F8"] = ("\uE07B", KenneyKeyboardFont),
+            ["F9"] = ("\uE07D", KenneyKeyboardFont), ["F10"] = ("\uE068", KenneyKeyboardFont), ["F11"] = ("\uE06A", KenneyKeyboardFont), ["F12"] = ("\uE06C", KenneyKeyboardFont),
+            
+            // Letters A-Z
+            ["A"] = ("\uE015", KenneyKeyboardFont), ["B"] = ("\uE036", KenneyKeyboardFont), ["C"] = ("\uE046", KenneyKeyboardFont), ["D"] = ("\uE056", KenneyKeyboardFont),
+            ["E"] = ("\uE05A", KenneyKeyboardFont), ["F"] = ("\uE066", KenneyKeyboardFont), ["G"] = ("\uE082", KenneyKeyboardFont), ["H"] = ("\uE084", KenneyKeyboardFont),
+            ["I"] = ("\uE088", KenneyKeyboardFont), ["J"] = ("\uE08C", KenneyKeyboardFont), ["K"] = ("\uE08E", KenneyKeyboardFont), ["L"] = ("\uE090", KenneyKeyboardFont),
+            ["M"] = ("\uE092", KenneyKeyboardFont), ["N"] = ("\uE096", KenneyKeyboardFont), ["O"] = ("\uE09E", KenneyKeyboardFont), ["P"] = ("\uE0A3", KenneyKeyboardFont),
+            ["Q"] = ("\uE0AF", KenneyKeyboardFont), ["R"] = ("\uE0B5", KenneyKeyboardFont), ["S"] = ("\uE0B9", KenneyKeyboardFont), ["T"] = ("\uE0C9", KenneyKeyboardFont),
+            ["U"] = ("\uE0D3", KenneyKeyboardFont), ["V"] = ("\uE0D5", KenneyKeyboardFont), ["W"] = ("\uE0D7", KenneyKeyboardFont), ["X"] = ("\uE0DB", KenneyKeyboardFont),
+            ["Y"] = ("\uE0DD", KenneyKeyboardFont), ["Z"] = ("\uE0DF", KenneyKeyboardFont),
+            
+            // Numbers 0-9
+            ["0"] = ("\uE001", KenneyKeyboardFont), ["1"] = ("\uE003", KenneyKeyboardFont), ["2"] = ("\uE005", KenneyKeyboardFont), ["3"] = ("\uE007", KenneyKeyboardFont),
+            ["4"] = ("\uE009", KenneyKeyboardFont), ["5"] = ("\uE00B", KenneyKeyboardFont), ["6"] = ("\uE00D", KenneyKeyboardFont), ["7"] = ("\uE00F", KenneyKeyboardFont),
+            ["8"] = ("\uE011", KenneyKeyboardFont), ["9"] = ("\uE013", KenneyKeyboardFont),
+            
             // Mouse
-            ["LMB"] = "\u27F5", ["RMB"] = "\u27F6", ["MMB"] = "\u27F7",
-            ["MOUSE1"] = "\u278A", ["MOUSE2"] = "\u278B", ["MOUSE3"] = "\u278C", ["MOUSE4"] = "\u278D",
-            ["MOUSE5"] = "\u278E", ["MOUSE6"] = "\u278F", ["MOUSE7"] = "\u2790", ["MOUSE8"] = "\u2791",
-            ["SCROLL↑"] = "\u27F0", ["SCROLL↓"] = "\u27F1", ["SCROLL↑↓"] = "\u27F2",
-            ["SCROLL←"] = "\u27EE", ["SCROLL→"] = "\u27EF", ["SCROLL←→"] = "\u27F3", ["SCROLL ANY"] = "\u27F4",
-            ["MOUSE←"] = "\u27F8", ["MOUSE↑"] = "\u27F9", ["MOUSE→"] = "\u27FD", ["MOUSE↓"] = "\u27FE",
-            ["MOUSE←→"] = "\u27FA", ["MOUSE↑↓"] = "\u27FB", ["MOUSE ANY"] = "\u27FC",
-            // ASCII punctuation (keyboard icon style 0xFF01-0xFF0F, 0xFF1A-0xFF20, 0xFF3B-0xFF40, 0xFF5B-0xFF5E)
-            ["!"] = "\uFF01", ["\""] = "\uFF02", ["#"] = "\uFF03", ["$"] = "\uFF04", ["%"] = "\uFF05", ["&"] = "\uFF06",
-            ["'"] = "\uFF07", ["("] = "\uFF08", [")"] = "\uFF09", ["*"] = "\uFF0A", ["+"] = "\uFF0B", [","] = "\uFF0C",
-            ["-"] = "\uFF0D", ["."] = "\uFF0E", ["/"] = "\uFF0F", [":"] = "\uFF1A", [";"] = "\uFF1B", ["<"] = "\uFF1C",
-            ["="] = "\uFF1D", [">"] = "\uFF1E", ["?"] = "\uFF1F", ["@"] = "\uFF20", ["["] = "\uFF3B", ["\\"] = "\uFF3C",
-            ["]"] = "\uFF3D", ["^"] = "\uFF3E", ["_"] = "\uFF3F", ["`"] = "\uFF40", ["{"] = "\uFF5B", ["|"] = "\uFF5C",
-            ["}"] = "\uFF5D", ["~"] = "\uFF5E",
-            // Devices
-            ["DEV GAMEPAD"] = "\u243C", ["DEV KEYBOARD"] = "\u243D", ["DEV MOUSE"] = "\u243E", ["DEV MOUSE+KB"] = "\u243F",
-            ["DEV DS4"] = "\u2440", ["DEV DUALSENSE"] = "\u2441", ["DEV X360"] = "\u2442", ["DEV NUMPAD"] = "\u2443",
-            ["DEV DANCE PAD"] = "\U0001F483", ["DEV PHONE"] = "\U0001F4F1", ["DEV LIGHT GUN"] = "\U0001F52B",
-            ["DEV WHEEL"] = "\U0001F578", ["DEV JOYSTICK"] = "\U0001F579", ["DEV VR"] = "\U0001F57B",
-            ["DEV VR CTRL"] = "\U0001F57C", ["DEV FLIGHT"] = "\U0001F57D",
-            // Platform icons
-            ["ICON PS"] = "\uE000", ["ICON XBOX"] = "\uE001", ["ICON SWITCH"] = "\uE002", ["ICON AYANEO"] = "\uE003",
-            ["ICON LEGION"] = "\uE004", ["ICON MAC"] = "\uE007", ["ICON WIN"] = "\uE008", ["ICON LINUX"] = "\uE009",
-            ["ICON BSD"] = "\uE00A", ["ICON STEAM"] = "\uE00B", ["ICON ITCH"] = "\uE00C", ["ICON HUMBLE"] = "\uE00D",
-            ["ICON EPIC"] = "\uE00E", ["ICON GOG"] = "\uE00F", ["ICON META"] = "\uE012",
-            // Icons
-            ["ICON EXCHANGE"] = "\u2194", ["ICON REVERSE"] = "\u2195", ["ICON PIN"] = "\u2316", ["ICON BOX"] = "\u2B1B",
-            ["ICON SUN"] = "\u2600", ["ICON STAR"] = "\u2605", ["ICON STAR EMPTY"] = "\u2606", ["ICON SKULL"] = "\u2620",
-            ["ICON FROWN"] = "\u2639", ["ICON SMILE"] = "\u263A", ["ICON FLAG"] = "\u2691", ["ICON GEARS"] = "\u2699",
-            ["ICON CROSS"] = "\u2717", ["ICON SPARK"] = "\u2726", ["ICON ?"] = "\u2753", ["ICON !"] = "\u2757",
-            ["ICON SPADE"] = "\u2660", ["ICON HEART"] = "\u2665", ["ICON DIAMOND"] = "\u2666", ["ICON CLUB"] = "\u2663",
-            ["ICON D4"] = "\u2673", ["ICON D6"] = "\u2674", ["ICON D8"] = "\u2675", ["ICON D10"] = "\u2676", ["ICON D12"] = "\u2677", ["ICON D20"] = "\u2678",
-            ["ICON 1"] = "\u24F5", ["ICON 2"] = "\u24F6", ["ICON 3"] = "\u24F7", ["ICON 4"] = "\u24F8", ["ICON 5"] = "\u24F9",
-            ["ICON 6"] = "\u24FA", ["ICON 7"] = "\u24FB", ["ICON 8"] = "\u24FC", ["ICON 9"] = "\u24FD", ["ICON 0"] = "\u24FF",
-            ["ICON MOON"] = "\U0001F319", ["ICON HEADPHONES"] = "\U0001F3A7", ["ICON MUSIC"] = "\U0001F3B6", ["ICON FISH"] = "\U0001F41F",
-            ["ICON LAPTOP"] = "\U0001F4BB", ["ICON DISKETTE"] = "\U0001F4BE", ["ICON WRITE"] = "\U0001F4DD",
-            ["ICON WEBCAM"] = "\U0001F4F7", ["ICON CAMERA"] = "\U0001F4F8", ["ICON SPEAKER"] = "\U0001F508", ["ICON NOISE"] = "\U0001F56C",
-            ["ICON CPU"] = "\U0001F5A5", ["ICON NET"] = "\U0001F5A7", ["ICON GPU"] = "\U0001F5A8", ["ICON RAM"] = "\U0001F5AA",
-            ["ICON USB"] = "\U0001F5AB", ["ICON DB"] = "\U0001F5AC", ["ICON HDD"] = "\U0001F5B4", ["ICON SCREEN"] = "\U0001F5B5",
-            ["ICON TEXT"] = "\U0001F5B9", ["ICON IMAGE"] = "\U0001F5BC", ["ICON SPEAK"] = "\U0001F5E3", ["ICON LANG"] = "\U0001F5E9",
-            ["ICON EXIT"] = "\U0001F6AA", ["ICON INFO"] = "\U0001F6C8", ["ICON CART"] = "\U0001F6D2", ["ICON APERTURE"] = "\U0001F789"
+            ["LMB"] = ("\uE0E3", KenneyKeyboardFont), ["RMB"] = ("\uE0E7", KenneyKeyboardFont), ["MMB"] = ("\uE0E9", KenneyKeyboardFont),
+            ["MOUSE"] = ("\uE0E1", KenneyKeyboardFont), ["SCROLL↑"] = ("\uE0ED", KenneyKeyboardFont), ["SCROLL↓"] = ("\uE0EA", KenneyKeyboardFont), ["SCROLL↑↓"] = ("\uE0EF", KenneyKeyboardFont),
+            ["MOUSE←→"] = ("\uE0E2", KenneyKeyboardFont), ["MOUSE↑↓"] = ("\uE0F2", KenneyKeyboardFont),
+            
+            // Punctuation
+            ["-"] = ("\uE094", KenneyKeyboardFont), ["+"] = ("\uE0AB", KenneyKeyboardFont), ["="] = ("\uE060", KenneyKeyboardFont),
+            [","] = ("\uE050", KenneyKeyboardFont), ["."] = ("\uE0A9", KenneyKeyboardFont), ["/"] = ("\uE0C3", KenneyKeyboardFont),
+            [";"] = ("\uE0BB", KenneyKeyboardFont), ["'"] = ("\uE01B", KenneyKeyboardFont), ["["] = ("\uE044", KenneyKeyboardFont), ["]"] = ("\uE03E", KenneyKeyboardFont),
+            ["\\"] = ("\uE0C1", KenneyKeyboardFont), ["`"] = ("\uE0D1", KenneyKeyboardFont), ["*"] = ("\uE034", KenneyKeyboardFont)
         };
         
         private StackPanel CreateKeysPanelFromCombo(string keyCombo, Brush keyBackground)
         {
-            var keysPanel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+            var keysPanel = new StackPanel 
+            { 
+                Orientation = Orientation.Horizontal, 
+                Spacing = 8,
+                Height = 80, // Fixed height to prevent resizing
+                VerticalAlignment = VerticalAlignment.Center
+            };
             var keyParts = keyCombo.Split('+');
             
             for (int i = 0; i < keyParts.Length; i++)
@@ -761,13 +700,13 @@ namespace FlairX_Mod_Manager.Pages
                 var keyPart = keyParts[i].Trim();
                 if (string.IsNullOrEmpty(keyPart)) continue;
                 
-                if (HotkeyIconMap.TryGetValue(keyPart, out var glyph))
+                if (HotkeyIconMap.TryGetValue(keyPart, out var iconData))
                 {
                     var icon = new FontIcon
                     {
-                        Glyph = glyph,
-                        FontFamily = new FontFamily(PromptFontFamily),
-                        FontSize = 24,
+                        Glyph = iconData.Glyph,
+                        FontFamily = new FontFamily(iconData.Font),
+                        FontSize = 64,
                         VerticalAlignment = VerticalAlignment.Center,
                         HorizontalAlignment = HorizontalAlignment.Center
                     };
@@ -775,15 +714,22 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 else
                 {
+                    // Fallback to keyboard font for unknown keys
                     var keyText = new TextBlock
                     {
                         Text = keyPart,
-                        FontFamily = new FontFamily(PromptFontFamily),
-                        FontSize = 24,
+                        FontSize = 14,
                         VerticalAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Center
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Padding = new Thickness(8, 4, 8, 4)
                     };
-                    keysPanel.Children.Add(keyText);
+                    var keyBorder = new Border
+                    {
+                        Background = keyBackground,
+                        CornerRadius = new CornerRadius(4),
+                        Child = keyText
+                    };
+                    keysPanel.Children.Add(keyBorder);
                 }
                 
                 if (i < keyParts.Length - 1)
@@ -791,7 +737,6 @@ namespace FlairX_Mod_Manager.Pages
                     var plusText = new TextBlock
                     {
                         Text = "+",
-                        FontFamily = new FontFamily(PromptFontFamily),
                         FontSize = 18,
                         VerticalAlignment = VerticalAlignment.Center,
                         Opacity = 0.6
@@ -883,7 +828,7 @@ namespace FlairX_Mod_Manager.Pages
                 var grid = parent.Parent as Grid;
                 if (grid == null) return;
                 
-                // Show rec and save buttons, hide edit button (buttons: fav[0], edit[1], rec[2], save[3])
+                // Show rec and save buttons, hide edit button (buttons: fav[0], edit[1], rec[2], save[3], restore[4])
                 editBorder.Visibility = Visibility.Collapsed;
                 if (parent.Children.Count > 2 && parent.Children[2] is Border recBtn)
                     recBtn.Visibility = Visibility.Visible;
@@ -937,7 +882,7 @@ namespace FlairX_Mod_Manager.Pages
             
             if (editBox == null)
             {
-                // Enter edit mode first - show save button, hide edit button (buttons: fav[0], edit[1], rec[2], save[3])
+                // Enter edit mode first - show save button, hide edit button (buttons: fav[0], edit[1], rec[2], save[3], restore[4])
                 if (parent.Children.Count > 1 && parent.Children[1] is Border editBtn)
                     editBtn.Visibility = Visibility.Collapsed;
                 if (parent.Children.Count > 3 && parent.Children[3] is Border saveBtn)
@@ -1083,8 +1028,9 @@ namespace FlairX_Mod_Manager.Pages
         {
             var buttonName = e.GetButtonDisplayName();
             
-            if (!_recordedGamepadButtons.Contains("XB " + buttonName))
-                _recordedGamepadButtons.Add("XB " + buttonName);
+            // buttonName already contains the controller prefix (e.g., "PS △", "XB A", "NIN B")
+            if (!_recordedGamepadButtons.Contains(buttonName))
+                _recordedGamepadButtons.Add(buttonName);
             
             _pendingCombo = string.Join("+", _recordedGamepadButtons);
             _holdCountdown = 3;
@@ -1220,6 +1166,66 @@ namespace FlairX_Mod_Manager.Pages
             };
         }
         
+        private async void RestoreDefaultButton_PointerPressed(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Border restoreBorder && restoreBorder.Tag is HotkeyButtonData data)
+            {
+                try
+                {
+                    // Load default hotkey from defaultHotkeys section in mod.json
+                    var defaultHotkey = await GetDefaultHotkeyForDescription(data.Description);
+                    if (!string.IsNullOrEmpty(defaultHotkey))
+                    {
+                        var parent = restoreBorder.Parent as StackPanel;
+                        if (parent == null) return;
+                        
+                        var grid = parent.Parent as Grid;
+                        if (grid == null) return;
+                        
+                        // Update the keys panel with default hotkey
+                        var keyBackground = (Brush)Application.Current.Resources["HotkeyKeyBackground"];
+                        var keysPanel = CreateKeysPanelFromCombo(defaultHotkey, keyBackground);
+                        
+                        // Find and replace existing keys panel
+                        var existingKeysPanel = grid.Children.OfType<StackPanel>().FirstOrDefault();
+                        if (existingKeysPanel != null)
+                        {
+                            int idx = grid.Children.IndexOf(existingKeysPanel);
+                            Grid.SetColumn(keysPanel, 0);
+                            grid.Children.RemoveAt(idx);
+                            grid.Children.Insert(idx, keysPanel);
+                        }
+                        
+                        // Update data
+                        data.KeyCombo = defaultHotkey;
+                        
+                        // Update row border tag
+                        var rowBorder = grid.Parent as Border;
+                        if (rowBorder?.Tag is HotkeyRowData rowData)
+                        {
+                            rowData.Key = defaultHotkey;
+                        }
+                        
+                        // Update all button tags in this row
+                        foreach (var btn in parent.Children.OfType<Border>())
+                        {
+                            if (btn.Tag is HotkeyButtonData btnData)
+                                btnData.KeyCombo = defaultHotkey;
+                        }
+                        
+                        // Save to mod.json
+                        await SaveHotkeyChange(data.OriginalIndex, defaultHotkey, data.Description);
+                        
+                        Logger.LogInfo($"Restored default hotkey: {defaultHotkey} - {data.Description}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to restore default hotkey", ex);
+                }
+            }
+        }
+
         private async void SaveButton_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             StopGamepadListening();
@@ -1271,7 +1277,7 @@ namespace FlairX_Mod_Manager.Pages
                         btnData.KeyCombo = newKeyCombo;
                 }
                 
-                // Hide save, show edit (buttons: fav[0], edit[1], rec[2], save[3]) - rec stays visible
+                // Hide save, show edit (buttons: fav[0], edit[1], rec[2], save[3], restore[4]) - rec and restore stay visible
                 saveBorder.Visibility = Visibility.Collapsed;
                 if (parent.Children.Count > 1 && parent.Children[1] is Border editBtn)
                     editBtn.Visibility = Visibility.Visible;
@@ -1283,17 +1289,42 @@ namespace FlairX_Mod_Manager.Pages
         
         private async Task SaveHotkeyChange(int index, string newKey, string description)
         {
-            if (string.IsNullOrEmpty(_modJsonPath) || !File.Exists(_modJsonPath)) return;
+            if (string.IsNullOrEmpty(_currentModDirectory)) return;
             
             try
             {
-                var json = await File.ReadAllTextAsync(_modJsonPath);
-                var modData = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
+                var hotkeysJsonPath = Path.Combine(_currentModDirectory, "hotkeys.json");
                 
-                if (modData.TryGetValue("hotkeys", out var hotkeysObj) && hotkeysObj is JsonElement hotkeysElement)
+                if (!File.Exists(hotkeysJsonPath))
                 {
-                    var hotkeys = new List<Dictionary<string, string>>();
-                    foreach (var h in hotkeysElement.EnumerateArray())
+                    Logger.LogWarning($"Hotkeys file not found: {hotkeysJsonPath}");
+                    return;
+                }
+                
+                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                
+                var defaultHotkeys = new List<Dictionary<string, string>>();
+                var hotkeys = new List<Dictionary<string, string>>();
+                
+                // Preserve default hotkeys
+                if (root.TryGetProperty("defaultHotkeys", out var defaultProp) && defaultProp.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var h in defaultProp.EnumerateArray())
+                    {
+                        defaultHotkeys.Add(new Dictionary<string, string>
+                        {
+                            ["key"] = h.GetProperty("key").GetString() ?? "",
+                            ["description"] = h.GetProperty("description").GetString() ?? ""
+                        });
+                    }
+                }
+                
+                // Update current hotkeys
+                if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var h in hotkeysProp.EnumerateArray())
                     {
                         hotkeys.Add(new Dictionary<string, string>
                         {
@@ -1301,22 +1332,28 @@ namespace FlairX_Mod_Manager.Pages
                             ["description"] = h.GetProperty("description").GetString() ?? ""
                         });
                     }
-                    
-                    if (index >= 0 && index < hotkeys.Count)
-                    {
-                        hotkeys[index]["key"] = newKey;
-                    }
-                    
-                    modData["hotkeys"] = hotkeys;
-                    
-                    var newJson = JsonSerializer.Serialize(modData, new JsonSerializerOptions { WriteIndented = true });
-                    await File.WriteAllTextAsync(_modJsonPath, newJson);
-                    Logger.LogInfo($"Hotkey updated: {newKey} - {description}");
                 }
+                
+                // Update the specific hotkey
+                if (index >= 0 && index < hotkeys.Count)
+                {
+                    hotkeys[index]["key"] = newKey;
+                }
+                
+                // Save updated hotkeys.json
+                var hotkeysData = new
+                {
+                    hotkeys = hotkeys,
+                    defaultHotkeys = defaultHotkeys
+                };
+                
+                var newJson = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
+                await File.WriteAllTextAsync(hotkeysJsonPath, newJson);
+                Logger.LogInfo($"Hotkey updated in hotkeys.json: {newKey} - {description}");
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to save hotkey change", ex);
+                Logger.LogError("Failed to save hotkey change to hotkeys.json", ex);
             }
         }
         
@@ -1610,7 +1647,285 @@ namespace FlairX_Mod_Manager.Pages
                 ModHotkeysPanel.Children.Add(border);
             }
         }
-        
+
+
+        private async Task LoadHotkeysFromFile()
+        {
+            try
+            {
+                ModHotkeysPanel.Children.Clear();
+                _originalHotkeyOrder.Clear();
+                
+                if (string.IsNullOrEmpty(_currentModDirectory))
+                {
+                    HotkeysSection.Visibility = Visibility.Collapsed;
+                    return;
+                }
+                
+                var hotkeysJsonPath = Path.Combine(_currentModDirectory, "hotkeys.json");
+                
+                // If hotkeys.json doesn't exist, hide section (hotkey finder will create it)
+                if (!File.Exists(hotkeysJsonPath))
+                {
+                    HotkeysSection.Visibility = Visibility.Collapsed;
+                    return;
+                }
+                
+                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                
+                var hotkeyList = new List<(string key, string desc, int originalIndex)>();
+                
+                // Load current hotkeys
+                if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
+                {
+                    int index = 0;
+                    foreach (var hotkey in hotkeysProp.EnumerateArray())
+                    {
+                        var key = hotkey.TryGetProperty("key", out var keyProp) ? keyProp.GetString() : null;
+                        var desc = hotkey.TryGetProperty("description", out var descProp) ? descProp.GetString() : null;
+                        
+                        if (!string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(desc))
+                        {
+                            hotkeyList.Add((key, desc, index));
+                            _originalHotkeyOrder.Add(key);
+                        }
+                        index++;
+                    }
+                }
+                
+                if (hotkeyList.Count > 0)
+                {
+                    // Sort: favorites first (maintaining original order within each group)
+                    hotkeyList = hotkeyList
+                        .OrderByDescending(x => _favoriteHotkeys.Contains(x.key))
+                        .ThenBy(x => x.originalIndex)
+                        .ToList();
+                    
+                    // Create rows
+                    foreach (var (key, desc, origIdx) in hotkeyList)
+                    {
+                        var hotkeyRow = CreateHotkeyRow(key, desc, origIdx);
+                        ModHotkeysPanel.Children.Add(hotkeyRow);
+                    }
+                    
+                    HotkeysSection.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    HotkeysSection.Visibility = Visibility.Collapsed;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to load hotkeys from file", ex);
+                HotkeysSection.Visibility = Visibility.Collapsed;
+            }
+        }
+
+
+
+
+
+        private async Task<string?> GetDefaultHotkeyForDescription(string description)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(_currentModDirectory))
+                    return null;
+                
+                var hotkeysJsonPath = Path.Combine(_currentModDirectory, "hotkeys.json");
+                if (!File.Exists(hotkeysJsonPath))
+                    return null;
+                
+                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                
+                if (root.TryGetProperty("defaultHotkeys", out var defaultHotkeysArray))
+                {
+                    foreach (var hotkey in defaultHotkeysArray.EnumerateArray())
+                    {
+                        var hotkeyDesc = hotkey.TryGetProperty("description", out var descProp) ? descProp.GetString() : null;
+                        var hotkeyKey = hotkey.TryGetProperty("key", out var keyProp) ? keyProp.GetString() : null;
+                        
+                        if (!string.IsNullOrEmpty(hotkeyDesc) && !string.IsNullOrEmpty(hotkeyKey) && 
+                            hotkeyDesc.Equals(description, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return hotkeyKey;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to get default hotkey for description", ex);
+            }
+            
+            return null;
+        }
+
+
+
+
+
+
+
+        private async void RestoreDefaultHotkeysButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(_currentModDirectory))
+                {
+                    Logger.LogWarning("No current mod directory available");
+                    return;
+                }
+                
+                var hotkeysJsonPath = Path.Combine(_currentModDirectory, "hotkeys.json");
+                if (!File.Exists(hotkeysJsonPath))
+                {
+                    Logger.LogWarning("No hotkeys.json file found");
+                    return;
+                }
+                
+                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                
+                if (!root.TryGetProperty("defaultHotkeys", out var defaultHotkeysArray))
+                {
+                    Logger.LogWarning("No defaultHotkeys section found in hotkeys.json");
+                    return;
+                }
+                
+                // Create mapping of description to default key from hotkeys.json
+                var defaultMapping = new Dictionary<string, string>();
+                foreach (var hotkey in defaultHotkeysArray.EnumerateArray())
+                {
+                    var desc = hotkey.TryGetProperty("description", out var descProp) ? descProp.GetString() : null;
+                    var key = hotkey.TryGetProperty("key", out var keyProp) ? keyProp.GetString() : null;
+                    
+                    if (!string.IsNullOrEmpty(desc) && !string.IsNullOrEmpty(key))
+                    {
+                        defaultMapping[desc] = key;
+                    }
+                }
+                
+                // Update all hotkey rows
+                var keyBackground = (Brush)Application.Current.Resources["HotkeyKeyBackground"];
+                var updatedHotkeys = new List<Dictionary<string, string>>();
+                
+                foreach (var child in ModHotkeysPanel.Children)
+                {
+                    if (child is Border rowBorder && rowBorder.Tag is HotkeyRowData rowData)
+                    {
+                        if (defaultMapping.TryGetValue(rowData.Description, out var defaultKey))
+                        {
+                            // Find the grid inside the border
+                            if (rowBorder.Child is Grid grid)
+                            {
+                                // Update keys panel
+                                var existingKeysPanel = grid.Children.OfType<StackPanel>().FirstOrDefault();
+                                if (existingKeysPanel != null)
+                                {
+                                    var newKeysPanel = CreateKeysPanelFromCombo(defaultKey, keyBackground);
+                                    int idx = grid.Children.IndexOf(existingKeysPanel);
+                                    Grid.SetColumn(newKeysPanel, 0);
+                                    grid.Children.RemoveAt(idx);
+                                    grid.Children.Insert(idx, newKeysPanel);
+                                }
+                                
+                                // Update row data
+                                rowData.Key = defaultKey;
+                                
+                                // Update button tags
+                                var buttonsPanel = grid.Children.OfType<StackPanel>().LastOrDefault();
+                                if (buttonsPanel != null)
+                                {
+                                    foreach (var btn in buttonsPanel.Children.OfType<Border>())
+                                    {
+                                        if (btn.Tag is HotkeyButtonData btnData)
+                                            btnData.KeyCombo = defaultKey;
+                                    }
+                                }
+                            }
+                            
+                            // Add to updated hotkeys list for saving
+                            updatedHotkeys.Add(new Dictionary<string, string>
+                            {
+                                ["key"] = defaultKey,
+                                ["description"] = rowData.Description
+                            });
+                        }
+                        else
+                        {
+                            // Keep existing hotkey if no default found
+                            updatedHotkeys.Add(new Dictionary<string, string>
+                            {
+                                ["key"] = rowData.Key,
+                                ["description"] = rowData.Description
+                            });
+                        }
+                    }
+                }
+                
+                // Save all updated hotkeys to mod.json
+                await SaveAllHotkeys(updatedHotkeys);
+                
+                Logger.LogInfo("Restored all default hotkeys");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to restore all default hotkeys", ex);
+            }
+        }
+
+        private async Task SaveAllHotkeys(List<Dictionary<string, string>> hotkeys)
+        {
+            if (string.IsNullOrEmpty(_currentModDirectory)) return;
+            
+            try
+            {
+                var hotkeysJsonPath = Path.Combine(_currentModDirectory, "hotkeys.json");
+                if (!File.Exists(hotkeysJsonPath)) return;
+                
+                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                
+                var defaultHotkeys = new List<Dictionary<string, string>>();
+                
+                // Preserve default hotkeys
+                if (root.TryGetProperty("defaultHotkeys", out var defaultProp) && defaultProp.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var h in defaultProp.EnumerateArray())
+                    {
+                        defaultHotkeys.Add(new Dictionary<string, string>
+                        {
+                            ["key"] = h.GetProperty("key").GetString() ?? "",
+                            ["description"] = h.GetProperty("description").GetString() ?? ""
+                        });
+                    }
+                }
+                
+                // Save updated hotkeys.json
+                var hotkeysData = new
+                {
+                    hotkeys = hotkeys,
+                    defaultHotkeys = defaultHotkeys
+                };
+                
+                var newJson = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
+                await File.WriteAllTextAsync(hotkeysJsonPath, newJson);
+                Logger.LogInfo("All hotkeys saved to hotkeys.json");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to save all hotkeys to hotkeys.json", ex);
+            }
+        }
+
         private async Task SaveFavoriteHotkeys()
         {
             if (string.IsNullOrEmpty(_modJsonPath) || !File.Exists(_modJsonPath)) return;

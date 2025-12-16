@@ -39,7 +39,7 @@ namespace FlairX_Mod_Manager
         public void ShowModDetailPanel(string modDirectory)
         {
             var modDetailControl = new ModDetailUserControl();
-            modDetailControl.LoadModDetails(modDirectory);
+            _ = modDetailControl.LoadModDetails(modDirectory);
             ShowSlidingPanel(modDetailControl, "Mod Details");
         }
 

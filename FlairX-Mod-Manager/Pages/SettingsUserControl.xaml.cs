@@ -2502,7 +2502,11 @@ namespace FlairX_Mod_Manager.Pages
             aiPanel.Children.Add(new HyperlinkButton { Content = "Qoder", NavigateUri = new Uri("https://qoder.com/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
             stackPanel.Children.Add(aiPanel);
             stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Fonts"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
-            stackPanel.Children.Add(new HyperlinkButton { Content = "Noto Fonts", NavigateUri = new Uri("https://notofonts.github.io/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) });
+            var fontsPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) };
+            fontsPanel.Children.Add(new HyperlinkButton { Content = "Noto Fonts", NavigateUri = new Uri("https://notofonts.github.io/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
+            fontsPanel.Children.Add(new TextBlock { Text = ", ", VerticalAlignment = VerticalAlignment.Center });
+            fontsPanel.Children.Add(new HyperlinkButton { Content = "Kenney Input Prompts", NavigateUri = new Uri("https://kenney.nl/assets/input-prompts"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
+            stackPanel.Children.Add(fontsPanel);
             
             // 7-Zip section
             stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Compression"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
