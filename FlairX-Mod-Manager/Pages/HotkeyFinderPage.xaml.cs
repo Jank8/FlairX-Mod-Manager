@@ -66,7 +66,7 @@ namespace FlairX_Mod_Manager.Pages
                         break;
                     try
                     {
-                        var fileHotkeys = await ParseIniFileCommonAsync(iniFile, token);
+                        var fileHotkeys = await ParseIniFileCommonAsync(iniFile, modDir, token);
                         hotkeys.AddRange(fileHotkeys);
                     }
                     catch (Exception ex)
@@ -220,6 +220,10 @@ namespace FlairX_Mod_Manager.Pages
         {
             public string Key { get; set; } = "";
             public string Description { get; set; } = "";
+            public string IniFile { get; set; } = "";
+            public string Section { get; set; } = "";
+            public string KeyName { get; set; } = "";
+            public string OriginalValue { get; set; } = "";
         }
 
         // Helper class for recursively finding INI files
@@ -260,7 +264,7 @@ namespace FlairX_Mod_Manager.Pages
         // Static version of ParseKeyValue method
         private static HotkeyInfo? ParseKeyValueStatic(string keyValue, string keyType, bool isBack = false)
         {
-            return ParseKeyValueCommon(keyValue, keyType, isBack);
+            return ParseKeyValueCommon(keyValue, keyType, isBack, "", "", "", "");
         }
         
         // Static version of UpdateModJsonWithHotkeysAsync method
@@ -270,7 +274,7 @@ namespace FlairX_Mod_Manager.Pages
         }
         
         // Common method for parsing INI files
-        private static async Task<List<HotkeyInfo>> ParseIniFileCommonAsync(string iniFilePath, CancellationToken token = default)
+        private static async Task<List<HotkeyInfo>> ParseIniFileCommonAsync(string iniFilePath, string modDir = "", CancellationToken token = default)
         {
             var hotkeys = new List<HotkeyInfo>();
             
@@ -364,7 +368,10 @@ namespace FlairX_Mod_Manager.Pages
                     if (keyMatch.Success)
                     {
                         var keyValue = keyMatch.Groups[1].Value.Trim();
-                        var hotkeyInfo = ParseKeyValueCommon(keyValue, keyType, isBack);
+                        var keyName = isBack ? "back" : "key";
+                        // Use relative path if modDir is provided, otherwise use full path
+                        var relativeIniPath = !string.IsNullOrEmpty(modDir) ? Path.GetRelativePath(modDir, iniFilePath) : iniFilePath;
+                        var hotkeyInfo = ParseKeyValueCommon(keyValue, keyType, isBack, relativeIniPath, currentSection, keyName, keyValue);
                         if (hotkeyInfo != null)
                         {
                             hotkeys.Add(hotkeyInfo);
@@ -381,7 +388,7 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         // Common method for processing key values
-        private static HotkeyInfo? ParseKeyValueCommon(string keyValue, string keyType, bool isBack = false)
+        private static HotkeyInfo? ParseKeyValueCommon(string keyValue, string keyType, bool isBack = false, string iniFile = "", string section = "", string keyName = "", string originalValue = "")
         {
             var parts = keyValue.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length == 0)
@@ -458,7 +465,11 @@ namespace FlairX_Mod_Manager.Pages
             return new HotkeyInfo
             {
                 Key = keyDisplay,
-                Description = keyType + backSuffix
+                Description = keyType + backSuffix,
+                IniFile = iniFile,
+                Section = section,
+                KeyName = keyName,
+                OriginalValue = originalValue
             };
         }
 
@@ -509,14 +520,8 @@ namespace FlairX_Mod_Manager.Pages
                         };
                     }
 
-                    var hotkeyArray = hotkeys.Select(h => new Dictionary<string, string>
-                    {
-                        ["key"] = h.Key,
-                        ["description"] = h.Description
-                    }).ToArray();
-
                     // Only create/update hotkeys.json file - don't modify mod.json
-                    await CreateOrUpdateHotkeysJsonAsync(modPath, hotkeyArray, token);
+                    await CreateOrUpdateHotkeysJsonAsync(modPath, hotkeys, token);
                 }, token);
             }
             catch (OperationCanceledException)
@@ -601,15 +606,15 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         // Method to create or update hotkeys.json file
-        private static async Task CreateOrUpdateHotkeysJsonAsync(string modPath, Dictionary<string, string>[] hotkeyArray, CancellationToken token = default)
+        private static async Task CreateOrUpdateHotkeysJsonAsync(string modPath, List<HotkeyInfo> hotkeyList, CancellationToken token = default)
         {
             try
             {
-                Logger.LogInfo($"CreateOrUpdateHotkeysJsonAsync called for mod: {Path.GetFileName(modPath)} with {hotkeyArray.Length} hotkeys");
+                Logger.LogInfo($"CreateOrUpdateHotkeysJsonAsync called for mod: {Path.GetFileName(modPath)} with {hotkeyList.Count} hotkeys");
                 var hotkeysJsonPath = Path.Combine(modPath, "hotkeys.json");
                 
-                var existingDefaultHotkeys = new List<Dictionary<string, string>>();
-                var existingHotkeys = new List<Dictionary<string, string>>();
+                var existingDefaultHotkeys = new List<Dictionary<string, object>>();
+                var existingHotkeys = new List<Dictionary<string, object>>();
                 
                 // If hotkeys.json already exists, preserve defaultHotkeys and load existing hotkeys
                 if (File.Exists(hotkeysJsonPath))
@@ -623,11 +628,23 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         foreach (var h in defaultProp.EnumerateArray())
                         {
-                            existingDefaultHotkeys.Add(new Dictionary<string, string>
+                            var hotkey = new Dictionary<string, object>
                             {
                                 ["key"] = h.GetProperty("key").GetString() ?? "",
                                 ["description"] = h.GetProperty("description").GetString() ?? ""
-                            });
+                            };
+                            
+                            // Load additional properties if they exist
+                            if (h.TryGetProperty("iniFile", out var iniFileProp))
+                                hotkey["iniFile"] = iniFileProp.GetString() ?? "";
+                            if (h.TryGetProperty("section", out var sectionProp))
+                                hotkey["section"] = sectionProp.GetString() ?? "";
+                            if (h.TryGetProperty("keyName", out var keyNameProp))
+                                hotkey["keyName"] = keyNameProp.GetString() ?? "";
+                            if (h.TryGetProperty("originalValue", out var originalValueProp))
+                                hotkey["originalValue"] = originalValueProp.GetString() ?? "";
+                                
+                            existingDefaultHotkeys.Add(hotkey);
                         }
                     }
                     
@@ -636,41 +653,62 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         foreach (var h in hotkeysProp.EnumerateArray())
                         {
-                            existingHotkeys.Add(new Dictionary<string, string>
+                            var hotkey = new Dictionary<string, object>
                             {
                                 ["key"] = h.GetProperty("key").GetString() ?? "",
                                 ["description"] = h.GetProperty("description").GetString() ?? ""
-                            });
+                            };
+                            
+                            // Load additional properties if they exist
+                            if (h.TryGetProperty("iniFile", out var iniFileProp))
+                                hotkey["iniFile"] = iniFileProp.GetString() ?? "";
+                            if (h.TryGetProperty("section", out var sectionProp))
+                                hotkey["section"] = sectionProp.GetString() ?? "";
+                            if (h.TryGetProperty("keyName", out var keyNameProp))
+                                hotkey["keyName"] = keyNameProp.GetString() ?? "";
+                            if (h.TryGetProperty("originalValue", out var originalValueProp))
+                                hotkey["originalValue"] = originalValueProp.GetString() ?? "";
+                                
+                            existingHotkeys.Add(hotkey);
                         }
                     }
                 }
                 
                 // Convert new hotkeys from finder
-                var newHotkeys = hotkeyArray.ToList();
+                var newHotkeys = hotkeyList.Select(h => new Dictionary<string, object>
+                {
+                    ["key"] = h.Key,
+                    ["description"] = h.Description,
+                    ["iniFile"] = h.IniFile,
+                    ["section"] = h.Section,
+                    ["keyName"] = h.KeyName,
+                    ["originalValue"] = h.OriginalValue
+                }).ToList();
                 
                 // If no existing hotkeys.json, use new hotkeys as both current and default
                 if (!File.Exists(hotkeysJsonPath))
                 {
-                    existingDefaultHotkeys = new List<Dictionary<string, string>>(newHotkeys);
-                    existingHotkeys = new List<Dictionary<string, string>>(newHotkeys);
+                    existingDefaultHotkeys = new List<Dictionary<string, object>>(newHotkeys);
+                    existingHotkeys = new List<Dictionary<string, object>>(newHotkeys);
                 }
                 else
                 {
                     // Update defaultHotkeys with any new keys found by hotkey finder
-                    var existingDefaultKeys = new HashSet<string>(existingDefaultHotkeys.Select(h => h["description"]));
+                    var existingDefaultKeys = new HashSet<string>(existingDefaultHotkeys.Select(h => h["description"].ToString() ?? ""));
                     
                     foreach (var newHotkey in newHotkeys)
                     {
-                        if (!existingDefaultKeys.Contains(newHotkey["description"]))
+                        var newDescription = newHotkey["description"].ToString() ?? "";
+                        if (!existingDefaultKeys.Contains(newDescription))
                         {
                             // New hotkey found - add to defaults
-                            existingDefaultHotkeys.Add(new Dictionary<string, string>(newHotkey));
+                            existingDefaultHotkeys.Add(new Dictionary<string, object>(newHotkey));
                             
                             // Also add to current hotkeys if not already there
-                            var existingCurrentKeys = new HashSet<string>(existingHotkeys.Select(h => h["description"]));
-                            if (!existingCurrentKeys.Contains(newHotkey["description"]))
+                            var existingCurrentKeys = new HashSet<string>(existingHotkeys.Select(h => h["description"].ToString() ?? ""));
+                            if (!existingCurrentKeys.Contains(newDescription))
                             {
-                                existingHotkeys.Add(new Dictionary<string, string>(newHotkey));
+                                existingHotkeys.Add(new Dictionary<string, object>(newHotkey));
                             }
                         }
                     }
@@ -695,5 +733,300 @@ namespace FlairX_Mod_Manager.Pages
         }
 
 
+        
+        // Method to save hotkey changes back to INI files
+        public static async Task SaveHotkeyToIniAsync(string modPath, string description, string newKey, bool isRetry = false)
+        {
+            try
+            {
+                Logger.LogInfo($"SaveHotkeyToIniAsync called: modPath={PathManager.GetRelativePath(modPath)}, description={description}, newKey={newKey}");
+                var hotkeysJsonPath = Path.Combine(modPath, "hotkeys.json");
+                
+                if (!File.Exists(hotkeysJsonPath))
+                {
+                    Logger.LogWarning($"Hotkeys file not found: {hotkeysJsonPath}");
+                    return;
+                }
+                
+                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                
+                // Find the hotkey in defaultHotkeys to get INI file information
+                string iniFile = "";
+                string section = "";
+                string keyName = "";
+                string originalValue = "";
+                
+                if (root.TryGetProperty("defaultHotkeys", out var defaultProp) && defaultProp.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var h in defaultProp.EnumerateArray())
+                    {
+                        if (h.GetProperty("description").GetString() == description)
+                        {
+                            if (h.TryGetProperty("iniFile", out var iniFileProp))
+                                iniFile = iniFileProp.GetString() ?? "";
+                            if (h.TryGetProperty("section", out var sectionProp))
+                                section = sectionProp.GetString() ?? "";
+                            if (h.TryGetProperty("keyName", out var keyNameProp))
+                                keyName = keyNameProp.GetString() ?? "";
+                            if (h.TryGetProperty("originalValue", out var originalValueProp))
+                                originalValue = originalValueProp.GetString() ?? "";
+                            
+                            Logger.LogInfo($"Found hotkey info: iniFile={iniFile}, section={section}, keyName={keyName}");
+                            break;
+                        }
+                    }
+                }
+                
+                if (string.IsNullOrEmpty(iniFile) || string.IsNullOrEmpty(section) || string.IsNullOrEmpty(keyName))
+                {
+                    Logger.LogWarning($"Missing INI file information for hotkey: {description}");
+                    return;
+                }
+                
+                // Convert relative path back to absolute path
+                var absoluteIniPath = Path.IsPathRooted(iniFile) ? iniFile : Path.Combine(modPath, iniFile);
+                
+                // Normalize the path to handle any Unicode or path separator issues
+                absoluteIniPath = Path.GetFullPath(absoluteIniPath);
+                
+                Logger.LogInfo($"Converting path: iniFile='{iniFile}' -> absoluteIniPath='{absoluteIniPath}'");
+                
+                // Convert display key back to INI format
+                var iniKeyValue = ConvertDisplayKeyToIniFormat(newKey);
+                
+                // Check if INI file exists
+                if (!File.Exists(absoluteIniPath))
+                {
+                    Logger.LogWarning($"INI file not found: {PathManager.GetRelativePath(absoluteIniPath)}");
+                    
+                    // Try to find the INI file with the same name in the mod directory
+                    var iniFileName = Path.GetFileName(iniFile);
+                    var foundIniFiles = Directory.GetFiles(modPath, iniFileName, SearchOption.AllDirectories);
+                    
+                    if (foundIniFiles.Length > 0)
+                    {
+                        var newIniPath = foundIniFiles[0];
+                        var newRelativeIniPath = Path.GetRelativePath(modPath, newIniPath);
+                        
+                        Logger.LogInfo($"Found INI file at new location: {PathManager.GetRelativePath(newIniPath)}");
+                        Logger.LogInfo($"Updating hotkeys.json with new path: {newRelativeIniPath}");
+                        
+                        // Update the hotkeys.json with the new path
+                        await UpdateIniPathInHotkeysJsonAsync(modPath, description, newRelativeIniPath);
+                        
+                        // Use the new path for saving
+                        absoluteIniPath = newIniPath;
+                    }
+                    else
+                    {
+                        Logger.LogError($"INI file '{iniFileName}' not found anywhere in mod directory: {PathManager.GetRelativePath(modPath)}");
+                        return;
+                    }
+                }
+                
+                // Update the INI file
+                await UpdateIniFileAsync(absoluteIniPath, section, keyName, iniKeyValue);
+                
+                Logger.LogInfo($"Updated INI file {PathManager.GetRelativePath(absoluteIniPath)}: [{section}] {keyName} = {iniKeyValue}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to save hotkey to INI file: {description}", ex);
+            }
+        }
+        
+        // Method to convert display key format back to INI format
+        private static string ConvertDisplayKeyToIniFormat(string displayKey)
+        {
+            // Reverse the key mapping process - handle duplicate values by taking the first key
+            var reverseMapping = KeyMapping
+                .GroupBy(kvp => kvp.Value)
+                .ToDictionary(g => g.Key, g => g.First().Key);
+            
+            // Split by + to get modifiers and main key
+            var parts = displayKey.Split('+');
+            var iniParts = new List<string>();
+            
+            foreach (var part in parts)
+            {
+                var trimmedPart = part.Trim();
+                if (reverseMapping.TryGetValue(trimmedPart, out var iniKey))
+                {
+                    iniParts.Add(iniKey);
+                }
+                else
+                {
+                    // If not in reverse mapping, use as-is but convert to uppercase
+                    iniParts.Add(trimmedPart.ToUpperInvariant());
+                }
+            }
+            
+            return string.Join(" ", iniParts);
+        }
+        
+        // Method to update a specific key in an INI file
+        private static async Task UpdateIniFileAsync(string iniFilePath, string section, string keyName, string newValue)
+        {
+            try
+            {
+                var lines = await File.ReadAllLinesAsync(iniFilePath);
+                var updatedLines = new List<string>();
+                bool inTargetSection = false;
+                bool keyUpdated = false;
+                
+                var sectionPattern = new Regex(@"\[(.*?)\]");
+                
+                foreach (var line in lines)
+                {
+                    var trimmedLine = line.Trim();
+                    
+                    // Check if we're entering a new section
+                    if (trimmedLine.StartsWith("["))
+                    {
+                        var sectionMatch = sectionPattern.Match(trimmedLine);
+                        if (sectionMatch.Success)
+                        {
+                            inTargetSection = sectionMatch.Groups[1].Value.Equals(section, StringComparison.OrdinalIgnoreCase);
+                        }
+                        updatedLines.Add(line);
+                        continue;
+                    }
+                    
+                    // If we're in the target section and this line contains our key
+                    if (inTargetSection && !trimmedLine.StartsWith(";") && !string.IsNullOrEmpty(trimmedLine))
+                    {
+                        var keyPattern = new Regex($@"^{Regex.Escape(keyName)}\s*=", RegexOptions.IgnoreCase);
+                        if (keyPattern.IsMatch(trimmedLine))
+                        {
+                            // Update the key value
+                            updatedLines.Add($"{keyName} = {newValue}");
+                            keyUpdated = true;
+                            continue;
+                        }
+                    }
+                    
+                    updatedLines.Add(line);
+                }
+                
+                if (!keyUpdated)
+                {
+                    Logger.LogWarning($"Key '{keyName}' not found in section '[{section}]' of file {PathManager.GetRelativePath(iniFilePath)}");
+                    return;
+                }
+                
+                // Write the updated content back to the file
+                await File.WriteAllLinesAsync(iniFilePath, updatedLines);
+                
+                Logger.LogInfo($"Successfully updated {PathManager.GetRelativePath(iniFilePath)}: [{section}] {keyName} = {newValue}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to update INI file {iniFilePath}", ex);
+            }
+        }
+
     }
 }
+        
+        // Method to update INI file path in hotkeys.json
+        private static async Task UpdateIniPathInHotkeysJsonAsync(string modPath, string description, string newIniPath)
+        {
+            try
+            {
+                var hotkeysJsonPath = Path.Combine(modPath, "hotkeys.json");
+                
+                if (!File.Exists(hotkeysJsonPath))
+                    return;
+                
+                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                
+                var defaultHotkeys = new List<Dictionary<string, object>>();
+                var hotkeys = new List<Dictionary<string, object>>();
+                
+                // Update defaultHotkeys
+                if (root.TryGetProperty("defaultHotkeys", out var defaultProp) && defaultProp.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var h in defaultProp.EnumerateArray())
+                    {
+                        var hotkey = new Dictionary<string, object>
+                        {
+                            ["key"] = h.GetProperty("key").GetString() ?? "",
+                            ["description"] = h.GetProperty("description").GetString() ?? ""
+                        };
+                        
+                        // Update iniFile path if this is the hotkey we're looking for
+                        if (h.GetProperty("description").GetString() == description)
+                        {
+                            hotkey["iniFile"] = newIniPath;
+                        }
+                        else if (h.TryGetProperty("iniFile", out var iniFileProp))
+                        {
+                            hotkey["iniFile"] = iniFileProp.GetString() ?? "";
+                        }
+                        
+                        // Preserve other properties
+                        if (h.TryGetProperty("section", out var sectionProp))
+                            hotkey["section"] = sectionProp.GetString() ?? "";
+                        if (h.TryGetProperty("keyName", out var keyNameProp))
+                            hotkey["keyName"] = keyNameProp.GetString() ?? "";
+                        if (h.TryGetProperty("originalValue", out var originalValueProp))
+                            hotkey["originalValue"] = originalValueProp.GetString() ?? "";
+                            
+                        defaultHotkeys.Add(hotkey);
+                    }
+                }
+                
+                // Update current hotkeys
+                if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var h in hotkeysProp.EnumerateArray())
+                    {
+                        var hotkey = new Dictionary<string, object>
+                        {
+                            ["key"] = h.GetProperty("key").GetString() ?? "",
+                            ["description"] = h.GetProperty("description").GetString() ?? ""
+                        };
+                        
+                        // Update iniFile path if this is the hotkey we're looking for
+                        if (h.GetProperty("description").GetString() == description)
+                        {
+                            hotkey["iniFile"] = newIniPath;
+                        }
+                        else if (h.TryGetProperty("iniFile", out var iniFileProp))
+                        {
+                            hotkey["iniFile"] = iniFileProp.GetString() ?? "";
+                        }
+                        
+                        // Preserve other properties
+                        if (h.TryGetProperty("section", out var sectionProp))
+                            hotkey["section"] = sectionProp.GetString() ?? "";
+                        if (h.TryGetProperty("keyName", out var keyNameProp))
+                            hotkey["keyName"] = keyNameProp.GetString() ?? "";
+                        if (h.TryGetProperty("originalValue", out var originalValueProp))
+                            hotkey["originalValue"] = originalValueProp.GetString() ?? "";
+                            
+                        hotkeys.Add(hotkey);
+                    }
+                }
+                
+                // Save updated hotkeys.json
+                var hotkeysData = new
+                {
+                    hotkeys = hotkeys,
+                    defaultHotkeys = defaultHotkeys
+                };
+                
+                var newJson = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
+                await File.WriteAllTextAsync(hotkeysJsonPath, newJson);
+                
+                Logger.LogInfo($"Updated INI path in hotkeys.json for: {description}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to update INI path in hotkeys.json", ex);
+            }
+        }

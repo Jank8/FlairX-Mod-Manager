@@ -1228,6 +1228,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private async void SaveButton_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            Logger.LogInfo("SaveButton_PointerPressed called");
             StopGamepadListening();
             
             if (sender is Border saveBorder && saveBorder.Tag is HotkeyButtonData data)
@@ -1291,6 +1292,8 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (string.IsNullOrEmpty(_currentModDirectory)) return;
             
+            Logger.LogInfo($"SaveHotkeyChange called: index={index}, newKey={newKey}, description={description}, modDir={PathManager.GetRelativePath(_currentModDirectory)}");
+            
             try
             {
                 var hotkeysJsonPath = Path.Combine(_currentModDirectory, "hotkeys.json");
@@ -1305,32 +1308,56 @@ namespace FlairX_Mod_Manager.Pages
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 
-                var defaultHotkeys = new List<Dictionary<string, string>>();
-                var hotkeys = new List<Dictionary<string, string>>();
+                var defaultHotkeys = new List<Dictionary<string, object>>();
+                var hotkeys = new List<Dictionary<string, object>>();
                 
-                // Preserve default hotkeys
+                // Preserve default hotkeys with all properties
                 if (root.TryGetProperty("defaultHotkeys", out var defaultProp) && defaultProp.ValueKind == JsonValueKind.Array)
                 {
                     foreach (var h in defaultProp.EnumerateArray())
                     {
-                        defaultHotkeys.Add(new Dictionary<string, string>
+                        var hotkey = new Dictionary<string, object>
                         {
                             ["key"] = h.GetProperty("key").GetString() ?? "",
                             ["description"] = h.GetProperty("description").GetString() ?? ""
-                        });
+                        };
+                        
+                        // Preserve additional properties if they exist
+                        if (h.TryGetProperty("iniFile", out var iniFileProp))
+                            hotkey["iniFile"] = iniFileProp.GetString() ?? "";
+                        if (h.TryGetProperty("section", out var sectionProp))
+                            hotkey["section"] = sectionProp.GetString() ?? "";
+                        if (h.TryGetProperty("keyName", out var keyNameProp))
+                            hotkey["keyName"] = keyNameProp.GetString() ?? "";
+                        if (h.TryGetProperty("originalValue", out var originalValueProp))
+                            hotkey["originalValue"] = originalValueProp.GetString() ?? "";
+                            
+                        defaultHotkeys.Add(hotkey);
                     }
                 }
                 
-                // Update current hotkeys
+                // Update current hotkeys with all properties
                 if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
                 {
                     foreach (var h in hotkeysProp.EnumerateArray())
                     {
-                        hotkeys.Add(new Dictionary<string, string>
+                        var hotkey = new Dictionary<string, object>
                         {
                             ["key"] = h.GetProperty("key").GetString() ?? "",
                             ["description"] = h.GetProperty("description").GetString() ?? ""
-                        });
+                        };
+                        
+                        // Preserve additional properties if they exist
+                        if (h.TryGetProperty("iniFile", out var iniFileProp))
+                            hotkey["iniFile"] = iniFileProp.GetString() ?? "";
+                        if (h.TryGetProperty("section", out var sectionProp))
+                            hotkey["section"] = sectionProp.GetString() ?? "";
+                        if (h.TryGetProperty("keyName", out var keyNameProp))
+                            hotkey["keyName"] = keyNameProp.GetString() ?? "";
+                        if (h.TryGetProperty("originalValue", out var originalValueProp))
+                            hotkey["originalValue"] = originalValueProp.GetString() ?? "";
+                            
+                        hotkeys.Add(hotkey);
                     }
                 }
                 
@@ -1340,16 +1367,23 @@ namespace FlairX_Mod_Manager.Pages
                     hotkeys[index]["key"] = newKey;
                 }
                 
-                // Save updated hotkeys.json
-                var hotkeysData = new
+                // Save updated hotkeys.json using FileAccessQueue
+                await Services.FileAccessQueue.ExecuteAsync(hotkeysJsonPath, async () =>
                 {
-                    hotkeys = hotkeys,
-                    defaultHotkeys = defaultHotkeys
-                };
+                    var hotkeysData = new
+                    {
+                        hotkeys = hotkeys,
+                        defaultHotkeys = defaultHotkeys
+                    };
+                    
+                    var newJson = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
+                    await File.WriteAllTextAsync(hotkeysJsonPath, newJson);
+                    Logger.LogInfo($"Hotkey updated in hotkeys.json: {newKey} - {description}");
+                    Logger.LogInfo($"Updated hotkeys.json content written to: {PathManager.GetRelativePath(hotkeysJsonPath)}");
+                });
                 
-                var newJson = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
-                await File.WriteAllTextAsync(hotkeysJsonPath, newJson);
-                Logger.LogInfo($"Hotkey updated in hotkeys.json: {newKey} - {description}");
+                // Also save the change back to the original INI file
+                await HotkeyFinderPage.SaveHotkeyToIniAsync(_currentModDirectory, description, newKey);
             }
             catch (Exception ex)
             {
@@ -1909,16 +1943,32 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
                 
-                // Save updated hotkeys.json
-                var hotkeysData = new
+                // Save updated hotkeys.json using FileAccessQueue
+                await Services.FileAccessQueue.ExecuteAsync(hotkeysJsonPath, async () =>
                 {
-                    hotkeys = hotkeys,
-                    defaultHotkeys = defaultHotkeys
-                };
+                    var hotkeysData = new
+                    {
+                        hotkeys = hotkeys,
+                        defaultHotkeys = defaultHotkeys
+                    };
+                    
+                    var newJson = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
+                    await File.WriteAllTextAsync(hotkeysJsonPath, newJson);
+                    Logger.LogInfo("All hotkeys saved to hotkeys.json");
+                });
                 
-                var newJson = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
-                await File.WriteAllTextAsync(hotkeysJsonPath, newJson);
-                Logger.LogInfo("All hotkeys saved to hotkeys.json");
+                // Also save all changes back to the original INI files
+                foreach (var hotkey in hotkeys)
+                {
+                    try
+                    {
+                        await HotkeyFinderPage.SaveHotkeyToIniAsync(_currentModDirectory, hotkey["description"], hotkey["key"]);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to save hotkey to INI: {hotkey["description"]}", ex);
+                    }
+                }
             }
             catch (Exception ex)
             {
