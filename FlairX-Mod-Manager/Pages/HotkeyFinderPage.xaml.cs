@@ -927,8 +927,6 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-    }
-}
         
         // Method to update INI file path in hotkeys.json
         private static async Task UpdateIniPathInHotkeysJsonAsync(string modPath, string description, string newIniPath)
@@ -1030,3 +1028,6 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogError($"Failed to update INI path in hotkeys.json", ex);
             }
         }
+
+    }
+}
