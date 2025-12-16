@@ -566,7 +566,7 @@ namespace FlairX_Mod_Manager.Pages
         }
         
         // Kenney Input Prompts font paths
-        private const string KenneyXboxFont = "ms-appx:///Assets/KenneyFonts/kenney_input_xbox_series.ttf#Kenney Input Xbox Series";
+        private const string KenneyXboxFont = "ms-appx:///Assets/KenneyFonts/kenney_input_xbox_series.ttf";
         private const string KenneyPlayStationFont = "ms-appx:///Assets/KenneyFonts/kenney_input_playstation_series.ttf#Kenney Input PlayStation Series";
         private const string KenneySwitchFont = "ms-appx:///Assets/KenneyFonts/kenney_input_nintendo_switch.ttf#Kenney Input Nintendo Switch";
         private const string KenneyKeyboardFont = "ms-appx:///Assets/KenneyFonts/kenney_input_keyboard_mouse.ttf#Kenney Input Keyboard & Mouse";
@@ -581,7 +581,7 @@ namespace FlairX_Mod_Manager.Pages
             ["XB LB"] = ("\uE043", KenneyXboxFont), ["XB RB"] = ("\uE049", KenneyXboxFont), ["XB LT"] = ("\uE047", KenneyXboxFont), ["XB RT"] = ("\uE04D", KenneyXboxFont),
             ["XB LS"] = ("\uE045", KenneyXboxFont), ["XB RS"] = ("\uE04B", KenneyXboxFont),
             ["XB Start"] = ("\uE018", KenneyXboxFont), ["XB Back"] = ("\uE008", KenneyXboxFont), ["XB Menu"] = ("\uE014", KenneyXboxFont), ["XB View"] = ("\uE01C", KenneyXboxFont),
-            ["XB Home"] = ("\uE086", KenneyKeyboardFont), ["XB Share"] = ("\uE016", KenneyXboxFont),
+            ["XB Home"] = ("\uE041", KenneyXboxFont), ["XB Share"] = ("\uE016", KenneyXboxFont),
             ["XB ↑"] = ("\uE036", KenneyXboxFont), ["XB ↓"] = ("\uE025", KenneyXboxFont), ["XB ←"] = ("\uE029", KenneyXboxFont), ["XB →"] = ("\uE02C", KenneyXboxFont),
             ["XB DPAD"] = ("\uE022", KenneyXboxFont), ["XB ↑↓"] = ("\uE037", KenneyXboxFont), ["XB ←→"] = ("\uE026", KenneyXboxFont),
             ["XB L↑"] = ("\uE055", KenneyXboxFont), ["XB L↓"] = ("\uE050", KenneyXboxFont), ["XB L←"] = ("\uE052", KenneyXboxFont), ["XB L→"] = ("\uE054", KenneyXboxFont),
@@ -599,7 +599,7 @@ namespace FlairX_Mod_Manager.Pages
             ["PS4 Share"] = ("\uE00B", KenneyPlayStationFont), ["PS4 Options"] = ("\uE009", KenneyPlayStationFont), ["PS4 Touchpad"] = ("\uE030", KenneyPlayStationFont),
             ["PS SHARE"] = ("\uE00B", KenneyPlayStationFont), ["PS OPTIONS"] = ("\uE022", KenneyPlayStationFont), ["PS TOUCHPAD"] = ("\uE030", KenneyPlayStationFont),
             ["PS4 SHARE"] = ("\uE00B", KenneyPlayStationFont), ["PS4 OPTIONS"] = ("\uE009", KenneyPlayStationFont), ["PS4 TOUCHPAD"] = ("\uE030", KenneyPlayStationFont),
-            ["PS Home"] = ("\uE086", KenneyKeyboardFont), ["PS HOME"] = ("\uE086", KenneyKeyboardFont), // PS button
+            ["PS Home"] = ("\uE087", KenneyKeyboardFont), ["PS HOME"] = ("\uE087", KenneyKeyboardFont), // PS button
             ["PS5 Create"] = ("\uE01C", KenneyPlayStationFont), ["PS5 Options"] = ("\uE022", KenneyPlayStationFont), ["PS5 Mute"] = ("\uE020", KenneyPlayStationFont),
             ["PS5 MUTE"] = ("\uE020", KenneyPlayStationFont), ["PS MUTE"] = ("\uE020", KenneyPlayStationFont),
             ["PS ↑"] = ("\uE05F", KenneyPlayStationFont), ["PS ↓"] = ("\uE056", KenneyPlayStationFont), ["PS ←"] = ("\uE05A", KenneyPlayStationFont), ["PS →"] = ("\uE05D", KenneyPlayStationFont),
@@ -608,12 +608,12 @@ namespace FlairX_Mod_Manager.Pages
             ["PS R↑"] = ("\uE070", KenneyPlayStationFont), ["PS R↓"] = ("\uE06B", KenneyPlayStationFont), ["PS R←"] = ("\uE06D", KenneyPlayStationFont), ["PS R→"] = ("\uE06F", KenneyPlayStationFont),
             ["PS L CLICK"] = ("\uE066", KenneyPlayStationFont), ["PS R CLICK"] = ("\uE06E", KenneyPlayStationFont),
             ["PS L3"] = ("\uE04B", KenneyPlayStationFont), ["PS R3"] = ("\uE04D", KenneyPlayStationFont), // Aliases for stick buttons
-            ["PS Home"] = ("\uE086", KenneyKeyboardFont), // PS button
+            ["PS Home"] = ("\uE087", KenneyKeyboardFont), // PS button
             
             // Nintendo Switch (kenney_input_nintendo_switch font)
             ["NIN A"] = ("\uE004", KenneySwitchFont), ["NIN B"] = ("\uE006", KenneySwitchFont), ["NIN X"] = ("\uE018", KenneySwitchFont), ["NIN Y"] = ("\uE01A", KenneySwitchFont),
             ["NIN L"] = ("\uE00A", KenneySwitchFont), ["NIN R"] = ("\uE010", KenneySwitchFont), ["NIN ZL"] = ("\uE01C", KenneySwitchFont), ["NIN ZR"] = ("\uE01E", KenneySwitchFont),
-            ["NIN +"] = ("\uE00E", KenneySwitchFont), ["NIN -"] = ("\uE00C", KenneySwitchFont), ["NIN Home"] = ("\uE086", KenneyKeyboardFont),
+            ["NIN +"] = ("\uE00E", KenneySwitchFont), ["NIN -"] = ("\uE00C", KenneySwitchFont), ["NIN Home"] = ("\uE087", KenneyKeyboardFont),
             ["NIN ↑"] = ("\uE03C", KenneySwitchFont), ["NIN ↓"] = ("\uE033", KenneySwitchFont), ["NIN ←"] = ("\uE037", KenneySwitchFont), ["NIN →"] = ("\uE03A", KenneySwitchFont),
             ["NIN DPAD"] = ("\uE031", KenneySwitchFont), ["NIN ↑↓"] = ("\uE03E", KenneySwitchFont), ["NIN ←→"] = ("\uE035", KenneySwitchFont),
             ["NIN SL"] = ("\uE012", KenneySwitchFont), ["NIN SR"] = ("\uE014", KenneySwitchFont),
@@ -648,7 +648,7 @@ namespace FlairX_Mod_Manager.Pages
             // Keyboard modifiers
             ["CTRL"] = ("\uE054", KenneyKeyboardFont), ["ALT"] = ("\uE017", KenneyKeyboardFont), ["SHIFT"] = ("\uE0BD", KenneyKeyboardFont), ["TAB"] = ("\uE0CB", KenneyKeyboardFont),
             ["ENTER"] = ("\uE05E", KenneyKeyboardFont), ["ESC"] = ("\uE062", KenneyKeyboardFont), ["SPACE"] = ("\uE0C5", KenneyKeyboardFont), ["BACKSPACE"] = ("\uE038", KenneyKeyboardFont),
-            ["DEL"] = ("\uE058", KenneyKeyboardFont), ["INS"] = ("\uE08A", KenneyKeyboardFont), ["HOME"] = ("\uE086", KenneyKeyboardFont), ["END"] = ("\uE05C", KenneyKeyboardFont),
+            ["DEL"] = ("\uE058", KenneyKeyboardFont), ["INS"] = ("\uE08A", KenneyKeyboardFont), ["HOME"] = ("\uE087", KenneyKeyboardFont), ["END"] = ("\uE05C", KenneyKeyboardFont),
             ["PAGE UP"] = ("\uE0A7", KenneyKeyboardFont), ["PAGE DOWN"] = ("\uE0A5", KenneyKeyboardFont), ["CAPS"] = ("\uE048", KenneyKeyboardFont),
             ["FN"] = ("\uE080", KenneyKeyboardFont), ["PRINT"] = ("\uE0AD", KenneyKeyboardFont), ["NUMLOCK"] = ("\uE098", KenneyKeyboardFont),
             ["WIN"] = ("\uE0D9", KenneyKeyboardFont), ["CMD"] = ("\uE052", KenneyKeyboardFont), ["OPTION"] = ("\uE0A0", KenneyKeyboardFont),
