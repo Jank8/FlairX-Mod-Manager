@@ -494,6 +494,7 @@ namespace FlairX_Mod_Manager.Pages
                 CornerRadius = new CornerRadius(8),
                 Padding = new Thickness(16, 12, 16, 12),
                 Margin = new Thickness(0, 0, 0, 6),
+                Height = 104, // Fixed height to prevent jumping during edit (80 + 24 padding)
                 Tag = new HotkeyRowData { Key = keyCombo, Description = description, OriginalIndex = originalIndex },
                 RenderTransform = new CompositeTransform()
             };
@@ -566,7 +567,7 @@ namespace FlairX_Mod_Manager.Pages
         }
         
         // Kenney Input Prompts font paths
-        private const string KenneyXboxFont = "ms-appx:///Assets/KenneyFonts/kenney_input_xbox_series.ttf";
+        private const string KenneyXboxFont = "ms-appx:///Assets/KenneyFonts/kenney_input_xbox_series.ttf#Kenney Input Xbox Series";
         private const string KenneyPlayStationFont = "ms-appx:///Assets/KenneyFonts/kenney_input_playstation_series.ttf#Kenney Input PlayStation Series";
         private const string KenneySwitchFont = "ms-appx:///Assets/KenneyFonts/kenney_input_nintendo_switch.ttf#Kenney Input Nintendo Switch";
         private const string KenneyKeyboardFont = "ms-appx:///Assets/KenneyFonts/kenney_input_keyboard_mouse.ttf#Kenney Input Keyboard & Mouse";
@@ -576,51 +577,123 @@ namespace FlairX_Mod_Manager.Pages
         private static readonly Dictionary<string, (string Glyph, string Font)> HotkeyIconMap = new()
         {
             // Xbox Series (kenney_input_xbox_series font)
-            ["XB A"] = ("\uE004", KenneyXboxFont), ["XB B"] = ("\uE006", KenneyXboxFont), ["XB X"] = ("\uE01E", KenneyXboxFont), ["XB Y"] = ("\uE020", KenneyXboxFont),
-            ["XB A Color"] = ("\uE00C", KenneyXboxFont), ["XB B Color"] = ("\uE00E", KenneyXboxFont), ["XB X Color"] = ("\uE010", KenneyXboxFont), ["XB Y Color"] = ("\uE012", KenneyXboxFont),
-            ["XB LB"] = ("\uE043", KenneyXboxFont), ["XB RB"] = ("\uE049", KenneyXboxFont), ["XB LT"] = ("\uE047", KenneyXboxFont), ["XB RT"] = ("\uE04D", KenneyXboxFont),
-            ["XB LS"] = ("\uE045", KenneyXboxFont), ["XB RS"] = ("\uE04B", KenneyXboxFont),
-            ["XB Start"] = ("\uE018", KenneyXboxFont), ["XB Back"] = ("\uE008", KenneyXboxFont), ["XB Menu"] = ("\uE014", KenneyXboxFont), ["XB View"] = ("\uE01C", KenneyXboxFont),
-            ["XB Home"] = ("\uE041", KenneyXboxFont), ["XB Share"] = ("\uE016", KenneyXboxFont),
-            ["XB ↑"] = ("\uE036", KenneyXboxFont), ["XB ↓"] = ("\uE025", KenneyXboxFont), ["XB ←"] = ("\uE029", KenneyXboxFont), ["XB →"] = ("\uE02C", KenneyXboxFont),
-            ["XB DPAD"] = ("\uE022", KenneyXboxFont), ["XB ↑↓"] = ("\uE037", KenneyXboxFont), ["XB ←→"] = ("\uE026", KenneyXboxFont),
-            ["XB L↑"] = ("\uE055", KenneyXboxFont), ["XB L↓"] = ("\uE050", KenneyXboxFont), ["XB L←"] = ("\uE052", KenneyXboxFont), ["XB L→"] = ("\uE054", KenneyXboxFont),
-            ["XB R↑"] = ("\uE05D", KenneyXboxFont), ["XB R↓"] = ("\uE058", KenneyXboxFont), ["XB R←"] = ("\uE05A", KenneyXboxFont), ["XB R→"] = ("\uE05C", KenneyXboxFont),
-            ["XB L CLICK"] = ("\uE053", KenneyXboxFont), ["XB R CLICK"] = ("\uE05B", KenneyXboxFont),
-            ["XB LS"] = ("\uE045", KenneyXboxFont), ["XB RS"] = ("\uE04B", KenneyXboxFont), // Aliases for stick buttons
-            ["XB P1"] = ("\uE043", KenneyXboxFont), ["XB P2"] = ("\uE043", KenneyXboxFont), ["XB P3"] = ("\uE049", KenneyXboxFont), ["XB P4"] = ("\uE049", KenneyXboxFont), // Paddles (using LB/RB icons as fallback)
+            ["XB A"] = ("\uE004", KenneyXboxFont),
+            ["XB B"] = ("\uE006", KenneyXboxFont),
+            ["XB X"] = ("\uE01E", KenneyXboxFont),
+            ["XB Y"] = ("\uE020", KenneyXboxFont),
+            ["XB A Color"] = ("\uE00C", KenneyXboxFont),
+            ["XB B Color"] = ("\uE00E", KenneyXboxFont),
+            ["XB X Color"] = ("\uE010", KenneyXboxFont),
+            ["XB Y Color"] = ("\uE012", KenneyXboxFont),
+            ["XB LB"] = ("\uE043", KenneyXboxFont),
+            ["XB RB"] = ("\uE049", KenneyXboxFont),
+            ["XB LT"] = ("\uE047", KenneyXboxFont),
+            ["XB RT"] = ("\uE04D", KenneyXboxFont),
+            ["XB LS"] = ("\uE045", KenneyXboxFont),
+            ["XB RS"] = ("\uE04B", KenneyXboxFont),
+            ["XB Start"] = ("\uE018", KenneyXboxFont),
+            ["XB Back"] = ("\uE008", KenneyXboxFont),
+            ["XB Menu"] = ("\uE014", KenneyXboxFont),
+            ["XB View"] = ("\uE01C", KenneyXboxFont),
+            ["XB Home"] = ("\uE041", KenneyXboxFont),
+            ["XB Guide"] = ("\uE041", KenneyXboxFont),
+            ["XB Share"] = ("\uE016", KenneyXboxFont),
+            ["XB ↑"] = ("\uE036", KenneyXboxFont),
+            ["XB ↓"] = ("\uE025", KenneyXboxFont),
+            ["XB ←"] = ("\uE029", KenneyXboxFont),
+            ["XB →"] = ("\uE02C", KenneyXboxFont),
+            ["XB DPAD"] = ("\uE022", KenneyXboxFont),
+            ["XB ↑↓"] = ("\uE037", KenneyXboxFont),
+            ["XB ←→"] = ("\uE026", KenneyXboxFont),
+            ["XB L↑"] = ("\uE055", KenneyXboxFont),
+            ["XB L↓"] = ("\uE050", KenneyXboxFont),
+            ["XB L←"] = ("\uE052", KenneyXboxFont),
+            ["XB L→"] = ("\uE054", KenneyXboxFont),
+            ["XB R↑"] = ("\uE05D", KenneyXboxFont),
+            ["XB R↓"] = ("\uE058", KenneyXboxFont),
+            ["XB R←"] = ("\uE05A", KenneyXboxFont),
+            ["XB R→"] = ("\uE05C", KenneyXboxFont),
+            ["XB L CLICK"] = ("\uE053", KenneyXboxFont),
+            ["XB R CLICK"] = ("\uE05B", KenneyXboxFont),
+            ["XB P1"] = ("\uE043", KenneyXboxFont), // Paddle (using LB icon)
+            ["XB P2"] = ("\uE043", KenneyXboxFont), // Paddle (using LB icon)
+            ["XB P3"] = ("\uE049", KenneyXboxFont), // Paddle (using RB icon)
+            ["XB P4"] = ("\uE049", KenneyXboxFont), // Paddle (using RB icon)
             
             // PlayStation Series (kenney_input_playstation_series font)
-            ["PS ×"] = ("\uE049", KenneyPlayStationFont), ["PS ○"] = ("\uE03F", KenneyPlayStationFont), ["PS □"] = ("\uE04F", KenneyPlayStationFont), ["PS △"] = ("\uE051", KenneyPlayStationFont),
-            ["PS × Color"] = ("\uE043", KenneyPlayStationFont), ["PS ○ Color"] = ("\uE041", KenneyPlayStationFont), ["PS □ Color"] = ("\uE045", KenneyPlayStationFont), ["PS △ Color"] = ("\uE047", KenneyPlayStationFont),
-            ["PS L1"] = ("\uE076", KenneyPlayStationFont), ["PS R1"] = ("\uE07E", KenneyPlayStationFont), ["PS L2"] = ("\uE07A", KenneyPlayStationFont), ["PS R2"] = ("\uE082", KenneyPlayStationFont),
-            ["PS L3"] = ("\uE04B", KenneyPlayStationFont), ["PS R3"] = ("\uE04D", KenneyPlayStationFont),
-            ["PS Share"] = ("\uE00B", KenneyPlayStationFont), ["PS Options"] = ("\uE022", KenneyPlayStationFont), ["PS Touchpad"] = ("\uE030", KenneyPlayStationFont),
-            ["PS4 Share"] = ("\uE00B", KenneyPlayStationFont), ["PS4 Options"] = ("\uE009", KenneyPlayStationFont), ["PS4 Touchpad"] = ("\uE030", KenneyPlayStationFont),
-            ["PS SHARE"] = ("\uE00B", KenneyPlayStationFont), ["PS OPTIONS"] = ("\uE022", KenneyPlayStationFont), ["PS TOUCHPAD"] = ("\uE030", KenneyPlayStationFont),
-            ["PS4 SHARE"] = ("\uE00B", KenneyPlayStationFont), ["PS4 OPTIONS"] = ("\uE009", KenneyPlayStationFont), ["PS4 TOUCHPAD"] = ("\uE030", KenneyPlayStationFont),
-            ["PS Home"] = ("\uE087", KenneyKeyboardFont), ["PS HOME"] = ("\uE087", KenneyKeyboardFont), // PS button
-            ["PS5 Create"] = ("\uE01C", KenneyPlayStationFont), ["PS5 Options"] = ("\uE022", KenneyPlayStationFont), ["PS5 Mute"] = ("\uE020", KenneyPlayStationFont),
-            ["PS5 MUTE"] = ("\uE020", KenneyPlayStationFont), ["PS MUTE"] = ("\uE020", KenneyPlayStationFont),
-            ["PS ↑"] = ("\uE05F", KenneyPlayStationFont), ["PS ↓"] = ("\uE056", KenneyPlayStationFont), ["PS ←"] = ("\uE05A", KenneyPlayStationFont), ["PS →"] = ("\uE05D", KenneyPlayStationFont),
-            ["PS DPAD"] = ("\uE053", KenneyPlayStationFont), ["PS ↑↓"] = ("\uE060", KenneyPlayStationFont), ["PS ←→"] = ("\uE057", KenneyPlayStationFont),
-            ["PS L↑"] = ("\uE068", KenneyPlayStationFont), ["PS L↓"] = ("\uE063", KenneyPlayStationFont), ["PS L←"] = ("\uE065", KenneyPlayStationFont), ["PS L→"] = ("\uE067", KenneyPlayStationFont),
-            ["PS R↑"] = ("\uE070", KenneyPlayStationFont), ["PS R↓"] = ("\uE06B", KenneyPlayStationFont), ["PS R←"] = ("\uE06D", KenneyPlayStationFont), ["PS R→"] = ("\uE06F", KenneyPlayStationFont),
-            ["PS L CLICK"] = ("\uE066", KenneyPlayStationFont), ["PS R CLICK"] = ("\uE06E", KenneyPlayStationFont),
-            ["PS L3"] = ("\uE04B", KenneyPlayStationFont), ["PS R3"] = ("\uE04D", KenneyPlayStationFont), // Aliases for stick buttons
-            ["PS Home"] = ("\uE087", KenneyKeyboardFont), // PS button
+            ["PS ×"] = ("\uE049", KenneyPlayStationFont),
+            ["PS ○"] = ("\uE03F", KenneyPlayStationFont),
+            ["PS □"] = ("\uE04F", KenneyPlayStationFont),
+            ["PS △"] = ("\uE051", KenneyPlayStationFont),
+            ["PS × Color"] = ("\uE043", KenneyPlayStationFont),
+            ["PS ○ Color"] = ("\uE041", KenneyPlayStationFont),
+            ["PS □ Color"] = ("\uE045", KenneyPlayStationFont),
+            ["PS △ Color"] = ("\uE047", KenneyPlayStationFont),
+            ["PS L1"] = ("\uE076", KenneyPlayStationFont),
+            ["PS R1"] = ("\uE07E", KenneyPlayStationFont),
+            ["PS L2"] = ("\uE07A", KenneyPlayStationFont),
+            ["PS R2"] = ("\uE082", KenneyPlayStationFont),
+            ["PS L3"] = ("\uE04B", KenneyPlayStationFont),
+            ["PS R3"] = ("\uE04D", KenneyPlayStationFont),
+            ["PS Share"] = ("\uE00B", KenneyPlayStationFont),
+            ["PS Options"] = ("\uE022", KenneyPlayStationFont),
+            ["PS Touchpad"] = ("\uE030", KenneyPlayStationFont),
+            ["PS4 Options"] = ("\uE009", KenneyPlayStationFont),
+
+            ["PS Home"] = ("\uE087", KenneyKeyboardFont), // PS button (outline for gamepad)
+            ["PS5 Create"] = ("\uE01C", KenneyPlayStationFont),
+            ["PS5 Options"] = ("\uE022", KenneyPlayStationFont),
+            ["PS5 Mute"] = ("\uE020", KenneyPlayStationFont),
+            ["PS ↑"] = ("\uE05F", KenneyPlayStationFont),
+            ["PS ↓"] = ("\uE056", KenneyPlayStationFont),
+            ["PS ←"] = ("\uE05A", KenneyPlayStationFont),
+            ["PS →"] = ("\uE05D", KenneyPlayStationFont),
+            ["PS DPAD"] = ("\uE053", KenneyPlayStationFont),
+            ["PS ↑↓"] = ("\uE060", KenneyPlayStationFont),
+            ["PS ←→"] = ("\uE057", KenneyPlayStationFont),
+            ["PS L↑"] = ("\uE068", KenneyPlayStationFont),
+            ["PS L↓"] = ("\uE063", KenneyPlayStationFont),
+            ["PS L←"] = ("\uE065", KenneyPlayStationFont),
+            ["PS L→"] = ("\uE067", KenneyPlayStationFont),
+            ["PS R↑"] = ("\uE070", KenneyPlayStationFont),
+            ["PS R↓"] = ("\uE06B", KenneyPlayStationFont),
+            ["PS R←"] = ("\uE06D", KenneyPlayStationFont),
+            ["PS R→"] = ("\uE06F", KenneyPlayStationFont),
+            ["PS L CLICK"] = ("\uE066", KenneyPlayStationFont),
+            ["PS R CLICK"] = ("\uE06E", KenneyPlayStationFont),
             
             // Nintendo Switch (kenney_input_nintendo_switch font)
-            ["NIN A"] = ("\uE004", KenneySwitchFont), ["NIN B"] = ("\uE006", KenneySwitchFont), ["NIN X"] = ("\uE018", KenneySwitchFont), ["NIN Y"] = ("\uE01A", KenneySwitchFont),
-            ["NIN L"] = ("\uE00A", KenneySwitchFont), ["NIN R"] = ("\uE010", KenneySwitchFont), ["NIN ZL"] = ("\uE01C", KenneySwitchFont), ["NIN ZR"] = ("\uE01E", KenneySwitchFont),
-            ["NIN +"] = ("\uE00E", KenneySwitchFont), ["NIN -"] = ("\uE00C", KenneySwitchFont), ["NIN Home"] = ("\uE087", KenneyKeyboardFont),
-            ["NIN ↑"] = ("\uE03C", KenneySwitchFont), ["NIN ↓"] = ("\uE033", KenneySwitchFont), ["NIN ←"] = ("\uE037", KenneySwitchFont), ["NIN →"] = ("\uE03A", KenneySwitchFont),
-            ["NIN DPAD"] = ("\uE031", KenneySwitchFont), ["NIN ↑↓"] = ("\uE03E", KenneySwitchFont), ["NIN ←→"] = ("\uE035", KenneySwitchFont),
-            ["NIN SL"] = ("\uE012", KenneySwitchFont), ["NIN SR"] = ("\uE014", KenneySwitchFont),
-            ["NIN L↑"] = ("\uE060", KenneySwitchFont), ["NIN L↓"] = ("\uE05B", KenneySwitchFont), ["NIN L←"] = ("\uE05D", KenneySwitchFont), ["NIN L→"] = ("\uE05F", KenneySwitchFont),
-            ["NIN R↑"] = ("\uE068", KenneySwitchFont), ["NIN R↓"] = ("\uE063", KenneySwitchFont), ["NIN R←"] = ("\uE065", KenneySwitchFont), ["NIN R→"] = ("\uE067", KenneySwitchFont),
-            ["NIN L CLICK"] = ("\uE05E", KenneySwitchFont), ["NIN R CLICK"] = ("\uE066", KenneySwitchFont),
-            ["NIN Capture"] = ("\uE016", KenneySwitchFont), // Capture button
+            ["NIN A"] = ("\uE004", KenneySwitchFont),
+            ["NIN B"] = ("\uE006", KenneySwitchFont),
+            ["NIN X"] = ("\uE018", KenneySwitchFont),
+            ["NIN Y"] = ("\uE01A", KenneySwitchFont),
+            ["NIN L"] = ("\uE00A", KenneySwitchFont),
+            ["NIN R"] = ("\uE010", KenneySwitchFont),
+            ["NIN ZL"] = ("\uE01C", KenneySwitchFont),
+            ["NIN ZR"] = ("\uE01E", KenneySwitchFont),
+            ["NIN +"] = ("\uE00E", KenneySwitchFont),
+            ["NIN -"] = ("\uE00C", KenneySwitchFont),
+            ["NIN Home"] = ("\uE087", KenneyKeyboardFont), // outline for gamepad
+            ["NIN ↑"] = ("\uE03C", KenneySwitchFont),
+            ["NIN ↓"] = ("\uE033", KenneySwitchFont),
+            ["NIN ←"] = ("\uE037", KenneySwitchFont),
+            ["NIN →"] = ("\uE03A", KenneySwitchFont),
+            ["NIN DPAD"] = ("\uE031", KenneySwitchFont),
+            ["NIN ↑↓"] = ("\uE03E", KenneySwitchFont),
+            ["NIN ←→"] = ("\uE035", KenneySwitchFont),
+            ["NIN SL"] = ("\uE012", KenneySwitchFont),
+            ["NIN SR"] = ("\uE014", KenneySwitchFont),
+            ["NIN L↑"] = ("\uE060", KenneySwitchFont),
+            ["NIN L↓"] = ("\uE05B", KenneySwitchFont),
+            ["NIN L←"] = ("\uE05D", KenneySwitchFont),
+            ["NIN L→"] = ("\uE05F", KenneySwitchFont),
+            ["NIN R↑"] = ("\uE068", KenneySwitchFont),
+            ["NIN R↓"] = ("\uE063", KenneySwitchFont),
+            ["NIN R←"] = ("\uE065", KenneySwitchFont),
+            ["NIN R→"] = ("\uE067", KenneySwitchFont),
+            ["NIN L CLICK"] = ("\uE05E", KenneySwitchFont),
+            ["NIN R CLICK"] = ("\uE066", KenneySwitchFont),
+            ["NIN Capture"] = ("\uE016", KenneySwitchFont),
             
             // Generic gamepad (kenney_input_generic font)
             ["GP STICK"] = ("\uE01B", KenneyGenericFont), ["GP STICK↑"] = ("\uE022", KenneyGenericFont), ["GP STICK↓"] = ("\uE01C", KenneyGenericFont),
@@ -648,7 +721,7 @@ namespace FlairX_Mod_Manager.Pages
             // Keyboard modifiers
             ["CTRL"] = ("\uE054", KenneyKeyboardFont), ["ALT"] = ("\uE017", KenneyKeyboardFont), ["SHIFT"] = ("\uE0BD", KenneyKeyboardFont), ["TAB"] = ("\uE0CB", KenneyKeyboardFont),
             ["ENTER"] = ("\uE05E", KenneyKeyboardFont), ["ESC"] = ("\uE062", KenneyKeyboardFont), ["SPACE"] = ("\uE0C5", KenneyKeyboardFont), ["BACKSPACE"] = ("\uE038", KenneyKeyboardFont),
-            ["DEL"] = ("\uE058", KenneyKeyboardFont), ["INS"] = ("\uE08A", KenneyKeyboardFont), ["HOME"] = ("\uE087", KenneyKeyboardFont), ["END"] = ("\uE05C", KenneyKeyboardFont),
+            ["DEL"] = ("\uE058", KenneyKeyboardFont), ["INS"] = ("\uE08A", KenneyKeyboardFont), ["HOME"] = ("\uE086", KenneyKeyboardFont), ["END"] = ("\uE05C", KenneyKeyboardFont),
             ["PAGE UP"] = ("\uE0A7", KenneyKeyboardFont), ["PAGE DOWN"] = ("\uE0A5", KenneyKeyboardFont), ["CAPS"] = ("\uE048", KenneyKeyboardFont),
             ["FN"] = ("\uE080", KenneyKeyboardFont), ["PRINT"] = ("\uE0AD", KenneyKeyboardFont), ["NUMLOCK"] = ("\uE098", KenneyKeyboardFont),
             ["WIN"] = ("\uE0D9", KenneyKeyboardFont), ["CMD"] = ("\uE052", KenneyKeyboardFont), ["OPTION"] = ("\uE0A0", KenneyKeyboardFont),
@@ -700,12 +773,30 @@ namespace FlairX_Mod_Manager.Pages
                 var keyPart = keyParts[i].Trim();
                 if (string.IsNullOrEmpty(keyPart)) continue;
                 
-                if (HotkeyIconMap.TryGetValue(keyPart, out var iconData))
+                // Try case-sensitive first, then case-insensitive lookup
+                (string Glyph, string Font)? iconData = null;
+                
+                if (HotkeyIconMap.TryGetValue(keyPart, out var exactMatch))
+                {
+                    iconData = exactMatch;
+                }
+                else
+                {
+                    // Try case-insensitive lookup
+                    var caseInsensitiveMatch = HotkeyIconMap.FirstOrDefault(kvp => 
+                        string.Equals(kvp.Key, keyPart, StringComparison.OrdinalIgnoreCase));
+                    if (!caseInsensitiveMatch.Equals(default(KeyValuePair<string, (string, string)>)))
+                    {
+                        iconData = caseInsensitiveMatch.Value;
+                    }
+                }
+                
+                if (iconData.HasValue)
                 {
                     var icon = new FontIcon
                     {
-                        Glyph = iconData.Glyph,
-                        FontFamily = new FontFamily(iconData.Font),
+                        Glyph = iconData.Value.Glyph,
+                        FontFamily = new FontFamily(iconData.Value.Font),
                         FontSize = 64,
                         VerticalAlignment = VerticalAlignment.Center,
                         HorizontalAlignment = HorizontalAlignment.Center
@@ -791,6 +882,10 @@ namespace FlairX_Mod_Manager.Pages
         
         private async void FavoriteButton_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            // Block if in edit mode or recording gamepad
+            if (_activeHotkeyEditBox != null || _isRecordingGamepad)
+                return;
+                
             if (sender is Border border && border.Tag is HotkeyButtonData data && border.Child is FontIcon icon)
             {
                 var accentColor = new Windows.UI.ViewManagement.UISettings().GetColorValue(Windows.UI.ViewManagement.UIColorType.Accent);
@@ -820,6 +915,10 @@ namespace FlairX_Mod_Manager.Pages
         
         private void EditButton_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            // Block if already in edit mode or recording gamepad
+            if (_activeHotkeyEditBox != null || _isRecordingGamepad)
+                return;
+                
             if (sender is Border editBorder && editBorder.Tag is HotkeyButtonData data)
             {
                 var parent = editBorder.Parent as StackPanel;
@@ -846,6 +945,7 @@ namespace FlairX_Mod_Manager.Pages
                         FontWeight = Microsoft.UI.Text.FontWeights.Bold,
                         FontSize = 14,
                         MinWidth = 120,
+                        VerticalAlignment = VerticalAlignment.Center,
                         Tag = "HotkeyEditBox",
                         PlaceholderText = "Press keys..."
                     };
@@ -857,6 +957,9 @@ namespace FlairX_Mod_Manager.Pages
                     grid.Children.RemoveAt(idx);
                     grid.Children.Insert(idx, editBox);
                     editBox.Focus(FocusState.Programmatic);
+                    
+                    // Set active edit box to block other buttons
+                    _activeHotkeyEditBox = editBox;
                 }
             }
         }
@@ -871,14 +974,19 @@ namespace FlairX_Mod_Manager.Pages
             var grid = parent.Parent as Grid;
             if (grid == null) return;
             
+            // Check if this is the same hotkey row or different one
+            var editBox = grid.Children.OfType<TextBox>().FirstOrDefault(t => t.Tag as string == "HotkeyEditBox");
+            bool isThisHotkeyInEdit = editBox != null;
+            
+            // Block if ANY hotkey is in edit mode (one operation at a time)
+            if (_activeHotkeyEditBox != null && !_isRecordingGamepad)
+                return;
+            
             if (_isRecordingGamepad)
             {
                 StopGamepadListening();
                 return;
             }
-            
-            // Check if already in edit mode
-            var editBox = grid.Children.OfType<TextBox>().FirstOrDefault(t => t.Tag as string == "HotkeyEditBox");
             
             if (editBox == null)
             {
@@ -1054,7 +1162,15 @@ namespace FlairX_Mod_Manager.Pages
                         _holdTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
                         _holdTimer.Tick += HoldTimer_Tick;
                         _holdTimer.Start();
-                        _activeHotkeyEditBox.Text = $"{_pendingCombo} ({_holdCountdown})";
+                        _activeHotkeyEditBox.Text = _pendingCombo;
+                        var countdownGlyph = _holdCountdown switch
+                        {
+                            3 => "\uE007", // "3"
+                            2 => "\uE005", // "2" 
+                            1 => "\uE003", // "1"
+                            _ => _holdCountdown.ToString()
+                        };
+                        _activeHotkeyEditBox.PlaceholderText = $"Hold combo... {countdownGlyph}";
                     }
                     
                     _isSettingHotkeyText = false;
@@ -1089,7 +1205,15 @@ namespace FlairX_Mod_Manager.Pages
                     if (_activeHotkeyEditBox != null)
                     {
                         _isSettingHotkeyText = true;
-                        _activeHotkeyEditBox.Text = $"{_pendingCombo} ({_holdCountdown})";
+                        _activeHotkeyEditBox.Text = _pendingCombo;
+                        var countdownGlyph = _holdCountdown switch
+                        {
+                            3 => "\uE007", // "3"
+                            2 => "\uE005", // "2" 
+                            1 => "\uE003", // "1"
+                            _ => _holdCountdown.ToString()
+                        };
+                        _activeHotkeyEditBox.PlaceholderText = $"Hold combo... {countdownGlyph}";
                         _isSettingHotkeyText = false;
                     }
                 });
@@ -1168,6 +1292,10 @@ namespace FlairX_Mod_Manager.Pages
         
         private async void RestoreDefaultButton_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
+            // Block if in edit mode or recording gamepad
+            if (_activeHotkeyEditBox != null || _isRecordingGamepad)
+                return;
+                
             if (sender is Border restoreBorder && restoreBorder.Tag is HotkeyButtonData data)
             {
                 try
@@ -1285,6 +1413,9 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Save to mod.json
                 await SaveHotkeyChange(data.OriginalIndex, newKeyCombo, data.Description);
+                
+                // Reset active edit box to unblock other buttons
+                _activeHotkeyEditBox = null;
             }
         }
         
