@@ -535,18 +535,31 @@ namespace FlairX_Mod_Manager.Pages
             var favoriteBtn = CreateHotkeyActionButton(isFavorite ? "\uE735" : "\uE734", isFavorite ? accentBrush : defaultBrush);
             favoriteBtn.Tag = new HotkeyButtonData { KeyCombo = keyCombo, Description = description, OriginalIndex = originalIndex };
             favoriteBtn.PointerPressed += FavoriteButton_PointerPressed;
+            
+            // Set tooltip for favorite button
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            ToolTipService.SetToolTip(favoriteBtn, SharedUtilities.GetTranslation(lang, isFavorite ? "ModDetailPage_UnfavoriteHotkey_Tooltip" : "ModDetailPage_FavoriteHotkey_Tooltip"));
+            
             buttonsPanel.Children.Add(favoriteBtn);
             
             // Edit button
             var editBtn = CreateHotkeyActionButton("\uE70F", defaultBrush);
             editBtn.Tag = new HotkeyButtonData { KeyCombo = keyCombo, Description = description, OriginalIndex = originalIndex };
             editBtn.PointerPressed += EditButton_PointerPressed;
+            
+            // Set tooltip for edit button
+            ToolTipService.SetToolTip(editBtn, SharedUtilities.GetTranslation(lang, "ModDetailPage_EditHotkey_Tooltip"));
+            
             buttonsPanel.Children.Add(editBtn);
             
             // Rec button (always visible - for gamepad recording)
             var recBtn = CreateHotkeyActionButton("\uE7C8", defaultBrush);
             recBtn.Tag = new HotkeyButtonData { KeyCombo = keyCombo, Description = description, OriginalIndex = originalIndex };
             recBtn.PointerPressed += RecButton_PointerPressed;
+            
+            // Set tooltip for rec button
+            ToolTipService.SetToolTip(recBtn, SharedUtilities.GetTranslation(lang, "ModDetailPage_RecordHotkey_Tooltip"));
+            
             buttonsPanel.Children.Add(recBtn);
             
             // Save button (initially hidden, shown during edit)
@@ -554,6 +567,10 @@ namespace FlairX_Mod_Manager.Pages
             saveBtn.Tag = new HotkeyButtonData { KeyCombo = keyCombo, Description = description, OriginalIndex = originalIndex };
             saveBtn.Visibility = Visibility.Collapsed;
             saveBtn.PointerPressed += SaveButton_PointerPressed;
+            
+            // Set tooltip for save button
+            ToolTipService.SetToolTip(saveBtn, SharedUtilities.GetTranslation(lang, "ModDetailPage_SaveHotkey_Tooltip"));
+            
             buttonsPanel.Children.Add(saveBtn);
             
             // Restore default button (always visible)
@@ -562,7 +579,6 @@ namespace FlairX_Mod_Manager.Pages
             restoreBtn.PointerPressed += RestoreDefaultButton_PointerPressed;
             
             // Set tooltip for restore button
-            var lang = SharedUtilities.LoadLanguageDictionary();
             ToolTipService.SetToolTip(restoreBtn, SharedUtilities.GetTranslation(lang, "ModDetailPage_RestoreDefaultHotkey_Tooltip"));
             buttonsPanel.Children.Add(restoreBtn);
             
@@ -901,11 +917,14 @@ namespace FlairX_Mod_Manager.Pages
                 
                 bool wasFavorite = _favoriteHotkeys.Contains(data.KeyCombo);
                 
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                
                 if (wasFavorite)
                 {
                     _favoriteHotkeys.Remove(data.KeyCombo);
                     icon.Glyph = "\uE734";
                     icon.Foreground = defaultBrush;
+                    ToolTipService.SetToolTip(border, SharedUtilities.GetTranslation(lang, "ModDetailPage_FavoriteHotkey_Tooltip"));
                     await SaveFavoriteHotkeys();
                     AnimateHotkeyFromFavorites(data.KeyCombo);
                 }
@@ -914,6 +933,7 @@ namespace FlairX_Mod_Manager.Pages
                     _favoriteHotkeys.Add(data.KeyCombo);
                     icon.Glyph = "\uE735";
                     icon.Foreground = accentBrush;
+                    ToolTipService.SetToolTip(border, SharedUtilities.GetTranslation(lang, "ModDetailPage_UnfavoriteHotkey_Tooltip"));
                     await SaveFavoriteHotkeys();
                     AnimateHotkeyToFavorites(data.KeyCombo);
                 }
@@ -1063,7 +1083,11 @@ namespace FlairX_Mod_Manager.Pages
             editBox.Text = "";
             editBox.PlaceholderText = "Press & hold gamepad...";
             if (recBorder.Child is FontIcon icon)
+            {
                 icon.Glyph = "\uE71A"; // Stop icon
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                ToolTipService.SetToolTip(recBorder, SharedUtilities.GetTranslation(lang, "ModDetailPage_StopRecordingHotkey_Tooltip"));
+            }
             
             _hotkeyGamepad.ButtonPressed += OnHotkeyGamepadButtonPressed;
             _hotkeyGamepad.ButtonReleased += OnHotkeyGamepadButtonReleased;
@@ -1088,7 +1112,11 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             if (_activeRecBorder?.Child is FontIcon icon)
+            {
                 icon.Glyph = "\uE7C8"; // Rec icon
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                ToolTipService.SetToolTip(_activeRecBorder, SharedUtilities.GetTranslation(lang, "ModDetailPage_RecordHotkey_Tooltip"));
+            }
             
             if (_activeHotkeyEditBox != null)
                 _activeHotkeyEditBox.PlaceholderText = "Press keys...";
