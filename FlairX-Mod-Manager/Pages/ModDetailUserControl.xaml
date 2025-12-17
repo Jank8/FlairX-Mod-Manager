@@ -71,68 +71,66 @@
                     <!-- Image Section -->
                     <TextBlock x:Name="ModPreviewHeader" Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
                     
-                    <Viewbox MaxWidth="600" MaxHeight="600" Stretch="Uniform" Margin="0,0,0,24" HorizontalAlignment="Center">
-                            <Grid Width="600" Height="600">
-                                <!-- Coordinate field for tilt calculation -->
-                                <Grid x:Name="ModImageCoordinateField" 
-                                      Width="600" Height="600" 
-                                      Background="Transparent"
-                                      PointerEntered="ModImageCoordinateField_PointerEntered"
-                                      PointerExited="ModImageCoordinateField_PointerExited"
-                                      PointerPressed="ModImage_PointerPressed" />
-                                
-                                <!-- Content root with margin for stable hover -->
-                                <Grid x:Name="ModImageContentRoot" Margin="20" IsHitTestVisible="False">
-                                    <Border x:Name="ModImageBorder" CornerRadius="12" BorderThickness="12" BorderBrush="{ThemeResource TileBorderBrush}">
-                                        <Border CornerRadius="8">
-                                            <Image x:Name="ModImage" Stretch="Uniform"/>
-                                        </Border>
-                                    </Border>
-                                </Grid>
-                                
-                                <!-- Left Navigation Button -->
-                                <Border x:Name="PrevImageButton" Width="44" Height="44" 
-                                        VerticalAlignment="Bottom" HorizontalAlignment="Left"
-                                        Margin="40,0,0,40" Visibility="Collapsed"
-                                        CornerRadius="12"
-                                        Background="{ThemeResource LauncherAcrylicBrush}"
-                                        PointerPressed="PrevImageButton_Click"
-                                        PointerEntered="ModImageCoordinateField_PointerEntered"
-                                        PointerExited="ModImageCoordinateField_PointerExited"
-                                        PointerMoved="ModImageCoordinateField_PointerMoved">
-                                    <FontIcon Glyph="&#xE76B;" FontSize="18" 
-                                              Foreground="{ThemeResource ButtonForeground}" 
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <!-- Image container with max height constraint -->
+                    <Grid MaxHeight="600" HorizontalAlignment="Center" Margin="0,0,0,24">
+                        <!-- Coordinate field for tilt calculation -->
+                        <Grid x:Name="ModImageCoordinateField" 
+                              Background="Transparent"
+                              PointerEntered="ModImageCoordinateField_PointerEntered"
+                              PointerExited="ModImageCoordinateField_PointerExited"
+                              PointerPressed="ModImage_PointerPressed" />
+                        
+                        <!-- Content root with margin for stable hover -->
+                        <Grid x:Name="ModImageContentRoot" Margin="20" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Border x:Name="ModImageBorder" CornerRadius="12" BorderThickness="12" BorderBrush="{ThemeResource TileBorderBrush}">
+                                <Border CornerRadius="8">
+                                    <Image x:Name="ModImage" Stretch="Uniform"/>
                                 </Border>
-                                
-                                <!-- Right Navigation Button -->
-                                <Border x:Name="NextImageButton" Width="44" Height="44" 
-                                        VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                                        Margin="0,0,40,40" Visibility="Collapsed"
-                                        CornerRadius="12"
-                                        Background="{ThemeResource LauncherAcrylicBrush}"
-                                        PointerPressed="NextImageButton_Click"
-                                        PointerEntered="ModImageCoordinateField_PointerEntered"
-                                        PointerExited="ModImageCoordinateField_PointerExited"
-                                        PointerMoved="ModImageCoordinateField_PointerMoved">
-                                    <FontIcon Glyph="&#xE76C;" FontSize="18" 
-                                              Foreground="{ThemeResource ButtonForeground}" 
-                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                
-                                <!-- Image Counter -->
-                                <Border Background="{ThemeResource LauncherAcrylicBrush}" 
-                                        CornerRadius="12" Padding="8,4" Margin="0,0,0,40" 
-                                        VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                                        x:Name="ImageCounterBorder" Visibility="Collapsed"
-                                        PointerEntered="ModImageCoordinateField_PointerEntered"
-                                        PointerExited="ModImageCoordinateField_PointerExited"
-                                        PointerMoved="ModImageCoordinateField_PointerMoved">
-                                    <TextBlock x:Name="ImageCounterText" Text="1 / 1" FontSize="12" 
-                                               Foreground="{ThemeResource ButtonForeground}"/>
-                                </Border>
-                            </Grid>
-                        </Viewbox>
+                            </Border>
+                        </Grid>
+                        
+                        <!-- Left Navigation Button -->
+                        <Border x:Name="PrevImageButton" Width="44" Height="44" 
+                                VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                                Margin="40,0,0,40" Visibility="Collapsed"
+                                CornerRadius="12"
+                                Background="{ThemeResource LauncherAcrylicBrush}"
+                                PointerPressed="PrevImageButton_Click"
+                                PointerEntered="ModImageCoordinateField_PointerEntered"
+                                PointerExited="ModImageCoordinateField_PointerExited"
+                                PointerMoved="ModImageCoordinateField_PointerMoved">
+                            <FontIcon Glyph="&#xE76B;" FontSize="18" 
+                                      Foreground="{ThemeResource ButtonForeground}" 
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        
+                        <!-- Right Navigation Button -->
+                        <Border x:Name="NextImageButton" Width="44" Height="44" 
+                                VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                Margin="0,0,40,40" Visibility="Collapsed"
+                                CornerRadius="12"
+                                Background="{ThemeResource LauncherAcrylicBrush}"
+                                PointerPressed="NextImageButton_Click"
+                                PointerEntered="ModImageCoordinateField_PointerEntered"
+                                PointerExited="ModImageCoordinateField_PointerExited"
+                                PointerMoved="ModImageCoordinateField_PointerMoved">
+                            <FontIcon Glyph="&#xE76C;" FontSize="18" 
+                                      Foreground="{ThemeResource ButtonForeground}" 
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        
+                        <!-- Image Counter -->
+                        <Border Background="{ThemeResource LauncherAcrylicBrush}" 
+                                CornerRadius="12" Padding="8,4" Margin="0,0,0,40" 
+                                VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                x:Name="ImageCounterBorder" Visibility="Collapsed"
+                                PointerEntered="ModImageCoordinateField_PointerEntered"
+                                PointerExited="ModImageCoordinateField_PointerExited"
+                                PointerMoved="ModImageCoordinateField_PointerMoved">
+                            <TextBlock x:Name="ImageCounterText" Text="1 / 1" FontSize="12" 
+                                       Foreground="{ThemeResource ButtonForeground}"/>
+                        </Border>
+                    </Grid>
 
                     <!-- Details Section -->
                     <TextBlock x:Name="ModDetailsHeader" Text="Details" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>

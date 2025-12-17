@@ -57,10 +57,21 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     var imagePath = _availablePreviewImages[_currentImageIndex];
                     var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                    byte[] imageData = File.ReadAllBytes(imagePath);
-                    using (var memStream = new MemoryStream(imageData))
+                    
+                    // Check if it's a URL or local file
+                    if (imagePath.StartsWith("http://") || imagePath.StartsWith("https://"))
                     {
-                        bitmap.SetSource(memStream.AsRandomAccessStream());
+                        // Load from URL
+                        bitmap.UriSource = new Uri(imagePath);
+                    }
+                    else
+                    {
+                        // Load from local file
+                        byte[] imageData = File.ReadAllBytes(imagePath);
+                        using (var memStream = new MemoryStream(imageData))
+                        {
+                            bitmap.SetSource(memStream.AsRandomAccessStream());
+                        }
                     }
                     PreviewImage.Source = bitmap;
 

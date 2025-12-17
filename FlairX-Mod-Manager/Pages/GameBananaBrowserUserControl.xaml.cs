@@ -1385,6 +1385,19 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        // Image Preview - opens sliding panel
+        private void DetailImageCoordinateField_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            var point = e.GetCurrentPoint(DetailImageCoordinateField);
+            if (point.Properties.IsLeftButtonPressed && _detailPreviewImages.Count > 0)
+            {
+                // Open image preview in sliding panel
+                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                var modName = _currentModDetails?.Name ?? "Preview";
+                mainWindow?.ShowImagePreviewPanel(_detailPreviewImages, _currentDetailImageIndex, modName);
+            }
+        }
+
         // Author avatar hover effect
         private void AuthorAvatar_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
