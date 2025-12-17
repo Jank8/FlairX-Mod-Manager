@@ -40,6 +40,8 @@
     "ModDetailPage_Hotkeys": "熱鍵:",
     "ModDetailPage_OpenURL_Tooltip": "開啟URL",
     "ModDetailPage_SetToday_Tooltip": "設置為今天",
+    "ModDetailPage_RestoreDefaultHotkeys_Tooltip": "恢復預設熱鍵",
+    "ModDetailPage_RestoreDefaultHotkey_Tooltip": "恢復預設熱鍵",
     "ModDetailPage_Title": "模組詳情",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "有可用更新",

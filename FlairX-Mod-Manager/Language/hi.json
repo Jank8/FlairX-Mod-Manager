@@ -40,6 +40,8 @@
     "ModDetailPage_Hotkeys": "हॉटकीज़:",
     "ModDetailPage_OpenURL_Tooltip": "URL खोलें",
     "ModDetailPage_SetToday_Tooltip": "आज पर सेट करें",
+    "ModDetailPage_RestoreDefaultHotkeys_Tooltip": "डिफ़ॉल्ट हॉटकी पुनर्स्थापित करें",
+    "ModDetailPage_RestoreDefaultHotkey_Tooltip": "डिफ़ॉल्ट हॉटकी पुनर्स्थापित करें",
     "ModDetailPage_Title": "मॉड विवरण",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "अपडेट उपलब्ध है",

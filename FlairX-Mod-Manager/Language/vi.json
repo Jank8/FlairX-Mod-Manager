@@ -40,6 +40,8 @@
     "ModDetailPage_Hotkeys": "Phím tắt:",
     "ModDetailPage_OpenURL_Tooltip": "Mở URL",
     "ModDetailPage_SetToday_Tooltip": "Đặt thành hôm nay",
+    "ModDetailPage_RestoreDefaultHotkeys_Tooltip": "Khôi phục phím tắt mặc định",
+    "ModDetailPage_RestoreDefaultHotkey_Tooltip": "Khôi phục phím tắt mặc định",
     "ModDetailPage_Title": "Chi tiết mod",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "Có bản cập nhật",

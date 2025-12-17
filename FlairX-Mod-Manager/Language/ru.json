@@ -41,6 +41,8 @@
     "ModDetailPage_Hotkeys": "Горячие клавиши:",
     "ModDetailPage_OpenURL_Tooltip": "Открыть URL",
     "ModDetailPage_SetToday_Tooltip": "Установить на сегодня",
+    "ModDetailPage_RestoreDefaultHotkeys_Tooltip": "Восстановить горячие клавиши по умолчанию",
+    "ModDetailPage_RestoreDefaultHotkey_Tooltip": "Восстановить горячую клавишу по умолчанию",
     "ModDetailPage_Title": "Детали мода",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "Доступно обновление",

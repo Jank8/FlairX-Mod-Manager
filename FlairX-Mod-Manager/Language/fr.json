@@ -41,6 +41,8 @@
     "ModDetailPage_Hotkeys": "Raccourcis clavier :",
     "ModDetailPage_OpenURL_Tooltip": "Ouvrir l'URL",
     "ModDetailPage_SetToday_Tooltip": "Définir à aujourd'hui",
+    "ModDetailPage_RestoreDefaultHotkeys_Tooltip": "Restaurer les raccourcis clavier par défaut",
+    "ModDetailPage_RestoreDefaultHotkey_Tooltip": "Restaurer le raccourci clavier par défaut",
     "ModDetailPage_Title": "Détails du mod",
     "ModDetailPage_URL": "URL :",
     "ModDetailPage_UpdateAvailable": "Mise à jour disponible",

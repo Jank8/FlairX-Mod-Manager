@@ -40,6 +40,8 @@
     "ModDetailPage_Hotkeys": "Kısayol tuşları:",
     "ModDetailPage_OpenURL_Tooltip": "URL'yi Aç",
     "ModDetailPage_SetToday_Tooltip": "Bugüne ayarla",
+    "ModDetailPage_RestoreDefaultHotkeys_Tooltip": "Varsayılan kısayolları geri yükle",
+    "ModDetailPage_RestoreDefaultHotkey_Tooltip": "Varsayılan kısayolu geri yükle",
     "ModDetailPage_Title": "Mod detayları",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "Güncelleme mevcut",

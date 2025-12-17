@@ -40,6 +40,8 @@
     "ModDetailPage_Hotkeys": "Mga hotkey:",
     "ModDetailPage_OpenURL_Tooltip": "Buksan ang URL",
     "ModDetailPage_SetToday_Tooltip": "Itakda sa ngayon",
+    "ModDetailPage_RestoreDefaultHotkeys_Tooltip": "Ibalik ang default na hotkeys",
+    "ModDetailPage_RestoreDefaultHotkey_Tooltip": "Ibalik ang default na hotkey",
     "ModDetailPage_Title": "Mga detalye ng mod",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "May available na update",

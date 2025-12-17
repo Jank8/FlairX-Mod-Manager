@@ -40,6 +40,8 @@
     "ModDetailPage_Hotkeys": "ปุ่มลัด:",
     "ModDetailPage_OpenURL_Tooltip": "เปิด URL",
     "ModDetailPage_SetToday_Tooltip": "ตั้งเป็นวันนี้",
+    "ModDetailPage_RestoreDefaultHotkeys_Tooltip": "คืนค่าปุ่มลัดเริ่มต้น",
+    "ModDetailPage_RestoreDefaultHotkey_Tooltip": "คืนค่าปุ่มลัดเริ่มต้น",
     "ModDetailPage_Title": "รายละเอียด mod",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "มีอัปเดต",

@@ -102,6 +102,9 @@ namespace FlairX_Mod_Manager.Pages
                 ToolTipService.SetToolTip(TodayDateCheckedButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_SetToday_Tooltip"));
                 ToolTipService.SetToolTip(TodayDateUpdatedButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_SetToday_Tooltip"));
                 
+                // Set tooltip for Restore Default Hotkeys button
+                ToolTipService.SetToolTip(RestoreDefaultHotkeysButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_RestoreDefaultHotkeys_Tooltip"));
+                
                 // Set placeholder text for date pickers
                 ModDateCheckedPicker.PlaceholderText = SharedUtilities.GetTranslation(lang, "ModDetailPage_SelectDate_Placeholder");
                 ModDateUpdatedPicker.PlaceholderText = SharedUtilities.GetTranslation(lang, "ModDetailPage_SelectDate_Placeholder");
@@ -557,6 +560,10 @@ namespace FlairX_Mod_Manager.Pages
             var restoreBtn = CreateHotkeyActionButton("\uE777", defaultBrush);
             restoreBtn.Tag = new HotkeyButtonData { KeyCombo = keyCombo, Description = description, OriginalIndex = originalIndex };
             restoreBtn.PointerPressed += RestoreDefaultButton_PointerPressed;
+            
+            // Set tooltip for restore button
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            ToolTipService.SetToolTip(restoreBtn, SharedUtilities.GetTranslation(lang, "ModDetailPage_RestoreDefaultHotkey_Tooltip"));
             buttonsPanel.Children.Add(restoreBtn);
             
             Grid.SetColumn(buttonsPanel, 3);

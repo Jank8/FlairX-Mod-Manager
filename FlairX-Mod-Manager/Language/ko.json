@@ -41,6 +41,8 @@
     "ModDetailPage_Hotkeys": "단축키:",
     "ModDetailPage_OpenURL_Tooltip": "URL 열기",
     "ModDetailPage_SetToday_Tooltip": "오늘로 설정",
+    "ModDetailPage_RestoreDefaultHotkeys_Tooltip": "기본 단축키 복원",
+    "ModDetailPage_RestoreDefaultHotkey_Tooltip": "기본 단축키 복원",
     "ModDetailPage_Title": "모드 세부정보",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "업데이트 가능",

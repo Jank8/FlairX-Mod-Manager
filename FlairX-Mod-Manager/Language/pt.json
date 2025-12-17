@@ -40,6 +40,8 @@
     "ModDetailPage_Hotkeys": "Teclas de atalho:",
     "ModDetailPage_OpenURL_Tooltip": "Abrir URL",
     "ModDetailPage_SetToday_Tooltip": "Definir para hoje",
+    "ModDetailPage_RestoreDefaultHotkeys_Tooltip": "Restaurar teclas de atalho padrão",
+    "ModDetailPage_RestoreDefaultHotkey_Tooltip": "Restaurar tecla de atalho padrão",
     "ModDetailPage_Title": "Detalhes do mod",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "Atualização disponível",

@@ -41,6 +41,8 @@
     "ModDetailPage_Hotkeys": "Teclas de acceso rápido:",
     "ModDetailPage_OpenURL_Tooltip": "Abrir URL",
     "ModDetailPage_SetToday_Tooltip": "Establecer a hoy",
+    "ModDetailPage_RestoreDefaultHotkeys_Tooltip": "Restaurar teclas de acceso rápido predeterminadas",
+    "ModDetailPage_RestoreDefaultHotkey_Tooltip": "Restaurar tecla de acceso rápido predeterminada",
     "ModDetailPage_Title": "Detalles del mod",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "Actualización disponible",
