@@ -71,8 +71,10 @@
                     <!-- Image Section -->
                     <TextBlock x:Name="ModPreviewHeader" Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
                     
-                    <!-- Image container with max height constraint -->
-                    <Grid MaxHeight="600" HorizontalAlignment="Center" Margin="0,0,0,24">
+                    <!-- Image section with navigation -->
+                    <Grid Margin="0,0,0,24">
+                        <!-- Image container with max height constraint -->
+                        <Grid MaxHeight="600" HorizontalAlignment="Center">
                         <!-- Coordinate field for tilt calculation -->
                         <Grid x:Name="ModImageCoordinateField" 
                               Background="Transparent"
@@ -88,17 +90,15 @@
                                 </Border>
                             </Border>
                         </Grid>
+                        </Grid>
                         
                         <!-- Left Navigation Button -->
                         <Border x:Name="PrevImageButton" Width="44" Height="44" 
-                                VerticalAlignment="Bottom" HorizontalAlignment="Left"
-                                Margin="40,0,0,40" Visibility="Collapsed"
+                                VerticalAlignment="Center" HorizontalAlignment="Left"
+                                Margin="24,0,0,0" Visibility="Collapsed"
                                 CornerRadius="12"
                                 Background="{ThemeResource LauncherAcrylicBrush}"
-                                PointerPressed="PrevImageButton_Click"
-                                PointerEntered="ModImageCoordinateField_PointerEntered"
-                                PointerExited="ModImageCoordinateField_PointerExited"
-                                PointerMoved="ModImageCoordinateField_PointerMoved">
+                                PointerPressed="PrevImageButton_Click">
                             <FontIcon Glyph="&#xE76B;" FontSize="18" 
                                       Foreground="{ThemeResource ButtonForeground}" 
                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -106,14 +106,11 @@
                         
                         <!-- Right Navigation Button -->
                         <Border x:Name="NextImageButton" Width="44" Height="44" 
-                                VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                                Margin="0,0,40,40" Visibility="Collapsed"
+                                VerticalAlignment="Center" HorizontalAlignment="Right"
+                                Margin="0,0,24,0" Visibility="Collapsed"
                                 CornerRadius="12"
                                 Background="{ThemeResource LauncherAcrylicBrush}"
-                                PointerPressed="NextImageButton_Click"
-                                PointerEntered="ModImageCoordinateField_PointerEntered"
-                                PointerExited="ModImageCoordinateField_PointerExited"
-                                PointerMoved="ModImageCoordinateField_PointerMoved">
+                                PointerPressed="NextImageButton_Click">
                             <FontIcon Glyph="&#xE76C;" FontSize="18" 
                                       Foreground="{ThemeResource ButtonForeground}" 
                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -121,12 +118,10 @@
                         
                         <!-- Image Counter -->
                         <Border Background="{ThemeResource LauncherAcrylicBrush}" 
-                                CornerRadius="12" Padding="8,4" Margin="0,0,0,40" 
+                                CornerRadius="12" Padding="8,4" 
                                 VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                                x:Name="ImageCounterBorder" Visibility="Collapsed"
-                                PointerEntered="ModImageCoordinateField_PointerEntered"
-                                PointerExited="ModImageCoordinateField_PointerExited"
-                                PointerMoved="ModImageCoordinateField_PointerMoved">
+                                Margin="0,0,0,40"
+                                x:Name="ImageCounterBorder" Visibility="Collapsed">
                             <TextBlock x:Name="ImageCounterText" Text="1 / 1" FontSize="12" 
                                        Foreground="{ThemeResource ButtonForeground}"/>
                         </Border>

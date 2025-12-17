@@ -389,8 +389,10 @@
                         <!-- 2. Preview Section -->
                         <TextBlock x:Name="DetailPreviewHeader" Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,12,0,12"/>
                         
-                        <!-- Image container with max height constraint -->
-                        <Grid MaxHeight="600" HorizontalAlignment="Center" Margin="0,0,0,24">
+                        <!-- Image section with navigation -->
+                        <Grid Margin="0,0,0,24">
+                            <!-- Image container with fixed height -->
+                            <Grid Height="600" HorizontalAlignment="Center">
                             <!-- Coordinate field for tilt -->
                             <Grid x:Name="DetailImageCoordinateField" 
                                   Background="Transparent"
@@ -407,17 +409,15 @@
                                     </Border>
                                 </Border>
                             </Grid>
+                            </Grid>
                             
                             <!-- Previous Button -->
                             <Border x:Name="DetailPrevImageButton" Width="44" Height="44" 
-                                    VerticalAlignment="Bottom" HorizontalAlignment="Left"
-                                    Margin="40,0,0,40" Visibility="Collapsed"
+                                    VerticalAlignment="Center" HorizontalAlignment="Left"
+                                    Margin="24,0,0,0" Visibility="Collapsed"
                                     CornerRadius="12"
                                     Background="{ThemeResource LauncherAcrylicBrush}"
-                                    PointerPressed="DetailPrevImageButton_Click"
-                                    PointerEntered="DetailImageCoordinateField_PointerEntered"
-                                    PointerExited="DetailImageCoordinateField_PointerExited"
-                                    PointerMoved="DetailImageCoordinateField_PointerMoved">
+                                    PointerPressed="DetailPrevImageButton_Click">
                                 <FontIcon Glyph="&#xE76B;" FontSize="18" 
                                           Foreground="{ThemeResource ButtonForeground}" 
                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -425,14 +425,11 @@
                             
                             <!-- Next Button -->
                             <Border x:Name="DetailNextImageButton" Width="44" Height="44" 
-                                    VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                                    Margin="0,0,40,40" Visibility="Collapsed"
+                                    VerticalAlignment="Center" HorizontalAlignment="Right"
+                                    Margin="0,0,24,0" Visibility="Collapsed"
                                     CornerRadius="12"
                                     Background="{ThemeResource LauncherAcrylicBrush}"
-                                    PointerPressed="DetailNextImageButton_Click"
-                                    PointerEntered="DetailImageCoordinateField_PointerEntered"
-                                    PointerExited="DetailImageCoordinateField_PointerExited"
-                                    PointerMoved="DetailImageCoordinateField_PointerMoved">
+                                    PointerPressed="DetailNextImageButton_Click">
                                 <FontIcon Glyph="&#xE76C;" FontSize="18" 
                                           Foreground="{ThemeResource ButtonForeground}" 
                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -440,12 +437,10 @@
                             
                             <!-- Image Counter -->
                             <Border Background="{ThemeResource LauncherAcrylicBrush}" 
-                                    CornerRadius="12" Padding="8,4" Margin="0,0,0,40" 
+                                    CornerRadius="12" Padding="8,4" 
                                     VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                                    x:Name="DetailImageCounterBorder" Visibility="Collapsed"
-                                    PointerEntered="DetailImageCoordinateField_PointerEntered"
-                                    PointerExited="DetailImageCoordinateField_PointerExited"
-                                    PointerMoved="DetailImageCoordinateField_PointerMoved">
+                                    Margin="0,0,0,40"
+                                    x:Name="DetailImageCounterBorder" Visibility="Collapsed">
                                 <TextBlock x:Name="DetailImageCounterText" Text="1 / 1" FontSize="12" 
                                            Foreground="{ThemeResource ButtonForeground}"/>
                             </Border>
