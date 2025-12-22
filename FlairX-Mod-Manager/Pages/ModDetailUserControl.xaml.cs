@@ -495,9 +495,9 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Background = (Brush)Application.Current.Resources["CardBackgroundFillColorSecondaryBrush"],
                 CornerRadius = new CornerRadius(8),
-                Padding = new Thickness(16, 12, 16, 12),
+                Padding = new Thickness(16, 0, 16, 0),
                 Margin = new Thickness(0, 0, 0, 6),
-                Height = 104, // Fixed height to prevent jumping during edit (80 + 24 padding)
+                Height = 60,
                 Tag = new HotkeyRowData { Key = keyCombo, Description = description, OriginalIndex = originalIndex },
                 RenderTransform = new CompositeTransform()
             };
@@ -690,7 +690,7 @@ namespace FlairX_Mod_Manager.Pages
                     saveBtn.Visibility = Visibility.Visible;
                 
                 // Replace keys panel with editable TextBox
-                var keysPanel = grid.Children.OfType<StackPanel>().FirstOrDefault();
+                var keysPanel = grid.Children.OfType<StackPanel>().FirstOrDefault(sp => sp.Tag as string != "EditContainer");
                 if (keysPanel != null)
                 {
                     var editBox = new TextBox
@@ -699,6 +699,7 @@ namespace FlairX_Mod_Manager.Pages
                         FontFamily = new FontFamily("Consolas"),
                         FontWeight = Microsoft.UI.Text.FontWeights.Bold,
                         FontSize = 14,
+                        Height = 32,
                         MinWidth = 120,
                         VerticalAlignment = VerticalAlignment.Center,
                         Tag = "HotkeyEditBox",
@@ -715,6 +716,9 @@ namespace FlairX_Mod_Manager.Pages
                     
                     // Set active edit box to block other buttons
                     _activeHotkeyEditBox = editBox;
+                    
+                    // Disable restore all button during edit
+                    RestoreDefaultHotkeysButton.IsEnabled = false;
                 }
             }
         }
@@ -722,6 +726,17 @@ namespace FlairX_Mod_Manager.Pages
         private void RecButton_PointerPressed(object sender, PointerRoutedEventArgs e)
         {
             if (sender is not Border recBorder || recBorder.Tag is not HotkeyButtonData data) return;
+            
+            // If already recording gamepad on THIS button, stop it
+            if (_isRecordingGamepad && _activeRecBorder == recBorder)
+            {
+                StopGamepadListening();
+                return;
+            }
+            
+            // Block if ANY hotkey is in edit mode or recording (one operation at a time)
+            if (_activeHotkeyEditBox != null || _isRecordingGamepad)
+                return;
             
             var parent = recBorder.Parent as StackPanel;
             if (parent == null) return;
@@ -731,17 +746,6 @@ namespace FlairX_Mod_Manager.Pages
             
             // Check if this is the same hotkey row or different one
             var editBox = grid.Children.OfType<TextBox>().FirstOrDefault(t => t.Tag as string == "HotkeyEditBox");
-            bool isThisHotkeyInEdit = editBox != null;
-            
-            // Block if ANY hotkey is in edit mode (one operation at a time)
-            if (_activeHotkeyEditBox != null && !_isRecordingGamepad)
-                return;
-            
-            if (_isRecordingGamepad)
-            {
-                StopGamepadListening();
-                return;
-            }
             
             if (editBox == null)
             {
@@ -751,27 +755,53 @@ namespace FlairX_Mod_Manager.Pages
                 if (parent.Children.Count > 3 && parent.Children[3] is Border saveBtn)
                     saveBtn.Visibility = Visibility.Visible;
                 
-                // Replace keys panel with TextBox
-                var keysPanel = grid.Children.OfType<StackPanel>().FirstOrDefault();
+                // Replace keys panel with TextBox + countdown
+                var keysPanel = grid.Children.OfType<StackPanel>().FirstOrDefault(sp => sp.Tag as string != "EditContainer");
                 if (keysPanel != null)
                 {
+                    // Create container for TextBox and countdown
+                    var editContainer = new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal,
+                        Spacing = 8,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Tag = "EditContainer"
+                    };
+                    
                     editBox = new TextBox
                     {
                         Text = data.KeyCombo,
                         FontFamily = new FontFamily("Consolas"),
                         FontWeight = Microsoft.UI.Text.FontWeights.Bold,
                         FontSize = 14,
+                        Height = 32,
                         MinWidth = 120,
+                        VerticalAlignment = VerticalAlignment.Center,
                         Tag = "HotkeyEditBox",
                         PlaceholderText = "Press keys..."
                     };
                     editBox.PreviewKeyDown += HotkeyEditBox_PreviewKeyDown;
                     editBox.TextChanged += HotkeyEditBox_TextChanged;
+                    editContainer.Children.Add(editBox);
+                    
+                    // Countdown TextBlock (hidden initially)
+                    _countdownTextBlock = new TextBlock
+                    {
+                        FontFamily = new FontFamily("ms-appx:///Assets/KenneyFonts/kenney_input_keyboard_mouse.ttf#Kenney Input Keyboard & Mouse"),
+                        FontSize = 32,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        Visibility = Visibility.Collapsed
+                    };
+                    editContainer.Children.Add(_countdownTextBlock);
                     
                     int idx = grid.Children.IndexOf(keysPanel);
-                    Grid.SetColumn(editBox, 0);
+                    Grid.SetColumn(editContainer, 0);
                     grid.Children.RemoveAt(idx);
-                    grid.Children.Insert(idx, editBox);
+                    grid.Children.Insert(idx, editContainer);
+                    
+                    // Set active edit box and disable restore all button
+                    _activeHotkeyEditBox = editBox;
+                    RestoreDefaultHotkeysButton.IsEnabled = false;
                 }
             }
             
@@ -786,6 +816,7 @@ namespace FlairX_Mod_Manager.Pages
         private DispatcherTimer? _holdTimer;
         private int _holdCountdown = 3;
         private string _pendingCombo = "";
+        private TextBlock? _countdownTextBlock;
         
         private void StartGamepadListening(TextBox editBox, Border recBorder)
         {
@@ -849,7 +880,6 @@ namespace FlairX_Mod_Manager.Pages
             if (_activeHotkeyEditBox != null)
                 _activeHotkeyEditBox.PlaceholderText = "Press keys...";
             
-            _activeHotkeyEditBox = null;
             _activeRecBorder = null;
             _recordedGamepadButtons.Clear();
         }
@@ -913,11 +943,13 @@ namespace FlairX_Mod_Manager.Pages
                 if (_activeHotkeyEditBox != null)
                 {
                     _isSettingHotkeyText = true;
+                    _activeHotkeyEditBox.Text = _pendingCombo;
                     
                     if (_recordedGamepadButtons.Count == 1)
                     {
-                        // Single button - no countdown, just show it
-                        _activeHotkeyEditBox.Text = _pendingCombo;
+                        // Single button - no countdown
+                        if (_countdownTextBlock != null)
+                            _countdownTextBlock.Visibility = Visibility.Collapsed;
                     }
                     else
                     {
@@ -925,15 +957,20 @@ namespace FlairX_Mod_Manager.Pages
                         _holdTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
                         _holdTimer.Tick += HoldTimer_Tick;
                         _holdTimer.Start();
-                        _activeHotkeyEditBox.Text = _pendingCombo;
-                        var countdownGlyph = _holdCountdown switch
+                        
+                        // Show countdown with Kenney font
+                        if (_countdownTextBlock != null)
                         {
-                            3 => "\uE007", // "3"
-                            2 => "\uE005", // "2" 
-                            1 => "\uE003", // "1"
-                            _ => _holdCountdown.ToString()
-                        };
-                        _activeHotkeyEditBox.PlaceholderText = $"Hold combo... {countdownGlyph}";
+                            var countdownGlyph = _holdCountdown switch
+                            {
+                                3 => "\uE007", // "3" in Kenney Keyboard
+                                2 => "\uE005", // "2" in Kenney Keyboard
+                                1 => "\uE003", // "1" in Kenney Keyboard
+                                _ => _holdCountdown.ToString()
+                            };
+                            _countdownTextBlock.Text = countdownGlyph;
+                            _countdownTextBlock.Visibility = Visibility.Visible;
+                        }
                     }
                     
                     _isSettingHotkeyText = false;
@@ -958,6 +995,13 @@ namespace FlairX_Mod_Manager.Pages
                         _activeHotkeyEditBox.Text = _pendingCombo;
                         _isSettingHotkeyText = false;
                     }
+                    
+                    // Hide countdown when done
+                    if (_countdownTextBlock != null)
+                    {
+                        _countdownTextBlock.Visibility = Visibility.Collapsed;
+                    }
+                    
                     StopGamepadListening();
                 });
             }
@@ -969,15 +1013,20 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         _isSettingHotkeyText = true;
                         _activeHotkeyEditBox.Text = _pendingCombo;
+                        _isSettingHotkeyText = false;
+                    }
+                    
+                    // Update countdown TextBlock
+                    if (_countdownTextBlock != null)
+                    {
                         var countdownGlyph = _holdCountdown switch
                         {
-                            3 => "\uE007", // "3"
-                            2 => "\uE005", // "2" 
-                            1 => "\uE003", // "1"
+                            3 => "\uE007", // "3" in Kenney Keyboard
+                            2 => "\uE005", // "2" in Kenney Keyboard
+                            1 => "\uE003", // "1" in Kenney Keyboard
                             _ => _holdCountdown.ToString()
                         };
-                        _activeHotkeyEditBox.PlaceholderText = $"Hold combo... {countdownGlyph}";
-                        _isSettingHotkeyText = false;
+                        _countdownTextBlock.Text = countdownGlyph;
                     }
                 });
             }
@@ -1130,11 +1179,25 @@ namespace FlairX_Mod_Manager.Pages
                 var grid = parent.Parent as Grid;
                 if (grid == null) return;
                 
-                // Find edit TextBox directly in grid
-                var editBox = grid.Children.OfType<TextBox>().FirstOrDefault(t => t.Tag as string == "HotkeyEditBox");
-                if (editBox == null) return;
+                // Find edit container (StackPanel with Tag "EditContainer") or TextBox directly
+                TextBox? editBox = null;
+                UIElement? elementToReplace = null;
                 
-                // Remove countdown suffix if present
+                var editContainer = grid.Children.OfType<StackPanel>().FirstOrDefault(sp => sp.Tag as string == "EditContainer");
+                if (editContainer != null)
+                {
+                    editBox = editContainer.Children.OfType<TextBox>().FirstOrDefault(t => t.Tag as string == "HotkeyEditBox");
+                    elementToReplace = editContainer;
+                }
+                else
+                {
+                    editBox = grid.Children.OfType<TextBox>().FirstOrDefault(t => t.Tag as string == "HotkeyEditBox");
+                    elementToReplace = editBox;
+                }
+                
+                if (editBox == null || elementToReplace == null) return;
+                
+                // Clean up combo text
                 string newKeyCombo = editBox.Text.Trim().ToUpper();
                 var countdownMatch = System.Text.RegularExpressions.Regex.Match(newKeyCombo, @"\s*\(\d+S\)$");
                 if (countdownMatch.Success)
@@ -1146,14 +1209,17 @@ namespace FlairX_Mod_Manager.Pages
                 // Update data
                 data.KeyCombo = newKeyCombo;
                 
-                // Replace TextBox with keys panel
+                // Replace edit container/TextBox with keys panel
                 var keyBackground = (Brush)Application.Current.Resources["HotkeyKeyBackground"];
                 var keysPanel = HotkeyIconHelper.CreateKeysPanelFromCombo(newKeyCombo, keyBackground, 64);
                 
-                int idx = grid.Children.IndexOf(editBox);
+                int idx = grid.Children.IndexOf(elementToReplace);
                 Grid.SetColumn(keysPanel, 0);
                 grid.Children.RemoveAt(idx);
                 grid.Children.Insert(idx, keysPanel);
+                
+                // Clear countdown reference
+                _countdownTextBlock = null;
                 
                 // Update row border tag
                 var rowBorder = grid.Parent as Border;
@@ -1179,6 +1245,9 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Reset active edit box to unblock other buttons
                 _activeHotkeyEditBox = null;
+                
+                // Re-enable restore all button
+                RestoreDefaultHotkeysButton.IsEnabled = true;
             }
         }
         
@@ -1702,6 +1771,10 @@ namespace FlairX_Mod_Manager.Pages
 
         private async void RestoreDefaultHotkeysButton_Click(object sender, RoutedEventArgs e)
         {
+            // Block if any hotkey is being edited
+            if (_activeHotkeyEditBox != null || _isRecordingGamepad)
+                return;
+            
             try
             {
                 if (string.IsNullOrEmpty(_currentModDirectory))

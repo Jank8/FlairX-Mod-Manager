@@ -165,28 +165,34 @@
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                     BorderThickness="1" 
                     CornerRadius="8" 
-                    Padding="16" 
-                    Margin="0,0,0,24">
+                    Padding="16,0,16,0"
+                    Height="60"
+                    Margin="0,0,0,2">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <FontIcon Grid.Column="0" Glyph="&#xE765;" FontSize="20" VerticalAlignment="Center"/>
+                    <StackPanel x:Name="OverlayHotkeyKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
                     
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="OverlayHotkeyLabel" Text="Toggle Hotkey" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="OverlayHotkeyDescription" Text="Keyboard shortcut to show/hide overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
+                    <TextBlock x:Name="OverlayHotkeyLabel" Grid.Column="2" Text="Toggle Hotkey" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBox x:Name="OverlayHotkeyTextBox" Width="160" PlaceholderText="Alt+W" KeyDown="HotkeyTextBox_KeyDown" TextChanged="OverlayHotkeyTextBox_TextChanged" GotFocus="OverlayHotkeyTextBox_GotFocus" LostFocus="OverlayHotkeyTextBox_LostFocus"/>
-                        <Button x:Name="OverlayHotkeyConfirmButton" Click="OverlayHotkeyConfirmButton_Click" ToolTipService.ToolTip="Confirm hotkey">
-                            <FontIcon Glyph="&#xE73E;" FontSize="14"/>
-                        </Button>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="OverlayHotkeyEditButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" 
+                                PointerPressed="OverlayHotkeyEditButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited">
+                            <FontIcon Glyph="&#xE70F;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="OverlayHotkeySaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="OverlayHotkeySaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="OverlayHotkeyRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" 
+                                PointerPressed="OverlayHotkeyRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -196,28 +202,34 @@
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                     BorderThickness="1" 
                     CornerRadius="8" 
-                    Padding="16" 
+                    Padding="16,0,16,0"
+                    Height="60"
                     Margin="0,0,0,24">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <FontIcon Grid.Column="0" Glyph="&#xE71C;" FontSize="20" VerticalAlignment="Center"/>
+                    <StackPanel x:Name="FilterActiveHotkeyKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
                     
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="FilterActiveHotkeyLabel" Text="Filter Active Hotkey" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="FilterActiveHotkeyDescription" Text="Show only active mods in overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
+                    <TextBlock x:Name="FilterActiveHotkeyLabel" Grid.Column="2" Text="Filter Active Hotkey" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBox x:Name="FilterActiveHotkeyTextBox" Width="160" PlaceholderText="Alt+A" KeyDown="HotkeyTextBox_KeyDown" TextChanged="FilterActiveHotkeyTextBox_TextChanged" GotFocus="FilterActiveHotkeyTextBox_GotFocus" LostFocus="FilterActiveHotkeyTextBox_LostFocus"/>
-                        <Button x:Name="FilterActiveHotkeyConfirmButton" Click="OverlayHotkeyConfirmButton_Click" ToolTipService.ToolTip="Confirm hotkey">
-                            <FontIcon Glyph="&#xE73E;" FontSize="14"/>
-                        </Button>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="FilterActiveHotkeyEditButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" 
+                                PointerPressed="FilterActiveHotkeyEditButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited">
+                            <FontIcon Glyph="&#xE70F;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="FilterActiveHotkeySaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="FilterActiveHotkeySaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="FilterActiveHotkeyRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" 
+                                PointerPressed="FilterActiveHotkeyRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -368,28 +380,33 @@
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                     BorderThickness="1" 
                     CornerRadius="8" 
-                    Padding="16" 
+                    Padding="16,0,16,0"
+                    Height="60"
                     Margin="0,0,0,2">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <FontIcon Grid.Column="0" Glyph="&#xE73E;" FontSize="20" VerticalAlignment="Center"/>
+                    <StackPanel x:Name="SelectButtonKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
                     
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="SelectButtonLabel" Text="Select / Toggle Mod" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="SelectButtonDescription" Text="Button to activate/deactivate selected mod" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
+                    <TextBlock x:Name="SelectButtonLabel" Grid.Column="2" Text="Select / Toggle Mod" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBox x:Name="SelectButtonTextBox" Width="80" PlaceholderText="A" IsReadOnly="True" GotFocus="SelectButtonTextBox_GotFocus"/>
-                        <Button x:Name="SelectButtonRecordButton" Click="SelectButtonRecordButton_Click" ToolTipService.ToolTip="Record button">
-                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
-                        </Button>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBox x:Name="SelectButtonTextBox" Width="80" Height="32" PlaceholderText="A" Visibility="Collapsed" GotFocus="SelectButtonTextBox_GotFocus" LostFocus="SelectButtonTextBox_LostFocus"/>
+                        <Border x:Name="SelectButtonRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="SelectButtonRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="SelectButtonSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="SelectButtonSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -399,28 +416,33 @@
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                     BorderThickness="1" 
                     CornerRadius="8" 
-                    Padding="16" 
+                    Padding="16,0,16,0"
+                    Height="60"
                     Margin="0,0,0,2">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <FontIcon Grid.Column="0" Glyph="&#xE72B;" FontSize="20" VerticalAlignment="Center"/>
+                    <StackPanel x:Name="BackButtonKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
                     
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="BackButtonLabel" Text="Back / Close Overlay" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="BackButtonDescription" Text="Button to close overlay window" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
+                    <TextBlock x:Name="BackButtonLabel" Grid.Column="2" Text="Back / Close Overlay" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBox x:Name="BackButtonTextBox" Width="80" PlaceholderText="B" IsReadOnly="True" GotFocus="BackButtonTextBox_GotFocus"/>
-                        <Button x:Name="BackButtonRecordButton" Click="BackButtonRecordButton_Click" ToolTipService.ToolTip="Record button">
-                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
-                        </Button>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBox x:Name="BackButtonTextBox" Width="80" Height="32" PlaceholderText="B" Visibility="Collapsed" GotFocus="BackButtonTextBox_GotFocus" LostFocus="BackButtonTextBox_LostFocus"/>
+                        <Border x:Name="BackButtonRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="BackButtonRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="BackButtonSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="BackButtonSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -430,28 +452,33 @@
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                     BorderThickness="1" 
                     CornerRadius="8" 
-                    Padding="16" 
+                    Padding="16,0,16,0"
+                    Height="60"
                     Margin="0,0,0,2">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <FontIcon Grid.Column="0" Glyph="&#xE76C;" FontSize="20" VerticalAlignment="Center"/>
+                    <StackPanel x:Name="NextCategoryButtonKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
                     
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="NextCategoryButtonLabel" Text="Next Category" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="NextCategoryButtonDescription" Text="Button to switch to next category" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
+                    <TextBlock x:Name="NextCategoryButtonLabel" Grid.Column="2" Text="Next Category" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBox x:Name="NextCategoryButtonTextBox" Width="80" PlaceholderText="RB" IsReadOnly="True" GotFocus="NextCategoryButtonTextBox_GotFocus"/>
-                        <Button x:Name="NextCategoryButtonRecordButton" Click="NextCategoryButtonRecordButton_Click" ToolTipService.ToolTip="Record button">
-                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
-                        </Button>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBox x:Name="NextCategoryButtonTextBox" Width="80" Height="32" PlaceholderText="RB" Visibility="Collapsed" GotFocus="NextCategoryButtonTextBox_GotFocus" LostFocus="NextCategoryButtonTextBox_LostFocus"/>
+                        <Border x:Name="NextCategoryButtonRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="NextCategoryButtonRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="NextCategoryButtonSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="NextCategoryButtonSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -461,28 +488,33 @@
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                     BorderThickness="1" 
                     CornerRadius="8" 
-                    Padding="16" 
+                    Padding="16,0,16,0"
+                    Height="60"
                     Margin="0,0,0,2">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <FontIcon Grid.Column="0" Glyph="&#xE76B;" FontSize="20" VerticalAlignment="Center"/>
+                    <StackPanel x:Name="PrevCategoryButtonKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
                     
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="PrevCategoryButtonLabel" Text="Previous Category" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="PrevCategoryButtonDescription" Text="Button to switch to previous category" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
+                    <TextBlock x:Name="PrevCategoryButtonLabel" Grid.Column="2" Text="Previous Category" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBox x:Name="PrevCategoryButtonTextBox" Width="80" PlaceholderText="LB" IsReadOnly="True" GotFocus="PrevCategoryButtonTextBox_GotFocus"/>
-                        <Button x:Name="PrevCategoryButtonRecordButton" Click="PrevCategoryButtonRecordButton_Click" ToolTipService.ToolTip="Record button">
-                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
-                        </Button>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBox x:Name="PrevCategoryButtonTextBox" Width="80" Height="32" PlaceholderText="LB" Visibility="Collapsed" GotFocus="PrevCategoryButtonTextBox_GotFocus" LostFocus="PrevCategoryButtonTextBox_LostFocus"/>
+                        <Border x:Name="PrevCategoryButtonRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="PrevCategoryButtonRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="PrevCategoryButtonSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="PrevCategoryButtonSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -492,28 +524,33 @@
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                     BorderThickness="1" 
                     CornerRadius="8" 
-                    Padding="16" 
+                    Padding="16,0,16,0"
+                    Height="60"
                     Margin="0,0,0,2">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <FontIcon Grid.Column="0" Glyph="&#xEA40;" FontSize="20" VerticalAlignment="Center"/>
+                    <StackPanel x:Name="GamepadComboKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
                     
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="GamepadComboLabel" Text="Toggle Overlay Combo" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="GamepadComboDescription" Text="Button combination to show/hide overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
+                    <TextBlock x:Name="GamepadComboLabel" Grid.Column="2" Text="Toggle Overlay Combo" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBox x:Name="GamepadComboTextBox" Width="160" PlaceholderText="Back+Start" IsReadOnly="True" GotFocus="GamepadComboTextBox_GotFocus"/>
-                        <Button x:Name="GamepadComboRecordButton" Click="GamepadComboRecordButton_Click" ToolTipService.ToolTip="Record combo">
-                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
-                        </Button>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBox x:Name="GamepadComboTextBox" Width="160" Height="32" PlaceholderText="Back+Start" Visibility="Collapsed" KeyDown="GamepadComboTextBox_KeyDown" GotFocus="GamepadComboTextBox_GotFocus" LostFocus="GamepadComboTextBox_LostFocus"/>
+                        <Border x:Name="GamepadComboRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="GamepadComboRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record combo">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="GamepadComboSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="GamepadComboSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -523,28 +560,33 @@
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                     BorderThickness="1" 
                     CornerRadius="8" 
-                    Padding="16" 
+                    Padding="16,0,16,0"
+                    Height="60"
                     Margin="0,0,0,2">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="20"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <FontIcon Grid.Column="0" Glyph="&#xE71C;" FontSize="20" VerticalAlignment="Center"/>
+                    <StackPanel x:Name="FilterActiveComboKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
                     
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="FilterActiveComboLabel" Text="Filter Active Combo" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="FilterActiveComboDescription" Text="Show only active mods in overlay" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                    </StackPanel>
+                    <TextBlock x:Name="FilterActiveComboLabel" Grid.Column="2" Text="Filter Active Combo" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
-                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <TextBox x:Name="FilterActiveComboTextBox" Width="160" PlaceholderText="Back+A" IsReadOnly="True" GotFocus="FilterActiveComboTextBox_GotFocus"/>
-                        <Button x:Name="FilterActiveComboRecordButton" Click="FilterActiveComboRecordButton_Click" ToolTipService.ToolTip="Record combo">
-                            <FontIcon Glyph="&#xE7C8;" FontSize="14"/>
-                        </Button>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <TextBox x:Name="FilterActiveComboTextBox" Width="160" Height="32" PlaceholderText="Back+A" Visibility="Collapsed" KeyDown="FilterActiveComboTextBox_KeyDown" GotFocus="FilterActiveComboTextBox_GotFocus" LostFocus="FilterActiveComboTextBox_LostFocus"/>
+                        <Border x:Name="FilterActiveComboRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="FilterActiveComboRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record combo">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="FilterActiveComboSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="FilterActiveComboSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
                     </StackPanel>
                 </Grid>
             </Border>

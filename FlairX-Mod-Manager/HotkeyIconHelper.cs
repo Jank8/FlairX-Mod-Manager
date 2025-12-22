@@ -206,7 +206,6 @@ namespace FlairX_Mod_Manager
             { 
                 Orientation = Orientation.Horizontal, 
                 Spacing = 8,
-                Height = iconSize + 16, // Dodatkowe miejsce
                 VerticalAlignment = VerticalAlignment.Center
             };
             var keyParts = keyCombo.Split('+');

@@ -3172,57 +3172,36 @@ namespace FlairX_Mod_Manager.Pages
                 BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"],
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(8),
-                Padding = new Thickness(16, 12, 16, 12),
+                Padding = new Thickness(16, 0, 16, 0),
                 Margin = new Thickness(0, 0, 0, 2),
-                Height = 80,
+                Height = 60,
                 Tag = key
             };
             
             var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // Icon
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(16) }); // Spacer
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // Keys
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(20) }); // Spacer
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // Description
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // Buttons
             
-            // Icon
-            var icon = new FontIcon
-            {
-                Glyph = iconGlyph,
-                FontSize = 20,
-                VerticalAlignment = VerticalAlignment.Center
-            };
-            Grid.SetColumn(icon, 0);
-            grid.Children.Add(icon);
-            
             // Create keys panel
-            var keysPanel = HotkeyIconHelper.CreateKeysPanelFromCombo(keyCombo, keyBackground, 48);
-            Grid.SetColumn(keysPanel, 2);
+            var keysPanel = HotkeyIconHelper.CreateKeysPanelFromCombo(keyCombo, keyBackground, 64);
+            Grid.SetColumn(keysPanel, 0);
             grid.Children.Add(keysPanel);
             
             // Description
-            var descStack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
             var labelText = new TextBlock
             {
                 Text = label,
                 FontSize = 14,
-                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+                VerticalAlignment = VerticalAlignment.Center,
+                Opacity = 0.9
             };
-            var descText = new TextBlock
-            {
-                Text = description,
-                FontSize = 12,
-                Opacity = 0.7,
-                Margin = new Thickness(0, 2, 0, 0)
-            };
-            descStack.Children.Add(labelText);
-            descStack.Children.Add(descText);
-            Grid.SetColumn(descStack, 4);
-            grid.Children.Add(descStack);
+            Grid.SetColumn(labelText, 2);
+            grid.Children.Add(labelText);
             
             // Buttons panel
-            var buttonsPanel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
+            var buttonsPanel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, VerticalAlignment = VerticalAlignment.Center };
             var defaultBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Gray) { Opacity = 0.6 };
             var accentColor = new Windows.UI.ViewManagement.UISettings().GetColorValue(Windows.UI.ViewManagement.UIColorType.Accent);
             var accentBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(accentColor.A, accentColor.R, accentColor.G, accentColor.B));
@@ -3321,6 +3300,7 @@ namespace FlairX_Mod_Manager.Pages
                         FontWeight = Microsoft.UI.Text.FontWeights.Bold,
                         FontSize = 14,
                         MinWidth = 120,
+                        Height = 32,
                         VerticalAlignment = VerticalAlignment.Center,
                         Tag = key,
                         PlaceholderText = "Press keys..."
@@ -3328,7 +3308,7 @@ namespace FlairX_Mod_Manager.Pages
                     editBox.PreviewKeyDown += SettingsHotkeyEditBox_PreviewKeyDown;
                     
                     int idx = grid.Children.IndexOf(keysPanel);
-                    Grid.SetColumn(editBox, 2);
+                    Grid.SetColumn(editBox, 0);
                     grid.Children.RemoveAt(idx);
                     grid.Children.Insert(idx, editBox);
                     editBox.Focus(FocusState.Programmatic);
@@ -3360,10 +3340,10 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Replace TextBox with keys panel
                 var keyBackground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["HotkeyKeyBackground"];
-                var keysPanel = HotkeyIconHelper.CreateKeysPanelFromCombo(newKeyCombo, keyBackground, 48);
+                var keysPanel = HotkeyIconHelper.CreateKeysPanelFromCombo(newKeyCombo, keyBackground, 64);
                 
                 int idx = grid.Children.IndexOf(editBox);
-                Grid.SetColumn(keysPanel, 2);
+                Grid.SetColumn(keysPanel, 0);
                 grid.Children.RemoveAt(idx);
                 grid.Children.Insert(idx, keysPanel);
                 
@@ -3396,13 +3376,13 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Update keys panel
                 var keyBackground = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["HotkeyKeyBackground"];
-                var keysPanel = HotkeyIconHelper.CreateKeysPanelFromCombo(defaultValue, keyBackground, 48);
+                var keysPanel = HotkeyIconHelper.CreateKeysPanelFromCombo(defaultValue, keyBackground, 64);
                 
                 var existingKeysPanel = grid.Children.OfType<StackPanel>().FirstOrDefault();
                 if (existingKeysPanel != null)
                 {
                     int idx = grid.Children.IndexOf(existingKeysPanel);
-                    Grid.SetColumn(keysPanel, 2);
+                    Grid.SetColumn(keysPanel, 0);
                     grid.Children.RemoveAt(idx);
                     grid.Children.Insert(idx, keysPanel);
                 }

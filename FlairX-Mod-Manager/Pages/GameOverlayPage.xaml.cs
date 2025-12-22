@@ -1,8 +1,11 @@
 using System;
+using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Input;
 
 namespace FlairX_Mod_Manager.Pages
 {
@@ -11,6 +14,9 @@ namespace FlairX_Mod_Manager.Pages
         private bool _isInitializing = true;
         private GamepadManager? _testGamepad;
         private bool _previousHotkeysEnabled = true;
+        
+        // Hotkey editing state
+        private TextBox? _activeHotkeyEditBox;
 
         public GameOverlayPage()
         {
@@ -64,11 +70,9 @@ namespace FlairX_Mod_Manager.Pages
             
             // Toggle Hotkey
             if (OverlayHotkeyLabel != null) OverlayHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "ToggleHotkey_Label");
-            if (OverlayHotkeyDescription != null) OverlayHotkeyDescription.Text = SharedUtilities.GetTranslation(lang, "ToggleHotkey_Description");
             
             // Filter Active Hotkey
             if (FilterActiveHotkeyLabel != null) FilterActiveHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "FilterActiveHotkey_Label");
-            if (FilterActiveHotkeyDescription != null) FilterActiveHotkeyDescription.Text = SharedUtilities.GetTranslation(lang, "FilterActiveHotkey_Description");
             
             // Send F10 on Overlay Close
             if (SendF10OnOverlayCloseLabel != null) SendF10OnOverlayCloseLabel.Text = SharedUtilities.GetTranslation(lang, "SendF10OnOverlayClose_Label");
@@ -92,27 +96,21 @@ namespace FlairX_Mod_Manager.Pages
             
             // Select Button
             if (SelectButtonLabel != null) SelectButtonLabel.Text = SharedUtilities.GetTranslation(lang, "SelectButton_Label");
-            if (SelectButtonDescription != null) SelectButtonDescription.Text = SharedUtilities.GetTranslation(lang, "SelectButton_Description");
             
             // Back Button
             if (BackButtonLabel != null) BackButtonLabel.Text = SharedUtilities.GetTranslation(lang, "BackButton_Label");
-            if (BackButtonDescription != null) BackButtonDescription.Text = SharedUtilities.GetTranslation(lang, "BackButton_Description");
             
             // Next Category
             if (NextCategoryButtonLabel != null) NextCategoryButtonLabel.Text = SharedUtilities.GetTranslation(lang, "NextCategory_Label");
-            if (NextCategoryButtonDescription != null) NextCategoryButtonDescription.Text = SharedUtilities.GetTranslation(lang, "NextCategory_Description");
             
             // Previous Category
             if (PrevCategoryButtonLabel != null) PrevCategoryButtonLabel.Text = SharedUtilities.GetTranslation(lang, "PrevCategory_Label");
-            if (PrevCategoryButtonDescription != null) PrevCategoryButtonDescription.Text = SharedUtilities.GetTranslation(lang, "PrevCategory_Description");
             
             // Toggle Overlay Combo
             if (GamepadComboLabel != null) GamepadComboLabel.Text = SharedUtilities.GetTranslation(lang, "ToggleOverlayCombo_Label");
-            if (GamepadComboDescription != null) GamepadComboDescription.Text = SharedUtilities.GetTranslation(lang, "ToggleOverlayCombo_Description");
             
             // Filter Active Combo
             if (FilterActiveComboLabel != null) FilterActiveComboLabel.Text = SharedUtilities.GetTranslation(lang, "FilterActiveCombo_Label");
-            if (FilterActiveComboDescription != null) FilterActiveComboDescription.Text = SharedUtilities.GetTranslation(lang, "FilterActiveCombo_Description");
             
             // Toggle switch labels
             UpdateToggleSwitchLabels(lang);
@@ -145,8 +143,12 @@ namespace FlairX_Mod_Manager.Pages
             var settings = SettingsManager.Current;
             
             // Load hotkey
-            OverlayHotkeyTextBox.Text = settings.ToggleOverlayHotkey ?? "Alt+W";
-            FilterActiveHotkeyTextBox.Text = settings.FilterActiveHotkey ?? "Alt+A";
+            var overlayHotkey = settings.ToggleOverlayHotkey ?? "Alt+W";
+            var filterActiveHotkey = settings.FilterActiveHotkey ?? "Alt+A";
+            
+            // Initialize hotkey visual panels
+            InitializeHotkeyPanel(OverlayHotkeyKeysPanel, overlayHotkey);
+            InitializeHotkeyPanel(FilterActiveHotkeyKeysPanel, filterActiveHotkey);
             
             // Load Send F10 on overlay close
             SendF10OnOverlayCloseToggle.IsOn = settings.SendF10OnOverlayClose;
@@ -193,6 +195,44 @@ namespace FlairX_Mod_Manager.Pages
             BackButtonTextBox.Text = settings.GamepadBackButton ?? "B";
             NextCategoryButtonTextBox.Text = settings.GamepadNextCategoryButton ?? "RB";
             PrevCategoryButtonTextBox.Text = settings.GamepadPrevCategoryButton ?? "LB";
+            
+            // Initialize gamepad button keys panels (convert to Kenney format if needed)
+            InitializeHotkeyPanel(SelectButtonKeysPanel, ConvertToKenneyFormat(settings.GamepadSelectButton ?? "A"));
+            InitializeHotkeyPanel(BackButtonKeysPanel, ConvertToKenneyFormat(settings.GamepadBackButton ?? "B"));
+            InitializeHotkeyPanel(NextCategoryButtonKeysPanel, ConvertToKenneyFormat(settings.GamepadNextCategoryButton ?? "RB"));
+            InitializeHotkeyPanel(PrevCategoryButtonKeysPanel, ConvertToKenneyFormat(settings.GamepadPrevCategoryButton ?? "LB"));
+            
+            // Initialize combo panels
+            var toggleCombo = settings.GamepadToggleOverlayCombo ?? "Back+Start";
+            var filterCombo = settings.GamepadFilterActiveCombo ?? "Back+A";
+            InitializeHotkeyPanel(GamepadComboKeysPanel, ConvertComboToKenneyFormat(toggleCombo));
+            InitializeHotkeyPanel(FilterActiveComboKeysPanel, ConvertComboToKenneyFormat(filterCombo));
+        }
+        
+        private string ConvertToKenneyFormat(string button)
+        {
+            if (button.StartsWith("XB ")) return button;
+            return "XB " + button;
+        }
+        
+        private string ConvertComboToKenneyFormat(string combo)
+        {
+            return string.Join("+", combo.Split('+').Select(b => ConvertToKenneyFormat(b.Trim())));
+        }
+        
+        private void InitializeHotkeyPanel(StackPanel panel, string keyCombo)
+        {
+            panel.Children.Clear();
+            var keyBackground = (Brush)Application.Current.Resources["HotkeyKeyBackground"];
+            var keysPanel = HotkeyIconHelper.CreateKeysPanelFromCombo(keyCombo, keyBackground, 64);
+            
+            // Copy children from keysPanel to our panel
+            while (keysPanel.Children.Count > 0)
+            {
+                var child = keysPanel.Children[0];
+                keysPanel.Children.RemoveAt(0);
+                panel.Children.Add(child);
+            }
         }
 
         private void CheckGamepadStatus()
@@ -431,146 +471,152 @@ namespace FlairX_Mod_Manager.Pages
         #region Gamepad Combo Recording
 
         private bool _isRecordingCombo = false;
-        private bool _isRecordingFilterCombo = false; // true = filter active, false = toggle overlay
-        private HashSet<string> _recordedButtons = new();
-        private DispatcherTimer? _comboRecordTimer;
+        private bool _isRecordingFilterCombo = false;
+        private HashSet<string> _recordedComboButtons = new();
+        private DispatcherTimer? _comboHoldTimer;
+        private int _comboHoldCountdown = 3;
+        private string _pendingCombo = "";
+        private TextBlock? _comboCountdownTextBlock;
+        private bool _isSettingComboText = false;
 
         private void GamepadComboTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            // Show current combo
             GamepadComboTextBox.Text = SettingsManager.Current.GamepadToggleOverlayCombo ?? "Back+Start";
         }
 
         private void FilterActiveComboTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            // Show current combo
             FilterActiveComboTextBox.Text = SettingsManager.Current.GamepadFilterActiveCombo ?? "Back+A";
         }
 
-        private void GamepadComboRecordButton_Click(object sender, RoutedEventArgs e)
+        private void GamepadComboRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if (_isRecordingCombo)
             {
-                StopRecordingCombo();
+                StopComboRecording();
+                return;
             }
-            else
-            {
-                _isRecordingFilterCombo = false;
-                StartRecordingCombo();
-            }
+            _isRecordingFilterCombo = false;
+            StartComboRecording(GamepadComboTextBox, GamepadComboRecordButton, GamepadComboKeysPanel, GamepadComboSaveButton);
         }
 
-        private void FilterActiveComboRecordButton_Click(object sender, RoutedEventArgs e)
+        private void FilterActiveComboRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if (_isRecordingCombo)
             {
-                StopRecordingCombo();
+                StopComboRecording();
+                return;
             }
-            else
-            {
-                _isRecordingFilterCombo = true;
-                StartRecordingCombo();
-            }
+            _isRecordingFilterCombo = true;
+            StartComboRecording(FilterActiveComboTextBox, FilterActiveComboRecordButton, FilterActiveComboKeysPanel, FilterActiveComboSaveButton);
         }
 
-        private void StartRecordingCombo()
+        private TextBox? _activeComboTextBox;
+        private Border? _activeComboRecButton;
+        private StackPanel? _activeComboKeysPanel;
+        private Border? _activeComboSaveButton;
+
+        private void StartComboRecording(TextBox textBox, Border recButton, StackPanel keysPanel, Border saveButton)
         {
             var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
             
-            // Ensure gamepad is available
             if (_testGamepad == null)
-            {
                 _testGamepad = new GamepadManager();
-            }
             
             if (!_testGamepad.CheckConnection())
             {
-                var noControllerText = SharedUtilities.GetTranslation(lang, "Recording_NoController");
-                if (_isRecordingFilterCombo)
-                    FilterActiveComboTextBox.Text = noControllerText;
-                else
-                    GamepadComboTextBox.Text = noControllerText;
+                textBox.Text = SharedUtilities.GetTranslation(lang, "Recording_NoController");
+                textBox.Visibility = Visibility.Visible;
+                keysPanel.Visibility = Visibility.Collapsed;
                 return;
             }
 
+            _activeComboTextBox = textBox;
+            _activeComboRecButton = recButton;
+            _activeComboKeysPanel = keysPanel;
+            _activeComboSaveButton = saveButton;
+            _recordedComboButtons.Clear();
+            _pendingCombo = "";
+            _comboHoldCountdown = 3;
+
             _isRecordingCombo = true;
-            _recordedButtons.Clear();
             
-            var pressButtonsText = SharedUtilities.GetTranslation(lang, "Recording_PressButtons");
-            if (_isRecordingFilterCombo)
-            {
-                FilterActiveComboTextBox.Text = pressButtonsText;
-                FilterActiveComboRecordButton.Content = new FontIcon { Glyph = "\uE71A", FontSize = 14 };
-            }
-            else
-            {
-                GamepadComboTextBox.Text = pressButtonsText;
-                GamepadComboRecordButton.Content = new FontIcon { Glyph = "\uE71A", FontSize = 14 };
-            }
+            // Show TextBox and Save button, hide KeysPanel
+            textBox.Visibility = Visibility.Visible;
+            textBox.Text = "";
+            textBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "Recording_PressButtons");
+            keysPanel.Visibility = Visibility.Collapsed;
+            saveButton.Visibility = Visibility.Visible;
             
-            // Subscribe to button events
+            if (recButton.Child is FontIcon icon)
+                icon.Glyph = "\uE71A"; // Stop icon
+            
             _testGamepad.ButtonPressed += OnComboButtonPressed;
+            _testGamepad.ButtonReleased += OnComboButtonReleased;
             _testGamepad.StartPolling();
-            
-            // Auto-stop after 5 seconds
-            _comboRecordTimer = new DispatcherTimer();
-            _comboRecordTimer.Interval = System.TimeSpan.FromSeconds(5);
-            _comboRecordTimer.Tick += (s, e) => StopRecordingCombo();
-            _comboRecordTimer.Start();
         }
 
-        private void StopRecordingCombo()
+        private void StopComboRecording()
         {
             _isRecordingCombo = false;
-            _comboRecordTimer?.Stop();
-            _comboRecordTimer = null;
+            _comboHoldTimer?.Stop();
+            _comboHoldTimer = null;
+            _comboHoldCountdown = 3;
+            _pendingCombo = "";
             
             if (_testGamepad != null)
             {
                 _testGamepad.ButtonPressed -= OnComboButtonPressed;
+                _testGamepad.ButtonReleased -= OnComboButtonReleased;
                 _testGamepad.StopPolling();
             }
             
-            // Reset button icons
-            GamepadComboRecordButton.Content = new FontIcon { Glyph = "\uE7C8", FontSize = 14 };
-            FilterActiveComboRecordButton.Content = new FontIcon { Glyph = "\uE7C8", FontSize = 14 };
+            if (_activeComboRecButton?.Child is FontIcon icon)
+                icon.Glyph = "\uE7C8"; // Rec icon
             
-            // Save combo if we recorded something
-            if (_recordedButtons.Count > 0)
-            {
-                var combo = string.Join("+", _recordedButtons);
-                
-                if (_isRecordingFilterCombo)
-                {
-                    FilterActiveComboTextBox.Text = combo;
-                    SettingsManager.Current.GamepadFilterActiveCombo = combo;
-                    Logger.LogInfo($"Gamepad filter active combo set to: {combo}");
-                }
-                else
-                {
-                    GamepadComboTextBox.Text = combo;
-                    SettingsManager.Current.GamepadToggleOverlayCombo = combo;
-                    Logger.LogInfo($"Gamepad overlay combo set to: {combo}");
-                }
-                
-                SettingsManager.Save();
-                
-                // Refresh global gamepad
-                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
-                mainWindow?.RefreshGlobalGamepad();
-                
-                // Vibrate to confirm
-                _testGamepad?.Vibrate(30000, 30000, 100);
-            }
-            else
-            {
-                if (_isRecordingFilterCombo)
-                    FilterActiveComboTextBox.Text = SettingsManager.Current.GamepadFilterActiveCombo ?? "Back+A";
-                else
-                    GamepadComboTextBox.Text = SettingsManager.Current.GamepadToggleOverlayCombo ?? "Back+Start";
-            }
+            if (_activeComboTextBox != null)
+                _activeComboTextBox.PlaceholderText = "Press buttons...";
             
-            _recordedButtons.Clear();
+            // Hide countdown
+            if (_comboCountdownTextBlock != null)
+                _comboCountdownTextBlock.Visibility = Visibility.Collapsed;
+            
+            _activeComboRecButton = null;
+            _recordedComboButtons.Clear();
+        }
+
+        private void OnComboButtonReleased(object? sender, GamepadButtonEventArgs e)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _comboHoldTimer?.Stop();
+                _comboHoldTimer = null;
+                _comboHoldCountdown = 3;
+                
+                if (_activeComboTextBox != null)
+                {
+                    _isSettingComboText = true;
+                    
+                    if (_recordedComboButtons.Count <= 1)
+                    {
+                        // Single button - keep it
+                        _activeComboTextBox.Text = _pendingCombo;
+                    }
+                    else
+                    {
+                        // Combo released before 3s - clear it
+                        _activeComboTextBox.Text = "";
+                        _pendingCombo = "";
+                    }
+                    
+                    _recordedComboButtons.Clear();
+                    _isSettingComboText = false;
+                }
+                
+                // Hide countdown
+                if (_comboCountdownTextBlock != null)
+                    _comboCountdownTextBlock.Visibility = Visibility.Collapsed;
+            });
         }
 
         private void OnComboButtonPressed(object? sender, GamepadButtonEventArgs e)
@@ -579,17 +625,178 @@ namespace FlairX_Mod_Manager.Pages
             
             var buttonName = e.GetButtonDisplayName();
             
-            // Use display names directly for readability
-            _recordedButtons.Add(buttonName);
+            if (!_recordedComboButtons.Contains(buttonName))
+                _recordedComboButtons.Add(buttonName);
+            
+            _pendingCombo = string.Join("+", _recordedComboButtons);
+            _comboHoldCountdown = 3;
             
             DispatcherQueue.TryEnqueue(() =>
             {
-                var comboText = string.Join("+", _recordedButtons);
-                if (_isRecordingFilterCombo)
-                    FilterActiveComboTextBox.Text = comboText;
-                else
-                    GamepadComboTextBox.Text = comboText;
+                _comboHoldTimer?.Stop();
+                
+                if (_activeComboTextBox != null)
+                {
+                    _isSettingComboText = true;
+                    _activeComboTextBox.Text = _pendingCombo;
+                    
+                    if (_recordedComboButtons.Count == 1)
+                    {
+                        // Single button - no countdown
+                        if (_comboCountdownTextBlock != null)
+                            _comboCountdownTextBlock.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        // Combo - start countdown timer
+                        _comboHoldTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+                        _comboHoldTimer.Tick += ComboHoldTimer_Tick;
+                        _comboHoldTimer.Start();
+                        
+                        // Show countdown (create if needed)
+                        if (_comboCountdownTextBlock == null)
+                        {
+                            _comboCountdownTextBlock = new TextBlock
+                            {
+                                FontFamily = new FontFamily("ms-appx:///Assets/KenneyFonts/kenney_input_keyboard_mouse.ttf#Kenney Input Keyboard & Mouse"),
+                                FontSize = 32,
+                                VerticalAlignment = VerticalAlignment.Center,
+                                Margin = new Thickness(8, 0, 0, 0)
+                            };
+                            // Add to parent of TextBox
+                            if (_activeComboTextBox?.Parent is StackPanel parent)
+                            {
+                                var idx = parent.Children.IndexOf(_activeComboTextBox);
+                                if (idx >= 0 && idx < parent.Children.Count - 1)
+                                    parent.Children.Insert(idx + 1, _comboCountdownTextBlock);
+                                else
+                                    parent.Children.Add(_comboCountdownTextBlock);
+                            }
+                        }
+                        
+                        var countdownGlyph = _comboHoldCountdown switch
+                        {
+                            3 => "\uE007",
+                            2 => "\uE005",
+                            1 => "\uE003",
+                            _ => _comboHoldCountdown.ToString()
+                        };
+                        _comboCountdownTextBlock.Text = countdownGlyph;
+                        _comboCountdownTextBlock.Visibility = Visibility.Visible;
+                    }
+                    
+                    _isSettingComboText = false;
+                }
             });
+        }
+
+        private void ComboHoldTimer_Tick(object? sender, object e)
+        {
+            _comboHoldCountdown--;
+            
+            if (_comboHoldCountdown <= 0)
+            {
+                _comboHoldTimer?.Stop();
+                _comboHoldTimer = null;
+                
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    if (_activeComboTextBox != null)
+                    {
+                        _isSettingComboText = true;
+                        _activeComboTextBox.Text = _pendingCombo;
+                        _isSettingComboText = false;
+                    }
+                    
+                    // Hide countdown
+                    if (_comboCountdownTextBlock != null)
+                        _comboCountdownTextBlock.Visibility = Visibility.Collapsed;
+                    
+                    // Vibrate to confirm combo locked
+                    _testGamepad?.Vibrate(30000, 30000, 100);
+                    
+                    StopComboRecording();
+                });
+            }
+            else
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    if (_comboCountdownTextBlock != null)
+                    {
+                        var countdownGlyph = _comboHoldCountdown switch
+                        {
+                            3 => "\uE007",
+                            2 => "\uE005",
+                            1 => "\uE003",
+                            _ => _comboHoldCountdown.ToString()
+                        };
+                        _comboCountdownTextBlock.Text = countdownGlyph;
+                    }
+                });
+            }
+        }
+
+        // Save button handlers for combos
+        private void GamepadComboSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            SaveCombo(false);
+        }
+
+        private void FilterActiveComboSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            SaveCombo(true);
+        }
+
+        private void SaveCombo(bool isFilterActive)
+        {
+            StopComboRecording();
+            
+            var textBox = isFilterActive ? FilterActiveComboTextBox : GamepadComboTextBox;
+            var keysPanel = isFilterActive ? FilterActiveComboKeysPanel : GamepadComboKeysPanel;
+            var saveButton = isFilterActive ? FilterActiveComboSaveButton : GamepadComboSaveButton;
+            
+            var combo = textBox.Text.Trim();
+            if (string.IsNullOrEmpty(combo)) return;
+            
+            var kenneyCombo = ConvertComboToKenneyFormat(combo);
+            
+            if (isFilterActive)
+            {
+                SettingsManager.Current.GamepadFilterActiveCombo = combo;
+                Logger.LogInfo($"Gamepad filter active combo set to: {combo}");
+            }
+            else
+            {
+                SettingsManager.Current.GamepadToggleOverlayCombo = combo;
+                Logger.LogInfo($"Gamepad overlay combo set to: {combo}");
+            }
+            
+            SettingsManager.Save();
+            
+            // Refresh global gamepad
+            var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+            mainWindow?.RefreshGlobalGamepad();
+            
+            // Update keys panel
+            InitializeHotkeyPanel(keysPanel, kenneyCombo);
+            
+            // Hide TextBox and Save, show KeysPanel
+            textBox.Visibility = Visibility.Collapsed;
+            saveButton.Visibility = Visibility.Collapsed;
+            keysPanel.Visibility = Visibility.Visible;
+            
+            // Remove countdown if exists
+            if (_comboCountdownTextBlock != null)
+            {
+                if (_comboCountdownTextBlock.Parent is StackPanel parent)
+                    parent.Children.Remove(_comboCountdownTextBlock);
+                _comboCountdownTextBlock = null;
+            }
+            
+            _activeComboTextBox = null;
+            _activeComboKeysPanel = null;
+            _activeComboSaveButton = null;
         }
 
         #endregion
@@ -605,88 +812,62 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Check for modifier keys
                 if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
-                    modifiers.Add("Ctrl");
+                    modifiers.Add("CTRL");
                 if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Shift) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
-                    modifiers.Add("Shift");
+                    modifiers.Add("SHIFT");
                 if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Menu) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
-                    modifiers.Add("Alt");
+                    modifiers.Add("ALT");
                 
                 // Skip modifier-only keys
                 if (key == Windows.System.VirtualKey.Control || key == Windows.System.VirtualKey.Shift || 
                     key == Windows.System.VirtualKey.Menu || key == Windows.System.VirtualKey.LeftWindows || 
-                    key == Windows.System.VirtualKey.RightWindows)
+                    key == Windows.System.VirtualKey.RightWindows || key == Windows.System.VirtualKey.LeftControl ||
+                    key == Windows.System.VirtualKey.RightControl || key == Windows.System.VirtualKey.LeftShift ||
+                    key == Windows.System.VirtualKey.RightShift || key == Windows.System.VirtualKey.LeftMenu ||
+                    key == Windows.System.VirtualKey.RightMenu)
                     return;
                 
+                // Convert key to display string
+                string keyStr = ConvertVirtualKeyToString(key);
+                
                 // Build hotkey string
-                var hotkeyParts = new List<string>(modifiers);
-                hotkeyParts.Add(key.ToString());
-                
-                var newHotkey = string.Join("+", hotkeyParts);
-                textBox.Text = newHotkey;
+                if (modifiers.Count > 0)
+                    textBox.Text = string.Join("+", modifiers) + "+" + keyStr;
+                else
+                    textBox.Text = keyStr;
             }
         }
-
-        private void OverlayHotkeyTextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            _previousHotkeysEnabled = SettingsManager.Current.HotkeysEnabled;
-            SettingsManager.Current.HotkeysEnabled = false;
-        }
         
-        private void OverlayHotkeyTextBox_LostFocus(object sender, RoutedEventArgs e)
+        private string ConvertVirtualKeyToString(Windows.System.VirtualKey key)
         {
-            SettingsManager.Current.HotkeysEnabled = _previousHotkeysEnabled;
-        }
-        
-        private void FilterActiveHotkeyTextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            _previousHotkeysEnabled = SettingsManager.Current.HotkeysEnabled;
-            SettingsManager.Current.HotkeysEnabled = false;
-        }
-        
-        private void FilterActiveHotkeyTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            SettingsManager.Current.HotkeysEnabled = _previousHotkeysEnabled;
-        }
-
-        private void OverlayHotkeyTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (_isInitializing) return;
-            var newHotkey = OverlayHotkeyTextBox.Text;
-            if (!string.IsNullOrWhiteSpace(newHotkey))
+            return key switch
             {
-                SettingsManager.Current.ToggleOverlayHotkey = newHotkey;
-                SettingsManager.Save();
-                
-                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
-                mainWindow?.RefreshGlobalHotkeys();
-                
-                Logger.LogInfo($"Overlay hotkey set to: {newHotkey}");
-            }
-        }
-
-        private void FilterActiveHotkeyTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (_isInitializing) return;
-            var newHotkey = FilterActiveHotkeyTextBox.Text;
-            if (!string.IsNullOrWhiteSpace(newHotkey))
-            {
-                SettingsManager.Current.FilterActiveHotkey = newHotkey;
-                SettingsManager.Save();
-                
-                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
-                mainWindow?.RefreshGlobalHotkeys();
-                
-                Logger.LogInfo($"Filter active hotkey set to: {newHotkey}");
-            }
+                >= Windows.System.VirtualKey.A and <= Windows.System.VirtualKey.Z => key.ToString(),
+                >= Windows.System.VirtualKey.Number0 and <= Windows.System.VirtualKey.Number9 => ((int)key - (int)Windows.System.VirtualKey.Number0).ToString(),
+                >= Windows.System.VirtualKey.NumberPad0 and <= Windows.System.VirtualKey.NumberPad9 => "NUM " + ((int)key - (int)Windows.System.VirtualKey.NumberPad0),
+                >= Windows.System.VirtualKey.F1 and <= Windows.System.VirtualKey.F12 => "F" + ((int)key - (int)Windows.System.VirtualKey.F1 + 1),
+                Windows.System.VirtualKey.Up => "↑",
+                Windows.System.VirtualKey.Down => "↓",
+                Windows.System.VirtualKey.Left => "←",
+                Windows.System.VirtualKey.Right => "→",
+                Windows.System.VirtualKey.Space => "SPACE",
+                Windows.System.VirtualKey.Enter => "ENTER",
+                Windows.System.VirtualKey.Tab => "TAB",
+                Windows.System.VirtualKey.Escape => "ESC",
+                Windows.System.VirtualKey.Back => "BACKSPACE",
+                Windows.System.VirtualKey.Delete => "DEL",
+                Windows.System.VirtualKey.Insert => "INS",
+                Windows.System.VirtualKey.Home => "HOME",
+                Windows.System.VirtualKey.End => "END",
+                Windows.System.VirtualKey.PageUp => "PAGE UP",
+                Windows.System.VirtualKey.PageDown => "PAGE DOWN",
+                _ => key.ToString().ToUpper()
+            };
         }
 
         private void OverlayHotkeyConfirmButton_Click(object sender, RoutedEventArgs e)
         {
-            // Remove focus from hotkey textbox
-            if (sender is Button button)
-            {
-                button.Focus(FocusState.Programmatic);
-            }
+            // This method is no longer used with the new UI
         }
 
         private void ThemeSelectorBar_SelectionChanged(SelectorBar sender, SelectorBarSelectionChangedEventArgs args)
@@ -754,34 +935,36 @@ namespace FlairX_Mod_Manager.Pages
             PrevCategoryButtonTextBox.Text = SettingsManager.Current.GamepadPrevCategoryButton ?? "LB";
         }
 
-        private void SelectButtonRecordButton_Click(object sender, RoutedEventArgs e)
+        private void SelectButtonRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if (_isRecordingSingleButton) StopRecordingSingleButton();
-            else StartRecordingSingleButton("select", SelectButtonTextBox, SelectButtonRecordButton);
+            else StartRecordingSingleButton("select", SelectButtonTextBox, SelectButtonRecordButton, SelectButtonKeysPanel, SelectButtonSaveButton);
         }
 
-        private void BackButtonRecordButton_Click(object sender, RoutedEventArgs e)
+        private void BackButtonRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if (_isRecordingSingleButton) StopRecordingSingleButton();
-            else StartRecordingSingleButton("back", BackButtonTextBox, BackButtonRecordButton);
+            else StartRecordingSingleButton("back", BackButtonTextBox, BackButtonRecordButton, BackButtonKeysPanel, BackButtonSaveButton);
         }
 
-        private void NextCategoryButtonRecordButton_Click(object sender, RoutedEventArgs e)
+        private void NextCategoryButtonRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if (_isRecordingSingleButton) StopRecordingSingleButton();
-            else StartRecordingSingleButton("next", NextCategoryButtonTextBox, NextCategoryButtonRecordButton);
+            else StartRecordingSingleButton("next", NextCategoryButtonTextBox, NextCategoryButtonRecordButton, NextCategoryButtonKeysPanel, NextCategoryButtonSaveButton);
         }
 
-        private void PrevCategoryButtonRecordButton_Click(object sender, RoutedEventArgs e)
+        private void PrevCategoryButtonRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if (_isRecordingSingleButton) StopRecordingSingleButton();
-            else StartRecordingSingleButton("prev", PrevCategoryButtonTextBox, PrevCategoryButtonRecordButton);
+            else StartRecordingSingleButton("prev", PrevCategoryButtonTextBox, PrevCategoryButtonRecordButton, PrevCategoryButtonKeysPanel, PrevCategoryButtonSaveButton);
         }
 
         private TextBox? _currentRecordingTextBox;
-        private Button? _currentRecordingButton;
+        private Border? _currentRecordingButton;
+        private Border? _currentRecordingSaveButton;
+        private StackPanel? _currentRecordingKeysPanel;
 
-        private void StartRecordingSingleButton(string buttonType, TextBox textBox, Button recordButton)
+        private void StartRecordingSingleButton(string buttonType, TextBox textBox, Border recordButton, StackPanel keysPanel, Border saveButton)
         {
             var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
             
@@ -793,6 +976,8 @@ namespace FlairX_Mod_Manager.Pages
             if (!_testGamepad.CheckConnection())
             {
                 textBox.Text = SharedUtilities.GetTranslation(lang, "Recording_NoController");
+                textBox.Visibility = Visibility.Visible;
+                keysPanel.Visibility = Visibility.Collapsed;
                 return;
             }
 
@@ -800,9 +985,17 @@ namespace FlairX_Mod_Manager.Pages
             _recordingButtonType = buttonType;
             _currentRecordingTextBox = textBox;
             _currentRecordingButton = recordButton;
+            _currentRecordingSaveButton = saveButton;
+            _currentRecordingKeysPanel = keysPanel;
+            
+            // Show TextBox and Save button, hide KeysPanel
+            textBox.Visibility = Visibility.Visible;
+            keysPanel.Visibility = Visibility.Collapsed;
+            saveButton.Visibility = Visibility.Visible;
             
             textBox.Text = SharedUtilities.GetTranslation(lang, "Recording_PressButton");
-            recordButton.Content = new FontIcon { Glyph = "\uE71A", FontSize = 14 };
+            if (recordButton.Child is FontIcon icon)
+                icon.Glyph = "\uE71A"; // Stop icon
             
             _testGamepad.ButtonPressed += OnSingleButtonPressed;
             _testGamepad.StartPolling();
@@ -819,27 +1012,23 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             // Reset button icon
-            if (_currentRecordingButton != null)
+            if (_currentRecordingButton?.Child is FontIcon icon)
             {
-                _currentRecordingButton.Content = new FontIcon { Glyph = "\uE7C8", FontSize = 14 };
+                icon.Glyph = "\uE7C8"; // Record icon
             }
             
-            // Restore text if nothing recorded
-            var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
-            var pressButtonText = SharedUtilities.GetTranslation(lang, "Recording_PressButton");
-            if (_currentRecordingTextBox?.Text == pressButtonText)
-            {
-                switch (_recordingButtonType)
-                {
-                    case "select": _currentRecordingTextBox.Text = SettingsManager.Current.GamepadSelectButton ?? "A"; break;
-                    case "back": _currentRecordingTextBox.Text = SettingsManager.Current.GamepadBackButton ?? "B"; break;
-                    case "next": _currentRecordingTextBox.Text = SettingsManager.Current.GamepadNextCategoryButton ?? "RB"; break;
-                    case "prev": _currentRecordingTextBox.Text = SettingsManager.Current.GamepadPrevCategoryButton ?? "LB"; break;
-                }
-            }
+            // Hide TextBox and Save button, show KeysPanel
+            if (_currentRecordingTextBox != null)
+                _currentRecordingTextBox.Visibility = Visibility.Collapsed;
+            if (_currentRecordingSaveButton != null)
+                _currentRecordingSaveButton.Visibility = Visibility.Collapsed;
+            if (_currentRecordingKeysPanel != null)
+                _currentRecordingKeysPanel.Visibility = Visibility.Visible;
             
             _currentRecordingTextBox = null;
             _currentRecordingButton = null;
+            _currentRecordingSaveButton = null;
+            _currentRecordingKeysPanel = null;
             _recordingButtonType = "";
         }
 
@@ -848,6 +1037,7 @@ namespace FlairX_Mod_Manager.Pages
             if (!_isRecordingSingleButton) return;
             
             var buttonName = e.GetButtonDisplayName();
+            var kenneyButtonName = ConvertToKenneyFormat(buttonName);
             
             DispatcherQueue.TryEnqueue(() =>
             {
@@ -856,33 +1046,357 @@ namespace FlairX_Mod_Manager.Pages
                     _currentRecordingTextBox.Text = buttonName;
                 }
                 
-                // Save to settings
-                switch (_recordingButtonType)
+                // Stop polling but keep UI in edit mode - user must click Save
+                if (_testGamepad != null)
                 {
-                    case "select":
-                        SettingsManager.Current.GamepadSelectButton = buttonName;
-                        break;
-                    case "back":
-                        SettingsManager.Current.GamepadBackButton = buttonName;
-                        break;
-                    case "next":
-                        SettingsManager.Current.GamepadNextCategoryButton = buttonName;
-                        break;
-                    case "prev":
-                        SettingsManager.Current.GamepadPrevCategoryButton = buttonName;
-                        break;
+                    _testGamepad.ButtonPressed -= OnSingleButtonPressed;
+                    _testGamepad.StopPolling();
                 }
+                _isRecordingSingleButton = false;
                 
-                SettingsManager.Save();
-                Logger.LogInfo($"Gamepad {_recordingButtonType} button set to: {buttonName}");
+                // Reset record button icon
+                if (_currentRecordingButton?.Child is FontIcon icon)
+                    icon.Glyph = "\uE7C8";
                 
-                // Vibrate to confirm
+                // Vibrate to confirm button was captured
                 _testGamepad?.Vibrate(30000, 30000, 100);
-                
-                StopRecordingSingleButton();
             });
+        }
+        
+        // Save button handlers for single buttons
+        private void SelectButtonSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            SaveSingleButton("select", SelectButtonTextBox, SelectButtonKeysPanel, SelectButtonSaveButton);
+        }
+        
+        private void BackButtonSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            SaveSingleButton("back", BackButtonTextBox, BackButtonKeysPanel, BackButtonSaveButton);
+        }
+        
+        private void NextCategoryButtonSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            SaveSingleButton("next", NextCategoryButtonTextBox, NextCategoryButtonKeysPanel, NextCategoryButtonSaveButton);
+        }
+        
+        private void PrevCategoryButtonSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            SaveSingleButton("prev", PrevCategoryButtonTextBox, PrevCategoryButtonKeysPanel, PrevCategoryButtonSaveButton);
+        }
+        
+        private void SaveSingleButton(string buttonType, TextBox textBox, StackPanel keysPanel, Border saveButton)
+        {
+            var buttonName = textBox.Text.Trim();
+            if (string.IsNullOrEmpty(buttonName)) return;
+            
+            var kenneyButtonName = ConvertToKenneyFormat(buttonName);
+            
+            // Save to settings
+            switch (buttonType)
+            {
+                case "select":
+                    SettingsManager.Current.GamepadSelectButton = buttonName;
+                    break;
+                case "back":
+                    SettingsManager.Current.GamepadBackButton = buttonName;
+                    break;
+                case "next":
+                    SettingsManager.Current.GamepadNextCategoryButton = buttonName;
+                    break;
+                case "prev":
+                    SettingsManager.Current.GamepadPrevCategoryButton = buttonName;
+                    break;
+            }
+            
+            SettingsManager.Save();
+            Logger.LogInfo($"Gamepad {buttonType} button set to: {buttonName}");
+            
+            // Update keys panel
+            InitializeHotkeyPanel(keysPanel, kenneyButtonName);
+            
+            // Hide TextBox and Save, show KeysPanel
+            textBox.Visibility = Visibility.Collapsed;
+            saveButton.Visibility = Visibility.Collapsed;
+            keysPanel.Visibility = Visibility.Visible;
+            
+            // Clear state
+            _currentRecordingTextBox = null;
+            _currentRecordingButton = null;
+            _currentRecordingSaveButton = null;
+            _currentRecordingKeysPanel = null;
+            _recordingButtonType = "";
         }
 
         #endregion
+
+        // Additional methods for new XAML event handlers
+        private void GamepadComboTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            // Handle keyboard input like regular hotkey
+            HotkeyTextBox_KeyDown(sender, e);
+            
+            // Save the combo
+            if (sender is TextBox textBox && !string.IsNullOrEmpty(textBox.Text))
+            {
+                SettingsManager.Current.GamepadToggleOverlayCombo = textBox.Text;
+                SettingsManager.Save();
+                
+                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                mainWindow?.RefreshGlobalGamepad();
+                
+                Logger.LogInfo($"Gamepad overlay combo set to: {textBox.Text}");
+            }
+        }
+
+        private void FilterActiveComboTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            // Handle keyboard input like regular hotkey
+            HotkeyTextBox_KeyDown(sender, e);
+            
+            // Save the combo
+            if (sender is TextBox textBox && !string.IsNullOrEmpty(textBox.Text))
+            {
+                SettingsManager.Current.GamepadFilterActiveCombo = textBox.Text;
+                SettingsManager.Save();
+                
+                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                mainWindow?.RefreshGlobalGamepad();
+                
+                Logger.LogInfo($"Gamepad filter active combo set to: {textBox.Text}");
+            }
+        }
+
+        private void GamepadComboTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // Nothing special needed for combo textboxes on lost focus
+        }
+
+        private void FilterActiveComboTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // Nothing special needed for combo textboxes on lost focus
+        }
+
+        private void SelectButtonTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // Nothing special needed for single button textboxes on lost focus
+        }
+
+        private void BackButtonTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // Nothing special needed for single button textboxes on lost focus
+        }
+
+        private void NextCategoryButtonTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // Nothing special needed for single button textboxes on lost focus
+        }
+
+        private void PrevCategoryButtonTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // Nothing special needed for single button textboxes on lost focus
+        }
+        
+        // Hotkey action button hover effects
+        private void HotkeyActionButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (sender is Border border)
+            {
+                border.Background = (Brush)Application.Current.Resources["SubtleFillColorSecondaryBrush"];
+                if (border.Child is FontIcon icon && icon.RenderTransform is ScaleTransform st)
+                {
+                    st.ScaleX = 1.1;
+                    st.ScaleY = 1.1;
+                }
+                else if (border.Child is FontIcon iconNoTransform)
+                {
+                    iconNoTransform.RenderTransform = new ScaleTransform { ScaleX = 1.1, ScaleY = 1.1 };
+                    iconNoTransform.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+                }
+            }
+        }
+
+        private void HotkeyActionButton_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (sender is Border border)
+            {
+                border.Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                if (border.Child is FontIcon icon && icon.RenderTransform is ScaleTransform st)
+                {
+                    st.ScaleX = 1.0;
+                    st.ScaleY = 1.0;
+                }
+            }
+        }
+        
+        // Overlay Hotkey action buttons
+        private void OverlayHotkeyEditButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (_activeHotkeyEditBox != null) return;
+            
+            StartHotkeyEdit(OverlayHotkeyKeysPanel, OverlayHotkeyEditButton, OverlayHotkeySaveButton, 
+                           SettingsManager.Current.ToggleOverlayHotkey ?? "Alt+W");
+        }
+
+        private void OverlayHotkeySaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            SaveHotkeyEdit(OverlayHotkeyKeysPanel, OverlayHotkeyEditButton, OverlayHotkeySaveButton, "overlay");
+        }
+
+        private void OverlayHotkeyRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (_activeHotkeyEditBox != null) return;
+            
+            var defaultHotkey = "Alt+W";
+            SettingsManager.Current.ToggleOverlayHotkey = defaultHotkey;
+            SettingsManager.Save();
+            
+            InitializeHotkeyPanel(OverlayHotkeyKeysPanel, defaultHotkey);
+            
+            var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+            mainWindow?.RefreshGlobalHotkeys();
+            
+            Logger.LogInfo($"Overlay hotkey restored to default: {defaultHotkey}");
+        }
+
+        // Filter Active Hotkey action buttons
+        private void FilterActiveHotkeyEditButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (_activeHotkeyEditBox != null) return;
+            
+            StartHotkeyEdit(FilterActiveHotkeyKeysPanel, FilterActiveHotkeyEditButton, FilterActiveHotkeySaveButton, 
+                           SettingsManager.Current.FilterActiveHotkey ?? "Alt+A");
+        }
+
+        private void FilterActiveHotkeySaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            SaveHotkeyEdit(FilterActiveHotkeyKeysPanel, FilterActiveHotkeyEditButton, FilterActiveHotkeySaveButton, "filter");
+        }
+
+        private void FilterActiveHotkeyRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (_activeHotkeyEditBox != null) return;
+            
+            var defaultHotkey = "Alt+A";
+            SettingsManager.Current.FilterActiveHotkey = defaultHotkey;
+            SettingsManager.Save();
+            
+            InitializeHotkeyPanel(FilterActiveHotkeyKeysPanel, defaultHotkey);
+            
+            var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+            mainWindow?.RefreshGlobalHotkeys();
+            
+            Logger.LogInfo($"Filter active hotkey restored to default: {defaultHotkey}");
+        }
+        
+        // Helper methods for hotkey editing
+        private void StartHotkeyEdit(StackPanel keysPanel, Border editButton, Border saveButton, string currentHotkey)
+        {
+            // Hide edit button, show save button
+            editButton.Visibility = Visibility.Collapsed;
+            saveButton.Visibility = Visibility.Visible;
+            
+            // Replace keys panel with TextBox
+            keysPanel.Children.Clear();
+            
+            var editBox = new TextBox
+            {
+                Text = currentHotkey,
+                FontFamily = new FontFamily("Consolas"),
+                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                FontSize = 14,
+                Height = 32,
+                MinWidth = 120,
+                VerticalAlignment = VerticalAlignment.Center,
+                PlaceholderText = "Press keys..."
+            };
+            
+            editBox.PreviewKeyDown += HotkeyEditBox_PreviewKeyDown;
+            keysPanel.Children.Add(editBox);
+            editBox.Focus(FocusState.Programmatic);
+            
+            _activeHotkeyEditBox = editBox;
+            
+            // Disable global hotkeys during editing
+            _previousHotkeysEnabled = SettingsManager.Current.HotkeysEnabled;
+            SettingsManager.Current.HotkeysEnabled = false;
+        }
+
+        private void SaveHotkeyEdit(StackPanel keysPanel, Border editButton, Border saveButton, string hotkeyType)
+        {
+            if (_activeHotkeyEditBox == null) return;
+            
+            var newHotkey = _activeHotkeyEditBox.Text.Trim();
+            if (string.IsNullOrEmpty(newHotkey))
+            {
+                // Restore original hotkey if empty
+                newHotkey = hotkeyType == "overlay" 
+                    ? SettingsManager.Current.ToggleOverlayHotkey ?? "Alt+W"
+                    : SettingsManager.Current.FilterActiveHotkey ?? "Alt+A";
+            }
+            
+            // Save to settings
+            if (hotkeyType == "overlay")
+            {
+                SettingsManager.Current.ToggleOverlayHotkey = newHotkey;
+            }
+            else
+            {
+                SettingsManager.Current.FilterActiveHotkey = newHotkey;
+            }
+            SettingsManager.Save();
+            
+            // Restore visual keys panel
+            InitializeHotkeyPanel(keysPanel, newHotkey);
+            
+            // Show edit button, hide save button
+            editButton.Visibility = Visibility.Visible;
+            saveButton.Visibility = Visibility.Collapsed;
+            
+            // Restore global hotkeys
+            SettingsManager.Current.HotkeysEnabled = _previousHotkeysEnabled;
+            
+            // Refresh global hotkeys
+            var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+            mainWindow?.RefreshGlobalHotkeys();
+            
+            _activeHotkeyEditBox = null;
+            
+            Logger.LogInfo($"{hotkeyType} hotkey set to: {newHotkey}");
+        }
+
+        private void HotkeyEditBox_PreviewKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (sender is not TextBox editBox) return;
+            
+            e.Handled = true;
+            
+            var modifiers = new List<string>();
+            
+            if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
+                modifiers.Add("CTRL");
+            if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Shift) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
+                modifiers.Add("SHIFT");
+            if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.Menu) & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
+                modifiers.Add("ALT");
+            
+            var key = e.Key;
+            
+            // Skip modifier-only keys
+            if (key == Windows.System.VirtualKey.Control || key == Windows.System.VirtualKey.Shift ||
+                key == Windows.System.VirtualKey.Menu || key == Windows.System.VirtualKey.LeftWindows ||
+                key == Windows.System.VirtualKey.RightWindows || key == Windows.System.VirtualKey.LeftControl ||
+                key == Windows.System.VirtualKey.RightControl || key == Windows.System.VirtualKey.LeftShift ||
+                key == Windows.System.VirtualKey.RightShift || key == Windows.System.VirtualKey.LeftMenu ||
+                key == Windows.System.VirtualKey.RightMenu)
+                return;
+            
+            // Convert key to display string
+            string keyStr = ConvertVirtualKeyToString(key);
+            
+            if (modifiers.Count > 0)
+                editBox.Text = string.Join("+", modifiers) + "+" + keyStr;
+            else
+                editBox.Text = keyStr;
+        }
     }
 }
