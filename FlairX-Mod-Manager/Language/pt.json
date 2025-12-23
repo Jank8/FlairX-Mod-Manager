@@ -234,8 +234,6 @@
     "CropPanel_Title": "Ajustar área de corte",
     "SettingsPage_ImageOptimizerHeader": "Otimizador de imagens",
     "Skip": "Pular",
-    "Hotkey_Favorite_Tooltip": "Adicionar aos favoritos",
-    "Hotkey_Unfavorite_Tooltip": "Remover dos favoritos",
     "ImagePreview_Close_Tooltip": "Fechar pré-visualização",
     "ModDetailPage_DateChecked_Desc": "Quando verificou este mod pela última vez",
     "ModDetailPage_DateUpdated_Desc": "Quando este mod foi atualizado pela última vez",
@@ -249,5 +247,7 @@
     "ModDetailPage_Details_Header": "Detalhes",
     "ModDetailPage_SelectDate_Placeholder": "Selecionar data",
     "SettingsPage_InspectThumbnailsOnly_Label": "Inspecionar apenas miniaturas",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Mostrar inspeção de corte apenas para miniaturas minitile e catmini, processar outras imagens automaticamente"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Mostrar inspeção de corte apenas para miniaturas minitile e catmini, processar outras imagens automaticamente",
+    "HotkeyConflict_Title": "Conflito de atalho",
+    "HotkeyConflict_Message": "Este atalho já está em uso. Por favor escolha outro ou restaure o padrão."
 }

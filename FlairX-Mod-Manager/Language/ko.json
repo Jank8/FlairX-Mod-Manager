@@ -234,8 +234,6 @@
     "CropPanel_Title": "자르기 영역 조정",
     "SettingsPage_ImageOptimizerHeader": "이미지 최적화",
     "Skip": "건너뛰기",
-    "Hotkey_Favorite_Tooltip": "즐겨찾기에 추가",
-    "Hotkey_Unfavorite_Tooltip": "즐겨찾기에서 제거",
     "ImagePreview_Close_Tooltip": "미리보기 닫기",
     "ModDetailPage_DateChecked_Desc": "이 모드를 마지막으로 확인한 날짜",
     "ModDetailPage_DateUpdated_Desc": "이 모드가 마지막으로 업데이트된 날짜",
@@ -249,5 +247,7 @@
     "ModDetailPage_Details_Header": "세부 정보",
     "ModDetailPage_SelectDate_Placeholder": "날짜 선택",
     "SettingsPage_InspectThumbnailsOnly_Label": "썸네일만 검사",
-    "SettingsPage_InspectThumbnailsOnly_Description": "minitile 및 catmini 썸네일에 대해서만 자르기 검사 표시, 다른 이미지는 자동 처리"
+    "SettingsPage_InspectThumbnailsOnly_Description": "minitile 및 catmini 썸네일에 대해서만 자르기 검사 표시, 다른 이미지는 자동 처리",
+    "HotkeyConflict_Title": "단축키 충돌",
+    "HotkeyConflict_Message": "이 단축키는 이미 사용 중입니다. 다른 것을 선택하거나 기본값으로 복원하세요."
 }

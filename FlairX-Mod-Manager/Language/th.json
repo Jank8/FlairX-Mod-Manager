@@ -234,8 +234,6 @@
     "CropPanel_Title": "ปรับพื้นที่ครอบตัด",
     "SettingsPage_ImageOptimizerHeader": "ตัวเพิ่มประสิทธิภาพรูปภาพ",
     "Skip": "ข้าม",
-    "Hotkey_Favorite_Tooltip": "เพิ่มในรายการโปรด",
-    "Hotkey_Unfavorite_Tooltip": "ลบออกจากรายการโปรด",
     "ImagePreview_Close_Tooltip": "ปิดตัวอย่าง",
     "ModDetailPage_DateChecked_Desc": "เมื่อคุณตรวจสอบม็อดนี้ครั้งล่าสุด",
     "ModDetailPage_DateUpdated_Desc": "เมื่อม็อดนี้ได้รับการอัปเดตครั้งล่าสุด",
@@ -249,5 +247,7 @@
     "ModDetailPage_Details_Header": "รายละเอียด",
     "ModDetailPage_SelectDate_Placeholder": "เลือกวันที่",
     "SettingsPage_InspectThumbnailsOnly_Label": "ตรวจสอบเฉพาะภาพขนาดย่อ",
-    "SettingsPage_InspectThumbnailsOnly_Description": "แสดงการตรวจสอบการครอบตัดเฉพาะสำหรับภาพขนาดย่อ minitile และ catmini ประมวลผลภาพอื่นโดยอัตโนมัติ"
+    "SettingsPage_InspectThumbnailsOnly_Description": "แสดงการตรวจสอบการครอบตัดเฉพาะสำหรับภาพขนาดย่อ minitile และ catmini ประมวลผลภาพอื่นโดยอัตโนมัติ",
+    "HotkeyConflict_Title": "ปุ่มลัดขัดแย้ง",
+    "HotkeyConflict_Message": "ปุ่มลัดนี้ถูกใช้งานแล้ว กรุณาเลือกอันอื่นหรือคืนค่าเริ่มต้น"
 }

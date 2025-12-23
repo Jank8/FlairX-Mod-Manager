@@ -68,5 +68,8 @@
     "FoundFilesSelectToDownload": "Đã tìm thấy {0} tệp. Chọn tệp để tải xuống.",
     "FailedToLoadFiles": "Không thể tải tệp. Vui lòng thử lại.",
     "XXMIModsDirectoryNotFound": "Không tìm thấy thư mục XXMI Mods",
-    "Preview": "Xem trước"
+    "Preview": "Xem trước",
+    "DownloadPreviewsOnly": "Previews Only",
+    "NoExistingModFound": "No existing mod found to download previews to.",
+    "DownloadPreviewsFailed": "Failed to download previews: {0}"
 }

@@ -68,5 +68,8 @@
     "FoundFilesSelectToDownload": "{0} fichier(s) trouvé(s). Sélectionnez les fichiers à télécharger.",
     "FailedToLoadFiles": "Échec du chargement des fichiers. Veuillez réessayer.",
     "XXMIModsDirectoryNotFound": "Répertoire des mods XXMI introuvable",
-    "Preview": "Aperçu"
+    "Preview": "Aperçu",
+    "DownloadPreviewsOnly": "Previews Only",
+    "NoExistingModFound": "No existing mod found to download previews to.",
+    "DownloadPreviewsFailed": "Failed to download previews: {0}"
 }

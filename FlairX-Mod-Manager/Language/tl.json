@@ -234,8 +234,6 @@
     "CropPanel_Title": "Ayusin ang Crop Area",
     "SettingsPage_ImageOptimizerHeader": "Image Optimizer",
     "Skip": "Laktawan",
-    "Hotkey_Favorite_Tooltip": "Idagdag sa mga paborito",
-    "Hotkey_Unfavorite_Tooltip": "Alisin sa mga paborito",
     "ImagePreview_Close_Tooltip": "Isara ang preview",
     "ModDetailPage_DateChecked_Desc": "Kailan mo huling sinuri ang mod na ito",
     "ModDetailPage_DateUpdated_Desc": "Kailan huling na-update ang mod na ito",
@@ -249,5 +247,7 @@
     "ModDetailPage_Details_Header": "Mga Detalye",
     "ModDetailPage_SelectDate_Placeholder": "Pumili ng petsa",
     "SettingsPage_InspectThumbnailsOnly_Label": "Suriin ang mga thumbnail lamang",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Ipakita ang inspeksyon ng pag-crop para sa mga thumbnail na minitile at catmini lamang, awtomatikong iproseso ang ibang mga larawan"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Ipakita ang inspeksyon ng pag-crop para sa mga thumbnail na minitile at catmini lamang, awtomatikong iproseso ang ibang mga larawan",
+    "HotkeyConflict_Title": "Salungatan ng Hotkey",
+    "HotkeyConflict_Message": "Ang hotkey na ito ay ginagamit na. Pumili ng iba o ibalik ang default."
 }

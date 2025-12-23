@@ -248,5 +248,7 @@
     "ModDetailPage_Details_Header": "Szczegóły",
     "ModDetailPage_SelectDate_Placeholder": "Wybierz datę",
     "SettingsPage_InspectThumbnailsOnly_Label": "Inspekcja tylko miniatur",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Pokaż inspekcję przycinania tylko dla miniatur minitile i catmini, pozostałe obrazy przetwarzaj automatycznie"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Pokaż inspekcję przycinania tylko dla miniatur minitile i catmini, pozostałe obrazy przetwarzaj automatycznie",
+    "HotkeyConflict_Title": "Konflikt skrótu",
+    "HotkeyConflict_Message": "Ten skrót jest już używany. Wybierz inny lub przywróć domyślny."
 }

@@ -68,5 +68,8 @@
     "FoundFilesSelectToDownload": "找到{0}个文件。选择要下载的文件。",
     "FailedToLoadFiles": "加载文件失败。请重试。",
     "XXMIModsDirectoryNotFound": "未找到XXMI模组目录",
-    "Preview": "预览"
+    "Preview": "预览",
+    "DownloadPreviewsOnly": "Previews Only",
+    "NoExistingModFound": "No existing mod found to download previews to.",
+    "DownloadPreviewsFailed": "Failed to download previews: {0}"
 }

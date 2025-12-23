@@ -234,8 +234,6 @@
     "CropPanel_Title": "Ajuster la Zone de Recadrage",
     "SettingsPage_ImageOptimizerHeader": "Optimiseur d'Images",
     "Skip": "Passer",
-    "Hotkey_Favorite_Tooltip": "Ajouter aux favoris",
-    "Hotkey_Unfavorite_Tooltip": "Retirer des favoris",
     "ImagePreview_Close_Tooltip": "Fermer l'aperçu",
     "ModDetailPage_DateChecked_Desc": "Quand vous avez vérifié ce mod pour la dernière fois",
     "ModDetailPage_DateUpdated_Desc": "Quand ce mod a été mis à jour pour la dernière fois",
@@ -249,5 +247,7 @@
     "ModDetailPage_Details_Header": "Détails",
     "ModDetailPage_SelectDate_Placeholder": "Sélectionner une date",
     "SettingsPage_InspectThumbnailsOnly_Label": "Inspecter les miniatures uniquement",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Afficher l'inspection de recadrage uniquement pour les miniatures minitile et catmini, traiter les autres images automatiquement"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Afficher l'inspection de recadrage uniquement pour les miniatures minitile et catmini, traiter les autres images automatiquement",
+    "HotkeyConflict_Title": "Conflit de raccourci",
+    "HotkeyConflict_Message": "Ce raccourci est déjà utilisé. Veuillez en choisir un autre ou restaurer la valeur par défaut."
 }

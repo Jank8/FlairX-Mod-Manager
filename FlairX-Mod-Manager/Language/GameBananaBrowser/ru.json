@@ -68,5 +68,8 @@
     "FoundFilesSelectToDownload": "Найдено {0} файл(ов). Выберите файлы для загрузки.",
     "FailedToLoadFiles": "Не удалось загрузить файлы. Пожалуйста, попробуйте снова.",
     "XXMIModsDirectoryNotFound": "Каталог модов XXMI не найден",
-    "Preview": "Предпросмотр"
+    "Preview": "Предпросмотр",
+    "DownloadPreviewsOnly": "Previews Only",
+    "NoExistingModFound": "No existing mod found to download previews to.",
+    "DownloadPreviewsFailed": "Failed to download previews: {0}"
 }

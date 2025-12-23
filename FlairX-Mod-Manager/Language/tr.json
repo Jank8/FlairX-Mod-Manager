@@ -234,8 +234,6 @@
     "CropPanel_Title": "Kırpma Alanını Ayarla",
     "SettingsPage_ImageOptimizerHeader": "Görüntü Optimize Edici",
     "Skip": "Atla",
-    "Hotkey_Favorite_Tooltip": "Favorilere ekle",
-    "Hotkey_Unfavorite_Tooltip": "Favorilerden kaldır",
     "ImagePreview_Close_Tooltip": "Önizlemeyi kapat",
     "ModDetailPage_DateChecked_Desc": "Bu modu en son ne zaman kontrol ettiniz",
     "ModDetailPage_DateUpdated_Desc": "Bu mod en son ne zaman güncellendi",
@@ -249,5 +247,7 @@
     "ModDetailPage_Details_Header": "Detaylar",
     "ModDetailPage_SelectDate_Placeholder": "Tarih seçin",
     "SettingsPage_InspectThumbnailsOnly_Label": "Yalnızca küçük resimleri incele",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Yalnızca minitile ve catmini küçük resimleri için kırpma incelemesi göster, diğer resimleri otomatik işle"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Yalnızca minitile ve catmini küçük resimleri için kırpma incelemesi göster, diğer resimleri otomatik işle",
+    "HotkeyConflict_Title": "Kısayol Çakışması",
+    "HotkeyConflict_Message": "Bu kısayol zaten kullanılıyor. Lütfen başka bir tane seçin veya varsayılanı geri yükleyin."
 }

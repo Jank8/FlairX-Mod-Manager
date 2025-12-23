@@ -55,6 +55,7 @@ namespace FlairX_Mod_Manager.Pages
         
         // Hotkey management fields
         private TextBox? _activeHotkeyEditBox;
+        private bool _previousHotkeysEnabled = true;
         
         // Hotkey definitions
         private readonly List<(string Key, string LabelKey, string DescKey, string Icon)> _hotkeyDefinitions = new()
@@ -3283,6 +3284,10 @@ namespace FlairX_Mod_Manager.Pages
                 var grid = parent.Parent as Grid;
                 if (grid == null) return;
                 
+                // Disable global hotkeys during editing
+                _previousHotkeysEnabled = SettingsManager.Current.HotkeysEnabled;
+                SettingsManager.Current.HotkeysEnabled = false;
+                
                 // Show save button, hide edit button
                 editBorder.Visibility = Visibility.Collapsed;
                 if (parent.Children.Count > 1 && parent.Children[1] is Border saveBtn)
@@ -3318,7 +3323,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
         
-        private void SettingsSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private async void SettingsSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             if (sender is Border saveBorder && saveBorder.Tag is string key)
             {
@@ -3334,6 +3339,22 @@ namespace FlairX_Mod_Manager.Pages
                 
                 string newKeyCombo = editBox.Text.Trim();
                 if (string.IsNullOrEmpty(newKeyCombo)) newKeyCombo = GetHotkeyValue(key);
+                
+                // Check for conflicts
+                var conflict = SharedUtilities.GetConflictingKeyboardHotkey(newKeyCombo, key);
+                if (conflict != null)
+                {
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var dialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "HotkeyConflict_Title"),
+                        Content = SharedUtilities.GetTranslation(lang, "HotkeyConflict_Message"),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await dialog.ShowAsync();
+                    return;
+                }
                 
                 // Update settings
                 SetHotkeyValue(key, newKeyCombo);
@@ -3353,6 +3374,9 @@ namespace FlairX_Mod_Manager.Pages
                     editBtn.Visibility = Visibility.Visible;
                 
                 _activeHotkeyEditBox = null;
+                
+                // Restore global hotkeys
+                SettingsManager.Current.HotkeysEnabled = _previousHotkeysEnabled;
             }
         }
         

@@ -234,8 +234,6 @@
     "CropPanel_Title": "調整裁剪區域",
     "SettingsPage_ImageOptimizerHeader": "圖像優化器",
     "Skip": "跳過",
-    "Hotkey_Favorite_Tooltip": "加入收藏",
-    "Hotkey_Unfavorite_Tooltip": "從收藏中移除",
     "ImagePreview_Close_Tooltip": "關閉預覽",
     "ModDetailPage_DateChecked_Desc": "您上次檢查此模組的時間",
     "ModDetailPage_DateUpdated_Desc": "此模組上次更新時間",
@@ -249,5 +247,7 @@
     "ModDetailPage_Details_Header": "詳情",
     "ModDetailPage_SelectDate_Placeholder": "選擇日期",
     "SettingsPage_InspectThumbnailsOnly_Label": "僅檢查縮圖",
-    "SettingsPage_InspectThumbnailsOnly_Description": "僅對minitile和catmini縮圖顯示裁剪檢查，其他圖像自動處理"
+    "SettingsPage_InspectThumbnailsOnly_Description": "僅對minitile和catmini縮圖顯示裁剪檢查，其他圖像自動處理",
+    "HotkeyConflict_Title": "快捷鍵衝突",
+    "HotkeyConflict_Message": "此快捷鍵已被使用。請選擇其他快捷鍵或恢復預設值。"
 }

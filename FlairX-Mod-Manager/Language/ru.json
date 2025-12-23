@@ -234,8 +234,6 @@
     "CropPanel_Title": "Настроить область обрезки",
     "SettingsPage_ImageOptimizerHeader": "Оптимизатор изображений",
     "Skip": "Пропустить",
-    "Hotkey_Favorite_Tooltip": "Добавить в избранное",
-    "Hotkey_Unfavorite_Tooltip": "Удалить из избранного",
     "ImagePreview_Close_Tooltip": "Закрыть предпросмотр",
     "ModDetailPage_DateChecked_Desc": "Когда вы последний раз проверяли этот мод",
     "ModDetailPage_DateUpdated_Desc": "Когда этот мод был последний раз обновлён",
@@ -249,5 +247,7 @@
     "ModDetailPage_Details_Header": "Подробности",
     "ModDetailPage_SelectDate_Placeholder": "Выберите дату",
     "SettingsPage_InspectThumbnailsOnly_Label": "Проверять только миниатюры",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Показывать проверку обрезки только для миниатюр minitile и catmini, остальные изображения обрабатывать автоматически"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Показывать проверку обрезки только для миниатюр minitile и catmini, остальные изображения обрабатывать автоматически",
+    "HotkeyConflict_Title": "Конфликт горячей клавиши",
+    "HotkeyConflict_Message": "Эта горячая клавиша уже используется. Выберите другую или восстановите значение по умолчанию."
 }

@@ -396,7 +396,6 @@
                     <TextBlock x:Name="SelectButtonLabel" Grid.Column="2" Text="Select / Toggle Mod" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                        <TextBox x:Name="SelectButtonTextBox" Width="80" Height="32" PlaceholderText="A" Visibility="Collapsed" GotFocus="SelectButtonTextBox_GotFocus" LostFocus="SelectButtonTextBox_LostFocus"/>
                         <Border x:Name="SelectButtonRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
                                 PointerPressed="SelectButtonRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Record button">
@@ -406,6 +405,11 @@
                                 PointerPressed="SelectButtonSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Save">
                             <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="SelectButtonRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="SelectButtonRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </StackPanel>
                 </Grid>
@@ -432,7 +436,6 @@
                     <TextBlock x:Name="BackButtonLabel" Grid.Column="2" Text="Back / Close Overlay" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                        <TextBox x:Name="BackButtonTextBox" Width="80" Height="32" PlaceholderText="B" Visibility="Collapsed" GotFocus="BackButtonTextBox_GotFocus" LostFocus="BackButtonTextBox_LostFocus"/>
                         <Border x:Name="BackButtonRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
                                 PointerPressed="BackButtonRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Record button">
@@ -442,6 +445,11 @@
                                 PointerPressed="BackButtonSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Save">
                             <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="BackButtonRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="BackButtonRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </StackPanel>
                 </Grid>
@@ -468,7 +476,6 @@
                     <TextBlock x:Name="NextCategoryButtonLabel" Grid.Column="2" Text="Next Category" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                        <TextBox x:Name="NextCategoryButtonTextBox" Width="80" Height="32" PlaceholderText="RB" Visibility="Collapsed" GotFocus="NextCategoryButtonTextBox_GotFocus" LostFocus="NextCategoryButtonTextBox_LostFocus"/>
                         <Border x:Name="NextCategoryButtonRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
                                 PointerPressed="NextCategoryButtonRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Record button">
@@ -478,6 +485,11 @@
                                 PointerPressed="NextCategoryButtonSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Save">
                             <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="NextCategoryButtonRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="NextCategoryButtonRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </StackPanel>
                 </Grid>
@@ -504,7 +516,6 @@
                     <TextBlock x:Name="PrevCategoryButtonLabel" Grid.Column="2" Text="Previous Category" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                        <TextBox x:Name="PrevCategoryButtonTextBox" Width="80" Height="32" PlaceholderText="LB" Visibility="Collapsed" GotFocus="PrevCategoryButtonTextBox_GotFocus" LostFocus="PrevCategoryButtonTextBox_LostFocus"/>
                         <Border x:Name="PrevCategoryButtonRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
                                 PointerPressed="PrevCategoryButtonRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Record button">
@@ -514,6 +525,11 @@
                                 PointerPressed="PrevCategoryButtonSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Save">
                             <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="PrevCategoryButtonRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="PrevCategoryButtonRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </StackPanel>
                 </Grid>
@@ -540,7 +556,6 @@
                     <TextBlock x:Name="GamepadComboLabel" Grid.Column="2" Text="Toggle Overlay Combo" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                        <TextBox x:Name="GamepadComboTextBox" Width="160" Height="32" PlaceholderText="Back+Start" Visibility="Collapsed" KeyDown="GamepadComboTextBox_KeyDown" GotFocus="GamepadComboTextBox_GotFocus" LostFocus="GamepadComboTextBox_LostFocus"/>
                         <Border x:Name="GamepadComboRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
                                 PointerPressed="GamepadComboRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Record combo">
@@ -550,6 +565,11 @@
                                 PointerPressed="GamepadComboSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Save">
                             <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="GamepadComboRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="GamepadComboRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </StackPanel>
                 </Grid>
@@ -576,7 +596,6 @@
                     <TextBlock x:Name="FilterActiveComboLabel" Grid.Column="2" Text="Filter Active Combo" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                        <TextBox x:Name="FilterActiveComboTextBox" Width="160" Height="32" PlaceholderText="Back+A" Visibility="Collapsed" KeyDown="FilterActiveComboTextBox_KeyDown" GotFocus="FilterActiveComboTextBox_GotFocus" LostFocus="FilterActiveComboTextBox_LostFocus"/>
                         <Border x:Name="FilterActiveComboRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
                                 PointerPressed="FilterActiveComboRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Record combo">
@@ -586,6 +605,11 @@
                                 PointerPressed="FilterActiveComboSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Save">
                             <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="FilterActiveComboRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="FilterActiveComboRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </StackPanel>
                 </Grid>

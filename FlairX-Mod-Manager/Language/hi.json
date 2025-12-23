@@ -234,8 +234,6 @@
     "CropPanel_Title": "क्रॉप क्षेत्र समायोजित करें",
     "SettingsPage_ImageOptimizerHeader": "छवि अनुकूलक",
     "Skip": "छोड़ें",
-    "Hotkey_Favorite_Tooltip": "पसंदीदा में जोड़ें",
-    "Hotkey_Unfavorite_Tooltip": "पसंदीदा से हटाएं",
     "ImagePreview_Close_Tooltip": "पूर्वावलोकन बंद करें",
     "ModDetailPage_DateChecked_Desc": "आपने इस मॉड को आखिरी बार कब जांचा",
     "ModDetailPage_DateUpdated_Desc": "यह मॉड आखिरी बार कब अपडेट हुआ",
@@ -249,5 +247,7 @@
     "ModDetailPage_Details_Header": "विवरण",
     "ModDetailPage_SelectDate_Placeholder": "तारीख चुनें",
     "SettingsPage_InspectThumbnailsOnly_Label": "केवल थंबनेल का निरीक्षण करें",
-    "SettingsPage_InspectThumbnailsOnly_Description": "केवल minitile और catmini थंबनेल के लिए क्रॉप निरीक्षण दिखाएं, अन्य छवियों को स्वचालित रूप से संसाधित करें"
+    "SettingsPage_InspectThumbnailsOnly_Description": "केवल minitile और catmini थंबनेल के लिए क्रॉप निरीक्षण दिखाएं, अन्य छवियों को स्वचालित रूप से संसाधित करें",
+    "HotkeyConflict_Title": "हॉटकी विरोध",
+    "HotkeyConflict_Message": "यह हॉटकी पहले से उपयोग में है। कृपया कोई अन्य चुनें या डिफ़ॉल्ट पुनर्स्थापित करें।"
 }

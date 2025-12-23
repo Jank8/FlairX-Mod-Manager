@@ -234,8 +234,6 @@
     "CropPanel_Title": "トリミング領域を調整",
     "SettingsPage_ImageOptimizerHeader": "画像最適化",
     "Skip": "スキップ",
-    "Hotkey_Favorite_Tooltip": "お気に入りに追加",
-    "Hotkey_Unfavorite_Tooltip": "お気に入りから削除",
     "ImagePreview_Close_Tooltip": "プレビューを閉じる",
     "ModDetailPage_DateChecked_Desc": "このMODを最後に確認した日時",
     "ModDetailPage_DateUpdated_Desc": "このMODが最後に更新された日時",
@@ -249,5 +247,7 @@
     "ModDetailPage_Details_Header": "詳細",
     "ModDetailPage_SelectDate_Placeholder": "日付を選択",
     "SettingsPage_InspectThumbnailsOnly_Label": "サムネイルのみ検査",
-    "SettingsPage_InspectThumbnailsOnly_Description": "minitileとcatminiのサムネイルのみクロップ検査を表示し、他の画像は自動処理"
+    "SettingsPage_InspectThumbnailsOnly_Description": "minitileとcatminiのサムネイルのみクロップ検査を表示し、他の画像は自動処理",
+    "HotkeyConflict_Title": "ホットキーの競合",
+    "HotkeyConflict_Message": "このホットキーは既に使用されています。別のものを選択するか、デフォルトに戻してください。"
 }

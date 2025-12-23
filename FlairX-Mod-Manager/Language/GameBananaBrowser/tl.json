@@ -68,5 +68,8 @@
     "FoundFilesSelectToDownload": "Nakahanap ng {0} file. Pumili ng mga file para i-download.",
     "FailedToLoadFiles": "Nabigong mag-load ng mga file. Pakisubukan muli.",
     "XXMIModsDirectoryNotFound": "Hindi nahanap ang XXMI Mods directory",
-    "Preview": "Preview"
+    "Preview": "Preview",
+    "DownloadPreviewsOnly": "Previews Only",
+    "NoExistingModFound": "No existing mod found to download previews to.",
+    "DownloadPreviewsFailed": "Failed to download previews: {0}"
 }

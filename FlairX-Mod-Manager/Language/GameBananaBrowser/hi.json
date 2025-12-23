@@ -68,5 +68,8 @@
     "FoundFilesSelectToDownload": "{0} फ़ाइल(ें) मिलीं। डाउनलोड करने के लिए फ़ाइलें चुनें।",
     "FailedToLoadFiles": "फ़ाइलें लोड करने में विफल। कृपया पुनः प्रयास करें।",
     "XXMIModsDirectoryNotFound": "XXMI मॉड निर्देशिका नहीं मिली",
-    "Preview": "पूर्वावलोकन"
+    "Preview": "पूर्वावलोकन",
+    "DownloadPreviewsOnly": "Previews Only",
+    "NoExistingModFound": "No existing mod found to download previews to.",
+    "DownloadPreviewsFailed": "Failed to download previews: {0}"
 }

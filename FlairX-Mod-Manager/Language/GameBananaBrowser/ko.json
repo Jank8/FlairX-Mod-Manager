@@ -68,5 +68,8 @@
     "FoundFilesSelectToDownload": "{0}개의 파일을 찾았습니다. 다운로드할 파일을 선택하세요.",
     "FailedToLoadFiles": "파일을 불러오지 못했습니다. 다시 시도해주세요.",
     "XXMIModsDirectoryNotFound": "XXMI 모드 디렉토리를 찾을 수 없습니다",
-    "Preview": "미리보기"
+    "Preview": "미리보기",
+    "DownloadPreviewsOnly": "Previews Only",
+    "NoExistingModFound": "No existing mod found to download previews to.",
+    "DownloadPreviewsFailed": "Failed to download previews: {0}"
 }

@@ -385,5 +385,159 @@ namespace FlairX_Mod_Manager
         {
             return SettingsManager.GetCurrentXXMIModsDirectory() ?? string.Empty;
         }
+        
+        // ==================== HOTKEY VALIDATION ====================
+        
+        /// <summary>
+        /// Checks if a keyboard hotkey is already used by another setting
+        /// </summary>
+        /// <param name="hotkey">The hotkey to check</param>
+        /// <param name="excludeSetting">Setting name to exclude from check (the one being edited)</param>
+        /// <returns>Name of conflicting setting or null if no conflict</returns>
+        public static string? GetConflictingKeyboardHotkey(string hotkey, string? excludeSetting = null)
+        {
+            if (string.IsNullOrWhiteSpace(hotkey)) return null;
+            
+            var settings = SettingsManager.Current;
+            var normalizedHotkey = NormalizeHotkey(hotkey);
+            
+            Logger.LogInfo($"Checking keyboard hotkey conflict: '{hotkey}' -> normalized: '{normalizedHotkey}', exclude: '{excludeSetting}'");
+            
+            var keyboardHotkeys = new Dictionary<string, string>
+            {
+                { "OptimizePreviewsHotkey", settings.OptimizePreviewsHotkey },
+                { "ReloadManagerHotkey", settings.ReloadManagerHotkey },
+                { "ShuffleActiveModsHotkey", settings.ShuffleActiveModsHotkey },
+                { "DeactivateAllModsHotkey", settings.DeactivateAllModsHotkey },
+                { "ToggleOverlayHotkey", settings.ToggleOverlayHotkey },
+                { "FilterActiveHotkey", settings.FilterActiveHotkey }
+            };
+            
+            foreach (var kvp in keyboardHotkeys)
+            {
+                if (excludeSetting != null && kvp.Key == excludeSetting) continue;
+                if (string.IsNullOrWhiteSpace(kvp.Value)) continue;
+                
+                var normalizedExisting = NormalizeHotkey(kvp.Value);
+                Logger.LogInfo($"  Comparing with {kvp.Key}: '{kvp.Value}' -> normalized: '{normalizedExisting}'");
+                
+                if (normalizedExisting == normalizedHotkey)
+                {
+                    Logger.LogInfo($"  CONFLICT FOUND with {kvp.Key}");
+                    return kvp.Key;
+                }
+            }
+            
+            Logger.LogInfo("  No conflict found");
+            return null;
+        }
+        
+        /// <summary>
+        /// Checks if a gamepad combo/button is already used by another setting
+        /// </summary>
+        /// <param name="combo">The combo to check</param>
+        /// <param name="excludeSetting">Setting name to exclude from check (the one being edited)</param>
+        /// <returns>Name of conflicting setting or null if no conflict</returns>
+        public static string? GetConflictingGamepadCombo(string combo, string? excludeSetting = null)
+        {
+            if (string.IsNullOrWhiteSpace(combo)) return null;
+            
+            var settings = SettingsManager.Current;
+            var normalizedCombo = NormalizeGamepadCombo(combo);
+            
+            Logger.LogInfo($"Checking gamepad combo conflict: '{combo}' -> normalized: '{normalizedCombo}', exclude: '{excludeSetting}'");
+            
+            var gamepadCombos = new Dictionary<string, string?>
+            {
+                { "GamepadToggleOverlayCombo", settings.GamepadToggleOverlayCombo },
+                { "GamepadFilterActiveCombo", settings.GamepadFilterActiveCombo },
+                { "GamepadSelectButton", settings.GamepadSelectButton },
+                { "GamepadBackButton", settings.GamepadBackButton },
+                { "GamepadNextCategoryButton", settings.GamepadNextCategoryButton },
+                { "GamepadPrevCategoryButton", settings.GamepadPrevCategoryButton }
+            };
+            
+            foreach (var kvp in gamepadCombos)
+            {
+                if (excludeSetting != null && kvp.Key == excludeSetting) continue;
+                if (string.IsNullOrWhiteSpace(kvp.Value)) continue;
+                
+                var normalizedExisting = NormalizeGamepadCombo(kvp.Value);
+                Logger.LogInfo($"  Comparing with {kvp.Key}: '{kvp.Value}' -> normalized: '{normalizedExisting}'");
+                
+                if (normalizedExisting == normalizedCombo)
+                {
+                    Logger.LogInfo($"  CONFLICT FOUND with {kvp.Key}");
+                    return kvp.Key;
+                }
+            }
+            
+            Logger.LogInfo("  No conflict found");
+            return null;
+        }
+        
+        /// <summary>
+        /// Normalizes keyboard hotkey for comparison (sorts modifiers, uppercase)
+        /// </summary>
+        private static string NormalizeHotkey(string hotkey)
+        {
+            var parts = hotkey.ToUpperInvariant().Split('+').Select(p => p.Trim()).ToList();
+            var modifiers = new List<string>();
+            var keys = new List<string>();
+            
+            foreach (var part in parts)
+            {
+                if (part == "CTRL" || part == "CONTROL" || part == "ALT" || part == "SHIFT" || part == "WIN")
+                    modifiers.Add(part == "CONTROL" ? "CTRL" : part);
+                else
+                    keys.Add(part);
+            }
+            
+            modifiers.Sort();
+            return string.Join("+", modifiers.Concat(keys));
+        }
+        
+        /// <summary>
+        /// Normalizes gamepad combo for comparison (sorts buttons, removes prefixes)
+        /// </summary>
+        private static string NormalizeGamepadCombo(string combo)
+        {
+            var parts = combo.Split('+')
+                .Select(p => p.Trim())
+                .Select(p => {
+                    // Remove controller prefixes for comparison
+                    if (p.StartsWith("XB ")) return p.Substring(3);
+                    if (p.StartsWith("PS ")) return p.Substring(3);
+                    if (p.StartsWith("NIN ")) return p.Substring(4);
+                    return p;
+                })
+                .OrderBy(p => p)
+                .ToList();
+            
+            return string.Join("+", parts).ToUpperInvariant();
+        }
+        
+        /// <summary>
+        /// Gets friendly name for a setting key (for display in conflict message)
+        /// </summary>
+        public static string GetSettingDisplayName(string settingKey, Dictionary<string, string> lang)
+        {
+            return settingKey switch
+            {
+                "OptimizePreviewsHotkey" => GetTranslation(lang, "SettingsPage_OptimizePreviews_Label"),
+                "ReloadManagerHotkey" => GetTranslation(lang, "Reload_Mods_Tooltip"),
+                "ShuffleActiveModsHotkey" => GetTranslation(lang, "SettingsPage_ShuffleActiveMods_Label"),
+                "DeactivateAllModsHotkey" => GetTranslation(lang, "SettingsPage_DeactivateAllMods_Label"),
+                "ToggleOverlayHotkey" => GetTranslation(lang, "ToggleHotkey_Label"),
+                "FilterActiveHotkey" => GetTranslation(lang, "FilterActiveHotkey_Label"),
+                "GamepadToggleOverlayCombo" => GetTranslation(lang, "ToggleOverlayCombo_Label"),
+                "GamepadFilterActiveCombo" => GetTranslation(lang, "FilterActiveCombo_Label"),
+                "GamepadSelectButton" => GetTranslation(lang, "SelectButton_Label"),
+                "GamepadBackButton" => GetTranslation(lang, "BackButton_Label"),
+                "GamepadNextCategoryButton" => GetTranslation(lang, "NextCategory_Label"),
+                "GamepadPrevCategoryButton" => GetTranslation(lang, "PrevCategory_Label"),
+                _ => settingKey
+            };
+        }
     }
 }

@@ -727,13 +727,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (sender is not Border recBorder || recBorder.Tag is not HotkeyButtonData data) return;
             
-            // If already recording gamepad on THIS button, stop it
-            if (_isRecordingGamepad && _activeRecBorder == recBorder)
-            {
-                StopGamepadListening();
-                return;
-            }
-            
             // Block if ANY hotkey is in edit mode or recording (one operation at a time)
             if (_activeHotkeyEditBox != null || _isRecordingGamepad)
                 return;
@@ -841,12 +834,6 @@ namespace FlairX_Mod_Manager.Pages
             
             editBox.Text = "";
             editBox.PlaceholderText = "Press & hold gamepad...";
-            if (recBorder.Child is FontIcon icon)
-            {
-                icon.Glyph = "\uE71A"; // Stop icon
-                var lang = SharedUtilities.LoadLanguageDictionary();
-                ToolTipService.SetToolTip(recBorder, SharedUtilities.GetTranslation(lang, "ModDetailPage_StopRecordingHotkey_Tooltip"));
-            }
             
             _hotkeyGamepad.ButtonPressed += OnHotkeyGamepadButtonPressed;
             _hotkeyGamepad.ButtonReleased += OnHotkeyGamepadButtonReleased;
@@ -867,14 +854,9 @@ namespace FlairX_Mod_Manager.Pages
             {
                 _hotkeyGamepad.ButtonPressed -= OnHotkeyGamepadButtonPressed;
                 _hotkeyGamepad.ButtonReleased -= OnHotkeyGamepadButtonReleased;
+                // Stop any ongoing vibration before stopping polling
+                _hotkeyGamepad.Vibrate(0, 0, 0);
                 _hotkeyGamepad.StopPolling();
-            }
-            
-            if (_activeRecBorder?.Child is FontIcon icon)
-            {
-                icon.Glyph = "\uE7C8"; // Rec icon
-                var lang = SharedUtilities.LoadLanguageDictionary();
-                ToolTipService.SetToolTip(_activeRecBorder, SharedUtilities.GetTranslation(lang, "ModDetailPage_RecordHotkey_Tooltip"));
             }
             
             if (_activeHotkeyEditBox != null)
@@ -987,7 +969,7 @@ namespace FlairX_Mod_Manager.Pages
                 _holdTimer?.Stop();
                 _holdTimer = null;
                 
-                DispatcherQueue.TryEnqueue(() =>
+                DispatcherQueue.TryEnqueue(async () =>
                 {
                     if (_activeHotkeyEditBox != null)
                     {
@@ -1002,6 +984,10 @@ namespace FlairX_Mod_Manager.Pages
                         _countdownTextBlock.Visibility = Visibility.Collapsed;
                     }
                     
+                    // Confirmation vibration 400ms
+                    _hotkeyGamepad?.Vibrate(30000, 30000, 400);
+                    // Wait for vibration to finish before stopping
+                    await Task.Delay(450);
                     StopGamepadListening();
                 });
             }

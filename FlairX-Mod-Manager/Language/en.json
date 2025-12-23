@@ -248,5 +248,7 @@
     "ModDetailPage_Details_Header": "Details",
     "ModDetailPage_SelectDate_Placeholder": "Select date",
     "SettingsPage_InspectThumbnailsOnly_Label": "Inspect Thumbnails Only",
-    "SettingsPage_InspectThumbnailsOnly_Description": "Show crop inspection only for minitile and catmini thumbnails, process other images automatically"
+    "SettingsPage_InspectThumbnailsOnly_Description": "Show crop inspection only for minitile and catmini thumbnails, process other images automatically",
+    "HotkeyConflict_Title": "Hotkey Conflict",
+    "HotkeyConflict_Message": "This hotkey is already in use. Please choose a different one or restore the default."
 }
