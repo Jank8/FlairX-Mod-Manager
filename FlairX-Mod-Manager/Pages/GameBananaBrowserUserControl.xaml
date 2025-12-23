@@ -176,7 +176,8 @@
                                                Source="{Binding ImageSource}" 
                                                Stretch="UniformToFill"
                                                VerticalAlignment="Center"
-                                               HorizontalAlignment="Center"/>
+                                               HorizontalAlignment="Center"
+                                               Opacity="{Binding ImageOpacity}"/>
                                         
                                         <!-- Installed badge -->
                                         <Border Grid.Row="0"
@@ -403,7 +404,14 @@
                             
                             <!-- Content with tilt animation -->
                             <Grid x:Name="DetailImageContentRoot" Margin="20" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Border x:Name="DetailImageBorder" CornerRadius="12" BorderThickness="12" BorderBrush="{ThemeResource TileBorderBrush}">
+                                <!-- Detail Image Loading Progress Bar -->
+                                <ProgressBar x:Name="DetailImageLoadingBar"
+                                             Minimum="0" Maximum="100" Value="0"
+                                             Width="200"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"
+                                             Visibility="Collapsed"/>
+                                <Border x:Name="DetailImageBorder" CornerRadius="12" BorderThickness="12" BorderBrush="{ThemeResource TileBorderBrush}" Opacity="0">
                                     <Border CornerRadius="8">
                                         <Image x:Name="DetailImage" Stretch="Uniform"/>
                                     </Border>

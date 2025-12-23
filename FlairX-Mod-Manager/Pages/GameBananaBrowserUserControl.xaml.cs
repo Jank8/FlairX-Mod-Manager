@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Net.Http;
+using System.IO;
 using FlairX_Mod_Manager.Services;
 
 namespace FlairX_Mod_Manager.Pages
@@ -23,6 +25,8 @@ namespace FlairX_Mod_Manager.Pages
         private GameBananaService.ModDetailsResponse? _currentModDetails;
         private ObservableCollection<Models.GameBananaFileViewModel> _detailFiles = new();
         private bool _currentModIsNSFW = false;
+        private static readonly HttpClient _imageHttpClient = new();
+        private readonly Dictionary<string, BitmapImage> _imageCache = new();
         
         // Infinite scroll
         private bool _isLoadingMore = false;
@@ -104,6 +108,20 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         _imageSource = value;
                         OnPropertyChanged(nameof(ImageSource));
+                    }
+                }
+            }
+
+            private double _imageOpacity = 0;
+            public double ImageOpacity
+            {
+                get => _imageOpacity;
+                set
+                {
+                    if (_imageOpacity != value)
+                    {
+                        _imageOpacity = value;
+                        OnPropertyChanged(nameof(ImageOpacity));
                     }
                 }
             }
@@ -674,7 +692,18 @@ namespace FlairX_Mod_Manager.Pages
             {
                 try
                 {
-                    var bitmap = new BitmapImage(new Uri(mod.ImageUrl!));
+                    var bitmap = new BitmapImage();
+                    bitmap.ImageOpened += async (s, e) =>
+                    {
+                        // Fade in animation
+                        for (double opacity = 0; opacity <= 1; opacity += 0.1)
+                        {
+                            mod.ImageOpacity = opacity;
+                            await Task.Delay(20);
+                        }
+                        mod.ImageOpacity = 1;
+                    };
+                    bitmap.UriSource = new Uri(mod.ImageUrl!);
                     mod.ImageSource = bitmap;
                 }
                 catch
@@ -1051,6 +1080,9 @@ namespace FlairX_Mod_Manager.Pages
             _detailFiles.Clear();
             _currentState = NavigationState.ModsList;
             
+            // Clear image cache to free memory
+            _imageCache.Clear();
+            
             // Change back button icon to X (close)
             BackIcon.Glyph = "\uE711"; // Cancel/Close icon
             
@@ -1186,7 +1218,7 @@ namespace FlairX_Mod_Manager.Pages
 
 
         // Detail image slider methods
-        private void LoadCurrentDetailImage()
+        private async void LoadCurrentDetailImage()
         {
             try
             {
@@ -1194,58 +1226,169 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     var imageUrl = _detailPreviewImages[_currentDetailImageIndex];
                     
-                    // Change the image source first
-                    DetailImage.Source = new BitmapImage(new Uri(imageUrl));
-                    
-                    // Create elastic scale animation
-                    var elasticScaleX = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    // Check cache first
+                    if (_imageCache.TryGetValue(imageUrl, out var cachedBitmap))
                     {
-                        From = 0.8,
-                        To = 1.0,
-                        Duration = new Duration(TimeSpan.FromMilliseconds(600)),
-                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
-                        { 
-                            EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
-                            Oscillations = 2,
-                            Springiness = 8
+                        DetailImage.Source = cachedBitmap;
+                        DetailImageLoadingBar.Visibility = Visibility.Collapsed;
+                        DetailImageBorder.Opacity = 1;
+                        
+                        // Just do elastic scale animation for cached images
+                        if (DetailImage.RenderTransform == null || !(DetailImage.RenderTransform is Microsoft.UI.Xaml.Media.ScaleTransform))
+                        {
+                            DetailImage.RenderTransform = new Microsoft.UI.Xaml.Media.ScaleTransform();
+                            DetailImage.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
                         }
-                    };
-                    
-                    var elasticScaleY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                    {
-                        From = 0.8,
-                        To = 1.0,
-                        Duration = new Duration(TimeSpan.FromMilliseconds(600)),
-                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
-                        { 
-                            EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
-                            Oscillations = 2,
-                            Springiness = 8
-                        }
-                    };
-                    
-                    // Ensure the image has a ScaleTransform
-                    if (DetailImage.RenderTransform == null || !(DetailImage.RenderTransform is Microsoft.UI.Xaml.Media.ScaleTransform))
-                    {
-                        DetailImage.RenderTransform = new Microsoft.UI.Xaml.Media.ScaleTransform();
-                        DetailImage.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5); // Center the scaling
+                        
+                        var scaleTransform = (Microsoft.UI.Xaml.Media.ScaleTransform)DetailImage.RenderTransform;
+                        
+                        var elasticScaleX = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            From = 0.9,
+                            To = 1.0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(400)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
+                            { 
+                                EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
+                                Oscillations = 1,
+                                Springiness = 10
+                            }
+                        };
+                        
+                        var elasticScaleY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            From = 0.9,
+                            To = 1.0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(400)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
+                            { 
+                                EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
+                                Oscillations = 1,
+                                Springiness = 10
+                            }
+                        };
+                        
+                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleX, scaleTransform);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleX, "ScaleX");
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleY, scaleTransform);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleY, "ScaleY");
+                        storyboard.Children.Add(elasticScaleX);
+                        storyboard.Children.Add(elasticScaleY);
+                        storyboard.Begin();
+                        return;
                     }
                     
-                    var scaleTransform = (Microsoft.UI.Xaml.Media.ScaleTransform)DetailImage.RenderTransform;
+                    // Show loading bar and hide border with image
+                    DetailImageLoadingBar.Value = 0;
+                    DetailImageLoadingBar.Visibility = Visibility.Visible;
+                    DetailImageBorder.Opacity = 0;
                     
-                    // Create storyboard and apply animations
-                    var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-                    
-                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleX, scaleTransform);
-                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleX, "ScaleX");
-                    
-                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleY, scaleTransform);
-                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleY, "ScaleY");
-                    
-                    storyboard.Children.Add(elasticScaleX);
-                    storyboard.Children.Add(elasticScaleY);
-                    
-                    storyboard.Begin();
+                    try
+                    {
+                        // Download image with progress tracking
+                        using var response = await _imageHttpClient.GetAsync(imageUrl, HttpCompletionOption.ResponseHeadersRead);
+                        response.EnsureSuccessStatusCode();
+                        
+                        var totalBytes = response.Content.Headers.ContentLength ?? -1;
+                        var buffer = new byte[8192];
+                        var bytesRead = 0L;
+                        
+                        using var contentStream = await response.Content.ReadAsStreamAsync();
+                        using var memoryStream = new MemoryStream();
+                        
+                        int read;
+                        while ((read = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                        {
+                            memoryStream.Write(buffer, 0, read);
+                            bytesRead += read;
+                            
+                            if (totalBytes > 0)
+                            {
+                                var progress = (double)bytesRead / totalBytes * 100;
+                                DetailImageLoadingBar.Value = progress;
+                            }
+                        }
+                        
+                        // Create bitmap from downloaded data
+                        memoryStream.Position = 0;
+                        var bitmap = new BitmapImage();
+                        await bitmap.SetSourceAsync(memoryStream.AsRandomAccessStream());
+                        
+                        // Cache the bitmap
+                        _imageCache[imageUrl] = bitmap;
+                        
+                        DetailImage.Source = bitmap;
+                        DetailImageLoadingBar.Visibility = Visibility.Collapsed;
+                        
+                        // Ensure the image has a ScaleTransform for elastic animation
+                        if (DetailImage.RenderTransform == null || !(DetailImage.RenderTransform is Microsoft.UI.Xaml.Media.ScaleTransform))
+                        {
+                            DetailImage.RenderTransform = new Microsoft.UI.Xaml.Media.ScaleTransform();
+                            DetailImage.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+                        }
+                        
+                        var scaleTransform = (Microsoft.UI.Xaml.Media.ScaleTransform)DetailImage.RenderTransform;
+                        
+                        // Create elastic scale animation
+                        var elasticScaleX = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            From = 0.8,
+                            To = 1.0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(600)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
+                            { 
+                                EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
+                                Oscillations = 2,
+                                Springiness = 8
+                            }
+                        };
+                        
+                        var elasticScaleY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            From = 0.8,
+                            To = 1.0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(600)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
+                            { 
+                                EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
+                                Oscillations = 2,
+                                Springiness = 8
+                            }
+                        };
+                        
+                        // Fade in animation for border
+                        var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            From = 0,
+                            To = 1,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(200))
+                        };
+                        
+                        // Create storyboard and apply all animations
+                        var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleX, scaleTransform);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleX, "ScaleX");
+                        
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleY, scaleTransform);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleY, "ScaleY");
+                        
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, DetailImageBorder);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                        
+                        storyboard.Children.Add(elasticScaleX);
+                        storyboard.Children.Add(elasticScaleY);
+                        storyboard.Children.Add(fadeIn);
+                        
+                        storyboard.Begin();
+                    }
+                    catch
+                    {
+                        // Download failed, hide loading bar and show border
+                        DetailImageLoadingBar.Visibility = Visibility.Collapsed;
+                        DetailImageBorder.Opacity = 1;
+                    }
                 }
             }
             catch (Exception ex)
