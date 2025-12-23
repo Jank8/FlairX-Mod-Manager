@@ -21,6 +21,27 @@ namespace FlairX_Mod_Manager.Controls
         public MinitileSourceSelectionPanel()
         {
             this.InitializeComponent();
+            this.Unloaded += OnUnloaded;
+        }
+
+        /// <summary>
+        /// Called when panel is unloaded - cancel any pending operation
+        /// </summary>
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            CancelOperation();
+        }
+
+        /// <summary>
+        /// Cancel the current operation (called when panel is closed without explicit action)
+        /// </summary>
+        public void CancelOperation()
+        {
+            // Only set result if not already completed
+            if (_completionSource != null && !_completionSource.Task.IsCompleted)
+            {
+                _completionSource.SetResult(new MinitileSourceResult { Cancelled = true });
+            }
         }
 
         public Task<MinitileSourceResult> ShowForSelectionAsync(List<string> availableFiles, string modDirectory)

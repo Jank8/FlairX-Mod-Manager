@@ -1126,7 +1126,8 @@ namespace FlairX_Mod_Manager
                                 Controls.CropAction.Confirm => Services.CropInspectionAction.Confirm,
                                 Controls.CropAction.Skip => Services.CropInspectionAction.Skip,
                                 Controls.CropAction.Delete => Services.CropInspectionAction.Delete,
-                                _ => Services.CropInspectionAction.Delete
+                                Controls.CropAction.Cancel => Services.CropInspectionAction.Cancel,
+                                _ => Services.CropInspectionAction.Cancel
                             },
                             CropRectangle = cropResult.CropRectangle
                         };
@@ -1199,7 +1200,8 @@ namespace FlairX_Mod_Manager
                                 Controls.CropAction.Confirm => Services.CropInspectionAction.Confirm,
                                 Controls.CropAction.Skip => Services.CropInspectionAction.Skip,
                                 Controls.CropAction.Delete => Services.CropInspectionAction.Delete,
-                                _ => Services.CropInspectionAction.Delete
+                                Controls.CropAction.Cancel => Services.CropInspectionAction.Cancel,
+                                _ => Services.CropInspectionAction.Cancel
                             },
                             CropRectangle = r.CropRectangle,
                             TargetWidth = r.TargetWidth,

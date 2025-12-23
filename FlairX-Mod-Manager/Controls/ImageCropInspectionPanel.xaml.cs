@@ -89,6 +89,32 @@ namespace FlairX_Mod_Manager.Controls
         public ImageCropInspectionPanel()
         {
             this.InitializeComponent();
+            this.Unloaded += OnUnloaded;
+        }
+
+        /// <summary>
+        /// Called when panel is unloaded - cancel any pending operation
+        /// </summary>
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            CancelOperation();
+        }
+
+        /// <summary>
+        /// Cancel the current operation (called when panel is closed without explicit action)
+        /// </summary>
+        public void CancelOperation()
+        {
+            // Only set result if not already completed
+            if (_completionSource != null && !_completionSource.Task.IsCompleted)
+            {
+                _completionSource.SetResult(new CropResult { Action = CropAction.Cancel, CropRectangle = _cropRect });
+            }
+            
+            if (_batchCompletionSource != null && !_batchCompletionSource.Task.IsCompleted)
+            {
+                _batchCompletionSource.SetResult(null); // Return null to indicate cancellation
+            }
         }
 
         /// <summary>
@@ -765,7 +791,8 @@ namespace FlairX_Mod_Manager.Controls
     {
         Confirm,    // Proceed with cropping and optimization
         Skip,       // Skip optimization, only rename file
-        Delete      // Delete/remove file completely
+        Delete,     // Delete/remove file completely
+        Cancel      // Cancel entire optimization process
     }
 
     public class CropResult

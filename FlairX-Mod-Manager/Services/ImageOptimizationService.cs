@@ -24,7 +24,8 @@ namespace FlairX_Mod_Manager.Services
     {
         Confirm,    // Proceed with cropping and optimization
         Skip,       // Skip optimization, only rename file
-        Delete      // Delete/remove file completely
+        Delete,     // Delete/remove file completely
+        Cancel      // Cancel entire optimization process
     }
 
     /// <summary>
@@ -1710,6 +1711,10 @@ namespace FlairX_Mod_Manager.Services
                                 Logger.LogInfo($"User chose to delete {imageType}");
                                 return null; // Return null to skip/delete this image
                                 
+                            case CropInspectionAction.Cancel:
+                                Logger.LogInfo($"User cancelled optimization");
+                                throw new OperationCanceledException("User cancelled crop inspection");
+                                
                             default:
                                 Logger.LogWarning($"Unknown crop action for {imageType}: {result.Action}");
                                 return null;
@@ -1812,14 +1817,23 @@ namespace FlairX_Mod_Manager.Services
                 }
                 NotifyProgressChanged();
                 
-                // Check if we need sequential processing for crop inspection
-                bool needsSequentialProcessing = context.InspectAndEditEnabled || context.CropStrategy == CropStrategy.ManualOnly;
+                // Check if we need fully sequential processing for crop inspection
+                // Full sequential processing is needed when:
+                // - InspectAndEditEnabled (preview before crop for ALL images)
+                // - ManualOnly crop strategy (requires user input for ALL crops)
+                bool needsFullSequentialProcessing = context.InspectAndEditEnabled || 
+                                                      context.CropStrategy == CropStrategy.ManualOnly;
+                
+                // Hybrid mode: parallel preview processing, sequential thumbnail inspection
+                // Used when InspectThumbnailsOnly is enabled
+                bool needsHybridProcessing = context.InspectThumbnailsOnly && !needsFullSequentialProcessing;
+                
                 bool wasCancelled = false;
                 
-                if (needsSequentialProcessing)
+                if (needsFullSequentialProcessing)
                 {
-                    // Sequential processing with potential user interaction
-                    Logger.LogInfo("Using sequential processing (crop inspection enabled)");
+                    // Full sequential processing - all images need user interaction
+                    Logger.LogInfo("Using full sequential processing (crop inspection for all images)");
                     
                     foreach (var categoryDir in categoryDirs)
                     {
@@ -1831,6 +1845,33 @@ namespace FlairX_Mod_Manager.Services
                         IncrementProcessed();
                         
                         // Process all mods in category
+                        var modDirs = Directory.GetDirectories(categoryDir);
+                        foreach (var modDir in modDirs)
+                        {
+                            if (_cancellationRequested) { wasCancelled = true; break; }
+                            await ProcessModPreviewImagesAsync(modDir, context);
+                            IncrementProcessed();
+                        }
+                        
+                        if (wasCancelled) break;
+                    }
+                }
+                else if (needsHybridProcessing)
+                {
+                    // Hybrid mode: process previews in parallel, but thumbnails sequentially
+                    // This allows fast preview processing while showing thumbnail inspection one by one
+                    Logger.LogInfo("Using hybrid processing (parallel previews, sequential thumbnails)");
+                    
+                    foreach (var categoryDir in categoryDirs)
+                    {
+                        if (_cancellationRequested) { wasCancelled = true; break; }
+                        if (!Directory.Exists(categoryDir)) continue;
+                        
+                        // Process category preview (includes catmini thumbnail - needs sequential)
+                        await ProcessCategoryPreviewAsync(categoryDir, context);
+                        IncrementProcessed();
+                        
+                        // Process all mods in category - one by one for thumbnail inspection
                         var modDirs = Directory.GetDirectories(categoryDir);
                         foreach (var modDir in modDirs)
                         {
