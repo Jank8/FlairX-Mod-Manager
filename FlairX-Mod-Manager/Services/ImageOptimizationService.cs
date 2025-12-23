@@ -1538,17 +1538,29 @@ namespace FlairX_Mod_Manager.Services
             // - OR InspectThumbnailsOnly is enabled (show selection even without full inspection)
             if (MinitileSourceSelectionRequested != null && (context.AllowUIInteraction || context.InspectThumbnailsOnly))
             {
+                // Check if cancellation was requested before showing UI
+                if (_cancellationRequested)
+                {
+                    throw new OperationCanceledException("Optimization cancelled by user");
+                }
+                
                 try
                 {
                     Logger.LogInfo($"Requesting minitile source selection for: {modDir}");
                     var result = await MinitileSourceSelectionRequested(availableFiles, modDir);
                     
+                    // Check if cancellation was requested while waiting for UI
+                    if (_cancellationRequested)
+                    {
+                        throw new OperationCanceledException("Optimization cancelled by user");
+                    }
+                    
                     if (result != null)
                     {
                         if (result.Cancelled)
                         {
-                            Logger.LogInfo($"User cancelled minitile source selection");
-                            return null;
+                            Logger.LogInfo($"User cancelled minitile source selection - stopping optimization");
+                            throw new OperationCanceledException("User cancelled minitile source selection");
                         }
                         
                         if (!string.IsNullOrEmpty(result.SelectedFilePath))
@@ -1557,6 +1569,10 @@ namespace FlairX_Mod_Manager.Services
                             return result.SelectedFilePath;
                         }
                     }
+                }
+                catch (OperationCanceledException)
+                {
+                    throw; // Re-throw cancellation exceptions
                 }
                 catch (Exception ex)
                 {
@@ -1690,10 +1706,23 @@ namespace FlairX_Mod_Manager.Services
 
             if (needsInspection && CropInspectionRequested != null)
             {
+                // Check if cancellation was requested before showing UI
+                if (_cancellationRequested)
+                {
+                    throw new OperationCanceledException("Optimization cancelled by user");
+                }
+                
                 try
                 {
                     Logger.LogInfo($"Requesting crop inspection for {imageType}" + (isProtected ? " (protected - minitile source)" : ""));
                     var result = await CropInspectionRequested(image, suggestedCrop, targetWidth, targetHeight, imageType, isProtected);
+                    
+                    // Check if cancellation was requested while waiting for UI
+                    if (_cancellationRequested)
+                    {
+                        throw new OperationCanceledException("Optimization cancelled by user");
+                    }
+                    
                     if (result != null)
                     {
                         switch (result.Action)
@@ -1720,6 +1749,10 @@ namespace FlairX_Mod_Manager.Services
                                 return null;
                         }
                     }
+                }
+                catch (OperationCanceledException)
+                {
+                    throw; // Re-throw cancellation exceptions
                 }
                 catch (Exception ex)
                 {
