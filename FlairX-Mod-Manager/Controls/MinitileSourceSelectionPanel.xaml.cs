@@ -38,9 +38,10 @@ namespace FlairX_Mod_Manager.Controls
         public void CancelOperation()
         {
             // Only set result if not already completed
+            // When panel is closed externally (Escape, click outside), treat as Stop
             if (_completionSource != null && !_completionSource.Task.IsCompleted)
             {
-                _completionSource.SetResult(new MinitileSourceResult { Cancelled = true });
+                _completionSource.SetResult(new MinitileSourceResult { Stopped = true });
             }
         }
 
@@ -53,7 +54,8 @@ namespace FlairX_Mod_Manager.Controls
             var lang = SharedUtilities.LoadLanguageDictionary();
             TitleText.Text = SharedUtilities.GetTranslation(lang, "MinitileSelection_Title") ?? "Select Minitile Source";
             SubtitleText.Text = SharedUtilities.GetTranslation(lang, "MinitileSelection_Subtitle") ?? "Choose which image to use for the thumbnail";
-            CancelButtonText.Text = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel";
+            StopButtonText.Text = SharedUtilities.GetTranslation(lang, "Stop") ?? "Stop";
+            SkipButtonText.Text = SharedUtilities.GetTranslation(lang, "Skip") ?? "Skip";
             ConfirmButtonText.Text = SharedUtilities.GetTranslation(lang, "Confirm") ?? "Confirm";
             SelectedInfoText.Text = SharedUtilities.GetTranslation(lang, "MinitileSelection_NoSelection") ?? "No image selected";
 
@@ -190,17 +192,30 @@ namespace FlairX_Mod_Manager.Controls
             _completionSource?.SetResult(new MinitileSourceResult
             {
                 SelectedFilePath = _selectedFilePath,
-                Cancelled = false
+                Skipped = false,
+                Stopped = false
             });
             CloseRequested?.Invoke(this, EventArgs.Empty);
         }
 
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        private void SkipButton_Click(object sender, RoutedEventArgs e)
         {
             _completionSource?.SetResult(new MinitileSourceResult
             {
                 SelectedFilePath = null,
-                Cancelled = true
+                Skipped = true,
+                Stopped = false
+            });
+            CloseRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void StopButton_Click(object sender, RoutedEventArgs e)
+        {
+            _completionSource?.SetResult(new MinitileSourceResult
+            {
+                SelectedFilePath = null,
+                Skipped = false,
+                Stopped = true
             });
             CloseRequested?.Invoke(this, EventArgs.Empty);
         }

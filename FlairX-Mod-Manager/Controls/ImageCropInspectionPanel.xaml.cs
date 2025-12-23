@@ -75,7 +75,7 @@ namespace FlairX_Mod_Manager.Controls
         private Rectangle _dragStartRect;
         private bool _isDragging;
         private TaskCompletionSource<CropResult>? _completionSource;
-        private TaskCompletionSource<List<BatchCropResult>>? _batchCompletionSource;
+        private TaskCompletionSource<List<BatchCropResult>?>? _batchCompletionSource;
 
         private bool _isInitialized = false;
         
@@ -140,6 +140,7 @@ namespace FlairX_Mod_Manager.Controls
                 : SharedUtilities.GetTranslation(lang, "CropPanel_FreeAspect") ?? "Free aspect ratio - drag handles to resize";
             
             // Update button texts
+            StopButtonText.Text = SharedUtilities.GetTranslation(lang, "Stop") ?? "Stop";
             ResetButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Reset") ?? "Crop Reset";
             DeleteButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Delete") ?? "Delete";
             SkipButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Skip") ?? "Skip";
@@ -171,17 +172,18 @@ namespace FlairX_Mod_Manager.Controls
         /// <summary>
         /// Batch mode - process multiple images at once
         /// </summary>
-        public Task<List<BatchCropResult>> ShowForBatchAsync(List<BatchCropItem> items)
+        public Task<List<BatchCropResult>?> ShowForBatchAsync(List<BatchCropItem> items)
         {
             _isBatchMode = true;
             _batchItems = new ObservableCollection<BatchCropItem>(items);
             _currentBatchIndex = 0;
-            _batchCompletionSource = new TaskCompletionSource<List<BatchCropResult>>();
+            _batchCompletionSource = new TaskCompletionSource<List<BatchCropResult>?>();
 
             // Load translations
             var lang = SharedUtilities.LoadLanguageDictionary();
             
             // Update button texts
+            StopButtonText.Text = SharedUtilities.GetTranslation(lang, "Stop") ?? "Stop";
             ResetButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Reset") ?? "Crop Reset";
             DeleteButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Delete") ?? "Delete";
             SkipButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Skip") ?? "Skip";
@@ -654,6 +656,21 @@ namespace FlairX_Mod_Manager.Controls
         private void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
             _completionSource?.SetResult(new CropResult { Action = CropAction.Confirm, CropRectangle = _cropRect });
+            CloseRequested?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void StopButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Stop entire optimization process
+            if (_isBatchMode)
+            {
+                // Return null to indicate cancellation
+                _batchCompletionSource?.SetResult(null);
+            }
+            else
+            {
+                _completionSource?.SetResult(new CropResult { Action = CropAction.Cancel, CropRectangle = _cropRect });
+            }
             CloseRequested?.Invoke(this, EventArgs.Empty);
         }
 

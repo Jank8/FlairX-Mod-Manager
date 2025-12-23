@@ -435,12 +435,13 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (OperationCanceledException)
             {
-                // Show cancelled dialog
+                // Show cancelled dialog - use main language dictionary for common keys
+                var mainLang = SharedUtilities.LoadLanguageDictionary();
                 var cancelDialog = new ContentDialog
                 {
-                    Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
+                    Title = SharedUtilities.GetTranslation(mainLang, "Cancelled_Title"),
                     Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Cancelled"),
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                    CloseButtonText = SharedUtilities.GetTranslation(mainLang, "OK"),
                     XamlRoot = this.XamlRoot
                 };
                 await cancelDialog.ShowAsync();

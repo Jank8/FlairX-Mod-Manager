@@ -234,6 +234,8 @@
     "CropPanel_Title": "자르기 영역 조정",
     "SettingsPage_ImageOptimizerHeader": "이미지 최적화",
     "Skip": "건너뛰기",
+    "Stop": "중지",
+    "Cancelled_Title": "취소됨",
     "ImagePreview_Close_Tooltip": "미리보기 닫기",
     "ModDetailPage_DateChecked_Desc": "이 모드를 마지막으로 확인한 날짜",
     "ModDetailPage_DateUpdated_Desc": "이 모드가 마지막으로 업데이트된 날짜",

@@ -234,6 +234,8 @@
     "CropPanel_Title": "ปรับพื้นที่ครอบตัด",
     "SettingsPage_ImageOptimizerHeader": "ตัวเพิ่มประสิทธิภาพรูปภาพ",
     "Skip": "ข้าม",
+    "Stop": "หยุด",
+    "Cancelled_Title": "ยกเลิกแล้ว",
     "ImagePreview_Close_Tooltip": "ปิดตัวอย่าง",
     "ModDetailPage_DateChecked_Desc": "เมื่อคุณตรวจสอบม็อดนี้ครั้งล่าสุด",
     "ModDetailPage_DateUpdated_Desc": "เมื่อม็อดนี้ได้รับการอัปเดตครั้งล่าสุด",

@@ -234,6 +234,8 @@
     "CropPanel_Title": "Kırpma Alanını Ayarla",
     "SettingsPage_ImageOptimizerHeader": "Görüntü Optimize Edici",
     "Skip": "Atla",
+    "Stop": "Durdur",
+    "Cancelled_Title": "İptal Edildi",
     "ImagePreview_Close_Tooltip": "Önizlemeyi kapat",
     "ModDetailPage_DateChecked_Desc": "Bu modu en son ne zaman kontrol ettiniz",
     "ModDetailPage_DateUpdated_Desc": "Bu mod en son ne zaman güncellendi",

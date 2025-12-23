@@ -234,6 +234,8 @@
     "CropPanel_Title": "Настроить область обрезки",
     "SettingsPage_ImageOptimizerHeader": "Оптимизатор изображений",
     "Skip": "Пропустить",
+    "Stop": "Остановить",
+    "Cancelled_Title": "Отменено",
     "ImagePreview_Close_Tooltip": "Закрыть предпросмотр",
     "ModDetailPage_DateChecked_Desc": "Когда вы последний раз проверяли этот мод",
     "ModDetailPage_DateUpdated_Desc": "Когда этот мод был последний раз обновлён",

@@ -1190,6 +1190,13 @@ namespace FlairX_Mod_Manager
                         
                         var batchResults = await cropPanel.ShowForBatchAsync(controlItems);
                         
+                        // Check if cancelled (null result)
+                        if (batchResults == null)
+                        {
+                            tcs.SetResult(null);
+                            return;
+                        }
+                        
                         // Convert results back to service format
                         var results = batchResults.Select(r => new Services.BatchCropInspectionResult
                         {
@@ -1269,7 +1276,8 @@ namespace FlairX_Mod_Manager
                         var result = new Services.MinitileSourceResult
                         {
                             SelectedFilePath = selectionResult.SelectedFilePath,
-                            Cancelled = selectionResult.Cancelled
+                            Skipped = selectionResult.Skipped,
+                            Stopped = selectionResult.Stopped
                         };
                         
                         tcs.SetResult(result);

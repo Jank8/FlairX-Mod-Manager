@@ -219,6 +219,8 @@
     "UpdateFailed": "Update failed",
     "Close": "Close",
     "Skip": "Skip",
+    "Stop": "Stop",
+    "Cancelled_Title": "Cancelled",
     "Confirm": "Confirm",
     "CropPanel_Title": "Adjust Crop Area",
     "CropPanel_AspectLocked": "Aspect ratio locked to",

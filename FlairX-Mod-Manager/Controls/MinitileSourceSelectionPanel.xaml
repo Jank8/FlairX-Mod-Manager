@@ -57,13 +57,22 @@
                        Orientation="Horizontal" 
                        Spacing="8"
                        VerticalAlignment="Center">
-                <Button x:Name="CancelButton" 
-                       Click="CancelButton_Click"
+                <Button x:Name="StopButton" 
+                       Click="StopButton_Click"
                        MinWidth="100"
                        Height="40">
                     <StackPanel Orientation="Horizontal" Spacing="6">
-                        <FontIcon Glyph="&#xE711;" FontSize="14"/>
-                        <TextBlock x:Name="CancelButtonText" Text="Cancel"/>
+                        <FontIcon Glyph="&#xE71A;" FontSize="14"/>
+                        <TextBlock x:Name="StopButtonText" Text="Stop"/>
+                    </StackPanel>
+                </Button>
+                <Button x:Name="SkipButton" 
+                       Click="SkipButton_Click"
+                       MinWidth="100"
+                       Height="40">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE892;" FontSize="14"/>
+                        <TextBlock x:Name="SkipButtonText" Text="Skip"/>
                     </StackPanel>
                 </Button>
                 <Button x:Name="ConfirmButton" 

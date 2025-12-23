@@ -52,7 +52,12 @@ namespace FlairX_Mod_Manager.Services
     public class MinitileSourceResult
     {
         public string? SelectedFilePath { get; set; }
-        public bool Cancelled { get; set; }
+        public bool Skipped { get; set; }  // Skip this mod, continue with others
+        public bool Stopped { get; set; }  // Stop entire optimization process
+        
+        // Backward compatibility
+        [Obsolete("Use Skipped or Stopped instead")]
+        public bool Cancelled { get => Skipped || Stopped; set => Skipped = value; }
     }
 
     /// <summary>
@@ -485,6 +490,25 @@ namespace FlairX_Mod_Manager.Services
                 
                 Logger.LogInfo($"Category preview processing (Full mode) completed for: {categoryDir}");
             }
+            catch (OperationCanceledException)
+            {
+                // Clean up partially created files on cancellation
+                var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
+                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                
+                try
+                {
+                    if (File.Exists(catprevPath)) File.Delete(catprevPath);
+                    if (File.Exists(catminiPath)) File.Delete(catminiPath);
+                    Logger.LogInfo($"Cleaned up category preview files in: {categoryDir}");
+                }
+                catch (Exception cleanupEx)
+                {
+                    Logger.LogError($"Failed to clean up category preview files", cleanupEx);
+                }
+                
+                throw; // Re-throw cancellation to stop optimization
+            }
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to process category preview (Full mode) in {categoryDir}", ex);
@@ -806,6 +830,8 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         private static async Task ProcessModPreviewImagesFullAsync(string modDir, OptimizationContext context)
         {
+            var processedFiles = new List<string>();
+            
             try
             {
                 Logger.LogInfo($"Processing mod preview images (Full mode) in: {modDir}");
@@ -906,8 +932,6 @@ namespace FlairX_Mod_Manager.Services
                                    previewFiles.Count > 1 &&
                                    BatchCropInspectionRequested != null;
                 
-                var processedFiles = new List<string>();
-                
                 if (useBatchMode)
                 {
                     // BATCH MODE: Collect all files, show batch panel, then process
@@ -981,9 +1005,56 @@ namespace FlairX_Mod_Manager.Services
                 
                 Logger.LogInfo($"Mod preview processing (Full mode) completed for: {modDir}");
             }
+            catch (OperationCanceledException)
+            {
+                // Clean up partially created files on cancellation
+                CleanupProcessedFiles(processedFiles, modDir);
+                throw; // Re-throw cancellation to stop optimization
+            }
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to process mod preview images (Full mode) in {modDir}", ex);
+            }
+        }
+        
+        /// <summary>
+        /// Clean up partially created files when optimization is cancelled
+        /// </summary>
+        private static void CleanupProcessedFiles(List<string> processedFiles, string directory)
+        {
+            if (processedFiles == null || processedFiles.Count == 0) return;
+            
+            Logger.LogInfo($"Cleaning up {processedFiles.Count} partially created files in: {directory}");
+            
+            foreach (var file in processedFiles)
+            {
+                try
+                {
+                    if (File.Exists(file))
+                    {
+                        File.Delete(file);
+                        Logger.LogInfo($"Cleaned up: {Path.GetFileName(file)}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to clean up file: {file}", ex);
+                }
+            }
+            
+            // Also clean up minitile.jpg if it was created
+            var minitilePath = Path.Combine(directory, "minitile.jpg");
+            try
+            {
+                if (File.Exists(minitilePath))
+                {
+                    File.Delete(minitilePath);
+                    Logger.LogInfo($"Cleaned up: minitile.jpg");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to clean up minitile: {minitilePath}", ex);
             }
         }
 
@@ -1191,6 +1262,8 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         private static async Task ProcessModPreviewImagesLiteAsync(string modDir, OptimizationContext context)
         {
+            var processedFiles = new List<string>();
+            
             try
             {
                 Logger.LogInfo($"Processing mod preview images (Lite mode) in: {modDir}");
@@ -1280,7 +1353,6 @@ namespace FlairX_Mod_Manager.Services
                 }
                 
                 // Process each preview file - convert to JPEG without resizing
-                var processedFiles = new List<string>();
                 for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
                 {
                     var sourceFile = previewFiles[i];
@@ -1377,6 +1449,12 @@ namespace FlairX_Mod_Manager.Services
                 }
                 
                 Logger.LogInfo($"Mod preview processing (Lite mode) completed for: {modDir}");
+            }
+            catch (OperationCanceledException)
+            {
+                // Clean up partially created files on cancellation
+                CleanupProcessedFiles(processedFiles, modDir);
+                throw; // Re-throw cancellation to stop optimization
             }
             catch (Exception ex)
             {
@@ -1557,10 +1635,16 @@ namespace FlairX_Mod_Manager.Services
                     
                     if (result != null)
                     {
-                        if (result.Cancelled)
+                        if (result.Stopped)
                         {
-                            Logger.LogInfo($"User cancelled minitile source selection - stopping optimization");
-                            throw new OperationCanceledException("User cancelled minitile source selection");
+                            Logger.LogInfo($"User stopped optimization from minitile source selection");
+                            throw new OperationCanceledException("User stopped optimization");
+                        }
+                        
+                        if (result.Skipped)
+                        {
+                            Logger.LogInfo($"User skipped minitile source selection for: {modDir}");
+                            return null; // Skip this mod, continue with others
                         }
                         
                         if (!string.IsNullOrEmpty(result.SelectedFilePath))
@@ -1638,6 +1722,10 @@ namespace FlairX_Mod_Manager.Services
                         }
                     }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                throw; // Re-throw cancellation to stop optimization
             }
             catch (Exception ex)
             {

@@ -219,6 +219,8 @@
     "UpdateFailed": "Aktualizacja nie powiodła się",
     "Close": "Zamknij",
     "Skip": "Pomiń",
+    "Stop": "Przerwij",
+    "Cancelled_Title": "Anulowano",
     "Confirm": "Potwierdź",
     "CropPanel_Title": "Dostosuj obszar przycinania",
     "CropPanel_AspectLocked": "Proporcje zablokowane na",

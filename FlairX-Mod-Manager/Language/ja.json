@@ -234,6 +234,8 @@
     "CropPanel_Title": "トリミング領域を調整",
     "SettingsPage_ImageOptimizerHeader": "画像最適化",
     "Skip": "スキップ",
+    "Stop": "停止",
+    "Cancelled_Title": "キャンセル",
     "ImagePreview_Close_Tooltip": "プレビューを閉じる",
     "ModDetailPage_DateChecked_Desc": "このMODを最後に確認した日時",
     "ModDetailPage_DateUpdated_Desc": "このMODが最後に更新された日時",
