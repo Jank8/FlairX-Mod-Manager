@@ -1074,6 +1074,12 @@ namespace FlairX_Mod_Manager.Services
                 bool savedSuccessfully = false;
                 try
                 {
+                    // Check if source and target are the same file - need to use temp file
+                    bool isSameFile = sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
+                    string actualTargetPath = isSameFile 
+                        ? Path.Combine(modDir, $"_temp_{Guid.NewGuid()}.jpg")
+                        : targetPath;
+                    
                     using (var img = Image.FromFile(sourceFile))
                     {
                         bool isMinitileSource = sourceFile.Equals(selectedMinitileSource, StringComparison.OrdinalIgnoreCase);
@@ -1100,12 +1106,31 @@ namespace FlairX_Mod_Manager.Services
                             continue;
                         }
                         
-                        savedSuccessfully = SaveOptimizedImage(img, targetPath, squareCropRect.Value, targetSize, context.JpegQuality);
-                        if (savedSuccessfully)
+                        savedSuccessfully = SaveOptimizedImage(img, actualTargetPath, squareCropRect.Value, targetSize, context.JpegQuality);
+                    }
+                    
+                    // If we used a temp file, move it to the actual target after closing the source
+                    if (savedSuccessfully && isSameFile)
+                    {
+                        try
                         {
-                            Logger.LogInfo($"Optimized: {Path.GetFileName(sourceFile)} -> {targetFileName}");
-                            processedFiles.Add(targetPath);
+                            if (File.Exists(targetPath))
+                                File.Delete(targetPath);
+                            File.Move(actualTargetPath, targetPath);
                         }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to move temp file to target: {targetPath}", ex);
+                            // Clean up temp file
+                            try { if (File.Exists(actualTargetPath)) File.Delete(actualTargetPath); } catch { }
+                            savedSuccessfully = false;
+                        }
+                    }
+                    
+                    if (savedSuccessfully)
+                    {
+                        Logger.LogInfo($"Optimized: {Path.GetFileName(sourceFile)} -> {targetFileName}");
+                        processedFiles.Add(targetPath);
                     }
                 }
                 catch (Exception ex)
@@ -1362,6 +1387,12 @@ namespace FlairX_Mod_Manager.Services
                     bool savedSuccessfully = false;
                     try
                     {
+                        // Check if source and target are the same file - need to use temp file
+                        bool isSameFile = sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
+                        string actualTargetPath = isSameFile 
+                            ? Path.Combine(modDir, $"_temp_{Guid.NewGuid()}.jpg")
+                            : targetPath;
+                        
                         using (var img = Image.FromFile(sourceFile))
                         {
                             // Save as JPEG with quality setting, preserving original dimensions
@@ -1371,14 +1402,32 @@ namespace FlairX_Mod_Manager.Services
                             {
                                 var jpegParams = new EncoderParameters(1);
                                 jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                                img.Save(targetPath, jpegEncoder, jpegParams);
+                                img.Save(actualTargetPath, jpegEncoder, jpegParams);
                                 savedSuccessfully = true;
-                                Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> {targetFileName}");
+                            }
+                        }
+                        
+                        // If we used a temp file, move it to the actual target after closing the source
+                        if (savedSuccessfully && isSameFile)
+                        {
+                            try
+                            {
+                                if (File.Exists(targetPath))
+                                    File.Delete(targetPath);
+                                File.Move(actualTargetPath, targetPath);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to move temp file to target: {targetPath}", ex);
+                                // Clean up temp file
+                                try { if (File.Exists(actualTargetPath)) File.Delete(actualTargetPath); } catch { }
+                                savedSuccessfully = false;
                             }
                         }
                         
                         if (savedSuccessfully)
                         {
+                            Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> {targetFileName}");
                             processedFiles.Add(targetPath);
                         }
                     }
