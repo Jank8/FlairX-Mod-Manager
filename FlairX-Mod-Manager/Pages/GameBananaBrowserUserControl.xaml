@@ -97,12 +97,29 @@
 
             <!-- Search and filters -->
             <Grid Grid.Row="0" Padding="16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
                 <AutoSuggestBox x:Name="SearchBox"
+                                Grid.Column="0"
                                 PlaceholderText="Search mods..."
                                 QueryIcon="Find"
                                 QuerySubmitted="SearchBox_QuerySubmitted"
                                 TextChanged="SearchBox_TextChanged"/>
-
+                
+                <!-- Starter Pack button -->
+                <Button x:Name="StarterPackButton"
+                        Grid.Column="1"
+                        Margin="12,0,0,0"
+                        Click="StarterPackButton_Click"
+                        ToolTipService.ToolTip="Download Starter Pack">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE896;" FontSize="16"/>
+                        <TextBlock x:Name="StarterPackButtonText" Text="Starter Pack"/>
+                    </StackPanel>
+                </Button>
             </Grid>
             
             <!-- Connection error notification -->

@@ -213,8 +213,7 @@ namespace FlairX_Mod_Manager.Services
                     break;
                     
                 case OptimizationMode.Lite:
-                    // Lite mode not applicable for categories - skip
-                    Logger.LogInfo($"Skipping category (Lite mode not applicable): {categoryDir}");
+                    ProcessCategoryPreviewLite(categoryDir, context);
                     break;
                     
                 case OptimizationMode.Rename:
@@ -248,6 +247,17 @@ namespace FlairX_Mod_Manager.Services
             try
             {
                 Logger.LogInfo($"Processing category preview (Full mode) in: {categoryDir}");
+                
+                // Check if catprev exists but catmini is missing - only generate catmini
+                var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
+                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                
+                if (File.Exists(catprevPath) && !File.Exists(catminiPath) && !context.Reoptimize)
+                {
+                    Logger.LogInfo($"catprev.jpg exists but catmini.jpg missing - generating catmini only");
+                    await GenerateCatminiFromCatprevAsync(categoryDir, context);
+                    return;
+                }
                 
                 // If reoptimizing, prepare by renaming source to _original and deleting generated files
                 if (context.Reoptimize)
@@ -343,6 +353,12 @@ namespace FlairX_Mod_Manager.Services
                 var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
                 var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
                 
+                // Check if source and target are the same file - need to use temp file
+                bool isSameFileAsCatprev = previewPath.Equals(catprevPath, StringComparison.OrdinalIgnoreCase);
+                string actualCatprevPath = isSameFileAsCatprev 
+                    ? Path.Combine(categoryDir, $"_temp_catprev_{Guid.NewGuid()}.jpg")
+                    : catprevPath;
+                
                 using (var img = Image.FromFile(previewPath))
                 {
                     // Get crop rectangle with optional inspection for catprev
@@ -382,7 +398,7 @@ namespace FlairX_Mod_Manager.Services
                         {
                             var jpegParams = new EncoderParameters(1);
                             jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            catprev.Save(catprevPath, jpegEncoder, jpegParams);
+                            catprev.Save(actualCatprevPath, jpegEncoder, jpegParams);
                             Logger.LogInfo($"Generated catprev.jpg");
                         }
                     }
@@ -427,6 +443,24 @@ namespace FlairX_Mod_Manager.Services
                             catmini.Save(catminiPath, jpegEncoder, jpegParams);
                             Logger.LogInfo($"Generated catmini.jpg");
                         }
+                    }
+                }
+                
+                // If we used a temp file for catprev, move it to the actual target after closing the source
+                if (isSameFileAsCatprev && File.Exists(actualCatprevPath))
+                {
+                    try
+                    {
+                        if (File.Exists(catprevPath))
+                            File.Delete(catprevPath);
+                        File.Move(actualCatprevPath, catprevPath);
+                        Logger.LogInfo($"Moved temp catprev to final location");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to move temp catprev file", ex);
+                        // Clean up temp file
+                        try { if (File.Exists(actualCatprevPath)) File.Delete(actualCatprevPath); } catch { }
                     }
                 }
                 
@@ -524,6 +558,17 @@ namespace FlairX_Mod_Manager.Services
             {
                 Logger.LogInfo($"Processing category preview (Lite mode) in: {categoryDir}");
                 
+                // Check if catprev exists but catmini is missing - only generate catmini
+                var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
+                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                
+                if (File.Exists(catprevPath) && !File.Exists(catminiPath) && !context.Reoptimize)
+                {
+                    Logger.LogInfo($"catprev.jpg exists but catmini.jpg missing - generating catmini only (Lite)");
+                    GenerateCatminiFromCatprevLite(categoryDir, context);
+                    return;
+                }
+                
                 // Create backup if enabled
                 if (context.CreateBackups)
                 {
@@ -596,22 +641,61 @@ namespace FlairX_Mod_Manager.Services
                 
                 var sourceFile = previewFiles[0];
                 var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
+                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                
+                // Check if source and target are the same file - need to use temp file
+                bool isSameFile = sourceFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase);
+                string actualCatprevPath = isSameFile 
+                    ? Path.Combine(categoryDir, $"_temp_catprev_{Guid.NewGuid()}.jpg")
+                    : catprevPath;
                 
                 using (var img = Image.FromFile(sourceFile))
                 {
-                    // Save as JPEG with quality setting, preserving original dimensions
                     var jpegEncoder = ImageCodecInfo.GetImageEncoders()
                         .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                    
                     if (jpegEncoder != null)
                     {
                         var jpegParams = new EncoderParameters(1);
                         jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                        img.Save(catprevPath, jpegEncoder, jpegParams);
+                        
+                        // Generate catprev.jpg - preserve original dimensions
+                        img.Save(actualCatprevPath, jpegEncoder, jpegParams);
                         Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> catprev.jpg");
+                        
+                        // Generate catmini.jpg (600x722) - cropped thumbnail
+                        var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
+                        using (var catmini = new Bitmap(600, 722))
+                        using (var g = Graphics.FromImage(catmini))
+                        {
+                            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                            g.CompositingQuality = CompositingQuality.HighQuality;
+                            g.SmoothingMode = SmoothingMode.HighQuality;
+                            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                            
+                            var destRect = new Rectangle(0, 0, 600, 722);
+                            g.DrawImage(img, destRect, catminiCropRect, GraphicsUnit.Pixel);
+                            catmini.Save(catminiPath, jpegEncoder, jpegParams);
+                            Logger.LogInfo($"Generated catmini.jpg (Lite mode)");
+                        }
                     }
                 }
                 
-                // Do NOT generate catmini in Lite mode
+                // If we used a temp file for catprev, move it to the actual target after closing the source
+                if (isSameFile && File.Exists(actualCatprevPath))
+                {
+                    try
+                    {
+                        if (File.Exists(catprevPath))
+                            File.Delete(catprevPath);
+                        File.Move(actualCatprevPath, catprevPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to move temp catprev file", ex);
+                        try { if (File.Exists(actualCatprevPath)) File.Delete(actualCatprevPath); } catch { }
+                    }
+                }
                 
                 // Handle original file based on KeepOriginals setting
                 var sourceFileNameWithoutExt = Path.GetFileNameWithoutExtension(sourceFile);
@@ -760,6 +844,108 @@ namespace FlairX_Mod_Manager.Services
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to process category preview (RenameOnly mode) in {categoryDir}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Generate catmini.jpg from existing catprev.jpg (Full mode with crop inspection)
+        /// </summary>
+        private static async Task GenerateCatminiFromCatprevAsync(string categoryDir, OptimizationContext context)
+        {
+            try
+            {
+                var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
+                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                
+                using (var img = Image.FromFile(catprevPath))
+                {
+                    // Get crop rectangle with optional inspection for catmini
+                    var catminiCropRect = await GetCropRectangleWithInspectionAsync(
+                        img, 600, 722, context, "catmini.jpg", isProtected: false, isThumbnail: true);
+                    
+                    if (catminiCropRect == null)
+                    {
+                        Logger.LogInfo($"Skipped catmini.jpg generation (user chose delete)");
+                        return;
+                    }
+                    
+                    if (catminiCropRect.Value.X == -1 && catminiCropRect.Value.Y == -1)
+                    {
+                        Logger.LogInfo($"Skipped catmini.jpg generation (user chose skip)");
+                        return;
+                    }
+                    
+                    // Generate catmini.jpg (600x722)
+                    using (var catmini = new Bitmap(600, 722))
+                    using (var g = Graphics.FromImage(catmini))
+                    {
+                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        g.CompositingQuality = CompositingQuality.HighQuality;
+                        g.SmoothingMode = SmoothingMode.HighQuality;
+                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                        
+                        var destRect = new Rectangle(0, 0, 600, 722);
+                        g.DrawImage(img, destRect, catminiCropRect.Value, GraphicsUnit.Pixel);
+                        
+                        var jpegEncoder = ImageCodecInfo.GetImageEncoders()
+                            .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                        if (jpegEncoder != null)
+                        {
+                            var jpegParams = new EncoderParameters(1);
+                            jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
+                            catmini.Save(catminiPath, jpegEncoder, jpegParams);
+                            Logger.LogInfo($"Generated catmini.jpg from existing catprev.jpg");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to generate catmini from catprev in {categoryDir}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Generate catmini.jpg from existing catprev.jpg (Lite mode with auto crop)
+        /// </summary>
+        private static void GenerateCatminiFromCatprevLite(string categoryDir, OptimizationContext context)
+        {
+            try
+            {
+                var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
+                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                
+                using (var img = Image.FromFile(catprevPath))
+                {
+                    var jpegEncoder = ImageCodecInfo.GetImageEncoders()
+                        .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                    
+                    if (jpegEncoder != null)
+                    {
+                        var jpegParams = new EncoderParameters(1);
+                        jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
+                        
+                        // Generate catmini.jpg (600x722) with auto center crop
+                        var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
+                        using (var catmini = new Bitmap(600, 722))
+                        using (var g = Graphics.FromImage(catmini))
+                        {
+                            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                            g.CompositingQuality = CompositingQuality.HighQuality;
+                            g.SmoothingMode = SmoothingMode.HighQuality;
+                            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                            
+                            var destRect = new Rectangle(0, 0, 600, 722);
+                            g.DrawImage(img, destRect, catminiCropRect, GraphicsUnit.Pixel);
+                            catmini.Save(catminiPath, jpegEncoder, jpegParams);
+                            Logger.LogInfo($"Generated catmini.jpg from existing catprev.jpg (Lite mode)");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to generate catmini from catprev (Lite) in {categoryDir}", ex);
             }
         }
 

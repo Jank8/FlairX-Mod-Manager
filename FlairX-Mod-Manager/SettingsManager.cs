@@ -109,6 +109,9 @@ namespace FlairX_Mod_Manager
         public bool PreviewBeforeCrop { get; set; } = false; // Show preview dialog before each crop
         public bool InspectThumbnailsOnly { get; set; } = false; // Only show crop inspection for minitile/catmini thumbnails
         public bool ImageOptimizerReoptimize { get; set; } = false; // Re-optimize already optimized files
+        
+        // Starter Pack settings (per-game, stored as comma-separated game tags that dismissed the dialog)
+        public string StarterPackDismissedGames { get; set; } = ""; // e.g. "ZZMI,GIMI" - games where user clicked "No thanks" or checkbox
     }
 
     public static class SettingsManager

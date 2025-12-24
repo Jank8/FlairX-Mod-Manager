@@ -325,6 +325,9 @@ namespace FlairX_Mod_Manager
                     // This handles all cases including ModDetailPage (since the current mod might not exist in new game)
                     System.Diagnostics.Debug.WriteLine("Game selected - navigating to All Mods view");
                     AllModsButton_Click(AllModsButton, new RoutedEventArgs());
+                    
+                    // Show Starter Pack dialog if available and not dismissed
+                    _ = ShowStarterPackDialogIfNeededAsync(gameTag);
                 }
                 else
                 {
@@ -672,5 +675,61 @@ namespace FlairX_Mod_Manager
         }
 
         // Symlink cleanup removed - no longer needed with DISABLED_ prefix system
+
+        /// <summary>
+        /// Show Starter Pack dialog if available for the game and not dismissed
+        /// </summary>
+        private async Task ShowStarterPackDialogIfNeededAsync(string gameTag)
+        {
+            try
+            {
+                // Check if Starter Pack is available for this game
+                if (!Dialogs.StarterPackDialog.IsStarterPackAvailable(gameTag))
+                {
+                    System.Diagnostics.Debug.WriteLine($"No Starter Pack available for {gameTag}");
+                    return;
+                }
+
+                // Check if user has dismissed the dialog for this game
+                if (Dialogs.StarterPackDialog.IsStarterPackDismissed(gameTag))
+                {
+                    System.Diagnostics.Debug.WriteLine($"Starter Pack dialog dismissed for {gameTag}");
+                    return;
+                }
+
+                // Check if mods folder already has content (excluding Other category)
+                if (!Dialogs.StarterPackDialog.IsModsFolderEmpty(gameTag))
+                {
+                    System.Diagnostics.Debug.WriteLine($"Mods folder not empty for {gameTag}, skipping Starter Pack dialog");
+                    return;
+                }
+
+                // Small delay to let the UI settle after game switch
+                await Task.Delay(500);
+
+                // Show the dialog
+                var dialog = new Dialogs.StarterPackDialog(gameTag);
+                dialog.XamlRoot = this.Content.XamlRoot;
+                
+                // Subscribe to installation complete event to reload mods
+                dialog.InstallationComplete += async (s, e) =>
+                {
+                    await ReloadModsAsync();
+                };
+                
+                var result = await dialog.ShowAsync();
+                
+                // If user clicked "No thanks" with checkbox checked, it's already handled in the dialog
+                // If user clicked "No thanks" without checkbox, we don't dismiss permanently
+                if (result == ContentDialogResult.None && dialog.DontShowAgain)
+                {
+                    Dialogs.StarterPackDialog.DismissStarterPack(gameTag);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to show Starter Pack dialog for {gameTag}", ex);
+            }
+        }
     }
 }

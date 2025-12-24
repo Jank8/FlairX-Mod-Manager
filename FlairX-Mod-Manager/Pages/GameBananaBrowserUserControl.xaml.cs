@@ -179,6 +179,13 @@ namespace FlairX_Mod_Manager.Pages
             DetailFilesTitle.Text = SharedUtilities.GetTranslation(_lang, "Files");
             DetailOpenBrowserButtonText.Text = SharedUtilities.GetTranslation(_lang, "OpenInBrowser");
             RetryButton.Content = SharedUtilities.GetTranslation(_lang, "Retry");
+            StarterPackButtonText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_Button") ?? "Starter Pack";
+            ToolTipService.SetToolTip(StarterPackButton, SharedUtilities.GetTranslation(_lang, "StarterPack_Button_Tooltip") ?? "Download Starter Pack for this game");
+            
+            // Hide Starter Pack button if not available for this game
+            StarterPackButton.Visibility = Dialogs.StarterPackDialog.IsStarterPackAvailable(_gameTag) 
+                ? Visibility.Visible 
+                : Visibility.Collapsed;
             
             ModsGridView.ItemsSource = _mods;
             
@@ -564,6 +571,46 @@ namespace FlairX_Mod_Manager.Pages
             ConnectionErrorBar.IsOpen = false;
             _currentPage = 1;
             _ = LoadModsAsync();
+        }
+
+        private async void StarterPackButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Check if Starter Pack is available for this game
+                if (!Dialogs.StarterPackDialog.IsStarterPackAvailable(_gameTag))
+                {
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var dialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "StarterPack_Title") ?? "Starter Pack",
+                        Content = SharedUtilities.GetTranslation(lang, "StarterPack_NotAvailable") ?? "Starter Pack is not available for this game yet.",
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK") ?? "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await dialog.ShowAsync();
+                    return;
+                }
+
+                // Show the Starter Pack dialog
+                var starterPackDialog = new Dialogs.StarterPackDialog(_gameTag);
+                starterPackDialog.XamlRoot = this.XamlRoot;
+                
+                // Subscribe to installation complete event to reload mods
+                starterPackDialog.InstallationComplete += async (s, args) =>
+                {
+                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                    {
+                        await mainWindow.ReloadModsAsync();
+                    }
+                };
+                
+                await starterPackDialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to show Starter Pack dialog", ex);
+            }
         }
 
         private async Task AutoLoadMorePagesAsync()

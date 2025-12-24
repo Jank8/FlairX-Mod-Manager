@@ -71,5 +71,8 @@
     "XXMIModsDirectoryNotFound": "Nie znaleziono katalogu XXMI Mods",
     "DownloadPreviewsOnly": "Tylko podglądy",
     "NoExistingModFound": "Nie znaleziono istniejącego moda do pobrania podglądów.",
-    "DownloadPreviewsFailed": "Nie udało się pobrać podglądów: {0}"
+    "DownloadPreviewsFailed": "Nie udało się pobrać podglądów: {0}",
+    "StarterPack_Button": "Starter Pack",
+    "StarterPack_Button_Tooltip": "Pobierz Starter Pack dla tej gry",
+    "StarterPack_NotAvailable": "Starter Pack nie jest jeszcze dostępny dla tej gry."
 }

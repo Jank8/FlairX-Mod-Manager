@@ -71,5 +71,8 @@
     "XXMIModsDirectoryNotFound": "XXMI Mods directory not found",
     "DownloadPreviewsOnly": "Previews Only",
     "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsFailed": "Failed to download previews: {0}",
+    "StarterPack_Button": "Starter Pack",
+    "StarterPack_Button_Tooltip": "Download Starter Pack for this game",
+    "StarterPack_NotAvailable": "Starter Pack is not available for this game yet."
 }
