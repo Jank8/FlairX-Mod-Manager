@@ -18,11 +18,6 @@ namespace FlairX_Mod_Manager.Pages
         private int _threadCount = 4;
         private bool _createBackups = false;
         private bool _keepOriginals = false;
-        
-        private OptimizationMode _manualMode = OptimizationMode.Full;
-        private OptimizationMode _dragDropModMode = OptimizationMode.Full;
-        private OptimizationMode _dragDropCategoryMode = OptimizationMode.Full;
-        private OptimizationMode _autoDownloadMode = OptimizationMode.Full;
 
         public ImageOptimizerPage()
         {
@@ -101,23 +96,6 @@ namespace FlairX_Mod_Manager.Pages
             _createBackups = SettingsManager.Current.ImageOptimizerCreateBackups;
             _keepOriginals = SettingsManager.Current.ImageOptimizerKeepOriginals;
             
-            // Load modes - if empty, use Full
-            _manualMode = string.IsNullOrEmpty(SettingsManager.Current.ImageOptimizerManualMode) 
-                ? OptimizationMode.Full 
-                : ParseMode(SettingsManager.Current.ImageOptimizerManualMode);
-                
-            _dragDropModMode = string.IsNullOrEmpty(SettingsManager.Current.ImageOptimizerDragDropModMode) 
-                ? OptimizationMode.Full 
-                : ParseMode(SettingsManager.Current.ImageOptimizerDragDropModMode);
-                
-            _dragDropCategoryMode = string.IsNullOrEmpty(SettingsManager.Current.ImageOptimizerDragDropCategoryMode) 
-                ? OptimizationMode.Full 
-                : ParseMode(SettingsManager.Current.ImageOptimizerDragDropCategoryMode);
-                
-            _autoDownloadMode = string.IsNullOrEmpty(SettingsManager.Current.ImageOptimizerAutoDownloadMode) 
-                ? OptimizationMode.Full 
-                : ParseMode(SettingsManager.Current.ImageOptimizerAutoDownloadMode);
-            
             // Load crop settings
             string cropType = SettingsManager.Current.ImageCropType ?? "Center";
             ImageCropTypeComboBox.SelectionChanged -= ImageCropTypeComboBox_SelectionChanged;
@@ -132,7 +110,7 @@ namespace FlairX_Mod_Manager.Pages
             ImageCropTypeComboBox.SelectionChanged += ImageCropTypeComboBox_SelectionChanged;
             
             PreviewBeforeCropToggle.IsOn = SettingsManager.Current.PreviewBeforeCrop;
-            InspectThumbnailsOnlyToggle.IsOn = SettingsManager.Current.InspectThumbnailsOnly;
+            AutoCreateModThumbnailsToggle.IsOn = SettingsManager.Current.AutoCreateModThumbnails;
             ReoptimizeCheckBox.IsOn = SettingsManager.Current.ImageOptimizerReoptimize;
         }
 
@@ -161,14 +139,8 @@ namespace FlairX_Mod_Manager.Pages
             KeepOriginalsCheckBox.IsOn = _keepOriginals;
             ReoptimizeCheckBox.IsOn = SettingsManager.Current.ImageOptimizerReoptimize;
             
-            // Translate UI first (before setting combo box selections)
+            // Translate UI first
             TranslateUI();
-            
-            // Set combo boxes (after translation so items have content)
-            SetComboBoxSelection(ManualModeComboBox, _manualMode);
-            SetComboBoxSelection(DragDropModComboBox, _dragDropModMode);
-            SetComboBoxSelection(DragDropCategoryComboBox, _dragDropCategoryMode);
-            SetComboBoxSelection(AutoDownloadComboBox, _autoDownloadMode);
         }
 
         private void TranslateUI()
@@ -186,6 +158,7 @@ namespace FlairX_Mod_Manager.Pages
             PerformanceHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_PerformanceHeader");
             BackupHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_BackupHeader");
             OptimizationModesHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_OptimizationModesHeader");
+            OptimizationModesDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_OptimizationModesDescription");
             ManualModeHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_ManualModeHeader");
             DragDropModHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_DragDropModHeader");
             DragDropCategoryHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_DragDropCategoryHeader");
@@ -202,8 +175,8 @@ namespace FlairX_Mod_Manager.Pages
             ImageCropTypeDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ImageCropType_Description");
             PreviewBeforeCropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewBeforeCrop_Label");
             PreviewBeforeCropDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewBeforeCrop_Description");
-            InspectThumbnailsOnlyLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_InspectThumbnailsOnly_Label");
-            InspectThumbnailsOnlyDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_InspectThumbnailsOnly_Description");
+            AutoCreateModThumbnailsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoCreateModThumbnails_Label");
+            AutoCreateModThumbnailsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoCreateModThumbnails_Description");
             
             // Crop type ComboBox items
             CropTypeCenterText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Center");
@@ -219,54 +192,6 @@ namespace FlairX_Mod_Manager.Pages
             KeepOriginalsDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_KeepOriginals_Description");
             ReoptimizeLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Reoptimize");
             ReoptimizeDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Reoptimize_Description");
-            
-            // ComboBox items
-            TranslateComboBoxItems(lang);
-        }
-
-        private void TranslateComboBoxItems(Dictionary<string, string> lang)
-        {
-            // Manual mode
-            ManualModeFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
-            ManualModeLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
-            ManualModeRenameItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Rename");
-            ManualModeRenameOnlyItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_RenameOnly");
-            ManualModeLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
-            
-            // Drag & Drop Mod
-            DragDropModFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
-            DragDropModLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
-            DragDropModRenameItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Rename");
-            DragDropModRenameOnlyItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_RenameOnly");
-            
-            // Drag & Drop Category
-            DragDropCategoryFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
-            DragDropCategoryRenameOnlyItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_RenameOnly");
-            
-            // Auto Download
-            AutoDownloadFullItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Full");
-            AutoDownloadLiteItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Lite");
-            AutoDownloadRenameItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_Rename");
-            AutoDownloadRenameOnlyItem.Content = SharedUtilities.GetTranslation(lang, "ImageOptimizer_Mode_RenameOnly");
-        }
-
-        private void SetComboBoxSelection(ComboBox comboBox, OptimizationMode mode)
-        {
-            foreach (ComboBoxItem item in comboBox.Items)
-            {
-                if (item.Tag is string tag && tag == mode.ToString())
-                {
-                    comboBox.SelectedItem = item;
-                    break;
-                }
-            }
-        }
-
-        private OptimizationMode ParseMode(string modeString)
-        {
-            if (Enum.TryParse<OptimizationMode>(modeString, out var mode))
-                return mode;
-            return OptimizationMode.Full;
         }
 
         private void JpegQualitySlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
@@ -301,73 +226,21 @@ namespace FlairX_Mod_Manager.Pages
                 KeepOriginalsToggleLabel.Text = KeepOriginalsCheckBox.IsOn ? onText : offText;
             if (PreviewBeforeCropToggleLabel != null && PreviewBeforeCropToggle != null)
                 PreviewBeforeCropToggleLabel.Text = PreviewBeforeCropToggle.IsOn ? onText : offText;
-            if (InspectThumbnailsOnlyToggleLabel != null && InspectThumbnailsOnlyToggle != null)
-                InspectThumbnailsOnlyToggleLabel.Text = InspectThumbnailsOnlyToggle.IsOn ? onText : offText;
+            if (AutoCreateModThumbnailsToggleLabel != null && AutoCreateModThumbnailsToggle != null)
+                AutoCreateModThumbnailsToggleLabel.Text = AutoCreateModThumbnailsToggle.IsOn ? onText : offText;
             if (ReoptimizeToggleLabel != null && ReoptimizeCheckBox != null)
                 ReoptimizeToggleLabel.Text = ReoptimizeCheckBox.IsOn ? onText : offText;
         }
 
-        private void ManualModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ManualModeComboBox.SelectedItem is ComboBoxItem item && item.Tag is string tag)
-            {
-                _manualMode = ParseMode(tag);
-                UpdateModeDescription(ManualModeDescription, _manualMode);
-                SaveSettings();
-            }
-        }
-
-        private void DragDropModComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (DragDropModComboBox.SelectedItem is ComboBoxItem item && item.Tag is string tag)
-            {
-                _dragDropModMode = ParseMode(tag);
-                UpdateModeDescription(DragDropModDescription, _dragDropModMode);
-                SaveSettings();
-            }
-        }
-
-        private void DragDropCategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (DragDropCategoryComboBox.SelectedItem is ComboBoxItem item && item.Tag is string tag)
-            {
-                _dragDropCategoryMode = ParseMode(tag);
-                UpdateModeDescription(DragDropCategoryDescription, _dragDropCategoryMode);
-                SaveSettings();
-            }
-        }
-
-        private void AutoDownloadComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (AutoDownloadComboBox.SelectedItem is ComboBoxItem item && item.Tag is string tag)
-            {
-                _autoDownloadMode = ParseMode(tag);
-                UpdateModeDescription(AutoDownloadDescription, _autoDownloadMode);
-                SaveSettings();
-            }
-        }
-
         private void UpdateAllDescriptions()
         {
-            UpdateModeDescription(ManualModeDescription, _manualMode);
-            UpdateModeDescription(DragDropModDescription, _dragDropModMode);
-            UpdateModeDescription(DragDropCategoryDescription, _dragDropCategoryMode);
-            UpdateModeDescription(AutoDownloadDescription, _autoDownloadMode);
-        }
-
-        private void UpdateModeDescription(TextBlock textBlock, OptimizationMode mode)
-        {
             var lang = SharedUtilities.LoadLanguageDictionary("ImageOptimizer");
-            string key = mode switch
-            {
-                OptimizationMode.Full => "ImageOptimizer_Mode_Full_Description",
-                OptimizationMode.Lite => "ImageOptimizer_Mode_Lite_Description",
-                OptimizationMode.Rename => "ImageOptimizer_Mode_Rename_Description",
-                OptimizationMode.RenameOnly => "ImageOptimizer_Mode_RenameOnly_Description",
-                _ => "ImageOptimizer_Mode_Full_Description"
-            };
             
-            textBlock.Text = SharedUtilities.GetTranslation(lang, key);
+            // Static descriptions for each optimization scenario
+            ManualModeDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_ManualMode_Description");
+            DragDropModDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_DragDropMod_Description");
+            DragDropCategoryDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_DragDropCategory_Description");
+            AutoDownloadDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_AutoDownload_Description");
         }
 
         private void SaveSettings()
@@ -385,11 +258,6 @@ namespace FlairX_Mod_Manager.Pages
             SettingsManager.Current.ImageOptimizerCreateBackups = _createBackups;
             SettingsManager.Current.ImageOptimizerKeepOriginals = _keepOriginals;
             SettingsManager.Current.ImageOptimizerReoptimize = ReoptimizeCheckBox.IsOn;
-            
-            SettingsManager.Current.ImageOptimizerManualMode = _manualMode.ToString();
-            SettingsManager.Current.ImageOptimizerDragDropModMode = _dragDropModMode.ToString();
-            SettingsManager.Current.ImageOptimizerDragDropCategoryMode = _dragDropCategoryMode.ToString();
-            SettingsManager.Current.ImageOptimizerAutoDownloadMode = _autoDownloadMode.ToString();
             
             SettingsManager.Save();
         }
@@ -479,12 +347,11 @@ namespace FlairX_Mod_Manager.Pages
             UpdateToggleLabels();
         }
 
-        private void InspectThumbnailsOnlyToggle_Toggled(object sender, RoutedEventArgs e)
+        private void AutoCreateModThumbnailsToggle_Toggled(object sender, RoutedEventArgs e)
         {
-            SettingsManager.Current.InspectThumbnailsOnly = InspectThumbnailsOnlyToggle.IsOn;
+            SettingsManager.Current.AutoCreateModThumbnails = AutoCreateModThumbnailsToggle.IsOn;
             SettingsManager.Save();
             UpdateToggleLabels();
         }
     }
 }
-

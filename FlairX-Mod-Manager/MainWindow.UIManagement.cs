@@ -681,7 +681,7 @@ namespace FlairX_Mod_Manager
                 var categoryPath = Path.Combine(modsPath, categoryName);
                 var categoryPreviewPath = Path.Combine(categoryPath, "catprev.jpg");
                 
-                // Popup uses catprev.jpg (600x600 square)
+                // Popup uses catprev.jpg (722x722 square)
                 if (File.Exists(categoryPreviewPath) && CategoryPreviewPopup != null && CategoryPreviewImage != null)
                 {
                     try

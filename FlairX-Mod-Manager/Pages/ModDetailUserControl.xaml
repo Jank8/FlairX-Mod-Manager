@@ -68,13 +68,41 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,0,0" HorizontalAlignment="Stretch">
 
-                    <!-- Image Section -->
-                    <TextBlock x:Name="ModPreviewHeader" Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                    <!-- Image Section Header with Navigation -->
+                    <Grid Margin="0,0,0,12">
+                        <!-- Left Navigation Button -->
+                        <Border x:Name="PrevImageButton" Width="36" Height="36" 
+                                VerticalAlignment="Center" HorizontalAlignment="Left"
+                                Visibility="Collapsed"
+                                CornerRadius="8"
+                                Background="{ThemeResource LauncherAcrylicBrush}"
+                                PointerPressed="PrevImageButton_Click">
+                            <FontIcon Glyph="&#xE76B;" FontSize="14" 
+                                      Foreground="{ThemeResource ButtonForeground}" 
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        
+                        <!-- Preview Header (centered) -->
+                        <TextBlock x:Name="ModPreviewHeader" Text="Preview" FontSize="20" FontWeight="SemiBold" 
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        
+                        <!-- Right Navigation Button -->
+                        <Border x:Name="NextImageButton" Width="36" Height="36" 
+                                VerticalAlignment="Center" HorizontalAlignment="Right"
+                                Visibility="Collapsed"
+                                CornerRadius="8"
+                                Background="{ThemeResource LauncherAcrylicBrush}"
+                                PointerPressed="NextImageButton_Click">
+                            <FontIcon Glyph="&#xE76C;" FontSize="14" 
+                                      Foreground="{ThemeResource ButtonForeground}" 
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </Grid>
                     
-                    <!-- Image section with navigation -->
+                    <!-- Image section -->
                     <Grid Margin="0,0,0,24">
                         <!-- Image container with max height constraint -->
-                        <Grid MaxHeight="600" HorizontalAlignment="Center">
+                        <Grid MaxHeight="600" MaxWidth="1000" HorizontalAlignment="Center">
                         <!-- Coordinate field for tilt calculation -->
                         <Grid x:Name="ModImageCoordinateField" 
                               Background="Transparent"
@@ -84,37 +112,13 @@
                         
                         <!-- Content root with margin for stable hover -->
                         <Grid x:Name="ModImageContentRoot" Margin="20" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Border x:Name="ModImageBorder" CornerRadius="12" BorderThickness="12" BorderBrush="{ThemeResource TileBorderBrush}">
+                            <Border x:Name="ModImageBorder" CornerRadius="12">
                                 <Border CornerRadius="8">
                                     <Image x:Name="ModImage" Stretch="Uniform"/>
                                 </Border>
                             </Border>
                         </Grid>
                         </Grid>
-                        
-                        <!-- Left Navigation Button -->
-                        <Border x:Name="PrevImageButton" Width="44" Height="44" 
-                                VerticalAlignment="Center" HorizontalAlignment="Left"
-                                Margin="24,0,0,0" Visibility="Collapsed"
-                                CornerRadius="12"
-                                Background="{ThemeResource LauncherAcrylicBrush}"
-                                PointerPressed="PrevImageButton_Click">
-                            <FontIcon Glyph="&#xE76B;" FontSize="18" 
-                                      Foreground="{ThemeResource ButtonForeground}" 
-                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        
-                        <!-- Right Navigation Button -->
-                        <Border x:Name="NextImageButton" Width="44" Height="44" 
-                                VerticalAlignment="Center" HorizontalAlignment="Right"
-                                Margin="0,0,24,0" Visibility="Collapsed"
-                                CornerRadius="12"
-                                Background="{ThemeResource LauncherAcrylicBrush}"
-                                PointerPressed="NextImageButton_Click">
-                            <FontIcon Glyph="&#xE76C;" FontSize="18" 
-                                      Foreground="{ThemeResource ButtonForeground}" 
-                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
                         
                         <!-- Image Counter -->
                         <Border Background="{ThemeResource LauncherAcrylicBrush}" 

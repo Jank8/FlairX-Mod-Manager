@@ -1469,10 +1469,8 @@ namespace FlairX_Mod_Manager.Pages
                         Services.ImageOptimizationService.ProcessCategoryPreview(categoryFolderPath, context);
                         Logger.LogInfo("Category optimization complete");
                         
-                        // Delete preview.jpg after optimization (keep only catprev.jpg and catmini.jpg) - only for Full mode and if KeepOriginals is disabled
-                        if (context.Mode == OptimizationMode.Full && 
-                            !context.KeepOriginals && 
-                            File.Exists(targetPath))
+                        // Delete preview.jpg after optimization (keep only catprev.jpg and catmini.jpg) - if KeepOriginals is disabled
+                        if (!context.KeepOriginals && File.Exists(targetPath))
                         {
                             File.Delete(targetPath);
                             Logger.LogInfo($"Deleted original preview.jpg after optimization");
@@ -1547,7 +1545,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (Enum.TryParse<OptimizationMode>(modeString, out var mode))
                 return mode;
-            return OptimizationMode.Full;
+            return OptimizationMode.Standard;
         }
         
 

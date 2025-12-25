@@ -20,7 +20,14 @@
                 
                 <!-- Content root with margin for 10% smaller -->
                 <Grid x:Name="ImageContentRoot" Margin="32" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Border x:Name="ImageBorder" CornerRadius="12" BorderThickness="12" BorderBrush="{ThemeResource TileBorderBrush}">
+                    <!-- Loading Progress Bar -->
+                    <ProgressBar x:Name="ImageLoadingBar"
+                                 Minimum="0" Maximum="100" Value="0"
+                                 Width="200"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Visibility="Collapsed"/>
+                    <Border x:Name="ImageBorder" CornerRadius="12" Opacity="1">
                         <Border CornerRadius="8">
                             <Image x:Name="PreviewImage" Stretch="Uniform"/>
                         </Border>

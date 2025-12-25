@@ -208,25 +208,15 @@ namespace FlairX_Mod_Manager.Services
             // Handle different optimization modes
             switch (context.Mode)
             {
-                case OptimizationMode.Full:
+                case OptimizationMode.CategoryFull:
+                    // CategoryFull: full optimization with manual crop inspection (drag&drop)
                     await ProcessCategoryPreviewFullAsync(categoryDir, context);
                     break;
                     
-                case OptimizationMode.Lite:
-                    ProcessCategoryPreviewLite(categoryDir, context);
-                    break;
-                    
-                case OptimizationMode.Rename:
-                    // Rename mode not applicable for categories - skip
-                    Logger.LogInfo($"Skipping category (Rename mode not applicable): {categoryDir}");
-                    break;
-                    
-                case OptimizationMode.RenameOnly:
-                    ProcessCategoryPreviewRenameOnly(categoryDir);
-                    break;
-                    
+                case OptimizationMode.Standard:
                 default:
-                    Logger.LogWarning($"Unknown optimization mode: {context.Mode}");
+                    // Standard: optimize quality, generate thumbnails with auto crop
+                    ProcessCategoryPreviewLite(categoryDir, context);
                     break;
             }
         }
@@ -249,10 +239,10 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"Processing category preview (Full mode) in: {categoryDir}");
                 
                 // Check if catprev exists but catmini is missing - only generate catmini
-                var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
-                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                var existingCatprevPath = Path.Combine(categoryDir, "catprev.jpg");
+                var existingCatminiPath = Path.Combine(categoryDir, "catmini.jpg");
                 
-                if (File.Exists(catprevPath) && !File.Exists(catminiPath) && !context.Reoptimize)
+                if (File.Exists(existingCatprevPath) && !File.Exists(existingCatminiPath) && !context.Reoptimize)
                 {
                     Logger.LogInfo($"catprev.jpg exists but catmini.jpg missing - generating catmini only");
                     await GenerateCatminiFromCatprevAsync(categoryDir, context);
@@ -363,7 +353,7 @@ namespace FlairX_Mod_Manager.Services
                 {
                     // Get crop rectangle with optional inspection for catprev
                     var catprevCropRect = await GetCropRectangleWithInspectionAsync(
-                        img, 600, 600, context, "catprev.jpg");
+                        img, 722, 722, context, "catprev.jpg");
                     
                     if (catprevCropRect == null)
                     {
@@ -380,8 +370,8 @@ namespace FlairX_Mod_Manager.Services
                         return;
                     }
                     
-                    // Generate catprev.jpg (600x600)
-                    using (var catprev = new Bitmap(600, 600))
+                    // Generate catprev.jpg (722x722)
+                    using (var catprev = new Bitmap(722, 722))
                     using (var g = Graphics.FromImage(catprev))
                     {
                         g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -389,7 +379,7 @@ namespace FlairX_Mod_Manager.Services
                         g.SmoothingMode = SmoothingMode.HighQuality;
                         g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                         
-                        var destRect = new Rectangle(0, 0, 600, 600);
+                        var destRect = new Rectangle(0, 0, 722, 722);
                         g.DrawImage(img, destRect, catprevCropRect.Value, GraphicsUnit.Pixel);
                         
                         var jpegEncoder = ImageCodecInfo.GetImageEncoders()
@@ -535,6 +525,9 @@ namespace FlairX_Mod_Manager.Services
                     if (File.Exists(catprevPath)) File.Delete(catprevPath);
                     if (File.Exists(catminiPath)) File.Delete(catminiPath);
                     Logger.LogInfo($"Cleaned up category preview files in: {categoryDir}");
+                    
+                    // Restore _original files back to their original names
+                    RestoreOriginalFiles(categoryDir);
                 }
                 catch (Exception cleanupEx)
                 {
@@ -559,10 +552,10 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"Processing category preview (Lite mode) in: {categoryDir}");
                 
                 // Check if catprev exists but catmini is missing - only generate catmini
-                var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
-                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                var existingCatprevPath = Path.Combine(categoryDir, "catprev.jpg");
+                var existingCatminiPath = Path.Combine(categoryDir, "catmini.jpg");
                 
-                if (File.Exists(catprevPath) && !File.Exists(catminiPath) && !context.Reoptimize)
+                if (File.Exists(existingCatprevPath) && !File.Exists(existingCatminiPath) && !context.Reoptimize)
                 {
                     Logger.LogInfo($"catprev.jpg exists but catmini.jpg missing - generating catmini only (Lite)");
                     GenerateCatminiFromCatprevLite(categoryDir, context);
@@ -972,7 +965,8 @@ namespace FlairX_Mod_Manager.Services
             }
             
             // Check if already optimized and skip if reoptimize is disabled
-            if (!context.Reoptimize && OptimizationHelper.IsModAlreadyOptimized(modDir))
+            // Skip this check for GameBanana downloads - they should always process new files
+            if (!context.Reoptimize && context.Trigger != OptimizationTrigger.GameBananaDownload && OptimizationHelper.IsModAlreadyOptimized(modDir))
             {
                 Logger.LogInfo($"Skipping already optimized mod: {modDir}");
                 return;
@@ -981,24 +975,15 @@ namespace FlairX_Mod_Manager.Services
             // Handle different optimization modes
             switch (context.Mode)
             {
-                case OptimizationMode.Full:
-                    await ProcessModPreviewImagesFullAsync(modDir, context);
-                    break;
-                    
-                case OptimizationMode.Lite:
+                case OptimizationMode.CategoryFull:
+                    // CategoryFull is only for categories, use Standard for mods
                     await ProcessModPreviewImagesLiteAsync(modDir, context);
                     break;
                     
-                case OptimizationMode.Rename:
-                    await ProcessModPreviewImagesRenameAsync(modDir, context);
-                    break;
-                    
-                case OptimizationMode.RenameOnly:
-                    ProcessModPreviewImagesRenameOnly(modDir);
-                    break;
-                    
+                case OptimizationMode.Standard:
                 default:
-                    Logger.LogWarning($"Unknown optimization mode: {context.Mode}");
+                    // Standard: optimize quality, generate thumbnails with auto crop
+                    await ProcessModPreviewImagesLiteAsync(modDir, context);
                     break;
             }
         }
@@ -1061,8 +1046,15 @@ namespace FlairX_Mod_Manager.Services
                     .ToList();
                 
                 // Separate original files from regular files
-                var originalFiles = allFiles.Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).OrderBy(f => f).ToList();
-                var regularFiles = allFiles.Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).OrderBy(f => f).ToList();
+                // Sort so that "preview" (without number) comes first, then "preview-01", "preview-02", etc.
+                var originalFiles = allFiles
+                    .Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
+                    .ToList();
+                var regularFiles = allFiles
+                    .Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
+                    .ToList();
                 
                 // Use original files if they exist, otherwise use regular files
                 var previewFiles = originalFiles.Count > 0 ? originalFiles : regularFiles;
@@ -1077,7 +1069,7 @@ namespace FlairX_Mod_Manager.Services
                 bool needsOriginalCreation = (originalFiles.Count == 0 && context.KeepOriginals && regularFiles.Count > 0);
                 if (needsOriginalCreation)
                 {
-                    Logger.LogInfo("Creating original copies before optimization");
+                    Logger.LogInfo("Creating original copies before optimization (Full mode)");
                     foreach (var file in regularFiles)
                     {
                         try
@@ -1241,6 +1233,55 @@ namespace FlairX_Mod_Manager.Services
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to clean up minitile: {minitilePath}", ex);
+            }
+            
+            // Restore _original files back to their original names
+            RestoreOriginalFiles(directory);
+        }
+        
+        /// <summary>
+        /// Restore _original files back to their original names after cancellation
+        /// </summary>
+        private static void RestoreOriginalFiles(string directory)
+        {
+            try
+            {
+                var originalFiles = Directory.GetFiles(directory)
+                    .Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                
+                foreach (var originalFile in originalFiles)
+                {
+                    try
+                    {
+                        var dir = Path.GetDirectoryName(originalFile)!;
+                        var fileName = Path.GetFileName(originalFile);
+                        var ext = Path.GetExtension(originalFile);
+                        var nameWithoutExt = Path.GetFileNameWithoutExtension(originalFile);
+                        
+                        // Remove _original suffix
+                        var restoredName = nameWithoutExt.Substring(0, nameWithoutExt.Length - "_original".Length);
+                        var restoredPath = Path.Combine(dir, $"{restoredName}{ext}");
+                        
+                        // Delete existing file if it exists (it's a partial/corrupted result)
+                        if (File.Exists(restoredPath))
+                        {
+                            File.Delete(restoredPath);
+                            Logger.LogInfo($"Deleted partial file: {Path.GetFileName(restoredPath)}");
+                        }
+                        
+                        File.Move(originalFile, restoredPath);
+                        Logger.LogInfo($"Restored: {fileName} -> {Path.GetFileName(restoredPath)}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to restore original file: {originalFile}", ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to restore original files in: {directory}", ex);
             }
         }
 
@@ -1512,8 +1553,15 @@ namespace FlairX_Mod_Manager.Services
                     .ToList();
                 
                 // Separate original files from regular files
-                var originalFiles = allFiles.Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).OrderBy(f => f).ToList();
-                var regularFiles = allFiles.Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).OrderBy(f => f).ToList();
+                // Sort so that "preview" (without number) comes first, then "preview-01", "preview-02", etc.
+                var originalFiles = allFiles
+                    .Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
+                    .ToList();
+                var regularFiles = allFiles
+                    .Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
+                    .ToList();
                 
                 // Use original files if they exist, otherwise use regular files
                 var previewFiles = originalFiles.Count > 0 ? originalFiles : regularFiles;
@@ -1528,7 +1576,7 @@ namespace FlairX_Mod_Manager.Services
                 bool needsOriginalCreation = (originalFiles.Count == 0 && context.KeepOriginals && regularFiles.Count > 0);
                 if (needsOriginalCreation)
                 {
-                    Logger.LogInfo("Creating original copies before optimization");
+                    Logger.LogInfo("Creating original copies before optimization (Lite mode)");
                     foreach (var file in regularFiles)
                     {
                         try
@@ -1707,6 +1755,7 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"Processing mod preview images (Rename mode) in: {modDir}");
                 
                 // Find all preview image files
+                // Sort so that "preview" (without number) comes first, then "preview-01", "preview-02", etc.
                 var previewFiles = Directory.GetFiles(modDir)
                     .Where(f =>
                     {
@@ -1716,7 +1765,7 @@ namespace FlairX_Mod_Manager.Services
                                 f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
                                 f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
                     })
-                    .OrderBy(f => f)
+                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
                     .ToList();
                 
                 if (previewFiles.Count == 0)
@@ -1776,6 +1825,7 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"Processing mod preview images (RenameOnly mode) in: {modDir}");
                 
                 // Find all preview image files
+                // Sort so that "preview" (without number) comes first, then "preview-01", "preview-02", etc.
                 var previewFiles = Directory.GetFiles(modDir)
                     .Where(f =>
                     {
@@ -1785,7 +1835,7 @@ namespace FlairX_Mod_Manager.Services
                                 f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
                                 f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
                     })
-                    .OrderBy(f => f)
+                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
                     .ToList();
                 
                 if (previewFiles.Count == 0)
@@ -1837,6 +1887,13 @@ namespace FlairX_Mod_Manager.Services
             // If only one file, use it directly
             if (availableFiles.Count <= 1)
             {
+                return availableFiles.FirstOrDefault();
+            }
+            
+            // If AutoCreateModThumbnails is enabled, skip UI and use first file
+            if (SettingsManager.Current.AutoCreateModThumbnails)
+            {
+                Logger.LogInfo($"AutoCreateModThumbnails enabled - using first preview for minitile: {Path.GetFileName(availableFiles.First())}");
                 return availableFiles.FirstOrDefault();
             }
             
@@ -2022,7 +2079,12 @@ namespace FlairX_Mod_Manager.Services
             //    a) ManualOnly mode
             //    b) Inspect&Edit is enabled (for all images)
             //    c) InspectThumbnailsOnly is enabled AND this is a thumbnail (minitile/catmini)
+            // 3. BUT NOT if AutoCreateModThumbnails is enabled AND this is a minitile
+            bool isMinitile = imageType.ToLower().Contains("minitile");
+            bool skipDueToAutoCreate = SettingsManager.Current.AutoCreateModThumbnails && isMinitile;
+            
             bool needsInspection = context.AllowUIInteraction && 
+                                  !skipDueToAutoCreate &&
                                   (context.CropStrategy == CropStrategy.ManualOnly || 
                                    context.InspectAndEditEnabled ||
                                    (context.InspectThumbnailsOnly && isThumbnail));
@@ -2311,18 +2373,11 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         public static OptimizationContext GetOptimizationContext(OptimizationTrigger trigger)
         {
-            var modeString = trigger switch
-            {
-                OptimizationTrigger.Manual => SettingsManager.Current.ImageOptimizerManualMode,
-                OptimizationTrigger.DragDropMod => SettingsManager.Current.ImageOptimizerDragDropModMode,
-                OptimizationTrigger.DragDropCategory => SettingsManager.Current.ImageOptimizerDragDropCategoryMode,
-                OptimizationTrigger.GameBananaDownload => SettingsManager.Current.ImageOptimizerAutoDownloadMode,
-                _ => "Full"
-            };
-
-            var mode = Enum.TryParse<OptimizationMode>(modeString, out var parsedMode) 
-                ? parsedMode 
-                : OptimizationMode.Full;
+            // Determine mode based on trigger
+            // CategoryFull is only used for drag&drop category operations
+            var mode = trigger == OptimizationTrigger.DragDropCategory 
+                ? OptimizationMode.CategoryFull 
+                : OptimizationMode.Standard;
 
             var cropStrategyString = SettingsManager.Current.ImageCropType ?? "Center";
             var cropStrategy = Enum.TryParse<CropStrategy>(cropStrategyString, out var parsedStrategy)
@@ -2336,6 +2391,12 @@ namespace FlairX_Mod_Manager.Services
             
             // For now, all triggers allow UI interaction if the user has enabled inspection
             // This respects PreviewBeforeCrop setting for all contexts
+            
+            // DragDropCategory always forces InspectAndEdit because catprev (722x722) and catmini (600x722) 
+            // require different crop areas
+            bool inspectAndEdit = trigger == OptimizationTrigger.DragDropCategory 
+                ? true 
+                : SettingsManager.Current.PreviewBeforeCrop;
 
             return new OptimizationContext
             {
@@ -2345,8 +2406,8 @@ namespace FlairX_Mod_Manager.Services
                 CreateBackups = SettingsManager.Current.ImageOptimizerCreateBackups,
                 KeepOriginals = SettingsManager.Current.ImageOptimizerKeepOriginals,
                 CropStrategy = cropStrategy,
-                InspectAndEditEnabled = SettingsManager.Current.PreviewBeforeCrop,
-                InspectThumbnailsOnly = SettingsManager.Current.InspectThumbnailsOnly,
+                InspectAndEditEnabled = inspectAndEdit,
+                InspectThumbnailsOnly = true, // Always show crop inspection for thumbnails (minitile/catmini)
                 Trigger = trigger,
                 AllowUIInteraction = allowUIInteraction,
                 Reoptimize = SettingsManager.Current.ImageOptimizerReoptimize
@@ -2366,7 +2427,7 @@ namespace FlairX_Mod_Manager.Services
         public bool KeepOriginals { get; set; }
         public CropStrategy CropStrategy { get; set; }
         public bool InspectAndEditEnabled { get; set; }
-        public bool InspectThumbnailsOnly { get; set; } = false; // Only show crop inspection for minitile/catmini
+        public bool InspectThumbnailsOnly { get; set; } = true; // Always show crop inspection for minitile/catmini
         public OptimizationTrigger Trigger { get; set; }
         public bool AllowUIInteraction { get; set; } = true; // Can show crop inspection UI
         public bool Reoptimize { get; set; } = false; // Re-optimize already optimized files
@@ -2393,6 +2454,36 @@ namespace FlairX_Mod_Manager.Services
         Entropy,
         Attention,
         ManualOnly
+    }
+    
+    /// <summary>
+    /// Helper methods for preview file sorting
+    /// </summary>
+    public static class PreviewSortHelper
+    {
+        /// <summary>
+        /// Get sort order for preview files so that "preview" (without number) comes first,
+        /// then "preview-01", "preview-02", etc.
+        /// </summary>
+        public static int GetSortOrder(string fileName)
+        {
+            // Remove extension and _original suffix for comparison
+            var nameWithoutExt = Path.GetFileNameWithoutExtension(fileName).ToLower();
+            if (nameWithoutExt.EndsWith("_original"))
+                nameWithoutExt = nameWithoutExt.Substring(0, nameWithoutExt.Length - "_original".Length);
+            
+            // "preview" without number should be first (order 0)
+            if (nameWithoutExt == "preview")
+                return 0;
+            
+            // Try to extract number from "preview-XX" or "previewXX"
+            var match = System.Text.RegularExpressions.Regex.Match(nameWithoutExt, @"preview-?(\d+)");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out int num))
+                return num;
+            
+            // Unknown format, put at end
+            return int.MaxValue;
+        }
     }
     
     /// <summary>

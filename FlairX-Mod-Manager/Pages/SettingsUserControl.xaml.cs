@@ -659,35 +659,12 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         // Static versions of processing methods for hotkey use
-        public static void ProcessCategoryPreviewStatic(string categoryDir, OptimizationMode mode = OptimizationMode.Full)
+        public static void ProcessCategoryPreviewStatic(string categoryDir, OptimizationMode mode = OptimizationMode.Standard)
         {
-            // For RenameOnly mode, do nothing (rename happens automatically via drag&drop)
-            if (mode == OptimizationMode.RenameOnly)
-            {
-                // Categories in RenameOnly mode: no optimization, no thumbnails
-                return;
-            }
+            // Standard mode: optimize quality, generate catprev.jpg and catmini.jpg
+            // CategoryFull mode: same but with manual crop inspection (handled by ImageOptimizationService)
             
-            // For Rename mode, generate thumbnails from existing preview.jpg
-            if (mode == OptimizationMode.Rename)
-            {
-                // Generate catprev.jpg and catmini.jpg from preview.jpg if it exists
-                var categoryPreviewPath = Path.Combine(categoryDir, "preview.jpg");
-                if (File.Exists(categoryPreviewPath))
-                {
-                    GenerateCategoryMiniaturesOnly(categoryDir, categoryPreviewPath);
-                }
-                return;
-            }
-            
-            // For Lite mode, convert to JPEG without resizing/cropping, generate thumbnails
-            if (mode == OptimizationMode.Lite)
-            {
-                ProcessCategoryLiteMode(categoryDir);
-                return;
-            }
-            
-            // Create backup if enabled (for Full mode)
+            // Create backup if enabled
             if (SettingsManager.Current.ImageOptimizerCreateBackups)
             {
                 var filesToBackup = Directory.GetFiles(categoryDir)
@@ -774,8 +751,8 @@ namespace FlairX_Mod_Manager.Pages
                 
                 using (var img = System.Drawing.Image.FromFile(previewPath))
                 {
-                    // Create catprev.jpg (600x722 for category tiles)
-                    using (var thumbBmp = new System.Drawing.Bitmap(600, 722))
+                    // Create catprev.jpg (722x722 for category preview)
+                    using (var thumbBmp = new System.Drawing.Bitmap(722, 722))
                     using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
                     {
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -784,8 +761,8 @@ namespace FlairX_Mod_Manager.Pages
                         g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         
                         // Calculate crop rectangle using selected algorithm
-                        var srcRect = GetCropRectangleFromSettings(img, 600, 722);
-                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
+                        var srcRect = GetCropRectangleFromSettings(img, 722, 722);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 722, 722);
                         g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
                         
                         // Save as JPEG catprev
@@ -798,9 +775,9 @@ namespace FlairX_Mod_Manager.Pages
                         }
                     }
                     
-                    // Create catmini.jpg (600x600 square for menu icons) from same source
+                    // Create catmini.jpg (600x722 for category tiles) from same source
                     var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
-                    using (var miniThumb = new System.Drawing.Bitmap(600, 600))
+                    using (var miniThumb = new System.Drawing.Bitmap(600, 722))
                     using (var g2 = System.Drawing.Graphics.FromImage(miniThumb))
                     {
                         g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -808,9 +785,9 @@ namespace FlairX_Mod_Manager.Pages
                         g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g2.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         
-                        // Calculate crop rectangle using selected algorithm (square)
-                        var srcRect2 = GetCropRectangleFromSettings(img, 600, 600);
-                        var destRect2 = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        // Calculate crop rectangle using selected algorithm
+                        var srcRect2 = GetCropRectangleFromSettings(img, 600, 722);
+                        var destRect2 = new System.Drawing.Rectangle(0, 0, 600, 722);
                         g2.DrawImage(img, destRect2, srcRect2, System.Drawing.GraphicsUnit.Pixel);
                         
                         var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
@@ -845,9 +822,9 @@ namespace FlairX_Mod_Manager.Pages
                 
                 using (var img = System.Drawing.Image.FromFile(previewPath))
                 {
-                    // Generate catprev.jpg (600x722)
+                    // Generate catprev.jpg (722x722)
                     var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
-                    using (var thumbBmp = new System.Drawing.Bitmap(600, 722))
+                    using (var thumbBmp = new System.Drawing.Bitmap(722, 722))
                     using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
                     {
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -855,9 +832,36 @@ namespace FlairX_Mod_Manager.Pages
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         
+                        // Square crop for catprev
+                        int size = Math.Min(img.Width, img.Height);
+                        int x = (img.Width - size) / 2;
+                        int y = (img.Height - size) / 2;
+                        
+                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 722, 722);
+                        g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
+                        
+                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
+                        if (jpegEncoder != null)
+                        {
+                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
+                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
+                            thumbBmp.Save(catprevPath, jpegEncoder, jpegParams);
+                        }
+                    }
+                    
+                    // Generate catmini.jpg (600x722)
+                    var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                    using (var miniThumb = new System.Drawing.Bitmap(600, 722))
+                    using (var g2 = System.Drawing.Graphics.FromImage(miniThumb))
+                    {
+                        g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g2.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                        g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                        g2.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                        
                         double targetRatio = 600.0 / 722.0;
                         double sourceRatio = (double)img.Width / img.Height;
-                        
                         int srcWidth, srcHeight, srcX, srcY;
                         if (sourceRatio > targetRatio)
                         {
@@ -873,35 +877,8 @@ namespace FlairX_Mod_Manager.Pages
                             srcX = 0;
                             srcY = (img.Height - srcHeight) / 2;
                         }
-                        
                         var srcRect = new System.Drawing.Rectangle(srcX, srcY, srcWidth, srcHeight);
                         var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
-                        g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
-                        
-                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
-                        {
-                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
-                            thumbBmp.Save(catprevPath, jpegEncoder, jpegParams);
-                        }
-                    }
-                    
-                    // Generate catmini.jpg (600x600)
-                    var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
-                    using (var miniThumb = new System.Drawing.Bitmap(600, 600))
-                    using (var g2 = System.Drawing.Graphics.FromImage(miniThumb))
-                    {
-                        g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g2.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                        g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        g2.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                        
-                        int size = Math.Min(img.Width, img.Height);
-                        int x = (img.Width - size) / 2;
-                        int y = (img.Height - size) / 2;
-                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
-                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
                         g2.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
                         
                         var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
@@ -1043,7 +1020,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        public static void ProcessModPreviewImagesStatic(string modDir, OptimizationMode mode = OptimizationMode.Full)
+        public static void ProcessModPreviewImagesStatic(string modDir, OptimizationMode mode = OptimizationMode.Standard)
         {
             try
             {
@@ -1066,36 +1043,8 @@ namespace FlairX_Mod_Manager.Pages
                     // Continue anyway if we can't check disk space
                 }
                 
-                // For RenameOnly mode, just copy files with standard names (no optimization, no thumbnails)
-                if (mode == OptimizationMode.RenameOnly)
-                {
-                    CopyPreviewFilesStatic(modDir);
-                    return;
-                }
-                
-                // For Rename mode, generate thumbnails from existing files
-                if (mode == OptimizationMode.Rename)
-                {
-                    // Files are already renamed to standard names (preview.jpg, preview-01.jpg, etc.)
-                    // Just generate minitile.jpg from preview.jpg if it exists
-                    var previewPath = Path.Combine(modDir, "preview.jpg");
-                    var minitilePath = Path.Combine(modDir, "minitile.jpg");
-                    
-                    if (File.Exists(previewPath) && !File.Exists(minitilePath))
-                    {
-                        CreateMinitileStatic(previewPath, minitilePath);
-                    }
-                    return;
-                }
-                
-                // For Lite mode, convert to JPEG without resizing/cropping, generate thumbnails
-                if (mode == OptimizationMode.Lite)
-                {
-                    ProcessModLiteMode(modDir);
-                    return;
-                }
-                
-                // Create backup if enabled (for Full mode)
+                // Standard mode: optimize quality, generate preview.jpg and minitile.jpg
+                // Create backup if enabled
                 if (SettingsManager.Current.ImageOptimizerCreateBackups)
                 {
                     var filesToBackup = Directory.GetFiles(modDir)
@@ -1151,27 +1100,15 @@ namespace FlairX_Mod_Manager.Pages
                         continue;
                     }
 
-                    // Optimize and save the image based on mode
-                    if (mode == OptimizationMode.RenameOnly)
+                    // Standard optimization
+                    try
                     {
-                        // For RenameOnly mode, just rename/copy without optimization
-                        if (!sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase))
-                        {
-                            File.Copy(sourceFile, targetPath, true);
-                        }
+                        OptimizePreviewImageStatic(sourceFile, targetPath, mode);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        // Full or Lite optimization
-                        try
-                        {
-                            OptimizePreviewImageStatic(sourceFile, targetPath, mode);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"Failed to optimize {sourceFile}, continuing with remaining images", ex);
-                            continue; // Skip this image and continue with next
-                        }
+                        Logger.LogError($"Failed to optimize {sourceFile}, continuing with remaining images", ex);
+                        continue; // Skip this image and continue with next
                     }
 
                     // Create minitile only for the main preview (index 0)
@@ -1243,7 +1180,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private static void OptimizePreviewImageStatic(string sourcePath, string targetPath, OptimizationMode mode = OptimizationMode.Full)
+        private static void OptimizePreviewImageStatic(string sourcePath, string targetPath, OptimizationMode mode = OptimizationMode.Standard)
         {
             try
             {
@@ -1257,8 +1194,8 @@ namespace FlairX_Mod_Manager.Pages
                 
                 using (var src = System.Drawing.Image.FromFile(sourcePath))
                 {
-                // For Lite mode, skip cropping and resizing
-                bool shouldCropAndResize = (mode == OptimizationMode.Full);
+                // Standard mode: optimize quality without cropping/resizing
+                bool shouldCropAndResize = false;
                 
                 // Step 1: Crop to square (1:1 ratio) if needed (only for Full mode)
                 bool needsCrop = shouldCropAndResize && (src.Width != src.Height);
@@ -1967,8 +1904,8 @@ namespace FlairX_Mod_Manager.Pages
                 
                 using (var img = System.Drawing.Image.FromFile(previewPath))
                 {
-                    // Create catprev.jpg (600x722 for category tiles)
-                    using (var thumbBmp = new System.Drawing.Bitmap(600, 722))
+                    // Create catprev.jpg (722x722 square for category preview)
+                    using (var thumbBmp = new System.Drawing.Bitmap(722, 722))
                     using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
                     {
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -1976,38 +1913,20 @@ namespace FlairX_Mod_Manager.Pages
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         
-                        // Calculate crop to 600:722 ratio (center crop)
-                        double targetRatio = 600.0 / 722.0;
-                        double sourceRatio = (double)img.Width / img.Height;
-                        
-                        int srcWidth, srcHeight, srcX, srcY;
-                        
-                        if (sourceRatio > targetRatio)
-                        {
-                            // Source is wider - crop width
-                            srcHeight = img.Height;
-                            srcWidth = (int)(srcHeight * targetRatio);
-                            srcX = (img.Width - srcWidth) / 2;
-                            srcY = 0;
-                        }
-                        else
-                        {
-                            // Source is taller - crop height
-                            srcWidth = img.Width;
-                            srcHeight = (int)(srcWidth / targetRatio);
-                            srcX = 0;
-                            srcY = (img.Height - srcHeight) / 2;
-                        }
+                        // Calculate crop to square (center crop)
+                        int size = Math.Min(img.Width, img.Height);
+                        int srcX = (img.Width - size) / 2;
+                        int srcY = (img.Height - size) / 2;
                         
                         // Apply smart cropping if enabled
-                        var cropRect = new System.Drawing.Rectangle(srcX, srcY, srcWidth, srcHeight);
+                        var cropRect = new System.Drawing.Rectangle(srcX, srcY, size, size);
                         if (SettingsManager.Current.ImageCropType != "Center")
                         {
                             var cropType = Enum.Parse<CropType>(SettingsManager.Current.ImageCropType);
-                            cropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, cropType);
+                            cropRect = ImageCropService.CalculateCropRectangle(img, 722, 722, cropType);
                         }
                         
-                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 722, 722);
                         g.DrawImage(img, destRect, cropRect, System.Drawing.GraphicsUnit.Pixel);
                         
                         // Save as JPEG catprev
@@ -2020,9 +1939,9 @@ namespace FlairX_Mod_Manager.Pages
                         }
                     }
                     
-                    // Create catmini.jpg (600x600 square for menu icons) from same source
+                    // Create catmini.jpg (600x722 for category grid tiles) from same source
                     var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
-                    using (var miniThumb = new System.Drawing.Bitmap(600, 600))
+                    using (var miniThumb = new System.Drawing.Bitmap(600, 722))
                     using (var g2 = System.Drawing.Graphics.FromImage(miniThumb))
                     {
                         g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -2030,19 +1949,34 @@ namespace FlairX_Mod_Manager.Pages
                         g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g2.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         
-                        // Calculate crop to square
-                        int size = Math.Min(img.Width, img.Height);
-                        int x = (img.Width - size) / 2;
-                        int y = (img.Height - size) / 2;
+                        // Calculate crop for 600x722 aspect ratio
+                        double targetAspect = 600.0 / 722.0;
+                        double sourceAspect = (double)img.Width / img.Height;
+                        int cropWidth, cropHeight, x, y;
+                        
+                        if (sourceAspect > targetAspect)
+                        {
+                            cropHeight = img.Height;
+                            cropWidth = (int)(cropHeight * targetAspect);
+                            x = (img.Width - cropWidth) / 2;
+                            y = 0;
+                        }
+                        else
+                        {
+                            cropWidth = img.Width;
+                            cropHeight = (int)(cropWidth / targetAspect);
+                            x = 0;
+                            y = (img.Height - cropHeight) / 2;
+                        }
                         
                         // Apply smart cropping if enabled
-                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
+                        var srcRect = new System.Drawing.Rectangle(x, y, cropWidth, cropHeight);
                         if (SettingsManager.Current.ImageCropType != "Center")
                         {
                             var cropType = Enum.Parse<CropType>(SettingsManager.Current.ImageCropType);
-                            srcRect = ImageCropService.CalculateCropRectangle(img, 600, 600, cropType);
+                            srcRect = ImageCropService.CalculateCropRectangle(img, 600, 722, cropType);
                         }
-                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
                         g2.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
                         
                         var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
@@ -2500,16 +2434,16 @@ namespace FlairX_Mod_Manager.Pages
                 
                 using (var img = System.Drawing.Image.FromFile(previewPath))
                 {
-                    // Get crop rectangle with dialog for catprev (600x722)
-                    var srcRect = await GetCropRectangleWithDialogAsync(img, 600, 722, "catprev");
+                    // Get crop rectangle with dialog for catprev (722x722)
+                    var srcRect = await GetCropRectangleWithDialogAsync(img, 722, 722, "catprev");
                     if (!srcRect.HasValue)
                     {
                         Logger.LogInfo($"User cancelled crop for category: {Path.GetFileName(categoryDir)}");
                         return; // User cancelled
                     }
                     
-                    // Create catprev.jpg (600x722)
-                    using (var thumbBmp = new System.Drawing.Bitmap(600, 722))
+                    // Create catprev.jpg (722x722)
+                    using (var thumbBmp = new System.Drawing.Bitmap(722, 722))
                     using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
                     {
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -2517,7 +2451,7 @@ namespace FlairX_Mod_Manager.Pages
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         
-                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 722, 722);
                         g.DrawImage(img, destRect, srcRect.Value, System.Drawing.GraphicsUnit.Pixel);
                         
                         var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
@@ -2529,17 +2463,17 @@ namespace FlairX_Mod_Manager.Pages
                         }
                     }
                     
-                    // Get crop rectangle for square catmini (600x600)
-                    var srcRect2 = await GetCropRectangleWithDialogAsync(img, 600, 600, "catmini");
+                    // Get crop rectangle for catmini (600x722)
+                    var srcRect2 = await GetCropRectangleWithDialogAsync(img, 600, 722, "catmini");
                     if (!srcRect2.HasValue)
                     {
-                        Logger.LogInfo($"User cancelled square crop for category: {Path.GetFileName(categoryDir)}");
+                        Logger.LogInfo($"User cancelled crop for category: {Path.GetFileName(categoryDir)}");
                         return;
                     }
                     
-                    // Create catmini.jpg (600x600)
+                    // Create catmini.jpg (600x722)
                     var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
-                    using (var miniThumb = new System.Drawing.Bitmap(600, 600))
+                    using (var miniThumb = new System.Drawing.Bitmap(600, 722))
                     using (var g2 = System.Drawing.Graphics.FromImage(miniThumb))
                     {
                         g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -3049,11 +2983,11 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
 
-                // Generate catmini thumbnail (600x600)
+                // Generate catmini thumbnail (600x722)
                 var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
                 using (var img = System.Drawing.Image.FromFile(catprevPath))
                 {
-                    using (var miniThumb = new System.Drawing.Bitmap(600, 600))
+                    using (var miniThumb = new System.Drawing.Bitmap(600, 722))
                     using (var g = System.Drawing.Graphics.FromImage(miniThumb))
                     {
                         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
@@ -3061,9 +2995,9 @@ namespace FlairX_Mod_Manager.Pages
                         g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                         g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
                         
-                        // Calculate crop for square thumbnail
-                        var srcRect = GetCropRectangleFromSettings(img, 600, 600);
-                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 600);
+                        // Calculate crop for 600x722 thumbnail
+                        var srcRect = GetCropRectangleFromSettings(img, 600, 722);
+                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
                         g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
                         
                         var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders()

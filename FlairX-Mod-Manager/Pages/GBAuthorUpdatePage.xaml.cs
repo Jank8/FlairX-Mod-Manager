@@ -1369,17 +1369,20 @@ namespace FlairX_Mod_Manager.Pages
 
             var confirmDialog = new ContentDialog
             {
-                Title = SharedUtilities.GetTranslation(lang, "FetchAllPreviewsButton"),
-                Content = SharedUtilities.GetTranslation(lang, "ConfirmFetchAllPreviews"),
-                PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
+                Title = SharedUtilities.GetTranslation(lang, "PreviewModeDialogTitle"),
+                Content = SharedUtilities.GetTranslation(lang, "PreviewModeDialogContent"),
+                PrimaryButtonText = SharedUtilities.GetTranslation(lang, "PreviewModeReplace"),
+                SecondaryButtonText = SharedUtilities.GetTranslation(lang, "PreviewModeMerge"),
                 CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
                 XamlRoot = this.XamlRoot
             };
             var result = await confirmDialog.ShowAsync();
-            if (result != ContentDialogResult.Primary)
+            if (result == ContentDialogResult.None)
             {
                 return;
             }
+
+            bool combinePreviews = result == ContentDialogResult.Secondary;
 
             _ctsAllPreviews = new CancellationTokenSource();
             SetAllPreviewsButtonToCancelState();
@@ -1393,7 +1396,7 @@ namespace FlairX_Mod_Manager.Pages
                 _totalMods = 0;
             }
             NotifyProgressChanged();
-            await FetchPreviewsAsync(_ctsAllPreviews.Token, fetchAll: true);
+            await FetchPreviewsAsync(_ctsAllPreviews.Token, fetchAll: true, combinePreviews: combinePreviews);
             ResetAllPreviewsButtonToFetchState();
         }
 
@@ -1477,7 +1480,7 @@ namespace FlairX_Mod_Manager.Pages
                 _totalMods = 0;
             }
             NotifyProgressChanged();
-            await FetchPreviewsAsync(_ctsMissingPreviews.Token, fetchAll: false);
+            await FetchPreviewsAsync(_ctsMissingPreviews.Token, fetchAll: false, combinePreviews: false);
             ResetMissingPreviewsButtonToFetchState();
         }
 
@@ -1498,7 +1501,7 @@ namespace FlairX_Mod_Manager.Pages
             FetchMissingPreviewsProgressBar.Visibility = Visibility.Collapsed;
         }
 
-        private async Task FetchPreviewsAsync(CancellationToken token, bool fetchAll)
+        private async Task FetchPreviewsAsync(CancellationToken token, bool fetchAll, bool combinePreviews)
         {
             try
             {
@@ -1585,21 +1588,86 @@ namespace FlairX_Mod_Manager.Pages
                             return;
                         }
 
-                        // If fetchAll mode, delete existing previews first
+                        int startIndex = 0;
+
+                        // If fetchAll mode, handle existing previews based on combinePreviews flag
                         if (fetchAll && existingPreviews.Count > 0)
                         {
-                            foreach (var preview in existingPreviews)
+                            if (!combinePreviews)
                             {
-                                try { File.Delete(preview); } catch { }
+                                // Replace mode - delete existing previews AND minitile
+                                var allPreviewFiles = Directory.GetFiles(dir)
+                                    .Where(f =>
+                                    {
+                                        var fileName = Path.GetFileName(f).ToLower();
+                                        return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
+                                               (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                                f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                                    });
+                                foreach (var preview in allPreviewFiles)
+                                {
+                                    try { File.Delete(preview); } catch { }
+                                }
+                            }
+                            else
+                            {
+                                // Merge mode - find next available preview number
+                                var existingNumbers = new List<int>();
+                                foreach (var preview in existingPreviews)
+                                {
+                                    var fileName = Path.GetFileName(preview);
+                                    var match = System.Text.RegularExpressions.Regex.Match(fileName, @"preview-?(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                                    if (match.Success && int.TryParse(match.Groups[1].Value, out int num))
+                                    {
+                                        existingNumbers.Add(num);
+                                    }
+                                    else if (fileName.ToLower() == "preview.jpg" || fileName.ToLower() == "preview.png")
+                                    {
+                                        existingNumbers.Add(0);
+                                    }
+                                }
+                                startIndex = existingNumbers.Count > 0 ? existingNumbers.Max() + 1 : 0;
                             }
                         }
 
                         try
                         {
-                            var downloadedCount = await DownloadPreviewsFromApi(url, dir, token);
+                            var downloadedCount = await DownloadPreviewsFromApi(url, dir, token, startIndex);
                             if (downloadedCount > 0)
                             {
                                 SafeIncrementSuccess();
+                                
+                                // Run optimization for downloaded previews
+                                try
+                                {
+                                    var context = Services.ImageOptimizationService.GetOptimizationContext(
+                                        Services.OptimizationTrigger.GameBananaDownload);
+                                    
+                                    // For batch operations, disable UI interaction to avoid popup spam
+                                    context.AllowUIInteraction = false;
+                                    
+                                    // GameBanana download never uses reoptimize - only process new files
+                                    context.Reoptimize = false;
+                                    
+                                    await Services.ImageOptimizationService.ProcessModPreviewImagesAsync(dir, context);
+                                    Logger.LogInfo($"Optimized previews for: {modName}");
+                                    
+                                    // Refresh mod tile in UI
+                                    DispatcherQueue.TryEnqueue(() =>
+                                    {
+                                        try
+                                        {
+                                            var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                                            mainWindow?.CurrentModGridPage?.RefreshModTileImage(dir);
+                                        }
+                                        catch { }
+                                    });
+                                }
+                                catch (Exception optEx)
+                                {
+                                    Logger.LogError($"Failed to optimize previews for {modName}", optEx);
+                                }
                             }
                             else
                             {
@@ -1696,7 +1764,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async Task<int> DownloadPreviewsFromApi(string url, string modPath, CancellationToken token)
+        private async Task<int> DownloadPreviewsFromApi(string url, string modPath, CancellationToken token, int startIndex = 0)
         {
             try
             {
@@ -1761,7 +1829,7 @@ namespace FlairX_Mod_Manager.Pages
                         fileExtension = ".jpg";
                     }
 
-                    var fileName = $"preview{(i + 1):D3}{fileExtension}";
+                    var fileName = $"preview{(startIndex + i + 1):D3}{fileExtension}";
                     var filePath = Path.Combine(modPath, fileName);
 
                     try

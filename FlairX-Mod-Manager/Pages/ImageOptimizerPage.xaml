@@ -205,7 +205,7 @@
                 </Grid>
             </Border>
             
-            <!-- Inspect Thumbnails Only Card -->
+            <!-- Auto Create Mod Thumbnails Card -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                     BorderThickness="1" 
@@ -220,22 +220,23 @@
                         <ColumnDefinition Width="150"/>
                     </Grid.ColumnDefinitions>
                     
-                    <FontIcon Grid.Column="0" Glyph="&#xE91B;" FontSize="20" VerticalAlignment="Center"/>
+                    <FontIcon Grid.Column="0" Glyph="&#xE8EC;" FontSize="20" VerticalAlignment="Center"/>
                     
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock x:Name="InspectThumbnailsOnlyLabel" FontWeight="SemiBold" FontSize="14"/>
-                        <TextBlock x:Name="InspectThumbnailsOnlyDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                        <TextBlock x:Name="AutoCreateModThumbnailsLabel" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="AutoCreateModThumbnailsDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                     </StackPanel>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
-                        <TextBlock x:Name="InspectThumbnailsOnlyToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
-                        <ToggleSwitch x:Name="InspectThumbnailsOnlyToggle" Toggled="InspectThumbnailsOnlyToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                        <TextBlock x:Name="AutoCreateModThumbnailsToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                        <ToggleSwitch x:Name="AutoCreateModThumbnailsToggle" Toggled="AutoCreateModThumbnailsToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <!-- Optimization Modes Section -->
-            <TextBlock x:Name="OptimizationModesHeader" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
+            <TextBlock x:Name="OptimizationModesHeader" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,4"/>
+            <TextBlock x:Name="OptimizationModesDescription" TextWrapping="Wrap" FontSize="12" Opacity="0.7" Margin="0,0,0,12"/>
             
             <!-- Manual Mode Card -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
@@ -256,19 +257,11 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="16"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
                         <FontIcon Grid.Column="0" Glyph="&#xE70F;" FontSize="20" VerticalAlignment="Center"/>
                         
                         <TextBlock Grid.Column="2" x:Name="ManualModeHeader" Text="Manual Optimization" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
-                        
-                        <ComboBox Grid.Column="3" x:Name="ManualModeComboBox" Width="250" SelectionChanged="ManualModeComboBox_SelectionChanged" VerticalAlignment="Center">
-                            <ComboBoxItem x:Name="ManualModeFullItem" Tag="Full"/>
-                            <ComboBoxItem x:Name="ManualModeLiteItem" Tag="Lite"/>
-                            <ComboBoxItem x:Name="ManualModeRenameItem" Tag="Rename"/>
-                            <ComboBoxItem x:Name="ManualModeRenameOnlyItem" Tag="RenameOnly"/>
-                        </ComboBox>
                     </Grid>
                     
                     <TextBlock Grid.Row="2" x:Name="ManualModeDescription" TextWrapping="Wrap" FontSize="12" Opacity="0.7"/>
@@ -294,19 +287,11 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="16"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
                         <FontIcon Grid.Column="0" Glyph="&#xE8B7;" FontSize="20" VerticalAlignment="Center"/>
                         
                         <TextBlock Grid.Column="2" x:Name="DragDropModHeader" Text="Drag &amp; Drop Mod" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
-                        
-                        <ComboBox Grid.Column="3" x:Name="DragDropModComboBox" Width="250" SelectionChanged="DragDropModComboBox_SelectionChanged" VerticalAlignment="Center">
-                            <ComboBoxItem x:Name="DragDropModFullItem" Tag="Full"/>
-                            <ComboBoxItem x:Name="DragDropModLiteItem" Tag="Lite"/>
-                            <ComboBoxItem x:Name="DragDropModRenameItem" Tag="Rename"/>
-                            <ComboBoxItem x:Name="DragDropModRenameOnlyItem" Tag="RenameOnly"/>
-                        </ComboBox>
                     </Grid>
                     
                     <TextBlock Grid.Row="2" x:Name="DragDropModDescription" TextWrapping="Wrap" FontSize="12" Opacity="0.7"/>
@@ -332,17 +317,11 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="16"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
                         <FontIcon Grid.Column="0" Glyph="&#xE8F1;" FontSize="20" VerticalAlignment="Center"/>
                         
                         <TextBlock Grid.Column="2" x:Name="DragDropCategoryHeader" Text="Drag &amp; Drop Category" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
-                        
-                        <ComboBox Grid.Column="3" x:Name="DragDropCategoryComboBox" Width="250" SelectionChanged="DragDropCategoryComboBox_SelectionChanged" VerticalAlignment="Center">
-                            <ComboBoxItem x:Name="DragDropCategoryFullItem" Tag="Full"/>
-                            <ComboBoxItem x:Name="DragDropCategoryRenameOnlyItem" Tag="RenameOnly"/>
-                        </ComboBox>
                     </Grid>
                     
                     <TextBlock Grid.Row="2" x:Name="DragDropCategoryDescription" TextWrapping="Wrap" FontSize="12" Opacity="0.7"/>
@@ -368,19 +347,11 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="16"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
                         <FontIcon Grid.Column="0" Glyph="&#xE896;" FontSize="20" VerticalAlignment="Center"/>
                         
                         <TextBlock Grid.Column="2" x:Name="AutoDownloadHeader" Text="Automatic (GameBanana Download)" FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
-                        
-                        <ComboBox Grid.Column="3" x:Name="AutoDownloadComboBox" Width="250" SelectionChanged="AutoDownloadComboBox_SelectionChanged" VerticalAlignment="Center">
-                            <ComboBoxItem x:Name="AutoDownloadFullItem" Tag="Full"/>
-                            <ComboBoxItem x:Name="AutoDownloadLiteItem" Tag="Lite"/>
-                            <ComboBoxItem x:Name="AutoDownloadRenameItem" Tag="Rename"/>
-                            <ComboBoxItem x:Name="AutoDownloadRenameOnlyItem" Tag="RenameOnly"/>
-                        </ComboBox>
                     </Grid>
                     
                     <TextBlock Grid.Row="2" x:Name="AutoDownloadDescription" TextWrapping="Wrap" FontSize="12" Opacity="0.7"/>

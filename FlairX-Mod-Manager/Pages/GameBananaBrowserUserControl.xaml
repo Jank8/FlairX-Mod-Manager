@@ -404,13 +404,41 @@
                             </Border>
                         </Grid>
                         
-                        <!-- 2. Preview Section -->
-                        <TextBlock x:Name="DetailPreviewHeader" Text="Preview" FontSize="20" FontWeight="SemiBold" Margin="0,12,0,12"/>
+                        <!-- 2. Preview Section Header with Navigation -->
+                        <Grid Margin="0,12,0,12">
+                            <!-- Left Navigation Button -->
+                            <Border x:Name="DetailPrevImageButton" Width="36" Height="36" 
+                                    VerticalAlignment="Center" HorizontalAlignment="Left"
+                                    Visibility="Collapsed"
+                                    CornerRadius="8"
+                                    Background="{ThemeResource LauncherAcrylicBrush}"
+                                    PointerPressed="DetailPrevImageButton_Click">
+                                <FontIcon Glyph="&#xE76B;" FontSize="14" 
+                                          Foreground="{ThemeResource ButtonForeground}" 
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            
+                            <!-- Preview Header (centered) -->
+                            <TextBlock x:Name="DetailPreviewHeader" Text="Preview" FontSize="20" FontWeight="SemiBold" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            
+                            <!-- Right Navigation Button -->
+                            <Border x:Name="DetailNextImageButton" Width="36" Height="36" 
+                                    VerticalAlignment="Center" HorizontalAlignment="Right"
+                                    Visibility="Collapsed"
+                                    CornerRadius="8"
+                                    Background="{ThemeResource LauncherAcrylicBrush}"
+                                    PointerPressed="DetailNextImageButton_Click">
+                                <FontIcon Glyph="&#xE76C;" FontSize="14" 
+                                          Foreground="{ThemeResource ButtonForeground}" 
+                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </Grid>
                         
-                        <!-- Image section with navigation -->
+                        <!-- Image section -->
                         <Grid Margin="0,0,0,24">
                             <!-- Image container with fixed height -->
-                            <Grid Height="600" HorizontalAlignment="Center">
+                            <Grid Height="600" MaxWidth="1000" HorizontalAlignment="Center">
                             <!-- Coordinate field for tilt -->
                             <Grid x:Name="DetailImageCoordinateField" 
                                   Background="Transparent"
@@ -428,37 +456,13 @@
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"
                                              Visibility="Collapsed"/>
-                                <Border x:Name="DetailImageBorder" CornerRadius="12" BorderThickness="12" BorderBrush="{ThemeResource TileBorderBrush}" Opacity="0">
+                                <Border x:Name="DetailImageBorder" CornerRadius="12" Opacity="0">
                                     <Border CornerRadius="8">
                                         <Image x:Name="DetailImage" Stretch="Uniform"/>
                                     </Border>
                                 </Border>
                             </Grid>
                             </Grid>
-                            
-                            <!-- Previous Button -->
-                            <Border x:Name="DetailPrevImageButton" Width="44" Height="44" 
-                                    VerticalAlignment="Center" HorizontalAlignment="Left"
-                                    Margin="24,0,0,0" Visibility="Collapsed"
-                                    CornerRadius="12"
-                                    Background="{ThemeResource LauncherAcrylicBrush}"
-                                    PointerPressed="DetailPrevImageButton_Click">
-                                <FontIcon Glyph="&#xE76B;" FontSize="18" 
-                                          Foreground="{ThemeResource ButtonForeground}" 
-                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            
-                            <!-- Next Button -->
-                            <Border x:Name="DetailNextImageButton" Width="44" Height="44" 
-                                    VerticalAlignment="Center" HorizontalAlignment="Right"
-                                    Margin="0,0,24,0" Visibility="Collapsed"
-                                    CornerRadius="12"
-                                    Background="{ThemeResource LauncherAcrylicBrush}"
-                                    PointerPressed="DetailNextImageButton_Click">
-                                <FontIcon Glyph="&#xE76C;" FontSize="18" 
-                                          Foreground="{ThemeResource ButtonForeground}" 
-                                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
                             
                             <!-- Image Counter -->
                             <Border Background="{ThemeResource LauncherAcrylicBrush}" 
