@@ -112,6 +112,7 @@
                         
                         <!-- Content root with margin for stable hover -->
                         <Grid x:Name="ModImageContentRoot" Margin="20" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <!-- Main image -->
                             <Border x:Name="ModImageBorder" CornerRadius="12">
                                 <Border CornerRadius="8">
                                     <Image x:Name="ModImage" Stretch="Uniform"/>

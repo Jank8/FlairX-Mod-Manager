@@ -150,6 +150,38 @@
                         </Grid>
                     </Border>
                     
+                    <!-- Preview Effect Setting -->
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE91B;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="PreviewEffectLabel" Text="Preview Effect" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="PreviewEffectDescription" Text="Visual effect for preview images" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <ComboBox Grid.Column="3" x:Name="PreviewEffectComboBox" Width="200" SelectionChanged="PreviewEffectComboBox_SelectionChanged" VerticalAlignment="Center">
+                                <ComboBoxItem x:Name="PreviewEffectNone" Content="Default" Tag="None"/>
+                                <ComboBoxItem x:Name="PreviewEffectBorder" Content="Border" Tag="Border"/>
+                                <ComboBoxItem x:Name="PreviewEffectGlow" Content="Glow" Tag="Glow"/>
+                                <ComboBoxItem x:Name="PreviewEffectParallax" Content="Parallax" Tag="Parallax"/>
+                                <ComboBoxItem x:Name="PreviewEffectGlassmorphism" Content="Glassmorphism" Tag="Glassmorphism"/>
+                            </ComboBox>
+                        </Grid>
+                    </Border>
+                    
                     <!-- Language Setting -->
                     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 

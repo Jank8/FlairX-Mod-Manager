@@ -16,10 +16,10 @@ namespace FlairX_Mod_Manager.Dialogs
         private static readonly Dictionary<string, int> StarterPackToolIds = new()
         {
             { "ZZMI", 20322 },
+            { "WWMI", 20485 }, // Wuthering Waves
             // Add more games here as they get Starter Packs:
             // { "SRMI", 12345 },
             // { "GIMI", 12346 },
-            // { "WWMI", 12347 },
             // { "HIMI", 12348 },
         };
 

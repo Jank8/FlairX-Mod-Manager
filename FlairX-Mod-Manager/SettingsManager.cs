@@ -13,7 +13,8 @@ namespace FlairX_Mod_Manager
         // Per-game path settings
         public Dictionary<string, string> GameXXMIRootPaths { get; set; } = new Dictionary<string, string>();
         public string? Theme { get; set; } = "Auto";
-        public string? BackdropEffect { get; set; } = "AcrylicThin";
+        public string? BackdropEffect { get; set; } = "Mica";
+        public string PreviewEffect { get; set; } = "None"; // None, GlassReflection
         public bool DynamicModSearchEnabled { get; set; } = true;
         public bool GridLoggingEnabled { get; set; } = false;
         public bool MinimizeToTrayEnabled { get; set; } = false;

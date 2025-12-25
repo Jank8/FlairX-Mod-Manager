@@ -271,6 +271,7 @@ namespace FlairX_Mod_Manager.Pages
             
             if (ThemeLabel != null) ThemeLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme");
             if (BackdropLabel != null) BackdropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop");
+            if (PreviewEffectLabel != null) PreviewEffectLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewEffect");
             if (LanguageLabel != null) LanguageLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language");
             if (DefaultResolutionOnStartLabel != null) DefaultResolutionOnStartLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultResolutionOnStart_Label");
             if (DefaultStartResolutionLabel != null) DefaultStartResolutionLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Label");
@@ -288,6 +289,12 @@ namespace FlairX_Mod_Manager.Pages
             // Description texts - use null checks and fallback to empty string if missing
             if (ThemeDescription != null) ThemeDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme_Description") ?? string.Empty;
             if (BackdropDescription != null) BackdropDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop_Description") ?? string.Empty;
+            if (PreviewEffectDescription != null) PreviewEffectDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewEffect_Description") ?? string.Empty;
+            
+            // Preview effect ComboBox items
+            if (PreviewEffectNone != null) PreviewEffectNone.Content = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewEffect_None") ?? "Default";
+            if (PreviewEffectGlow != null) PreviewEffectGlow.Content = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewEffect_Glow") ?? "Glow";
+            if (PreviewEffectParallax != null) PreviewEffectParallax.Content = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewEffect_Parallax") ?? "Parallax";
             if (LanguageDescription != null) LanguageDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language_Description") ?? string.Empty;
             if (DefaultResolutionOnStartDescription != null) DefaultResolutionOnStartDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultResolutionOnStart_Description") ?? string.Empty;
             if (DefaultStartResolutionDescription != null) DefaultStartResolutionDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Description") ?? string.Empty;
@@ -434,6 +441,19 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             BackdropSelectorBar.SelectionChanged += BackdropSelectorBar_SelectionChanged; // Re-subscribe
+            
+            // Set preview effect ComboBox to selected from settings
+            string previewEffect = SettingsManager.Current.PreviewEffect ?? "None";
+            PreviewEffectComboBox.SelectionChanged -= PreviewEffectComboBox_SelectionChanged; // Temporarily unsubscribe
+            foreach (ComboBoxItem item in PreviewEffectComboBox.Items)
+            {
+                if ((string)item.Tag == previewEffect)
+                {
+                    PreviewEffectComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+            PreviewEffectComboBox.SelectionChanged += PreviewEffectComboBox_SelectionChanged; // Re-subscribe
             
             // Small delay to let SelectorBars fully render
             await Task.Delay(50);
@@ -615,6 +635,15 @@ namespace FlairX_Mod_Manager.Pages
                     // Notify other windows about settings change
                     WindowStyleHelper.NotifySettingsChanged();
                 }
+            }
+        }
+
+        private void PreviewEffectComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (PreviewEffectComboBox.SelectedItem is ComboBoxItem selectedItem && selectedItem.Tag is string effect)
+            {
+                SettingsManager.Current.PreviewEffect = effect;
+                SettingsManager.Save();
             }
         }
 

@@ -357,12 +357,22 @@ namespace FlairX_Mod_Manager.Pages
                 // Update UI based on available images
                 UpdateImageNavigation();
                 LoadCurrentImage();
+                
+                // Ensure preview effects are applied after image is loaded
+                // Use a small delay to ensure the image is fully loaded
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(100);
+                    DispatcherQueue.TryEnqueue(() => UpdatePreviewEffects(ModImage.Source));
+                });
             }
             catch (Exception ex)
             {
                 Logger.LogError($"Error loading preview images from {fullModDir}", ex);
                 ModImage.Source = null;
                 UpdateImageNavigation();
+                // Apply effects even when there's an error
+                UpdatePreviewEffects(null);
             }
         }
 
@@ -382,6 +392,9 @@ namespace FlairX_Mod_Manager.Pages
                     
                     // Change the image source first
                     ModImage.Source = bitmap;
+                    
+                    // Update preview effects
+                    UpdatePreviewEffects(bitmap);
                     
                     // Create elastic scale animation
                     var elasticScaleX = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
@@ -432,18 +445,160 @@ namespace FlairX_Mod_Manager.Pages
                     storyboard.Children.Add(elasticScaleY);
                     
                     storyboard.Begin();
+                    
+                    // Apply effects again after animation starts to ensure they're visible
+                    UpdatePreviewEffects(bitmap);
                 }
                 else
                 {
                     ModImage.Source = null;
+                    UpdatePreviewEffects(null);
                 }
             }
             catch (Exception ex)
             {
                 Logger.LogError($"Error loading current image", ex);
                 ModImage.Source = null;
+                UpdatePreviewEffects(null);
             }
         }
+        
+        private void UpdatePreviewEffects(Microsoft.UI.Xaml.Media.ImageSource? imageSource)
+        {
+            // Handle border effect
+            if (PreviewEffectHelper.IsBorderEnabled && imageSource != null)
+            {
+                // Apply border effect and replace the image
+                var borderContainer = PreviewEffectHelper.ApplyBorderEffect(ModImageBorder, imageSource);
+                if (borderContainer != null)
+                {
+                    // Find the inner border that contains the image
+                    var innerBorder = ModImageBorder.Child as Border;
+                    if (innerBorder != null)
+                    {
+                        // Replace the image with border container
+                        innerBorder.Child = borderContainer;
+                    }
+                }
+            }
+            // Handle parallax effect
+            else if (PreviewEffectHelper.IsParallaxEnabled && imageSource != null)
+            {
+                // Create parallax container and replace the image
+                var parallaxContainer = PreviewEffectHelper.CreateParallaxContainer(imageSource);
+                if (parallaxContainer != null)
+                {
+                    // Find the inner border that contains the image
+                    var innerBorder = ModImageBorder.Child as Border;
+                    if (innerBorder != null)
+                    {
+                        // Replace the image with parallax container
+                        innerBorder.Child = parallaxContainer;
+                        
+                        // Add mouse move handler to coordinate field for parallax
+                        ModImageCoordinateField.PointerMoved -= ModImageCoordinateField_PointerMoved_Parallax;
+                        ModImageCoordinateField.PointerMoved += ModImageCoordinateField_PointerMoved_Parallax;
+                        ModImageCoordinateField.PointerExited -= ModImageCoordinateField_PointerExited_Parallax;
+                        ModImageCoordinateField.PointerExited += ModImageCoordinateField_PointerExited_Parallax;
+                    }
+                }
+            }
+            // Handle glassmorphism effect
+            else if (PreviewEffectHelper.IsGlassmorphismEnabled && imageSource != null)
+            {
+                // Apply glassmorphism frame and replace the image
+                var glassmorphismContainer = PreviewEffectHelper.ApplyGlassmorphismEffect(ModImageBorder, imageSource);
+                if (glassmorphismContainer != null)
+                {
+                    // Find the inner border that contains the image
+                    var innerBorder = ModImageBorder.Child as Border;
+                    if (innerBorder != null)
+                    {
+                        // Replace the image with glassmorphism container
+                        innerBorder.Child = glassmorphismContainer;
+                        
+                        // Add mouse move handler to coordinate field for glassmorphism
+                        ModImageCoordinateField.PointerMoved -= ModImageCoordinateField_PointerMoved_Glassmorphism;
+                        ModImageCoordinateField.PointerMoved += ModImageCoordinateField_PointerMoved_Glassmorphism;
+                        ModImageCoordinateField.PointerExited -= ModImageCoordinateField_PointerExited_Glassmorphism;
+                        ModImageCoordinateField.PointerExited += ModImageCoordinateField_PointerExited_Glassmorphism;
+                    }
+                }
+            }
+            else
+            {
+                // Remove parallax and glassmorphism handlers and restore normal image
+                ModImageCoordinateField.PointerMoved -= ModImageCoordinateField_PointerMoved_Parallax;
+                ModImageCoordinateField.PointerExited -= ModImageCoordinateField_PointerExited_Parallax;
+                ModImageCoordinateField.PointerMoved -= ModImageCoordinateField_PointerMoved_Glassmorphism;
+                ModImageCoordinateField.PointerExited -= ModImageCoordinateField_PointerExited_Glassmorphism;
+                
+                var innerBorder = ModImageBorder.Child as Border;
+                if (innerBorder != null && (innerBorder.Child is Grid || innerBorder.Child is Border))
+                {
+                    // Restore normal image
+                    innerBorder.Child = ModImage;
+                }
+            }
+        }
+        
+        private void ModImageCoordinateField_PointerMoved_Parallax(object sender, PointerRoutedEventArgs e)
+        {
+            if (PreviewEffectHelper.IsParallaxEnabled)
+            {
+                var position = e.GetCurrentPoint(ModImageCoordinateField);
+                var innerBorder = ModImageBorder.Child as Border;
+                var parallaxContainer = innerBorder?.Child as Grid;
+                
+                PreviewEffectHelper.UpdateParallaxEffect(
+                    parallaxContainer, 
+                    position.Position.X, 
+                    position.Position.Y,
+                    ModImageCoordinateField.ActualWidth,
+                    ModImageCoordinateField.ActualHeight);
+            }
+        }
+        
+        private void ModImageCoordinateField_PointerExited_Parallax(object sender, PointerRoutedEventArgs e)
+        {
+            if (PreviewEffectHelper.IsParallaxEnabled)
+            {
+                var innerBorder = ModImageBorder.Child as Border;
+                var parallaxContainer = innerBorder?.Child as Grid;
+                
+                PreviewEffectHelper.ResetParallaxEffect(parallaxContainer);
+            }
+        }
+
+        private void ModImageCoordinateField_PointerMoved_Glassmorphism(object sender, PointerRoutedEventArgs e)
+        {
+            if (PreviewEffectHelper.IsGlassmorphismEnabled)
+            {
+                var position = e.GetCurrentPoint(ModImageCoordinateField);
+                var innerBorder = ModImageBorder.Child as Border;
+                var glassmorphismContainer = innerBorder?.Child as Grid;
+                
+                PreviewEffectHelper.UpdateGlassmorphismEffect(
+                    glassmorphismContainer, 
+                    position.Position.X, 
+                    position.Position.Y,
+                    ModImageCoordinateField.ActualWidth,
+                    ModImageCoordinateField.ActualHeight);
+            }
+        }
+        
+        private void ModImageCoordinateField_PointerExited_Glassmorphism(object sender, PointerRoutedEventArgs e)
+        {
+            if (PreviewEffectHelper.IsGlassmorphismEnabled)
+            {
+                var innerBorder = ModImageBorder.Child as Border;
+                var glassmorphismContainer = innerBorder?.Child as Grid;
+                
+                PreviewEffectHelper.ResetGlassmorphismEffect(glassmorphismContainer);
+            }
+        }
+
+
 
         private void UpdateImageNavigation()
         {
