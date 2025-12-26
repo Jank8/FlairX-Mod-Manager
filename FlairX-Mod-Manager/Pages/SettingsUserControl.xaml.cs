@@ -293,8 +293,9 @@ namespace FlairX_Mod_Manager.Pages
             
             // Preview effect ComboBox items
             if (PreviewEffectNone != null) PreviewEffectNone.Content = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewEffect_None") ?? "Default";
-            if (PreviewEffectGlow != null) PreviewEffectGlow.Content = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewEffect_Glow") ?? "Glow";
+            if (PreviewEffectBorder != null) PreviewEffectBorder.Content = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewEffect_Border") ?? "Border";
             if (PreviewEffectParallax != null) PreviewEffectParallax.Content = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewEffect_Parallax") ?? "Parallax";
+            if (PreviewEffectGlassmorphism != null) PreviewEffectGlassmorphism.Content = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewEffect_Glassmorphism") ?? "Glassmorphism";
             if (LanguageDescription != null) LanguageDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Language_Description") ?? string.Empty;
             if (DefaultResolutionOnStartDescription != null) DefaultResolutionOnStartDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultResolutionOnStart_Description") ?? string.Empty;
             if (DefaultStartResolutionDescription != null) DefaultStartResolutionDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Description") ?? string.Empty;

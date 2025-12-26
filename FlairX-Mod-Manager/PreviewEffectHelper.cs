@@ -17,7 +17,6 @@ namespace FlairX_Mod_Manager
     {
         None,
         Border,
-        Glow,
         Parallax,
         Glassmorphism
     }
@@ -36,7 +35,6 @@ namespace FlairX_Mod_Manager
             return effectString switch
             {
                 "Border" => PreviewEffectType.Border,
-                "Glow" => PreviewEffectType.Glow,
                 "Parallax" => PreviewEffectType.Parallax,
                 "Glassmorphism" => PreviewEffectType.Glassmorphism,
                 _ => PreviewEffectType.None
@@ -83,71 +81,6 @@ namespace FlairX_Mod_Manager
             borderContainer.Children.Add(topImageBorder);
 
             return borderContainer;
-        }
-
-        /// <summary>
-        /// Apply glow effect to a Border element
-        /// </summary>
-        public static void ApplyGlowEffect(Border? border)
-        {
-            if (border == null || GetCurrentEffect() != PreviewEffectType.Glow)
-            {
-                if (border != null)
-                {
-                    // Remove glow effect but don't clear border if Border effect is active
-                    if (GetCurrentEffect() != PreviewEffectType.Border)
-                    {
-                        border.Background = null;
-                        border.BorderBrush = null;
-                        border.BorderThickness = new Thickness(0);
-                    }
-                    
-                    // Remove any existing glow layers
-                    var parentGrid = border.Parent as Grid;
-                    if (parentGrid != null)
-                    {
-                        var glowLayers = parentGrid.Children.OfType<Border>().Where(b => b.Name?.StartsWith("GlowLayer") == true).ToList();
-                        foreach (var layer in glowLayers)
-                        {
-                            parentGrid.Children.Remove(layer);
-                        }
-                    }
-                }
-                return;
-            }
-
-            // Get system accent color - make it brighter
-            var accentColor = (Color)Application.Current.Resources["SystemAccentColor"];
-            
-            // Create multiple glow layers behind the main border
-            var containerGrid = border.Parent as Grid;
-            if (containerGrid != null)
-            {
-                // Remove existing glow layers first
-                var existingGlowLayers = containerGrid.Children.OfType<Border>().Where(b => b.Name?.StartsWith("GlowLayer") == true).ToList();
-                foreach (var layer in existingGlowLayers)
-                {
-                    containerGrid.Children.Remove(layer);
-                }
-                
-                // Find the index of the main border
-                int borderIndex = containerGrid.Children.IndexOf(border);
-                
-                // Create 3 glow layers with increasing size and decreasing opacity
-                for (int i = 2; i >= 0; i--)
-                {
-                    var glowLayer = new Border
-                    {
-                        Name = $"GlowLayer{i}",
-                        CornerRadius = new CornerRadius(border.CornerRadius.TopLeft + (i + 1) * 2),
-                        Background = new SolidColorBrush(Color.FromArgb((byte)(80 - i * 20), accentColor.R, accentColor.G, accentColor.B)),
-                        Margin = new Thickness(-(i + 1) * 3),
-                        IsHitTestVisible = false
-                    };
-                    
-                    containerGrid.Children.Insert(borderIndex, glowLayer);
-                }
-            }
         }
 
         /// <summary>
@@ -301,11 +234,6 @@ namespace FlairX_Mod_Manager
             storyboard.Begin();
         }
 
-        /// <summary>
-        /// Check if glow effect is enabled
-        /// </summary>
-        public static bool IsGlowEnabled => GetCurrentEffect() == PreviewEffectType.Glow;
-        
         /// <summary>
         /// Check if border effect is enabled
         /// </summary>
