@@ -41,6 +41,7 @@
     "ModsWithIssues": "Mody z problemami:",
     "FetchAllPreviewsButton": "Pobierz wszystkie podglądy",
     "FetchAllPreviewsButton_Tooltip": "Pobiera obrazy podglądu dla wszystkich modów",
+    "ConfirmFetchAllPreviews": "Spowoduje to pobranie obrazów podglądu z GameBanana dla wszystkich modów, zastępując istniejące. Czy chcesz kontynuować?",
     "PreviewModeDialogTitle": "Tryb pobierania podglądów",
     "PreviewModeDialogContent": "Wybierz jak postąpić z istniejącymi podglądami:",
     "PreviewModeReplace": "Zastąp",

@@ -51,8 +51,8 @@
     "FailedToDownload": "下載{0}失敗",
     "InstallationFailed": "安裝失敗: {0}",
     "UpdateFailed": "更新失敗: {0}",
-    "ExtractionTimeout": "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
-    "ExtractionTimeoutFile": "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
+    "ExtractionTimeout": "封存檔解壓縮在5分鐘後逾時。封存檔可能已損壞或過大。",
+    "ExtractionTimeoutFile": "{0}的封存檔解壓縮逾時。封存檔可能已損壞或過大。",
     "ModFolderNotFound": "未找到模組資料夾。",
     "Size": "大小:",
     "Downloads": "下載次數:",
@@ -69,7 +69,10 @@
     "FailedToLoadFiles": "載入檔案失敗。請重試。",
     "XXMIModsDirectoryNotFound": "未找到XXMI模組目錄",
     "Preview": "預覽",
-    "DownloadPreviewsOnly": "Previews Only",
-    "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsOnly": "僅預覽",
+    "NoExistingModFound": "未找到現有模組來下載預覽。",
+    "DownloadPreviewsFailed": "下載預覽失敗：{0}",
+    "StarterPack_Button": "新手包",
+    "StarterPack_Button_Tooltip": "下載此遊戲的新手包",
+    "StarterPack_NotAvailable": "此遊戲的新手包尚未可用。"
 }

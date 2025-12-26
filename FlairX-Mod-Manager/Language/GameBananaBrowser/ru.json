@@ -51,8 +51,8 @@
     "FailedToDownload": "Не удалось загрузить {0}",
     "InstallationFailed": "Установка не удалась: {0}",
     "UpdateFailed": "Обновление не удалось: {0}",
-    "ExtractionTimeout": "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
-    "ExtractionTimeoutFile": "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
+    "ExtractionTimeout": "Извлечение архива превысило время ожидания через 5 минут. Архив может быть поврежден или слишком большой.",
+    "ExtractionTimeoutFile": "Извлечение архива для {0} превысило время ожидания. Архив может быть поврежден или слишком большой.",
     "ModFolderNotFound": "Папка мода не найдена.",
     "Size": "Размер:",
     "Downloads": "Загрузки:",
@@ -69,7 +69,10 @@
     "FailedToLoadFiles": "Не удалось загрузить файлы. Пожалуйста, попробуйте снова.",
     "XXMIModsDirectoryNotFound": "Каталог модов XXMI не найден",
     "Preview": "Предпросмотр",
-    "DownloadPreviewsOnly": "Previews Only",
-    "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsOnly": "Только превью",
+    "NoExistingModFound": "Не найден существующий мод для загрузки превью.",
+    "DownloadPreviewsFailed": "Не удалось загрузить превью: {0}",
+    "StarterPack_Button": "Стартовый пакет",
+    "StarterPack_Button_Tooltip": "Скачать стартовый пакет для этой игры",
+    "StarterPack_NotAvailable": "Стартовый пакет для этой игры пока недоступен."
 }

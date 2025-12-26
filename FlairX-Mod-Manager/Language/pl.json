@@ -229,9 +229,8 @@
     "Stop": "Przerwij",
     "Cancelled_Title": "Anulowano",
     "Confirm": "Potwierdź",
-    
-    "StarterPack_Title": "Dostępny Starter Pack",
-    "StarterPack_Description": "Czy chcesz pobrać Starter Pack? Zawiera wyselekcjonowaną kolekcję podstawowych modów na dobry początek.",
+    "StarterPack_Title": "Dostępny pakiet startowy",
+    "StarterPack_Description": "Czy chcesz pobrać pakiet startowy? Zawiera wyselekcjonowaną kolekcję podstawowych modów na dobry początek.",
     "StarterPack_Download": "Pobierz i zainstaluj",
     "StarterPack_NoThanks": "Nie, dziękuję",
     "StarterPack_DontShowAgain": "Nie pokazuj więcej dla tej gry",
@@ -241,10 +240,9 @@
     "StarterPack_Downloading": "Pobieranie... ({0:F1} MB)",
     "StarterPack_DownloadFailed": "Pobieranie nie powiodło się.",
     "StarterPack_Extracting": "Rozpakowywanie...",
-    "StarterPack_Complete": "Starter Pack zainstalowany pomyślnie!",
+    "StarterPack_Complete": "Pakiet startowy zainstalowany pomyślnie!",
     "StarterPack_Error": "Błąd",
     "StarterPack_Cancelled": "Pobieranie anulowane.",
-    
     "CropPanel_Title": "Dostosuj obszar przycinania",
     "CropPanel_AspectLocked": "Proporcje zablokowane na",
     "CropPanel_FreeAspect": "Swobodne proporcje - przeciągnij uchwyty aby zmienić rozmiar",
@@ -259,7 +257,6 @@
     "MinitileSelection_Subtitle": "Wybierz obraz do użycia jako miniatura",
     "MinitileSelection_NoSelection": "Nie wybrano obrazu",
     "MinitileSelection_Selected": "Wybrano: {0}",
-
     "ImagePreview_Close_Tooltip": "Zamknij podgląd",
     "ModDetailPage_DateChecked_Desc": "Kiedy ostatnio sprawdzałeś ten mod",
     "ModDetailPage_DateUpdated_Desc": "Kiedy ten mod był ostatnio aktualizowany",
@@ -275,5 +272,8 @@
     "SettingsPage_InspectThumbnailsOnly_Label": "Inspekcja tylko miniatur",
     "SettingsPage_InspectThumbnailsOnly_Description": "Pokaż inspekcję przycinania tylko dla miniatur minitile i catmini, pozostałe obrazy przetwarzaj automatycznie",
     "HotkeyConflict_Title": "Konflikt skrótu",
-    "HotkeyConflict_Message": "Ten skrót jest już używany. Wybierz inny lub przywróć domyślny."
+    "HotkeyConflict_Message": "Ten skrót jest już używany. Wybierz inny lub przywróć domyślny.",
+    "OpenModsFolder": "Otwórz folder modów",
+    "SettingsPage_AutoCreateModThumbnails_Label": "Automatyczne tworzenie miniatur modów",
+    "SettingsPage_AutoCreateModThumbnails_Description": "Pomiń ręczny wybór i przycinanie miniatur modów, użyj pierwszego podglądu z wybranym trybem przycinania"
 }

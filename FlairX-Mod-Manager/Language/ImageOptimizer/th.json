@@ -59,5 +59,12 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "แสดงการตรวจสอบการครอบตัดเฉพาะสำหรับภาพขนาดย่อ minitile และ catmini ประมวลผลภาพอื่นโดยอัตโนมัติ",
     "CropPanel_Next": "ถัดไป",
     "CropPanel_FinalizeAll": "เสร็จสิ้นทั้งหมด",
-    "CropPanel_FilesToProcess": "ไฟล์ที่จะประมวลผล"
+    "CropPanel_FilesToProcess": "ไฟล์ที่จะประมวลผล",
+    "ImageOptimizer_OptimizationModesDescription": "จำกัด 100 ภาพตัวอย่างต่อม็อด ส่วนเกินจะถูกข้าม",
+    "ImageOptimizer_ManualMode_Description": "เพิ่มประสิทธิภาพภาพทั้งหมดของม็อดและหมวดหมู่ แปลงเป็น JPEG สร้าง minitile.jpg สำหรับม็อดและ catprev.jpg/catmini.jpg สำหรับหมวดหมู่ ภาพขนาดเล็กที่ขาดหายไปจะถูกสร้างจากไฟล์ตัวอย่างที่มีอยู่",
+    "ImageOptimizer_DragDropMod_Description": "การลากและวางรูปภาพเดี่ยวหรือหลายรูปลงบนไทล์มอดจะเรียกใช้การปรับให้เหมาะสมและสร้างภาพขนาดย่อของมอด",
+    "ImageOptimizer_DragDropCategory_Description": "การลากและวางรูปภาพลงบนไทล์หมวดหมู่จะเปิดใช้งานโหมดตรวจสอบและแก้ไขเสมอ เนื่องจากต้องครอบตัดให้เหมาะสมสำหรับ catprev (722×722 สี่เหลี่ยมจัตุรัส) และ catmini (600×722 สี่เหลี่ยมผืนผ้า)",
+    "ImageOptimizer_AutoDownload_Description": "รูปภาพที่ดาวน์โหลดจาก GameBanana จะได้รับการปรับให้เหมาะสมโดยอัตโนมัติ แปลงเป็น JPEG และสร้างภาพขนาดย่อ (minitile.jpg สำหรับมอด)",
+    "SettingsPage_AutoCreateModThumbnails_Label": "สร้างภาพขนาดย่อของมอดอัตโนมัติ",
+    "SettingsPage_AutoCreateModThumbnails_Description": "ข้ามการเลือกและการครอบตัดด้วยตนเองสำหรับภาพขนาดย่อของมอด ใช้ตัวอย่างแรกกับโหมดครอบตัดที่เลือก"
 }

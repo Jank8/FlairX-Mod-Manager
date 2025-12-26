@@ -69,7 +69,10 @@
     "FailedToLoadFiles": "Error al cargar archivos. Por favor, inténtalo de nuevo.",
     "XXMIModsDirectoryNotFound": "No se encontró el directorio de mods XXMI",
     "Preview": "Vista previa",
-    "DownloadPreviewsOnly": "Previews Only",
-    "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsOnly": "Solo vistas previas",
+    "NoExistingModFound": "No se encontró mod existente para descargar vistas previas.",
+    "DownloadPreviewsFailed": "Error al descargar vistas previas: {0}",
+    "StarterPack_Button": "Paquete inicial",
+    "StarterPack_Button_Tooltip": "Descargar paquete inicial para este juego",
+    "StarterPack_NotAvailable": "El paquete inicial aún no está disponible para este juego."
 }

@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "प्रीव्यू डाउनलोड सारांश",
     "AlreadyHasPreviews": "पहले से प्रीव्यू है",
     "NoPreviewsAvailable": "कोई प्रीव्यू उपलब्ध नहीं",
-    "PreviewFetchError": "प्रीव्यू डाउनलोड करने में त्रुटि"
+    "PreviewFetchError": "प्रीव्यू डाउनलोड करने में त्रुटि",
+    "PreviewModeDialogTitle": "पूर्वावलोकन डाउनलोड मोड",
+    "PreviewModeDialogContent": "मौजूदा पूर्वावलोकन के साथ कैसे आगे बढ़ना है चुनें:",
+    "PreviewModeReplace": "बदलें",
+    "PreviewModeMerge": "मिलाएं"
 }

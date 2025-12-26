@@ -51,8 +51,8 @@
     "FailedToDownload": "ดาวน์โหลด {0} ไม่สำเร็จ",
     "InstallationFailed": "การติดตั้งล้มเหลว: {0}",
     "UpdateFailed": "การอัปเดตล้มเหลว: {0}",
-    "ExtractionTimeout": "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
-    "ExtractionTimeoutFile": "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
+    "ExtractionTimeout": "การแตกไฟล์เก็บถาวรหมดเวลาหลังจาก 5 นาที ไฟล์เก็บถาวรอาจเสียหายหรือใหญ่เกินไป",
+    "ExtractionTimeoutFile": "การแตกไฟล์เก็บถาวรสำหรับ {0} หมดเวลา ไฟล์เก็บถาวรอาจเสียหายหรือใหญ่เกินไป",
     "ModFolderNotFound": "ไม่พบโฟลเดอร์ม็อด",
     "Size": "ขนาด:",
     "Downloads": "ดาวน์โหลด:",
@@ -69,7 +69,10 @@
     "FailedToLoadFiles": "โหลดไฟล์ไม่สำเร็จ กรุณาลองอีกครั้ง",
     "XXMIModsDirectoryNotFound": "ไม่พบไดเรกทอรีม็อด XXMI",
     "Preview": "ตัวอย่าง",
-    "DownloadPreviewsOnly": "Previews Only",
-    "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsOnly": "เฉพาะตัวอย่าง",
+    "NoExistingModFound": "ไม่พบม็อดที่มีอยู่เพื่อดาวน์โหลดตัวอย่าง",
+    "DownloadPreviewsFailed": "ดาวน์โหลดตัวอย่างล้มเหลว: {0}",
+    "StarterPack_Button": "แพ็คเริ่มต้น",
+    "StarterPack_Button_Tooltip": "ดาวน์โหลดแพ็คเริ่มต้นสำหรับเกมนี้",
+    "StarterPack_NotAvailable": "แพ็คเริ่มต้นสำหรับเกมนี้ยังไม่พร้อมใช้งาน"
 }

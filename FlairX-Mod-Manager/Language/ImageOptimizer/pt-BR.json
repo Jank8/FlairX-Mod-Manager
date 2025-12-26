@@ -59,5 +59,12 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "Mostrar inspeção de corte apenas para miniaturas minitile e catmini, processar outras imagens automaticamente",
     "CropPanel_Next": "Próximo",
     "CropPanel_FinalizeAll": "Finalizar tudo",
-    "CropPanel_FilesToProcess": "Arquivos a processar"
+    "CropPanel_FilesToProcess": "Arquivos a processar",
+    "ImageOptimizer_OptimizationModesDescription": "Limite de 100 imagens de visualização por mod. O excesso é ignorado.",
+    "ImageOptimizer_ManualMode_Description": "Otimiza todas as imagens de mods e categorias. Converte para JPEG, gera minitile.jpg para mods e catprev.jpg/catmini.jpg para categorias. Miniaturas ausentes são criadas a partir de arquivos de visualização existentes.",
+    "ImageOptimizer_DragDropMod_Description": "Arrastar e soltar uma ou várias imagens em um bloco de mod executará a otimização e criará a miniatura do mod.",
+    "ImageOptimizer_DragDropCategory_Description": "Arrastar e soltar uma imagem em um bloco de categoria sempre ativa o modo Inspecionar e Editar porque deve ser recortada adequadamente para catprev (722×722 quadrado) e catmini (600×722 retângulo).",
+    "ImageOptimizer_AutoDownload_Description": "Imagens baixadas do GameBanana são automaticamente otimizadas. Converte para JPEG e gera miniaturas (minitile.jpg para mods).",
+    "SettingsPage_AutoCreateModThumbnails_Label": "Criar miniaturas de mods automaticamente",
+    "SettingsPage_AutoCreateModThumbnails_Description": "Pular seleção manual e recorte para miniaturas de mods, usar primeira visualização com modo de recorte selecionado"
 }

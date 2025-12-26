@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "Tóm tắt tải xuống bản xem trước",
     "AlreadyHasPreviews": "Đã có bản xem trước",
     "NoPreviewsAvailable": "Không có bản xem trước",
-    "PreviewFetchError": "Lỗi khi tải xuống bản xem trước"
+    "PreviewFetchError": "Lỗi khi tải xuống bản xem trước",
+    "PreviewModeDialogTitle": "Chế độ tải xuống xem trước",
+    "PreviewModeDialogContent": "Chọn cách xử lý với các bản xem trước hiện có:",
+    "PreviewModeReplace": "Thay thế",
+    "PreviewModeMerge": "Hợp nhất"
 }

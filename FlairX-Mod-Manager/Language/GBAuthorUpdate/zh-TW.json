@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "預覽下載摘要",
     "AlreadyHasPreviews": "已有預覽圖片",
     "NoPreviewsAvailable": "GameBanana上沒有預覽",
-    "PreviewFetchError": "取得預覽時出錯"
+    "PreviewFetchError": "取得預覽時出錯",
+    "PreviewModeDialogTitle": "預覽下載模式",
+    "PreviewModeDialogContent": "選擇如何處理現有預覽：",
+    "PreviewModeReplace": "替換",
+    "PreviewModeMerge": "合併"
 }

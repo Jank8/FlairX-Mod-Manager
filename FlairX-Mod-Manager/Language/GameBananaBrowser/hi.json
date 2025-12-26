@@ -51,8 +51,8 @@
     "FailedToDownload": "{0} डाउनलोड करने में विफल",
     "InstallationFailed": "इंस्टॉलेशन विफल: {0}",
     "UpdateFailed": "अपडेट विफल: {0}",
-    "ExtractionTimeout": "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
-    "ExtractionTimeoutFile": "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
+    "ExtractionTimeout": "आर्काइव निष्कर्षण 5 मिनट बाद समय समाप्त हो गया। आर्काइव दूषित या बहुत बड़ा हो सकता है।",
+    "ExtractionTimeoutFile": "{0} के लिए आर्काइव निष्कर्षण समय समाप्त हो गया। आर्काइव दूषित या बहुत बड़ा हो सकता है।",
     "ModFolderNotFound": "मॉड फ़ोल्डर नहीं मिला।",
     "Size": "आकार:",
     "Downloads": "डाउनलोड:",
@@ -69,7 +69,10 @@
     "FailedToLoadFiles": "फ़ाइलें लोड करने में विफल। कृपया पुनः प्रयास करें।",
     "XXMIModsDirectoryNotFound": "XXMI मॉड निर्देशिका नहीं मिली",
     "Preview": "पूर्वावलोकन",
-    "DownloadPreviewsOnly": "Previews Only",
-    "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsOnly": "केवल पूर्वावलोकन",
+    "NoExistingModFound": "पूर्वावलोकन डाउनलोड करने के लिए कोई मौजूदा मॉड नहीं मिला।",
+    "DownloadPreviewsFailed": "पूर्वावलोकन डाउनलोड विफल: {0}",
+    "StarterPack_Button": "स्टार्टर पैक",
+    "StarterPack_Button_Tooltip": "इस गेम के लिए स्टार्टर पैक डाउनलोड करें",
+    "StarterPack_NotAvailable": "इस गेम के लिए स्टार्टर पैक अभी तक उपलब्ध नहीं है।"
 }

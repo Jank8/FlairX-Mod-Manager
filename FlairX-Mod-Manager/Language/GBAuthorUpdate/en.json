@@ -41,6 +41,7 @@
     "ModsWithIssues": "Mods with issues:",
     "FetchAllPreviewsButton": "Fetch all previews",
     "FetchAllPreviewsButton_Tooltip": "Downloads preview images for all mods",
+    "ConfirmFetchAllPreviews": "This will download preview images from GameBanana for all mods, overwriting existing ones. Do you want to continue?",
     "PreviewModeDialogTitle": "Preview download mode",
     "PreviewModeDialogContent": "Choose how to handle existing previews:",
     "PreviewModeReplace": "Replace",

@@ -209,8 +209,8 @@ namespace FlairX_Mod_Manager.Pages
                 return minitileJpegPath;
             }
             
-            string jpegPath = Path.Combine(modDirectory, "preview.jpg");
-            return jpegPath;
+            // No fallback to preview.jpg - return empty if no minitile exists
+            return string.Empty;
         }
 
         private void ModGridPage_Loaded(object sender, RoutedEventArgs e)

@@ -59,5 +59,12 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "Afficher l'inspection de recadrage uniquement pour les miniatures minitile et catmini, traiter les autres images automatiquement",
     "CropPanel_Next": "Suivant",
     "CropPanel_FinalizeAll": "Finaliser tout",
-    "CropPanel_FilesToProcess": "Fichiers à traiter"
+    "CropPanel_FilesToProcess": "Fichiers à traiter",
+    "ImageOptimizer_OptimizationModesDescription": "Limite de 100 images d'aperçu par mod. L'excédent est ignoré.",
+    "ImageOptimizer_ManualMode_Description": "Optimise toutes les images de mods et catégories. Convertit en JPEG, génère minitile.jpg pour les mods et catprev.jpg/catmini.jpg pour les catégories. Les miniatures manquantes sont créées à partir des fichiers d'aperçu existants.",
+    "ImageOptimizer_DragDropMod_Description": "Glisser-déposer une ou plusieurs images sur une tuile de mod lancera l'optimisation et créera la miniature du mod.",
+    "ImageOptimizer_DragDropCategory_Description": "Glisser-déposer une image sur une tuile de catégorie active toujours le mode Inspecter et Éditer car elle doit être recadrée appropriément pour catprev (722×722 carré) et catmini (600×722 rectangle).",
+    "ImageOptimizer_AutoDownload_Description": "Les images téléchargées depuis GameBanana sont automatiquement optimisées. Convertit en JPEG et génère des miniatures (minitile.jpg pour les mods).",
+    "SettingsPage_AutoCreateModThumbnails_Label": "Créer automatiquement les miniatures de mods",
+    "SettingsPage_AutoCreateModThumbnails_Description": "Ignorer la sélection manuelle et le recadrage pour les miniatures de mods, utiliser le premier aperçu avec le mode de recadrage sélectionné"
 }

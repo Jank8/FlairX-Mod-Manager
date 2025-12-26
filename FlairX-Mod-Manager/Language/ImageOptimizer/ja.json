@@ -59,5 +59,12 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "minitileとcatminiのサムネイルのみクロップ検査を表示し、他の画像は自動処理",
     "CropPanel_Next": "次へ",
     "CropPanel_FinalizeAll": "すべて確定",
-    "CropPanel_FilesToProcess": "処理するファイル"
+    "CropPanel_FilesToProcess": "処理するファイル",
+    "ImageOptimizer_OptimizationModesDescription": "モッドあたり100枚のプレビュー画像制限。超過分はスキップされます。",
+    "ImageOptimizer_ManualMode_Description": "すべてのモッドとカテゴリの画像を最適化します。JPEGに変換し、モッド用にminitile.jpg、カテゴリ用にcatprev.jpg/catmini.jpgを生成します。不足しているサムネイルは既存のプレビューファイルから作成されます。",
+    "ImageOptimizer_DragDropMod_Description": "モッドタイルに単一または複数の画像をドラッグ&ドロップすると、最適化が実行されモッドサムネイルが作成されます。",
+    "ImageOptimizer_DragDropCategory_Description": "カテゴリタイルに画像をドラッグ&ドロップすると、catprev（722×722正方形）とcatmini（600×722長方形）に適切にクロップする必要があるため、常に検査・編集モードが有効になります。",
+    "ImageOptimizer_AutoDownload_Description": "GameBananaからダウンロードされた画像は自動的に最適化されます。JPEGに変換し、サムネイル（モッド用のminitile.jpg）を生成します。",
+    "SettingsPage_AutoCreateModThumbnails_Label": "モッドサムネイルの自動作成",
+    "SettingsPage_AutoCreateModThumbnails_Description": "モッドサムネイルの手動選択とクロップをスキップし、選択されたクロップモードで最初のプレビューを使用"
 }

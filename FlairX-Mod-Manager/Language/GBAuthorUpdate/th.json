@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "สรุปการดาวน์โหลดตัวอย่าง",
     "AlreadyHasPreviews": "มีตัวอย่างแล้ว",
     "NoPreviewsAvailable": "ไม่มีตัวอย่างที่พร้อมใช้งาน",
-    "PreviewFetchError": "ข้อผิดพลาดขณะดาวน์โหลดตัวอย่าง"
+    "PreviewFetchError": "ข้อผิดพลาดขณะดาวน์โหลดตัวอย่าง",
+    "PreviewModeDialogTitle": "โหมดดาวน์โหลดตัวอย่าง",
+    "PreviewModeDialogContent": "เลือกวิธีการจัดการกับตัวอย่างที่มีอยู่:",
+    "PreviewModeReplace": "แทนที่",
+    "PreviewModeMerge": "รวม"
 }

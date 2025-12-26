@@ -16,7 +16,7 @@
     "SelectAtLeastOneFile": "Mangyaring pumili ng kahit isang file para i-download.",
     "CheckForUpdates": "Suriin ang mga update",
     "DownloadSelected": "I-download ang napili",
-    "Error": "Error",
+    "Error": "Pagkakamali",
     "Cancel": "Kanselahin",
     "OK": "OK",
     "Start": "Simulan",
@@ -51,8 +51,8 @@
     "FailedToDownload": "Nabigo ang pag-download ng {0}",
     "InstallationFailed": "Nabigo ang pag-install: {0}",
     "UpdateFailed": "Nabigo ang pag-update: {0}",
-    "ExtractionTimeout": "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
-    "ExtractionTimeoutFile": "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
+    "ExtractionTimeout": "Nag-timeout ang pag-extract ng archive pagkatapos ng 5 minuto. Ang archive ay maaaring sira o masyadong malaki.",
+    "ExtractionTimeoutFile": "Nag-timeout ang pag-extract ng archive para sa {0}. Ang archive ay maaaring sira o masyadong malaki.",
     "ModFolderNotFound": "Hindi nahanap ang folder ng mod.",
     "Size": "Laki:",
     "Downloads": "Mga download:",
@@ -69,7 +69,10 @@
     "FailedToLoadFiles": "Nabigong mag-load ng mga file. Pakisubukan muli.",
     "XXMIModsDirectoryNotFound": "Hindi nahanap ang XXMI Mods directory",
     "Preview": "Preview",
-    "DownloadPreviewsOnly": "Previews Only",
-    "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsOnly": "Mga preview lamang",
+    "NoExistingModFound": "Walang nahanap na existing mod para sa pag-download ng mga preview.",
+    "DownloadPreviewsFailed": "Nabigo ang pag-download ng mga preview: {0}",
+    "StarterPack_Button": "Starter Pack",
+    "StarterPack_Button_Tooltip": "I-download ang Starter Pack para sa larong ito",
+    "StarterPack_NotAvailable": "Ang Starter Pack ay hindi pa available para sa larong ito."
 }

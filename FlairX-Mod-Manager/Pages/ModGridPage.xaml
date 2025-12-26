@@ -279,6 +279,12 @@
                             <FontIcon Glyph="&#xEB52;"/>
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
+                    <MenuFlyoutSeparator/>
+                    <MenuFlyoutItem x:Name="OpenModsFolderItem" Click="OpenModsFolder_Click">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE8B7;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
 
                 </MenuFlyout>
             </ScrollViewer.ContextFlyout>

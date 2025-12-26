@@ -51,8 +51,8 @@
     "FailedToDownload": "Falha ao transferir {0}",
     "InstallationFailed": "A instalação falhou: {0}",
     "UpdateFailed": "A atualização falhou: {0}",
-    "ExtractionTimeout": "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
-    "ExtractionTimeoutFile": "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
+    "ExtractionTimeout": "A extração do arquivo expirou após 5 minutos. O arquivo pode estar corrompido ou ser muito grande.",
+    "ExtractionTimeoutFile": "A extração do arquivo para {0} expirou. O arquivo pode estar corrompido ou ser muito grande.",
     "ModFolderNotFound": "Pasta do mod não encontrada.",
     "Size": "Tamanho:",
     "Downloads": "Transferências:",
@@ -69,7 +69,10 @@
     "FailedToLoadFiles": "Falha ao carregar ficheiros. Por favor, tente novamente.",
     "XXMIModsDirectoryNotFound": "Diretório de mods XXMI não encontrado",
     "Preview": "Pré-visualização",
-    "DownloadPreviewsOnly": "Previews Only",
-    "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsOnly": "Apenas pré-visualizações",
+    "NoExistingModFound": "Nenhum mod existente encontrado para descarregar pré-visualizações.",
+    "DownloadPreviewsFailed": "Falha ao descarregar pré-visualizações: {0}",
+    "StarterPack_Button": "Pacote inicial",
+    "StarterPack_Button_Tooltip": "Descarregar pacote inicial para este jogo",
+    "StarterPack_NotAvailable": "O pacote inicial ainda não está disponível para este jogo."
 }

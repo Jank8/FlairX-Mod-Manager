@@ -59,7 +59,7 @@
     "StatusKeeper_ConfirmRestore_Message": "Ire-restore nito ang lahat ng mod INI files mula sa backup. Magpatuloy?",
     "StatusKeeper_ConfirmDelete_Title": "Kumpirmahin ang pagtanggal",
     "StatusKeeper_ConfirmDelete_Message": "Tatanggalin nito ang lahat ng backup files. Magpatuloy?",
-    "Error_Generic": "Error",
+    "Error_Generic": "Pagkakamali",
     "OK": "OK",
     "PickFolderDialog_Title": "Pumili ng folder",
     "StatusKeeper_BackupConfirmationToggleLabel": "OFF/ON",

@@ -37,6 +37,7 @@ namespace FlairX_Mod_Manager.Pages
             SortByLastUpdatedOldestItem.Text = SharedUtilities.GetTranslation(langDict, "SortOldest");
             ShowOutdatedItem.Text = SharedUtilities.GetTranslation(langDict, "ShowOutdated");
             ShowActiveItem.Text = SharedUtilities.GetTranslation(langDict, "ShowActive");
+            OpenModsFolderItem.Text = SharedUtilities.GetTranslation(langDict, "OpenModsFolder");
         }
 
         public void UpdateContextMenuVisibility()
@@ -114,6 +115,39 @@ namespace FlairX_Mod_Manager.Pages
             LoadActiveModsOnly();
             CategoryBackButton.Visibility = Visibility.Visible;
             CategoryOpenFolderButton.Visibility = Visibility.Collapsed; // Hide folder button for Active mods
+        }
+
+        private void OpenModsFolder_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Get current game's mods folder path
+                string modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                
+                if (Directory.Exists(modsPath))
+                {
+                    // Open mods folder in Windows Explorer
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = modsPath,
+                        UseShellExecute = true
+                    });
+                }
+                else
+                {
+                    // Create folder if it doesn't exist and then open it
+                    Directory.CreateDirectory(modsPath);
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = modsPath,
+                        UseShellExecute = true
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to open mods folder", ex);
+            }
         }
 
 

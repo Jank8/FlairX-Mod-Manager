@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "Resumo do download de prévias",
     "AlreadyHasPreviews": "Já possui prévias",
     "NoPreviewsAvailable": "Sem prévias disponíveis",
-    "PreviewFetchError": "Erro ao baixar prévia"
+    "PreviewFetchError": "Erro ao baixar prévia",
+    "PreviewModeDialogTitle": "Modo de download de visualizações",
+    "PreviewModeDialogContent": "Escolha como proceder com as visualizações existentes:",
+    "PreviewModeReplace": "Substituir",
+    "PreviewModeMerge": "Mesclar"
 }

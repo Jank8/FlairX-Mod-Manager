@@ -59,5 +59,12 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "केवल minitile और catmini थंबनेल के लिए क्रॉप निरीक्षण दिखाएं, अन्य छवियों को स्वचालित रूप से संसाधित करें",
     "CropPanel_Next": "अगला",
     "CropPanel_FinalizeAll": "सभी को अंतिम रूप दें",
-    "CropPanel_FilesToProcess": "संसाधित करने के लिए फ़ाइलें"
+    "CropPanel_FilesToProcess": "संसाधित करने के लिए फ़ाइलें",
+    "ImageOptimizer_OptimizationModesDescription": "प्रति मॉड 100 पूर्वावलोकन छवियों की सीमा। अतिरिक्त को छोड़ दिया जाता है।",
+    "ImageOptimizer_ManualMode_Description": "सभी मॉड और श्रेणी छवियों को अनुकूलित करता है। JPEG में कनवर्ट करता है, मॉड्स के लिए minitile.jpg और श्रेणियों के लिए catprev.jpg/catmini.jpg बनाता है। गुम थंबनेल मौजूदा पूर्वावलोकन फ़ाइलों से बनाए जाते हैं।",
+    "ImageOptimizer_DragDropMod_Description": "मॉड टाइल पर एकल या कई छवियों को खींचना और छोड़ना अनुकूलन चलाएगा और मॉड थंबनेल बनाएगा।",
+    "ImageOptimizer_DragDropCategory_Description": "किसी श्रेणी टाइल पर छवि को खींचना और छोड़ना हमेशा निरीक्षण और संपादन मोड को सक्षम करता है क्योंकि इसे catprev (722×722 वर्ग) और catmini (600×722 आयत) के लिए उचित रूप से काटा जाना चाहिए।",
+    "ImageOptimizer_AutoDownload_Description": "GameBanana से डाउनलोड की गई छवियां स्वचालित रूप से अनुकूलित होती हैं। JPEG में परिवर्तित करता है और थंबनेल (मॉड्स के लिए minitile.jpg) उत्पन्न करता है।",
+    "SettingsPage_AutoCreateModThumbnails_Label": "मॉड थंबनेल स्वचालित रूप से बनाएं",
+    "SettingsPage_AutoCreateModThumbnails_Description": "मॉड थंबनेल के लिए मैन्युअल चयन और क्रॉपिंग छोड़ें, चयनित क्रॉप मोड के साथ पहला पूर्वावलोकन उपयोग करें"
 }

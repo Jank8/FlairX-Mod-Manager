@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "Önizleme indirme özeti",
     "AlreadyHasPreviews": "Zaten önizlemeleri var",
     "NoPreviewsAvailable": "Önizleme mevcut değil",
-    "PreviewFetchError": "Önizleme indirilirken hata"
+    "PreviewFetchError": "Önizleme indirilirken hata",
+    "PreviewModeDialogTitle": "Önizleme indirme modu",
+    "PreviewModeDialogContent": "Mevcut önizlemelerle nasıl devam edileceğini seçin:",
+    "PreviewModeReplace": "Değiştir",
+    "PreviewModeMerge": "Birleştir"
 }

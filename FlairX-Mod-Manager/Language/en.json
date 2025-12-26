@@ -274,6 +274,9 @@
     "ModDetailPage_SelectDate_Placeholder": "Select date",
     "SettingsPage_InspectThumbnailsOnly_Label": "Inspect Thumbnails Only",
     "SettingsPage_InspectThumbnailsOnly_Description": "Show crop inspection only for minitile and catmini thumbnails, process other images automatically",
+    "SettingsPage_AutoCreateModThumbnails_Label": "Auto-create mod thumbnails",
+    "SettingsPage_AutoCreateModThumbnails_Description": "Skip manual selection and cropping for mod thumbnails, use first preview with selected crop mode",
     "HotkeyConflict_Title": "Hotkey Conflict",
-    "HotkeyConflict_Message": "This hotkey is already in use. Please choose a different one or restore the default."
+    "HotkeyConflict_Message": "This hotkey is already in use. Please choose a different one or restore the default.",
+    "OpenModsFolder": "Open Mods Folder"
 }

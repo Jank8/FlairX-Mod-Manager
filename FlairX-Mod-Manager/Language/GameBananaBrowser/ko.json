@@ -51,8 +51,8 @@
     "FailedToDownload": "{0} 다운로드 실패",
     "InstallationFailed": "설치 실패: {0}",
     "UpdateFailed": "업데이트 실패: {0}",
-    "ExtractionTimeout": "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
-    "ExtractionTimeoutFile": "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
+    "ExtractionTimeout": "아카이브 추출이 5분 후 시간 초과되었습니다. 아카이브가 손상되었거나 너무 클 수 있습니다.",
+    "ExtractionTimeoutFile": "{0}의 아카이브 추출이 시간 초과되었습니다. 아카이브가 손상되었거나 너무 클 수 있습니다.",
     "ModFolderNotFound": "모드 폴더를 찾을 수 없습니다.",
     "Size": "크기:",
     "Downloads": "다운로드:",
@@ -69,7 +69,10 @@
     "FailedToLoadFiles": "파일을 불러오지 못했습니다. 다시 시도해주세요.",
     "XXMIModsDirectoryNotFound": "XXMI 모드 디렉토리를 찾을 수 없습니다",
     "Preview": "미리보기",
-    "DownloadPreviewsOnly": "Previews Only",
-    "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsOnly": "미리보기만",
+    "NoExistingModFound": "미리보기를 다운로드할 기존 모드를 찾을 수 없습니다.",
+    "DownloadPreviewsFailed": "미리보기 다운로드 실패: {0}",
+    "StarterPack_Button": "스타터 팩",
+    "StarterPack_Button_Tooltip": "이 게임용 스타터 팩 다운로드",
+    "StarterPack_NotAvailable": "이 게임용 스타터 팩은 아직 사용할 수 없습니다."
 }

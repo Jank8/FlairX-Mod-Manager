@@ -59,5 +59,12 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "Ipakita ang inspeksyon ng pag-crop para sa mga thumbnail na minitile at catmini lamang, awtomatikong iproseso ang ibang mga larawan",
     "CropPanel_Next": "Susunod",
     "CropPanel_FinalizeAll": "Tapusin lahat",
-    "CropPanel_FilesToProcess": "Mga file na ipoproseso"
+    "CropPanel_FilesToProcess": "Mga file na ipoproseso",
+    "ImageOptimizer_OptimizationModesDescription": "Limitado sa 100 preview images bawat mod. Ang sobra ay laktawan.",
+    "ImageOptimizer_ManualMode_Description": "Ino-optimize ang lahat ng mga larawan ng mods at kategorya. Kino-convert sa JPEG, gumagawa ng minitile.jpg para sa mga mod at catprev.jpg/catmini.jpg para sa mga kategorya. Ang mga nawawalang thumbnail ay ginagawa mula sa mga existing preview file.",
+    "ImageOptimizer_DragDropMod_Description": "Ang pag-drag at pag-drop ng isang o maraming larawan sa mod tile ay magpapatakbo ng optimization at lilikha ng mod thumbnail.",
+    "ImageOptimizer_DragDropCategory_Description": "Ang pag-drag at pag-drop ng larawan sa category tile ay laging nagpapagana ng Inspect at Edit mode dahil dapat itong ma-crop nang tama para sa catprev (722×722 parisukat) at catmini (600×722 parihaba).",
+    "ImageOptimizer_AutoDownload_Description": "Ang mga larawang na-download mula sa GameBanana ay awtomatikong na-optimize. Nagko-convert sa JPEG at gumagawa ng mga thumbnail (minitile.jpg para sa mga mod).",
+    "SettingsPage_AutoCreateModThumbnails_Label": "Awtomatikong gumawa ng mga thumbnail ng mod",
+    "SettingsPage_AutoCreateModThumbnails_Description": "Laktawan ang manual na pagpili at pag-crop para sa mga thumbnail ng mod, gamitin ang unang preview na may napiling crop mode"
 }

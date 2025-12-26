@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "미리보기 다운로드 요약",
     "AlreadyHasPreviews": "이미 미리보기 이미지가 있음",
     "NoPreviewsAvailable": "GameBanana에 미리보기가 없음",
-    "PreviewFetchError": "미리보기 가져오기 중 오류"
+    "PreviewFetchError": "미리보기 가져오기 중 오류",
+    "PreviewModeDialogTitle": "미리보기 다운로드 모드",
+    "PreviewModeDialogContent": "기존 미리보기를 어떻게 처리할지 선택하세요:",
+    "PreviewModeReplace": "교체",
+    "PreviewModeMerge": "병합"
 }

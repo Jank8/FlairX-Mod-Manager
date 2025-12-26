@@ -51,8 +51,8 @@
     "FailedToDownload": "{0}のダウンロードに失敗しました",
     "InstallationFailed": "インストールに失敗しました: {0}",
     "UpdateFailed": "更新に失敗しました: {0}",
-    "ExtractionTimeout": "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
-    "ExtractionTimeoutFile": "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
+    "ExtractionTimeout": "アーカイブの展開が5分後にタイムアウトしました。アーカイブが破損しているか、サイズが大きすぎる可能性があります。",
+    "ExtractionTimeoutFile": "{0}のアーカイブ展開がタイムアウトしました。アーカイブが破損しているか、サイズが大きすぎる可能性があります。",
     "ModFolderNotFound": "MODフォルダが見つかりません。",
     "Size": "サイズ:",
     "Downloads": "ダウンロード数:",
@@ -69,7 +69,10 @@
     "FailedToLoadFiles": "ファイルの読み込みに失敗しました。もう一度お試しください。",
     "XXMIModsDirectoryNotFound": "XXMIモッドディレクトリが見つかりません",
     "Preview": "プレビュー",
-    "DownloadPreviewsOnly": "Previews Only",
-    "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsOnly": "プレビューのみ",
+    "NoExistingModFound": "プレビューをダウンロードする既存のモッドが見つかりません。",
+    "DownloadPreviewsFailed": "プレビューのダウンロードに失敗しました: {0}",
+    "StarterPack_Button": "スターターパック",
+    "StarterPack_Button_Tooltip": "このゲーム用のスターターパックをダウンロード",
+    "StarterPack_NotAvailable": "このゲーム用のスターターパックはまだ利用できません。"
 }

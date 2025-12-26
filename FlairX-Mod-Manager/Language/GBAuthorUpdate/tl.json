@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "Buod ng pag-download ng mga preview",
     "AlreadyHasPreviews": "May mga preview na",
     "NoPreviewsAvailable": "Walang available na preview",
-    "PreviewFetchError": "Error habang nagda-download ng preview"
+    "PreviewFetchError": "Error habang nagda-download ng preview",
+    "PreviewModeDialogTitle": "Preview Download Mode",
+    "PreviewModeDialogContent": "Piliin kung paano gagawin sa mga existing preview:",
+    "PreviewModeReplace": "Palitan",
+    "PreviewModeMerge": "Pagsamahin"
 }

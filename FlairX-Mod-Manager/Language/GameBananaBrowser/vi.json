@@ -51,8 +51,8 @@
     "FailedToDownload": "Không thể tải xuống {0}",
     "InstallationFailed": "Cài đặt thất bại: {0}",
     "UpdateFailed": "Cập nhật thất bại: {0}",
-    "ExtractionTimeout": "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
-    "ExtractionTimeoutFile": "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
+    "ExtractionTimeout": "Giải nén tệp lưu trữ đã hết thời gian chờ sau 5 phút. Tệp lưu trữ có thể bị hỏng hoặc quá lớn.",
+    "ExtractionTimeoutFile": "Giải nén tệp lưu trữ cho {0} đã hết thời gian chờ. Tệp lưu trữ có thể bị hỏng hoặc quá lớn.",
     "ModFolderNotFound": "Không tìm thấy thư mục mod.",
     "Size": "Kích thước:",
     "Downloads": "Lượt tải:",
@@ -69,7 +69,10 @@
     "FailedToLoadFiles": "Không thể tải tệp. Vui lòng thử lại.",
     "XXMIModsDirectoryNotFound": "Không tìm thấy thư mục XXMI Mods",
     "Preview": "Xem trước",
-    "DownloadPreviewsOnly": "Previews Only",
-    "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsOnly": "Chỉ xem trước",
+    "NoExistingModFound": "Không tìm thấy mod hiện có để tải xuống xem trước.",
+    "DownloadPreviewsFailed": "Tải xuống xem trước thất bại: {0}",
+    "StarterPack_Button": "Gói khởi đầu",
+    "StarterPack_Button_Tooltip": "Tải xuống gói khởi đầu cho trò chơi này",
+    "StarterPack_NotAvailable": "Gói khởi đầu cho trò chơi này chưa có sẵn."
 }

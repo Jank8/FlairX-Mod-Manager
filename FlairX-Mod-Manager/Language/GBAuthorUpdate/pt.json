@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "Resumo de transferência de pré-visualizações",
     "AlreadyHasPreviews": "Já tem imagens de pré-visualização",
     "NoPreviewsAvailable": "Sem pré-visualizações disponíveis no GameBanana",
-    "PreviewFetchError": "Erro ao obter pré-visualizações"
+    "PreviewFetchError": "Erro ao obter pré-visualizações",
+    "PreviewModeDialogTitle": "Modo de descarregamento de pré-visualizações",
+    "PreviewModeDialogContent": "Escolha como proceder com as pré-visualizações existentes:",
+    "PreviewModeReplace": "Substituir",
+    "PreviewModeMerge": "Combinar"
 }

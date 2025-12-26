@@ -51,8 +51,8 @@
     "FailedToDownload": "{0} indirilemedi",
     "InstallationFailed": "Yükleme başarısız: {0}",
     "UpdateFailed": "Güncelleme başarısız: {0}",
-    "ExtractionTimeout": "Archive extraction timed out after 5 minutes. The archive may be corrupted or too large.",
-    "ExtractionTimeoutFile": "Archive extraction timed out for {0}. The archive may be corrupted or too large.",
+    "ExtractionTimeout": "Arşiv çıkarma işlemi 5 dakika sonra zaman aşımına uğradı. Arşiv bozuk veya çok büyük olabilir.",
+    "ExtractionTimeoutFile": "{0} için arşiv çıkarma işlemi zaman aşımına uğradı. Arşiv bozuk veya çok büyük olabilir.",
     "ModFolderNotFound": "Mod klasörü bulunamadı.",
     "Size": "Boyut:",
     "Downloads": "İndirmeler:",
@@ -69,7 +69,10 @@
     "FailedToLoadFiles": "Dosyalar yüklenemedi. Lütfen tekrar deneyin.",
     "XXMIModsDirectoryNotFound": "XXMI Modları dizini bulunamadı",
     "Preview": "Önizleme",
-    "DownloadPreviewsOnly": "Previews Only",
-    "NoExistingModFound": "No existing mod found to download previews to.",
-    "DownloadPreviewsFailed": "Failed to download previews: {0}"
+    "DownloadPreviewsOnly": "Sadece önizlemeler",
+    "NoExistingModFound": "Önizleme indirmek için mevcut mod bulunamadı.",
+    "DownloadPreviewsFailed": "Önizleme indirme başarısız: {0}",
+    "StarterPack_Button": "Başlangıç paketi",
+    "StarterPack_Button_Tooltip": "Bu oyun için başlangıç paketini indir",
+    "StarterPack_NotAvailable": "Bu oyun için başlangıç paketi henüz mevcut değil."
 }

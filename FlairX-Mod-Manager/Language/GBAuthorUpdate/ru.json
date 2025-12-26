@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "Сводка загрузки превью",
     "AlreadyHasPreviews": "Уже есть изображения превью",
     "NoPreviewsAvailable": "Превью недоступны на GameBanana",
-    "PreviewFetchError": "Ошибка при получении превью"
+    "PreviewFetchError": "Ошибка при получении превью",
+    "PreviewModeDialogTitle": "Режим загрузки превью",
+    "PreviewModeDialogContent": "Выберите, как поступить с существующими превью:",
+    "PreviewModeReplace": "Заменить",
+    "PreviewModeMerge": "Объединить"
 }

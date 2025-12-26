@@ -59,5 +59,12 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "Chỉ hiển thị kiểm tra cắt cho hình thu nhỏ minitile và catmini, xử lý tự động các hình ảnh khác",
     "CropPanel_Next": "Tiếp theo",
     "CropPanel_FinalizeAll": "Hoàn tất tất cả",
-    "CropPanel_FilesToProcess": "Tệp cần xử lý"
+    "CropPanel_FilesToProcess": "Tệp cần xử lý",
+    "ImageOptimizer_OptimizationModesDescription": "Giới hạn 100 hình ảnh xem trước mỗi mod. Phần dư sẽ bị bỏ qua.",
+    "ImageOptimizer_ManualMode_Description": "Tối ưu hóa tất cả hình ảnh mod và danh mục. Chuyển đổi sang JPEG, tạo minitile.jpg cho mod và catprev.jpg/catmini.jpg cho danh mục. Hình thu nhỏ bị thiếu được tạo từ các tệp xem trước hiện có.",
+    "ImageOptimizer_DragDropMod_Description": "Kéo và thả một hoặc nhiều hình ảnh lên ô mod sẽ chạy tối ưu hóa và tạo hình thu nhỏ mod.",
+    "ImageOptimizer_DragDropCategory_Description": "Kéo và thả hình ảnh lên ô danh mục luôn bật chế độ Kiểm tra và Chỉnh sửa vì nó phải được cắt thích hợp cho catprev (722×722 hình vuông) và catmini (600×722 hình chữ nhật).",
+    "ImageOptimizer_AutoDownload_Description": "Hình ảnh được tải xuống từ GameBanana sẽ được tối ưu hóa tự động. Chuyển đổi sang JPEG và tạo hình thu nhỏ (minitile.jpg cho mod).",
+    "SettingsPage_AutoCreateModThumbnails_Label": "Tự động tạo hình thu nhỏ mod",
+    "SettingsPage_AutoCreateModThumbnails_Description": "Bỏ qua việc chọn và cắt thủ công cho hình thu nhỏ mod, sử dụng bản xem trước đầu tiên với chế độ cắt đã chọn"
 }

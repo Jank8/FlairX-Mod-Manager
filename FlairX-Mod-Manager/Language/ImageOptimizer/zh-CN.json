@@ -59,5 +59,12 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "仅对minitile和catmini缩略图显示裁剪检查，其他图像自动处理",
     "CropPanel_Next": "下一个",
     "CropPanel_FinalizeAll": "全部完成",
-    "CropPanel_FilesToProcess": "待处理文件"
+    "CropPanel_FilesToProcess": "待处理文件",
+    "ImageOptimizer_OptimizationModesDescription": "每个模组限制100张预览图片。超出部分将被跳过。",
+    "ImageOptimizer_ManualMode_Description": "优化所有模组和分类图片。转换为JPEG，为模组生成minitile.jpg，为分类生成catprev.jpg/catmini.jpg。缺失的缩略图将从现有预览文件创建。",
+    "ImageOptimizer_DragDropMod_Description": "将单个或多个图像拖放到模组磁贴上将运行优化并创建模组缩略图。",
+    "ImageOptimizer_DragDropCategory_Description": "将图像拖放到类别磁贴上总是启用检查和编辑模式，因为必须为catprev（722×722正方形）和catmini（600×722矩形）适当裁剪。",
+    "ImageOptimizer_AutoDownload_Description": "从GameBanana下载的图像会自动优化。转换为JPEG并生成缩略图（模组的minitile.jpg）。",
+    "SettingsPage_AutoCreateModThumbnails_Label": "自动创建模组缩略图",
+    "SettingsPage_AutoCreateModThumbnails_Description": "跳过模组缩略图的手动选择和裁剪，使用选定裁剪模式的第一个预览"
 }

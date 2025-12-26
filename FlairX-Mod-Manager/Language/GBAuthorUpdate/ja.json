@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "プレビューダウンロードの概要",
     "AlreadyHasPreviews": "既にプレビュー画像があります",
     "NoPreviewsAvailable": "GameBananaにプレビューがありません",
-    "PreviewFetchError": "プレビューの取得中にエラーが発生しました"
+    "PreviewFetchError": "プレビューの取得中にエラーが発生しました",
+    "PreviewModeDialogTitle": "プレビューダウンロードモード",
+    "PreviewModeDialogContent": "既存のプレビューをどう処理するか選択してください：",
+    "PreviewModeReplace": "置き換え",
+    "PreviewModeMerge": "結合"
 }

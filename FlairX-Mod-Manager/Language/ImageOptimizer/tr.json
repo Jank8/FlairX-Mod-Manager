@@ -59,5 +59,12 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "Yalnızca minitile ve catmini küçük resimleri için kırpma incelemesi göster, diğer resimleri otomatik işle",
     "CropPanel_Next": "Sonraki",
     "CropPanel_FinalizeAll": "Tümünü tamamla",
-    "CropPanel_FilesToProcess": "İşlenecek dosyalar"
+    "CropPanel_FilesToProcess": "İşlenecek dosyalar",
+    "ImageOptimizer_OptimizationModesDescription": "Mod başına 100 önizleme resmi sınırı. Fazlası atlanır.",
+    "ImageOptimizer_ManualMode_Description": "Tüm mod ve kategori resimlerini optimize eder. JPEG'e dönüştürür, modlar için minitile.jpg ve kategoriler için catprev.jpg/catmini.jpg oluşturur. Eksik küçük resimler mevcut önizleme dosyalarından oluşturulur.",
+    "ImageOptimizer_DragDropMod_Description": "Bir mod karosu üzerine tek veya birden fazla görüntü sürükleyip bırakmak optimizasyonu çalıştırır ve mod küçük resmi oluşturur.",
+    "ImageOptimizer_DragDropCategory_Description": "Bir kategori karosu üzerine görüntü sürükleyip bırakmak her zaman İnceleme ve Düzenleme modunu etkinleştirir çünkü catprev (722×722 kare) ve catmini (600×722 dikdörtgen) için uygun şekilde kırpılması gerekir.",
+    "ImageOptimizer_AutoDownload_Description": "GameBanana'dan indirilen görüntüler otomatik olarak optimize edilir. JPEG'e dönüştürür ve küçük resimler oluşturur (modlar için minitile.jpg).",
+    "SettingsPage_AutoCreateModThumbnails_Label": "Mod küçük resimlerini otomatik oluştur",
+    "SettingsPage_AutoCreateModThumbnails_Description": "Mod küçük resimleri için manuel seçim ve kırpmayı atla, seçilen kırpma moduyla ilk önizlemeyi kullan"
 }

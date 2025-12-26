@@ -17,10 +17,9 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             { "ZZMI", 20322 },
             { "WWMI", 20485 }, // Wuthering Waves
-            // Add more games here as they get Starter Packs:
-            // { "SRMI", 12345 },
-            // { "GIMI", 12346 },
-            // { "HIMI", 12348 },
+            { "SRMI", 20487 }, // Honkai: Star Rail
+            { "GIMI", 20486 }, // Genshin Impact
+            { "HIMI", 20491 }, // Honkai Impact 3rd
         };
 
         private ProgressBar _progressBar;

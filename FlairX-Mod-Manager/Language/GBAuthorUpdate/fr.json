@@ -48,5 +48,9 @@
     "PreviewsSummaryTitle": "Résumé du téléchargement des aperçus",
     "AlreadyHasPreviews": "A déjà des images d'aperçu",
     "NoPreviewsAvailable": "Aucun aperçu disponible sur GameBanana",
-    "PreviewFetchError": "Erreur lors de la récupération des aperçus"
+    "PreviewFetchError": "Erreur lors de la récupération des aperçus",
+    "PreviewModeDialogTitle": "Mode de téléchargement des aperçus",
+    "PreviewModeDialogContent": "Choisissez comment procéder avec les aperçus existants :",
+    "PreviewModeReplace": "Remplacer",
+    "PreviewModeMerge": "Fusionner"
 }

@@ -59,5 +59,12 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "Показывать проверку обрезки только для миниатюр minitile и catmini, остальные изображения обрабатывать автоматически",
     "CropPanel_Next": "Далее",
     "CropPanel_FinalizeAll": "Завершить все",
-    "CropPanel_FilesToProcess": "Файлы для обработки"
+    "CropPanel_FilesToProcess": "Файлы для обработки",
+    "ImageOptimizer_OptimizationModesDescription": "Лимит 100 изображений превью на мод. Избыток пропускается.",
+    "ImageOptimizer_ManualMode_Description": "Оптимизирует все изображения модов и категорий. Конвертирует в JPEG, генерирует minitile.jpg для модов и catprev.jpg/catmini.jpg для категорий. Недостающие миниатюры создаются из существующих файлов превью.",
+    "ImageOptimizer_DragDropMod_Description": "Перетаскивание одного или нескольких изображений на плитку мода запустит оптимизацию и создаст миниатюру мода.",
+    "ImageOptimizer_DragDropCategory_Description": "Перетаскивание изображения на плитку категории всегда включает режим Проверки и Редактирования, поскольку оно должно быть правильно обрезано для catprev (722×722 квадрат) и catmini (600×722 прямоугольник).",
+    "ImageOptimizer_AutoDownload_Description": "Изображения, загруженные с GameBanana, автоматически оптимизируются. Конвертирует в JPEG и генерирует миниатюры (minitile.jpg для модов).",
+    "SettingsPage_AutoCreateModThumbnails_Label": "Автоматическое создание миниатюр модов",
+    "SettingsPage_AutoCreateModThumbnails_Description": "Пропустить ручной выбор и обрезку для миниатюр модов, использовать первый предпросмотр с выбранным режимом обрезки"
 }
