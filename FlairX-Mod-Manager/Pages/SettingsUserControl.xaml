@@ -175,6 +175,7 @@
                             <ComboBox Grid.Column="3" x:Name="PreviewEffectComboBox" Width="200" SelectionChanged="PreviewEffectComboBox_SelectionChanged" VerticalAlignment="Center">
                                 <ComboBoxItem x:Name="PreviewEffectNone" Content="Default" Tag="None"/>
                                 <ComboBoxItem x:Name="PreviewEffectBorder" Content="Border" Tag="Border"/>
+                                <ComboBoxItem x:Name="PreviewEffectAccent" Content="Accent" Tag="Accent"/>
                                 <ComboBoxItem x:Name="PreviewEffectParallax" Content="Parallax" Tag="Parallax"/>
                                 <ComboBoxItem x:Name="PreviewEffectGlassmorphism" Content="Glassmorphism" Tag="Glassmorphism"/>
                             </ComboBox>

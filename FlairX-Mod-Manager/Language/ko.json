@@ -256,6 +256,7 @@
     "SettingsPage_PreviewEffect_Description": "미리보기 이미지의 시각 효과",
     "SettingsPage_PreviewEffect_None": "없음",
     "SettingsPage_PreviewEffect_Border": "테두리",
+    "SettingsPage_PreviewEffect_Accent": "액센트",
     "SettingsPage_PreviewEffect_Parallax": "패럴랙스",
     "SettingsPage_PreviewEffect_Glassmorphism": "글래스",
     "StarterPack_Title": "스타터 팩 사용 가능",

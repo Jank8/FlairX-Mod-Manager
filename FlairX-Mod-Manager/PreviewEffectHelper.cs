@@ -17,6 +17,7 @@ namespace FlairX_Mod_Manager
     {
         None,
         Border,
+        Accent,
         Parallax,
         Glassmorphism
     }
@@ -35,6 +36,7 @@ namespace FlairX_Mod_Manager
             return effectString switch
             {
                 "Border" => PreviewEffectType.Border,
+                "Accent" => PreviewEffectType.Accent,
                 "Parallax" => PreviewEffectType.Parallax,
                 "Glassmorphism" => PreviewEffectType.Glassmorphism,
                 _ => PreviewEffectType.None
@@ -80,7 +82,58 @@ namespace FlairX_Mod_Manager
             borderContainer.Children.Add(borderLayer);
             borderContainer.Children.Add(topImageBorder);
 
+            // Apply elastic animation to the container
+            ApplyElasticAnimationToElement(borderContainer);
+
             return borderContainer;
+        }
+
+        /// <summary>
+        /// Apply accent effect - same as border but with system accent color
+        /// </summary>
+        public static Grid? ApplyAccentEffect(Border? border, ImageSource? imageSource)
+        {
+            if (border == null || imageSource == null || GetCurrentEffect() != PreviewEffectType.Accent)
+            {
+                return null;
+            }
+
+            // Create container for layered effect
+            var accentContainer = new Grid
+            {
+                Name = "AccentContainer"
+            };
+
+            // Get system accent color
+            var accentColor = (Color)Application.Current.Resources["SystemAccentColor"];
+            
+            // Accent background layer using system accent color
+            var accentLayer = new Border
+            {
+                CornerRadius = new CornerRadius(12),
+                Background = new SolidColorBrush(accentColor)
+            };
+
+            // Top image layer (smaller, creates the accent border effect by covering center)
+            var topImageBorder = new Border
+            {
+                CornerRadius = new CornerRadius(8),
+                Margin = new Thickness(15), // 15px margin creates the accent border
+                Child = new Image
+                {
+                    Source = imageSource,
+                    Stretch = Stretch.Uniform
+                }
+            };
+
+            // Add layers to container (accent layer, top image)
+            accentContainer.Children.Add(accentLayer);
+            accentContainer.Children.Add(topImageBorder);
+
+            // Apply elastic animation to the container
+            ApplyElasticAnimationToElement(accentContainer);
+
+            return accentContainer;
         }
 
         /// <summary>
@@ -155,6 +208,9 @@ namespace FlairX_Mod_Manager
             parallaxContainer.Children.Add(backgroundImage);
             parallaxContainer.Children.Add(backgroundOverlay);
             parallaxContainer.Children.Add(foregroundBorder);
+
+            // Apply elastic animation to the container
+            ApplyElasticAnimationToElement(parallaxContainer);
 
             return parallaxContainer;
         }
@@ -238,6 +294,11 @@ namespace FlairX_Mod_Manager
         /// Check if border effect is enabled
         /// </summary>
         public static bool IsBorderEnabled => GetCurrentEffect() == PreviewEffectType.Border;
+        
+        /// <summary>
+        /// Check if accent effect is enabled
+        /// </summary>
+        public static bool IsAccentEnabled => GetCurrentEffect() == PreviewEffectType.Accent;
         
         /// <summary>
         /// Check if parallax effect is enabled
@@ -341,7 +402,110 @@ namespace FlairX_Mod_Manager
             glassmorphismContainer.Children.Add(blurLayer);
             glassmorphismContainer.Children.Add(topImageBorder);
 
+            // Apply elastic animation to the container
+            ApplyElasticAnimationToElement(glassmorphismContainer);
+
             return glassmorphismContainer;
+        }
+        /// <summary>
+        /// Apply elastic scale animation to the appropriate element based on current effect
+        /// </summary>
+        public static void ApplyElasticAnimation(Border? border, Microsoft.UI.Xaml.Media.ImageSource? imageSource)
+        {
+            if (border == null) return;
+
+            var currentEffect = GetCurrentEffect();
+            FrameworkElement? targetElement = null;
+
+            switch (currentEffect)
+            {
+                case PreviewEffectType.None:
+                    // For None effect, animate the image directly
+                    var innerBorder = border.Child as Border;
+                    targetElement = innerBorder?.Child as Image;
+                    break;
+
+                case PreviewEffectType.Border:
+                case PreviewEffectType.Accent:
+                    // For Border/Accent effects, animate the container
+                    var borderInner = border.Child as Border;
+                    targetElement = borderInner?.Child as Grid;
+                    break;
+
+                case PreviewEffectType.Parallax:
+                    // For Parallax effect, animate the parallax container
+                    var parallaxInner = border.Child as Border;
+                    targetElement = parallaxInner?.Child as Grid;
+                    break;
+
+                case PreviewEffectType.Glassmorphism:
+                    // For Glassmorphism effect, animate the glassmorphism container
+                    var glassInner = border.Child as Border;
+                    targetElement = glassInner?.Child as Grid;
+                    break;
+            }
+
+            if (targetElement != null)
+            {
+                ApplyElasticAnimationToElement(targetElement);
+            }
+        }
+
+        /// <summary>
+        /// Apply elastic animation to a specific element
+        /// </summary>
+        private static void ApplyElasticAnimationToElement(FrameworkElement targetElement)
+        {
+            if (targetElement == null) return;
+
+            // Ensure the element has a ScaleTransform
+            if (targetElement.RenderTransform == null || !(targetElement.RenderTransform is ScaleTransform))
+            {
+                targetElement.RenderTransform = new ScaleTransform();
+                targetElement.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
+            }
+
+            var scaleTransform = (ScaleTransform)targetElement.RenderTransform;
+
+            // Create elastic scale animation
+            var elasticScaleX = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 0.8,
+                To = 1.0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(600)),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
+                { 
+                    EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
+                    Oscillations = 1,
+                    Springiness = 6
+                }
+            };
+
+            var elasticScaleY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 0.8,
+                To = 1.0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(600)),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
+                { 
+                    EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
+                    Oscillations = 1,
+                    Springiness = 6
+                }
+            };
+
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleX, scaleTransform);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleX, "ScaleX");
+            
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleY, scaleTransform);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleY, "ScaleY");
+            
+            storyboard.Children.Add(elasticScaleX);
+            storyboard.Children.Add(elasticScaleY);
+            
+            storyboard.Begin();
         }
     }
 }

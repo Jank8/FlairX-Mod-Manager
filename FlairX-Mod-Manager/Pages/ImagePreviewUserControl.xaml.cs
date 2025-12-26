@@ -192,94 +192,14 @@ namespace FlairX_Mod_Manager.Pages
 
         private void PlayElasticScaleAnimation()
         {
-            if (PreviewImage.RenderTransform == null || !(PreviewImage.RenderTransform is ScaleTransform))
-            {
-                PreviewImage.RenderTransform = new ScaleTransform();
-                PreviewImage.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
-            }
-            
-            var scaleTransform = (ScaleTransform)PreviewImage.RenderTransform;
-            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-            
-            var elasticScaleX = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                From = 0.9,
-                To = 1.0,
-                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
-                { 
-                    EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
-                    Oscillations = 1,
-                    Springiness = 6
-                }
-            };
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleX, scaleTransform);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleX, "ScaleX");
-            storyboard.Children.Add(elasticScaleX);
-            
-            var elasticScaleY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                From = 0.9,
-                To = 1.0,
-                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
-                { 
-                    EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
-                    Oscillations = 1,
-                    Springiness = 6
-                }
-            };
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleY, scaleTransform);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleY, "ScaleY");
-            storyboard.Children.Add(elasticScaleY);
-            
-            storyboard.Begin();
+            // Use PreviewEffectHelper for consistent elastic animation across all effects
+            PreviewEffectHelper.ApplyElasticAnimation(ImageBorder, PreviewImage.Source);
         }
 
         private void PlayFadeInWithElasticScale()
         {
-            if (PreviewImage.RenderTransform == null || !(PreviewImage.RenderTransform is ScaleTransform))
-            {
-                PreviewImage.RenderTransform = new ScaleTransform();
-                PreviewImage.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5);
-            }
-            
-            var scaleTransform = (ScaleTransform)PreviewImage.RenderTransform;
-            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-            
-            // Elastic scale X
-            var elasticScaleX = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                From = 0.9,
-                To = 1.0,
-                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
-                { 
-                    EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
-                    Oscillations = 1,
-                    Springiness = 6
-                }
-            };
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleX, scaleTransform);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleX, "ScaleX");
-            storyboard.Children.Add(elasticScaleX);
-            
-            // Elastic scale Y
-            var elasticScaleY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                From = 0.9,
-                To = 1.0,
-                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
-                { 
-                    EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
-                    Oscillations = 1,
-                    Springiness = 6
-                }
-            };
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleY, scaleTransform);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleY, "ScaleY");
-            storyboard.Children.Add(elasticScaleY);
+            // Use PreviewEffectHelper for consistent elastic animation across all effects
+            PreviewEffectHelper.ApplyElasticAnimation(ImageBorder, PreviewImage.Source);
             
             // Fade in border
             var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
@@ -289,10 +209,11 @@ namespace FlairX_Mod_Manager.Pages
                 Duration = new Duration(TimeSpan.FromMilliseconds(300)),
                 EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
             };
+            
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
             Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, ImageBorder);
             Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
             storyboard.Children.Add(fadeIn);
-            
             storyboard.Begin();
         }
 
@@ -558,6 +479,22 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         // Replace the image with border container
                         innerBorder.Child = borderContainer;
+                    }
+                }
+            }
+            // Handle accent effect
+            else if (PreviewEffectHelper.IsAccentEnabled && imageSource != null)
+            {
+                // Apply accent effect and replace the image
+                var accentContainer = PreviewEffectHelper.ApplyAccentEffect(ImageBorder, imageSource);
+                if (accentContainer != null)
+                {
+                    // Find the inner border that contains the image
+                    var innerBorder = ImageBorder.Child as Border;
+                    if (innerBorder != null)
+                    {
+                        // Replace the image with accent container
+                        innerBorder.Child = accentContainer;
                     }
                 }
             }

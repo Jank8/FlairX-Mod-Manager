@@ -396,58 +396,8 @@ namespace FlairX_Mod_Manager.Pages
                     // Update preview effects
                     UpdatePreviewEffects(bitmap);
                     
-                    // Create elastic scale animation
-                    var elasticScaleX = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                    {
-                        From = 0.8,
-                        To = 1.0,
-                        Duration = new Duration(TimeSpan.FromMilliseconds(600)),
-                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
-                        { 
-                            EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
-                            Oscillations = 2,
-                            Springiness = 8
-                        }
-                    };
-                    
-                    var elasticScaleY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-                    {
-                        From = 0.8,
-                        To = 1.0,
-                        Duration = new Duration(TimeSpan.FromMilliseconds(600)),
-                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.ElasticEase 
-                        { 
-                            EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut,
-                            Oscillations = 2,
-                            Springiness = 8
-                        }
-                    };
-                    
-                    // Ensure the image has a ScaleTransform
-                    if (ModImage.RenderTransform == null || !(ModImage.RenderTransform is Microsoft.UI.Xaml.Media.ScaleTransform))
-                    {
-                        ModImage.RenderTransform = new Microsoft.UI.Xaml.Media.ScaleTransform();
-                        ModImage.RenderTransformOrigin = new Windows.Foundation.Point(0.5, 0.5); // Center the scaling
-                    }
-                    
-                    var scaleTransform = (Microsoft.UI.Xaml.Media.ScaleTransform)ModImage.RenderTransform;
-                    
-                    // Create storyboard and apply animations
-                    var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-                    
-                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleX, scaleTransform);
-                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleX, "ScaleX");
-                    
-                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(elasticScaleY, scaleTransform);
-                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(elasticScaleY, "ScaleY");
-                    
-                    storyboard.Children.Add(elasticScaleX);
-                    storyboard.Children.Add(elasticScaleY);
-                    
-                    storyboard.Begin();
-                    
-                    // Apply effects again after animation starts to ensure they're visible
-                    UpdatePreviewEffects(bitmap);
+                    // Apply elastic animation to the appropriate element
+                    PreviewEffectHelper.ApplyElasticAnimation(ModImageBorder, bitmap);
                 }
                 else
                 {
@@ -478,6 +428,22 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         // Replace the image with border container
                         innerBorder.Child = borderContainer;
+                    }
+                }
+            }
+            // Handle accent effect
+            else if (PreviewEffectHelper.IsAccentEnabled && imageSource != null)
+            {
+                // Apply accent effect and replace the image
+                var accentContainer = PreviewEffectHelper.ApplyAccentEffect(ModImageBorder, imageSource);
+                if (accentContainer != null)
+                {
+                    // Find the inner border that contains the image
+                    var innerBorder = ModImageBorder.Child as Border;
+                    if (innerBorder != null)
+                    {
+                        // Replace the image with accent container
+                        innerBorder.Child = accentContainer;
                     }
                 }
             }

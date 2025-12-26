@@ -256,6 +256,7 @@
     "SettingsPage_PreviewEffect_Description": "预览图像的视觉效果",
     "SettingsPage_PreviewEffect_None": "无",
     "SettingsPage_PreviewEffect_Border": "边框",
+    "SettingsPage_PreviewEffect_Accent": "强调色",
     "SettingsPage_PreviewEffect_Parallax": "视差",
     "SettingsPage_PreviewEffect_Glassmorphism": "玻璃",
     "StarterPack_Title": "新手包可用",
