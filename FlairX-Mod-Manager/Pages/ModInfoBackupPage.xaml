@@ -30,6 +30,8 @@
                             <ColumnDefinition Width="16"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         
                         <FontIcon Grid.Column="0" Glyph="&#xEA35;" FontSize="20" VerticalAlignment="Center"/>
@@ -39,15 +41,17 @@
                             <TextBlock x:Name="CreateBackupsDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                         </StackPanel>
                         
-                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                            <ProgressBar x:Name="CreateBackupsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
-                            <Button x:Name="CreateBackupsButton" 
-                                    MinWidth="80"
-                                    Click="CreateBackupsButton_Click"
-                                    Style="{StaticResource AccentButtonStyle}">
-                                <TextBlock x:Name="CreateBackupsText"/>
-                            </Button>
+                        <StackPanel Grid.Column="3" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
+                            <ProgressBar x:Name="CreateBackupsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                            <TextBlock x:Name="CreateBackupsStatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,4,0,0"/>
                         </StackPanel>
+                        
+                        <Button Grid.Column="5" x:Name="CreateBackupsButton" 
+                                MinWidth="80"
+                                Click="CreateBackupsButton_Click"
+                                Style="{StaticResource AccentButtonStyle}">
+                            <TextBlock x:Name="CreateBackupsText"/>
+                        </Button>
                     </Grid>
                 </Border>
 
@@ -85,7 +89,10 @@
                                 <TextBlock x:Name="Backup1Info" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
-                            <ProgressBar Grid.Column="3" x:Name="RestoreBackup1ProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                            <StackPanel Grid.Column="3" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
+                                <ProgressBar x:Name="RestoreBackup1ProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                                <TextBlock x:Name="RestoreBackup1StatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,4,0,0"/>
+                            </StackPanel>
                             
                             <Button Grid.Column="5" x:Name="DeleteBackup1Button" 
                                     Width="40" Height="32" 
@@ -137,7 +144,10 @@
                                 <TextBlock x:Name="Backup2Info" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
-                            <ProgressBar Grid.Column="3" x:Name="RestoreBackup2ProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                            <StackPanel Grid.Column="3" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
+                                <ProgressBar x:Name="RestoreBackup2ProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                                <TextBlock x:Name="RestoreBackup2StatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,4,0,0"/>
+                            </StackPanel>
                             
                             <Button Grid.Column="5" x:Name="DeleteBackup2Button" 
                                     Width="40" Height="32" 
@@ -189,7 +199,10 @@
                                 <TextBlock x:Name="Backup3Info" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                             </StackPanel>
                             
-                            <ProgressBar Grid.Column="3" x:Name="RestoreBackup3ProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                            <StackPanel Grid.Column="3" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
+                                <ProgressBar x:Name="RestoreBackup3ProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                                <TextBlock x:Name="RestoreBackup3StatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,4,0,0"/>
+                            </StackPanel>
                             
                             <Button Grid.Column="5" x:Name="DeleteBackup3Button" 
                                     Width="40" Height="32" 

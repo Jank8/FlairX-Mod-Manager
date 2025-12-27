@@ -37,27 +37,27 @@ namespace FlairX_Mod_Manager.Pages
             // Fetch authors card
             FetchAuthorsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchAuthorsButton");
             FetchAuthorsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchAuthorsDescription");
-            UpdateButton.Content = _isUpdatingAuthors ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            // Button text is now handled by UpdateButtonStates()
             
             // Fetch dates card
             FetchDatesTitle.Text = SharedUtilities.GetTranslation(lang, "FetchDatesButton");
             FetchDatesDescription.Text = SharedUtilities.GetTranslation(lang, "FetchDatesButton_Tooltip");
-            FetchDatesButton.Content = _isFetchingDates ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            // Button text is now handled by UpdateButtonStates()
             
             // Fetch versions card
             FetchVersionsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton");
             FetchVersionsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton_Tooltip");
-            FetchVersionsButton.Content = _isFetchingVersions ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            // Button text is now handled by UpdateButtonStates()
             
             // Fetch all previews card
             FetchAllPreviewsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchAllPreviewsButton");
             FetchAllPreviewsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchAllPreviewsButton_Tooltip");
-            FetchAllPreviewsButton.Content = _isFetchingAllPreviews ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            // Button text is now handled by UpdateButtonStates()
             
             // Fetch missing previews card
             FetchMissingPreviewsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchMissingPreviewsButton");
             FetchMissingPreviewsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchMissingPreviewsButton_Tooltip");
-            FetchMissingPreviewsButton.Content = _isFetchingMissingPreviews ? SharedUtilities.GetTranslation(mainLang, "Cancel") : SharedUtilities.GetTranslation(lang, "Start");
+            // Button text is now handled by UpdateButtonStates()
         }
         
         private void UpdateToggleLabels()
@@ -113,8 +113,9 @@ namespace FlairX_Mod_Manager.Pages
         private static int _success = 0, _fail = 0, _skip = 0;
         private static List<string> _skippedMods = new();
         private static List<string> _failedMods = new();
-        private static double _progressValue = 0;
+        private static string _currentProcessingMod = "";
         private static int _totalMods = 0;
+        private static double _progressValue = 0;
         
         public static bool IsUpdatingAuthors 
         { 
@@ -151,6 +152,14 @@ namespace FlairX_Mod_Manager.Pages
         private static void SafeAddFailedMod(string mod)
         {
             lock (_lockObject) { _failedMods.Add(mod); }
+        }
+        
+        private static void SafeSetCurrentProcessingMod(string modName)
+        {
+            lock (_lockObject)
+            {
+                _currentProcessingMod = modName;
+            }
         }
         private CancellationTokenSource? _cts;
 
@@ -206,7 +215,6 @@ namespace FlairX_Mod_Manager.Pages
                 return;
             }
             _cts = new CancellationTokenSource();
-            SetButtonToCancelState();
             _isUpdatingAuthors = true;
             lock (_lockObject)
             {
@@ -216,27 +224,16 @@ namespace FlairX_Mod_Manager.Pages
                 _progressValue = 0;
                 _totalMods = 0;
             }
-            NotifyProgressChanged();
+            NotifyProgressChanged(); // This will update button states via UpdateButtonStates()
             await UpdateAuthorsAsync(_cts.Token);
             // Final cleanup - ensure button is reset to update state
             ResetButtonToUpdateState();
         }
 
-        private void SetButtonToCancelState()
-        {
-            var mainLang = SharedUtilities.LoadLanguageDictionary();
-            UpdateButton.Content = SharedUtilities.GetTranslation(mainLang, "Cancel");
-            UpdateButton.IsEnabled = true;
-            UpdateProgressBar.Visibility = Visibility.Visible;
-        }
-
         private void ResetButtonToUpdateState()
         {
             _isUpdatingAuthors = false;
-            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-            UpdateButton.Content = SharedUtilities.GetTranslation(lang, "Start");
-            UpdateButton.IsEnabled = true;
-            UpdateProgressBar.Visibility = Visibility.Collapsed;
+            NotifyProgressChanged(); // This will call UpdateButtonStates() via UpdateProgressBarUI()
         }
 
         private async Task UpdateAuthorsAsync(CancellationToken token)
@@ -298,6 +295,20 @@ namespace FlairX_Mod_Manager.Pages
                             modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString()) 
                                 ? nameProp.GetString()! 
                                 : modFolderName;
+                            
+                            // Remove DISABLED_ prefix from folder name for display
+                            var displayFolderName = modFolderName.StartsWith("DISABLED_") 
+                                ? modFolderName.Substring("DISABLED_".Length) 
+                                : modFolderName;
+                            
+                            // Use clean name for display
+                            var displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
+                                ? displayNameProp.GetString()! 
+                                : displayFolderName;
+                            
+                            // Update current processing mod status
+                            SafeSetCurrentProcessingMod(displayName);
+                            NotifyProgressChanged();
                             
                             if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || 
                                 string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) 
@@ -383,6 +394,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     finally
                     {
+                        SafeSetCurrentProcessingMod("");
                         semaphore.Release();
                     }
                 }).ToList();
@@ -539,21 +551,134 @@ namespace FlairX_Mod_Manager.Pages
                 return null;
             }
         }
+        
+        /// <summary>
+        /// Update button states - disable all buttons when any operation is running
+        /// </summary>
+        private void UpdateButtonStates()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            var mainLang = SharedUtilities.LoadLanguageDictionary();
+            
+            // Check if any operation is currently running
+            bool anyOperationRunning = _isUpdatingAuthors || _isFetchingDates || _isFetchingVersions || 
+                                     _isFetchingAllPreviews || _isFetchingMissingPreviews;
+            
+            // Update Authors button
+            if (UpdateButton != null && UpdateButtonText != null)
+            {
+                if (_isUpdatingAuthors)
+                {
+                    UpdateButton.IsEnabled = true; // Keep enabled so user can cancel
+                    UpdateButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
+                }
+                else
+                {
+                    UpdateButton.IsEnabled = !anyOperationRunning; // Disable if any other operation is running
+                    UpdateButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
+                }
+            }
+            
+            // Fetch Dates button
+            if (FetchDatesButton != null && FetchDatesButtonText != null)
+            {
+                if (_isFetchingDates)
+                {
+                    FetchDatesButton.IsEnabled = true; // Keep enabled so user can cancel
+                    FetchDatesButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
+                }
+                else
+                {
+                    FetchDatesButton.IsEnabled = !anyOperationRunning; // Disable if any other operation is running
+                    FetchDatesButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
+                }
+            }
+            
+            // Fetch Versions button
+            if (FetchVersionsButton != null && FetchVersionsButtonText != null)
+            {
+                if (_isFetchingVersions)
+                {
+                    FetchVersionsButton.IsEnabled = true; // Keep enabled so user can cancel
+                    FetchVersionsButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
+                }
+                else
+                {
+                    FetchVersionsButton.IsEnabled = !anyOperationRunning; // Disable if any other operation is running
+                    FetchVersionsButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
+                }
+            }
+            
+            // Fetch All Previews button
+            if (FetchAllPreviewsButton != null && FetchAllPreviewsButtonText != null)
+            {
+                if (_isFetchingAllPreviews)
+                {
+                    FetchAllPreviewsButton.IsEnabled = true; // Keep enabled so user can cancel
+                    FetchAllPreviewsButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
+                }
+                else
+                {
+                    FetchAllPreviewsButton.IsEnabled = !anyOperationRunning; // Disable if any other operation is running
+                    FetchAllPreviewsButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
+                }
+            }
+            
+            // Fetch Missing Previews button
+            if (FetchMissingPreviewsButton != null && FetchMissingPreviewsButtonText != null)
+            {
+                if (_isFetchingMissingPreviews)
+                {
+                    FetchMissingPreviewsButton.IsEnabled = true; // Keep enabled so user can cancel
+                    FetchMissingPreviewsButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
+                }
+                else
+                {
+                    FetchMissingPreviewsButton.IsEnabled = !anyOperationRunning; // Disable if any other operation is running
+                    FetchMissingPreviewsButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
+                }
+            }
+        }
 
         private void UpdateProgressBarUI()
         {
+            // Update button states - disable all buttons when any operation is running
+            UpdateButtonStates();
+            
             if (UpdateProgressBar != null)
             {
                 if (_isUpdatingAuthors)
                 {
                     UpdateProgressBar.Visibility = Visibility.Visible;
                     UpdateProgressBar.IsIndeterminate = false;
-                    UpdateProgressBar.Value = _progressValue * 100;                }
+                    UpdateProgressBar.Value = _progressValue * 100;
+                    
+                    // Update status text
+                    if (UpdateProgressStatusText != null)
+                    {
+                        UpdateProgressStatusText.Visibility = Visibility.Visible;
+                        if (!string.IsNullOrEmpty(_currentProcessingMod))
+                        {
+                            UpdateProgressStatusText.Text = _currentProcessingMod;
+                        }
+                        else
+                        {
+                            UpdateProgressStatusText.Text = "";
+                        }
+                    }
+                }
                 else
                 {
                     UpdateProgressBar.Value = 0;
                     UpdateProgressBar.IsIndeterminate = false;
-                    UpdateProgressBar.Visibility = Visibility.Collapsed;                }
+                    UpdateProgressBar.Visibility = Visibility.Collapsed;
+                    
+                    if (UpdateProgressStatusText != null)
+                    {
+                        UpdateProgressStatusText.Visibility = Visibility.Collapsed;
+                        UpdateProgressStatusText.Text = "";
+                    }
+                }
             }
             
             if (FetchDatesProgressBar != null)
@@ -562,12 +687,34 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     FetchDatesProgressBar.Visibility = Visibility.Visible;
                     FetchDatesProgressBar.IsIndeterminate = false;
-                    FetchDatesProgressBar.Value = _progressValue * 100;                }
+                    FetchDatesProgressBar.Value = _progressValue * 100;
+                    
+                    // Update status text
+                    if (FetchDatesStatusText != null)
+                    {
+                        FetchDatesStatusText.Visibility = Visibility.Visible;
+                        if (!string.IsNullOrEmpty(_currentProcessingMod))
+                        {
+                            FetchDatesStatusText.Text = _currentProcessingMod;
+                        }
+                        else
+                        {
+                            FetchDatesStatusText.Text = "";
+                        }
+                    }
+                }
                 else
                 {
                     FetchDatesProgressBar.Value = 0;
                     FetchDatesProgressBar.IsIndeterminate = false;
-                    FetchDatesProgressBar.Visibility = Visibility.Collapsed;                }
+                    FetchDatesProgressBar.Visibility = Visibility.Collapsed;
+                    
+                    if (FetchDatesStatusText != null)
+                    {
+                        FetchDatesStatusText.Visibility = Visibility.Collapsed;
+                        FetchDatesStatusText.Text = "";
+                    }
+                }
             }
             
             if (FetchVersionsProgressBar != null)
@@ -576,12 +723,34 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     FetchVersionsProgressBar.Visibility = Visibility.Visible;
                     FetchVersionsProgressBar.IsIndeterminate = false;
-                    FetchVersionsProgressBar.Value = _progressValue * 100;                }
+                    FetchVersionsProgressBar.Value = _progressValue * 100;
+                    
+                    // Update status text
+                    if (FetchVersionsStatusText != null)
+                    {
+                        FetchVersionsStatusText.Visibility = Visibility.Visible;
+                        if (!string.IsNullOrEmpty(_currentProcessingMod))
+                        {
+                            FetchVersionsStatusText.Text = _currentProcessingMod;
+                        }
+                        else
+                        {
+                            FetchVersionsStatusText.Text = "";
+                        }
+                    }
+                }
                 else
                 {
                     FetchVersionsProgressBar.Value = 0;
                     FetchVersionsProgressBar.IsIndeterminate = false;
-                    FetchVersionsProgressBar.Visibility = Visibility.Collapsed;                }
+                    FetchVersionsProgressBar.Visibility = Visibility.Collapsed;
+                    
+                    if (FetchVersionsStatusText != null)
+                    {
+                        FetchVersionsStatusText.Visibility = Visibility.Collapsed;
+                        FetchVersionsStatusText.Text = "";
+                    }
+                }
             }
             
             if (FetchAllPreviewsProgressBar != null)
@@ -591,12 +760,32 @@ namespace FlairX_Mod_Manager.Pages
                     FetchAllPreviewsProgressBar.Visibility = Visibility.Visible;
                     FetchAllPreviewsProgressBar.IsIndeterminate = false;
                     FetchAllPreviewsProgressBar.Value = _progressValue * 100;
+                    
+                    // Update status text
+                    if (FetchAllPreviewsStatusText != null)
+                    {
+                        FetchAllPreviewsStatusText.Visibility = Visibility.Visible;
+                        if (!string.IsNullOrEmpty(_currentProcessingMod))
+                        {
+                            FetchAllPreviewsStatusText.Text = _currentProcessingMod;
+                        }
+                        else
+                        {
+                            FetchAllPreviewsStatusText.Text = "";
+                        }
+                    }
                 }
                 else
                 {
                     FetchAllPreviewsProgressBar.Value = 0;
                     FetchAllPreviewsProgressBar.IsIndeterminate = false;
                     FetchAllPreviewsProgressBar.Visibility = Visibility.Collapsed;
+                    
+                    if (FetchAllPreviewsStatusText != null)
+                    {
+                        FetchAllPreviewsStatusText.Visibility = Visibility.Collapsed;
+                        FetchAllPreviewsStatusText.Text = "";
+                    }
                 }
             }
             
@@ -607,12 +796,32 @@ namespace FlairX_Mod_Manager.Pages
                     FetchMissingPreviewsProgressBar.Visibility = Visibility.Visible;
                     FetchMissingPreviewsProgressBar.IsIndeterminate = false;
                     FetchMissingPreviewsProgressBar.Value = _progressValue * 100;
+                    
+                    // Update status text
+                    if (FetchMissingPreviewsStatusText != null)
+                    {
+                        FetchMissingPreviewsStatusText.Visibility = Visibility.Visible;
+                        if (!string.IsNullOrEmpty(_currentProcessingMod))
+                        {
+                            FetchMissingPreviewsStatusText.Text = _currentProcessingMod;
+                        }
+                        else
+                        {
+                            FetchMissingPreviewsStatusText.Text = "";
+                        }
+                    }
                 }
                 else
                 {
                     FetchMissingPreviewsProgressBar.Value = 0;
                     FetchMissingPreviewsProgressBar.IsIndeterminate = false;
                     FetchMissingPreviewsProgressBar.Visibility = Visibility.Collapsed;
+                    
+                    if (FetchMissingPreviewsStatusText != null)
+                    {
+                        FetchMissingPreviewsStatusText.Visibility = Visibility.Collapsed;
+                        FetchMissingPreviewsStatusText.Text = "";
+                    }
                 }
             }
         }
@@ -730,7 +939,6 @@ namespace FlairX_Mod_Manager.Pages
             }
 
             _ctsDates = new CancellationTokenSource();
-            SetDatesButtonToCancelState();
             _isFetchingDates = true;
             lock (_lockObject)
             {
@@ -740,26 +948,15 @@ namespace FlairX_Mod_Manager.Pages
                 _progressValue = 0;
                 _totalMods = 0;
             }
-            NotifyProgressChanged();
+            NotifyProgressChanged(); // This will update button states via UpdateButtonStates()
             await FetchDatesAsync(_ctsDates.Token);
             ResetDatesButtonToFetchState();
-        }
-
-        private void SetDatesButtonToCancelState()
-        {
-            var mainLang = SharedUtilities.LoadLanguageDictionary();
-            FetchDatesButton.Content = SharedUtilities.GetTranslation(mainLang, "Cancel");
-            FetchDatesButton.IsEnabled = true;
-            FetchDatesProgressBar.Visibility = Visibility.Visible;
         }
 
         private void ResetDatesButtonToFetchState()
         {
             _isFetchingDates = false;
-            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-            FetchDatesButton.Content = SharedUtilities.GetTranslation(lang, "Start");
-            FetchDatesButton.IsEnabled = true;
-            FetchDatesProgressBar.Visibility = Visibility.Collapsed;
+            NotifyProgressChanged(); // This will call UpdateButtonStates() via UpdateProgressBarUI()
         }
 
         private async Task FetchDatesAsync(CancellationToken token)
@@ -813,6 +1010,20 @@ namespace FlairX_Mod_Manager.Pages
                             modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
                                 ? nameProp.GetString()!
                                 : modFolderName;
+
+                            // Remove DISABLED_ prefix from folder name for display
+                            var displayFolderName = modFolderName.StartsWith("DISABLED_") 
+                                ? modFolderName.Substring("DISABLED_".Length) 
+                                : modFolderName;
+                            
+                            // Use clean name for display
+                            var displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
+                                ? displayNameProp.GetString()! 
+                                : displayFolderName;
+                            
+                            // Update current processing mod status
+                            SafeSetCurrentProcessingMod(displayName);
+                            NotifyProgressChanged();
 
                             if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
                                 string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
@@ -873,6 +1084,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     finally
                     {
+                        SafeSetCurrentProcessingMod("");
                         semaphore.Release();
                     }
                 }).ToList();
@@ -1068,7 +1280,6 @@ namespace FlairX_Mod_Manager.Pages
             }
 
             _ctsVersions = new CancellationTokenSource();
-            SetVersionsButtonToCancelState();
             _isFetchingVersions = true;
             lock (_lockObject)
             {
@@ -1078,26 +1289,15 @@ namespace FlairX_Mod_Manager.Pages
                 _progressValue = 0;
                 _totalMods = 0;
             }
-            NotifyProgressChanged();
+            NotifyProgressChanged(); // This will update button states via UpdateButtonStates()
             await FetchVersionsAsync(_ctsVersions.Token);
             ResetVersionsButtonToFetchState();
-        }
-
-        private void SetVersionsButtonToCancelState()
-        {
-            var mainLang = SharedUtilities.LoadLanguageDictionary();
-            FetchVersionsButton.Content = SharedUtilities.GetTranslation(mainLang, "Cancel");
-            FetchVersionsButton.IsEnabled = true;
-            FetchVersionsProgressBar.Visibility = Visibility.Visible;
         }
 
         private void ResetVersionsButtonToFetchState()
         {
             _isFetchingVersions = false;
-            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-            FetchVersionsButton.Content = SharedUtilities.GetTranslation(lang, "Start");
-            FetchVersionsButton.IsEnabled = true;
-            FetchVersionsProgressBar.Visibility = Visibility.Collapsed;
+            NotifyProgressChanged(); // This will call UpdateButtonStates() via UpdateProgressBarUI()
         }
 
         private async Task FetchVersionsAsync(CancellationToken token)
@@ -1152,6 +1352,20 @@ namespace FlairX_Mod_Manager.Pages
                                 ? nameProp.GetString()!
                                 : modFolderName;
 
+                            // Remove DISABLED_ prefix from folder name for display
+                            var displayFolderName = modFolderName.StartsWith("DISABLED_") 
+                                ? modFolderName.Substring("DISABLED_".Length) 
+                                : modFolderName;
+                            
+                            // Use clean name for display
+                            var displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
+                                ? displayNameProp.GetString()! 
+                                : displayFolderName;
+                            
+                            // Update current processing mod status
+                            SafeSetCurrentProcessingMod(displayName);
+                            NotifyProgressChanged();
+
                             if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
                                 string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
                             {
@@ -1159,6 +1373,7 @@ namespace FlairX_Mod_Manager.Pages
                                 SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
                                 Interlocked.Increment(ref processed);
                                 lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                SafeSetCurrentProcessingMod("");
                                 NotifyProgressChanged();
                                 return;
                             }
@@ -1205,6 +1420,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     finally
                     {
+                        SafeSetCurrentProcessingMod("");
                         semaphore.Release();
                     }
                 }).ToList();
@@ -1385,7 +1601,6 @@ namespace FlairX_Mod_Manager.Pages
             bool combinePreviews = result == ContentDialogResult.Secondary;
 
             _ctsAllPreviews = new CancellationTokenSource();
-            SetAllPreviewsButtonToCancelState();
             _isFetchingAllPreviews = true;
             lock (_lockObject)
             {
@@ -1395,26 +1610,15 @@ namespace FlairX_Mod_Manager.Pages
                 _progressValue = 0;
                 _totalMods = 0;
             }
-            NotifyProgressChanged();
+            NotifyProgressChanged(); // This will update button states via UpdateButtonStates()
             await FetchPreviewsAsync(_ctsAllPreviews.Token, fetchAll: true, combinePreviews: combinePreviews);
             ResetAllPreviewsButtonToFetchState();
-        }
-
-        private void SetAllPreviewsButtonToCancelState()
-        {
-            var mainLang = SharedUtilities.LoadLanguageDictionary();
-            FetchAllPreviewsButton.Content = SharedUtilities.GetTranslation(mainLang, "Cancel");
-            FetchAllPreviewsButton.IsEnabled = true;
-            FetchAllPreviewsProgressBar.Visibility = Visibility.Visible;
         }
 
         private void ResetAllPreviewsButtonToFetchState()
         {
             _isFetchingAllPreviews = false;
-            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-            FetchAllPreviewsButton.Content = SharedUtilities.GetTranslation(lang, "Start");
-            FetchAllPreviewsButton.IsEnabled = true;
-            FetchAllPreviewsProgressBar.Visibility = Visibility.Collapsed;
+            NotifyProgressChanged(); // This will call UpdateButtonStates() via UpdateProgressBarUI()
         }
 
         // Fetch Missing Previews functionality
@@ -1469,7 +1673,6 @@ namespace FlairX_Mod_Manager.Pages
             }
 
             _ctsMissingPreviews = new CancellationTokenSource();
-            SetMissingPreviewsButtonToCancelState();
             _isFetchingMissingPreviews = true;
             lock (_lockObject)
             {
@@ -1479,26 +1682,15 @@ namespace FlairX_Mod_Manager.Pages
                 _progressValue = 0;
                 _totalMods = 0;
             }
-            NotifyProgressChanged();
+            NotifyProgressChanged(); // This will update button states via UpdateButtonStates()
             await FetchPreviewsAsync(_ctsMissingPreviews.Token, fetchAll: false, combinePreviews: false);
             ResetMissingPreviewsButtonToFetchState();
-        }
-
-        private void SetMissingPreviewsButtonToCancelState()
-        {
-            var mainLang = SharedUtilities.LoadLanguageDictionary();
-            FetchMissingPreviewsButton.Content = SharedUtilities.GetTranslation(mainLang, "Cancel");
-            FetchMissingPreviewsButton.IsEnabled = true;
-            FetchMissingPreviewsProgressBar.Visibility = Visibility.Visible;
         }
 
         private void ResetMissingPreviewsButtonToFetchState()
         {
             _isFetchingMissingPreviews = false;
-            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-            FetchMissingPreviewsButton.Content = SharedUtilities.GetTranslation(lang, "Start");
-            FetchMissingPreviewsButton.IsEnabled = true;
-            FetchMissingPreviewsProgressBar.Visibility = Visibility.Collapsed;
+            NotifyProgressChanged(); // This will call UpdateButtonStates() via UpdateProgressBarUI()
         }
 
         private async Task FetchPreviewsAsync(CancellationToken token, bool fetchAll, bool combinePreviews)
@@ -1520,8 +1712,8 @@ namespace FlairX_Mod_Manager.Pages
                 _totalMods = allModDirs.Count;
                 int processed = 0;
 
-                // Process sequentially to avoid overwhelming the server
-                var semaphore = new SemaphoreSlim(3);
+                // Process sequentially to avoid overwhelming the server and prevent multiple UI dialogs
+                var semaphore = new SemaphoreSlim(1); // Changed from 3 to 1 to process mods one by one
                 var tasks = allModDirs.Select(async dir =>
                 {
                     await semaphore.WaitAsync(token);
@@ -1542,7 +1734,12 @@ namespace FlairX_Mod_Manager.Pages
 
                         var json = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
                         string? url = null;
-                        string modName = modFolderName;
+                        
+                        // Remove DISABLED_ prefix from folder name for display
+                        var displayFolderName = modFolderName.StartsWith("DISABLED_") 
+                            ? modFolderName.Substring("DISABLED_".Length) 
+                            : modFolderName;
+                        string modName = displayFolderName;
 
                         using (var doc = JsonDocument.Parse(json))
                         {
@@ -1550,7 +1747,11 @@ namespace FlairX_Mod_Manager.Pages
 
                             modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
                                 ? nameProp.GetString()!
-                                : modFolderName;
+                                : displayFolderName;
+
+                            // Update current processing mod status
+                            SafeSetCurrentProcessingMod(modName);
+                            NotifyProgressChanged();
 
                             if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
                                 string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
@@ -1559,6 +1760,7 @@ namespace FlairX_Mod_Manager.Pages
                                 SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
                                 Interlocked.Increment(ref processed);
                                 lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                SafeSetCurrentProcessingMod("");
                                 NotifyProgressChanged();
                                 return;
                             }
@@ -1584,6 +1786,7 @@ namespace FlairX_Mod_Manager.Pages
                             SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "AlreadyHasPreviews")}");
                             Interlocked.Increment(ref processed);
                             lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                            SafeSetCurrentProcessingMod("");
                             NotifyProgressChanged();
                             return;
                         }
@@ -1638,14 +1841,17 @@ namespace FlairX_Mod_Manager.Pages
                             {
                                 SafeIncrementSuccess();
                                 
+                                // Check for cancellation before optimization
+                                if (token.IsCancellationRequested)
+                                {
+                                    return;
+                                }
+                                
                                 // Run optimization for downloaded previews
                                 try
                                 {
                                     var context = Services.ImageOptimizationService.GetOptimizationContext(
                                         Services.OptimizationTrigger.GameBananaDownload);
-                                    
-                                    // For batch operations, disable UI interaction to avoid popup spam
-                                    context.AllowUIInteraction = false;
                                     
                                     // GameBanana download never uses reoptimize - only process new files
                                     context.Reoptimize = false;
@@ -1689,6 +1895,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     finally
                     {
+                        SafeSetCurrentProcessingMod("");
                         semaphore.Release();
                     }
                 }).ToList();
@@ -1697,6 +1904,15 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (token.IsCancellationRequested)
                 {
+                    // Reset button states when cancelled
+                    if (_isFetchingAllPreviews)
+                    {
+                        ResetAllPreviewsButtonToFetchState();
+                    }
+                    if (_isFetchingMissingPreviews)
+                    {
+                        ResetMissingPreviewsButtonToFetchState();
+                    }
                     return;
                 }
 
@@ -1748,7 +1964,15 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (OperationCanceledException)
             {
-                // Cancelled - no dialog needed, already shown in button click handler
+                // Cancelled - reset button states
+                if (_isFetchingAllPreviews)
+                {
+                    ResetAllPreviewsButtonToFetchState();
+                }
+                if (_isFetchingMissingPreviews)
+                {
+                    ResetMissingPreviewsButtonToFetchState();
+                }
             }
             catch (Exception ex)
             {
@@ -1819,6 +2043,12 @@ namespace FlairX_Mod_Manager.Pages
                 int downloaded = 0;
                 for (int i = 0; i < screenshots.Count; i++)
                 {
+                    // Check for cancellation before downloading each image
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                    
                     var (baseUrl, file) = screenshots[i];
                     var imageUrl = $"{baseUrl}/{file}";
 

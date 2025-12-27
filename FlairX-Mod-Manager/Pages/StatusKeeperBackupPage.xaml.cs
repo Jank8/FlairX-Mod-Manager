@@ -14,11 +14,18 @@ namespace FlairX_Mod_Manager.Pages
     public sealed partial class StatusKeeperBackupPage : Page
     {
         private StatusKeeperSettings _settings = new();
+        
+        // Operation state tracking
+        private static volatile bool _isCreatingBackup = false;
+        private static volatile bool _isCheckingBackup = false;
+        private static volatile bool _isRestoringBackup = false;
+        private static volatile bool _isDeletingBackups = false;
 
         public StatusKeeperBackupPage()
         {
             this.InitializeComponent();
             UpdateTexts();
+            UpdateButtonStates();
         }
 
         private void UpdateTexts()
@@ -28,22 +35,113 @@ namespace FlairX_Mod_Manager.Pages
             // Create backup card
             CreateBackupLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Label");
             CreateBackupDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Description");
-            CreateBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Button");
+            // Button text is handled by UpdateButtonStates()
             
             // Check backup card
             CheckBackupLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackup_Label");
             CheckBackupDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackup_Description");
-            CheckBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackups_Button");
+            // Button text is handled by UpdateButtonStates()
             
             // Restore backup card
             RestoreBackupLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Label");
             RestoreBackupDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Description");
-            RestoreBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Button");
+            // Button text is handled by UpdateButtonStates()
             
             // Delete backups card
             DeleteBackupsLabel.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Label");
             DeleteBackupsDescription.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Description");
-            DeleteBackupsButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Button");
+            // Button text is handled by UpdateButtonStates()
+        }
+        
+        /// <summary>
+        /// Update button states - disable all buttons when any operation is running
+        /// </summary>
+        private void UpdateButtonStates()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+            var mainLang = SharedUtilities.LoadLanguageDictionary();
+            
+            // Check if any operation is currently running
+            bool anyOperationRunning = _isCreatingBackup || _isCheckingBackup || _isRestoringBackup || _isDeletingBackups;
+            
+            // Create Backup button
+            if (CreateBackupButton != null && CreateBackupButtonText != null)
+            {
+                CreateBackupButton.IsEnabled = !anyOperationRunning || _isCreatingBackup;
+                CreateBackupButtonText.Text = _isCreatingBackup 
+                    ? SharedUtilities.GetTranslation(lang, "StatusKeeper_Creating_Backup")
+                    : SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Button");
+            }
+            
+            // Check Backup button
+            if (CheckBackupButton != null && CheckBackupButtonText != null)
+            {
+                CheckBackupButton.IsEnabled = !anyOperationRunning || _isCheckingBackup;
+                CheckBackupButtonText.Text = _isCheckingBackup 
+                    ? SharedUtilities.GetTranslation(lang, "StatusKeeper_Checking")
+                    : SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackups_Button");
+            }
+            
+            // Restore Backup button
+            if (RestoreBackupButton != null && RestoreBackupButtonText != null)
+            {
+                RestoreBackupButton.IsEnabled = !anyOperationRunning || _isRestoringBackup;
+                RestoreBackupButtonText.Text = _isRestoringBackup 
+                    ? SharedUtilities.GetTranslation(lang, "StatusKeeper_Restoring")
+                    : SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Button");
+            }
+            
+            // Delete Backups button
+            if (DeleteBackupsButton != null && DeleteBackupsButtonText != null)
+            {
+                DeleteBackupsButton.IsEnabled = !anyOperationRunning || _isDeletingBackups;
+                DeleteBackupsButtonText.Text = _isDeletingBackups 
+                    ? SharedUtilities.GetTranslation(lang, "StatusKeeper_Deleting")
+                    : SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Button");
+            }
+            
+            // Update progress bars and status texts
+            UpdateProgressBars();
+        }
+        
+        /// <summary>
+        /// Update progress bars and status texts visibility
+        /// </summary>
+        private void UpdateProgressBars()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
+            
+            // Create Backup progress
+            if (CreateBackupProgressBar != null && CreateBackupStatusText != null)
+            {
+                CreateBackupProgressBar.Visibility = _isCreatingBackup ? Visibility.Visible : Visibility.Collapsed;
+                CreateBackupStatusText.Visibility = _isCreatingBackup ? Visibility.Visible : Visibility.Collapsed;
+                CreateBackupStatusText.Text = _isCreatingBackup ? SharedUtilities.GetTranslation(lang, "StatusKeeper_Creating_Backup") : "";
+            }
+            
+            // Check Backup progress
+            if (CheckBackupProgressBar != null && CheckBackupStatusText != null)
+            {
+                CheckBackupProgressBar.Visibility = _isCheckingBackup ? Visibility.Visible : Visibility.Collapsed;
+                CheckBackupStatusText.Visibility = _isCheckingBackup ? Visibility.Visible : Visibility.Collapsed;
+                CheckBackupStatusText.Text = _isCheckingBackup ? SharedUtilities.GetTranslation(lang, "StatusKeeper_Checking") : "";
+            }
+            
+            // Restore Backup progress
+            if (RestoreBackupProgressBar != null && RestoreBackupStatusText != null)
+            {
+                RestoreBackupProgressBar.Visibility = _isRestoringBackup ? Visibility.Visible : Visibility.Collapsed;
+                RestoreBackupStatusText.Visibility = _isRestoringBackup ? Visibility.Visible : Visibility.Collapsed;
+                RestoreBackupStatusText.Text = _isRestoringBackup ? SharedUtilities.GetTranslation(lang, "StatusKeeper_Restoring") : "";
+            }
+            
+            // Delete Backups progress
+            if (DeleteBackupsProgressBar != null && DeleteBackupsStatusText != null)
+            {
+                DeleteBackupsProgressBar.Visibility = _isDeletingBackups ? Visibility.Visible : Visibility.Collapsed;
+                DeleteBackupsStatusText.Visibility = _isDeletingBackups ? Visibility.Visible : Visibility.Collapsed;
+                DeleteBackupsStatusText.Text = _isDeletingBackups ? SharedUtilities.GetTranslation(lang, "StatusKeeper_Deleting") : "";
+            }
         }
 
 
@@ -62,9 +160,9 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                CreateBackupButton.IsEnabled = false;
-                CreateBackupProgressBar.Visibility = Visibility.Visible;
-                CreateBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Creating_Backup");
+                
+                _isCreatingBackup = true;
+                UpdateButtonStates();
 
                 int backupCount = 0;
                 int skipCount = 0;
@@ -110,10 +208,8 @@ namespace FlairX_Mod_Manager.Pages
             }
             finally
             {
-                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                CreateBackupProgressBar.Visibility = Visibility.Collapsed;
-                CreateBackupButton.IsEnabled = true;
-                CreateBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Button");
+                _isCreatingBackup = false;
+                UpdateButtonStates();
             }
         }
 
@@ -141,8 +237,8 @@ namespace FlairX_Mod_Manager.Pages
                 if (result != ContentDialogResult.Primary)
                     return;
 
-                RestoreBackupButton.IsEnabled = false;
-                RestoreBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Restoring");
+                _isRestoringBackup = true;
+                UpdateButtonStates();
 
                 int restoreCount = 0;
                 int skipCount = 0;
@@ -152,6 +248,17 @@ namespace FlairX_Mod_Manager.Pages
 
                 await Task.Run(() => RestoreFromBackups(modLibraryPath, ref restoreCount, ref skipCount));
 
+                // Show success dialog with results
+                var message = string.Format(SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Dialog_Message"), restoreCount, skipCount);
+                var successDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Dialog_Title"),
+                    Content = message,
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                    XamlRoot = this.XamlRoot
+                };
+                await successDialog.ShowAsync();
+
                 Debug.WriteLine($"Restore complete! Restored {restoreCount} files, failed {skipCount} files");
             }
             catch (Exception error)
@@ -160,9 +267,8 @@ namespace FlairX_Mod_Manager.Pages
             }
             finally
             {
-                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                RestoreBackupButton.IsEnabled = true;
-                RestoreBackupButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Button");
+                _isRestoringBackup = false;
+                UpdateButtonStates();
             }
         }
 
@@ -190,8 +296,8 @@ namespace FlairX_Mod_Manager.Pages
                 if (result != ContentDialogResult.Primary)
                     return;
 
-                DeleteBackupsButton.IsEnabled = false;
-                DeleteBackupsButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_Deleting");
+                _isDeletingBackups = true;
+                UpdateButtonStates();
 
                 int deleteCount = 0;
 
@@ -199,6 +305,17 @@ namespace FlairX_Mod_Manager.Pages
                 
 
                 await Task.Run(() => DeleteBackups(modLibraryPath, ref deleteCount));
+
+                // Show success dialog with results
+                var message = string.Format(SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Dialog_Message"), deleteCount);
+                var successDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Dialog_Title"),
+                    Content = message,
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                    XamlRoot = this.XamlRoot
+                };
+                await successDialog.ShowAsync();
 
                 Debug.WriteLine($"Deletion complete! Deleted {deleteCount} backup files");
             }
@@ -208,9 +325,8 @@ namespace FlairX_Mod_Manager.Pages
             }
             finally
             {
-                var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                DeleteBackupsButton.IsEnabled = true;
-                DeleteBackupsButtonText.Text = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Button");
+                _isDeletingBackups = false;
+                UpdateButtonStates();
             }
         }
 
@@ -219,8 +335,9 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                CheckBackupButton.IsEnabled = false;
-                CheckBackupProgressBar.Visibility = Visibility.Visible;
+                
+                _isCheckingBackup = true;
+                UpdateButtonStates();
                 
                 var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                 
@@ -269,8 +386,8 @@ namespace FlairX_Mod_Manager.Pages
             }
             finally
             {
-                CheckBackupProgressBar.Visibility = Visibility.Collapsed;
-                CheckBackupButton.IsEnabled = true;
+                _isCheckingBackup = false;
+                UpdateButtonStates();
             }
         }
 

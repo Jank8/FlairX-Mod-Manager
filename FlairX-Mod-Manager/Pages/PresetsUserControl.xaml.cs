@@ -216,6 +216,10 @@ namespace FlairX_Mod_Manager.Pages
                 PresetComboBox.SelectedIndex = selectedIndex;
             else
                 PresetComboBox.SelectedIndex = 0;
+                
+            // Hide the mods section if default preset is selected (index 0)
+            bool isDefaultPreset = PresetComboBox.SelectedIndex == 0;
+            PresetModsCard.Visibility = isDefaultPreset ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void PresetComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -224,7 +228,12 @@ namespace FlairX_Mod_Manager.Pages
             int selectedIndex = PresetComboBox.SelectedIndex;
             FlairX_Mod_Manager.SettingsManager.Current.SelectedPresetIndex = selectedIndex;
             FlairX_Mod_Manager.SettingsManager.Save();
-            if (selectedIndex >= 0 && selectedIndex < _presetNames.Count)
+            
+            // Hide the mods section if default preset is selected (index 0)
+            bool isDefaultPreset = selectedIndex == 0;
+            PresetModsCard.Visibility = isDefaultPreset ? Visibility.Collapsed : Visibility.Visible;
+            
+            if (selectedIndex >= 0 && selectedIndex < _presetNames.Count && !isDefaultPreset)
             {
                 var fileName = _presetNames[selectedIndex];
                 var path = Path.Combine(PresetsDir, fileName + ".json");

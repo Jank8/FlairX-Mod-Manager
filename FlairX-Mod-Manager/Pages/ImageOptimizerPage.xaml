@@ -40,7 +40,10 @@
                     </StackPanel>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                        <ProgressBar x:Name="OptimizeProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
+                        <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
+                            <ProgressBar x:Name="OptimizeProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                            <TextBlock x:Name="OptimizeStatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,4,0,0"/>
+                        </StackPanel>
                         <Button x:Name="OptimizeButton" 
                                 MinWidth="80"
                                 Click="OptimizeButton_Click"

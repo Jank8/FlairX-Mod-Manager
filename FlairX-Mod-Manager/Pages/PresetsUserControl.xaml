@@ -124,7 +124,7 @@
                     </Border>
                     
                     <!-- Preset Mods List Card -->
-                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    <Border x:Name="PresetModsCard" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
                             BorderThickness="1" 
                             CornerRadius="8" 

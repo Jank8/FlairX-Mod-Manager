@@ -119,6 +119,7 @@ namespace FlairX_Mod_Manager.Services
         private static int _totalFiles = 0;
         private static int _processedFiles = 0;
         private static double _progressValue = 0;
+        private static string _currentProcessingMod = "";
         
         /// <summary>
         /// Event raised when optimization progress changes
@@ -136,6 +137,14 @@ namespace FlairX_Mod_Manager.Services
         public static void RequestCancellation()
         {
             _cancellationRequested = true;
+            
+            // Immediately update UI to show cancellation
+            lock (_progressLock)
+            {
+                _isOptimizing = false;
+                _currentProcessingMod = "";
+            }
+            NotifyProgressChanged();
         }
         
         /// <summary>
@@ -160,6 +169,68 @@ namespace FlairX_Mod_Manager.Services
         public static int ProcessedFiles
         {
             get { lock (_progressLock) { return _processedFiles; } }
+        }
+        
+        /// <summary>
+        /// Get current processing mod name
+        /// </summary>
+        public static string CurrentProcessingMod
+        {
+            get { lock (_progressLock) { return _currentProcessingMod; } }
+        }
+        
+        /// <summary>
+        /// Set current processing mod name (thread-safe)
+        /// </summary>
+        private static void SetCurrentProcessingMod(string modName)
+        {
+            lock (_progressLock)
+            {
+                _currentProcessingMod = modName;
+            }
+        }
+        
+        /// <summary>
+        /// Get display name for mod (removes DISABLED_ prefix and reads from mod.json if available)
+        /// </summary>
+        private static string GetModDisplayName(string modDir)
+        {
+            try
+            {
+                var modFolderName = Path.GetFileName(modDir);
+                
+                // Remove DISABLED_ prefix from folder name for display
+                var displayFolderName = modFolderName.StartsWith("DISABLED_") 
+                    ? modFolderName.Substring("DISABLED_".Length) 
+                    : modFolderName;
+                
+                // Try to read name from mod.json
+                var modJsonPath = Path.Combine(modDir, "mod.json");
+                if (File.Exists(modJsonPath))
+                {
+                    try
+                    {
+                        var json = File.ReadAllText(modJsonPath);
+                        using var doc = System.Text.Json.JsonDocument.Parse(json);
+                        var root = doc.RootElement;
+                        
+                        if (root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString()))
+                        {
+                            return nameProp.GetString()!;
+                        }
+                    }
+                    catch
+                    {
+                        // Ignore JSON parsing errors, fall back to folder name
+                    }
+                }
+                
+                return displayFolderName;
+            }
+            catch
+            {
+                return Path.GetFileName(modDir);
+            }
         }
         
         private static void NotifyProgressChanged()
@@ -958,6 +1029,12 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         public static async Task ProcessModPreviewImagesAsync(string modDir, OptimizationContext context)
         {
+            // Check for cancellation at the start
+            if (_cancellationRequested)
+            {
+                throw new OperationCanceledException("Optimization cancelled by user");
+            }
+            
             if (string.IsNullOrEmpty(modDir) || !Directory.Exists(modDir))
             {
                 Logger.LogWarning($"Mod directory not found: {modDir}");
@@ -2267,6 +2344,12 @@ namespace FlairX_Mod_Manager.Services
                         foreach (var modDir in modDirs)
                         {
                             if (_cancellationRequested) { wasCancelled = true; break; }
+                            
+                            // Update current processing mod status
+                            var modName = GetModDisplayName(modDir);
+                            SetCurrentProcessingMod(modName);
+                            NotifyProgressChanged();
+                            
                             await ProcessModPreviewImagesAsync(modDir, context);
                             IncrementProcessed();
                         }
@@ -2294,6 +2377,12 @@ namespace FlairX_Mod_Manager.Services
                         foreach (var modDir in modDirs)
                         {
                             if (_cancellationRequested) { wasCancelled = true; break; }
+                            
+                            // Update current processing mod status
+                            var modName = GetModDisplayName(modDir);
+                            SetCurrentProcessingMod(modName);
+                            NotifyProgressChanged();
+                            
                             await ProcessModPreviewImagesAsync(modDir, context);
                             IncrementProcessed();
                         }
@@ -2363,6 +2452,7 @@ namespace FlairX_Mod_Manager.Services
                 {
                     _isOptimizing = false;
                     _cancellationRequested = false;
+                    _currentProcessingMod = ""; // Clear current mod status
                 }
                 NotifyProgressChanged();
             }

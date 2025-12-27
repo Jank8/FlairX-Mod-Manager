@@ -35,6 +35,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             var isOptimizing = Services.ImageOptimizationService.IsOptimizing;
             var progress = Services.ImageOptimizationService.ProgressValue;
+            var currentMod = Services.ImageOptimizationService.CurrentProcessingMod;
             
             _isOptimizing = isOptimizing;
             
@@ -44,6 +45,13 @@ namespace FlairX_Mod_Manager.Pages
                 OptimizeProgressBar.IsIndeterminate = false;
                 OptimizeProgressBar.Value = progress * 100;
                 
+                // Update status text
+                if (OptimizeStatusText != null)
+                {
+                    OptimizeStatusText.Visibility = Visibility.Visible;
+                    OptimizeStatusText.Text = !string.IsNullOrEmpty(currentMod) ? currentMod : "";
+                }
+                
                 var lang = SharedUtilities.LoadLanguageDictionary("ImageOptimizer");
                 OptimizeButtonText.Text = SharedUtilities.GetTranslation(lang, "Cancel");
             }
@@ -52,6 +60,13 @@ namespace FlairX_Mod_Manager.Pages
                 OptimizeProgressBar.Value = 0;
                 OptimizeProgressBar.IsIndeterminate = false;
                 OptimizeProgressBar.Visibility = Visibility.Collapsed;
+                
+                // Hide status text
+                if (OptimizeStatusText != null)
+                {
+                    OptimizeStatusText.Visibility = Visibility.Collapsed;
+                    OptimizeStatusText.Text = "";
+                }
                 
                 var lang = SharedUtilities.LoadLanguageDictionary("ImageOptimizer");
                 OptimizeButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
@@ -287,46 +302,60 @@ namespace FlairX_Mod_Manager.Pages
             if (result != ContentDialogResult.Primary)
                 return;
 
-            try
+            // Run optimization on background thread to prevent UI freezing
+            _ = Task.Run(async () =>
             {
-                await Services.ImageOptimizationService.OptimizeAllPreviewsAsync();
-                
-                // Show success dialog
-                var successDialog = new ContentDialog
+                try
                 {
-                    Title = SharedUtilities.GetTranslation(lang, "Success_Title"),
-                    Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"),
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await successDialog.ShowAsync();
-            }
-            catch (OperationCanceledException)
-            {
-                // Show cancelled dialog - use main language dictionary for common keys
-                var mainLang = SharedUtilities.LoadLanguageDictionary();
-                var cancelDialog = new ContentDialog
+                    await Services.ImageOptimizationService.OptimizeAllPreviewsAsync();
+                    
+                    // Show success dialog on UI thread
+                    DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        var successDialog = new ContentDialog
+                        {
+                            Title = SharedUtilities.GetTranslation(lang, "Success_Title"),
+                            Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"),
+                            CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                            XamlRoot = this.XamlRoot
+                        };
+                        await successDialog.ShowAsync();
+                    });
+                }
+                catch (OperationCanceledException)
                 {
-                    Title = SharedUtilities.GetTranslation(mainLang, "Cancelled_Title"),
-                    Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Cancelled"),
-                    CloseButtonText = SharedUtilities.GetTranslation(mainLang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await cancelDialog.ShowAsync();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error during image optimization", ex);
-                
-                var errorDialog = new ContentDialog
+                    // Show cancelled dialog on UI thread - use main language dictionary for common keys
+                    DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        var mainLang = SharedUtilities.LoadLanguageDictionary();
+                        var cancelDialog = new ContentDialog
+                        {
+                            Title = SharedUtilities.GetTranslation(mainLang, "Cancelled_Title"),
+                            Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Cancelled"),
+                            CloseButtonText = SharedUtilities.GetTranslation(mainLang, "OK"),
+                            XamlRoot = this.XamlRoot
+                        };
+                        await cancelDialog.ShowAsync();
+                    });
+                }
+                catch (Exception ex)
                 {
-                    Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
-                    Content = ex.Message,
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await errorDialog.ShowAsync();
-            }
+                    Logger.LogError("Error during image optimization", ex);
+                    
+                    // Show error dialog on UI thread
+                    DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        var errorDialog = new ContentDialog
+                        {
+                            Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
+                            Content = ex.Message,
+                            CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                            XamlRoot = this.XamlRoot
+                        };
+                        await errorDialog.ShowAsync();
+                    });
+                }
+            });
             // UI state is managed by UpdateProgressBarUI via event
         }
 

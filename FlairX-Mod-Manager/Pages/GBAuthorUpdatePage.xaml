@@ -101,7 +101,10 @@
                         </StackPanel>
                         
                         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                            <ProgressBar x:Name="UpdateProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
+                                <ProgressBar x:Name="UpdateProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                                <TextBlock x:Name="UpdateProgressStatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,2,0,0"/>
+                            </StackPanel>
                             <Button x:Name="UpdateButton" 
                                     MinWidth="80"
                                     Click="UpdateButton_Click"
@@ -135,7 +138,10 @@
                         </StackPanel>
                         
                         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                            <ProgressBar x:Name="FetchDatesProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
+                                <ProgressBar x:Name="FetchDatesProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                                <TextBlock x:Name="FetchDatesStatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,2,0,0"/>
+                            </StackPanel>
                             <Button x:Name="FetchDatesButton" 
                                     MinWidth="80"
                                     Click="FetchDatesButton_Click">
@@ -168,7 +174,10 @@
                         </StackPanel>
                         
                         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                            <ProgressBar x:Name="FetchVersionsProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
+                                <ProgressBar x:Name="FetchVersionsProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                                <TextBlock x:Name="FetchVersionsStatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,2,0,0"/>
+                            </StackPanel>
                             <Button x:Name="FetchVersionsButton" 
                                     MinWidth="80"
                                     Click="FetchVersionsButton_Click">
@@ -201,7 +210,10 @@
                         </StackPanel>
                         
                         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                            <ProgressBar x:Name="FetchAllPreviewsProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
+                                <ProgressBar x:Name="FetchAllPreviewsProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                                <TextBlock x:Name="FetchAllPreviewsStatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,2,0,0"/>
+                            </StackPanel>
                             <Button x:Name="FetchAllPreviewsButton" 
                                     MinWidth="80"
                                     Click="FetchAllPreviewsButton_Click">
@@ -234,7 +246,10 @@
                         </StackPanel>
                         
                         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                            <ProgressBar x:Name="FetchMissingPreviewsProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Margin="0,0,8,0" />
+                            <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
+                                <ProgressBar x:Name="FetchMissingPreviewsProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                                <TextBlock x:Name="FetchMissingPreviewsStatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,2,0,0"/>
+                            </StackPanel>
                             <Button x:Name="FetchMissingPreviewsButton" 
                                     MinWidth="80"
                                     Click="FetchMissingPreviewsButton_Click">
