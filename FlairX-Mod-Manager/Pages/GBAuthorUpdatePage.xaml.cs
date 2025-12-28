@@ -1883,6 +1883,31 @@ namespace FlairX_Mod_Manager.Pages
                                     // User clicked "Stop" in minitile selection or crop panel
                                     // Cancel the entire download process
                                     Logger.LogInfo($"User stopped optimization from UI panel - cancelling download process");
+                                    
+                                    // Clean up downloaded preview files from current mod
+                                    // so that "fetch missing" will process this mod again
+                                    try
+                                    {
+                                        var previewFilesToDelete = Directory.GetFiles(dir)
+                                            .Where(f =>
+                                            {
+                                                var fileName = Path.GetFileName(f).ToLower();
+                                                return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
+                                                       (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                                        f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                                        f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                                            });
+                                        foreach (var file in previewFilesToDelete)
+                                        {
+                                            try { File.Delete(file); } catch { }
+                                        }
+                                        Logger.LogInfo($"Cleaned up preview files from cancelled mod: {modName}");
+                                    }
+                                    catch (Exception cleanupEx)
+                                    {
+                                        Logger.LogError($"Failed to clean up preview files for {modName}", cleanupEx);
+                                    }
+                                    
                                     if (_isFetchingAllPreviews)
                                     {
                                         _ctsAllPreviews?.Cancel();
