@@ -1190,9 +1190,9 @@ namespace FlairX_Mod_Manager.Pages
                         var gameTag = SettingsManager.CurrentSelectedGame;
                         if (!string.IsNullOrEmpty(gameTag))
                         {
-                            // Open GameBanana browser with mod URL
+                            // Open GameBanana browser with mod URL and mod path
                             var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
-                            mainWindow?.ShowGameBananaBrowserPanel(gameTag, modUrl);
+                            mainWindow?.ShowGameBananaBrowserPanel(gameTag, modUrl, modTile.Directory);
                         }
                         else
                         {

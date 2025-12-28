@@ -68,7 +68,8 @@ namespace FlairX_Mod_Manager.Dialogs
             string? categoryName = null,
             GameBananaService.PreviewMedia? previewMedia = null,
             bool isNSFW = false,
-            string? version = null)
+            string? version = null,
+            string? existingModPath = null)
         {
             _selectedFiles = selectedFiles;
             _modName = modName;
@@ -80,6 +81,7 @@ namespace FlairX_Mod_Manager.Dialogs
             _previewMedia = previewMedia;
             _isNSFW = isNSFW;
             _version = version;
+            _existingModPathForPreviewsOnly = existingModPath; // Use provided path if available
 
             // Load language
             _lang = SharedUtilities.LoadLanguageDictionary("GameBananaBrowser");
@@ -285,6 +287,43 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             try
             {
+                // If existingModPath was provided in constructor, use it directly
+                if (!string.IsNullOrEmpty(_existingModPathForPreviewsOnly) && Directory.Exists(_existingModPathForPreviewsOnly))
+                {
+                    // Show update-specific options grid
+                    if (_updateOptionsGrid != null)
+                        _updateOptionsGrid.Visibility = Visibility.Visible;
+                    
+                    Title = SharedUtilities.GetTranslation(_lang, "DownloadAndUpdateMod");
+                    Logger.LogInfo($"Update detected for mod (from provided path): {_existingModPathForPreviewsOnly}");
+                    
+                    // Use existing folder name instead of GameBanana name
+                    var existingFolderName = Path.GetFileName(_existingModPathForPreviewsOnly);
+                    // Remove DISABLED_ prefix if present
+                    if (existingFolderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        existingFolderName = existingFolderName.Substring(9);
+                    }
+                    _modNameTextBox.Text = existingFolderName;
+                    Logger.LogInfo($"Using existing folder name: {existingFolderName}");
+                    
+                    // Update category to where mod actually is
+                    var existingCategory = Path.GetFileName(Path.GetDirectoryName(_existingModPathForPreviewsOnly));
+                    if (!string.IsNullOrEmpty(existingCategory))
+                    {
+                        _categoryTextBox.Text = existingCategory;
+                        Logger.LogInfo($"Using existing category: {existingCategory}");
+                    }
+                    
+                    // Enable "Download Previews Only" button if previews are available
+                    if (_previewMedia?.Images != null && _previewMedia.Images.Any(img => img.Type == "screenshot"))
+                    {
+                        IsSecondaryButtonEnabled = true;
+                        Logger.LogInfo($"Previews available for download-only option");
+                    }
+                    return;
+                }
+                
                 // Get mod library path
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))
@@ -1450,6 +1489,9 @@ namespace FlairX_Mod_Manager.Dialogs
                 var context = Services.ImageOptimizationService.GetOptimizationContext(
                     Services.OptimizationTrigger.GameBananaDownload);
                 
+                // GameBanana download never uses reoptimize - only process new files
+                context.Reoptimize = false;
+                
                 Logger.LogInfo($"Using AutoDownloadMode: {context.Mode}, InspectAndEdit: {context.InspectAndEditEnabled}, CropStrategy: {context.CropStrategy}");
                 
                 // Optimize sequentially (with crop inspection if enabled)
@@ -1459,6 +1501,33 @@ namespace FlairX_Mod_Manager.Dialogs
                 
                 // Refresh the mod tile in UI after optimization
                 RefreshModTileInUI(modPath);
+            }
+            catch (OperationCanceledException)
+            {
+                // User clicked "Stop" in minitile selection or crop panel
+                // Clean up downloaded preview files so next download attempt will work
+                Logger.LogInfo($"User stopped optimization from UI panel for: {modPath}");
+                try
+                {
+                    var previewFilesToDelete = Directory.GetFiles(modPath)
+                        .Where(f =>
+                        {
+                            var fileName = Path.GetFileName(f).ToLower();
+                            return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
+                                   (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                                    f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                        });
+                    foreach (var file in previewFilesToDelete)
+                    {
+                        try { File.Delete(file); } catch { }
+                    }
+                    Logger.LogInfo($"Cleaned up preview files from cancelled download: {modPath}");
+                }
+                catch (Exception cleanupEx)
+                {
+                    Logger.LogError($"Failed to clean up preview files for {modPath}", cleanupEx);
+                }
             }
             catch (Exception ex)
             {
