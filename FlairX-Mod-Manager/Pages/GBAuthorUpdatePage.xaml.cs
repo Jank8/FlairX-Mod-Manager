@@ -1602,6 +1602,10 @@ namespace FlairX_Mod_Manager.Pages
 
             _ctsAllPreviews = new CancellationTokenSource();
             _isFetchingAllPreviews = true;
+            
+            // Reset ImageOptimizationService cancellation flag before starting
+            Services.ImageOptimizationService.ResetCancellation();
+            
             lock (_lockObject)
             {
                 _success = 0; _fail = 0; _skip = 0;
@@ -1674,6 +1678,10 @@ namespace FlairX_Mod_Manager.Pages
 
             _ctsMissingPreviews = new CancellationTokenSource();
             _isFetchingMissingPreviews = true;
+            
+            // Reset ImageOptimizationService cancellation flag before starting
+            Services.ImageOptimizationService.ResetCancellation();
+            
             lock (_lockObject)
             {
                 _success = 0; _fail = 0; _skip = 0;
@@ -1870,6 +1878,21 @@ namespace FlairX_Mod_Manager.Pages
                                         catch { }
                                     });
                                 }
+                                catch (OperationCanceledException)
+                                {
+                                    // User clicked "Stop" in minitile selection or crop panel
+                                    // Cancel the entire download process
+                                    Logger.LogInfo($"User stopped optimization from UI panel - cancelling download process");
+                                    if (_isFetchingAllPreviews)
+                                    {
+                                        _ctsAllPreviews?.Cancel();
+                                    }
+                                    if (_isFetchingMissingPreviews)
+                                    {
+                                        _ctsMissingPreviews?.Cancel();
+                                    }
+                                    return;
+                                }
                                 catch (Exception optEx)
                                 {
                                     Logger.LogError($"Failed to optimize previews for {modName}", optEx);
@@ -1913,6 +1936,16 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         ResetMissingPreviewsButtonToFetchState();
                     }
+                    
+                    // Show cancellation dialog
+                    var cancelDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                        Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await cancelDialog.ShowAsync();
                     return;
                 }
 
@@ -1973,6 +2006,17 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     ResetMissingPreviewsButtonToFetchState();
                 }
+                
+                // Show cancellation dialog
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+                var cancelDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await cancelDialog.ShowAsync();
             }
             catch (Exception ex)
             {

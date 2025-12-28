@@ -148,6 +148,14 @@ namespace FlairX_Mod_Manager.Services
         }
         
         /// <summary>
+        /// Reset cancellation flag - call before starting a new optimization process
+        /// </summary>
+        public static void ResetCancellation()
+        {
+            _cancellationRequested = false;
+        }
+        
+        /// <summary>
         /// Current progress value (0.0 to 1.0)
         /// </summary>
         public static double ProgressValue
