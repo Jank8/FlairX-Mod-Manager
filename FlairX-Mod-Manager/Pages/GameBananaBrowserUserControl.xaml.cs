@@ -937,6 +937,17 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
                 
+                // Check if mod is private or unavailable (API returns data but with null fields)
+                if (!_currentModDetails.IsAvailable)
+                {
+                    // Mod is private or has been removed
+                    CloseDetailsPanel();
+                    ModUnavailableBar.Title = SharedUtilities.GetTranslation(_lang, "ModUnavailableTitle") ?? "Mod Unavailable";
+                    ModUnavailableBar.Message = SharedUtilities.GetTranslation(_lang, "ModUnavailableMessage") ?? "This mod is private or has been removed.";
+                    ModUnavailableBar.IsOpen = true;
+                    return;
+                }
+                
                 // Check if mod is installed and update UI
                 bool isInstalled = false;
                 if (!string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
@@ -1211,7 +1222,7 @@ namespace FlairX_Mod_Manager.Pages
 
             // Show file extraction dialog
             var authorName = _currentModDetails.Submitter?.Name ?? "unknown";
-            var dateUpdated = _currentModDetails.DateUpdated > 0 ? _currentModDetails.DateUpdated : _currentModDetails.DateAdded;
+            var dateUpdated = (_currentModDetails.DateUpdated ?? 0) > 0 ? _currentModDetails.DateUpdated ?? 0 : _currentModDetails.DateAdded ?? 0;
             var categoryName = _currentModDetails.Category?.Name; // Get category from API
             
             var extractDialog = new Dialogs.GameBananaFileExtractionDialog(

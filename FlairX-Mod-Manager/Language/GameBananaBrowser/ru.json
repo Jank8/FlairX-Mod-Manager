@@ -59,6 +59,8 @@
     "Added": "Добавлено:",
     "ConnectionErrorTitle": "Ошибка подключения",
     "ConnectionErrorMessage": "Не удается подключиться к GameBanana. Проверьте подключение к интернету или попробуйте позже.",
+    "ModUnavailableTitle": "Мод недоступен",
+    "ModUnavailableMessage": "Этот мод является приватным или был удален.",
     "Retry": "Повторить",
     "ViewCategory": "Просмотреть категорию",
     "Mod": "Мод",

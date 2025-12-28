@@ -59,6 +59,8 @@
     "Added": "เพิ่มเมื่อ:",
     "ConnectionErrorTitle": "ข้อผิดพลาดในการเชื่อมต่อ",
     "ConnectionErrorMessage": "ไม่สามารถเชื่อมต่อกับ GameBanana ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณหรือลองอีกครั้งในภายหลัง",
+    "ModUnavailableTitle": "ม็อดไม่พร้อมใช้งาน",
+    "ModUnavailableMessage": "ม็อดนี้เป็นส่วนตัวหรือถูกลบแล้ว",
     "Retry": "ลองอีกครั้ง",
     "ViewCategory": "ดูหมวดหมู่",
     "Mod": "ม็อด",

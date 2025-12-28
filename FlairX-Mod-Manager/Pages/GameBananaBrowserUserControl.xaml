@@ -136,6 +136,14 @@
                             Click="RetryButton_Click"/>
                 </InfoBar.ActionButton>
             </InfoBar>
+            
+            <!-- Mod unavailable notification -->
+            <InfoBar x:Name="ModUnavailableBar"
+                     Grid.Row="1"
+                     Severity="Warning"
+                     IsOpen="False"
+                     Margin="16,0,16,8"
+                     IsClosable="True"/>
 
         <!-- Mods grid -->
         <ScrollViewer x:Name="ModsScrollViewer" Grid.Row="2" Padding="16">

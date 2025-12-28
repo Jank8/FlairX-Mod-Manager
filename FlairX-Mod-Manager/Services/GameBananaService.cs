@@ -256,7 +256,7 @@ namespace FlairX_Mod_Manager.Services
             public string Name { get; set; } = "";
             
             [JsonPropertyName("_sText")]
-            public string Description { get; set; } = "";
+            public string? Description { get; set; }
             
             [JsonPropertyName("_sProfileUrl")]
             public string ProfileUrl { get; set; } = "";
@@ -271,25 +271,25 @@ namespace FlairX_Mod_Manager.Services
             public PreviewMedia? PreviewMedia { get; set; }
             
             [JsonPropertyName("_tsDateAdded")]
-            public long DateAdded { get; set; }
+            public long? DateAdded { get; set; }
             
             [JsonPropertyName("_tsDateModified")]
-            public long DateModified { get; set; }
+            public long? DateModified { get; set; }
             
             [JsonPropertyName("_tsDateUpdated")]
-            public long DateUpdated { get; set; }
+            public long? DateUpdated { get; set; }
             
             [JsonPropertyName("_nViewCount")]
-            public int ViewCount { get; set; }
+            public int? ViewCount { get; set; }
             
             [JsonPropertyName("_nLikeCount")]
-            public int LikeCount { get; set; }
+            public int? LikeCount { get; set; }
             
             [JsonPropertyName("_nDownloadCount")]
-            public int DownloadCount { get; set; }
+            public int? DownloadCount { get; set; }
             
             [JsonPropertyName("_nPostCount")]
-            public int PostCount { get; set; }
+            public int? PostCount { get; set; }
             
             [JsonPropertyName("_aCategory")]
             public ModCategory? Category { get; set; }
@@ -301,10 +301,15 @@ namespace FlairX_Mod_Manager.Services
             public string? Version { get; set; }
             
             [JsonPropertyName("_bIsObsolete")]
-            public bool IsObsolete { get; set; }
+            public bool? IsObsolete { get; set; }
             
             [JsonPropertyName("_aRootCategory")]
             public RootCategory? RootCategory { get; set; }
+            
+            /// <summary>
+            /// Check if mod data is valid (not private/removed)
+            /// </summary>
+            public bool IsAvailable => Submitter != null && Files != null;
         }
 
         public class ModFile

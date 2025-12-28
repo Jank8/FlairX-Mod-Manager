@@ -59,6 +59,8 @@
     "Added": "添加时间:",
     "ConnectionErrorTitle": "连接错误",
     "ConnectionErrorMessage": "无法连接到GameBanana。请检查您的网络连接或稍后重试。",
+    "ModUnavailableTitle": "模组不可用",
+    "ModUnavailableMessage": "此模组是私有的或已被删除。",
     "Retry": "重试",
     "ViewCategory": "查看类别",
     "Mod": "模组",

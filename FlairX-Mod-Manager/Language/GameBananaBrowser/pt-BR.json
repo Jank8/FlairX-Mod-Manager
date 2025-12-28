@@ -59,6 +59,8 @@
     "Added": "Adicionado:",
     "ConnectionErrorTitle": "Erro de conexão",
     "ConnectionErrorMessage": "Não foi possível conectar ao GameBanana. Verifique sua conexão com a internet ou tente novamente mais tarde.",
+    "ModUnavailableTitle": "Mod indisponível",
+    "ModUnavailableMessage": "Este mod é privado ou foi removido.",
     "Retry": "Tentar novamente",
     "ViewCategory": "Ver categoria",
     "Mod": "Mod",

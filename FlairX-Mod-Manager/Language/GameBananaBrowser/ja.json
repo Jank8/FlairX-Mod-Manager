@@ -59,6 +59,8 @@
     "Added": "追加日:",
     "ConnectionErrorTitle": "接続エラー",
     "ConnectionErrorMessage": "GameBananaに接続できません。インターネット接続を確認するか、後でもう一度お試しください。",
+    "ModUnavailableTitle": "MODが利用できません",
+    "ModUnavailableMessage": "このMODはプライベートか、削除されています。",
     "Retry": "再試行",
     "ViewCategory": "カテゴリを表示",
     "Mod": "Mod",

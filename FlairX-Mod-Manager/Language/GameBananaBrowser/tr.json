@@ -59,6 +59,8 @@
     "Added": "Eklenme:",
     "ConnectionErrorTitle": "Bağlantı hatası",
     "ConnectionErrorMessage": "GameBanana'ya bağlanılamıyor. İnternet bağlantınızı kontrol edin veya daha sonra tekrar deneyin.",
+    "ModUnavailableTitle": "Mod kullanılamıyor",
+    "ModUnavailableMessage": "Bu mod özel veya kaldırılmış.",
     "Retry": "Tekrar dene",
     "ViewCategory": "Kategoriyi görüntüle",
     "Mod": "Mod",

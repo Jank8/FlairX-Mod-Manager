@@ -59,6 +59,8 @@
     "Added": "추가됨:",
     "ConnectionErrorTitle": "연결 오류",
     "ConnectionErrorMessage": "GameBanana에 연결할 수 없습니다. 인터넷 연결을 확인하거나 나중에 다시 시도하세요.",
+    "ModUnavailableTitle": "모드를 사용할 수 없음",
+    "ModUnavailableMessage": "이 모드는 비공개이거나 삭제되었습니다.",
     "Retry": "재시도",
     "ViewCategory": "카테고리 보기",
     "Mod": "모드",
