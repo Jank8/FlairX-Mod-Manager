@@ -18,7 +18,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     
     <!-- Version Information -->
-    <Version>3.3.8</Version>
+    <Version>3.3.9</Version>
     <AssemblyVersion>3.3.8.0</AssemblyVersion>
     <FileVersion>3.3.8.0</FileVersion>
     <AssemblyTitle>FlairX Mod Manager</AssemblyTitle>
