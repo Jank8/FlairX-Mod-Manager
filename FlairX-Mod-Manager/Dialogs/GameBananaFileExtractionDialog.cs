@@ -1442,6 +1442,10 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 Logger.LogInfo($"Starting preview optimization for downloaded mod in: {modPath}");
                 
+                // Reset cancellation flag before starting new optimization
+                // This ensures previous cancellations don't affect new downloads
+                Services.ImageOptimizationService.ResetCancellation();
+                
                 // Get optimization context for GameBanana download
                 var context = Services.ImageOptimizationService.GetOptimizationContext(
                     Services.OptimizationTrigger.GameBananaDownload);
