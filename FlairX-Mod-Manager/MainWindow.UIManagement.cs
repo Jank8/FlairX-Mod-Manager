@@ -148,19 +148,19 @@ namespace FlairX_Mod_Manager
         public async Task GenerateModCharacterMenuAsync()
         {
             // Debug logging to track when menu regeneration is triggered
-            System.Diagnostics.Debug.WriteLine($"[MENU DEBUG] GenerateModCharacterMenuAsync called from: {Environment.StackTrace}");
+            Logger.LogDebug($"GenerateModCharacterMenuAsync called");
             
             // Skip menu regeneration if suppressed
             if (_suppressMenuRegeneration)
             {
-                System.Diagnostics.Debug.WriteLine("[MENU DEBUG] Menu regeneration suppressed");
+                Logger.LogDebug("Menu regeneration suppressed");
                 return;
             }
             
             // Use SemaphoreSlim for proper async synchronization
             if (!await _menuGenerationLock.WaitAsync(0))
             {
-                System.Diagnostics.Debug.WriteLine("[MENU DEBUG] Menu generation already in progress, skipping");
+                Logger.LogDebug("Menu generation already in progress, skipping");
                 return;
             }
             
@@ -276,7 +276,7 @@ namespace FlairX_Mod_Manager
                     var completed = await Task.WhenAny(tcs.Task, delayTask);
                     if (completed != tcs.Task)
                     {
-                        System.Diagnostics.Debug.WriteLine("[MENU DEBUG] Warning: UI update for menu generation timed out");
+                        Logger.LogWarning("UI update for menu generation timed out");
                     }
                 });
             }
@@ -428,7 +428,7 @@ namespace FlairX_Mod_Manager
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Error preloading image {minitilePath}: {ex.Message}");
+                    Logger.LogDebug($"Error preloading image {minitilePath}: {ex.Message}");
                 }
                 
                 // Update UI every 50ms
@@ -590,7 +590,7 @@ namespace FlairX_Mod_Manager
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error updating UI for game selection: {ex.Message}");
+                Logger.LogError($"Error updating UI for game selection: {ex.Message}");
             }
         }
 

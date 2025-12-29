@@ -172,6 +172,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "在管理器標題下顯示裝飾動畫",
     "SettingsPage_ModGridZoom_Description": "啟用模組網格的縮放功能",
     "SettingsPage_GridLogging_Description": "啟用詳細記錄以進行效能除錯",
+    "SettingsPage_ErrorOnlyLogging_Label": "僅記錄錯誤",
+    "SettingsPage_ErrorOnlyLogging_Description": "僅記錄錯誤和警告，減少日誌檔案大小",
     "SettingsPage_MinimizeToTray_Label": "最小化到系統匣",
     "SettingsPage_MinimizeToTray_Description": "將應用程式最小化到系統匣而不是工作列",
     "SystemTray_Show": "顯示",

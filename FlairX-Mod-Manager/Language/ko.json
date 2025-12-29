@@ -173,6 +173,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "매니저 제목 아래 장식 애니메이션 표시",
     "SettingsPage_ModGridZoom_Description": "모드 그리드의 줌 기능 활성화",
     "SettingsPage_GridLogging_Description": "성능 디버깅을 위한 상세 로깅 활성화",
+    "SettingsPage_ErrorOnlyLogging_Label": "오류만 기록",
+    "SettingsPage_ErrorOnlyLogging_Description": "오류와 경고만 파일에 기록하여 로그 크기 감소",
     "SettingsPage_MinimizeToTray_Label": "트레이로 최소화",
     "SettingsPage_MinimizeToTray_Description": "작업 표시줄 대신 시스템 트레이로 애플리케이션 최소화",
     "SystemTray_Show": "표시",

@@ -172,6 +172,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "Hiển thị hoạt ảnh trang trí dưới tiêu đề trình quản lý",
     "SettingsPage_ModGridZoom_Description": "Bật chức năng zoom cho lưới mod",
     "SettingsPage_GridLogging_Description": "Bật ghi nhật ký chi tiết để gỡ lỗi hiệu suất",
+    "SettingsPage_ErrorOnlyLogging_Label": "Chỉ lỗi",
+    "SettingsPage_ErrorOnlyLogging_Description": "Chỉ ghi lỗi và cảnh báo, giảm kích thước tệp",
     "SettingsPage_MinimizeToTray_Label": "Thu nhỏ vào khay",
     "SettingsPage_MinimizeToTray_Description": "Thu nhỏ ứng dụng vào khay hệ thống thay vì thanh tác vụ",
     "SystemTray_Show": "Hiển thị",

@@ -215,7 +215,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error in RefreshContextMenuGlobally: {ex.Message}");
+                Logger.LogError($"Error in RefreshContextMenuGlobally: {ex.Message}");
             }
         }
 
@@ -343,7 +343,7 @@ namespace FlairX_Mod_Manager.Pages
                         catch (Exception ex)
                         {
                             // Image loading failed - could be file not found, access denied, etc.
-                            System.Diagnostics.Debug.WriteLine($"Failed to load image {item.ImagePath}: {ex.Message}");
+                            Logger.LogDebug($"Failed to load image {item.ImagePath}: {ex.Message}");
                             
                             // Set a default/placeholder image on UI thread
                             DispatcherQueue.TryEnqueue(() => 
@@ -871,7 +871,7 @@ namespace FlairX_Mod_Manager.Pages
         
         public void LoadCategoryInCategoryMode(string category)
         {
-            System.Diagnostics.Debug.WriteLine($"LoadCategoryInCategoryMode called with category: {category}");
+            Logger.LogDebug($"LoadCategoryInCategoryMode called with category: {category}");
             // CATEGORY MODE ONLY: Load specific category mods in category mode
             _currentViewMode = ViewMode.Categories; // Force category mode
             _currentCategory = category;
@@ -879,7 +879,7 @@ namespace FlairX_Mod_Manager.Pages
             LoadModsByCategory(category);
             CategoryBackButton.Visibility = Visibility.Visible;
             CategoryOpenFolderButton.Visibility = Visibility.Visible;
-            System.Diagnostics.Debug.WriteLine($"CategoryOpenFolderButton visibility set to Visible for category: {category}");
+            Logger.LogDebug($"CategoryOpenFolderButton visibility set to Visible for category: {category}");
         }
 
         public ModGridPage()
@@ -1110,7 +1110,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to load image {imagePath}: {ex.Message}");
+                Logger.LogDebug($"Failed to load image {imagePath}: {ex.Message}");
             }
             return bitmap;
         }

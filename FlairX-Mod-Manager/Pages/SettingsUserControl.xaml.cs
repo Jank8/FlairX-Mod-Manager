@@ -131,6 +131,8 @@ namespace FlairX_Mod_Manager.Pages
                 ModGridZoomToggleLabel.Text = ModGridZoomToggle.IsOn ? onText : offText;
             if (GridLoggingToggleLabel != null && GridLoggingToggle != null)
                 GridLoggingToggleLabel.Text = GridLoggingToggle.IsOn ? onText : offText;
+            if (ErrorOnlyLoggingToggleLabel != null && ErrorOnlyLoggingToggle != null)
+                ErrorOnlyLoggingToggleLabel.Text = ErrorOnlyLoggingToggle.IsOn ? onText : offText;
             if (MinimizeToTrayToggleLabel != null && MinimizeToTrayToggle != null)
                 MinimizeToTrayToggleLabel.Text = MinimizeToTrayToggle.IsOn ? onText : offText;
             if (BlurNSFWToggleLabel != null && BlurNSFWToggle != null)
@@ -282,6 +284,7 @@ namespace FlairX_Mod_Manager.Pages
             if (ShowOrangeAnimationLabel != null) ShowOrangeAnimationLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Label");
             if (ModGridZoomLabel != null) ModGridZoomLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Label");
             if (GridLoggingLabel != null) GridLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Label");
+            if (ErrorOnlyLoggingLabel != null) ErrorOnlyLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Label");
             if (MinimizeToTrayLabel != null) MinimizeToTrayLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Label");
             if (BlurNSFWLabel != null) BlurNSFWLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Label");
             if (HotkeysHeader != null) HotkeysHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Hotkeys_Header");
@@ -307,6 +310,7 @@ namespace FlairX_Mod_Manager.Pages
             if (ShowOrangeAnimationDescription != null) ShowOrangeAnimationDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Description") ?? string.Empty;
             if (ModGridZoomDescription != null) ModGridZoomDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Description") ?? string.Empty;
             if (GridLoggingDescription != null) GridLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Description") ?? string.Empty;
+            if (ErrorOnlyLoggingDescription != null) ErrorOnlyLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Description") ?? string.Empty;
             if (MinimizeToTrayDescription != null) MinimizeToTrayDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Description") ?? string.Empty;
             if (BlurNSFWDescription != null) BlurNSFWDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Description") ?? string.Empty;
             
@@ -467,6 +471,7 @@ namespace FlairX_Mod_Manager.Pages
             // Set toggle states from settings
             DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
             GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
+            ErrorOnlyLoggingToggle.IsOn = SettingsManager.Current.ErrorOnlyLogging;
             MinimizeToTrayToggle.IsOn = SettingsManager.Current.MinimizeToTrayEnabled;
             BlurNSFWToggle.IsOn = SettingsManager.Current.BlurNSFWThumbnails;
             HotkeysEnabledToggle.IsOn = SettingsManager.Current.HotkeysEnabled;
@@ -1498,6 +1503,13 @@ namespace FlairX_Mod_Manager.Pages
         private void GridLoggingToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.GridLoggingEnabled = GridLoggingToggle.IsOn;
+            SettingsManager.Save();
+            UpdateToggleLabels();
+        }
+
+        private void ErrorOnlyLoggingToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.ErrorOnlyLogging = ErrorOnlyLoggingToggle.IsOn;
             SettingsManager.Save();
             UpdateToggleLabels();
         }

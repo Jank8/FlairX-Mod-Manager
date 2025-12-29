@@ -411,8 +411,8 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error in ApplySorting: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                Logger.LogError($"Error in ApplySorting: {ex.Message}");
+                Logger.LogDebug($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -447,7 +447,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (string.IsNullOrEmpty(fullModDir) || !Directory.Exists(fullModDir))
                     {
                         // Mod directory not found - remove tile and cancel context menu
-                        System.Diagnostics.Debug.WriteLine($"Mod directory '{modTile.Directory}' not found during context menu, removing tile...");
+                        Logger.LogWarning($"Mod directory '{modTile.Directory}' not found during context menu, removing tile...");
                         
                         // Remove from UI collection
                         _allMods.Remove(modTile);
@@ -634,7 +634,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Error opening URL: {ex.Message}");
+                        Logger.LogError($"Error opening URL: {ex.Message}");
                     }
                 }
             }
@@ -959,7 +959,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (string.IsNullOrEmpty(fullModDir) || !Directory.Exists(fullModDir))
                         {
                             // Mod directory not found - remove tile dynamically
-                            System.Diagnostics.Debug.WriteLine($"Mod directory '{tile.Directory}' not found, removing tile...");
+                            Logger.LogWarning($"Mod directory '{tile.Directory}' not found, removing tile...");
                             
                             // Remove from UI collection
                             _allMods.Remove(tile);

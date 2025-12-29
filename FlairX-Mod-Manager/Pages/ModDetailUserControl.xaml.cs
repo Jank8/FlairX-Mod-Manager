@@ -115,9 +115,9 @@ namespace FlairX_Mod_Manager.Pages
                     modLibraryPath = PathManager.GetModsPath();
                 }
 
-                System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: Using mod library path: {modLibraryPath}");
-                System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: Current game: {SettingsManager.CurrentSelectedGame}");
-                System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: Requested mod directory: {modDirectory}");
+                Logger.LogDebug($"ModDetailUserControl: Using mod library path: {modLibraryPath}");
+                Logger.LogDebug($"ModDetailUserControl: Current game: {SettingsManager.CurrentSelectedGame}");
+                Logger.LogDebug($"ModDetailUserControl: Requested mod directory: {modDirectory}");
 
                 if (!string.IsNullOrEmpty(modDirectory) && !string.IsNullOrEmpty(modLibraryPath))
                 {
@@ -130,9 +130,9 @@ namespace FlairX_Mod_Manager.Pages
                     else
                     {
                         // Find the mod in the category-based structure
-                        System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: Searching for mod '{modDirectory}' in library: {modLibraryPath}");
+                        Logger.LogDebug($"ModDetailUserControl: Searching for mod '{modDirectory}' in library: {modLibraryPath}");
                         fullModDir = FindModFolderPath(modLibraryPath, modDirectory);
-                        System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: FindModFolderPath returned: {fullModDir ?? "null"}");
+                        Logger.LogDebug($"ModDetailUserControl: FindModFolderPath returned: {fullModDir ?? "null"}");
                     }
                     
                     if (!string.IsNullOrEmpty(fullModDir) && Directory.Exists(fullModDir))
@@ -147,8 +147,8 @@ namespace FlairX_Mod_Manager.Pages
                         _modJsonPath = Path.Combine(fullModDir, "mod.json");
                         _currentModDirectory = fullModDir;
                         
-                        System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: Found mod directory: {fullModDir}");
-                        System.Diagnostics.Debug.WriteLine($"ModDetailUserControl: Looking for mod.json at: {_modJsonPath}");
+                        Logger.LogDebug($"ModDetailUserControl: Found mod directory: {fullModDir}");
+                        Logger.LogDebug($"ModDetailUserControl: Looking for mod.json at: {_modJsonPath}");
                         
                         // Load mod.json data
                         await LoadModJsonData();
@@ -158,27 +158,27 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     else
                     {
-                        System.Diagnostics.Debug.WriteLine($"Could not find mod directory: {modDirectory} in library: {modLibraryPath}");
-                        System.Diagnostics.Debug.WriteLine($"Available categories in library:");
+                        Logger.LogDebug($"Could not find mod directory: {modDirectory} in library: {modLibraryPath}");
+                        Logger.LogDebug($"Available categories in library:");
                         try
                         {
                             foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
                             {
-                                System.Diagnostics.Debug.WriteLine($"  - {Path.GetFileName(categoryDir)}");
+                                Logger.LogDebug($"  - {Path.GetFileName(categoryDir)}");
                                 var modsInCategory = Directory.GetDirectories(categoryDir);
                                 foreach (var modInCategory in modsInCategory)
                                 {
-                                    System.Diagnostics.Debug.WriteLine($"    - {Path.GetFileName(modInCategory)}");
+                                    Logger.LogDebug($"    - {Path.GetFileName(modInCategory)}");
                                 }
                             }
                         }
                         catch (Exception debugEx)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Error listing directories: {debugEx.Message}");
+                            Logger.LogDebug($"Error listing directories: {debugEx.Message}");
                         }
                         
                         // Mod not found - this shouldn't happen anymore since we check before opening
-                        System.Diagnostics.Debug.WriteLine($"Mod directory not found: {modDirectory}");
+                        Logger.LogDebug($"Mod directory not found: {modDirectory}");
                         SetDefaultValues();
                         return;
                     }
@@ -190,7 +190,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading mod details: {ex.Message}");
+                Logger.LogDebug($"Error loading mod details: {ex.Message}");
                 Logger.LogError($"Error loading mod details for {modDirectory}", ex);
                 SetDefaultValues();
             }

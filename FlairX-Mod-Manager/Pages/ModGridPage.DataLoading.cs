@@ -19,7 +19,7 @@ namespace FlairX_Mod_Manager.Pages
         private void LoadCategories()
         {
             LogToGridLog($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
-            System.Diagnostics.Debug.WriteLine($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
+            Logger.LogDebug($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
             
             // Clear current category when loading categories view
             _currentCategory = null;
@@ -331,8 +331,8 @@ namespace FlairX_Mod_Manager.Pages
         public void LoadAllMods()
         {
             LogToGridLog($"LoadAllMods() called - CurrentViewMode: {CurrentViewMode}");
-            System.Diagnostics.Debug.WriteLine($"LoadAllMods() called - CurrentViewMode: {CurrentViewMode}");
-            System.Diagnostics.Debug.WriteLine($"LoadAllMods() stack trace: {Environment.StackTrace}");
+            Logger.LogDebug($"LoadAllMods() called - CurrentViewMode: {CurrentViewMode}");
+            Logger.LogDebug($"LoadAllMods() stack trace: {Environment.StackTrace}");
             
             // Exit table view if active and clear sorting when loading all mods
             if (CurrentViewMode == ViewMode.Table)

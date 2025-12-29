@@ -22,7 +22,6 @@ namespace FlairX_Mod_Manager.Pages
         private static readonly object _syncLock = new object();
         private static FileSystemWatcher? _fileWatcher;
         private static Timer? _periodicSyncTimer;
-        private static string? _logFile;
         
 
 
@@ -377,11 +376,11 @@ namespace FlairX_Mod_Manager.Pages
             {
                 await SharedUtilities.ShowInfoDialog(title, message, this.XamlRoot);
                 // Add logging after closing the dialog
-                LogStatic($"Dialog closed: {title}", "DEBUG");
+                Logger.LogStatusKeeper($"Dialog closed: {title}", "DEBUG");
             }
             catch (Exception ex)
             {
-                LogStatic($"Error showing dialog: {ex.Message}", "ERROR");
+                Logger.LogStatusKeeperError($"Error showing dialog: {ex.Message}");
             }
         }
 
@@ -389,17 +388,8 @@ namespace FlairX_Mod_Manager.Pages
         
         private void InitFileLogging(string logPath)
         {
-            _logFile = logPath;
-            var timestamp = DateTime.Now.ToString("yyyy-MM-dd | HH:mm:ss");
-            
-            // Ensure Settings directory exists
-            var settingsDir = Path.GetDirectoryName(logPath);
-            if (!string.IsNullOrEmpty(settingsDir) && !Directory.Exists(settingsDir))
-            {
-                Directory.CreateDirectory(settingsDir);
-            }
-            
-            File.WriteAllText(_logFile, $"=== ModStatusKeeper Log Started at {timestamp} ===\n", System.Text.Encoding.UTF8);
+            // Delegate to centralized Logger
+            Logger.InitStatusKeeperLog();
         }
 
         private string GetLogPath()
@@ -409,23 +399,14 @@ namespace FlairX_Mod_Manager.Pages
 
         private static void LogStatic(string message, string level = "INFO")
         {
-            var timestamp = DateTime.Now.ToString("yyyy-MM-dd | HH:mm:ss");
-            var logMessage = $"[{timestamp}] [{level}] {message}\n";
-
-            // Always log to console for real-time debugging
-            Debug.WriteLine(message);
-
-            // Only log to file if logging is enabled and file is initialized
-            if (_logFile != null && SettingsManager.Current.StatusKeeperLoggingEnabled)
+            // Delegate to centralized Logger
+            if (level == "ERROR")
             {
-                try
-                {
-                    File.AppendAllText(_logFile, logMessage, System.Text.Encoding.UTF8);
-                }
-                catch (Exception error)
-                {
-                    Debug.WriteLine($"Failed to write to log file: {error}");
-                }
+                Logger.LogStatusKeeperError(message);
+            }
+            else
+            {
+                Logger.LogStatusKeeper(message, level);
             }
         }
 

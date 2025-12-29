@@ -172,6 +172,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "Yönetici başlığının altında dekoratif animasyon göster",
     "SettingsPage_ModGridZoom_Description": "Mod ızgarası için yakınlaştırma işlevini etkinleştir",
     "SettingsPage_GridLogging_Description": "Performans hata ayıklama için ayrıntılı günlüğü etkinleştir",
+    "SettingsPage_ErrorOnlyLogging_Label": "Sadece hatalar",
+    "SettingsPage_ErrorOnlyLogging_Description": "Sadece hataları ve uyarıları kaydet, dosya boyutunu azalt",
     "SettingsPage_MinimizeToTray_Label": "Sistem tepsisine küçült",
     "SettingsPage_MinimizeToTray_Description": "Uygulamayı görev çubuğu yerine sistem tepsisine küçült",
     "SystemTray_Show": "Göster",

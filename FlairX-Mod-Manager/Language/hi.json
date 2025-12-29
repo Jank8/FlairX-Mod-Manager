@@ -172,6 +172,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "प्रबंधक शीर्षक के नीचे सजावटी एनिमेशन दिखाएं",
     "SettingsPage_ModGridZoom_Description": "मॉड ग्रिड के लिए ज़ूम कार्यक्षमता सक्षम करें",
     "SettingsPage_GridLogging_Description": "प्रदर्शन डिबगिंग के लिए विस्तृत लॉगिंग सक्षम करें",
+    "SettingsPage_ErrorOnlyLogging_Label": "केवल त्रुटियाँ",
+    "SettingsPage_ErrorOnlyLogging_Description": "केवल त्रुटियाँ और चेतावनियाँ लॉग करें, फ़ाइल का आकार कम करें",
     "SettingsPage_MinimizeToTray_Label": "ट्रे में छोटा करें",
     "SettingsPage_MinimizeToTray_Description": "एप्लिकेशन को टास्कबार के बजाय सिस्टम ट्रे में छोटा करें",
     "SystemTray_Show": "दिखाएं",

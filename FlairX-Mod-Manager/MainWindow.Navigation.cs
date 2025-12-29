@@ -100,7 +100,7 @@ namespace FlairX_Mod_Manager
                         }
                         else
                         {
-                            System.Diagnostics.Debug.WriteLine($"Navigation failed: Page type for tag '{selectedTag}' not found.");
+                            Logger.LogWarning($"Navigation failed: Page type for tag '{selectedTag}' not found.");
                         }
                     }
                 }
@@ -250,7 +250,7 @@ namespace FlairX_Mod_Manager
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Search filtering error: {ex.Message}");
+                    Logger.LogError($"Search filtering error: {ex.Message}");
                 }
             });
 

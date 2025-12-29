@@ -43,7 +43,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to load settings: {ex.Message}");
+                Logger.LogStatusKeeperError($"Failed to load settings: {ex.Message}");
                 // Initialize with defaults if loading fails
                 _settings = new StatusKeeperSettings();
             }

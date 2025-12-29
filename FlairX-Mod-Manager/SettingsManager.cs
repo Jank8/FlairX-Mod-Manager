@@ -17,6 +17,7 @@ namespace FlairX_Mod_Manager
         public string PreviewEffect { get; set; } = "None"; // None, GlassReflection
         public bool DynamicModSearchEnabled { get; set; } = true;
         public bool GridLoggingEnabled { get; set; } = false;
+        public bool ErrorOnlyLogging { get; set; } = false; // Log only errors to file
         public bool MinimizeToTrayEnabled { get; set; } = false;
         public bool HotkeysEnabled { get; set; } = true;
         public bool ShowOrangeAnimation { get; set; } = true;

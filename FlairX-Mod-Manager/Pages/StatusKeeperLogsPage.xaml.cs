@@ -74,8 +74,8 @@ namespace FlairX_Mod_Manager.Pages
 
         private void InitFileLogging(string logPath)
         {
-            var timestamp = DateTime.Now.ToString("yyyy-MM-dd | HH:mm:ss");
-            File.WriteAllText(logPath, $"=== ModStatusKeeper Log Started at {timestamp} ===\n", System.Text.Encoding.UTF8);
+            // Delegate to centralized Logger
+            Logger.InitStatusKeeperLog();
         }
 
         private void LoggingToggle_Toggled(object sender, RoutedEventArgs e)
@@ -83,15 +83,14 @@ namespace FlairX_Mod_Manager.Pages
             UpdateToggleLabels();
             SettingsManager.Current.StatusKeeperLoggingEnabled = LoggingToggle.IsOn;
             SettingsManager.Save();
-            var logPath = GetLogPath();
             if (LoggingToggle.IsOn)
             {
-                InitFileLogging(logPath);
-                Debug.WriteLine("File logging enabled");
+                Logger.InitStatusKeeperLog();
+                Logger.LogStatusKeeper("File logging enabled");
             }
             else
             {
-                Debug.WriteLine("File logging disabled - console only");
+                Logger.LogStatusKeeper("File logging disabled - console only");
             }
         }
 
@@ -106,7 +105,7 @@ namespace FlairX_Mod_Manager.Pages
                     // Use SharedUtilities to open the file with default application
                     if (SharedUtilities.OpenWithDefaultApp(logPath))
                     {
-                        Debug.WriteLine("Log file opened in default text editor");
+                        Logger.LogStatusKeeper("Log file opened in default text editor");
                     }
                     else
                     {
@@ -129,7 +128,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to open log file: {ex.Message}");
+                Logger.LogStatusKeeperError($"Failed to open log file: {ex.Message}");
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 var dialog = new ContentDialog
                 {
@@ -157,7 +156,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (SettingsManager.Current.StatusKeeperLoggingEnabled)
                     {
                         InitFileLogging(logPath);
-                        Debug.WriteLine("Log file cleared and reinitialized");
+                        Logger.LogStatusKeeper("Log file cleared and reinitialized");
                     }
                     
                     var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
@@ -171,7 +170,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to clear log file: {ex.Message}");
+                Logger.LogStatusKeeperError($"Failed to clear log file: {ex.Message}");
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 await SharedUtilities.ShowErrorDialog(SharedUtilities.GetTranslation(lang, "Error_Generic"), $"Failed to clear log file: {ex.Message}", this.XamlRoot);
             }

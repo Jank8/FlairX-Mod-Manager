@@ -200,11 +200,11 @@ namespace FlairX_Mod_Manager.Pages
                 };
                 await dialog.ShowAsync();
 
-                Debug.WriteLine($"Backup complete! Created {backupCount} .msk files, skipped {skipCount} existing/disabled files");
+                Logger.LogInfo($"Backup complete! Created {backupCount} .msk files, skipped {skipCount} existing/disabled files");
             }
             catch (Exception error)
             {
-                Debug.WriteLine($"Backup failed: {error.Message}");
+                Logger.LogError($"Backup failed: {error.Message}");
             }
             finally
             {
@@ -217,11 +217,11 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                Debug.WriteLine("RestoreBackupButton clicked");
+                Logger.LogDebug("RestoreBackupButton clicked");
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 var mainLang = SharedUtilities.LoadLanguageDictionary();
 
-                Debug.WriteLine("Showing confirmation dialog");
+                Logger.LogDebug("Showing confirmation dialog");
                 // Show confirmation dialog
                 var confirmDialog = new ContentDialog
                 {
@@ -233,7 +233,7 @@ namespace FlairX_Mod_Manager.Pages
                 };
 
                 var result = await confirmDialog.ShowAsync();
-                Debug.WriteLine($"Dialog result: {result}");
+                Logger.LogDebug($"Dialog result: {result}");
                 if (result != ContentDialogResult.Primary)
                     return;
 
@@ -259,11 +259,11 @@ namespace FlairX_Mod_Manager.Pages
                 };
                 await successDialog.ShowAsync();
 
-                Debug.WriteLine($"Restore complete! Restored {restoreCount} files, failed {skipCount} files");
+                Logger.LogInfo($"Restore complete! Restored {restoreCount} files, failed {skipCount} files");
             }
             catch (Exception error)
             {
-                Debug.WriteLine($"Restore failed: {error.Message}");
+                Logger.LogError($"Restore failed: {error.Message}");
             }
             finally
             {
@@ -276,11 +276,11 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                Debug.WriteLine("DeleteBackupsButton clicked");
+                Logger.LogDebug("DeleteBackupsButton clicked");
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
                 var mainLang = SharedUtilities.LoadLanguageDictionary();
 
-                Debug.WriteLine("Showing confirmation dialog");
+                Logger.LogDebug("Showing confirmation dialog");
                 // Show confirmation dialog
                 var confirmDialog = new ContentDialog
                 {
@@ -292,7 +292,7 @@ namespace FlairX_Mod_Manager.Pages
                 };
 
                 var result = await confirmDialog.ShowAsync();
-                Debug.WriteLine($"Dialog result: {result}");
+                Logger.LogDebug($"Dialog result: {result}");
                 if (result != ContentDialogResult.Primary)
                     return;
 
@@ -317,11 +317,11 @@ namespace FlairX_Mod_Manager.Pages
                 };
                 await successDialog.ShowAsync();
 
-                Debug.WriteLine($"Deletion complete! Deleted {deleteCount} backup files");
+                Logger.LogInfo($"Deletion complete! Deleted {deleteCount} backup files");
             }
             catch (Exception error)
             {
-                Debug.WriteLine($"Delete failed: {error.Message}");
+                Logger.LogError($"Delete failed: {error.Message}");
             }
             finally
             {
@@ -442,14 +442,14 @@ namespace FlairX_Mod_Manager.Pages
                         }
                         catch (Exception err)
                         {
-                            Debug.WriteLine($"Failed to backup {item}: {err.Message}");
+                            Logger.LogStatusKeeperError($"Failed to backup {item}: {err.Message}");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in BackupIniFiles for {dir}: {ex.Message}");
+                Logger.LogStatusKeeperError($"Error in BackupIniFiles for {dir}: {ex.Message}");
             }
         }
 
@@ -482,7 +482,7 @@ namespace FlairX_Mod_Manager.Pages
                         }
                         catch (Exception err)
                         {
-                            Debug.WriteLine($"Failed to restore {item}: {err.Message}");
+                            Logger.LogStatusKeeperError($"Failed to restore {item}: {err.Message}");
                             skipCount++;
                         }
                     }
@@ -490,7 +490,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in RestoreFromBackups for {dir}: {ex.Message}");
+                Logger.LogStatusKeeperError($"Error in RestoreFromBackups for {dir}: {ex.Message}");
             }
         }
 
@@ -519,14 +519,14 @@ namespace FlairX_Mod_Manager.Pages
                         }
                         catch (Exception err)
                         {
-                            Debug.WriteLine($"Failed to delete {item}: {err.Message}");
+                            Logger.LogStatusKeeperError($"Failed to delete {item}: {err.Message}");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error in DeleteBackups for {dir}: {ex.Message}");
+                Logger.LogStatusKeeperError($"Error in DeleteBackups for {dir}: {ex.Message}");
             }
         }
 

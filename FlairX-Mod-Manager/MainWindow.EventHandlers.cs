@@ -259,7 +259,7 @@ namespace FlairX_Mod_Manager
             // Ignore selection changes during initialization
             if (!_isInitializationComplete)
             {
-                System.Diagnostics.Debug.WriteLine("GameSelectionComboBox_SelectionChanged: Ignoring event during initialization");
+                Logger.LogDebug("GameSelectionComboBox_SelectionChanged: Ignoring event during initialization");
                 return;
             }
             
@@ -276,17 +276,17 @@ namespace FlairX_Mod_Manager
                 
                 if (!gameSelected)
                 {
-                    System.Diagnostics.Debug.WriteLine("Switching to no game selected - clearing paths and disabling UI");
+                    Logger.LogDebug("Switching to no game selected - clearing paths and disabling UI");
                     UpdateUIForGameSelection(false); // Disable UI first
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine($"Switching to game index {selectedIndex} (tag: {gameTag})");
+                    Logger.LogDebug($"Switching to game index {selectedIndex} (tag: {gameTag})");
                     UpdateUIForGameSelection(true); // Enable UI
                 }
                 
                 // No symlink cleanup needed - using DISABLED_ prefix system
-                System.Diagnostics.Debug.WriteLine("Switching games - no cleanup needed...");
+                Logger.LogDebug("Switching games - no cleanup needed...");
                 
                 // Switch game paths using index
                 SettingsManager.SwitchGame(selectedIndex);
@@ -294,7 +294,7 @@ namespace FlairX_Mod_Manager
                 // Only restart StatusKeeper watcher if a game is selected
                 if (gameSelected && SettingsManager.Current.StatusKeeperDynamicSyncEnabled)
                 {
-                    System.Diagnostics.Debug.WriteLine("Restarting StatusKeeper watcher for new game...");
+                    Logger.LogDebug("Restarting StatusKeeper watcher for new game...");
                     FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.StopWatcherStatic();
                     FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.StartWatcherStatic();
                 }
@@ -315,15 +315,15 @@ namespace FlairX_Mod_Manager
                     gridPage.SaveDefaultPresetAllInactive();
                     
                     // Regenerate character menu for the new game
-                    System.Diagnostics.Debug.WriteLine("Regenerating character menu for new game...");
+                    Logger.LogDebug("Regenerating character menu for new game...");
                     _ = GenerateModCharacterMenuAsync();
                     
                     // No symlink recreation needed - using DISABLED_ prefix system
-                    System.Diagnostics.Debug.WriteLine("Mod state maintained for new game...");
+                    Logger.LogDebug("Mod state maintained for new game...");
                     
                     // Always navigate to All Mods when a game is selected
                     // This handles all cases including ModDetailPage (since the current mod might not exist in new game)
-                    System.Diagnostics.Debug.WriteLine("Game selected - navigating to All Mods view");
+                    Logger.LogDebug("Game selected - navigating to All Mods view");
                     AllModsButton_Click(AllModsButton, new RoutedEventArgs());
                     
                     // Show Starter Pack dialog if available and not dismissed
@@ -332,16 +332,16 @@ namespace FlairX_Mod_Manager
                 else
                 {
                     // No game selected - navigate to welcome page
-                    System.Diagnostics.Debug.WriteLine("No game selected - navigating to welcome page");
+                    Logger.LogDebug("No game selected - navigating to welcome page");
                     contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.WelcomePage));
                     
                     // Clear navigation selection
                     nvSample.SelectedItem = null;
                 }
                 
-                System.Diagnostics.Debug.WriteLine($"Game switched successfully. New paths:");
-                System.Diagnostics.Debug.WriteLine($"  Mods: '{SettingsManager.GetCurrentXXMIModsDirectory()}'");
-                System.Diagnostics.Debug.WriteLine($"  D3DX INI: '{SettingsManager.Current.StatusKeeperD3dxUserIniPath}'");
+                Logger.LogDebug($"Game switched successfully. New paths:");
+                Logger.LogDebug($"  Mods: '{SettingsManager.GetCurrentXXMIModsDirectory()}'");
+                Logger.LogDebug($"  D3DX INI: '{SettingsManager.Current.StatusKeeperD3dxUserIniPath}'");
             }
         }
 
@@ -686,21 +686,21 @@ namespace FlairX_Mod_Manager
                 // Check if Starter Pack is available for this game
                 if (!Dialogs.StarterPackDialog.IsStarterPackAvailable(gameTag))
                 {
-                    System.Diagnostics.Debug.WriteLine($"No Starter Pack available for {gameTag}");
+                    Logger.LogDebug($"No Starter Pack available for {gameTag}");
                     return;
                 }
 
                 // Check if user has dismissed the dialog for this game
                 if (Dialogs.StarterPackDialog.IsStarterPackDismissed(gameTag))
                 {
-                    System.Diagnostics.Debug.WriteLine($"Starter Pack dialog dismissed for {gameTag}");
+                    Logger.LogDebug($"Starter Pack dialog dismissed for {gameTag}");
                     return;
                 }
 
                 // Check if mods folder already has content (excluding Other category)
                 if (!Dialogs.StarterPackDialog.IsModsFolderEmpty(gameTag))
                 {
-                    System.Diagnostics.Debug.WriteLine($"Mods folder not empty for {gameTag}, skipping Starter Pack dialog");
+                    Logger.LogDebug($"Mods folder not empty for {gameTag}, skipping Starter Pack dialog");
                     return;
                 }
 

@@ -172,6 +172,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "Ipakita ang decorative animation sa ilalim ng manager title",
     "SettingsPage_ModGridZoom_Description": "I-enable ang zoom functionality para sa mod grid",
     "SettingsPage_GridLogging_Description": "I-enable ang detalyadong logging para sa performance debugging",
+    "SettingsPage_ErrorOnlyLogging_Label": "Mga error lamang",
+    "SettingsPage_ErrorOnlyLogging_Description": "Mag-log lamang ng mga error at babala, binabawasan ang laki ng file",
     "SettingsPage_MinimizeToTray_Label": "I-minimize sa tray",
     "SettingsPage_MinimizeToTray_Description": "I-minimize ang application sa system tray sa halip na taskbar",
     "SystemTray_Show": "Ipakita",

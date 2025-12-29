@@ -99,10 +99,10 @@ namespace FlairX_Mod_Manager
             if (_ramImageCache.TryGetValue(key, out var entry))
             {
                 entry.LastAccessed = DateTime.Now;
-                System.Diagnostics.Debug.WriteLine($"🎯 RAM Cache HIT for key: {key}");
+                Logger.LogDebug($"🎯 RAM Cache HIT for key: {key}");
                 return entry.Image;
             }
-            System.Diagnostics.Debug.WriteLine($"❌ RAM Cache MISS for key: {key}");
+            Logger.LogDebug($"❌ RAM Cache MISS for key: {key}");
             return null;
         }
 

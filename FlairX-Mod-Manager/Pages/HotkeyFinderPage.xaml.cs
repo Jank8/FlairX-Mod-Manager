@@ -551,7 +551,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (!File.Exists(modJsonPath))
                             continue;
                         
-                        var modJson = await File.ReadAllTextAsync(modJsonPath);
+                        var modJson = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath);
                         using var doc = JsonDocument.Parse(modJson);
                         var root = doc.RootElement;
                         
@@ -590,14 +590,14 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var json = await File.ReadAllTextAsync(modJsonPath);
+                var json = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath);
                 var modData = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
                 
                 // Remove hotkeys section
                 modData.Remove("hotkeys");
                 
                 var newJson = JsonSerializer.Serialize(modData, new JsonSerializerOptions { WriteIndented = true });
-                await File.WriteAllTextAsync(modJsonPath, newJson);
+                await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, newJson);
             }
             catch (Exception ex)
             {
@@ -619,7 +619,7 @@ namespace FlairX_Mod_Manager.Pages
                 // If hotkeys.json already exists, preserve defaultHotkeys and load existing hotkeys
                 if (File.Exists(hotkeysJsonPath))
                 {
-                    var existingJson = await File.ReadAllTextAsync(hotkeysJsonPath, token);
+                    var existingJson = await Services.FileAccessQueue.ReadAllTextAsync(hotkeysJsonPath, token);
                     using var doc = JsonDocument.Parse(existingJson);
                     var root = doc.RootElement;
                     
@@ -722,7 +722,7 @@ namespace FlairX_Mod_Manager.Pages
                 };
                 
                 var json = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
-                await File.WriteAllTextAsync(hotkeysJsonPath, json, token);
+                await Services.FileAccessQueue.WriteAllTextAsync(hotkeysJsonPath, json, token);
                 
                 Logger.LogInfo($"Created/updated hotkeys.json for mod: {Path.GetFileName(modPath)}");
             }
@@ -748,7 +748,7 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
                 
-                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                var json = await Services.FileAccessQueue.ReadAllTextAsync(hotkeysJsonPath);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 
@@ -938,7 +938,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (!File.Exists(hotkeysJsonPath))
                     return;
                 
-                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                var json = await Services.FileAccessQueue.ReadAllTextAsync(hotkeysJsonPath);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 
@@ -1019,7 +1019,7 @@ namespace FlairX_Mod_Manager.Pages
                 };
                 
                 var newJson = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
-                await File.WriteAllTextAsync(hotkeysJsonPath, newJson);
+                await Services.FileAccessQueue.WriteAllTextAsync(hotkeysJsonPath, newJson);
                 
                 Logger.LogInfo($"Updated INI path in hotkeys.json for: {description}");
             }

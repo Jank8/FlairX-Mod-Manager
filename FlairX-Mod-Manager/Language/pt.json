@@ -172,6 +172,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "Mostrar animação decorativa sob o título do gestor",
     "SettingsPage_ModGridZoom_Description": "Activar funcionalidade de zoom para grelha de mods",
     "SettingsPage_GridLogging_Description": "Activar registo detalhado para depuração de desempenho",
+    "SettingsPage_ErrorOnlyLogging_Label": "Apenas erros",
+    "SettingsPage_ErrorOnlyLogging_Description": "Registrar apenas erros e avisos, reduzindo o tamanho do arquivo",
     "SettingsPage_MinimizeToTray_Label": "Minimizar para tabuleiro",
     "SettingsPage_MinimizeToTray_Description": "Minimizar aplicação para tabuleiro do sistema em vez da barra de tarefas",
     "SystemTray_Show": "Mostrar",

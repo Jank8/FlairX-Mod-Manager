@@ -173,6 +173,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "Показать анимацию под заголовком программы",
     "SettingsPage_ModGridZoom_Description": "Включить функцию масштабирования для сетки модов",
     "SettingsPage_GridLogging_Description": "Включить подробный логи для отладки программы",
+    "SettingsPage_ErrorOnlyLogging_Label": "Только ошибки",
+    "SettingsPage_ErrorOnlyLogging_Description": "Записывать только ошибки и предупреждения, уменьшая размер файла",
     "SettingsPage_MinimizeToTray_Label": "Свернуть в трей",
     "SettingsPage_MinimizeToTray_Description": "Сворачивать приложение в системный трей вместо панели задач",
     "SystemTray_Show": "Показать",

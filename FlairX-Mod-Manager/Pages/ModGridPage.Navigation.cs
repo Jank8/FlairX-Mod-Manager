@@ -19,35 +19,8 @@ namespace FlairX_Mod_Manager.Pages
     {
         public static void LogToGridLog(string message, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null)
         {
-            // Only log if grid logging is enabled in settings
-            if (!SettingsManager.Current.GridLoggingEnabled) return;
-            
-            try
-            {
-                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-                var logPath = PathManager.GetSettingsPath("GridLog.log");
-                var settingsDir = Path.GetDirectoryName(logPath);
-                
-                if (!string.IsNullOrEmpty(settingsDir) && !Directory.Exists(settingsDir))
-                {
-                    Directory.CreateDirectory(settingsDir);
-                }
-                
-                // Format message with caller information like main Logger
-                var fileName = !string.IsNullOrEmpty(callerFile) ? Path.GetFileNameWithoutExtension(callerFile) : "Unknown";
-                var methodName = !string.IsNullOrEmpty(callerName) ? callerName : "Unknown";
-                var formattedMessage = $"[{fileName}.{methodName}] {message}";
-                
-                var logEntry = $"[{timestamp}] [GRID] {formattedMessage}\n";
-                File.AppendAllText(logPath, logEntry, System.Text.Encoding.UTF8);
-                
-                // Also log to main logger for unified logging (but as debug level to avoid spam)
-                Logger.LogDebug($"GRID: {message}", callerName, callerFile);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to write to GridLog", ex);
-            }
+            // Delegate to centralized Logger
+            Logger.LogGrid(message, callerName, callerFile);
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)

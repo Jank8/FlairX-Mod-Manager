@@ -173,6 +173,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "マネージャータイトル下の装飾アニメーションを表示",
     "SettingsPage_ModGridZoom_Description": "Modグリッドのズーム機能を有効にする",
     "SettingsPage_GridLogging_Description": "パフォーマンスデバッグ用の詳細ログを有効にする",
+    "SettingsPage_ErrorOnlyLogging_Label": "エラーのみ記録",
+    "SettingsPage_ErrorOnlyLogging_Description": "エラーと警告のみをファイルに記録し、ログサイズを削減",
     "SettingsPage_MinimizeToTray_Label": "トレイに最小化",
     "SettingsPage_MinimizeToTray_Description": "タスクバーではなくシステムトレイにアプリケーションを最小化する",
     "SystemTray_Show": "表示",

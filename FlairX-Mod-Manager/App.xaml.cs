@@ -290,7 +290,7 @@ namespace FlairX_Mod_Manager
                 // Only run if a game is selected (not index 0)
                 if (SettingsManager.Current.SelectedGameIndex == 0)
                 {
-                    System.Diagnostics.Debug.WriteLine("EnsureModJsonInXXMIMods: Skipping - no game selected");
+                    Logger.LogDebug("EnsureModJsonInXXMIMods: Skipping - no game selected");
                     return;
                 }
                 
@@ -298,7 +298,7 @@ namespace FlairX_Mod_Manager
                 string modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
                 if (!System.IO.Directory.Exists(modsPath)) 
                 {
-                    System.Diagnostics.Debug.WriteLine($"EnsureModJsonInXXMIMods: Skipping - mod library path does not exist: {modsPath}");
+                    Logger.LogDebug($"EnsureModJsonInXXMIMods: Skipping - mod library path does not exist: {modsPath}");
                     return;
                 }
             
@@ -419,7 +419,7 @@ namespace FlairX_Mod_Manager
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Failed to read existing mod.json at {modJsonPath}: {ex.Message}");
+                        Logger.LogWarning($"Failed to read existing mod.json at {modJsonPath}: {ex.Message}");
                         // If JSON is corrupted, try to preserve what we can by creating minimal structure
                         modData = new Dictionary<string, object>
                         {
@@ -448,7 +448,7 @@ namespace FlairX_Mod_Manager
                         
                         needsUpdate = true;
                         updatedModPaths.Add(modDir);
-                        System.Diagnostics.Debug.WriteLine($"Recreated corrupted mod.json at {modJsonPath}");
+                        Logger.LogInfo($"Recreated corrupted mod.json at {modJsonPath}");
                     }
                 }
                 
@@ -471,11 +471,11 @@ namespace FlairX_Mod_Manager
                     try
                     {
                         System.IO.File.Delete(categoryModJsonPath);
-                        System.Diagnostics.Debug.WriteLine($"Removed incorrect mod.json from category directory: {categoryDir}");
+                        Logger.LogDebug($"Removed incorrect mod.json from category directory: {categoryDir}");
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine($"Failed to remove mod.json from category directory {categoryDir}: {ex.Message}");
+                        Logger.LogWarning($"Failed to remove mod.json from category directory {categoryDir}: {ex.Message}");
                     }
                 }
             }
@@ -493,7 +493,7 @@ namespace FlairX_Mod_Manager
                 // Log results
                 if (newlyCreatedModPaths.Count > 0 || updatedModPaths.Count > 0)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Mod.json processing complete: {newlyCreatedModPaths.Count} created, {updatedModPaths.Count} updated");
+                    Logger.LogInfo($"Mod.json processing complete: {newlyCreatedModPaths.Count} created, {updatedModPaths.Count} updated");
                 }
             });
         }
@@ -539,7 +539,7 @@ namespace FlairX_Mod_Manager
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error scanning mod {modDir} for namespace: {ex.Message}");
+                Logger.LogWarning($"Error scanning mod {modDir} for namespace: {ex.Message}");
             }
 
             return (namespaceMap.Count > 0, namespaceMap);
@@ -563,7 +563,7 @@ namespace FlairX_Mod_Manager
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error during preloading: {ex.Message}");
+                Logger.LogError($"Error during preloading: {ex.Message}");
                 LogToGridLog($"STARTUP: Error during preloading: {ex.Message}");
             }
             
@@ -593,24 +593,8 @@ namespace FlairX_Mod_Manager
 
         private static void LogToGridLog(string message)
         {
-            try
-            {
-                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-                var logPath = PathManager.GetSettingsPath("GridLog.log");
-                var settingsDir = System.IO.Path.GetDirectoryName(logPath);
-                
-                if (!string.IsNullOrEmpty(settingsDir) && !Directory.Exists(settingsDir))
-                {
-                    Directory.CreateDirectory(settingsDir);
-                }
-                
-                var logEntry = $"[{timestamp}] {message}\n";
-                File.AppendAllText(logPath, logEntry, System.Text.Encoding.UTF8);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Failed to write to GridLog: {ex.Message}");
-            }
+            // Delegate to centralized Logger
+            Logger.LogGrid(message);
         }
 
         /// <summary>

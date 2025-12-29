@@ -172,6 +172,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "แสดงแอนิเมชันตกแต่งใต้ชื่อตัวจัดการ",
     "SettingsPage_ModGridZoom_Description": "เปิดใช้งานฟังก์ชันซูมสำหรับตารางม็อด",
     "SettingsPage_GridLogging_Description": "เปิดใช้งานการบันทึกรายละเอียดสำหรับการดีบักประสิทธิภาพ",
+    "SettingsPage_ErrorOnlyLogging_Label": "เฉพาะข้อผิดพลาด",
+    "SettingsPage_ErrorOnlyLogging_Description": "บันทึกเฉพาะข้อผิดพลาดและคำเตือน ลดขนาดไฟล์",
     "SettingsPage_MinimizeToTray_Label": "ย่อเก็บไว้ในถาด",
     "SettingsPage_MinimizeToTray_Description": "ย่อแอปพลิเคชันไว้ในถาดระบบแทนที่จะเป็นแถบงาน",
     "SystemTray_Show": "แสดง",

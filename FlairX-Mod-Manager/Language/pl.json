@@ -188,6 +188,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "Pokaż animację dekoracyjną pod tytułem menedżera",
     "SettingsPage_ModGridZoom_Description": "Włącz funkcję powiększania dla siatki modów",
     "SettingsPage_GridLogging_Description": "Włącz szczegółowe logowanie do debugowania wydajności",
+    "SettingsPage_ErrorOnlyLogging_Label": "Loguj tylko błędy",
+    "SettingsPage_ErrorOnlyLogging_Description": "Zapisuj do pliku tylko błędy i ostrzeżenia, zmniejszając rozmiar logów",
     "SettingsPage_MinimizeToTray_Label": "Zminimalizuj do zasobnika",
     "SettingsPage_MinimizeToTray_Description": "Minimalizuj aplikację do zasobnika systemowego zamiast paska zadań",
     "SettingsPage_HideNSFW_Label": "Ukryj treści NSFW",

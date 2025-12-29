@@ -173,6 +173,8 @@
     "SettingsPage_ShowOrangeAnimation_Description": "在管理器标题下显示装饰动画",
     "SettingsPage_ModGridZoom_Description": "启用模组网格的缩放功能",
     "SettingsPage_GridLogging_Description": "启用详细日志记录以进行性能调试",
+    "SettingsPage_ErrorOnlyLogging_Label": "仅记录错误",
+    "SettingsPage_ErrorOnlyLogging_Description": "仅记录错误和警告，减少日志文件大小",
     "SettingsPage_MinimizeToTray_Label": "最小化到托盘",
     "SettingsPage_MinimizeToTray_Description": "将应用程序最小化到系统托盘而不是任务栏",
     "SystemTray_Show": "显示",
