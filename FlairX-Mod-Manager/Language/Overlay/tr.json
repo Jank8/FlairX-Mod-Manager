@@ -8,78 +8,67 @@
     "NoMods": "Bu kategoride mod yok",
     "ActiveOnly": "Sadece aktif",
     "AllMods": "Tüm modlar",
-    
     "Section_Appearance": "Görünüm",
     "Section_Preview": "Önizleme",
     "Section_Controls": "Kontroller",
     "Section_Gamepad": "Gamepad (XInput)",
     "Section_GamepadHotkeys": "Gamepad tuşları",
-    
     "Theme_Label": "Tema",
     "Theme_Description": "Overlay renk teması",
     "Theme_Auto": "Otomatik",
     "Theme_Light": "Açık",
     "Theme_Dark": "Koyu",
-    
     "Backdrop_Label": "Arka plan",
     "Backdrop_Description": "Pencere arka plan efekti",
     "Backdrop_Thin": "İnce",
     "Backdrop_None": "Yok",
-    
     "TestOverlay_Label": "Overlay'i Test Et",
     "TestOverlay_Description": "Önizleme için overlay penceresini aç",
     "TestOverlay_Button": "Overlay'i Aç",
-    
     "ToggleHotkey_Label": "Geçiş kısayolu",
     "ToggleHotkey_Description": "Overlay'i göster/gizle klavye kısayolu",
-    
     "FilterActiveHotkey_Label": "Aktif filtre kısayolu",
     "FilterActiveHotkey_Description": "Overlay'de sadece aktif modları göster",
-    
     "SendF10OnOverlayClose_Label": "Otomatik mod yenileme",
     "SendF10OnOverlayClose_Description": "Etkinleştirme değiştiğinde modları otomatik yeniden yükle (yönetici gerekli - klasör seçici ve sürükle bırak devre dışı)",
-    
     "AutoReload_AdminRequired_Title": "Yönetici Gerekli",
     "AutoReload_AdminRequired_Content": "Otomatik yenileme, oyuna klavye girişi göndermek için yönetici ayrıcalıkları gerektirir.\n\nFlairX'in bundan sonra yönetici olarak çalışmasını ister misiniz?",
     "AutoReload_AdminRequired_Yes": "Evet",
     "AutoReload_AdminRequired_Cancel": "Hayır",
-    
     "GamepadEnabled_Label": "Gamepad'i Etkinleştir",
     "GamepadEnabled_Description": "Overlay'de gezinmek için Xbox kumandası kullan",
-    
     "UseLeftStick_Label": "Sol çubuğu kullan",
     "UseLeftStick_Description": "D-Pad yerine sol analog çubukla gezin",
-    
     "VibrateOnNav_Label": "Gezinirken titret",
     "VibrateOnNav_Description": "Modlar arasında gezerken dokunsal geri bildirim",
-    
     "ControllerStatus_Label": "Kumanda durumu",
     "ControllerStatus_Connected": "Kumanda bağlı",
     "ControllerStatus_NotConnected": "Kumanda algılanmadı",
     "ControllerStatus_Test": "Test",
-    
     "SelectButton_Label": "Seç / Mod Değiştir",
     "SelectButton_Description": "Seçili modu etkinleştir/devre dışı bırak butonu",
-    
     "BackButton_Label": "Geri / Overlay'i Kapat",
     "BackButton_Description": "Overlay penceresini kapat butonu",
-    
     "NextCategory_Label": "Sonraki kategori",
     "NextCategory_Description": "Sonraki kategoriye geç butonu",
-    
     "PrevCategory_Label": "Önceki kategori",
     "PrevCategory_Description": "Önceki kategoriye geç butonu",
-    
     "ToggleOverlayCombo_Label": "Overlay geçiş kombosu",
     "ToggleOverlayCombo_Description": "Overlay'i göster/gizle buton kombinasyonu",
-    
     "FilterActiveCombo_Label": "Aktif filtre kombosu",
     "FilterActiveCombo_Description": "Overlay'de sadece aktif modları göster",
-    
     "Recording_PressButton": "Butona basın...",
     "Recording_PressButtons": "Butonlara basın...",
     "Recording_NoController": "Kumanda yok!",
-    
     "ToggleSwitch_On": "Açık",
-    "ToggleSwitch_Off": "Kapalı"
+    "ToggleSwitch_Off": "Kapalı",
+    "Section_Navigation": "Navigasyon",
+    "DPadUp_Label": "D-Pad Yukarı",
+    "DPadDown_Label": "D-Pad Aşağı",
+    "DPadLeft_Label": "D-Pad Sol",
+    "DPadRight_Label": "D-Pad Sağ",
+    "LeftStickUp_Label": "Sol Analog Çubuk Yukarı",
+    "LeftStickDown_Label": "Sol Analog Çubuk Aşağı",
+    "LeftStickLeft_Label": "Sol Analog Çubuk Sol",
+    "LeftStickRight_Label": "Sol Analog Çubuk Sağ"
 }

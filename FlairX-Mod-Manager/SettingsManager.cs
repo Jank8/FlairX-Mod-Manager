@@ -79,15 +79,27 @@ namespace FlairX_Mod_Manager
         
         // Gamepad settings
         public bool GamepadEnabled { get; set; } = false;
-        public string GamepadToggleOverlayCombo { get; set; } = "Back+Start"; // Combo to toggle overlay (uses display names)
-        public string GamepadFilterActiveCombo { get; set; } = "Back+A"; // Combo to filter active mods only
+        public string GamepadToggleOverlayCombo { get; set; } = "XB Back+XB Start"; // Combo to toggle overlay (uses display names)
+        public string GamepadFilterActiveCombo { get; set; } = "XB Back+XB A"; // Combo to filter active mods only
         public string FilterActiveHotkey { get; set; } = "Alt+A"; // Keyboard shortcut to filter active mods
         public bool GamepadUseLeftStick { get; set; } = false; // Use left analog stick for navigation
         public bool GamepadVibrateOnNavigation { get; set; } = false; // Vibrate when navigating
-        public string GamepadSelectButton { get; set; } = "A";
-        public string GamepadBackButton { get; set; } = "B";
-        public string GamepadNextCategoryButton { get; set; } = "RB";
-        public string GamepadPrevCategoryButton { get; set; } = "LB";
+        public string GamepadSelectButton { get; set; } = "XB A";
+        public string GamepadBackButton { get; set; } = "XB B";
+        public string GamepadNextCategoryButton { get; set; } = "XB RB";
+        public string GamepadPrevCategoryButton { get; set; } = "XB LB";
+        
+        // Gamepad D-Pad navigation
+        public string GamepadDPadUp { get; set; } = "XB ↑";
+        public string GamepadDPadDown { get; set; } = "XB ↓";
+        public string GamepadDPadLeft { get; set; } = "XB ←";
+        public string GamepadDPadRight { get; set; } = "XB →";
+        
+        // Gamepad stick navigation
+        public string GamepadLeftStickUp { get; set; } = "XB L↑";
+        public string GamepadLeftStickDown { get; set; } = "XB L↓";
+        public string GamepadLeftStickLeft { get; set; } = "XB L←";
+        public string GamepadLeftStickRight { get; set; } = "XB L→";
         
         // Navigation state persistence
         public string? LastSelectedCategory { get; set; }

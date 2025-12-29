@@ -8,78 +8,67 @@
     "NoMods": "No hay mods en esta categoría",
     "ActiveOnly": "Solo activos",
     "AllMods": "Todos los mods",
-    
     "Section_Appearance": "Apariencia",
     "Section_Preview": "Vista previa",
     "Section_Controls": "Controles",
     "Section_Gamepad": "Gamepad (XInput)",
     "Section_GamepadHotkeys": "Botones del gamepad",
-    
+    "Section_Navigation": "Navegación",
     "Theme_Label": "Tema",
     "Theme_Description": "Tema de color del overlay",
     "Theme_Auto": "Auto",
     "Theme_Light": "Claro",
     "Theme_Dark": "Oscuro",
-    
     "Backdrop_Label": "Fondo",
     "Backdrop_Description": "Efecto de fondo de ventana",
     "Backdrop_Thin": "Thin",
     "Backdrop_None": "Ninguno",
-    
     "TestOverlay_Label": "Probar Overlay",
     "TestOverlay_Description": "Abrir ventana de overlay para vista previa",
     "TestOverlay_Button": "Abrir Overlay",
-    
     "ToggleHotkey_Label": "Atajo de alternancia",
     "ToggleHotkey_Description": "Atajo de teclado para mostrar/ocultar overlay",
-    
     "FilterActiveHotkey_Label": "Atajo de filtro activo",
     "FilterActiveHotkey_Description": "Mostrar solo mods activos en overlay",
-    
     "SendF10OnOverlayClose_Label": "Auto-recargar mods",
     "SendF10OnOverlayClose_Description": "Recargar mods automáticamente al cambiar activación (requiere admin - desactiva selector de carpeta y arrastrar)",
-    
     "AutoReload_AdminRequired_Title": "Se requiere administrador",
     "AutoReload_AdminRequired_Content": "La recarga automática requiere privilegios de administrador para enviar entrada de teclado al juego.\n\n¿Desea que FlairX se ejecute como administrador a partir de ahora?",
     "AutoReload_AdminRequired_Yes": "Sí",
     "AutoReload_AdminRequired_Cancel": "No",
-    
     "GamepadEnabled_Label": "Habilitar Gamepad",
     "GamepadEnabled_Description": "Usar control Xbox para navegar en overlay",
-    
     "UseLeftStick_Label": "Usar stick izquierdo",
     "UseLeftStick_Description": "Navegar con stick analógico izquierdo en lugar de D-Pad",
-    
     "VibrateOnNav_Label": "Vibrar al navegar",
     "VibrateOnNav_Description": "Retroalimentación háptica al moverse por los mods",
-    
     "ControllerStatus_Label": "Estado del control",
     "ControllerStatus_Connected": "Control conectado",
     "ControllerStatus_NotConnected": "No se detectó control",
     "ControllerStatus_Test": "Probar",
-    
     "SelectButton_Label": "Seleccionar / Alternar Mod",
     "SelectButton_Description": "Botón para activar/desactivar mod seleccionado",
-    
     "BackButton_Label": "Atrás / Cerrar Overlay",
     "BackButton_Description": "Botón para cerrar ventana de overlay",
-    
     "NextCategory_Label": "Siguiente categoría",
     "NextCategory_Description": "Botón para cambiar a siguiente categoría",
-    
     "PrevCategory_Label": "Categoría anterior",
     "PrevCategory_Description": "Botón para cambiar a categoría anterior",
-    
     "ToggleOverlayCombo_Label": "Combo de alternancia Overlay",
     "ToggleOverlayCombo_Description": "Combinación de botones para mostrar/ocultar overlay",
-    
     "FilterActiveCombo_Label": "Combo de filtro activo",
     "FilterActiveCombo_Description": "Mostrar solo mods activos en overlay",
-    
+    "DPadUp_Label": "D-Pad Arriba",
+    "DPadDown_Label": "D-Pad Abajo",
+    "DPadLeft_Label": "D-Pad Izquierda",
+    "DPadRight_Label": "D-Pad Derecha",
+    "LeftStickUp_Label": "Stick Izquierdo Arriba",
+    "LeftStickDown_Label": "Stick Izquierdo Abajo",
+    "LeftStickLeft_Label": "Stick Izquierdo Izquierda",
+    "LeftStickRight_Label": "Stick Izquierdo Derecha",
     "Recording_PressButton": "Presiona botón...",
     "Recording_PressButtons": "Presiona botones...",
     "Recording_NoController": "¡Sin control!",
-    
     "ToggleSwitch_On": "Activado",
     "ToggleSwitch_Off": "Desactivado"
 }

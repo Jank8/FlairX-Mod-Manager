@@ -582,7 +582,7 @@
                     CornerRadius="8" 
                     Padding="16,0,16,0"
                     Height="60"
-                    Margin="0,0,0,2">
+                    Margin="0,0,0,24">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -608,6 +608,329 @@
                         </Border>
                         <Border x:Name="FilterActiveComboRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
                                 PointerPressed="FilterActiveComboRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Navigation Section -->
+            <TextBlock x:Name="NavigationSectionHeader" Text="Navigation" FontSize="20" FontWeight="SemiBold" Margin="0,22,0,12"/>
+            
+            <!-- D-Pad Up -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16,0,16,0"
+                    Height="60"
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel x:Name="DPadUpKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
+                    
+                    <TextBlock x:Name="DPadUpLabel" Grid.Column="2" Text="D-Pad Up" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="DPadUpRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="DPadUpRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="DPadUpSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="DPadUpSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="DPadUpRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="DPadUpRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- D-Pad Down -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16,0,16,0"
+                    Height="60"
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel x:Name="DPadDownKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
+                    
+                    <TextBlock x:Name="DPadDownLabel" Grid.Column="2" Text="D-Pad Down" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="DPadDownRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="DPadDownRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="DPadDownSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="DPadDownSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="DPadDownRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="DPadDownRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- D-Pad Left -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16,0,16,0"
+                    Height="60"
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel x:Name="DPadLeftKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
+                    
+                    <TextBlock x:Name="DPadLeftLabel" Grid.Column="2" Text="D-Pad Left" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="DPadLeftRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="DPadLeftRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="DPadLeftSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="DPadLeftSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="DPadLeftRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="DPadLeftRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- D-Pad Right -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16,0,16,0"
+                    Height="60"
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel x:Name="DPadRightKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
+                    
+                    <TextBlock x:Name="DPadRightLabel" Grid.Column="2" Text="D-Pad Right" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="DPadRightRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="DPadRightRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="DPadRightSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="DPadRightSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="DPadRightRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="DPadRightRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Left Stick Up -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16,0,16,0"
+                    Height="60"
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel x:Name="LeftStickUpKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
+                    
+                    <TextBlock x:Name="LeftStickUpLabel" Grid.Column="2" Text="Left Stick Up" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="LeftStickUpRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="LeftStickUpRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="LeftStickUpSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="LeftStickUpSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="LeftStickUpRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="LeftStickUpRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Left Stick Down -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16,0,16,0"
+                    Height="60"
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel x:Name="LeftStickDownKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
+                    
+                    <TextBlock x:Name="LeftStickDownLabel" Grid.Column="2" Text="Left Stick Down" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="LeftStickDownRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="LeftStickDownRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="LeftStickDownSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="LeftStickDownSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="LeftStickDownRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="LeftStickDownRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Left Stick Left -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16,0,16,0"
+                    Height="60"
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel x:Name="LeftStickLeftKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
+                    
+                    <TextBlock x:Name="LeftStickLeftLabel" Grid.Column="2" Text="Left Stick Left" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="LeftStickLeftRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="LeftStickLeftRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="LeftStickLeftSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="LeftStickLeftSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="LeftStickLeftRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="LeftStickLeftRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Left Stick Right -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16,0,16,0"
+                    Height="60"
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel x:Name="LeftStickRightKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
+                    
+                    <TextBlock x:Name="LeftStickRightLabel" Grid.Column="2" Text="Left Stick Right" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="LeftStickRightRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="LeftStickRightRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="LeftStickRightSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="LeftStickRightSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="LeftStickRightRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="LeftStickRightRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
                                 ToolTipService.ToolTip="Restore default">
                             <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>

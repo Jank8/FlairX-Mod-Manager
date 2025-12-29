@@ -674,11 +674,17 @@ namespace FlairX_Mod_Manager
         public new event EventHandler<GamepadButtonEventArgs>? ButtonPressed;
         public new event EventHandler<GamepadButtonEventArgs>? ButtonReleased;
 
+        /// <summary>
+        /// Compatibility event that wraps SDL3AxisEventArgs into GamepadButtonEventArgs for stick input
+        /// </summary>
+        public event EventHandler<GamepadButtonEventArgs>? StickMoved;
+
         public GamepadManager() : base()
         {
             // Subscribe to base events and re-emit as compatibility events
             base.ButtonPressed += (s, e) => ButtonPressed?.Invoke(this, new GamepadButtonEventArgs(e.DisplayName));
             base.ButtonReleased += (s, e) => ButtonReleased?.Invoke(this, new GamepadButtonEventArgs(e.DisplayName));
+            base.AxisMoved += (s, e) => StickMoved?.Invoke(this, new GamepadButtonEventArgs(e.DisplayName));
         }
     }
 }

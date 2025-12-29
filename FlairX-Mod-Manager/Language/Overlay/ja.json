@@ -8,78 +8,67 @@
     "NoMods": "このカテゴリにMODがありません",
     "ActiveOnly": "アクティブのみ",
     "AllMods": "すべてのMOD",
-    
     "Section_Appearance": "外観",
     "Section_Preview": "プレビュー",
     "Section_Controls": "コントロール",
     "Section_Gamepad": "ゲームパッド (XInput)",
     "Section_GamepadHotkeys": "ゲームパッドボタン",
-    
     "Theme_Label": "テーマ",
     "Theme_Description": "オーバーレイのカラーテーマ",
     "Theme_Auto": "自動",
     "Theme_Light": "ライト",
     "Theme_Dark": "ダーク",
-    
     "Backdrop_Label": "背景",
     "Backdrop_Description": "ウィンドウ背景効果",
     "Backdrop_Thin": "Thin",
     "Backdrop_None": "なし",
-    
     "TestOverlay_Label": "オーバーレイをテスト",
     "TestOverlay_Description": "プレビュー用にオーバーレイウィンドウを開く",
     "TestOverlay_Button": "オーバーレイを開く",
-    
     "ToggleHotkey_Label": "切り替えホットキー",
     "ToggleHotkey_Description": "オーバーレイの表示/非表示のキーボードショートカット",
-    
     "FilterActiveHotkey_Label": "アクティブフィルターホットキー",
     "FilterActiveHotkey_Description": "オーバーレイでアクティブなMODのみ表示",
-    
     "SendF10OnOverlayClose_Label": "MOD自動リロード",
     "SendF10OnOverlayClose_Description": "有効化変更時にMODを自動リロード（管理者権限必要 - フォルダ選択とドラッグ＆ドロップ無効）",
-    
     "AutoReload_AdminRequired_Title": "管理者権限が必要",
     "AutoReload_AdminRequired_Content": "自動リロードにはゲームにキーボード入力を送信するための管理者権限が必要です。\n\n今後FlairXを管理者として実行しますか？",
     "AutoReload_AdminRequired_Yes": "はい",
     "AutoReload_AdminRequired_Cancel": "いいえ",
-    
     "GamepadEnabled_Label": "ゲームパッドを有効化",
     "GamepadEnabled_Description": "Xboxコントローラーでオーバーレイをナビゲート",
-    
     "UseLeftStick_Label": "左スティックを使用",
     "UseLeftStick_Description": "D-Padの代わりに左アナログスティックでナビゲート",
-    
     "VibrateOnNav_Label": "ナビゲーション時に振動",
     "VibrateOnNav_Description": "MOD間を移動する際の触覚フィードバック",
-    
     "ControllerStatus_Label": "コントローラーの状態",
     "ControllerStatus_Connected": "コントローラー接続済み",
     "ControllerStatus_NotConnected": "コントローラーが検出されません",
     "ControllerStatus_Test": "テスト",
-    
     "SelectButton_Label": "選択 / MOD切り替え",
     "SelectButton_Description": "選択したMODを有効化/無効化するボタン",
-    
     "BackButton_Label": "戻る / オーバーレイを閉じる",
     "BackButton_Description": "オーバーレイウィンドウを閉じるボタン",
-    
     "NextCategory_Label": "次のカテゴリ",
     "NextCategory_Description": "次のカテゴリに切り替えるボタン",
-    
     "PrevCategory_Label": "前のカテゴリ",
     "PrevCategory_Description": "前のカテゴリに切り替えるボタン",
-    
     "ToggleOverlayCombo_Label": "オーバーレイ切り替えコンボ",
     "ToggleOverlayCombo_Description": "オーバーレイの表示/非表示のボタン組み合わせ",
-    
     "FilterActiveCombo_Label": "アクティブフィルターコンボ",
     "FilterActiveCombo_Description": "オーバーレイでアクティブなMODのみ表示",
-    
     "Recording_PressButton": "ボタンを押してください...",
     "Recording_PressButtons": "ボタンを押してください...",
     "Recording_NoController": "コントローラーなし!",
-    
     "ToggleSwitch_On": "オン",
-    "ToggleSwitch_Off": "オフ"
+    "ToggleSwitch_Off": "オフ",
+    "Section_Navigation": "ナビゲーション",
+    "DPadUp_Label": "D-パッド 上",
+    "DPadDown_Label": "D-パッド 下",
+    "DPadLeft_Label": "D-パッド 左",
+    "DPadRight_Label": "D-パッド 右",
+    "LeftStickUp_Label": "左スティック 上",
+    "LeftStickDown_Label": "左スティック 下",
+    "LeftStickLeft_Label": "左スティック 左",
+    "LeftStickRight_Label": "左スティック 右"
 }

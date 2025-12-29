@@ -547,7 +547,8 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Failed to fetch author from API for URL: {url}", ex);
+                // Log as info since most failures are due to private/deleted mods or invalid URLs
+                Logger.LogInfo($"Could not fetch author from API for URL: {url} - {ex.Message}");
                 return null;
             }
         }

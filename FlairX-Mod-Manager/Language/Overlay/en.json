@@ -8,78 +8,67 @@
     "NoMods": "No mods in this category",
     "ActiveOnly": "Active only",
     "AllMods": "All mods",
-    
     "Section_Appearance": "Appearance",
     "Section_Preview": "Preview",
     "Section_Controls": "Controls",
     "Section_Gamepad": "Gamepad (XInput)",
     "Section_GamepadHotkeys": "Gamepad Hotkeys",
-    
+    "Section_Navigation": "Navigation",
     "Theme_Label": "Theme",
     "Theme_Description": "Overlay color theme",
     "Theme_Auto": "Auto",
     "Theme_Light": "Light",
     "Theme_Dark": "Dark",
-    
     "Backdrop_Label": "Backdrop",
     "Backdrop_Description": "Window background effect",
     "Backdrop_Thin": "Thin",
     "Backdrop_None": "None",
-    
     "TestOverlay_Label": "Test Overlay",
     "TestOverlay_Description": "Open overlay window to preview",
     "TestOverlay_Button": "Open Overlay",
-    
     "ToggleHotkey_Label": "Toggle Hotkey",
     "ToggleHotkey_Description": "Keyboard shortcut to show/hide overlay",
-    
     "FilterActiveHotkey_Label": "Filter Active Hotkey",
     "FilterActiveHotkey_Description": "Show only active mods in overlay",
-    
     "SendF10OnOverlayClose_Label": "Auto-reload mods",
     "SendF10OnOverlayClose_Description": "Automatically reload mods when activation changes (requires admin - disables folder picker and drag & drop)",
-    
     "AutoReload_AdminRequired_Title": "Administrator Required",
     "AutoReload_AdminRequired_Content": "Auto-reload requires administrator privileges to send keyboard input to the game.\n\nDo you want FlairX to run as administrator from now on?",
     "AutoReload_AdminRequired_Yes": "Yes",
     "AutoReload_AdminRequired_Cancel": "No",
-    
     "GamepadEnabled_Label": "Enable Gamepad",
     "GamepadEnabled_Description": "Use Xbox controller to navigate overlay",
-    
     "UseLeftStick_Label": "Use Left Stick",
     "UseLeftStick_Description": "Navigate with left analog stick instead of D-Pad",
-    
     "VibrateOnNav_Label": "Vibrate on Navigation",
     "VibrateOnNav_Description": "Haptic feedback when moving through mods",
-    
     "ControllerStatus_Label": "Controller Status",
     "ControllerStatus_Connected": "Controller connected",
     "ControllerStatus_NotConnected": "No controller detected",
     "ControllerStatus_Test": "Test",
-    
     "SelectButton_Label": "Select / Toggle Mod",
     "SelectButton_Description": "Button to activate/deactivate selected mod",
-    
     "BackButton_Label": "Back / Close Overlay",
     "BackButton_Description": "Button to close overlay window",
-    
     "NextCategory_Label": "Next Category",
     "NextCategory_Description": "Button to switch to next category",
-    
     "PrevCategory_Label": "Previous Category",
     "PrevCategory_Description": "Button to switch to previous category",
-    
     "ToggleOverlayCombo_Label": "Toggle Overlay Combo",
     "ToggleOverlayCombo_Description": "Button combination to show/hide overlay",
-    
     "FilterActiveCombo_Label": "Filter Active Combo",
     "FilterActiveCombo_Description": "Show only active mods in overlay",
-    
+    "DPadUp_Label": "D-Pad Up",
+    "DPadDown_Label": "D-Pad Down",
+    "DPadLeft_Label": "D-Pad Left",
+    "DPadRight_Label": "D-Pad Right",
+    "LeftStickUp_Label": "Left Stick Up",
+    "LeftStickDown_Label": "Left Stick Down",
+    "LeftStickLeft_Label": "Left Stick Left",
+    "LeftStickRight_Label": "Left Stick Right",
     "Recording_PressButton": "Press button...",
     "Recording_PressButtons": "Press buttons...",
     "Recording_NoController": "No controller!",
-    
     "ToggleSwitch_On": "On",
     "ToggleSwitch_Off": "Off"
 }

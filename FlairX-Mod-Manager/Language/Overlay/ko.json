@@ -8,78 +8,67 @@
     "NoMods": "이 카테고리에 모드가 없습니다",
     "ActiveOnly": "활성화된 것만",
     "AllMods": "모든 모드",
-    
     "Section_Appearance": "외관",
     "Section_Preview": "미리보기",
     "Section_Controls": "컨트롤",
     "Section_Gamepad": "게임패드 (XInput)",
     "Section_GamepadHotkeys": "게임패드 버튼",
-    
     "Theme_Label": "테마",
     "Theme_Description": "오버레이 색상 테마",
     "Theme_Auto": "자동",
     "Theme_Light": "라이트",
     "Theme_Dark": "다크",
-    
     "Backdrop_Label": "배경",
     "Backdrop_Description": "창 배경 효과",
     "Backdrop_Thin": "Thin",
     "Backdrop_None": "없음",
-    
     "TestOverlay_Label": "오버레이 테스트",
     "TestOverlay_Description": "미리보기용 오버레이 창 열기",
     "TestOverlay_Button": "오버레이 열기",
-    
     "ToggleHotkey_Label": "전환 단축키",
     "ToggleHotkey_Description": "오버레이 표시/숨기기 키보드 단축키",
-    
     "FilterActiveHotkey_Label": "활성 필터 단축키",
     "FilterActiveHotkey_Description": "오버레이에서 활성 모드만 표시",
-    
     "SendF10OnOverlayClose_Label": "모드 자동 다시 로드",
     "SendF10OnOverlayClose_Description": "활성화 변경 시 모드 자동 다시 로드 (관리자 필요 - 폴더 선택 및 드래그 앤 드롭 비활성화)",
-    
     "AutoReload_AdminRequired_Title": "관리자 권한 필요",
     "AutoReload_AdminRequired_Content": "자동 다시 로드는 게임에 키보드 입력을 보내기 위해 관리자 권한이 필요합니다.\n\n지금부터 FlairX를 관리자로 실행하시겠습니까?",
     "AutoReload_AdminRequired_Yes": "예",
     "AutoReload_AdminRequired_Cancel": "아니요",
-    
     "GamepadEnabled_Label": "게임패드 활성화",
     "GamepadEnabled_Description": "Xbox 컨트롤러로 오버레이 탐색",
-    
     "UseLeftStick_Label": "왼쪽 스틱 사용",
     "UseLeftStick_Description": "D-Pad 대신 왼쪽 아날로그 스틱으로 탐색",
-    
     "VibrateOnNav_Label": "탐색 시 진동",
     "VibrateOnNav_Description": "모드 간 이동 시 햅틱 피드백",
-    
     "ControllerStatus_Label": "컨트롤러 상태",
     "ControllerStatus_Connected": "컨트롤러 연결됨",
     "ControllerStatus_NotConnected": "컨트롤러가 감지되지 않음",
     "ControllerStatus_Test": "테스트",
-    
     "SelectButton_Label": "선택 / 모드 전환",
     "SelectButton_Description": "선택한 모드 활성화/비활성화 버튼",
-    
     "BackButton_Label": "뒤로 / 오버레이 닫기",
     "BackButton_Description": "오버레이 창 닫기 버튼",
-    
     "NextCategory_Label": "다음 카테고리",
     "NextCategory_Description": "다음 카테고리로 전환 버튼",
-    
     "PrevCategory_Label": "이전 카테고리",
     "PrevCategory_Description": "이전 카테고리로 전환 버튼",
-    
     "ToggleOverlayCombo_Label": "오버레이 전환 콤보",
     "ToggleOverlayCombo_Description": "오버레이 표시/숨기기 버튼 조합",
-    
     "FilterActiveCombo_Label": "활성 필터 콤보",
     "FilterActiveCombo_Description": "오버레이에서 활성 모드만 표시",
-    
     "Recording_PressButton": "버튼을 누르세요...",
     "Recording_PressButtons": "버튼을 누르세요...",
     "Recording_NoController": "컨트롤러 없음!",
-    
     "ToggleSwitch_On": "켜짐",
-    "ToggleSwitch_Off": "꺼짐"
+    "ToggleSwitch_Off": "꺼짐",
+    "Section_Navigation": "내비게이션",
+    "DPadUp_Label": "D-패드 위",
+    "DPadDown_Label": "D-패드 아래",
+    "DPadLeft_Label": "D-패드 왼쪽",
+    "DPadRight_Label": "D-패드 오른쪽",
+    "LeftStickUp_Label": "왼쪽 스틱 위",
+    "LeftStickDown_Label": "왼쪽 스틱 아래",
+    "LeftStickLeft_Label": "왼쪽 스틱 왼쪽",
+    "LeftStickRight_Label": "왼쪽 스틱 오른쪽"
 }

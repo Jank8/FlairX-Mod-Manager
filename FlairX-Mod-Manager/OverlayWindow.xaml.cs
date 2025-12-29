@@ -676,25 +676,25 @@ namespace FlairX_Mod_Manager
                     // Navigate in grid - D-Pad for 4-direction movement (only if left stick is disabled)
                     if (!settings.GamepadUseLeftStick)
                     {
-                        if (buttonName == "↑")
+                        if (IsButtonMatch(buttonName, settings.GamepadDPadUp))
                         {
                             Logger.LogInfo("Navigate UP");
                             NavigateModGrid(0, -1);
                             return;
                         }
-                        else if (buttonName == "↓")
+                        else if (IsButtonMatch(buttonName, settings.GamepadDPadDown))
                         {
                             Logger.LogInfo("Navigate DOWN");
                             NavigateModGrid(0, 1);
                             return;
                         }
-                        else if (buttonName == "←")
+                        else if (IsButtonMatch(buttonName, settings.GamepadDPadLeft))
                         {
                             Logger.LogInfo("Navigate LEFT");
                             NavigateModGrid(-1, 0);
                             return;
                         }
-                        else if (buttonName == "→")
+                        else if (IsButtonMatch(buttonName, settings.GamepadDPadRight))
                         {
                             Logger.LogInfo("Navigate RIGHT");
                             NavigateModGrid(1, 0);

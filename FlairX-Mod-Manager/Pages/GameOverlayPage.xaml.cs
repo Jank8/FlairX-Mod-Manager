@@ -123,6 +123,17 @@ namespace FlairX_Mod_Manager.Pages
             // Filter Active Combo
             if (FilterActiveComboLabel != null) FilterActiveComboLabel.Text = SharedUtilities.GetTranslation(lang, "FilterActiveCombo_Label");
             
+            // Navigation labels
+            if (NavigationSectionHeader != null) NavigationSectionHeader.Text = SharedUtilities.GetTranslation(lang, "Section_Navigation");
+            if (DPadUpLabel != null) DPadUpLabel.Text = SharedUtilities.GetTranslation(lang, "DPadUp_Label");
+            if (DPadDownLabel != null) DPadDownLabel.Text = SharedUtilities.GetTranslation(lang, "DPadDown_Label");
+            if (DPadLeftLabel != null) DPadLeftLabel.Text = SharedUtilities.GetTranslation(lang, "DPadLeft_Label");
+            if (DPadRightLabel != null) DPadRightLabel.Text = SharedUtilities.GetTranslation(lang, "DPadRight_Label");
+            if (LeftStickUpLabel != null) LeftStickUpLabel.Text = SharedUtilities.GetTranslation(lang, "LeftStickUp_Label");
+            if (LeftStickDownLabel != null) LeftStickDownLabel.Text = SharedUtilities.GetTranslation(lang, "LeftStickDown_Label");
+            if (LeftStickLeftLabel != null) LeftStickLeftLabel.Text = SharedUtilities.GetTranslation(lang, "LeftStickLeft_Label");
+            if (LeftStickRightLabel != null) LeftStickRightLabel.Text = SharedUtilities.GetTranslation(lang, "LeftStickRight_Label");
+            
             // Toggle switch labels
             UpdateToggleSwitchLabels(lang);
         }
@@ -208,6 +219,16 @@ namespace FlairX_Mod_Manager.Pages
             var filterCombo = settings.GamepadFilterActiveCombo ?? "Back+A";
             InitializeHotkeyPanel(GamepadComboKeysPanel, ConvertComboToKenneyFormat(toggleCombo));
             InitializeHotkeyPanel(FilterActiveComboKeysPanel, ConvertComboToKenneyFormat(filterCombo));
+            
+            // Initialize navigation panels
+            InitializeHotkeyPanel(DPadUpKeysPanel, ConvertToKenneyFormat(settings.GamepadDPadUp ?? "XB ↑"));
+            InitializeHotkeyPanel(DPadDownKeysPanel, ConvertToKenneyFormat(settings.GamepadDPadDown ?? "XB ↓"));
+            InitializeHotkeyPanel(DPadLeftKeysPanel, ConvertToKenneyFormat(settings.GamepadDPadLeft ?? "XB ←"));
+            InitializeHotkeyPanel(DPadRightKeysPanel, ConvertToKenneyFormat(settings.GamepadDPadRight ?? "XB →"));
+            InitializeHotkeyPanel(LeftStickUpKeysPanel, ConvertToKenneyFormat(settings.GamepadLeftStickUp ?? "XB L↑"));
+            InitializeHotkeyPanel(LeftStickDownKeysPanel, ConvertToKenneyFormat(settings.GamepadLeftStickDown ?? "XB L↓"));
+            InitializeHotkeyPanel(LeftStickLeftKeysPanel, ConvertToKenneyFormat(settings.GamepadLeftStickLeft ?? "XB L←"));
+            InitializeHotkeyPanel(LeftStickRightKeysPanel, ConvertToKenneyFormat(settings.GamepadLeftStickRight ?? "XB L→"));
         }
         
         private string ConvertToKenneyFormat(string button)
@@ -475,7 +496,8 @@ namespace FlairX_Mod_Manager.Pages
         
         // Unified gamepad recording for all 6 fields (single buttons AND combos)
         private bool _isRecordingCombo = false;
-        private string _recordingSettingType = ""; // "select", "back", "next", "prev", "toggleCombo", "filterCombo"
+        private bool _singleInputOnly = false;
+        private string _recordingSettingType = ""; // "select", "back", "next", "prev", "toggleCombo", "filterCombo", "dpadUp", etc.
         private HashSet<string> _recordedComboButtons = new();
         private DispatcherTimer? _comboHoldTimer;
         private int _comboHoldCountdown = 3;
@@ -500,12 +522,13 @@ namespace FlairX_Mod_Manager.Pages
                 SettingsManager.Current.GamepadFilterActiveCombo ?? "Back+A", "filterCombo");
         }
 
-        private void StartComboRecording(StackPanel keysPanel, Border recButton, Border saveButton, string currentValue, string settingType)
+        private void StartComboRecording(StackPanel keysPanel, Border recButton, Border saveButton, string currentValue, string settingType, bool singleInputOnly = false)
         {
             _activeComboRecButton = recButton;
             _activeComboKeysPanel = keysPanel;
             _activeComboSaveButton = saveButton;
             _recordingSettingType = settingType;
+            _singleInputOnly = singleInputOnly;
             _recordedComboButtons.Clear();
             _pendingCombo = "";
             _comboHoldCountdown = 3;
@@ -560,12 +583,14 @@ namespace FlairX_Mod_Manager.Pages
             
             _testGamepad.ButtonPressed += OnComboButtonPressed;
             _testGamepad.ButtonReleased += OnComboButtonReleased;
+            _testGamepad.StickMoved += OnComboStickMoved;
             _testGamepad.StartPolling();
         }
 
         private void StopComboRecording()
         {
             _isRecordingCombo = false;
+            _singleInputOnly = false;
             _comboHoldTimer?.Stop();
             _comboHoldTimer = null;
             _comboHoldCountdown = 3;
@@ -575,6 +600,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 _testGamepad.ButtonPressed -= OnComboButtonPressed;
                 _testGamepad.ButtonReleased -= OnComboButtonReleased;
+                _testGamepad.StickMoved -= OnComboStickMoved;
                 // Stop any ongoing vibration before stopping polling
                 _testGamepad.Vibrate(0, 0, 0);
                 _testGamepad.StopPolling();
@@ -618,10 +644,21 @@ namespace FlairX_Mod_Manager.Pages
             
             var buttonName = e.GetButtonDisplayName();
             
-            if (!_recordedComboButtons.Contains(buttonName))
+            if (_singleInputOnly)
+            {
+                // For single input fields, replace any existing input
+                _recordedComboButtons.Clear();
                 _recordedComboButtons.Add(buttonName);
+                _pendingCombo = buttonName;
+            }
+            else
+            {
+                // For combo fields, add to existing inputs
+                if (!_recordedComboButtons.Contains(buttonName))
+                    _recordedComboButtons.Add(buttonName);
+                _pendingCombo = string.Join("+", _recordedComboButtons);
+            }
             
-            _pendingCombo = string.Join("+", _recordedComboButtons);
             _comboHoldCountdown = 3;
             
             DispatcherQueue.TryEnqueue(() =>
@@ -632,6 +669,76 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     _activeComboEditBox.Text = _pendingCombo;
                     
+                    // For single input fields, no countdown needed
+                    if (_singleInputOnly)
+                    {
+                        if (_comboCountdownTextBlock != null)
+                            _comboCountdownTextBlock.Visibility = Visibility.Collapsed;
+                        return;
+                    }
+                    
+                    // For combo fields, show countdown if multiple buttons
+                    if (_recordedComboButtons.Count == 1)
+                    {
+                        if (_comboCountdownTextBlock != null)
+                            _comboCountdownTextBlock.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        _comboHoldTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+                        _comboHoldTimer.Tick += ComboHoldTimer_Tick;
+                        _comboHoldTimer.Start();
+                        
+                        if (_comboCountdownTextBlock != null)
+                        {
+                            _comboCountdownTextBlock.Text = _comboHoldCountdown switch { 3 => "\uE007", 2 => "\uE005", 1 => "\uE003", _ => _comboHoldCountdown.ToString() };
+                            _comboCountdownTextBlock.Visibility = Visibility.Visible;
+                        }
+                    }
+                }
+            });
+        }
+
+        private void OnComboStickMoved(object? sender, GamepadButtonEventArgs e)
+        {
+            if (!_isRecordingCombo) return;
+            
+            var stickName = e.GetButtonDisplayName();
+            
+            if (_singleInputOnly)
+            {
+                // For single input fields, replace any existing input
+                _recordedComboButtons.Clear();
+                _recordedComboButtons.Add(stickName);
+                _pendingCombo = stickName;
+            }
+            else
+            {
+                // For combo fields, add to existing inputs
+                if (!_recordedComboButtons.Contains(stickName))
+                    _recordedComboButtons.Add(stickName);
+                _pendingCombo = string.Join("+", _recordedComboButtons);
+            }
+            
+            _comboHoldCountdown = 3;
+            
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _comboHoldTimer?.Stop();
+                
+                if (_activeComboEditBox != null)
+                {
+                    _activeComboEditBox.Text = _pendingCombo;
+                    
+                    // For single input fields, no countdown needed
+                    if (_singleInputOnly)
+                    {
+                        if (_comboCountdownTextBlock != null)
+                            _comboCountdownTextBlock.Visibility = Visibility.Collapsed;
+                        return;
+                    }
+                    
+                    // For combo fields, show countdown if multiple buttons
                     if (_recordedComboButtons.Count == 1)
                     {
                         if (_comboCountdownTextBlock != null)
@@ -711,6 +818,14 @@ namespace FlairX_Mod_Manager.Pages
                     "prev" => SettingsManager.Current.GamepadPrevCategoryButton ?? defaultValue,
                     "toggleCombo" => SettingsManager.Current.GamepadToggleOverlayCombo ?? defaultValue,
                     "filterCombo" => SettingsManager.Current.GamepadFilterActiveCombo ?? defaultValue,
+                    "dpadUp" => SettingsManager.Current.GamepadDPadUp ?? defaultValue,
+                    "dpadDown" => SettingsManager.Current.GamepadDPadDown ?? defaultValue,
+                    "dpadLeft" => SettingsManager.Current.GamepadDPadLeft ?? defaultValue,
+                    "dpadRight" => SettingsManager.Current.GamepadDPadRight ?? defaultValue,
+                    "leftStickUp" => SettingsManager.Current.GamepadLeftStickUp ?? defaultValue,
+                    "leftStickDown" => SettingsManager.Current.GamepadLeftStickDown ?? defaultValue,
+                    "leftStickLeft" => SettingsManager.Current.GamepadLeftStickLeft ?? defaultValue,
+                    "leftStickRight" => SettingsManager.Current.GamepadLeftStickRight ?? defaultValue,
                     _ => defaultValue
                 };
             }
@@ -724,6 +839,14 @@ namespace FlairX_Mod_Manager.Pages
                 "prev" => "GamepadPrevCategoryButton",
                 "toggleCombo" => "GamepadToggleOverlayCombo",
                 "filterCombo" => "GamepadFilterActiveCombo",
+                "dpadUp" => "GamepadDPadUp",
+                "dpadDown" => "GamepadDPadDown",
+                "dpadLeft" => "GamepadDPadLeft",
+                "dpadRight" => "GamepadDPadRight",
+                "leftStickUp" => "GamepadLeftStickUp",
+                "leftStickDown" => "GamepadLeftStickDown",
+                "leftStickLeft" => "GamepadLeftStickLeft",
+                "leftStickRight" => "GamepadLeftStickRight",
                 _ => ""
             };
             var conflict = SharedUtilities.GetConflictingGamepadCombo(value, settingKey);
@@ -748,6 +871,14 @@ namespace FlairX_Mod_Manager.Pages
                     "prev" => SettingsManager.Current.GamepadPrevCategoryButton ?? defaultValue,
                     "toggleCombo" => SettingsManager.Current.GamepadToggleOverlayCombo ?? defaultValue,
                     "filterCombo" => SettingsManager.Current.GamepadFilterActiveCombo ?? defaultValue,
+                    "dpadUp" => SettingsManager.Current.GamepadDPadUp ?? defaultValue,
+                    "dpadDown" => SettingsManager.Current.GamepadDPadDown ?? defaultValue,
+                    "dpadLeft" => SettingsManager.Current.GamepadDPadLeft ?? defaultValue,
+                    "dpadRight" => SettingsManager.Current.GamepadDPadRight ?? defaultValue,
+                    "leftStickUp" => SettingsManager.Current.GamepadLeftStickUp ?? defaultValue,
+                    "leftStickDown" => SettingsManager.Current.GamepadLeftStickDown ?? defaultValue,
+                    "leftStickLeft" => SettingsManager.Current.GamepadLeftStickLeft ?? defaultValue,
+                    "leftStickRight" => SettingsManager.Current.GamepadLeftStickRight ?? defaultValue,
                     _ => defaultValue
                 };
                 var kenneyOriginal = originalValue.Contains("+") ? ConvertComboToKenneyFormat(originalValue) : ConvertToKenneyFormat(originalValue);
@@ -770,6 +901,14 @@ namespace FlairX_Mod_Manager.Pages
                 case "prev": SettingsManager.Current.GamepadPrevCategoryButton = value; break;
                 case "toggleCombo": SettingsManager.Current.GamepadToggleOverlayCombo = value; break;
                 case "filterCombo": SettingsManager.Current.GamepadFilterActiveCombo = value; break;
+                case "dpadUp": SettingsManager.Current.GamepadDPadUp = value; break;
+                case "dpadDown": SettingsManager.Current.GamepadDPadDown = value; break;
+                case "dpadLeft": SettingsManager.Current.GamepadDPadLeft = value; break;
+                case "dpadRight": SettingsManager.Current.GamepadDPadRight = value; break;
+                case "leftStickUp": SettingsManager.Current.GamepadLeftStickUp = value; break;
+                case "leftStickDown": SettingsManager.Current.GamepadLeftStickDown = value; break;
+                case "leftStickLeft": SettingsManager.Current.GamepadLeftStickLeft = value; break;
+                case "leftStickRight": SettingsManager.Current.GamepadLeftStickRight = value; break;
             }
             SettingsManager.Save();
             Logger.LogInfo($"Gamepad {settingType} set to: {value}");
@@ -802,6 +941,14 @@ namespace FlairX_Mod_Manager.Pages
                 case "prev": SettingsManager.Current.GamepadPrevCategoryButton = defaultValue; break;
                 case "toggleCombo": SettingsManager.Current.GamepadToggleOverlayCombo = defaultValue; break;
                 case "filterCombo": SettingsManager.Current.GamepadFilterActiveCombo = defaultValue; break;
+                case "dpadUp": SettingsManager.Current.GamepadDPadUp = defaultValue; break;
+                case "dpadDown": SettingsManager.Current.GamepadDPadDown = defaultValue; break;
+                case "dpadLeft": SettingsManager.Current.GamepadDPadLeft = defaultValue; break;
+                case "dpadRight": SettingsManager.Current.GamepadDPadRight = defaultValue; break;
+                case "leftStickUp": SettingsManager.Current.GamepadLeftStickUp = defaultValue; break;
+                case "leftStickDown": SettingsManager.Current.GamepadLeftStickDown = defaultValue; break;
+                case "leftStickLeft": SettingsManager.Current.GamepadLeftStickLeft = defaultValue; break;
+                case "leftStickRight": SettingsManager.Current.GamepadLeftStickRight = defaultValue; break;
             }
             SettingsManager.Save();
             Logger.LogInfo($"Gamepad {settingType} restored to: {defaultValue}");
@@ -965,6 +1112,24 @@ namespace FlairX_Mod_Manager.Pages
         private void PrevCategoryButtonSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
             => SaveGamepadSetting("prev", PrevCategoryButtonKeysPanel, PrevCategoryButtonSaveButton, "LB");
 
+        // Navigation Save button handlers
+        private void DPadUpSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("dpadUp", DPadUpKeysPanel, DPadUpSaveButton, "XB ↑");
+        private void DPadDownSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("dpadDown", DPadDownKeysPanel, DPadDownSaveButton, "XB ↓");
+        private void DPadLeftSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("dpadLeft", DPadLeftKeysPanel, DPadLeftSaveButton, "XB ←");
+        private void DPadRightSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("dpadRight", DPadRightKeysPanel, DPadRightSaveButton, "XB →");
+        private void LeftStickUpSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("leftStickUp", LeftStickUpKeysPanel, LeftStickUpSaveButton, "XB L↑");
+        private void LeftStickDownSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("leftStickDown", LeftStickDownKeysPanel, LeftStickDownSaveButton, "XB L↓");
+        private void LeftStickLeftSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("leftStickLeft", LeftStickLeftKeysPanel, LeftStickLeftSaveButton, "XB L←");
+        private void LeftStickRightSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("leftStickRight", LeftStickRightKeysPanel, LeftStickRightSaveButton, "XB L→");
+
         private void SelectButtonRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         { if (!IsAnyEditInProgress()) RestoreGamepadSetting("select", SelectButtonKeysPanel, "A"); }
         private void BackButtonRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -973,6 +1138,81 @@ namespace FlairX_Mod_Manager.Pages
         { if (!IsAnyEditInProgress()) RestoreGamepadSetting("next", NextCategoryButtonKeysPanel, "RB"); }
         private void PrevCategoryButtonRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         { if (!IsAnyEditInProgress()) RestoreGamepadSetting("prev", PrevCategoryButtonKeysPanel, "LB"); }
+        
+        // Navigation Record button handlers
+        private void DPadUpRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(DPadUpKeysPanel, DPadUpRecordButton, DPadUpSaveButton,
+                SettingsManager.Current.GamepadDPadUp ?? "XB ↑", "dpadUp", singleInputOnly: true);
+        }
+
+        private void DPadDownRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(DPadDownKeysPanel, DPadDownRecordButton, DPadDownSaveButton,
+                SettingsManager.Current.GamepadDPadDown ?? "XB ↓", "dpadDown", singleInputOnly: true);
+        }
+
+        private void DPadLeftRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(DPadLeftKeysPanel, DPadLeftRecordButton, DPadLeftSaveButton,
+                SettingsManager.Current.GamepadDPadLeft ?? "XB ←", "dpadLeft", singleInputOnly: true);
+        }
+
+        private void DPadRightRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(DPadRightKeysPanel, DPadRightRecordButton, DPadRightSaveButton,
+                SettingsManager.Current.GamepadDPadRight ?? "XB →", "dpadRight", singleInputOnly: true);
+        }
+
+        private void LeftStickUpRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(LeftStickUpKeysPanel, LeftStickUpRecordButton, LeftStickUpSaveButton,
+                SettingsManager.Current.GamepadLeftStickUp ?? "XB L↑", "leftStickUp", singleInputOnly: true);
+        }
+
+        private void LeftStickDownRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(LeftStickDownKeysPanel, LeftStickDownRecordButton, LeftStickDownSaveButton,
+                SettingsManager.Current.GamepadLeftStickDown ?? "XB L↓", "leftStickDown", singleInputOnly: true);
+        }
+
+        private void LeftStickLeftRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(LeftStickLeftKeysPanel, LeftStickLeftRecordButton, LeftStickLeftSaveButton,
+                SettingsManager.Current.GamepadLeftStickLeft ?? "XB L←", "leftStickLeft", singleInputOnly: true);
+        }
+
+        private void LeftStickRightRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(LeftStickRightKeysPanel, LeftStickRightRecordButton, LeftStickRightSaveButton,
+                SettingsManager.Current.GamepadLeftStickRight ?? "XB L→", "leftStickRight", singleInputOnly: true);
+        }
+
+        // Navigation Restore button handlers
+        private void DPadUpRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("dpadUp", DPadUpKeysPanel, "XB ↑"); }
+        private void DPadDownRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("dpadDown", DPadDownKeysPanel, "XB ↓"); }
+        private void DPadLeftRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("dpadLeft", DPadLeftKeysPanel, "XB ←"); }
+        private void DPadRightRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("dpadRight", DPadRightKeysPanel, "XB →"); }
+        private void LeftStickUpRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("leftStickUp", LeftStickUpKeysPanel, "XB L↑"); }
+        private void LeftStickDownRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("leftStickDown", LeftStickDownKeysPanel, "XB L↓"); }
+        private void LeftStickLeftRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("leftStickLeft", LeftStickLeftKeysPanel, "XB L←"); }
+        private void LeftStickRightRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("leftStickRight", LeftStickRightKeysPanel, "XB L→"); }
         
         // Hotkey action button hover effects
         private void HotkeyActionButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
