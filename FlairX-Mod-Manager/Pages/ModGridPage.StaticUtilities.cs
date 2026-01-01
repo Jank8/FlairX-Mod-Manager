@@ -57,10 +57,15 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         /// <summary>
-        /// Deactivate mod by adding DISABLED_ prefix
+        /// Deactivate mod by adding DISABLED_ prefix, with duplicate handling
         /// </summary>
-        public static bool DeactivateModByRename(string modDirectory)
+        /// <param name="modDirectory">Original mod directory name</param>
+        /// <param name="newModName">Output parameter with the new mod folder name after deactivation</param>
+        /// <returns>True if deactivation was successful</returns>
+        public static bool DeactivateModByRename(string modDirectory, out string newModName)
         {
+            newModName = modDirectory; // Default to original name
+            
             try
             {
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
@@ -74,18 +79,38 @@ namespace FlairX_Mod_Manager.Pages
 
                 var modName = Path.GetFileName(modPath);
                 if (modName.StartsWith(DISABLED_PREFIX))
+                {
+                    newModName = GetCleanModName(modName); // Return clean name for already disabled mod
                     return true; // Already disabled
+                }
 
-                // Add DISABLED_ prefix
                 var parentDir = Path.GetDirectoryName(modPath);
                 if (string.IsNullOrEmpty(parentDir))
                     return false;
 
-                var newName = DISABLED_PREFIX + modName;
-                var newPath = Path.Combine(parentDir, newName);
+                // Check for duplicates across all categories
+                var cleanName = GetCleanModName(modName);
+                bool hasDuplicate = CheckForDuplicatesAcrossCategories(modsPath, cleanName);
+
+                string finalName;
+                if (hasDuplicate)
+                {
+                    // Add _duplicate suffix before deactivating
+                    finalName = DISABLED_PREFIX + modName + "_duplicate";
+                    newModName = modName + "_duplicate"; // Return the new clean name for UI
+                    Logger.LogInfo($"Handling duplicate mod during deactivation: {modName} -> {finalName}");
+                }
+                else
+                {
+                    // Regular deactivation
+                    finalName = DISABLED_PREFIX + modName;
+                    newModName = modName; // Keep original name for UI
+                }
+
+                var newPath = Path.Combine(parentDir, finalName);
 
                 Directory.Move(modPath, newPath);
-                Logger.LogInfo($"Deactivated mod: {modDirectory}");
+                Logger.LogInfo($"Deactivated mod: {modDirectory} -> {finalName}");
                 return true;
             }
             catch (Exception ex)
@@ -93,6 +118,14 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogError($"Failed to deactivate mod: {modDirectory}", ex);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Deactivate mod by adding DISABLED_ prefix, with duplicate handling (overload for backward compatibility)
+        /// </summary>
+        public static bool DeactivateModByRename(string modDirectory)
+        {
+            return DeactivateModByRename(modDirectory, out _);
         }
 
         /// <summary>
@@ -149,6 +182,45 @@ namespace FlairX_Mod_Manager.Pages
             if (modFolderName.StartsWith(DISABLED_PREFIX))
                 return modFolderName.Substring(DISABLED_PREFIX.Length);
             return modFolderName;
+        }
+
+        /// <summary>
+        /// Check if there are duplicates of the same mod across categories (both active and inactive versions)
+        /// </summary>
+        private static bool CheckForDuplicatesAcrossCategories(string modsPath, string cleanModName)
+        {
+            try
+            {
+                var foundInstances = new List<(bool isActive, string path)>();
+
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
+                {
+                    if (!Directory.Exists(categoryDir)) continue;
+
+                    foreach (var modDir in Directory.GetDirectories(categoryDir))
+                    {
+                        var modFolderName = Path.GetFileName(modDir);
+                        var currentCleanName = GetCleanModName(modFolderName);
+                        
+                        if (string.Equals(currentCleanName, cleanModName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            bool isActive = !modFolderName.StartsWith(DISABLED_PREFIX);
+                            foundInstances.Add((isActive, modDir));
+                        }
+                    }
+                }
+
+                // Check if there are both active and inactive versions
+                bool hasActiveVersion = foundInstances.Any(x => x.isActive);
+                bool hasInactiveVersion = foundInstances.Any(x => !x.isActive);
+
+                return hasActiveVersion && hasInactiveVersion && foundInstances.Count > 1;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error checking for duplicates: {cleanModName}", ex);
+                return false;
+            }
         }
 
         public static void ApplyPreset(string presetName)

@@ -72,10 +72,24 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     // Deactivate mod - add DISABLED_ prefix
                     Logger.LogInfo($"Deactivating mod: {mod.Directory}");
-                    if (DeactivateModByRename(mod.Directory))
+                    if (DeactivateModByRename(mod.Directory, out string newModName))
                     {
                         _activeMods[mod.Directory] = false;
                         mod.IsActive = false;
+                        
+                        // Update the mod directory name if it changed (due to duplicate handling)
+                        if (newModName != mod.Directory)
+                        {
+                            // Remove old entry and add new one
+                            _activeMods.Remove(mod.Directory);
+                            _activeMods[newModName] = false;
+                            
+                            // Update the tile's directory and name
+                            mod.Directory = newModName;
+                            mod.Name = newModName; // Update display name too
+                            Logger.LogInfo($"Updated mod tile name to: {newModName}");
+                        }
+                        
                         Logger.LogInfo($"Mod deactivated successfully: {mod.Directory}");
                     }
                     else
@@ -87,13 +101,14 @@ namespace FlairX_Mod_Manager.Pages
                 
                 SaveActiveMods();
                 
-                // Update table view if it exists - sync the IsActive state
+                // Update table view if it exists - sync the IsActive state and directory name
                 if (_originalTableItems != null)
                 {
                     var tableItem = _originalTableItems.FirstOrDefault(x => x.Directory == mod.Directory);
                     if (tableItem != null)
                     {
                         tableItem.IsActive = mod.IsActive;
+                        // Directory name is already updated in mod object, so tableItem should reflect the same
                     }
                 }
                 
@@ -104,6 +119,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (currentItem != null)
                     {
                         currentItem.IsActive = mod.IsActive;
+                        // Directory name is already updated in mod object, so currentItem should reflect the same
                     }
                 }
                 

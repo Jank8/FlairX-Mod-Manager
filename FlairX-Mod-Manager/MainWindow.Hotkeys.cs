@@ -406,7 +406,29 @@ namespace FlairX_Mod_Manager
                 }
                 
                 int deactivatedCount = 0;
+                int duplicatesHandled = 0;
                 var newActiveMods = new Dictionary<string, bool>();
+                
+                // First pass: collect all mod names to detect duplicates
+                var allModNames = new Dictionary<string, List<(string categoryPath, string folderName, bool isActive)>>();
+                
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
+                {
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    foreach (var modDir in Directory.GetDirectories(categoryDir))
+                    {
+                        var modFolderName = Path.GetFileName(modDir);
+                        var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
+                        bool isActive = !modFolderName.StartsWith("DISABLED_");
+                        
+                        if (!allModNames.ContainsKey(cleanName))
+                        {
+                            allModNames[cleanName] = new List<(string, string, bool)>();
+                        }
+                        allModNames[cleanName].Add((categoryDir, modFolderName, isActive));
+                    }
+                }
                 
                 // Iterate through all category directories (like Python script)
                 foreach (var categoryDir in Directory.GetDirectories(modsPath))
@@ -433,31 +455,57 @@ namespace FlairX_Mod_Manager
                     foreach (var modDir in Directory.GetDirectories(categoryDir))
                     {
                         var modFolderName = Path.GetFileName(modDir);
+                        var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
                         
                         // Skip if already disabled
                         if (modFolderName.StartsWith("DISABLED_"))
                         {
-                            var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
                             newActiveMods[cleanName] = false;
                             continue;
                         }
                         
-                        // Add DISABLED_ prefix
-                        var newName = "DISABLED_" + modFolderName;
+                        // Check for duplicates (same clean name exists in multiple states)
+                        bool hasDuplicate = allModNames.ContainsKey(cleanName) && allModNames[cleanName].Count > 1;
+                        
+                        string newName;
+                        if (hasDuplicate)
+                        {
+                            // Check if there's both active and inactive version of the same mod
+                            var modInstances = allModNames[cleanName];
+                            bool hasActiveVersion = modInstances.Any(m => m.isActive);
+                            bool hasInactiveVersion = modInstances.Any(m => !m.isActive);
+                            
+                            if (hasActiveVersion && hasInactiveVersion)
+                            {
+                                // Add _duplicate suffix before deactivating
+                                newName = "DISABLED_" + modFolderName + "_duplicate";
+                                duplicatesHandled++;
+                                Logger.LogInfo($"Handling duplicate mod: {modFolderName} -> {newName}");
+                            }
+                            else
+                            {
+                                // Regular deactivation
+                                newName = "DISABLED_" + modFolderName;
+                            }
+                        }
+                        else
+                        {
+                            // Regular deactivation
+                            newName = "DISABLED_" + modFolderName;
+                        }
+                        
                         var newPath = Path.Combine(categoryDir, newName);
                         
                         try
                         {
                             Directory.Move(modDir, newPath);
-                            var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
                             newActiveMods[cleanName] = false;
                             deactivatedCount++;
-                            Logger.LogInfo($"Deactivated: {modFolderName}");
+                            Logger.LogInfo($"Deactivated: {modFolderName} -> {newName}");
                         }
                         catch (Exception ex)
                         {
                             Logger.LogError($"Failed to deactivate {modFolderName}", ex);
-                            var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
                             newActiveMods[cleanName] = true; // Keep as active if rename failed
                         }
                     }
@@ -470,7 +518,7 @@ namespace FlairX_Mod_Manager
                     var json = JsonSerializer.Serialize(newActiveMods, new JsonSerializerOptions { WriteIndented = true });
                     File.WriteAllText(activeModsPath, json);
                     
-                    Logger.LogInfo($"Deactivate all completed - deactivated {deactivatedCount} mods (excluding Other category)");
+                    Logger.LogInfo($"Deactivate all completed - deactivated {deactivatedCount} mods (excluding Other category), handled {duplicatesHandled} duplicates");
                     
                     // Reload manager to refresh the view
                     DispatcherQueue.TryEnqueue(async () =>
