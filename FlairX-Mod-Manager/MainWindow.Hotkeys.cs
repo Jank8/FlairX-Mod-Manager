@@ -449,14 +449,16 @@ namespace FlairX_Mod_Manager
                         try
                         {
                             Directory.Move(modDir, newPath);
-                            newActiveMods[modFolderName] = false;
+                            var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
+                            newActiveMods[cleanName] = false;
                             deactivatedCount++;
                             Logger.LogInfo($"Deactivated: {modFolderName}");
                         }
                         catch (Exception ex)
                         {
                             Logger.LogError($"Failed to deactivate {modFolderName}", ex);
-                            newActiveMods[modFolderName] = true; // Keep as active if rename failed
+                            var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
+                            newActiveMods[cleanName] = true; // Keep as active if rename failed
                         }
                     }
                 }
