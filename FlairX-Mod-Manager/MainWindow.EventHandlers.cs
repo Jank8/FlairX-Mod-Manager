@@ -679,10 +679,17 @@ namespace FlairX_Mod_Manager
         /// <summary>
         /// Show Starter Pack dialog if available for the game and not dismissed
         /// </summary>
+        public async Task ShowStarterPackIfNeeded(string gameTag)
+        {
+            await ShowStarterPackDialogIfNeededAsync(gameTag);
+        }
+        
         private async Task ShowStarterPackDialogIfNeededAsync(string gameTag)
         {
             try
             {
+                Logger.LogDebug($"ShowStarterPackDialogIfNeededAsync called for {gameTag}");
+                
                 // Check if Starter Pack is available for this game
                 if (!Dialogs.StarterPackDialog.IsStarterPackAvailable(gameTag))
                 {
@@ -704,7 +711,9 @@ namespace FlairX_Mod_Manager
                     return;
                 }
 
-                // Small delay to let the UI settle after game switch
+                Logger.LogDebug($"All conditions met, showing Starter Pack dialog for {gameTag}");
+
+                // Small delay to let the UI settle
                 await Task.Delay(500);
 
                 // Show the dialog
@@ -718,12 +727,14 @@ namespace FlairX_Mod_Manager
                 };
                 
                 var result = await dialog.ShowAsync();
+                Logger.LogDebug($"Starter Pack dialog result: {result}");
                 
                 // If user clicked "No thanks" with checkbox checked, it's already handled in the dialog
                 // If user clicked "No thanks" without checkbox, we don't dismiss permanently
                 if (result == ContentDialogResult.None && dialog.DontShowAgain)
                 {
                     Dialogs.StarterPackDialog.DismissStarterPack(gameTag);
+                    Logger.LogDebug($"Starter Pack dismissed permanently for {gameTag}");
                 }
             }
             catch (Exception ex)

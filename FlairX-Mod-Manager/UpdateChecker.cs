@@ -292,15 +292,41 @@ namespace FlairX_Mod_Manager
                 
                 var script = $@"@echo off
 cd /d ""{parentDir}""
-timeout /t 2 /nobreak > nul
+timeout /t 3 /nobreak > nul
 echo Applying update...
-xcopy /E /I /Y ""{extractPath}\*"" .
-if errorlevel 1 (
-    echo Update failed!
+
+REM Kill any remaining processes
+taskkill /f /im ""FlairX Mod Manager.exe"" 2>nul
+taskkill /f /im ""FlairX Mod Manager Launcher.exe"" 2>nul
+timeout /t 1 /nobreak > nul
+
+REM Try robocopy first (more reliable)
+echo Trying robocopy...
+robocopy ""{extractPath}"" . /E /IS /IT /R:3 /W:1 /XD .git /XF *.log *.tmp >nul 2>&1
+if %errorlevel% lss 8 (
+    echo Robocopy completed successfully
+    goto :verify
+)
+
+REM Fallback to xcopy if robocopy failed or not available
+echo Robocopy failed or not available, using xcopy fallback...
+xcopy ""{extractPath}\*"" . /E /I /Y /H /R
+if %errorlevel% neq 0 (
+    echo Both robocopy and xcopy failed!
     pause
     exit /b 1
 )
-echo Update completed!
+echo Xcopy completed successfully
+
+:verify
+REM Verify main executable exists
+if not exist "".\app\FlairX Mod Manager.exe"" (
+    echo ERROR: Main executable not found after update!
+    pause
+    exit /b 1
+)
+
+echo Update completed successfully!
 timeout /t 2 /nobreak > nul
 start """" "".\FlairX Mod Manager Launcher.exe""
 cd /d ""{Path.GetDirectoryName(tempDir)}""

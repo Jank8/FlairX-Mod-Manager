@@ -584,9 +584,109 @@ namespace FlairX_Mod_Manager
                 
                 _window.Activate();
                 loadingWindow.Close();
+                
+                // Start background update check after main window is shown
+                _ = CheckForUpdatesInBackground();
             });
         }
         
+        private async Task CheckForUpdatesInBackground()
+        {
+            try
+            {
+                Logger.LogInfo("Starting background update check...");
+                
+                var updateResult = await UpdateChecker.CheckForUpdatesAsync();
+                if (updateResult.HasValue && updateResult.Value.updateAvailable)
+                {
+                    Logger.LogInfo($"Update available: {updateResult.Value.latestVersion}");
+                    
+                    // Show update dialog in main window
+                    if (_window is MainWindow mainWindow)
+                    {
+                        mainWindow.DispatcherQueue.TryEnqueue(async () =>
+                        {
+                            try
+                            {
+                                var updateDialog = new Dialogs.ManagerUpdateDialog(
+                                    updateResult.Value.latestVersion,
+                                    updateResult.Value.downloadUrl,
+                                    updateResult.Value.changelog
+                                );
+                                updateDialog.XamlRoot = mainWindow.Content.XamlRoot;
+                                await updateDialog.ShowAsync();
+                                
+                                Logger.LogInfo("Update dialog closed, checking for Starter Pack");
+                                // After update dialog is closed, check for Starter Pack
+                                await CheckStarterPackAfterUpdate(mainWindow);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError("Failed to show update dialog", ex);
+                                // Even if update dialog failed, check for Starter Pack
+                                await CheckStarterPackAfterUpdate(mainWindow);
+                            }
+                        });
+                    }
+                }
+                else
+                {
+                    Logger.LogInfo("No updates available, checking for Starter Pack");
+                    // No update available, check for Starter Pack directly
+                    if (_window is MainWindow mainWindow)
+                    {
+                        mainWindow.DispatcherQueue.TryEnqueue(async () =>
+                        {
+                            await CheckStarterPackAfterUpdate(mainWindow);
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Background update check failed: {ex.Message}");
+                // Even if update check failed, check for Starter Pack
+                if (_window is MainWindow mainWindow)
+                {
+                    mainWindow.DispatcherQueue.TryEnqueue(async () =>
+                    {
+                        await CheckStarterPackAfterUpdate(mainWindow);
+                    });
+                }
+            }
+        }
+        
+        private async Task CheckStarterPackAfterUpdate(MainWindow mainWindow)
+        {
+            try
+            {
+                Logger.LogInfo("Checking if Starter Pack should be shown...");
+                
+                // Get current selected game
+                var selectedGameIndex = SettingsManager.Current.SelectedGameIndex;
+                if (selectedGameIndex <= 0)
+                {
+                    Logger.LogDebug("No game selected, skipping Starter Pack check");
+                    return;
+                }
+                
+                var gameTag = SettingsManager.GetGameTagFromIndex(selectedGameIndex);
+                if (string.IsNullOrEmpty(gameTag))
+                {
+                    Logger.LogDebug("Invalid game tag, skipping Starter Pack check");
+                    return;
+                }
+                
+                Logger.LogDebug($"Checking Starter Pack for selected game: {gameTag}");
+                
+                // Use MainWindow's method to show Starter Pack
+                await mainWindow.ShowStarterPackIfNeeded(gameTag);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to check Starter Pack after update", ex);
+            }
+        }
         // Removed PreloadModImages - no longer needed since ModGridPage stays in memory
 
 
