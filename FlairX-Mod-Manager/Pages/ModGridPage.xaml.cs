@@ -1235,6 +1235,8 @@ namespace FlairX_Mod_Manager.Pages
             if (CurrentViewMode == ViewMode.Categories)
                 return;
             
+            Logger.LogGrid($"FilterNSFWMods called: hideNSFW={hideNSFW}, current mods count={mods.Count}");
+            
             var modsToRemove = new List<ModTile>();
             var modsToAdd = new List<ModTile>();
             

@@ -520,12 +520,14 @@ namespace FlairX_Mod_Manager.Pages
             
             var initialMods = new List<ModTile>();
             int loaded = 0;
+            bool hideNSFW = SettingsManager.Current.BlurNSFWThumbnails;
+            
             for (int i = 0; i < _allModData.Count && loaded < initialLoadCount; i++)
             {
                 var modData = _allModData[i];
                 
                 // Filter NSFW mods if setting is enabled
-                if (modData.IsNSFW && SettingsManager.Current.BlurNSFWThumbnails)
+                if (modData.IsNSFW && hideNSFW)
                 {
                     continue;
                 }
@@ -551,7 +553,7 @@ namespace FlairX_Mod_Manager.Pages
             
             _allMods = new ObservableCollection<ModTile>(initialMods);
             ModsGrid.ItemsSource = _allMods;
-            LogToGridLog($"Created {initialMods.Count} initial ModTiles out of {_allModData.Count} total");
+            LogToGridLog($"Created {initialMods.Count} initial ModTiles out of {_allModData.Count} total (NSFW filter: {hideNSFW})");
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>
