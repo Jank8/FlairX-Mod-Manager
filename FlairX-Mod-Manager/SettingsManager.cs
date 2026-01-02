@@ -115,10 +115,6 @@ namespace FlairX_Mod_Manager
         public int ImageOptimizerThreadCount { get; set; } = 0; // 0 = auto-detect based on CPU cores
         public bool ImageOptimizerCreateBackups { get; set; } = false;
         public bool ImageOptimizerKeepOriginals { get; set; } = false;
-        public string ImageOptimizerManualMode { get; set; } = "Lite";
-        public string ImageOptimizerDragDropModMode { get; set; } = "Lite";
-        public string ImageOptimizerDragDropCategoryMode { get; set; } = "Full";
-        public string ImageOptimizerAutoDownloadMode { get; set; } = "Lite";
         public string ImageCropType { get; set; } = "Center"; // Center, Smart, Entropy, Attention, ManualOnly
         public bool PreviewBeforeCrop { get; set; } = false; // Show preview dialog before each crop
         public bool InspectThumbnailsOnly { get; set; } = false; // Only show crop inspection for minitile/catmini thumbnails

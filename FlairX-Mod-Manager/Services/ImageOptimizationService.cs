@@ -1050,8 +1050,9 @@ namespace FlairX_Mod_Manager.Services
             }
             
             // Check if already optimized and skip if reoptimize is disabled
-            // Skip this check for GameBanana downloads - they should always process new files
-            if (!context.Reoptimize && context.Trigger != OptimizationTrigger.GameBananaDownload && OptimizationHelper.IsModAlreadyOptimized(modDir))
+            // Skip this check for GameBanana downloads and DragDropMod - they should always process new files
+            if (!context.Reoptimize && context.Trigger != OptimizationTrigger.GameBananaDownload && 
+                context.Trigger != OptimizationTrigger.DragDropMod && OptimizationHelper.IsModAlreadyOptimized(modDir))
             {
                 Logger.LogInfo($"Skipping already optimized mod: {modDir}");
                 return;
@@ -1625,7 +1626,7 @@ namespace FlairX_Mod_Manager.Services
                     }
                 }
                 
-                // Find all preview image files (prefer _original files if they exist)
+                // Find all preview image files
                 var allFiles = Directory.GetFiles(modDir)
                     .Where(f =>
                     {
@@ -1637,32 +1638,61 @@ namespace FlairX_Mod_Manager.Services
                     })
                     .ToList();
                 
-                // Separate original files from regular files
-                // Sort so that "preview" (without number) comes first, then "preview-01", "preview-02", etc.
+                // Separate files into categories:
+                // 1. Already optimized files (preview.jpg, preview-01.jpg, etc.) - keep as is
+                // 2. New files to process (preview001.jpg, preview002.jpg, etc.)
+                // 3. _original files
                 var originalFiles = allFiles
                     .Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase))
-                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
                     .ToList();
-                var regularFiles = allFiles
-                    .Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase))
+                
+                var alreadyOptimizedFiles = allFiles
+                    .Where(f => 
+                    {
+                        var fileName = Path.GetFileNameWithoutExtension(f).ToLower();
+                        if (fileName.EndsWith("_original")) return false;
+                        // preview.jpg or preview-XX.jpg pattern
+                        if (fileName == "preview") return true;
+                        if (fileName.StartsWith("preview-") && fileName.Length == 10) return true; // preview-XX
+                        return false;
+                    })
                     .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
                     .ToList();
                 
-                // Use original files if they exist, otherwise use regular files
-                var previewFiles = originalFiles.Count > 0 ? originalFiles : regularFiles;
+                var newFilesToProcess = allFiles
+                    .Where(f => 
+                    {
+                        var fileName = Path.GetFileNameWithoutExtension(f).ToLower();
+                        if (fileName.EndsWith("_original")) return false;
+                        if (fileName == "preview") return false;
+                        if (fileName.StartsWith("preview-") && fileName.Length == 10) return false; // preview-XX
+                        // Everything else is new (preview001, preview002, preview1, etc.)
+                        return true;
+                    })
+                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
+                    .ToList();
                 
-                if (previewFiles.Count == 0)
+                Logger.LogInfo($"Already optimized: {alreadyOptimizedFiles.Count}, New to process: {newFilesToProcess.Count}");
+                
+                // If no new files to process, nothing to do
+                if (newFilesToProcess.Count == 0)
                 {
-                    Logger.LogInfo($"No preview files found in: {modDir}");
+                    Logger.LogInfo($"No new preview files to process in: {modDir}");
                     return;
                 }
                 
-                // If using regular files and KeepOriginals is enabled, create _original copies first
-                bool needsOriginalCreation = (originalFiles.Count == 0 && context.KeepOriginals && regularFiles.Count > 0);
-                if (needsOriginalCreation)
+                // Calculate starting index for new files
+                int startIndex = alreadyOptimizedFiles.Count;
+                
+                // Check if minitile already exists
+                var minitilePath = Path.Combine(modDir, "minitile.jpg");
+                bool minitileExists = File.Exists(minitilePath);
+                
+                // If using new files and KeepOriginals is enabled, create _original copies first
+                if (context.KeepOriginals && newFilesToProcess.Count > 0)
                 {
                     Logger.LogInfo("Creating original copies before optimization (Lite mode)");
-                    foreach (var file in regularFiles)
+                    foreach (var file in newFilesToProcess)
                     {
                         try
                         {
@@ -1685,22 +1715,29 @@ namespace FlairX_Mod_Manager.Services
                 }
                 
                 // Select minitile source BEFORE processing (so user sees original images)
+                // Always show selection - user can decide to create new minitile even if one exists
                 string? selectedMinitileSource = null;
-                if (previewFiles.Count > 0)
+                bool skipMinitileOnly = false;
+                if (newFilesToProcess.Count > 0)
                 {
-                    selectedMinitileSource = await SelectMinitileSourceAsync(previewFiles, modDir, context);
+                    // Combine all files for selection (existing + new)
+                    var allForSelection = alreadyOptimizedFiles.Concat(newFilesToProcess).ToList();
+                    selectedMinitileSource = await SelectMinitileSourceAsync(allForSelection, modDir, context);
                     if (selectedMinitileSource == null)
                     {
-                        Logger.LogInfo($"User cancelled minitile source selection, skipping mod: {modDir}");
-                        return;
+                        // User clicked Skip - skip minitile but continue processing files
+                        Logger.LogInfo($"User skipped minitile source selection, continuing with file processing");
+                        skipMinitileOnly = true;
                     }
                 }
                 
-                // Process each preview file - convert to JPEG without resizing
-                for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
+                // Process each NEW preview file - convert to JPEG without resizing
+                // Use indices starting from existing count
+                for (int i = 0; i < newFilesToProcess.Count && (startIndex + i) < AppConstants.MAX_PREVIEW_IMAGES; i++)
                 {
-                    var sourceFile = previewFiles[i];
-                    string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
+                    var sourceFile = newFilesToProcess[i];
+                    int targetIndex = startIndex + i;
+                    string targetFileName = targetIndex == 0 ? "preview.jpg" : $"preview-{targetIndex:D2}.jpg";
                     var targetPath = Path.Combine(modDir, targetFileName);
                     
                     bool savedSuccessfully = false;
@@ -1757,16 +1794,18 @@ namespace FlairX_Mod_Manager.Services
                 }
                 
                 // Generate minitile.jpg (600x722 thumbnail) from selected source
-                if (!string.IsNullOrEmpty(selectedMinitileSource) && File.Exists(selectedMinitileSource))
+                // Only if not skipping minitile
+                if (!skipMinitileOnly && !string.IsNullOrEmpty(selectedMinitileSource) && File.Exists(selectedMinitileSource))
                 {
                     await GenerateMinitileAsync(modDir, selectedMinitileSource, context);
                 }
                 
                 // Handle original files based on KeepOriginals setting
+                // Only process new files, not already optimized ones
                 if (context.KeepOriginals)
                 {
                     // Rename original files with _original suffix
-                    foreach (var file in previewFiles)
+                    foreach (var file in newFilesToProcess)
                     {
                         var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
                         // Skip if already _original or is processed output file
@@ -1795,8 +1834,8 @@ namespace FlairX_Mod_Manager.Services
                 }
                 else
                 {
-                    // Delete original files (but keep _original files as they are source)
-                    foreach (var file in previewFiles)
+                    // Delete original source files (the new ones we just processed)
+                    foreach (var file in newFilesToProcess)
                     {
                         var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
                         // Skip _original files and processed output files
@@ -1807,11 +1846,11 @@ namespace FlairX_Mod_Manager.Services
                         try
                         {
                             File.Delete(file);
-                            Logger.LogInfo($"Deleted original: {Path.GetFileName(file)}");
+                            Logger.LogInfo($"Deleted source: {Path.GetFileName(file)}");
                         }
                         catch (Exception ex)
                         {
-                            Logger.LogError($"Failed to delete original file: {file}", ex);
+                            Logger.LogError($"Failed to delete source file: {file}", ex);
                         }
                     }
                 }
@@ -2471,8 +2510,7 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         public static OptimizationContext GetOptimizationContext(OptimizationTrigger trigger)
         {
-            // Determine mode based on trigger
-            // CategoryFull is only used for drag&drop category operations
+            // Standard mode for everything, CategoryFull only for category operations
             var mode = trigger == OptimizationTrigger.DragDropCategory 
                 ? OptimizationMode.CategoryFull 
                 : OptimizationMode.Standard;
@@ -2482,14 +2520,6 @@ namespace FlairX_Mod_Manager.Services
                 ? parsedStrategy
                 : CropStrategy.Center;
 
-            // Determine if UI interaction is allowed based on user preferences and crop strategy
-            // Manual and Drag&Drop operations should allow UI interaction if inspection is enabled
-            // GameBanana downloads in background typically shouldn't allow UI (but user can override if they want)
-            bool allowUIInteraction = true; // Default: allow UI interaction for user-initiated operations
-            
-            // For now, all triggers allow UI interaction if the user has enabled inspection
-            // This respects PreviewBeforeCrop setting for all contexts
-            
             // DragDropCategory always forces InspectAndEdit because catprev (722x722) and catmini (600x722) 
             // require different crop areas
             bool inspectAndEdit = trigger == OptimizationTrigger.DragDropCategory 
@@ -2505,9 +2535,9 @@ namespace FlairX_Mod_Manager.Services
                 KeepOriginals = SettingsManager.Current.ImageOptimizerKeepOriginals,
                 CropStrategy = cropStrategy,
                 InspectAndEditEnabled = inspectAndEdit,
-                InspectThumbnailsOnly = true, // Always show crop inspection for thumbnails (minitile/catmini)
+                InspectThumbnailsOnly = true,
                 Trigger = trigger,
-                AllowUIInteraction = allowUIInteraction,
+                AllowUIInteraction = true,
                 Reoptimize = SettingsManager.Current.ImageOptimizerReoptimize
             };
         }
