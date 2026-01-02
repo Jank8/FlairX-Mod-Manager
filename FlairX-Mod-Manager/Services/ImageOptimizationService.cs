@@ -2190,7 +2190,6 @@ namespace FlairX_Mod_Manager.Services
                 CropStrategy.Smart => CropType.Smart,
                 CropStrategy.Entropy => CropType.Entropy,
                 CropStrategy.Attention => CropType.Attention,
-                CropStrategy.ManualOnly => CropType.ManualOnly,
                 _ => CropType.Center
             };
         }
@@ -2222,17 +2221,15 @@ namespace FlairX_Mod_Manager.Services
             // Show inspection panel ONLY IF:
             // 1. UI interaction is allowed (not background processing)
             // 2. AND one of:
-            //    a) ManualOnly mode
-            //    b) Inspect&Edit is enabled (for all images)
-            //    c) InspectThumbnailsOnly is enabled AND this is a thumbnail (minitile/catmini)
+            //    a) Inspect&Edit is enabled (for all images)
+            //    b) InspectThumbnailsOnly is enabled AND this is a thumbnail (minitile/catmini)
             // 3. BUT NOT if AutoCreateModThumbnails is enabled AND this is a minitile
             bool isMinitile = imageType.ToLower().Contains("minitile");
             bool skipDueToAutoCreate = SettingsManager.Current.AutoCreateModThumbnails && isMinitile;
             
             bool needsInspection = context.AllowUIInteraction && 
                                   !skipDueToAutoCreate &&
-                                  (context.CropStrategy == CropStrategy.ManualOnly || 
-                                   context.InspectAndEditEnabled ||
+                                  (context.InspectAndEditEnabled ||
                                    (context.InspectThumbnailsOnly && isThumbnail));
 
             if (needsInspection && CropInspectionRequested != null)
@@ -2384,9 +2381,7 @@ namespace FlairX_Mod_Manager.Services
                 // Check if we need fully sequential processing for crop inspection
                 // Full sequential processing is needed when:
                 // - InspectAndEditEnabled (preview before crop for ALL images)
-                // - ManualOnly crop strategy (requires user input for ALL crops)
-                bool needsFullSequentialProcessing = context.InspectAndEditEnabled || 
-                                                      context.CropStrategy == CropStrategy.ManualOnly;
+                bool needsFullSequentialProcessing = context.InspectAndEditEnabled;
                 
                 // Hybrid mode: parallel preview processing, sequential thumbnail inspection
                 // Used when InspectThumbnailsOnly is enabled
@@ -2602,8 +2597,7 @@ namespace FlairX_Mod_Manager.Services
         Center,
         Smart,
         Entropy,
-        Attention,
-        ManualOnly
+        Attention
     }
     
     /// <summary>

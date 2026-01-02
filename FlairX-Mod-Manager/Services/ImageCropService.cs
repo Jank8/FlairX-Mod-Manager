@@ -10,8 +10,7 @@ namespace FlairX_Mod_Manager.Services
         Center,
         Smart,
         Entropy,
-        Attention,
-        ManualOnly
+        Attention
     }
 
     public static class ImageCropService
@@ -69,9 +68,8 @@ namespace FlairX_Mod_Manager.Services
                     (x, y) = CalculateAttentionCrop(image, cropWidth, cropHeight);
                     break;
                     
-                case CropType.ManualOnly:
                 default:
-                    // For manual, return center as default (will be overridden by dialog)
+                    // Default to center crop
                     (x, y) = CalculateCenterCrop(image.Width, image.Height, cropWidth, cropHeight);
                     break;
             }

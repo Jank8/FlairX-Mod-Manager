@@ -172,9 +172,6 @@
                         <ComboBoxItem x:Name="CropTypeAttention" Tag="Attention">
                             <TextBlock x:Name="CropTypeAttentionText" Text="Attention"/>
                         </ComboBoxItem>
-                        <ComboBoxItem x:Name="CropTypeManual" Tag="ManualOnly">
-                            <TextBlock x:Name="CropTypeManualText" Text="Manual Only"/>
-                        </ComboBoxItem>
                     </ComboBox>
                 </Grid>
             </Border>

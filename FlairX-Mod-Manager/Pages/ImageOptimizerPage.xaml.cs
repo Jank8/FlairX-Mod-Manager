@@ -198,7 +198,6 @@ namespace FlairX_Mod_Manager.Pages
             CropTypeSmartText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Smart");
             CropTypeEntropyText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Entropy");
             CropTypeAttentionText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Attention");
-            CropTypeManualText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Manual");
             
             // Backup options
             CreateBackupsLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_CreateBackups");
