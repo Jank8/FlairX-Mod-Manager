@@ -1050,9 +1050,10 @@ namespace FlairX_Mod_Manager.Services
             }
             
             // Check if already optimized and skip if reoptimize is disabled
-            // Skip this check for GameBanana downloads and DragDropMod - they should always process new files
+            // Skip this check for GameBanana downloads, DragDropMod, and Manual - they should always process new files
             if (!context.Reoptimize && context.Trigger != OptimizationTrigger.GameBananaDownload && 
-                context.Trigger != OptimizationTrigger.DragDropMod && OptimizationHelper.IsModAlreadyOptimized(modDir))
+                context.Trigger != OptimizationTrigger.DragDropMod && context.Trigger != OptimizationTrigger.Manual &&
+                OptimizationHelper.IsModAlreadyOptimized(modDir))
             {
                 Logger.LogInfo($"Skipping already optimized mod: {modDir}");
                 return;
@@ -1639,38 +1640,59 @@ namespace FlairX_Mod_Manager.Services
                     .ToList();
                 
                 // Separate files into categories:
-                // 1. Already optimized files (preview.jpg, preview-01.jpg, etc.) - keep as is
+                // 1. Already optimized files (preview.jpg, preview-01.jpg, etc.)
                 // 2. New files to process (preview001.jpg, preview002.jpg, etc.)
                 // 3. _original files
                 var originalFiles = allFiles
                     .Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase))
                     .ToList();
                 
-                var alreadyOptimizedFiles = allFiles
-                    .Where(f => 
-                    {
-                        var fileName = Path.GetFileNameWithoutExtension(f).ToLower();
-                        if (fileName.EndsWith("_original")) return false;
-                        // preview.jpg or preview-XX.jpg pattern
-                        if (fileName == "preview") return true;
-                        if (fileName.StartsWith("preview-") && fileName.Length == 10) return true; // preview-XX
-                        return false;
-                    })
-                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
-                    .ToList();
+                List<string> alreadyOptimizedFiles;
+                List<string> newFilesToProcess;
                 
-                var newFilesToProcess = allFiles
-                    .Where(f => 
-                    {
-                        var fileName = Path.GetFileNameWithoutExtension(f).ToLower();
-                        if (fileName.EndsWith("_original")) return false;
-                        if (fileName == "preview") return false;
-                        if (fileName.StartsWith("preview-") && fileName.Length == 10) return false; // preview-XX
-                        // Everything else is new (preview001, preview002, preview1, etc.)
-                        return true;
-                    })
-                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
-                    .ToList();
+                // If Reoptimize is enabled, treat ALL files as new (process everything from scratch)
+                if (context.Reoptimize)
+                {
+                    Logger.LogInfo("Reoptimize enabled - processing all files from scratch");
+                    alreadyOptimizedFiles = new List<string>();
+                    
+                    // Prefer _original files if they exist, otherwise use all non-original files
+                    newFilesToProcess = originalFiles.Count > 0 
+                        ? originalFiles.OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f))).ToList()
+                        : allFiles
+                            .Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase))
+                            .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
+                            .ToList();
+                }
+                else
+                {
+                    // Normal mode - only process new files, keep already optimized
+                    alreadyOptimizedFiles = allFiles
+                        .Where(f => 
+                        {
+                            var fileName = Path.GetFileNameWithoutExtension(f).ToLower();
+                            if (fileName.EndsWith("_original")) return false;
+                            // preview.jpg or preview-XX.jpg pattern
+                            if (fileName == "preview") return true;
+                            if (fileName.StartsWith("preview-") && fileName.Length == 10) return true; // preview-XX
+                            return false;
+                        })
+                        .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
+                        .ToList();
+                    
+                    newFilesToProcess = allFiles
+                        .Where(f => 
+                        {
+                            var fileName = Path.GetFileNameWithoutExtension(f).ToLower();
+                            if (fileName.EndsWith("_original")) return false;
+                            if (fileName == "preview") return false;
+                            if (fileName.StartsWith("preview-") && fileName.Length == 10) return false; // preview-XX
+                            // Everything else is new (preview001, preview002, preview1, etc.)
+                            return true;
+                        })
+                        .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
+                        .ToList();
+                }
                 
                 Logger.LogInfo($"Already optimized: {alreadyOptimizedFiles.Count}, New to process: {newFilesToProcess.Count}");
                 
