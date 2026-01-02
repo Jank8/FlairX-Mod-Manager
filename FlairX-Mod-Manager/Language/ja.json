@@ -182,7 +182,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "アプリケーションがシステムトレイに最小化されました",
     "SettingsPage_Hotkeys_Header": "ホットキー",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "プレビュー最適化のキーボードショートカット",
     "SettingsPage_ReloadManagerHotkey_Description": "マネージャー再読み込みのキーボードショートカット",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "アクティブMod シャッフルのキーボードショートカット",
     "SettingsPage_DeactivateAllModsHotkey_Description": "全Mod無効化のキーボードショートカット",

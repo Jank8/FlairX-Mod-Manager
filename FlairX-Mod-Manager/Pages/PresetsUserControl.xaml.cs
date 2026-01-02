@@ -241,7 +241,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     try
                     {
-                        var json = File.ReadAllText(path);
+                        var json = Services.FileAccessQueue.ReadAllText(path);
                         var mods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(json);
                         if (mods != null)
                         {
@@ -306,7 +306,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     try
                     {
-                        var json = File.ReadAllText(activeModsPath);
+                        var json = Services.FileAccessQueue.ReadAllText(activeModsPath);
                         var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new Dictionary<string, bool>();
                         foreach (var kv in currentMods)
                         {
@@ -326,7 +326,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     // Save the current state to preset (includes both active=true and inactive=false mods)
                     var json = System.Text.Json.JsonSerializer.Serialize(activeMods, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(presetPath, json);
+                    Services.FileAccessQueue.WriteAllText(presetPath, json);
                 }
                 catch (Exception ex)
                 {
@@ -376,7 +376,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (File.Exists(activeModsPath))
                 {
-                    var json = File.ReadAllText(activeModsPath);
+                    var json = Services.FileAccessQueue.ReadAllText(activeModsPath);
                     var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new Dictionary<string, bool>();
                     foreach (var kv in currentMods)
                     {

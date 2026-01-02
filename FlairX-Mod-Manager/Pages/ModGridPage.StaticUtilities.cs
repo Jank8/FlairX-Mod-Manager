@@ -240,7 +240,7 @@ namespace FlairX_Mod_Manager.Pages
             if (!File.Exists(presetPath)) return;
             try
             {
-                var json = File.ReadAllText(presetPath);
+                var json = Services.FileAccessQueue.ReadAllText(presetPath);
                 var preset = JsonSerializer.Deserialize<Dictionary<string, bool>>(json);
                 if (preset != null)
                 {
@@ -256,7 +256,7 @@ namespace FlairX_Mod_Manager.Pages
                     // Update ActiveMods.json
                     var activeModsPath = PathManager.GetActiveModsPath();
                     var presetJson = JsonSerializer.Serialize(preset, new JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(activeModsPath, presetJson);
+                    Services.FileAccessQueue.WriteAllText(activeModsPath, presetJson);
                 }
             }
             catch (Exception ex)
@@ -322,7 +322,7 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         try
                         {
-                            var json = File.ReadAllText(modJsonPath);
+                            var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
                             using var doc = JsonDocument.Parse(json);
                             var root = doc.RootElement;
                             var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
@@ -358,7 +358,7 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 var json = JsonSerializer.Serialize(allMods, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(presetPath, json);
+                Services.FileAccessQueue.WriteAllText(presetPath, json);
             }
             catch (Exception ex)
             {

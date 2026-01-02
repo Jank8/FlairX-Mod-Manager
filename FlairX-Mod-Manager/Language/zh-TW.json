@@ -181,7 +181,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "應用程式已最小化到系統匣",
     "SettingsPage_Hotkeys_Header": "快速鍵",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "優化預覽的鍵盤快速鍵",
     "SettingsPage_ReloadManagerHotkey_Description": "重新載入管理器的鍵盤快速鍵",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "隨機排列活躍模組的鍵盤快速鍵",
     "SettingsPage_DeactivateAllModsHotkey_Description": "停用所有模組的鍵盤快速鍵",

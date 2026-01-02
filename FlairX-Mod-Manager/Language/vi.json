@@ -181,7 +181,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "Ứng dụng đã được thu nhỏ vào khay hệ thống",
     "SettingsPage_Hotkeys_Header": "Phím tắt",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "Phím tắt bàn phím để tối ưu hóa xem trước",
     "SettingsPage_ReloadManagerHotkey_Description": "Phím tắt bàn phím để tải lại trình quản lý",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "Phím tắt bàn phím để xáo trộn các mod đang hoạt động",
     "SettingsPage_DeactivateAllModsHotkey_Description": "Phím tắt bàn phím để vô hiệu hóa tất cả mod",

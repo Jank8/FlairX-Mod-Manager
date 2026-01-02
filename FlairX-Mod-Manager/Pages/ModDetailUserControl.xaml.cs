@@ -247,7 +247,7 @@ namespace FlairX_Mod_Manager.Pages
 
             try
             {
-                var json = File.ReadAllText(_modJsonPath);
+                var json = Services.FileAccessQueue.ReadAllText(_modJsonPath);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 
@@ -1374,7 +1374,7 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
                 
-                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                var json = await Services.FileAccessQueue.ReadAllTextAsync(hotkeysJsonPath);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 
@@ -1775,7 +1775,7 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
                 
-                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                var json = await Services.FileAccessQueue.ReadAllTextAsync(hotkeysJsonPath);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 
@@ -1843,7 +1843,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (!File.Exists(hotkeysJsonPath))
                     return null;
                 
-                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                var json = await Services.FileAccessQueue.ReadAllTextAsync(hotkeysJsonPath);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 
@@ -1897,7 +1897,7 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
                 
-                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                var json = await Services.FileAccessQueue.ReadAllTextAsync(hotkeysJsonPath);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 
@@ -1998,28 +1998,27 @@ namespace FlairX_Mod_Manager.Pages
                 var hotkeysJsonPath = Path.Combine(_currentModDirectory, "hotkeys.json");
                 if (!File.Exists(hotkeysJsonPath)) return;
                 
-                var json = await File.ReadAllTextAsync(hotkeysJsonPath);
-                using var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-                
-                var defaultHotkeys = new List<Dictionary<string, string>>();
-                
-                // Preserve default hotkeys
-                if (root.TryGetProperty("defaultHotkeys", out var defaultProp) && defaultProp.ValueKind == JsonValueKind.Array)
-                {
-                    foreach (var h in defaultProp.EnumerateArray())
-                    {
-                        defaultHotkeys.Add(new Dictionary<string, string>
-                        {
-                            ["key"] = h.GetProperty("key").GetString() ?? "",
-                            ["description"] = h.GetProperty("description").GetString() ?? ""
-                        });
-                    }
-                }
-                
-                // Save updated hotkeys.json using FileAccessQueue
                 await Services.FileAccessQueue.ExecuteAsync(hotkeysJsonPath, async () =>
                 {
+                    var json = await File.ReadAllTextAsync(hotkeysJsonPath);
+                    using var doc = JsonDocument.Parse(json);
+                    var root = doc.RootElement;
+                    
+                    var defaultHotkeys = new List<Dictionary<string, string>>();
+                    
+                    // Preserve default hotkeys
+                    if (root.TryGetProperty("defaultHotkeys", out var defaultProp) && defaultProp.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var h in defaultProp.EnumerateArray())
+                        {
+                            defaultHotkeys.Add(new Dictionary<string, string>
+                            {
+                                ["key"] = h.GetProperty("key").GetString() ?? "",
+                                ["description"] = h.GetProperty("description").GetString() ?? ""
+                            });
+                        }
+                    }
+                    
                     var hotkeysData = new
                     {
                         hotkeys = hotkeys,

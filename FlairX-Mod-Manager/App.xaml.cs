@@ -367,7 +367,7 @@ namespace FlairX_Mod_Manager
                     // Read existing mod.json - PRESERVE ALL EXISTING DATA
                     try
                     {
-                        var jsonContent = System.IO.File.ReadAllText(modJsonPath);
+                        var jsonContent = Services.FileAccessQueue.ReadAllText(modJsonPath);
                         modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonContent) ?? new();
                         
                         // ONLY add missing syncMethod if it doesn't exist - never overwrite existing data
@@ -511,7 +511,7 @@ namespace FlairX_Mod_Manager
 
                 foreach (var iniFile in iniFiles)
                 {
-                    var content = System.IO.File.ReadAllText(iniFile, System.Text.Encoding.UTF8);
+                    var content = Services.FileAccessQueue.ReadAllText(iniFile);
                     var lines = content.Split('\n');
 
                     foreach (var line in lines)

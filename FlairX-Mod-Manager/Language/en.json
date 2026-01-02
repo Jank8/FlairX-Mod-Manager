@@ -199,7 +199,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "Application minimized to system tray",
     "SettingsPage_Hotkeys_Header": "Hotkeys",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "Keyboard shortcut for optimizing previews",
     "SettingsPage_ReloadManagerHotkey_Description": "Keyboard shortcut for reloading the manager",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "Keyboard shortcut for shuffling active mods",
     "SettingsPage_DeactivateAllModsHotkey_Description": "Keyboard shortcut for deactivating all mods",
@@ -231,7 +230,6 @@
     "Stop": "Stop",
     "Cancelled_Title": "Cancelled",
     "Confirm": "Confirm",
-    
     "StarterPack_Title": "Starter Pack Available",
     "StarterPack_Description": "Would you like to download the Starter Pack? It contains a curated collection of essential mods to get you started.",
     "StarterPack_Download": "Download & Install",
@@ -246,7 +244,6 @@
     "StarterPack_Complete": "Starter Pack installed successfully!",
     "StarterPack_Error": "Error",
     "StarterPack_Cancelled": "Download cancelled.",
-    
     "CropPanel_Title": "Adjust Crop Area",
     "CropPanel_AspectLocked": "Aspect ratio locked to",
     "CropPanel_FreeAspect": "Free aspect ratio - drag handles to resize",
@@ -261,7 +258,6 @@
     "MinitileSelection_Subtitle": "Choose which image to use for the thumbnail",
     "MinitileSelection_NoSelection": "No image selected",
     "MinitileSelection_Selected": "Selected: {0}",
-
     "ImagePreview_Close_Tooltip": "Close preview",
     "ModDetailPage_DateChecked_Desc": "When you last verified this mod",
     "ModDetailPage_DateUpdated_Desc": "When this mod was last updated",

@@ -60,7 +60,6 @@ namespace FlairX_Mod_Manager.Pages
         // Hotkey definitions
         private readonly List<(string Key, string LabelKey, string DescKey, string Icon)> _hotkeyDefinitions = new()
         {
-            ("OptimizePreviewsHotkey", "SettingsPage_OptimizePreviews_Label", "SettingsPage_OptimizePreviewsHotkey_Description", "\uE765"),
             ("ReloadManagerHotkey", "Reload_Mods_Tooltip", "SettingsPage_ReloadManagerHotkey_Description", "\uE72C"),
             ("ShuffleActiveModsHotkey", "SettingsPage_ShuffleActiveMods_Label", "SettingsPage_ShuffleActiveModsHotkey_Description", "\uE8B1"),
             ("DeactivateAllModsHotkey", "SettingsPage_DeactivateAllMods_Label", "SettingsPage_DeactivateAllModsHotkey_Description", "\uE711")
@@ -673,24 +672,6 @@ namespace FlairX_Mod_Manager.Pages
                     mainWindow.RefreshUIAfterLanguageChange();
                     // No need to navigate back to SettingsPage - we're already here and updated
                 }
-            }
-        }
-
-        // Public method for hotkey - runs optimization without confirmation dialog
-        public static async Task OptimizePreviewsDirectAsync()
-        {
-            try
-            {
-                Logger.LogInfo("Starting optimize previews via hotkey (no confirmation)");
-                
-                // Use ImageOptimizationService which handles all the logic
-                await Services.ImageOptimizationService.OptimizeAllPreviewsAsync();
-                
-                Logger.LogInfo("Optimize previews completed via hotkey");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error during optimize previews hotkey execution", ex);
             }
         }
 
@@ -3106,7 +3087,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             return key switch
             {
-                "OptimizePreviewsHotkey" => SettingsManager.Current.OptimizePreviewsHotkey,
                 "ReloadManagerHotkey" => SettingsManager.Current.ReloadManagerHotkey,
                 "ShuffleActiveModsHotkey" => SettingsManager.Current.ShuffleActiveModsHotkey,
                 "DeactivateAllModsHotkey" => SettingsManager.Current.DeactivateAllModsHotkey,
@@ -3118,9 +3098,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             switch (key)
             {
-                case "OptimizePreviewsHotkey":
-                    SettingsManager.Current.OptimizePreviewsHotkey = value;
-                    break;
                 case "ReloadManagerHotkey":
                     SettingsManager.Current.ReloadManagerHotkey = value;
                     break;
@@ -3394,7 +3371,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             return key switch
             {
-                "OptimizePreviewsHotkey" => "Ctrl+O",
                 "ReloadManagerHotkey" => "Ctrl+R",
                 "ShuffleActiveModsHotkey" => "Ctrl+S",
                 "DeactivateAllModsHotkey" => "Ctrl+D",

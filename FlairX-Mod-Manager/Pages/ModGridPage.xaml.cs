@@ -972,7 +972,7 @@ namespace FlairX_Mod_Manager.Pages
                 }
 
                 // Read fresh data from mod.json (no cache)
-                var json = File.ReadAllText(modJsonPath);
+                var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
 

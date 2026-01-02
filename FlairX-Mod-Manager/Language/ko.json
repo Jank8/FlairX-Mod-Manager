@@ -182,7 +182,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "애플리케이션이 시스템 트레이로 최소화되었습니다",
     "SettingsPage_Hotkeys_Header": "단축키",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "미리보기 최적화를 위한 키보드 단축키",
     "SettingsPage_ReloadManagerHotkey_Description": "매니저 다시 로드를 위한 키보드 단축키",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "활성 모드 셔플을 위한 키보드 단축키",
     "SettingsPage_DeactivateAllModsHotkey_Description": "모든 모드 비활성화를 위한 키보드 단축키",

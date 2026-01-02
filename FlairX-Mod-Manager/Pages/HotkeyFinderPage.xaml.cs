@@ -280,7 +280,8 @@ namespace FlairX_Mod_Manager.Pages
             
             try
             {
-                var lines = await File.ReadAllLinesAsync(iniFilePath, token);
+                var content = await Services.FileAccessQueue.ReadAllTextAsync(iniFilePath, token);
+                var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
                 var currentSection = "";
                 var isKeySection = false;
                 var keyType = "";
@@ -488,7 +489,7 @@ namespace FlairX_Mod_Manager.Pages
                     
                     if (File.Exists(modJsonPath))
                     {
-                        var existingJson = await File.ReadAllTextAsync(modJsonPath, token);
+                        var existingJson = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
                         modData = JsonSerializer.Deserialize<Dictionary<string, object>>(existingJson) ?? new();
                         
                         // Load existing favorite hotkeys
@@ -871,55 +872,59 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var lines = await File.ReadAllLinesAsync(iniFilePath);
-                var updatedLines = new List<string>();
-                bool inTargetSection = false;
-                bool keyUpdated = false;
-                
-                var sectionPattern = new Regex(@"\[(.*?)\]");
-                
-                foreach (var line in lines)
+                await Services.FileAccessQueue.ExecuteAsync(iniFilePath, async () =>
                 {
-                    var trimmedLine = line.Trim();
+                    var content = await File.ReadAllTextAsync(iniFilePath);
+                    var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.None).ToList();
+                    var updatedLines = new List<string>();
+                    bool inTargetSection = false;
+                    bool keyUpdated = false;
                     
-                    // Check if we're entering a new section
-                    if (trimmedLine.StartsWith("["))
-                    {
-                        var sectionMatch = sectionPattern.Match(trimmedLine);
-                        if (sectionMatch.Success)
-                        {
-                            inTargetSection = sectionMatch.Groups[1].Value.Equals(section, StringComparison.OrdinalIgnoreCase);
-                        }
-                        updatedLines.Add(line);
-                        continue;
-                    }
+                    var sectionPattern = new Regex(@"\[(.*?)\]");
                     
-                    // If we're in the target section and this line contains our key
-                    if (inTargetSection && !trimmedLine.StartsWith(";") && !string.IsNullOrEmpty(trimmedLine))
+                    foreach (var line in lines)
                     {
-                        var keyPattern = new Regex($@"^{Regex.Escape(keyName)}\s*=", RegexOptions.IgnoreCase);
-                        if (keyPattern.IsMatch(trimmedLine))
+                        var trimmedLine = line.Trim();
+                        
+                        // Check if we're entering a new section
+                        if (trimmedLine.StartsWith("["))
                         {
-                            // Update the key value
-                            updatedLines.Add($"{keyName} = {newValue}");
-                            keyUpdated = true;
+                            var sectionMatch = sectionPattern.Match(trimmedLine);
+                            if (sectionMatch.Success)
+                            {
+                                inTargetSection = sectionMatch.Groups[1].Value.Equals(section, StringComparison.OrdinalIgnoreCase);
+                            }
+                            updatedLines.Add(line);
                             continue;
                         }
+                        
+                        // If we're in the target section and this line contains our key
+                        if (inTargetSection && !trimmedLine.StartsWith(";") && !string.IsNullOrEmpty(trimmedLine))
+                        {
+                            var keyPattern = new Regex($@"^{Regex.Escape(keyName)}\s*=", RegexOptions.IgnoreCase);
+                            if (keyPattern.IsMatch(trimmedLine))
+                            {
+                                // Update the key value
+                                updatedLines.Add($"{keyName} = {newValue}");
+                                keyUpdated = true;
+                                continue;
+                            }
+                        }
+                        
+                        updatedLines.Add(line);
                     }
                     
-                    updatedLines.Add(line);
-                }
-                
-                if (!keyUpdated)
-                {
-                    Logger.LogWarning($"Key '{keyName}' not found in section '[{section}]' of file {PathManager.GetRelativePath(iniFilePath)}");
-                    return;
-                }
-                
-                // Write the updated content back to the file
-                await File.WriteAllLinesAsync(iniFilePath, updatedLines);
-                
-                Logger.LogInfo($"Successfully updated {PathManager.GetRelativePath(iniFilePath)}: [{section}] {keyName} = {newValue}");
+                    if (!keyUpdated)
+                    {
+                        Logger.LogWarning($"Key '{keyName}' not found in section '[{section}]' of file {PathManager.GetRelativePath(iniFilePath)}");
+                        return;
+                    }
+                    
+                    // Write the updated content back to the file
+                    await File.WriteAllTextAsync(iniFilePath, string.Join("\n", updatedLines));
+                    
+                    Logger.LogInfo($"Successfully updated {PathManager.GetRelativePath(iniFilePath)}: [{section}] {keyName} = {newValue}");
+                });
             }
             catch (Exception ex)
             {

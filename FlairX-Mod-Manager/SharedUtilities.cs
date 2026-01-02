@@ -405,7 +405,6 @@ namespace FlairX_Mod_Manager
             
             var keyboardHotkeys = new Dictionary<string, string>
             {
-                { "OptimizePreviewsHotkey", settings.OptimizePreviewsHotkey },
                 { "ReloadManagerHotkey", settings.ReloadManagerHotkey },
                 { "ShuffleActiveModsHotkey", settings.ShuffleActiveModsHotkey },
                 { "DeactivateAllModsHotkey", settings.DeactivateAllModsHotkey },
@@ -524,7 +523,6 @@ namespace FlairX_Mod_Manager
         {
             return settingKey switch
             {
-                "OptimizePreviewsHotkey" => GetTranslation(lang, "SettingsPage_OptimizePreviews_Label"),
                 "ReloadManagerHotkey" => GetTranslation(lang, "Reload_Mods_Tooltip"),
                 "ShuffleActiveModsHotkey" => GetTranslation(lang, "SettingsPage_ShuffleActiveMods_Label"),
                 "DeactivateAllModsHotkey" => GetTranslation(lang, "SettingsPage_DeactivateAllMods_Label"),

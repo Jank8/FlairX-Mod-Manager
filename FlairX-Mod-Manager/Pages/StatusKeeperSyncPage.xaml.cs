@@ -471,7 +471,7 @@ namespace FlairX_Mod_Manager.Pages
                 throw new Exception("d3dx_user.ini not found");
             }
 
-            var content = File.ReadAllText(d3dxUserPath, System.Text.Encoding.UTF8);
+            var content = Services.FileAccessQueue.ReadAllText(d3dxUserPath);
             LogStatic($"Successfully read d3dx_user.ini ({content.Length} characters)");
 
             var allEntries = new Dictionary<string, Dictionary<string, string>>();
@@ -600,7 +600,7 @@ namespace FlairX_Mod_Manager.Pages
                         var modJsonPath = Path.Combine(modDir, "mod.json");
                         if (File.Exists(modJsonPath))
                         {
-                            var jsonContent = File.ReadAllText(modJsonPath);
+                            var jsonContent = Services.FileAccessQueue.ReadAllText(modJsonPath);
                             using var doc = JsonDocument.Parse(jsonContent);
                             var root = doc.RootElement;
                             
@@ -661,7 +661,7 @@ namespace FlairX_Mod_Manager.Pages
                             var modJsonPath = Path.Combine(modDir, "mod.json");
                             if (!File.Exists(modJsonPath)) continue;
 
-                        var jsonContent = File.ReadAllText(modJsonPath);
+                        var jsonContent = Services.FileAccessQueue.ReadAllText(modJsonPath);
                         using var doc = JsonDocument.Parse(jsonContent);
                         var root = doc.RootElement;
                         
@@ -853,7 +853,7 @@ namespace FlairX_Mod_Manager.Pages
                 return (false, 0);
             }
 
-            var content = File.ReadAllText(filePath, System.Text.Encoding.UTF8);
+            var content = Services.FileAccessQueue.ReadAllText(filePath);
             // Split ONLY on '\n', do not split on '\r'
             var lines = content.Split('\n');
             var newLines = new List<string>(lines.Length);
@@ -917,7 +917,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 // Join using '\n' only (no extra lines)
                 var newContent = string.Join("\n", newLines);
-                File.WriteAllText(filePath, newContent, System.Text.Encoding.UTF8);
+                Services.FileAccessQueue.WriteAllText(filePath, newContent);
             }
 
             return (modified, updateCount);
@@ -931,111 +931,115 @@ namespace FlairX_Mod_Manager.Pages
                 return false;
             }
 
-            var content = File.ReadAllText(iniPath, System.Text.Encoding.UTF8);
-            var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
-            var newLines = new List<string>();
-            bool inConstantsSection = false;
-            bool constantsSectionFound = false;
-            bool constantsWereUpdated = false;
-            var usedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var line in lines)
+            bool result = false;
+            Services.FileAccessQueue.ExecuteAsync(iniPath, async () =>
             {
-                var trimmedLine = line.Trim();
+                var content = await File.ReadAllTextAsync(iniPath, System.Text.Encoding.UTF8);
+                var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
+                var newLines = new List<string>();
+                bool inConstantsSection = false;
+                bool constantsSectionFound = false;
+                bool constantsWereUpdated = false;
+                var usedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-                if (trimmedLine.StartsWith("[") && trimmedLine.EndsWith("]"))
+                foreach (var line in lines)
                 {
-                    var sectionName = trimmedLine.Substring(1, trimmedLine.Length - 2).Trim();
+                    var trimmedLine = line.Trim();
 
-                    if (inConstantsSection)
+                    if (trimmedLine.StartsWith("[") && trimmedLine.EndsWith("]"))
                     {
-                        // Add any remaining constants that were not present in the file
-                        foreach (var kvp in constants)
+                        var sectionName = trimmedLine.Substring(1, trimmedLine.Length - 2).Trim();
+
+                        if (inConstantsSection)
                         {
-                            if (!usedKeys.Contains(kvp.Key))
+                            // Add any remaining constants that were not present in the file
+                            foreach (var kvp in constants)
                             {
-                                newLines.Add($"    {kvp.Key} = {kvp.Value}");
-                                constantsWereUpdated = true;
+                                if (!usedKeys.Contains(kvp.Key))
+                                {
+                                    newLines.Add($"    {kvp.Key} = {kvp.Value}");
+                                    constantsWereUpdated = true;
+                                }
                             }
+                            inConstantsSection = false;
                         }
-                        inConstantsSection = false;
-                    }
 
-                    if (sectionName.Equals("constants", StringComparison.OrdinalIgnoreCase))
-                    {
-                        inConstantsSection = true;
-                        constantsSectionFound = true;
-                        newLines.Add(line);
-                        continue;
-                    }
-                }
-
-                if (inConstantsSection && !string.IsNullOrEmpty(trimmedLine) &&
-                    !trimmedLine.StartsWith(";") && trimmedLine.Contains("="))
-                {
-                    // Capture indentation
-                    var match = Regex.Match(line, @"^(\s*)(.+?)\s*=\s*(.*)$");
-                    if (match.Success)
-                    {
-                        var indentation = match.Groups[1].Value;
-                        var key = match.Groups[2].Value.Trim();
-                        var value = match.Groups[3].Value.Trim();
-                        usedKeys.Add(key);
-                        if (constants.TryGetValue(key, out var newValue))
+                        if (sectionName.Equals("constants", StringComparison.OrdinalIgnoreCase))
                         {
-                            if (value != newValue)
+                            inConstantsSection = true;
+                            constantsSectionFound = true;
+                            newLines.Add(line);
+                            continue;
+                        }
+                    }
+
+                    if (inConstantsSection && !string.IsNullOrEmpty(trimmedLine) &&
+                        !trimmedLine.StartsWith(";") && trimmedLine.Contains("="))
+                    {
+                        // Capture indentation
+                        var match = Regex.Match(line, @"^(\s*)(.+?)\s*=\s*(.*)$");
+                        if (match.Success)
+                        {
+                            var indentation = match.Groups[1].Value;
+                            var key = match.Groups[2].Value.Trim();
+                            var value = match.Groups[3].Value.Trim();
+                            usedKeys.Add(key);
+                            if (constants.TryGetValue(key, out var newValue))
                             {
-                                newLines.Add($"{indentation}{key} = {newValue}");
-                                constantsWereUpdated = true;
+                                if (value != newValue)
+                                {
+                                    newLines.Add($"{indentation}{key} = {newValue}");
+                                    constantsWereUpdated = true;
+                                }
+                                else
+                                {
+                                    newLines.Add(line);
+                                }
                             }
                             else
                             {
                                 newLines.Add(line);
                             }
+                            continue;
                         }
-                        else
+                    }
+
+                    newLines.Add(line);
+                }
+
+                if (inConstantsSection)
+                {
+                    foreach (var kvp in constants)
+                    {
+                        if (!usedKeys.Contains(kvp.Key))
                         {
-                            newLines.Add(line);
+                            newLines.Add($"    {kvp.Key} = {kvp.Value}");
+                            constantsWereUpdated = true;
                         }
-                        continue;
                     }
                 }
 
-                newLines.Add(line);
-            }
-
-            if (inConstantsSection)
-            {
-                foreach (var kvp in constants)
+                if (!constantsSectionFound && constants.Count > 0)
                 {
-                    if (!usedKeys.Contains(kvp.Key))
+                    newLines.Add("");
+                    newLines.Add("[Constants]");
+                    foreach (var kvp in constants)
                     {
                         newLines.Add($"    {kvp.Key} = {kvp.Value}");
                         constantsWereUpdated = true;
                     }
                 }
-            }
 
-            if (!constantsSectionFound && constants.Count > 0)
-            {
-                newLines.Add("");
-                newLines.Add("[Constants]");
-                foreach (var kvp in constants)
+                if (constantsWereUpdated)
                 {
-                    newLines.Add($"    {kvp.Key} = {kvp.Value}");
-                    constantsWereUpdated = true;
+                    var newContent = string.Join("\n", newLines);
+                    await File.WriteAllTextAsync(iniPath, newContent, System.Text.Encoding.UTF8);
+                    LogStatic($"✅ Updated [Constants] section in {Path.GetFileName(iniPath)}");
+                    result = true;
                 }
-            }
+            }).GetAwaiter().GetResult();
 
-            if (constantsWereUpdated)
-            {
-                var newContent = string.Join("\n", newLines);
-                File.WriteAllText(iniPath, newContent, System.Text.Encoding.UTF8);
-                LogStatic($"✅ Updated [Constants] section in {Path.GetFileName(iniPath)}");
-                return true;
-            }
-
-            return false;
+            return result;
         }
 
         private static Task<(int updateCount, int fileCount, int lodSyncCount)> SyncPersistentVariables()
@@ -1302,7 +1306,7 @@ namespace FlairX_Mod_Manager.Pages
                 var iniFiles = Directory.GetFiles(modDir, "*.ini", SearchOption.AllDirectories);
                 foreach (var iniPath in iniFiles)
                 {
-                    var content = File.ReadAllText(iniPath, System.Text.Encoding.UTF8);
+                    var content = Services.FileAccessQueue.ReadAllText(iniPath);
                     var match = System.Text.RegularExpressions.Regex.Match(content, @"^\s*namespace\s*=\s*(.+)$", System.Text.RegularExpressions.RegexOptions.Multiline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                     if (match.Success)
                     {
@@ -1420,7 +1424,7 @@ namespace FlairX_Mod_Manager.Pages
                 var iniPath = Path.Combine(modDir, firstIniFile.Replace('/', '\\'));
                 if (!File.Exists(iniPath)) return null;
                 
-                var content = File.ReadAllText(iniPath, System.Text.Encoding.UTF8);
+                var content = Services.FileAccessQueue.ReadAllText(iniPath);
                 
                 // Look for namespace declaration: namespace = <value>
                 var match = System.Text.RegularExpressions.Regex.Match(content, @"^\s*namespace\s*=\s*(.+)$", System.Text.RegularExpressions.RegexOptions.Multiline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
@@ -1487,7 +1491,7 @@ namespace FlairX_Mod_Manager.Pages
                 return null;
             }
 
-            var content = File.ReadAllText(iniPath, System.Text.Encoding.UTF8);
+            var content = Services.FileAccessQueue.ReadAllText(iniPath);
             var lines = content.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
             var constants = new Dictionary<string, string>();
             bool inConstantsSection = false;

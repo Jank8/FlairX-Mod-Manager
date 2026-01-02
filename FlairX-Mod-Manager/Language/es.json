@@ -182,7 +182,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "Aplicación minimizada a la bandeja del sistema",
     "SettingsPage_Hotkeys_Header": "Teclas de acceso rápido",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "Atajo de teclado para optimizar vistas previas",
     "SettingsPage_ReloadManagerHotkey_Description": "Atajo de teclado para recargar el gestor",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "Atajo de teclado para mezclar mods activos",
     "SettingsPage_DeactivateAllModsHotkey_Description": "Atajo de teclado para desactivar todos los mods",

@@ -218,7 +218,7 @@ namespace FlairX_Mod_Manager.Services
                 {
                     try
                     {
-                        var json = File.ReadAllText(modJsonPath);
+                        var json = FileAccessQueue.ReadAllText(modJsonPath);
                         using var doc = System.Text.Json.JsonDocument.Parse(json);
                         var root = doc.RootElement;
                         

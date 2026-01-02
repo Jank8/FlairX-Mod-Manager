@@ -181,7 +181,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "แอปพลิเคชันถูกย่อเก็บไว้ในถาดระบบ",
     "SettingsPage_Hotkeys_Header": "ปุ่มลัด",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "ปุ่มลัดคีย์บอร์ดสำหรับการปรับปรุงตัวอย่าง",
     "SettingsPage_ReloadManagerHotkey_Description": "ปุ่มลัดคีย์บอร์ดสำหรับการโหลดตัวจัดการใหม่",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "ปุ่มลัดคีย์บอร์ดสำหรับการสลับม็อดที่ใช้งาน",
     "SettingsPage_DeactivateAllModsHotkey_Description": "ปุ่มลัดคีย์บอร์ดสำหรับการปิดใช้งานม็อดทั้งหมด",

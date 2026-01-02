@@ -181,7 +181,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "Uygulama sistem tepsisine küçültüldü",
     "SettingsPage_Hotkeys_Header": "Kısayol tuşları",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "Önizlemeleri optimize etmek için klavye kısayolu",
     "SettingsPage_ReloadManagerHotkey_Description": "Yöneticiyi yeniden yüklemek için klavye kısayolu",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "Aktif modları karıştırmak için klavye kısayolu",
     "SettingsPage_DeactivateAllModsHotkey_Description": "Tüm modları devre dışı bırakmak için klavye kısayolu",

@@ -199,7 +199,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "Aplikacja zminimalizowana do zasobnika systemowego",
     "SettingsPage_Hotkeys_Header": "Skróty klawiszowe",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "Skrót klawiszowy do optymalizacji podglądów",
     "SettingsPage_ReloadManagerHotkey_Description": "Skrót klawiszowy do przeładowania menedżera",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "Skrót klawiszowy do tasowania aktywnych modów",
     "SettingsPage_DeactivateAllModsHotkey_Description": "Skrót klawiszowy do dezaktywacji wszystkich modów",

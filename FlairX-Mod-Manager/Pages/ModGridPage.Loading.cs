@@ -100,7 +100,7 @@ namespace FlairX_Mod_Manager.Pages
                         // Load and cache the data
                         try
                         {
-                            var json = File.ReadAllText(modJsonPath);
+                            var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
                             using var doc = JsonDocument.Parse(json);
                             var root = doc.RootElement;
                             var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";

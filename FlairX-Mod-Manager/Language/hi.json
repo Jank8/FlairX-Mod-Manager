@@ -181,7 +181,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "एप्लिकेशन सिस्टम ट्रे में छोटा कर दिया गया",
     "SettingsPage_Hotkeys_Header": "हॉटकीज़",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "पूर्वावलोकन अनुकूलित करने के लिए कीबोर्ड शॉर्टकट",
     "SettingsPage_ReloadManagerHotkey_Description": "प्रबंधक को पुनः लोड करने के लिए कीबोर्ड शॉर्टकट",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "सक्रिय मॉड को फेरबदल करने के लिए कीबोर्ड शॉर्टकट",
     "SettingsPage_DeactivateAllModsHotkey_Description": "सभी मॉड को निष्क्रिय करने के लिए कीबोर्ड शॉर्टकट",

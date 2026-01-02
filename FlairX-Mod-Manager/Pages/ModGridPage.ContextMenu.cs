@@ -801,17 +801,20 @@ namespace FlairX_Mod_Manager.Pages
                     var activeModsPath = PathManager.GetActiveModsPath();
                     if (File.Exists(activeModsPath))
                     {
-                        var json = File.ReadAllText(activeModsPath);
-                        var activeMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
-                        
-                        if (activeMods.ContainsKey(oldName))
+                        Services.FileAccessQueue.ExecuteAsync(activeModsPath, async () =>
                         {
-                            activeMods.Remove(oldName);
-                            activeMods[newName] = true;
+                            var json = await File.ReadAllTextAsync(activeModsPath);
+                            var activeMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
                             
-                            var newJson = JsonSerializer.Serialize(activeMods, new JsonSerializerOptions { WriteIndented = true });
-                            File.WriteAllText(activeModsPath, newJson);
-                        }
+                            if (activeMods.ContainsKey(oldName))
+                            {
+                                activeMods.Remove(oldName);
+                                activeMods[newName] = true;
+                                
+                                var newJson = JsonSerializer.Serialize(activeMods, new JsonSerializerOptions { WriteIndented = true });
+                                await File.WriteAllTextAsync(activeModsPath, newJson);
+                            }
+                        }).GetAwaiter().GetResult();
                     }
                     
                     // Recreate symlinks
@@ -897,7 +900,7 @@ namespace FlairX_Mod_Manager.Pages
                 var modJsonPath = Path.Combine(modFolderPath, "mod.json");
                 if (!File.Exists(modJsonPath)) return null;
                 
-                var json = File.ReadAllText(modJsonPath);
+                var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 

@@ -182,7 +182,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "Приложение свернуто в системный трей",
     "SettingsPage_Hotkeys_Header": "Горячие клавиши",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "Горячая клавиша для оптимизации эскизов модов",
     "SettingsPage_ReloadManagerHotkey_Description": "Горячая клавиша для перезагрузки менеджера",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "Горячая клавиша для перетасовки активных модов",
     "SettingsPage_DeactivateAllModsHotkey_Description": "Горячая клавиша для деактивации всех модов",

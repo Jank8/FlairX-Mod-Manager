@@ -41,7 +41,7 @@ namespace FlairX_Mod_Manager.Pages
                     var modJsonPath = Path.Combine(modDir, "mod.json");
                     if (File.Exists(modJsonPath))
                     {
-                        var json = File.ReadAllText(modJsonPath);
+                        var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
                         CategoryTitle.Text = $"Mod details: {modName}";
                         // You can add mod details display in grid here
                         // Example: display JSON in TextBlock
@@ -317,7 +317,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 try
                 {
-                    var json = File.ReadAllText(ActiveModsStatePath);
+                    var json = Services.FileAccessQueue.ReadAllText(ActiveModsStatePath);
                     _activeMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
                 }
                 catch (Exception ex)
@@ -333,7 +333,7 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 var json = JsonSerializer.Serialize(_activeMods, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(ActiveModsStatePath, json);
+                Services.FileAccessQueue.WriteAllText(ActiveModsStatePath, json);
             }
             catch (Exception ex)
             {

@@ -428,7 +428,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     // Create the ini file with setting to accept background keypresses
                     var content = "[System]\ncheck_foreground_window = 0\n";
-                    System.IO.File.WriteAllText(iniPath, content);
+                    Services.FileAccessQueue.WriteAllText(iniPath, content);
                     Logger.LogInfo($"Created background_keypress.ini at: {iniPath}");
                 }
                 else

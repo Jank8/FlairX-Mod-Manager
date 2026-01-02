@@ -631,7 +631,7 @@ namespace FlairX_Mod_Manager.Dialogs
                     {
                         try
                         {
-                            var modJsonContent = await File.ReadAllTextAsync(modJsonPath);
+                            var modJsonContent = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath);
                             var modJson = System.Text.Json.JsonDocument.Parse(modJsonContent);
                             if (modJson.RootElement.TryGetProperty("url", out var urlProp))
                             {
@@ -1334,7 +1334,7 @@ namespace FlairX_Mod_Manager.Dialogs
                     
                     try
                     {
-                        var modJsonContent = File.ReadAllText(modJsonPath);
+                        var modJsonContent = Services.FileAccessQueue.ReadAllText(modJsonPath);
                         var modJson = System.Text.Json.JsonDocument.Parse(modJsonContent);
                         if (modJson.RootElement.TryGetProperty("url", out var urlProp))
                         {

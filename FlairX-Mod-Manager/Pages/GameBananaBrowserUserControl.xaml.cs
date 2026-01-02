@@ -242,7 +242,7 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             try
                             {
-                                var jsonContent = System.IO.File.ReadAllText(modJsonPath);
+                                var jsonContent = Services.FileAccessQueue.ReadAllText(modJsonPath);
                                 var modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, System.Text.Json.JsonElement>>(jsonContent);
                                 
                                 if (modData != null && modData.TryGetValue("url", out var urlElement))

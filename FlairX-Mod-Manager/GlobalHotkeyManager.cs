@@ -86,7 +86,6 @@ namespace FlairX_Mod_Manager
         private const int WM_HOTKEY = 0x0312;
 
         // Hotkey IDs
-        private const int HOTKEY_OPTIMIZE_PREVIEWS = 1;
         private const int HOTKEY_RELOAD_MANAGER = 2;
         private const int HOTKEY_SHUFFLE_ACTIVE_MODS = 3;
         private const int HOTKEY_DEACTIVATE_ALL_MODS = 4;
@@ -112,12 +111,6 @@ namespace FlairX_Mod_Manager
 
         private void SetupHotkeyActions()
         {
-            _hotkeyActions[HOTKEY_OPTIMIZE_PREVIEWS] = async () =>
-            {
-                Logger.LogInfo("Global hotkey: Optimize previews triggered");
-                await _mainWindow.ExecuteOptimizePreviewsHotkey();
-            };
-
             _hotkeyActions[HOTKEY_RELOAD_MANAGER] = async () =>
             {
                 Logger.LogInfo("Global hotkey: Reload manager triggered");
@@ -162,12 +155,6 @@ namespace FlairX_Mod_Manager
                 {
                     Logger.LogInfo("Hotkeys are disabled - skipping registration");
                     return;
-                }
-
-                // Register optimize previews hotkey
-                if (!string.IsNullOrEmpty(settings.OptimizePreviewsHotkey))
-                {
-                    RegisterHotkey(HOTKEY_OPTIMIZE_PREVIEWS, settings.OptimizePreviewsHotkey);
                 }
 
                 // Register reload manager hotkey

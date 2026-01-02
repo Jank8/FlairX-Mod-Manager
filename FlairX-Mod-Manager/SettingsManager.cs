@@ -61,7 +61,6 @@ namespace FlairX_Mod_Manager
         public string ViewMode { get; set; } = "Mods"; // "Mods" or "Categories"
         
         // Hotkey settings
-        public string OptimizePreviewsHotkey { get; set; } = "Ctrl+O";
         public string ReloadManagerHotkey { get; set; } = "Ctrl+R";
         public string ShuffleActiveModsHotkey { get; set; } = "Ctrl+S";
         public string DeactivateAllModsHotkey { get; set; } = "Ctrl+D";

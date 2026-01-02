@@ -182,7 +182,6 @@
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
     "SystemTray_MinimizedMessage": "应用程序已最小化到系统托盘",
     "SettingsPage_Hotkeys_Header": "快捷键",
-    "SettingsPage_OptimizePreviewsHotkey_Description": "优化预览的键盘快捷键",
     "SettingsPage_ReloadManagerHotkey_Description": "重新加载管理器的键盘快捷键",
     "SettingsPage_ShuffleActiveModsHotkey_Description": "随机排列活跃模组的键盘快捷键",
     "SettingsPage_DeactivateAllModsHotkey_Description": "停用所有模组的键盘快捷键",

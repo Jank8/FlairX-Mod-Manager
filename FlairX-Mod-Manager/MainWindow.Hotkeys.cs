@@ -120,15 +120,6 @@ namespace FlairX_Mod_Manager
                 // Check if current hotkey matches any configured hotkey
                 var settings = SettingsManager.Current;
 
-                // Optimize previews hotkey
-                if (!string.IsNullOrEmpty(settings.OptimizePreviewsHotkey) && 
-                    string.Equals(currentHotkey, settings.OptimizePreviewsHotkey, StringComparison.OrdinalIgnoreCase))
-                {
-                    e.Handled = true;
-                    await ExecuteOptimizePreviewsHotkey();
-                    return;
-                }
-
                 // Reload manager hotkey
                 if (!string.IsNullOrEmpty(settings.ReloadManagerHotkey) && 
                     string.Equals(currentHotkey, settings.ReloadManagerHotkey, StringComparison.OrdinalIgnoreCase))
@@ -159,55 +150,6 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError("Error in global hotkey handler", ex);
-            }
-        }
-
-        // Execute optimize previews hotkey action
-        public async Task ExecuteOptimizePreviewsHotkey()
-        {
-            try
-            {
-                Logger.LogInfo("Optimize previews hotkey triggered");
-                
-                // Check if we're currently on the settings page
-                // Check if window is in focus to decide whether to show notifications
-                bool isWindowInFocus = IsWindowInFocus();
-                    
-                if (isWindowInFocus)
-                {
-                    // If we're not on settings page but window is in focus, show progress indication
-                    Logger.LogInfo("Not on settings page but window in focus - showing progress indication");
-                    
-                    // Show info that optimization started
-                    var lang = SharedUtilities.LoadLanguageDictionary();
-                    ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Confirm_Title") + " - " + 
-                                  SharedUtilities.GetTranslation(lang, "Continue"), 2000);
-                    
-                    // Run optimize previews directly
-                    await FlairX_Mod_Manager.Pages.SettingsUserControl.OptimizePreviewsDirectAsync();
-                    
-                    // Show completion message
-                    ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"), 3000);
-                }
-                else
-                {
-                    // Window not in focus - run silently without notifications
-                    Logger.LogInfo("Window not in focus - running optimize previews silently");
-                    await FlairX_Mod_Manager.Pages.SettingsUserControl.OptimizePreviewsDirectAsync();
-                }
-                
-                Logger.LogInfo("Optimize previews hotkey completed");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error executing optimize previews hotkey", ex);
-                
-                // Only show error notification if window is in focus
-                if (IsWindowInFocus())
-                {
-                    var lang = SharedUtilities.LoadLanguageDictionary();
-                    ShowErrorInfo(SharedUtilities.GetTranslation(lang, "Error_Generic"), 3000);
-                }
             }
         }
 
@@ -354,7 +296,7 @@ namespace FlairX_Mod_Manager
                 {
                     var activeModsPath = PathManager.GetActiveModsPath();
                     var json = JsonSerializer.Serialize(newActiveMods, new JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(activeModsPath, json);
+                    Services.FileAccessQueue.WriteAllText(activeModsPath, json);
                     
                     Logger.LogInfo($"Shuffle completed - activated {selectedMods.Count} random mods");
                     
@@ -516,7 +458,7 @@ namespace FlairX_Mod_Manager
                 {
                     var activeModsPath = PathManager.GetActiveModsPath();
                     var json = JsonSerializer.Serialize(newActiveMods, new JsonSerializerOptions { WriteIndented = true });
-                    File.WriteAllText(activeModsPath, json);
+                    Services.FileAccessQueue.WriteAllText(activeModsPath, json);
                     
                     Logger.LogInfo($"Deactivate all completed - deactivated {deactivatedCount} mods (excluding Other category), handled {duplicatesHandled} duplicates");
                     
