@@ -713,9 +713,11 @@ namespace FlairX_Mod_Manager.Pages
                     var categoryName = Path.GetFileName(categoryDir);
                     if (string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
                     {
-                        scanLog.AppendLine($"SKIP CATEGORY: Other");
+                        scanLog.AppendLine($"[SKIP] Category: Other");
                         continue;
                     }
+                    
+                    scanLog.AppendLine($"[Category] {categoryName}");
                     
                     foreach (var modDir in Directory.GetDirectories(categoryDir))
                     {
