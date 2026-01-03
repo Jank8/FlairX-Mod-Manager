@@ -376,14 +376,18 @@ namespace FlairX_Mod_Manager
                         var jsonContent = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath);
                         modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonContent) ?? new();
                         
-                        // ONLY add missing syncMethod if it doesn't exist - never overwrite existing data
-                        if (!modData.ContainsKey("syncMethod"))
+                        // Always update syncMethod based on current .ini files state
+                        // This detects when mod author changes from classic to namespace or vice versa
+                        var currentSyncMethod = modData.ContainsKey("syncMethod") ? modData["syncMethod"]?.ToString() : null;
+                        var expectedSyncMethod = (hasNamespace && namespaceMap.Count > 0) ? "namespace" : "classic";
+                        
+                        if (currentSyncMethod != expectedSyncMethod)
                         {
-                            if (hasNamespace && namespaceMap.Count > 0)
+                            modData["syncMethod"] = expectedSyncMethod;
+                            
+                            if (expectedSyncMethod == "namespace")
                             {
-                                modData["syncMethod"] = "namespace";
                                 var namespaceList = new List<object>();
-                                
                                 foreach (var kvp in namespaceMap)
                                 {
                                     namespaceList.Add(new Dictionary<string, object>
@@ -392,15 +396,33 @@ namespace FlairX_Mod_Manager
                                         ["iniFiles"] = kvp.Value.ToArray()
                                     });
                                 }
-                                
                                 modData["namespaces"] = namespaceList;
                             }
                             else
                             {
-                                modData["syncMethod"] = "classic";
+                                // Remove namespaces if switching to classic
+                                modData.Remove("namespaces");
                             }
+                            
                             needsUpdate = true;
-                            updatedModPaths.Add(modDir);
+                            if (!updatedModPaths.Contains(modDir))
+                                updatedModPaths.Add(modDir);
+                            Logger.LogDebug($"Updated syncMethod for {System.IO.Path.GetFileName(modDir)}: {currentSyncMethod ?? "null"} -> {expectedSyncMethod}");
+                        }
+                        else if (expectedSyncMethod == "namespace" && hasNamespace)
+                        {
+                            // Even if syncMethod matches, update namespaces if they changed
+                            var namespaceList = new List<object>();
+                            foreach (var kvp in namespaceMap)
+                            {
+                                namespaceList.Add(new Dictionary<string, object>
+                                {
+                                    ["namespace"] = kvp.Key,
+                                    ["iniFiles"] = kvp.Value.ToArray()
+                                });
+                            }
+                            modData["namespaces"] = namespaceList;
+                            needsUpdate = true;
                         }
                         
                         // ONLY add missing hotkeys array if it doesn't exist
