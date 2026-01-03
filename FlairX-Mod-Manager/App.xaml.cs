@@ -223,6 +223,9 @@ namespace FlairX_Mod_Manager
                     Logger.LogInfo("Starting StatusKeeper dynamic synchronization");
                     try
                     {
+                        // Cleanup d3dx_user.ini before starting sync to prevent hangs
+                        FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.CleanupD3dxUserIni();
+                        
                         FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.StartWatcherStatic();
                         FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.StartPeriodicSyncStatic();
                         Logger.LogInfo("StatusKeeper sync started successfully");
@@ -235,6 +238,10 @@ namespace FlairX_Mod_Manager
                 else
                 {
                     Logger.LogInfo("StatusKeeper dynamic sync is disabled");
+                    
+                    // Still cleanup d3dx_user.ini on startup even if sync is disabled
+                    // This prevents issues when user enables sync later
+                    _ = Task.Run(() => FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.CleanupD3dxUserIni());
                 }
                 
                 Logger.LogInfo("Application launch completed successfully");

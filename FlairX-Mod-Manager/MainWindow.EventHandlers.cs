@@ -496,6 +496,9 @@ namespace FlairX_Mod_Manager
                 var exePath = GetXXMILauncherPath();
                 if (File.Exists(exePath))
                 {
+                    // Cleanup d3dx_user.ini before launching XXMI to prevent hangs
+                    _ = Task.Run(() => FlairX_Mod_Manager.Pages.StatusKeeperSyncPage.CleanupD3dxUserIni());
+
                     var psi = new System.Diagnostics.ProcessStartInfo
                     {
                         FileName = exePath,

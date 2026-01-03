@@ -296,6 +296,9 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
 
+                // Cleanup d3dx_user.ini before starting sync to prevent hangs
+                _ = Task.Run(() => CleanupD3dxUserIni());
+
                 StartWatcher();
                 StartPeriodicSync();
                 LogStatic("Auto-updater enabled. File monitoring active.");
@@ -411,6 +414,57 @@ namespace FlairX_Mod_Manager.Pages
         }
 
 
+
+        // ==================== D3DX USER INI CLEANUP ====================
+        
+        /// <summary>
+        /// Cleans up the d3dx_user.ini file by clearing its contents.
+        /// This prevents the application from hanging when parsing corrupted files.
+        /// Called silently in background - no user notifications.
+        /// </summary>
+        public static void CleanupD3dxUserIni()
+        {
+            try
+            {
+                var d3dxUserPath = SettingsManager.Current.StatusKeeperD3dxUserIniPath;
+                
+                // If path not set, try to find it
+                if (string.IsNullOrEmpty(d3dxUserPath))
+                {
+                    var currentGame = SettingsManager.CurrentSelectedGame ?? "ZZMI";
+                    var xxmiModsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                    
+                    var tryPaths = new string[]
+                    {
+                        Path.Combine(Path.GetDirectoryName(xxmiModsPath) ?? string.Empty, "d3dx_user.ini"),
+                        Path.Combine(".", "XXMI", currentGame, "d3dx_user.ini"),
+                    };
+                    
+                    foreach (var p in tryPaths)
+                    {
+                        if (File.Exists(p))
+                        {
+                            d3dxUserPath = p;
+                            break;
+                        }
+                    }
+                }
+                
+                // If file doesn't exist, nothing to clean
+                if (string.IsNullOrEmpty(d3dxUserPath) || !File.Exists(d3dxUserPath))
+                {
+                    return;
+                }
+                
+                // Clear the file
+                Services.FileAccessQueue.WriteAllText(d3dxUserPath, string.Empty);
+                LogStatic($"d3dx_user.ini cleared: {d3dxUserPath}", "DEBUG");
+            }
+            catch (Exception ex)
+            {
+                LogStatic($"d3dx_user.ini cleanup failed: {ex.Message}", "ERROR");
+            }
+        }
 
         // ==================== D3DX USER INI PATH MANAGEMENT ====================
         
