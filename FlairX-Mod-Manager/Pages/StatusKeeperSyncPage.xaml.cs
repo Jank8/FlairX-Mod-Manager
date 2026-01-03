@@ -717,7 +717,7 @@ namespace FlairX_Mod_Manager.Pages
                         continue;
                     }
                     
-                    scanLog.AppendLine($"[Category] {categoryName}");
+                    bool categoryLogged = false;
                     
                     foreach (var modDir in Directory.GetDirectories(categoryDir))
                     {
@@ -734,8 +734,14 @@ namespace FlairX_Mod_Manager.Pages
                             var modJsonPath = Path.Combine(modDir, "mod.json");
                             if (!File.Exists(modJsonPath))
                             {
-                                scanLog.AppendLine($"  SKIP (no mod.json): {modDirName}");
                                 continue;
+                            }
+
+                            // Log category only when first active mod is found
+                            if (!categoryLogged)
+                            {
+                                scanLog.AppendLine($"[{categoryName}]");
+                                categoryLogged = true;
                             }
 
                             var modStopwatch = System.Diagnostics.Stopwatch.StartNew();
@@ -779,7 +785,8 @@ namespace FlairX_Mod_Manager.Pages
                                                 var iniFile = iniFileElement.GetString();
                                                 if (!string.IsNullOrEmpty(iniFile))
                                                 {
-                                                    var fullIniPath = Path.Combine(modFolderName, iniFile).Replace('\\', '/');
+                                                    // Include category in path: Category/ModName/file.ini
+                                                    var fullIniPath = Path.Combine(categoryName, modFolderName, iniFile).Replace('\\', '/');
                                                     iniFiles.Add(fullIniPath);
                                                 }
                                             }
