@@ -116,7 +116,6 @@ namespace FlairX_Mod_Manager
         public bool ImageOptimizerKeepOriginals { get; set; } = false;
         public string ImageCropType { get; set; } = "Center"; // Center, Smart, Entropy, Attention
         public bool PreviewBeforeCrop { get; set; } = false; // Show preview dialog before each crop
-        public bool InspectThumbnailsOnly { get; set; } = false; // Only show crop inspection for minitile/catmini thumbnails
         public bool AutoCreateModThumbnails { get; set; } = false; // Auto-create mod thumbnails without manual selection/cropping
         public bool ImageOptimizerReoptimize { get; set; } = false; // Re-optimize already optimized files
         

@@ -224,7 +224,6 @@
     "CropPanel_FreeAspect": "자유 종횡비 - 핸들을 드래그하여 크기 조정",
     "CropPanel_Hint": "드래그하여 이동 • 모서리는 비율 유지 • 가장자리는 비율 변경",
     "CropPanel_Next": "다음",
-    "CropPanel_FinalizeAll": "모두 완료",
     "CropPanel_FilesToProcess": "처리할 파일",
     "MinitileSelection_Title": "미니타일 소스 선택",
     "MinitileSelection_Subtitle": "썸네일에 사용할 이미지를 선택하세요",
@@ -232,7 +231,7 @@
     "MinitileSelection_Selected": "선택됨: {0}",
     "CropPanel_Reset": "자르기 재설정",
     "CropPanel_Delete": "삭제",
-    "CropPanel_Skip": "건너뛰기",
+    "CropPanel_Skip": "자르기 안함",
     "CropPanel_Title": "자르기 영역 조정",
     "SettingsPage_ImageOptimizerHeader": "이미지 최적화",
     "Skip": "건너뛰기",
@@ -277,5 +276,10 @@
     "StarterPack_Cancelled": "다운로드가 취소되었습니다.",
     "OpenModsFolder": "모드 폴더 열기",
     "SettingsPage_AutoCreateModThumbnails_Label": "모드 썸네일 자동 생성",
-    "SettingsPage_AutoCreateModThumbnails_Description": "모드 썸네일의 수동 선택 및 자르기를 건너뛰고, 선택된 자르기 모드로 첫 번째 미리보기 사용"
+    "SettingsPage_AutoCreateModThumbnails_Description": "모드 썸네일의 수동 선택 및 자르기를 건너뛰고, 선택된 자르기 모드로 첫 번째 미리보기 사용",
+    "CropPanel_Done": "완료",
+    "CropPanel_PendingDialog_Title": "대기 중인 파일",
+    "CropPanel_PendingDialog_Content": "{0}개의 파일이 편집되지 않았습니다. 어떻게 하시겠습니까?",
+    "CropPanel_PendingDialog_NoCrop": "자르기 없음",
+    "CropPanel_PendingDialog_Delete": "삭제"
 }

@@ -224,7 +224,6 @@
     "CropPanel_FreeAspect": "อัตราส่วนภาพอิสระ - ลากจุดจับเพื่อปรับขนาด",
     "CropPanel_Hint": "ลากเพื่อเคลื่อนย้าย • มุมรักษาอัตราส่วน • ขอบเปลี่ยนอัตราส่วน",
     "CropPanel_Next": "ถัดไป",
-    "CropPanel_FinalizeAll": "เสร็จสิ้นทั้งหมด",
     "CropPanel_FilesToProcess": "ไฟล์ที่ต้องประมวลผล",
     "MinitileSelection_Title": "เลือกแหล่งที่มาของภาพขนาดย่อ",
     "MinitileSelection_Subtitle": "เลือกภาพที่จะใช้สำหรับภาพขนาดย่อ",
@@ -232,7 +231,7 @@
     "MinitileSelection_Selected": "เลือกแล้ว: {0}",
     "CropPanel_Reset": "รีเซ็ตการครอบตัด",
     "CropPanel_Delete": "ลบ",
-    "CropPanel_Skip": "ข้าม",
+    "CropPanel_Skip": "ไม่ครอบตัด",
     "CropPanel_Title": "ปรับพื้นที่ครอบตัด",
     "SettingsPage_ImageOptimizerHeader": "ตัวเพิ่มประสิทธิภาพรูปภาพ",
     "Skip": "ข้าม",
@@ -277,5 +276,10 @@
     "StarterPack_Cancelled": "ยกเลิกการดาวน์โหลดแล้ว",
     "OpenModsFolder": "เปิดโฟลเดอร์ม็อด",
     "SettingsPage_AutoCreateModThumbnails_Label": "สร้างภาพขนาดย่อของมอดอัตโนมัติ",
-    "SettingsPage_AutoCreateModThumbnails_Description": "ข้ามการเลือกและการครอบตัดด้วยตนเองสำหรับภาพขนาดย่อของมอด ใช้ตัวอย่างแรกกับโหมดครอบตัดที่เลือก"
+    "SettingsPage_AutoCreateModThumbnails_Description": "ข้ามการเลือกและการครอบตัดด้วยตนเองสำหรับภาพขนาดย่อของมอด ใช้ตัวอย่างแรกกับโหมดครอบตัดที่เลือก",
+    "CropPanel_Done": "เสรจสน",
+    "CropPanel_PendingDialog_Title": "ไฟลทรอดำเนนการ",
+    "CropPanel_PendingDialog_Content": "{0} ไฟลยงไมไดแกไข คณตองการทำอยางไรกบไฟลเหลาน?",
+    "CropPanel_PendingDialog_NoCrop": "ไมครอป",
+    "CropPanel_PendingDialog_Delete": "ลบ"
 }

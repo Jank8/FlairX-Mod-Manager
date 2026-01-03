@@ -224,7 +224,6 @@
     "CropPanel_FreeAspect": "自由縱橫比 - 拖動手柄調整大小",
     "CropPanel_Hint": "拖動移動 • 角落保持比例 • 邊緣改變比例",
     "CropPanel_Next": "下一個",
-    "CropPanel_FinalizeAll": "完成全部",
     "CropPanel_FilesToProcess": "待處理檔案",
     "MinitileSelection_Title": "選擇縮圖來源",
     "MinitileSelection_Subtitle": "選擇用於縮圖的圖片",
@@ -232,7 +231,7 @@
     "MinitileSelection_Selected": "已選擇: {0}",
     "CropPanel_Reset": "重置裁剪",
     "CropPanel_Delete": "刪除",
-    "CropPanel_Skip": "跳過",
+    "CropPanel_Skip": "不裁剪",
     "CropPanel_Title": "調整裁剪區域",
     "SettingsPage_ImageOptimizerHeader": "圖像優化器",
     "Skip": "跳過",
@@ -277,5 +276,10 @@
     "StarterPack_Cancelled": "下載已取消。",
     "OpenModsFolder": "打開模組資料夾",
     "SettingsPage_AutoCreateModThumbnails_Label": "自動建立模組縮圖",
-    "SettingsPage_AutoCreateModThumbnails_Description": "跳過模組縮圖的手動選擇和裁剪，使用選定裁剪模式的第一個預覽"
+    "SettingsPage_AutoCreateModThumbnails_Description": "跳過模組縮圖的手動選擇和裁剪，使用選定裁剪模式的第一個預覽",
+    "CropPanel_Done": "完成",
+    "CropPanel_PendingDialog_Title": "待處理檔案",
+    "CropPanel_PendingDialog_Content": "{0} 個檔案未編輯。您想如何處理它們？",
+    "CropPanel_PendingDialog_NoCrop": "不裁剪",
+    "CropPanel_PendingDialog_Delete": "刪除"
 }

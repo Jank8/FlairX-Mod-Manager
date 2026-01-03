@@ -224,7 +224,6 @@
     "CropPanel_FreeAspect": "Rapport d'aspect libre - faites glisser les poignées pour redimensionner",
     "CropPanel_Hint": "Glisser pour déplacer • Coins maintiennent le ratio • Bords changent le ratio",
     "CropPanel_Next": "Suivant",
-    "CropPanel_FinalizeAll": "Finaliser Tout",
     "CropPanel_FilesToProcess": "Fichiers à Traiter",
     "MinitileSelection_Title": "Sélectionner la Source de Miniature",
     "MinitileSelection_Subtitle": "Choisissez quelle image utiliser pour la miniature",
@@ -232,7 +231,7 @@
     "MinitileSelection_Selected": "Sélectionné: {0}",
     "CropPanel_Reset": "Réinitialiser Recadrage",
     "CropPanel_Delete": "Supprimer",
-    "CropPanel_Skip": "Passer",
+    "CropPanel_Skip": "Sans recadrage",
     "CropPanel_Title": "Ajuster la Zone de Recadrage",
     "SettingsPage_ImageOptimizerHeader": "Optimiseur d'Images",
     "Skip": "Passer",
@@ -277,5 +276,10 @@
     "StarterPack_Cancelled": "Téléchargement annulé.",
     "OpenModsFolder": "Ouvrir le dossier des mods",
     "SettingsPage_AutoCreateModThumbnails_Label": "Créer automatiquement les miniatures de mods",
-    "SettingsPage_AutoCreateModThumbnails_Description": "Ignorer la sélection manuelle et le recadrage pour les miniatures de mods, utiliser le premier aperçu avec le mode de recadrage sélectionné"
+    "SettingsPage_AutoCreateModThumbnails_Description": "Ignorer la sélection manuelle et le recadrage pour les miniatures de mods, utiliser le premier aperçu avec le mode de recadrage sélectionné",
+    "CropPanel_Done": "Terminé",
+    "CropPanel_PendingDialog_Title": "Fichiers en Attente",
+    "CropPanel_PendingDialog_Content": "{0} fichier(s) n'ont pas été édités. Que voulez-vous en faire?",
+    "CropPanel_PendingDialog_NoCrop": "Sans Recadrage",
+    "CropPanel_PendingDialog_Delete": "Supprimer"
 }

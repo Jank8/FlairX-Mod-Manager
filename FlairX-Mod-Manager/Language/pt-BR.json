@@ -224,7 +224,6 @@
     "CropPanel_FreeAspect": "Proporção livre - arraste as alças para redimensionar",
     "CropPanel_Hint": "Arraste para mover • Cantos mantêm proporção • Bordas alteram proporção",
     "CropPanel_Next": "Próximo",
-    "CropPanel_FinalizeAll": "Finalizar Tudo",
     "CropPanel_FilesToProcess": "Arquivos a Processar",
     "MinitileSelection_Title": "Selecionar Fonte da Miniatura",
     "MinitileSelection_Subtitle": "Escolha qual imagem usar para a miniatura",
@@ -232,7 +231,7 @@
     "MinitileSelection_Selected": "Selecionado: {0}",
     "CropPanel_Reset": "Redefinir Corte",
     "CropPanel_Delete": "Excluir",
-    "CropPanel_Skip": "Pular",
+    "CropPanel_Skip": "Sem corte",
     "CropPanel_Title": "Ajustar área de corte",
     "SettingsPage_ImageOptimizerHeader": "Otimizador de imagens",
     "Skip": "Pular",
@@ -277,5 +276,10 @@
     "StarterPack_Cancelled": "Download cancelado.",
     "OpenModsFolder": "Abrir pasta de mods",
     "SettingsPage_AutoCreateModThumbnails_Label": "Criar miniaturas de mods automaticamente",
-    "SettingsPage_AutoCreateModThumbnails_Description": "Pular seleção manual e recorte para miniaturas de mods, usar primeira visualização com modo de recorte selecionado"
+    "SettingsPage_AutoCreateModThumbnails_Description": "Pular seleção manual e recorte para miniaturas de mods, usar primeira visualização com modo de recorte selecionado",
+    "CropPanel_Done": "Concluído",
+    "CropPanel_PendingDialog_Title": "Arquivos Pendentes",
+    "CropPanel_PendingDialog_Content": "{0} arquivo(s) não foram editados. O que deseja fazer com eles?",
+    "CropPanel_PendingDialog_NoCrop": "Sem Corte",
+    "CropPanel_PendingDialog_Delete": "Excluir"
 }

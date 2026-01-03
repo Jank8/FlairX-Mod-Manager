@@ -224,7 +224,6 @@
     "CropPanel_FreeAspect": "自由なアスペクト比 - ハンドルをドラッグしてサイズ変更",
     "CropPanel_Hint": "ドラッグして移動 • 角は比率を維持 • 辺は比率を変更",
     "CropPanel_Next": "次へ",
-    "CropPanel_FinalizeAll": "すべて完了",
     "CropPanel_FilesToProcess": "処理するファイル",
     "MinitileSelection_Title": "ミニタイルソースを選択",
     "MinitileSelection_Subtitle": "サムネイルに使用する画像を選択してください",
@@ -232,7 +231,7 @@
     "MinitileSelection_Selected": "選択済み: {0}",
     "CropPanel_Reset": "トリミングリセット",
     "CropPanel_Delete": "削除",
-    "CropPanel_Skip": "スキップ",
+    "CropPanel_Skip": "トリミングなし",
     "CropPanel_Title": "トリミング領域を調整",
     "SettingsPage_ImageOptimizerHeader": "画像最適化",
     "Skip": "スキップ",
@@ -277,5 +276,10 @@
     "StarterPack_Cancelled": "ダウンロードがキャンセルされました。",
     "OpenModsFolder": "モッドフォルダを開く",
     "SettingsPage_AutoCreateModThumbnails_Label": "モッドサムネイルの自動作成",
-    "SettingsPage_AutoCreateModThumbnails_Description": "モッドサムネイルの手動選択とクロップをスキップし、選択されたクロップモードで最初のプレビューを使用"
+    "SettingsPage_AutoCreateModThumbnails_Description": "モッドサムネイルの手動選択とクロップをスキップし、選択されたクロップモードで最初のプレビューを使用",
+    "CropPanel_Done": "完了",
+    "CropPanel_PendingDialog_Title": "保留中のファイル",
+    "CropPanel_PendingDialog_Content": "{0}個のファイルが編集されていません。どうしますか？",
+    "CropPanel_PendingDialog_NoCrop": "クロップなし",
+    "CropPanel_PendingDialog_Delete": "削除"
 }

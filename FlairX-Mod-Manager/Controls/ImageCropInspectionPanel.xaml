@@ -175,8 +175,8 @@
                                 <DataTemplate>
                                     <Border x:Name="ItemBorder"
                                             Background="{ThemeResource SubtleFillColorSecondaryBrush}"
-                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                            BorderThickness="1"
+                                            BorderBrush="{Binding ItemBorderBrush}"
+                                            BorderThickness="{Binding ItemBorderThickness}"
                                             CornerRadius="6"
                                             Padding="8"
                                             PointerPressed="BatchItem_PointerPressed"
@@ -318,7 +318,7 @@
                        Visibility="Collapsed">
                     <StackPanel Orientation="Horizontal" Spacing="6">
                         <FontIcon Glyph="&#xE73E;" FontSize="14"/>
-                        <TextBlock x:Name="FinalizeButtonText" Text="Finalize All"/>
+                        <TextBlock x:Name="FinalizeButtonText" Text="Done"/>
                     </StackPanel>
                 </Button>
             </StackPanel>

@@ -1462,51 +1462,49 @@ namespace FlairX_Mod_Manager.Pages
                 // Run image optimizer in category mode using DragDropCategoryMode setting
                 var context = Services.ImageOptimizationService.GetOptimizationContext(
                     Services.OptimizationTrigger.DragDropCategory);
-                Logger.LogInfo($"Running image optimizer in category mode (Mode: {context.Mode})");
+                Logger.LogInfo($"Running image optimizer in category mode (Mode: {context.Mode}, InspectAndEdit: {context.InspectAndEditEnabled})");
                 bool wasCancelled = false;
-                await Task.Run(() =>
+                
+                try
                 {
+                    Logger.LogInfo($"Calling ProcessCategoryPreviewAsync for: {categoryFolderPath}");
+                    await Services.ImageOptimizationService.ProcessCategoryPreviewAsync(categoryFolderPath, context);
+                    Logger.LogInfo("Category optimization complete");
+                    
+                    // Delete preview.jpg after optimization (keep only catprev.jpg and catmini.jpg) - if KeepOriginals is disabled
+                    if (!context.KeepOriginals && File.Exists(targetPath))
+                    {
+                        File.Delete(targetPath);
+                        Logger.LogInfo($"Deleted original preview.jpg after optimization");
+                    }
+                    else if (context.KeepOriginals)
+                    {
+                        Logger.LogInfo($"Keeping original preview.jpg (KeepOriginals enabled)");
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    Logger.LogInfo("Category optimization cancelled by user");
+                    wasCancelled = true;
+                    
+                    // Cleanup: delete copied file
                     try
                     {
-                        Logger.LogInfo($"Calling ProcessCategoryPreview for: {categoryFolderPath}");
-                        Services.ImageOptimizationService.ProcessCategoryPreview(categoryFolderPath, context);
-                        Logger.LogInfo("Category optimization complete");
-                        
-                        // Delete preview.jpg after optimization (keep only catprev.jpg and catmini.jpg) - if KeepOriginals is disabled
-                        if (!context.KeepOriginals && File.Exists(targetPath))
+                        if (File.Exists(targetPath))
                         {
                             File.Delete(targetPath);
-                            Logger.LogInfo($"Deleted original preview.jpg after optimization");
-                        }
-                        else if (context.KeepOriginals)
-                        {
-                            Logger.LogInfo($"Keeping original preview.jpg (KeepOriginals enabled)");
+                            Logger.LogInfo($"Cleanup: deleted {Path.GetFileName(targetPath)}");
                         }
                     }
-                    catch (OperationCanceledException)
+                    catch (Exception cleanupEx)
                     {
-                        Logger.LogInfo("Category optimization cancelled by user");
-                        wasCancelled = true;
-                        
-                        // Cleanup: delete copied file
-                        try
-                        {
-                            if (File.Exists(targetPath))
-                            {
-                                File.Delete(targetPath);
-                                Logger.LogInfo($"Cleanup: deleted {Path.GetFileName(targetPath)}");
-                            }
-                        }
-                        catch (Exception cleanupEx)
-                        {
-                            Logger.LogWarning($"Cleanup: failed to delete {Path.GetFileName(targetPath)}: {cleanupEx.Message}");
-                        }
+                        Logger.LogWarning($"Cleanup: failed to delete {Path.GetFileName(targetPath)}: {cleanupEx.Message}");
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError("Category optimization failed", ex);
-                    }
-                });
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Category optimization failed", ex);
+                }
                 
                 // Show result based on whether cancelled or successful
                 if (dropText != null)
@@ -1840,7 +1838,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 Logger.LogInfo($"Copy complete. Copied {copiedCount}/{imageFiles.Count} files with preview naming");
                 
-                // Track copied files for potential cleanup
+                // Track copied files for potential cleanup (only the raw copied files, not processed ones)
                 var copiedFiles = new List<string>();
                 for (int i = 0; i < copiedCount; i++)
                 {
@@ -1848,61 +1846,62 @@ namespace FlairX_Mod_Manager.Pages
                     copiedFiles.Add(Path.Combine(modFolderPath, previewName));
                 }
                 
-                // Optimize in background using DragDropModMode setting
+                // Optimize using DragDropModMode setting (async to allow crop inspection UI)
                 var context = Services.ImageOptimizationService.GetOptimizationContext(
                     Services.OptimizationTrigger.DragDropMod);
-                Logger.LogInfo($"Starting optimization in background (Mode: {context.Mode})");
+                Logger.LogInfo($"Starting optimization (Mode: {context.Mode}, InspectAndEdit: {context.InspectAndEditEnabled})");
                 bool wasCancelled = false;
-                await Task.Run(() =>
+                
+                try
                 {
+                    Logger.LogInfo($"Calling ProcessModPreviewImagesAsync for: {modFolderPath}");
+                    await Services.ImageOptimizationService.ProcessModPreviewImagesAsync(modFolderPath, context);
+                    Logger.LogInfo("Optimization complete");
+                    
+                    // Log what files exist after optimization
                     try
                     {
-                        Logger.LogInfo($"Calling ProcessModPreviewImages for: {modFolderPath}");
-                        Services.ImageOptimizationService.ProcessModPreviewImages(modFolderPath, context);
-                        Logger.LogInfo("Optimization complete");
-                        
-                        // Log what files exist after optimization
+                        var files = Directory.GetFiles(modFolderPath)
+                            .Select(f => Path.GetFileName(f))
+                            .Where(f => f.StartsWith("preview", StringComparison.OrdinalIgnoreCase) || f.Equals("minitile.jpg", StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+                        Logger.LogInfo($"Files after optimization: {string.Join(", ", files)}");
+                    }
+                    catch (Exception filesEx)
+                    {
+                        Logger.LogError("Failed to list files after optimization", filesEx);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    Logger.LogInfo("Optimization cancelled by user");
+                    wasCancelled = true;
+                    
+                    // Cleanup: delete any remaining raw copied files (preview001, preview002, etc.)
+                    // The service's CleanupProcessedFiles handles cleanup of processed files
+                    foreach (var file in copiedFiles)
+                    {
                         try
                         {
-                            var files = Directory.GetFiles(modFolderPath)
-                                .Select(f => Path.GetFileName(f))
-                                .Where(f => f.StartsWith("preview", StringComparison.OrdinalIgnoreCase) || f.Equals("minitile.jpg", StringComparison.OrdinalIgnoreCase))
-                                .ToList();
-                            Logger.LogInfo($"Files after optimization: {string.Join(", ", files)}");
-                        }
-                        catch (Exception filesEx)
-                        {
-                            Logger.LogError("Failed to list files after optimization", filesEx);
-                        }
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        Logger.LogInfo("Optimization cancelled by user");
-                        wasCancelled = true;
-                        
-                        // Cleanup: delete copied files that weren't processed
-                        foreach (var file in copiedFiles)
-                        {
-                            try
+                            if (File.Exists(file))
                             {
-                                if (File.Exists(file))
-                                {
-                                    File.Delete(file);
-                                    Logger.LogInfo($"Cleanup: deleted {Path.GetFileName(file)}");
-                                }
-                            }
-                            catch (Exception cleanupEx)
-                            {
-                                Logger.LogWarning($"Cleanup: failed to delete {Path.GetFileName(file)}: {cleanupEx.Message}");
+                                File.Delete(file);
+                                Logger.LogInfo($"Cleanup: deleted {Path.GetFileName(file)}");
                             }
                         }
+                        catch (Exception cleanupEx)
+                        {
+                            Logger.LogWarning($"Cleanup: failed to delete {Path.GetFileName(file)}: {cleanupEx.Message}");
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError("Optimization failed", ex);
-                    }
-                });
-                Logger.LogInfo("Background task started");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Optimization failed", ex);
+                    wasCancelled = true; // Treat errors as cancellation for UI feedback
+                }
+                
+                Logger.LogInfo("Optimization task completed");
                 
                 // Show result based on whether cancelled or successful
                 if (dropText != null)

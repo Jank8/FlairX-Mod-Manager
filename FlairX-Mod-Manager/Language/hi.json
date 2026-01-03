@@ -224,7 +224,6 @@
     "CropPanel_FreeAspect": "मुक्त पहलू अनुपात - आकार बदलने के लिए हैंडल खींचें",
     "CropPanel_Hint": "स्थानांतरित करने के लिए खींचें • कोने अनुपात बनाए रखते हैं • किनारे अनुपात बदलते हैं",
     "CropPanel_Next": "अगला",
-    "CropPanel_FinalizeAll": "सभी पूर्ण करें",
     "CropPanel_FilesToProcess": "प्रोसेस करने के लिए फ़ाइलें",
     "MinitileSelection_Title": "मिनीटाइल स्रोत चुनें",
     "MinitileSelection_Subtitle": "थंबनेल के लिए कौन सी छवि उपयोग करनी है चुनें",
@@ -232,7 +231,7 @@
     "MinitileSelection_Selected": "चयनित: {0}",
     "CropPanel_Reset": "क्रॉप रीसेट करें",
     "CropPanel_Delete": "हटाएं",
-    "CropPanel_Skip": "छोड़ें",
+    "CropPanel_Skip": "क्रॉप नहीं",
     "CropPanel_Title": "क्रॉप क्षेत्र समायोजित करें",
     "SettingsPage_ImageOptimizerHeader": "छवि अनुकूलक",
     "Skip": "छोड़ें",
@@ -277,5 +276,10 @@
     "StarterPack_Cancelled": "डाउनलोड रद्द किया गया।",
     "OpenModsFolder": "मॉड फ़ोल्डर खोलें",
     "SettingsPage_AutoCreateModThumbnails_Label": "मॉड थंबनेल स्वचालित रूप से बनाएं",
-    "SettingsPage_AutoCreateModThumbnails_Description": "मॉड थंबनेल के लिए मैन्युअल चयन और क्रॉपिंग छोड़ें, चयनित क्रॉप मोड के साथ पहला पूर्वावलोकन उपयोग करें"
+    "SettingsPage_AutoCreateModThumbnails_Description": "मॉड थंबनेल के लिए मैन्युअल चयन और क्रॉपिंग छोड़ें, चयनित क्रॉप मोड के साथ पहला पूर्वावलोकन उपयोग करें",
+    "CropPanel_Done": "परण",
+    "CropPanel_PendingDialog_Title": "लबत फइल",
+    "CropPanel_PendingDialog_Content": "{0} फइल() सपदत नह क गई ह आप उनक सथ कय करन चहत ह?",
+    "CropPanel_PendingDialog_NoCrop": "बन करप",
+    "CropPanel_PendingDialog_Delete": "हटए"
 }

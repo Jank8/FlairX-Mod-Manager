@@ -224,7 +224,6 @@
     "CropPanel_FreeAspect": "Libreng aspect ratio - i-drag ang mga handle para baguhin ang laki",
     "CropPanel_Hint": "I-drag para ilipat • Ang mga sulok ay nagpapanatili ng ratio • Ang mga gilid ay nagbabago ng ratio",
     "CropPanel_Next": "Susunod",
-    "CropPanel_FinalizeAll": "Tapusin Lahat",
     "CropPanel_FilesToProcess": "Mga File na Ipoproseso",
     "MinitileSelection_Title": "Pumili ng Minitile Source",
     "MinitileSelection_Subtitle": "Piliin kung aling larawan ang gagamitin para sa thumbnail",
@@ -232,7 +231,7 @@
     "MinitileSelection_Selected": "Napili: {0}",
     "CropPanel_Reset": "I-reset ang Crop",
     "CropPanel_Delete": "Tanggalin",
-    "CropPanel_Skip": "Laktawan",
+    "CropPanel_Skip": "Walang Crop",
     "CropPanel_Title": "Ayusin ang Crop Area",
     "SettingsPage_ImageOptimizerHeader": "Image Optimizer",
     "Skip": "Laktawan",
@@ -277,5 +276,10 @@
     "StarterPack_Cancelled": "Na-cancel ang download.",
     "OpenModsFolder": "Buksan ang folder ng mga mod",
     "SettingsPage_AutoCreateModThumbnails_Label": "Awtomatikong gumawa ng mga thumbnail ng mod",
-    "SettingsPage_AutoCreateModThumbnails_Description": "Laktawan ang manual na pagpili at pag-crop para sa mga thumbnail ng mod, gamitin ang unang preview na may napiling crop mode"
+    "SettingsPage_AutoCreateModThumbnails_Description": "Laktawan ang manual na pagpili at pag-crop para sa mga thumbnail ng mod, gamitin ang unang preview na may napiling crop mode",
+    "CropPanel_Done": "Tapos",
+    "CropPanel_PendingDialog_Title": "Mga Nakabinbing File",
+    "CropPanel_PendingDialog_Content": "{0} (na) file ang hindi na-edit. Ano ang gusto mong gawin sa mga ito?",
+    "CropPanel_PendingDialog_NoCrop": "Walang Crop",
+    "CropPanel_PendingDialog_Delete": "Tanggalin"
 }

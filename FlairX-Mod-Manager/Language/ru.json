@@ -224,7 +224,6 @@
     "CropPanel_FreeAspect": "Свободное соотношение сторон - перетащите маркеры для изменения размера",
     "CropPanel_Hint": "Перетащите для перемещения • Углы сохраняют пропорции • Края изменяют пропорции",
     "CropPanel_Next": "Далее",
-    "CropPanel_FinalizeAll": "Завершить все",
     "CropPanel_FilesToProcess": "Файлы для обработки",
     "MinitileSelection_Title": "Выбрать источник миниатюры",
     "MinitileSelection_Subtitle": "Выберите изображение для миниатюры",
@@ -232,7 +231,7 @@
     "MinitileSelection_Selected": "Выбрано: {0}",
     "CropPanel_Reset": "Сбросить Обрезку",
     "CropPanel_Delete": "Удалить",
-    "CropPanel_Skip": "Пропустить",
+    "CropPanel_Skip": "Без обрезки",
     "CropPanel_Title": "Настроить область обрезки",
     "SettingsPage_ImageOptimizerHeader": "Оптимизатор изображений",
     "Skip": "Пропустить",
@@ -277,5 +276,10 @@
     "StarterPack_Cancelled": "Загрузка отменена.",
     "OpenModsFolder": "Открыть папку модов",
     "SettingsPage_AutoCreateModThumbnails_Label": "Автоматическое создание миниатюр модов",
-    "SettingsPage_AutoCreateModThumbnails_Description": "Пропустить ручной выбор и обрезку для миниатюр модов, использовать первый предпросмотр с выбранным режимом обрезки"
+    "SettingsPage_AutoCreateModThumbnails_Description": "Пропустить ручной выбор и обрезку для миниатюр модов, использовать первый предпросмотр с выбранным режимом обрезки",
+    "CropPanel_Done": "Готово",
+    "CropPanel_PendingDialog_Title": "Ожидающие файлы",
+    "CropPanel_PendingDialog_Content": "{0} файл(ов) не были отредактированы. Что вы хотите с ними сделать?",
+    "CropPanel_PendingDialog_NoCrop": "Без обрезки",
+    "CropPanel_PendingDialog_Delete": "Удалить"
 }

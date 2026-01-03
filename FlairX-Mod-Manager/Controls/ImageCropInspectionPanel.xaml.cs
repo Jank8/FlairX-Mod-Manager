@@ -31,6 +31,7 @@ namespace FlairX_Mod_Manager.Controls
         public Rectangle? CropRect { get; set; }
         public int TargetWidth { get; set; }
         public int TargetHeight { get; set; }
+        public int TargetIndex { get; set; }
         public bool IsProtected { get; set; }
         public CropAction Action { get; set; } = CropAction.Confirm;
         
@@ -38,7 +39,7 @@ namespace FlairX_Mod_Manager.Controls
         public bool IsSelected 
         { 
             get => _isSelected;
-            set { _isSelected = value; OnPropertyChanged(nameof(IsSelected)); OnPropertyChanged(nameof(StatusIcon)); OnPropertyChanged(nameof(StatusColor)); }
+            set { _isSelected = value; OnPropertyChanged(nameof(IsSelected)); OnPropertyChanged(nameof(StatusIcon)); OnPropertyChanged(nameof(StatusColor)); OnPropertyChanged(nameof(ItemBorderBrush)); OnPropertyChanged(nameof(ItemBorderThickness)); }
         }
         
         private bool _isEdited;
@@ -49,7 +50,7 @@ namespace FlairX_Mod_Manager.Controls
         }
         
         public string StatusText => Action == CropAction.Delete ? "Will be deleted" : 
-                                    Action == CropAction.Skip ? "Skip optimization" :
+                                    Action == CropAction.Skip ? "No crop" :
                                     IsEdited ? "Edited" : "Pending";
         public string StatusIcon => Action == CropAction.Delete ? "\uE74D" : 
                                     Action == CropAction.Skip ? "\uE8BB" :
@@ -58,6 +59,12 @@ namespace FlairX_Mod_Manager.Controls
                                               Action == CropAction.Skip ? new SolidColorBrush(Microsoft.UI.Colors.Orange) :
                                               IsEdited ? new SolidColorBrush(Microsoft.UI.Colors.Green) : 
                                               new SolidColorBrush(Microsoft.UI.Colors.Gray);
+        
+        // Border for selected item highlight
+        public SolidColorBrush ItemBorderBrush => IsSelected 
+            ? (SolidColorBrush)Microsoft.UI.Xaml.Application.Current.Resources["AccentFillColorDefaultBrush"]
+            : new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+        public Thickness ItemBorderThickness => IsSelected ? new Thickness(2) : new Thickness(1);
         
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -147,7 +154,14 @@ namespace FlairX_Mod_Manager.Controls
             ConfirmButton.Content = SharedUtilities.GetTranslation(lang, "Confirm") ?? "Confirm";
             HintText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Hint") ?? "Drag to move • Corners maintain ratio • Edges change ratio";
             
-            // Disable Delete button if this file is protected
+            // For category images (catprev, catmini), hide Skip and Delete buttons
+            // Crop is required for categories, and Delete = Stop (cleanup happens anyway)
+            bool isCategoryImage = imageType.StartsWith("catprev", StringComparison.OrdinalIgnoreCase) || 
+                                   imageType.StartsWith("catmini", StringComparison.OrdinalIgnoreCase);
+            SkipButton.Visibility = isCategoryImage ? Visibility.Collapsed : Visibility.Visible;
+            DeleteButton.Visibility = isCategoryImage ? Visibility.Collapsed : Visibility.Visible;
+            
+            // Disable Delete button if this file is protected (only relevant when visible)
             DeleteButton.IsEnabled = !isProtected;
             
             // Hide batch mode UI
@@ -188,7 +202,7 @@ namespace FlairX_Mod_Manager.Controls
             DeleteButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Delete") ?? "Delete";
             SkipButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Skip") ?? "Skip";
             NextButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Next") ?? "Next";
-            FinalizeButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_FinalizeAll") ?? "Finalize All";
+            FinalizeButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Done") ?? "Done";
             HintText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Hint") ?? "Drag to move • Corners maintain ratio • Edges change ratio";
             BatchListHeader.Text = SharedUtilities.GetTranslation(lang, "CropPanel_FilesToProcess") ?? "Files to Process";
             
@@ -267,8 +281,8 @@ namespace FlairX_Mod_Manager.Controls
             // Update delete button state
             DeleteButton.IsEnabled = !item.IsProtected;
             
-            // Update Next button state
-            NextButton.IsEnabled = index < _batchItems.Count - 1;
+            // Next button is always enabled (wraps around to first item)
+            NextButton.IsEnabled = true;
             
             // Load image
             LoadImage();
@@ -718,7 +732,7 @@ namespace FlairX_Mod_Manager.Controls
 
         private void NextButton_Click(object sender, RoutedEventArgs e)
         {
-            // Save current and move to next
+            // Save current and mark as confirmed, then move to next
             SaveCurrentBatchItem();
             if (_currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
             {
@@ -729,23 +743,61 @@ namespace FlairX_Mod_Manager.Controls
 
         private void MoveToNextBatchItem()
         {
-            if (_currentBatchIndex < _batchItems.Count - 1)
-            {
-                LoadBatchItem(_currentBatchIndex + 1);
-            }
+            // Move to next item, or wrap around to first
+            int nextIndex = (_currentBatchIndex + 1) % _batchItems.Count;
+            LoadBatchItem(nextIndex);
         }
 
-        private void FinalizeButton_Click(object sender, RoutedEventArgs e)
+        private async void FinalizeButton_Click(object sender, RoutedEventArgs e)
         {
-            // Save current item
-            SaveCurrentBatchItem();
-            if (_currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
+            // Save current item's crop rect only (don't mark as edited - let the dialog decide)
+            if (_isBatchMode && _currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
             {
-                var currentItem = _batchItems[_currentBatchIndex];
-                if (!currentItem.IsEdited)
+                _batchItems[_currentBatchIndex].CropRect = _cropRect;
+            }
+            
+            // Check for pending items (including current item if not edited)
+            var pendingItems = _batchItems.Where(item => !item.IsEdited).ToList();
+            
+            if (pendingItems.Count > 0)
+            {
+                // Show dialog asking what to do with pending items
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                var dialog = new ContentDialog
                 {
-                    currentItem.Action = CropAction.Confirm;
-                    currentItem.IsEdited = true;
+                    Title = SharedUtilities.GetTranslation(lang, "CropPanel_PendingDialog_Title") ?? "Pending Files",
+                    Content = string.Format(
+                        SharedUtilities.GetTranslation(lang, "CropPanel_PendingDialog_Content") ?? "{0} file(s) have not been edited. What would you like to do with them?",
+                        pendingItems.Count),
+                    PrimaryButtonText = SharedUtilities.GetTranslation(lang, "CropPanel_PendingDialog_NoCrop") ?? "No Crop",
+                    SecondaryButtonText = SharedUtilities.GetTranslation(lang, "CropPanel_PendingDialog_Delete") ?? "Delete",
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel",
+                    XamlRoot = this.XamlRoot,
+                    DefaultButton = ContentDialogButton.Primary
+                };
+                
+                var result = await dialog.ShowAsync();
+                
+                if (result == ContentDialogResult.None)
+                {
+                    // User cancelled - don't finalize
+                    return;
+                }
+                
+                // Apply action to pending items
+                foreach (var item in pendingItems)
+                {
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        // No Crop
+                        item.Action = CropAction.Skip;
+                    }
+                    else if (result == ContentDialogResult.Secondary)
+                    {
+                        // Delete - but protected items (minitile source) get No Crop instead
+                        item.Action = item.IsProtected ? CropAction.Skip : CropAction.Delete;
+                    }
+                    item.IsEdited = true;
                 }
             }
             
@@ -757,7 +809,8 @@ namespace FlairX_Mod_Manager.Controls
                 Action = item.Action,
                 CropRectangle = item.CropRect ?? item.InitialCropRect,
                 TargetWidth = item.TargetWidth,
-                TargetHeight = item.TargetHeight
+                TargetHeight = item.TargetHeight,
+                TargetIndex = item.TargetIndex
             }).ToList();
             
             _batchCompletionSource?.SetResult(results);
@@ -772,15 +825,10 @@ namespace FlairX_Mod_Manager.Controls
                 int index = _batchItems.IndexOf(item);
                 if (index >= 0 && index != _currentBatchIndex)
                 {
-                    SaveCurrentBatchItem();
+                    // Just save crop rect without marking as edited - user is just browsing
                     if (_currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
                     {
-                        var currentItem = _batchItems[_currentBatchIndex];
-                        if (!currentItem.IsEdited)
-                        {
-                            currentItem.Action = CropAction.Confirm;
-                            currentItem.IsEdited = true;
-                        }
+                        _batchItems[_currentBatchIndex].CropRect = _cropRect;
                     }
                     LoadBatchItem(index);
                 }
@@ -826,5 +874,6 @@ namespace FlairX_Mod_Manager.Controls
         public Rectangle CropRectangle { get; set; }
         public int TargetWidth { get; set; }
         public int TargetHeight { get; set; }
+        public int TargetIndex { get; set; }
     }
 }

@@ -224,7 +224,6 @@
     "CropPanel_FreeAspect": "Serbest en boy oranı - yeniden boyutlandırmak için tutamaçları sürükleyin",
     "CropPanel_Hint": "Taşımak için sürükleyin • Köşeler oranı korur • Kenarlar oranı değiştirir",
     "CropPanel_Next": "Sonraki",
-    "CropPanel_FinalizeAll": "Tümünü Tamamla",
     "CropPanel_FilesToProcess": "İşlenecek Dosyalar",
     "MinitileSelection_Title": "Küçük Resim Kaynağını Seç",
     "MinitileSelection_Subtitle": "Küçük resim için hangi görüntüyü kullanacağınızı seçin",
@@ -232,7 +231,7 @@
     "MinitileSelection_Selected": "Seçildi: {0}",
     "CropPanel_Reset": "Kırpmayı Sıfırla",
     "CropPanel_Delete": "Sil",
-    "CropPanel_Skip": "Atla",
+    "CropPanel_Skip": "Kırpma yok",
     "CropPanel_Title": "Kırpma Alanını Ayarla",
     "SettingsPage_ImageOptimizerHeader": "Görüntü Optimize Edici",
     "Skip": "Atla",
@@ -277,5 +276,10 @@
     "StarterPack_Cancelled": "İndirme iptal edildi.",
     "OpenModsFolder": "Mod klasörünü aç",
     "SettingsPage_AutoCreateModThumbnails_Label": "Mod küçük resimlerini otomatik oluştur",
-    "SettingsPage_AutoCreateModThumbnails_Description": "Mod küçük resimleri için manuel seçim ve kırpmayı atla, seçilen kırpma moduyla ilk önizlemeyi kullan"
+    "SettingsPage_AutoCreateModThumbnails_Description": "Mod küçük resimleri için manuel seçim ve kırpmayı atla, seçilen kırpma moduyla ilk önizlemeyi kullan",
+    "CropPanel_Done": "Bitti",
+    "CropPanel_PendingDialog_Title": "Bekleyen Dosyalar",
+    "CropPanel_PendingDialog_Content": "{0} dosya düzenlenmedi. Bunlarla ne yapmak istersiniz?",
+    "CropPanel_PendingDialog_NoCrop": "Kırpma Yok",
+    "CropPanel_PendingDialog_Delete": "Sil"
 }

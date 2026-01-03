@@ -224,7 +224,6 @@
     "CropPanel_FreeAspect": "Tỷ lệ khung hình tự do - kéo các điểm để thay đổi kích thước",
     "CropPanel_Hint": "Kéo để di chuyển • Góc giữ nguyên tỷ lệ • Cạnh thay đổi tỷ lệ",
     "CropPanel_Next": "Tiếp theo",
-    "CropPanel_FinalizeAll": "Hoàn tất tất cả",
     "CropPanel_FilesToProcess": "Tệp cần xử lý",
     "MinitileSelection_Title": "Chọn Nguồn Hình Thu Nhỏ",
     "MinitileSelection_Subtitle": "Chọn hình ảnh để sử dụng cho hình thu nhỏ",
@@ -232,7 +231,7 @@
     "MinitileSelection_Selected": "Đã chọn: {0}",
     "CropPanel_Reset": "Đặt Lại Cắt",
     "CropPanel_Delete": "Xóa",
-    "CropPanel_Skip": "Bỏ qua",
+    "CropPanel_Skip": "Không cắt",
     "CropPanel_Title": "Điều chỉnh vùng cắt",
     "SettingsPage_ImageOptimizerHeader": "Trình tối ưu hóa hình ảnh",
     "Skip": "Bỏ qua",
@@ -277,5 +276,10 @@
     "StarterPack_Cancelled": "Tải xuống đã bị hủy.",
     "OpenModsFolder": "Mở thư mục mod",
     "SettingsPage_AutoCreateModThumbnails_Label": "Tự động tạo hình thu nhỏ mod",
-    "SettingsPage_AutoCreateModThumbnails_Description": "Bỏ qua việc chọn và cắt thủ công cho hình thu nhỏ mod, sử dụng bản xem trước đầu tiên với chế độ cắt đã chọn"
+    "SettingsPage_AutoCreateModThumbnails_Description": "Bỏ qua việc chọn và cắt thủ công cho hình thu nhỏ mod, sử dụng bản xem trước đầu tiên với chế độ cắt đã chọn",
+    "CropPanel_Done": "Xong",
+    "CropPanel_PendingDialog_Title": "Tệp Đang Chờ",
+    "CropPanel_PendingDialog_Content": "{0} tệp chưa được chỉnh sửa. Bạn muốn làm gì với chúng?",
+    "CropPanel_PendingDialog_NoCrop": "Không Cắt",
+    "CropPanel_PendingDialog_Delete": "Xóa"
 }
