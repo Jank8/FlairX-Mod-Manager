@@ -281,5 +281,9 @@
     "CropPanel_PendingDialog_Title": "待处理文件",
     "CropPanel_PendingDialog_Content": "{0} 个文件未编辑。您想如何处理它们？",
     "CropPanel_PendingDialog_NoCrop": "不裁剪",
-    "CropPanel_PendingDialog_Delete": "删除"
+    "CropPanel_PendingDialog_Delete": "删除",
+    "CropPanel_Status_Pending": "待处理",
+    "CropPanel_Status_Edited": "已编辑",
+    "CropPanel_Status_WillBeDeleted": "将被删除",
+    "CropPanel_Status_NoCrop": "不裁剪"
 }

@@ -281,5 +281,9 @@
     "CropPanel_PendingDialog_Title": "Arquivos Pendentes",
     "CropPanel_PendingDialog_Content": "{0} arquivo(s) não foram editados. O que deseja fazer com eles?",
     "CropPanel_PendingDialog_NoCrop": "Sem Corte",
-    "CropPanel_PendingDialog_Delete": "Excluir"
+    "CropPanel_PendingDialog_Delete": "Excluir",
+    "CropPanel_Status_Pending": "Pendente",
+    "CropPanel_Status_Edited": "Editado",
+    "CropPanel_Status_WillBeDeleted": "Será excluído",
+    "CropPanel_Status_NoCrop": "Sem corte"
 }

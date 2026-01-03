@@ -281,5 +281,9 @@
     "CropPanel_PendingDialog_Title": "Ожидающие файлы",
     "CropPanel_PendingDialog_Content": "{0} файл(ов) не были отредактированы. Что вы хотите с ними сделать?",
     "CropPanel_PendingDialog_NoCrop": "Без обрезки",
-    "CropPanel_PendingDialog_Delete": "Удалить"
+    "CropPanel_PendingDialog_Delete": "Удалить",
+    "CropPanel_Status_Pending": "Ожидает",
+    "CropPanel_Status_Edited": "Отредактирован",
+    "CropPanel_Status_WillBeDeleted": "Будет удален",
+    "CropPanel_Status_NoCrop": "Без обрезки"
 }

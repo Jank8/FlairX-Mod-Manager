@@ -1896,15 +1896,38 @@ namespace FlairX_Mod_Manager.Services
                     }
                 }
                 
-                // Generate minitile.jpg (600x722 thumbnail) from the processed minitile source
-                // The minitile source was processed at startIndex position
+                // Generate minitile.jpg (600x722 thumbnail) from the correct source file
+                // Find the actual position of selected minitile source in the processed files
                 if (!skipMinitileOnly && !string.IsNullOrEmpty(selectedMinitileSource))
                 {
-                    string minitileSourceFileName = startIndex == 0 ? "preview.jpg" : $"preview-{startIndex:D2}.jpg";
-                    string minitileSourceProcessed = Path.Combine(modDir, minitileSourceFileName);
-                    if (File.Exists(minitileSourceProcessed))
+                    // First try to use the original file if it still exists
+                    if (File.Exists(selectedMinitileSource))
                     {
-                        await GenerateMinitileAsync(modDir, minitileSourceProcessed, context);
+                        await GenerateMinitileAsync(modDir, selectedMinitileSource, context);
+                    }
+                    else
+                    {
+                        // Find the index of selected source in the newFilesToProcess list
+                        int selectedIndex = newFilesToProcess.FindIndex(f => f.Equals(selectedMinitileSource, StringComparison.OrdinalIgnoreCase));
+                        if (selectedIndex >= 0)
+                        {
+                            // Calculate the actual target index for this file
+                            int actualTargetIndex = startIndex + selectedIndex;
+                            string minitileSourceFileName = actualTargetIndex == 0 ? "preview.jpg" : $"preview-{actualTargetIndex:D2}.jpg";
+                            string minitileSourceProcessed = Path.Combine(modDir, minitileSourceFileName);
+                            if (File.Exists(minitileSourceProcessed))
+                            {
+                                await GenerateMinitileAsync(modDir, minitileSourceProcessed, context);
+                            }
+                            else
+                            {
+                                Logger.LogWarning($"Processed minitile source not found: {minitileSourceProcessed}");
+                            }
+                        }
+                        else
+                        {
+                            Logger.LogWarning($"Selected minitile source not found in processed files list: {selectedMinitileSource}");
+                        }
                     }
                 }
                 
@@ -2133,7 +2156,8 @@ namespace FlairX_Mod_Manager.Services
         {
             try
             {
-                Logger.LogInfo($"Generating minitile for: {modDir}");
+                Logger.LogInfo($"Generating minitile for: {modDir} from source: {Path.GetFileName(previewPath)}");
+                Logger.LogInfo($"Minitile generation context: InspectAndEditEnabled={context.InspectAndEditEnabled}, AllowUIInteraction={context.AllowUIInteraction}, AutoCreateModThumbnails={SettingsManager.Current.AutoCreateModThumbnails}");
                 
                 var minitilePath = Path.Combine(modDir, "minitile.jpg");
                 
@@ -2240,14 +2264,20 @@ namespace FlairX_Mod_Manager.Services
 
             // Show inspection panel ONLY IF:
             // 1. UI interaction is allowed (not background processing)
-            // 2. Inspect&Edit is enabled (PreviewBeforeCrop setting)
-            // 3. BUT NOT if AutoCreateModThumbnails is enabled AND this is a minitile
+            // 2. Inspect&Edit is enabled (PreviewBeforeCrop setting) OR this is a critical thumbnail
+            // 3. Critical thumbnails (catprev, catmini, minitile) always need crop inspection
+            //    Exception: minitile only skipped if AutoCreateModThumbnails is enabled (automatic mode)
+            bool isCriticalThumbnail = imageType.ToLower().Contains("catprev") || 
+                                      imageType.ToLower().Contains("catmini") || 
+                                      imageType.ToLower().Contains("minitile");
             bool isMinitile = imageType.ToLower().Contains("minitile");
-            bool skipDueToAutoCreate = SettingsManager.Current.AutoCreateModThumbnails && isMinitile;
+            bool skipMinitileDueToAutoCreate = isMinitile && SettingsManager.Current.AutoCreateModThumbnails;
             
             bool needsInspection = context.AllowUIInteraction && 
-                                  !skipDueToAutoCreate &&
-                                  context.InspectAndEditEnabled;
+                                  (context.InspectAndEditEnabled || isCriticalThumbnail) &&
+                                  !skipMinitileDueToAutoCreate;
+
+            Logger.LogInfo($"Crop inspection check for {imageType}: AllowUIInteraction={context.AllowUIInteraction}, InspectAndEditEnabled={context.InspectAndEditEnabled}, isCriticalThumbnail={isCriticalThumbnail}, isMinitile={isMinitile}, AutoCreateModThumbnails={SettingsManager.Current.AutoCreateModThumbnails}, skipMinitileDueToAutoCreate={skipMinitileDueToAutoCreate}, needsInspection={needsInspection}");
 
             if (needsInspection && CropInspectionRequested != null)
             {

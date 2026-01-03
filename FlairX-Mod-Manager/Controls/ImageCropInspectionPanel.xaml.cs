@@ -49,9 +49,20 @@ namespace FlairX_Mod_Manager.Controls
             set { _isEdited = value; OnPropertyChanged(nameof(IsEdited)); OnPropertyChanged(nameof(StatusText)); OnPropertyChanged(nameof(StatusIcon)); OnPropertyChanged(nameof(StatusColor)); }
         }
         
-        public string StatusText => Action == CropAction.Delete ? "Will be deleted" : 
-                                    Action == CropAction.Skip ? "No crop" :
-                                    IsEdited ? "Edited" : "Pending";
+        public string StatusText 
+        { 
+            get 
+            {
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                return Action == CropAction.Delete ? 
+                    (SharedUtilities.GetTranslation(lang, "CropPanel_Status_WillBeDeleted") ?? "Will be deleted") : 
+                    Action == CropAction.Skip ? 
+                    (SharedUtilities.GetTranslation(lang, "CropPanel_Status_NoCrop") ?? "No crop") :
+                    IsEdited ? 
+                    (SharedUtilities.GetTranslation(lang, "CropPanel_Status_Edited") ?? "Edited") : 
+                    (SharedUtilities.GetTranslation(lang, "CropPanel_Status_Pending") ?? "Pending");
+            }
+        }
         public string StatusIcon => Action == CropAction.Delete ? "\uE74D" : 
                                     Action == CropAction.Skip ? "\uE8BB" :
                                     IsEdited ? "\uE73E" : "\uE8B7";

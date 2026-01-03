@@ -281,5 +281,9 @@
     "CropPanel_PendingDialog_Title": "Mga Nakabinbing File",
     "CropPanel_PendingDialog_Content": "{0} (na) file ang hindi na-edit. Ano ang gusto mong gawin sa mga ito?",
     "CropPanel_PendingDialog_NoCrop": "Walang Crop",
-    "CropPanel_PendingDialog_Delete": "Tanggalin"
+    "CropPanel_PendingDialog_Delete": "Tanggalin",
+    "CropPanel_Status_Pending": "Naghihintay",
+    "CropPanel_Status_Edited": "Na-edit",
+    "CropPanel_Status_WillBeDeleted": "Matatanggal",
+    "CropPanel_Status_NoCrop": "Walang crop"
 }

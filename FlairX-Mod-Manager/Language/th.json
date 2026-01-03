@@ -281,5 +281,9 @@
     "CropPanel_PendingDialog_Title": "ไฟลทรอดำเนนการ",
     "CropPanel_PendingDialog_Content": "{0} ไฟลยงไมไดแกไข คณตองการทำอยางไรกบไฟลเหลาน?",
     "CropPanel_PendingDialog_NoCrop": "ไมครอป",
-    "CropPanel_PendingDialog_Delete": "ลบ"
+    "CropPanel_PendingDialog_Delete": "ลบ",
+    "CropPanel_Status_Pending": "รอดำเนินการ",
+    "CropPanel_Status_Edited": "แก้ไขแล้ว",
+    "CropPanel_Status_WillBeDeleted": "จะถูกลบ",
+    "CropPanel_Status_NoCrop": "ไม่ครอป"
 }

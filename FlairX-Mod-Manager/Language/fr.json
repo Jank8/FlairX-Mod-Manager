@@ -281,5 +281,9 @@
     "CropPanel_PendingDialog_Title": "Fichiers en Attente",
     "CropPanel_PendingDialog_Content": "{0} fichier(s) n'ont pas été édités. Que voulez-vous en faire?",
     "CropPanel_PendingDialog_NoCrop": "Sans Recadrage",
-    "CropPanel_PendingDialog_Delete": "Supprimer"
+    "CropPanel_PendingDialog_Delete": "Supprimer",
+    "CropPanel_Status_Pending": "En attente",
+    "CropPanel_Status_Edited": "Édité",
+    "CropPanel_Status_WillBeDeleted": "Sera supprimé",
+    "CropPanel_Status_NoCrop": "Sans recadrage"
 }

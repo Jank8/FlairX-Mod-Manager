@@ -281,5 +281,9 @@
     "CropPanel_PendingDialog_Title": "लबत फइल",
     "CropPanel_PendingDialog_Content": "{0} फइल() सपदत नह क गई ह आप उनक सथ कय करन चहत ह?",
     "CropPanel_PendingDialog_NoCrop": "बन करप",
-    "CropPanel_PendingDialog_Delete": "हटए"
+    "CropPanel_PendingDialog_Delete": "हटए",
+    "CropPanel_Status_Pending": "प्रतीक्षारत",
+    "CropPanel_Status_Edited": "संपादित",
+    "CropPanel_Status_WillBeDeleted": "हटाया जाएगा",
+    "CropPanel_Status_NoCrop": "कोई क्रॉप नहीं"
 }

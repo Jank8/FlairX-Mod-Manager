@@ -281,5 +281,9 @@
     "CropPanel_PendingDialog_Title": "Bekleyen Dosyalar",
     "CropPanel_PendingDialog_Content": "{0} dosya düzenlenmedi. Bunlarla ne yapmak istersiniz?",
     "CropPanel_PendingDialog_NoCrop": "Kırpma Yok",
-    "CropPanel_PendingDialog_Delete": "Sil"
+    "CropPanel_PendingDialog_Delete": "Sil",
+    "CropPanel_Status_Pending": "Bekliyor",
+    "CropPanel_Status_Edited": "Düzenlendi",
+    "CropPanel_Status_WillBeDeleted": "Silinecek",
+    "CropPanel_Status_NoCrop": "Kırpma yok"
 }

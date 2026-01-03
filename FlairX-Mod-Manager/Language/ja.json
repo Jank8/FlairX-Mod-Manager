@@ -281,5 +281,9 @@
     "CropPanel_PendingDialog_Title": "保留中のファイル",
     "CropPanel_PendingDialog_Content": "{0}個のファイルが編集されていません。どうしますか？",
     "CropPanel_PendingDialog_NoCrop": "クロップなし",
-    "CropPanel_PendingDialog_Delete": "削除"
+    "CropPanel_PendingDialog_Delete": "削除",
+    "CropPanel_Status_Pending": "保留中",
+    "CropPanel_Status_Edited": "編集済み",
+    "CropPanel_Status_WillBeDeleted": "削除予定",
+    "CropPanel_Status_NoCrop": "クロップなし"
 }

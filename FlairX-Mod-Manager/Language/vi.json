@@ -281,5 +281,9 @@
     "CropPanel_PendingDialog_Title": "Tệp Đang Chờ",
     "CropPanel_PendingDialog_Content": "{0} tệp chưa được chỉnh sửa. Bạn muốn làm gì với chúng?",
     "CropPanel_PendingDialog_NoCrop": "Không Cắt",
-    "CropPanel_PendingDialog_Delete": "Xóa"
+    "CropPanel_PendingDialog_Delete": "Xóa",
+    "CropPanel_Status_Pending": "Đang chờ",
+    "CropPanel_Status_Edited": "Đã chỉnh sửa",
+    "CropPanel_Status_WillBeDeleted": "Sẽ bị xóa",
+    "CropPanel_Status_NoCrop": "Không cắt"
 }

@@ -281,5 +281,9 @@
     "CropPanel_PendingDialog_Title": "대기 중인 파일",
     "CropPanel_PendingDialog_Content": "{0}개의 파일이 편집되지 않았습니다. 어떻게 하시겠습니까?",
     "CropPanel_PendingDialog_NoCrop": "자르기 없음",
-    "CropPanel_PendingDialog_Delete": "삭제"
+    "CropPanel_PendingDialog_Delete": "삭제",
+    "CropPanel_Status_Pending": "대기 중",
+    "CropPanel_Status_Edited": "편집됨",
+    "CropPanel_Status_WillBeDeleted": "삭제될 예정",
+    "CropPanel_Status_NoCrop": "자르기 없음"
 }
