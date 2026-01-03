@@ -25,7 +25,7 @@
     <AssemblyDescription>Advanced mod manager for games with global hotkey support and WinUI3 1.8.3 compatibility</AssemblyDescription>
     <AssemblyCompany>FlairX</AssemblyCompany>
     <AssemblyProduct>FlairX Mod Manager</AssemblyProduct>
-    <AssemblyCopyright>Copyright © 2026S FlairX</AssemblyCopyright>
+    <AssemblyCopyright>Copyright © 2026 FlairX</AssemblyCopyright>
     
     <!-- Platform Configuration -->
     <Platforms>x64</Platforms>
