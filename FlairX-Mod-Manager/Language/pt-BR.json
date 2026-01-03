@@ -198,6 +198,7 @@
     "DragDrop_Copying": "Copiando {0} imagem(ns)...",
     "DragDrop_AddedSkipped": "Adicionado {0}, ignorado {1}",
     "DragDrop_ImagesAdded": "Imagens adicionadas!",
+    "DragDrop_Cancelled": "Cancelado",
     "ModTile_Activate": "Ativar",
     "ModTile_Deactivate": "Desativar",
     "ModTile_OpenDirectory": "Abrir diretório",

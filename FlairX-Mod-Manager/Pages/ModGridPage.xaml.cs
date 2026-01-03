@@ -1463,6 +1463,7 @@ namespace FlairX_Mod_Manager.Pages
                 var context = Services.ImageOptimizationService.GetOptimizationContext(
                     Services.OptimizationTrigger.DragDropCategory);
                 Logger.LogInfo($"Running image optimizer in category mode (Mode: {context.Mode})");
+                bool wasCancelled = false;
                 await Task.Run(() =>
                 {
                     try
@@ -1482,20 +1483,41 @@ namespace FlairX_Mod_Manager.Pages
                             Logger.LogInfo($"Keeping original preview.jpg (KeepOriginals enabled)");
                         }
                     }
+                    catch (OperationCanceledException)
+                    {
+                        Logger.LogInfo("Category optimization cancelled by user");
+                        wasCancelled = true;
+                        
+                        // Cleanup: delete copied file
+                        try
+                        {
+                            if (File.Exists(targetPath))
+                            {
+                                File.Delete(targetPath);
+                                Logger.LogInfo($"Cleanup: deleted {Path.GetFileName(targetPath)}");
+                            }
+                        }
+                        catch (Exception cleanupEx)
+                        {
+                            Logger.LogWarning($"Cleanup: failed to delete {Path.GetFileName(targetPath)}: {cleanupEx.Message}");
+                        }
+                    }
                     catch (Exception ex)
                     {
                         Logger.LogError("Category optimization failed", ex);
                     }
                 });
                 
-                // Show success
+                // Show result based on whether cancelled or successful
                 if (dropText != null)
                 {
-                    dropText.Text = SharedUtilities.GetTranslation(lang, "DragDrop_ImagesAdded");
+                    dropText.Text = wasCancelled 
+                        ? (SharedUtilities.GetTranslation(lang, "DragDrop_Cancelled") ?? "Cancelled")
+                        : SharedUtilities.GetTranslation(lang, "DragDrop_ImagesAdded");
                 }
                 if (dropIcon != null)
                 {
-                    dropIcon.Glyph = "\uE73E"; // Checkmark
+                    dropIcon.Glyph = wasCancelled ? "\uE711" : "\uE73E"; // Cross or Checkmark
                     dropIcon.FontSize = 48;
                 }
                 
@@ -1818,10 +1840,19 @@ namespace FlairX_Mod_Manager.Pages
                 
                 Logger.LogInfo($"Copy complete. Copied {copiedCount}/{imageFiles.Count} files with preview naming");
                 
+                // Track copied files for potential cleanup
+                var copiedFiles = new List<string>();
+                for (int i = 0; i < copiedCount; i++)
+                {
+                    var previewName = $"preview{i + 1:D3}{imageFiles[i].FileType}";
+                    copiedFiles.Add(Path.Combine(modFolderPath, previewName));
+                }
+                
                 // Optimize in background using DragDropModMode setting
                 var context = Services.ImageOptimizationService.GetOptimizationContext(
                     Services.OptimizationTrigger.DragDropMod);
                 Logger.LogInfo($"Starting optimization in background (Mode: {context.Mode})");
+                bool wasCancelled = false;
                 await Task.Run(() =>
                 {
                     try
@@ -1844,6 +1875,28 @@ namespace FlairX_Mod_Manager.Pages
                             Logger.LogError("Failed to list files after optimization", filesEx);
                         }
                     }
+                    catch (OperationCanceledException)
+                    {
+                        Logger.LogInfo("Optimization cancelled by user");
+                        wasCancelled = true;
+                        
+                        // Cleanup: delete copied files that weren't processed
+                        foreach (var file in copiedFiles)
+                        {
+                            try
+                            {
+                                if (File.Exists(file))
+                                {
+                                    File.Delete(file);
+                                    Logger.LogInfo($"Cleanup: deleted {Path.GetFileName(file)}");
+                                }
+                            }
+                            catch (Exception cleanupEx)
+                            {
+                                Logger.LogWarning($"Cleanup: failed to delete {Path.GetFileName(file)}: {cleanupEx.Message}");
+                            }
+                        }
+                    }
                     catch (Exception ex)
                     {
                         Logger.LogError("Optimization failed", ex);
@@ -1851,10 +1904,15 @@ namespace FlairX_Mod_Manager.Pages
                 });
                 Logger.LogInfo("Background task started");
                 
-                // Show success with skip info if applicable
+                // Show result based on whether cancelled or successful
                 if (dropText != null)
                 {
-                    if (skippedCount > 0)
+                    if (wasCancelled)
+                    {
+                        dropText.Text = SharedUtilities.GetTranslation(lang, "DragDrop_Cancelled") ?? "Cancelled";
+                        Logger.LogInfo("Updated drop text to cancelled");
+                    }
+                    else if (skippedCount > 0)
                     {
                         dropText.Text = string.Format(SharedUtilities.GetTranslation(lang, "DragDrop_AddedSkipped"), copiedCount, skippedCount);
                         Logger.LogInfo($"Updated drop text to partial success: {copiedCount} added, {skippedCount} skipped");
@@ -1867,8 +1925,8 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 if (dropIcon != null)
                 {
-                    dropIcon.Glyph = "\uE73E"; // Checkmark
-                    dropIcon.FontSize = 48; // Same size as cross
+                    dropIcon.Glyph = wasCancelled ? "\uE711" : "\uE73E"; // Cross or Checkmark
+                    dropIcon.FontSize = 48;
                 }
                 
                 await Task.Delay(1500);

@@ -198,6 +198,7 @@
     "DragDrop_Copying": "Kinokopya ang {0} larawan...",
     "DragDrop_AddedSkipped": "Idinagdag {0}, nilaktawan {1}",
     "DragDrop_ImagesAdded": "Naidagdag ang mga larawan!",
+    "DragDrop_Cancelled": "Nakansela",
     "ModTile_Activate": "I-activate",
     "ModTile_Deactivate": "I-deactivate",
     "ModTile_OpenDirectory": "Buksan ang direktoryo",

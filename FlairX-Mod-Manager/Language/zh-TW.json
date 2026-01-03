@@ -198,6 +198,7 @@
     "DragDrop_Copying": "正在複製{0}張圖片...",
     "DragDrop_AddedSkipped": "已新增{0}張，略過{1}張",
     "DragDrop_ImagesAdded": "圖片已新增！",
+    "DragDrop_Cancelled": "已取消",
     "ModTile_Activate": "啟用",
     "ModTile_Deactivate": "停用",
     "ModTile_OpenDirectory": "開啟目錄",

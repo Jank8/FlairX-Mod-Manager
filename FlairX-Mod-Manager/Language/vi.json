@@ -198,6 +198,7 @@
     "DragDrop_Copying": "Đang sao chép {0} hình...",
     "DragDrop_AddedSkipped": "Đã thêm {0}, bỏ qua {1}",
     "DragDrop_ImagesAdded": "Đã thêm hình ảnh!",
+    "DragDrop_Cancelled": "Đã hủy",
     "ModTile_Activate": "Kích hoạt",
     "ModTile_Deactivate": "Vô hiệu hóa",
     "ModTile_OpenDirectory": "Mở thư mục",

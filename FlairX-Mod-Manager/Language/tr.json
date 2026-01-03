@@ -198,6 +198,7 @@
     "DragDrop_Copying": "{0} resim kopyalanıyor...",
     "DragDrop_AddedSkipped": "{0} eklendi, {1} atlandı",
     "DragDrop_ImagesAdded": "Resimler eklendi!",
+    "DragDrop_Cancelled": "İptal edildi",
     "ModTile_Activate": "Etkinleştir",
     "ModTile_Deactivate": "Devre dışı bırak",
     "ModTile_OpenDirectory": "Dizini aç",

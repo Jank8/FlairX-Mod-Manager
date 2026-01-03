@@ -198,6 +198,7 @@
     "DragDrop_Copying": "Копирование {0} изображени(й)...",
     "DragDrop_AddedSkipped": "Добавлено {0}, пропущено {1}",
     "DragDrop_ImagesAdded": "Изображения добавлены!",
+    "DragDrop_Cancelled": "Отменено",
     "ModTile_Activate": "Активировать",
     "ModTile_Deactivate": "Деактивировать",
     "ModTile_OpenDirectory": "Открыть каталог",

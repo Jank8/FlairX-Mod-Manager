@@ -198,6 +198,7 @@
     "DragDrop_Copying": "{0}개 이미지 복사 중...",
     "DragDrop_AddedSkipped": "{0}개 추가, {1}개 건너뜀",
     "DragDrop_ImagesAdded": "이미지가 추가되었습니다!",
+    "DragDrop_Cancelled": "취소됨",
     "ModTile_Activate": "활성화",
     "ModTile_Deactivate": "비활성화",
     "ModTile_OpenDirectory": "디렉토리 열기",

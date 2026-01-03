@@ -198,6 +198,7 @@
     "DragDrop_Copying": "กำลังคัดลอก {0} รูป...",
     "DragDrop_AddedSkipped": "เพิ่ม {0} ข้าม {1}",
     "DragDrop_ImagesAdded": "เพิ่มรูปภาพแล้ว!",
+    "DragDrop_Cancelled": "ยกเลิกแล้ว",
     "ModTile_Activate": "เปิดใช้งาน",
     "ModTile_Deactivate": "ปิดใช้งาน",
     "ModTile_OpenDirectory": "เปิดไดเรกทอรี",

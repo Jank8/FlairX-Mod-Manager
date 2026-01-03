@@ -198,6 +198,7 @@
     "DragDrop_Copying": "{0} चित्र कॉपी हो रहे हैं...",
     "DragDrop_AddedSkipped": "{0} जोड़े गए, {1} छोड़े गए",
     "DragDrop_ImagesAdded": "चित्र जोड़े गए!",
+    "DragDrop_Cancelled": "रद्द किया गया",
     "ModTile_Activate": "सकरय कर",
     "ModTile_Deactivate": "नषकरय कर",
     "ModTile_OpenDirectory": "निर्देशिका खोलें",

@@ -198,6 +198,7 @@
     "DragDrop_Copying": "正在复制{0}张图片...",
     "DragDrop_AddedSkipped": "已添加{0}张，跳过{1}张",
     "DragDrop_ImagesAdded": "图片已添加！",
+    "DragDrop_Cancelled": "已取消",
     "ModTile_Activate": "激活",
     "ModTile_Deactivate": "停用",
     "ModTile_OpenDirectory": "打开目录",
