@@ -55,6 +55,8 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             public string? ModProfileUrl { get; set; }
             public int ModId { get; set; }
+            public string? ModPath { get; set; }
+            public string? Category { get; set; }
         }
 
         public GameBananaFileExtractionDialog(
@@ -499,7 +501,9 @@ namespace FlairX_Mod_Manager.Dialogs
                 ModInstalled?.Invoke(this, new ModInstalledEventArgs 
                 { 
                     ModProfileUrl = _modProfileUrl,
-                    ModId = _modId
+                    ModId = _modId,
+                    ModPath = _installedModPath,
+                    Category = _categoryTextBox.Text.Trim()
                 });
 
                 // Close dialog - optimization will run in background after dialog closes

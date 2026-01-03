@@ -36,6 +36,14 @@ namespace FlairX_Mod_Manager
         // Current ModGridPage reference for dynamic filtering
         public FlairX_Mod_Manager.Pages.ModGridPage? CurrentModGridPage { get; set; }
 
+        /// <summary>
+        /// Get the current ModGridPage instance if available
+        /// </summary>
+        public FlairX_Mod_Manager.Pages.ModGridPage? GetCurrentModGridPage()
+        {
+            return CurrentModGridPage;
+        }
+
         private void LoadLanguage()
         {
             _lang = SharedUtilities.LoadLanguageDictionary();

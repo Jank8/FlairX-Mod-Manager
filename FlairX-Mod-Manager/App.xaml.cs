@@ -203,7 +203,6 @@ namespace FlairX_Mod_Manager
                 Application.Current.Resources["AppFontFamily"] = silesianFont;
             }
             // Language loading is now handled by SharedUtilities in each component
-            _ = EnsureModJsonInXXMIMods();
             EnsureDefaultDirectories();
             // Always generate default preset on app startup
             FlairX_Mod_Manager.Pages.ModGridPage gridPage = new();
@@ -213,7 +212,7 @@ namespace FlairX_Mod_Manager
             Logger.LogInfo("Mod state maintained using DISABLED_ prefix system");
             // Removed: ZIP thumbnail cache generation on startup
 
-            // Show loading window first
+            // Show loading window first, then ensure mod.json files
             _ = ShowLoadingWindowAndInitialize();
 
 
@@ -367,7 +366,7 @@ namespace FlairX_Mod_Manager
                     // Read existing mod.json - PRESERVE ALL EXISTING DATA
                     try
                     {
-                        var jsonContent = Services.FileAccessQueue.ReadAllText(modJsonPath);
+                        var jsonContent = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath);
                         modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonContent) ?? new();
                         
                         // ONLY add missing syncMethod if it doesn't exist - never overwrite existing data
@@ -457,7 +456,7 @@ namespace FlairX_Mod_Manager
                 {
                     var jsonOptions = new System.Text.Json.JsonSerializerOptions { WriteIndented = true };
                     var jsonContent = System.Text.Json.JsonSerializer.Serialize(modData, jsonOptions);
-                    Services.FileAccessQueue.WriteAllText(modJsonPath, jsonContent);
+                    await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, jsonContent);
                 }
                 }
             }
@@ -511,7 +510,8 @@ namespace FlairX_Mod_Manager
 
                 foreach (var iniFile in iniFiles)
                 {
-                    var content = Services.FileAccessQueue.ReadAllText(iniFile);
+                    // Use regular File.ReadAllText - this is read-only scanning, no lock contention
+                    var content = System.IO.File.ReadAllText(iniFile, System.Text.Encoding.UTF8);
                     var lines = content.Split('\n');
 
                     foreach (var line in lines)

@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using FlairX_Mod_Manager.Pages;
 
 namespace FlairX_Mod_Manager
@@ -350,8 +351,11 @@ namespace FlairX_Mod_Manager
                 {
                     parentGrid.Children.Add(overlay);
 
+                    // Track GameBanana browser for reload on close
+                    var gameBananaBrowser = userControl as Pages.GameBananaBrowserUserControl;
+
                     // Function to close with slide-out animation
-                    Action closeWithAnimation = () =>
+                    Func<Task> closeWithAnimationAsync = async () =>
                     {
                         // Create slide-out animation with consistent duration
                         var duration = userControl is FunctionsUserControl ? 
@@ -384,7 +388,13 @@ namespace FlairX_Mod_Manager
                             }
                         };
                         slideOutStoryboard.Begin();
+                        
+                        // Wait for animation to complete
+                        await Task.Delay((int)duration.TimeSpan.TotalMilliseconds + 50);
                     };
+                    
+                    // Synchronous wrapper for simple close handlers
+                    Action closeWithAnimation = () => _ = closeWithAnimationAsync();
 
                     // Handle CloseRequested event from UserControl
                     if (userControl is SettingsUserControl settingsControl)
@@ -399,9 +409,19 @@ namespace FlairX_Mod_Manager
                     {
                         functionsControl.CloseRequested += (s, args) => closeWithAnimation();
                     }
-                    else if (userControl is Pages.GameBananaBrowserUserControl gameBananaControl)
+                    else if (gameBananaBrowser != null)
                     {
-                        gameBananaControl.CloseRequested += (s, args) => closeWithAnimation();
+                        gameBananaBrowser.CloseRequested += async (s, args) => 
+                        {
+                            await closeWithAnimationAsync();
+                            
+                            // Reload mods if any mod was installed during this session
+                            if (args.ModWasInstalled)
+                            {
+                                await ReloadModsAsync();
+                                Logger.LogInfo("Refreshed mod grid after closing GameBanana browser (mod was installed)");
+                            }
+                        };
                     }
                     else if (userControl is ModDetailUserControl modDetailControl)
                     {
@@ -421,19 +441,35 @@ namespace FlairX_Mod_Manager
                     }
                     
                     // Click outside to close
-                    overlay.Tapped += (s, args) =>
+                    overlay.Tapped += async (s, args) =>
                     {
                         if (ReferenceEquals(args.OriginalSource, overlay))
-                            closeWithAnimation();
+                        {
+                            await closeWithAnimationAsync();
+                            
+                            // Reload mods if GameBanana browser and mod was installed
+                            if (gameBananaBrowser != null && gameBananaBrowser._modWasInstalled)
+                            {
+                                await ReloadModsAsync();
+                                Logger.LogInfo("Refreshed mod grid after closing GameBanana browser via tap outside (mod was installed)");
+                            }
+                        }
                     };
 
                     // Escape key handler
-                    overlay.KeyDown += (s, args) =>
+                    overlay.KeyDown += async (s, args) =>
                     {
                         if (args.Key == Windows.System.VirtualKey.Escape)
                         {
-                            closeWithAnimation();
+                            await closeWithAnimationAsync();
                             args.Handled = true;
+                            
+                            // Reload mods if GameBanana browser and mod was installed
+                            if (gameBananaBrowser != null && gameBananaBrowser._modWasInstalled)
+                            {
+                                await ReloadModsAsync();
+                                Logger.LogInfo("Refreshed mod grid after closing GameBanana browser via Escape (mod was installed)");
+                            }
                         }
                     };
 

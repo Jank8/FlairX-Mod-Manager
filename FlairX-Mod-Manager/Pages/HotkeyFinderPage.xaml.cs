@@ -489,7 +489,8 @@ namespace FlairX_Mod_Manager.Pages
                     
                     if (File.Exists(modJsonPath))
                     {
-                        var existingJson = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
+                        // Use regular File.ReadAllTextAsync - we already have exclusive access via ExecuteAsync
+                        var existingJson = await File.ReadAllTextAsync(modJsonPath, token);
                         modData = JsonSerializer.Deserialize<Dictionary<string, object>>(existingJson) ?? new();
                         
                         // Load existing favorite hotkeys

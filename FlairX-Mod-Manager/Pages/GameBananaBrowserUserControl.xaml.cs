@@ -46,6 +46,9 @@ namespace FlairX_Mod_Manager.Pages
         // Markdown image resizing
         private bool _isAttachedToSizeChanged = false;
         
+        // Track if any mod was installed during this session (internal for MainWindow access)
+        internal bool _modWasInstalled = false;
+        
         private enum NavigationState
         {
             ModsList,
@@ -154,8 +157,13 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        // Event for closing the panel
-        public event EventHandler? CloseRequested;
+        // Event for closing the panel - includes info if mod was installed
+        public event EventHandler<BrowserClosedEventArgs>? CloseRequested;
+        
+        public class BrowserClosedEventArgs : EventArgs
+        {
+            public bool ModWasInstalled { get; set; }
+        }
 
         public GameBananaBrowserUserControl(string gameTag, string? modUrl = null, string? sourceModPath = null)
         {
@@ -835,7 +843,7 @@ namespace FlairX_Mod_Manager.Pages
                 // If opened directly to mod details, close the entire panel
                 if (_openedDirectlyToModDetails)
                 {
-                    CloseRequested?.Invoke(this, EventArgs.Empty);
+                    CloseRequested?.Invoke(this, new BrowserClosedEventArgs { ModWasInstalled = _modWasInstalled });
                 }
                 else
                 {
@@ -853,7 +861,7 @@ namespace FlairX_Mod_Manager.Pages
             else
             {
                 // Close the entire panel
-                CloseRequested?.Invoke(this, EventArgs.Empty);
+                CloseRequested?.Invoke(this, new BrowserClosedEventArgs { ModWasInstalled = _modWasInstalled });
             }
         }
 
@@ -1256,7 +1264,7 @@ namespace FlairX_Mod_Manager.Pages
                 existingModPath); // Pass existing mod path if installed
             extractDialog.XamlRoot = XamlRoot;
             
-            // Subscribe to ModInstalled event to refresh tile
+            // Subscribe to ModInstalled event to update tile status
             extractDialog.ModInstalled += OnModInstalled;
             
             var result = await extractDialog.ShowAsync();
@@ -1264,11 +1272,15 @@ namespace FlairX_Mod_Manager.Pages
             if (result == ContentDialogResult.Primary)
             {
                 CloseDetailsPanel();
+                // Reload will happen when browser is closed (if mod was installed)
             }
         }
         
         private void OnModInstalled(object? sender, Dialogs.GameBananaFileExtractionDialog.ModInstalledEventArgs e)
         {
+            // Track that a mod was installed
+            _modWasInstalled = true;
+            
             // Find the mod in the list and update IsInstalled
             DispatcherQueue.TryEnqueue(() =>
             {
