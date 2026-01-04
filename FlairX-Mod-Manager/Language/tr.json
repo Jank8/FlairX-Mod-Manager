@@ -51,6 +51,7 @@
     "ModDetailPage_Title": "Mod detayları",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "Güncelleme mevcut",
+    "ModDetailPage_UrlUnavailable": "Mod URL'si kullanılamıyor",
     "None": "Hiçbiri",
     "OK": "Tamam",
     "Browse_GameBanana_Tooltip": "GameBanana modlarına göz at",

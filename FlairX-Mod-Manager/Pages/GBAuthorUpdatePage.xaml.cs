@@ -58,6 +58,10 @@ namespace FlairX_Mod_Manager.Pages
             FetchMissingPreviewsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchMissingPreviewsButton");
             FetchMissingPreviewsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchMissingPreviewsButton_Tooltip");
             // Button text is now handled by UpdateButtonStates()
+            
+            // Skip invalid URLs card
+            SkipInvalidUrlsLabel.Text = SharedUtilities.GetTranslation(lang, "SkipInvalidUrlsLabel");
+            SkipInvalidUrlsDescription.Text = SharedUtilities.GetTranslation(lang, "SkipInvalidUrlsDescription");
         }
         
         private void UpdateToggleLabels()
@@ -70,6 +74,8 @@ namespace FlairX_Mod_Manager.Pages
                 UpdateAuthorsToggleLabel.Text = UpdateAuthorsSwitch.IsOn ? onText : offText;
             if (SmartUpdateToggleLabel != null && SmartUpdateSwitch != null)
                 SmartUpdateToggleLabel.Text = SmartUpdateSwitch.IsOn ? onText : offText;
+            if (SkipInvalidUrlsToggleLabel != null && SkipInvalidUrlsSwitch != null)
+                SkipInvalidUrlsToggleLabel.Text = SkipInvalidUrlsSwitch.IsOn ? onText : offText;
         }
 
         // Thread-safe progress reporting
@@ -92,6 +98,7 @@ namespace FlairX_Mod_Manager.Pages
             ProgressChanged += OnProgressChanged;
             UpdateAuthorsSwitch.Toggled += UpdateAuthorsSwitch_Toggled;
             SmartUpdateSwitch.Toggled += SmartUpdateSwitch_Toggled;
+            SkipInvalidUrlsSwitch.Toggled += SkipInvalidUrlsSwitch_Toggled;
         }
 
         ~GBAuthorUpdatePage()
@@ -310,11 +317,23 @@ namespace FlairX_Mod_Manager.Pages
                             SafeSetCurrentProcessingMod(displayName);
                             NotifyProgressChanged();
                             
+                            // Check if URL is marked as invalid and skip if option is enabled
+                            if (SkipInvalidUrlsSwitch.IsOn && root.TryGetProperty("urlInvalid", out var urlInvalidProp) && 
+                                urlInvalidProp.ValueKind == JsonValueKind.True)
+                            {
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
+                                Interlocked.Increment(ref processed);
+                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                NotifyProgressChanged();
+                                return;
+                            }
+                            
                             if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || 
                                 string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) 
                             { 
                                 SafeIncrementSkip(); 
-                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); 
+                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); 
                                 Interlocked.Increment(ref processed);
                                 lock (_lockObject) { _progressValue = (double)processed / _totalMods; } 
                                 NotifyProgressChanged(); 
@@ -330,7 +349,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (isSmartUpdate && !shouldUpdate)
                         {
                             SafeIncrementSkip();
-                            SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "AlreadyHasAuthor")} ({currentAuthor})");
+                            SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "AlreadyHasAuthor")} ({currentAuthor})");
                             Interlocked.Increment(ref processed);
                             lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
                             NotifyProgressChanged();
@@ -342,6 +361,9 @@ namespace FlairX_Mod_Manager.Pages
                             var author = await FetchAuthorFromApi(url, token);
                             if (!string.IsNullOrWhiteSpace(author))
                             {
+                                // Clear any previous invalid URL flag since we successfully fetched data
+                                await ClearUrlInvalidFlagAsync(modJsonPath, token);
+                                
                                 bool needsUpdate = false;
                                 if (isFullUpdate && !author.Equals(currentAuthor, StringComparison.Ordinal))
                                 {
@@ -357,7 +379,7 @@ namespace FlairX_Mod_Manager.Pages
                                     if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
                                     {
                                         SafeIncrementSkip();
-                                        SafeAddSkippedMod($"{modName}: Invalid directory name");
+                                        SafeAddSkippedMod($"{displayName}: Invalid directory name");
                                         Interlocked.Increment(ref processed);
                                         lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
                                         NotifyProgressChanged();
@@ -377,15 +399,20 @@ namespace FlairX_Mod_Manager.Pages
                             }
                             else
                             {
+                                // Mark URL as invalid when we can't fetch author data
+                                await MarkUrlAsInvalidAsync(modJsonPath, token);
                                 SafeIncrementSkip();
+                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
                             }
                         }
                         catch (OperationCanceledException) { }
                         catch (Exception ex)
                         {
-                            Logger.LogError($"Failed to fetch author for {modName}", ex);
+                            Logger.LogError($"Failed to fetch author for {displayName}", ex);
+                            // Mark URL as invalid on any fetch error
+                            await MarkUrlAsInvalidAsync(modJsonPath, token);
                             SafeIncrementFail();
-                            SafeAddFailedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "AuthorFetchError")}");
+                            SafeAddFailedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "AuthorFetchError")}");
                         }
                         
                         Interlocked.Increment(ref processed);
@@ -505,6 +532,53 @@ namespace FlairX_Mod_Manager.Pages
                     XamlRoot = this.XamlRoot
                 };
                 await dialog.ShowAsync();
+            }
+        }
+
+        /// <summary>
+        /// Mark a mod's URL as invalid in mod.json
+        /// </summary>
+        private static async Task MarkUrlAsInvalidAsync(string modJsonPath, CancellationToken token = default)
+        {
+            try
+            {
+                await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
+                {
+                    var currentJson = await File.ReadAllTextAsync(modJsonPath, token);
+                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(currentJson) ?? new();
+                    dict["urlInvalid"] = true;
+                    await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
+                }, token);
+                Logger.LogInfo($"Marked URL as invalid in: {modJsonPath}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to mark URL as invalid in {modJsonPath}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Clear the invalid URL flag from mod.json
+        /// </summary>
+        private static async Task ClearUrlInvalidFlagAsync(string modJsonPath, CancellationToken token = default)
+        {
+            try
+            {
+                await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
+                {
+                    var currentJson = await File.ReadAllTextAsync(modJsonPath, token);
+                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(currentJson) ?? new();
+                    if (dict.ContainsKey("urlInvalid"))
+                    {
+                        dict.Remove("urlInvalid");
+                        await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
+                        Logger.LogInfo($"Cleared invalid URL flag from: {modJsonPath}");
+                    }
+                }, token);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to clear invalid URL flag from {modJsonPath}", ex);
             }
         }
 
@@ -884,6 +958,11 @@ namespace FlairX_Mod_Manager.Pages
             UpdateToggleLabels();
         }
 
+        private void SkipInvalidUrlsSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            UpdateToggleLabels();
+        }
+
         public bool IsSmartUpdate => CurrentUpdateMode == UpdateMode.Smart;
         public bool IsFullUpdate => CurrentUpdateMode == UpdateMode.Full;
 
@@ -1026,11 +1105,23 @@ namespace FlairX_Mod_Manager.Pages
                             SafeSetCurrentProcessingMod(displayName);
                             NotifyProgressChanged();
 
+                            // Check if URL is marked as invalid and skip if option is enabled
+                            if (SkipInvalidUrlsSwitch.IsOn && root.TryGetProperty("urlInvalid", out var urlInvalidProp) && 
+                                urlInvalidProp.ValueKind == JsonValueKind.True)
+                            {
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
+                                Interlocked.Increment(ref processed);
+                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                NotifyProgressChanged();
+                                return;
+                            }
+
                             if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
                                 string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
                             {
                                 SafeIncrementSkip();
-                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
+                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
                                 Interlocked.Increment(ref processed);
                                 lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
                                 NotifyProgressChanged();
@@ -1045,10 +1136,13 @@ namespace FlairX_Mod_Manager.Pages
                             var dateUpdated = await FetchDateFromApi(url, token);
                             if (!string.IsNullOrWhiteSpace(dateUpdated))
                             {
+                                // Clear any previous invalid URL flag since we successfully fetched data
+                                await ClearUrlInvalidFlagAsync(modJsonPath, token);
+                                
                                 if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
                                 {
                                     SafeIncrementSkip();
-                                    SafeAddSkippedMod($"{modName}: Invalid directory name");
+                                    SafeAddSkippedMod($"{displayName}: Invalid directory name");
                                     Interlocked.Increment(ref processed);
                                     lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
                                     NotifyProgressChanged();
@@ -1067,16 +1161,20 @@ namespace FlairX_Mod_Manager.Pages
                             }
                             else
                             {
+                                // Mark URL as invalid when we can't fetch date data
+                                await MarkUrlAsInvalidAsync(modJsonPath, token);
                                 SafeIncrementSkip();
-                                SafeAddSkippedMod($"{modName}: Nie udało się pobrać daty");
+                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
                             }
                         }
                         catch (OperationCanceledException) { }
                         catch (Exception ex)
                         {
-                            Logger.LogError($"Failed to fetch date for {modName}", ex);
+                            Logger.LogError($"Failed to fetch date for {displayName}", ex);
+                            // Mark URL as invalid on any fetch error
+                            await MarkUrlAsInvalidAsync(modJsonPath, token);
                             SafeIncrementFail();
-                            SafeAddFailedMod($"{modName}: Błąd pobierania daty");
+                            SafeAddFailedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "AuthorFetchError")}");
                         }
 
                         Interlocked.Increment(ref processed);
@@ -1367,11 +1465,24 @@ namespace FlairX_Mod_Manager.Pages
                             SafeSetCurrentProcessingMod(displayName);
                             NotifyProgressChanged();
 
+                            // Check if URL is marked as invalid and skip if option is enabled
+                            if (SkipInvalidUrlsSwitch.IsOn && root.TryGetProperty("urlInvalid", out var urlInvalidProp) && 
+                                urlInvalidProp.ValueKind == JsonValueKind.True)
+                            {
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
+                                Interlocked.Increment(ref processed);
+                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                SafeSetCurrentProcessingMod("");
+                                NotifyProgressChanged();
+                                return;
+                            }
+
                             if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
                                 string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
                             {
                                 SafeIncrementSkip();
-                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
+                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
                                 Interlocked.Increment(ref processed);
                                 lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
                                 SafeSetCurrentProcessingMod("");
@@ -1386,10 +1497,13 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             var version = await FetchVersionFromApi(url, token);
                             
+                            // Clear any previous invalid URL flag since we successfully fetched data (even if version is empty)
+                            await ClearUrlInvalidFlagAsync(modJsonPath, token);
+                            
                             if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
                             {
                                 SafeIncrementSkip();
-                                SafeAddSkippedMod($"{modName}: Invalid directory name");
+                                SafeAddSkippedMod($"{displayName}: Invalid directory name");
                                 Interlocked.Increment(ref processed);
                                 lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
                                 NotifyProgressChanged();
@@ -1410,9 +1524,11 @@ namespace FlairX_Mod_Manager.Pages
                         catch (OperationCanceledException) { }
                         catch (Exception ex)
                         {
-                            Logger.LogError($"Failed to fetch version for {modName}", ex);
+                            Logger.LogError($"Failed to fetch version for {displayName}", ex);
+                            // Mark URL as invalid on any fetch error
+                            await MarkUrlAsInvalidAsync(modJsonPath, token);
                             SafeIncrementFail();
-                            SafeAddFailedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "VersionFetchError")}");
+                            SafeAddFailedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "VersionFetchError")}");
                         }
 
                         Interlocked.Increment(ref processed);
@@ -1762,6 +1878,19 @@ namespace FlairX_Mod_Manager.Pages
                             SafeSetCurrentProcessingMod(modName);
                             NotifyProgressChanged();
 
+                            // Check if URL is marked as invalid and skip if option is enabled
+                            if (SkipInvalidUrlsSwitch.IsOn && root.TryGetProperty("urlInvalid", out var urlInvalidProp) && 
+                                urlInvalidProp.ValueKind == JsonValueKind.True)
+                            {
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
+                                Interlocked.Increment(ref processed);
+                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                                SafeSetCurrentProcessingMod("");
+                                NotifyProgressChanged();
+                                return;
+                            }
+
                             if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
                                 string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
                             {
@@ -1848,6 +1977,9 @@ namespace FlairX_Mod_Manager.Pages
                             var downloadedCount = await DownloadPreviewsFromApi(url, dir, token, startIndex);
                             if (downloadedCount > 0)
                             {
+                                // Clear any previous invalid URL flag since we successfully fetched data
+                                await ClearUrlInvalidFlagAsync(modJsonPath, token);
+                                
                                 SafeIncrementSuccess();
                                 
                                 // Check for cancellation before optimization
@@ -1926,14 +2058,18 @@ namespace FlairX_Mod_Manager.Pages
                             }
                             else
                             {
+                                // Mark URL as invalid when we can't download previews
+                                await MarkUrlAsInvalidAsync(modJsonPath, token);
                                 SafeIncrementSkip();
-                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "NoPreviewsAvailable")}");
+                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
                             }
                         }
                         catch (OperationCanceledException) { }
                         catch (Exception ex)
                         {
                             Logger.LogError($"Failed to fetch previews for {modName}", ex);
+                            // Mark URL as invalid on any fetch error
+                            await MarkUrlAsInvalidAsync(modJsonPath, token);
                             SafeIncrementFail();
                             SafeAddFailedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "PreviewFetchError")}");
                         }

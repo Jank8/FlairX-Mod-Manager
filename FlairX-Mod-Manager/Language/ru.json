@@ -52,6 +52,7 @@
     "ModDetailPage_Title": "Детали мода",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "Доступно обновление",
+    "ModDetailPage_UrlUnavailable": "URL мода недоступен",
     "None": "Нет",
     "OK": "OK",
     "Browse_GameBanana_Tooltip": "Просмотр модов GameBanana",

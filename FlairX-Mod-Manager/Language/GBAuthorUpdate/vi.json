@@ -8,6 +8,8 @@
     "Start": "Bắt đầu",
     "UpdateAuthorsLabel": "Cập nhật tác giả GameBanana",
     "SmartUpdateLabel": "Chỉ tác giả chưa biết (Cập nhật thông minh)",
+    "SkipInvalidUrlsLabel": "Bỏ qua mod có URL không hợp lệ",
+    "SkipInvalidUrlsDescription": "Bỏ qua mod được đánh dấu có URL không hợp lệ",
     "FetchAuthorsButton": "Lấy tác giả từ máy chủ",
     "ConfirmFetchAuthors": "Điều này sẽ lấy và cập nhật thông tin tác giả từ GameBanana cho tất cả các mod. Bạn có muốn tiếp tục không?",
     "ConfirmFetchDates": "Điều này sẽ lấy và cập nhật thông tin ngày từ GameBanana cho tất cả các mod. Bạn có muốn tiếp tục không?",

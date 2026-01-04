@@ -8,6 +8,8 @@
     "Start": "Старт",
     "UpdateAuthorsLabel": "Обновление авторов GameBanana",
     "SmartUpdateLabel": "Только неизвестные авторы (Умное обновление)",
+    "SkipInvalidUrlsLabel": "Пропустить моды с недействительными URL",
+    "SkipInvalidUrlsDescription": "Пропустить моды, отмеченные недействительными URL",
     "FetchAuthorsButton": "Получить авторов с сервера",
     "ConfirmFetchAuthors": "Это получит и обновит информацию об авторах с GameBanana для всех модов. Хотите продолжить?",
     "ConfirmFetchDates": "Это получит и обновит информацию о датах с GameBanana для всех модов. Хотите продолжить?",

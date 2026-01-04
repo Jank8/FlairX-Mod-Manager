@@ -8,6 +8,8 @@
     "Start": "Iniciar",
     "UpdateAuthorsLabel": "Actualizar autores GameBanana",
     "SmartUpdateLabel": "Apenas autores desconhecidos (actualização inteligente)",
+    "SkipInvalidUrlsLabel": "Ignorar mods com URLs inválidos",
+    "SkipInvalidUrlsDescription": "Ignorar mods marcados com URLs inválidos",
     "FetchAuthorsButton": "Obter autores do servidor",
     "ConfirmFetchAuthors": "Isto irá obter e actualizar informações de autores do GameBanana para todos os mods. Deseja continuar?",
     "ConfirmFetchDates": "Isto irá obter e actualizar informações de datas do GameBanana para todos os mods. Deseja continuar?",

@@ -8,6 +8,8 @@
     "Start": "Başlat",
     "UpdateAuthorsLabel": "GameBanana yazarlarını güncelle",
     "SmartUpdateLabel": "Sadece bilinmeyen yazarlar (akıllı Güncelleme)",
+    "SkipInvalidUrlsLabel": "Geçersiz URL'li modları atla",
+    "SkipInvalidUrlsDescription": "Geçersiz URL olarak işaretlenmiş modları atla",
     "FetchAuthorsButton": "Sunucudan yazarları al",
     "ConfirmFetchAuthors": "Bu, tüm modlar için GameBanana'dan yazar bilgilerini alacak ve güncelleyecektir. Devam etmek istiyor musunuz?",
     "ConfirmFetchDates": "Bu, tüm modlar için GameBanana'dan tarih bilgilerini alacak ve güncelleyecektir. Devam etmek istiyor musunuz?",

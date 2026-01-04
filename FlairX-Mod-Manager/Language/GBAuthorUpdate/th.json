@@ -8,6 +8,8 @@
     "Start": "เรม",
     "UpdateAuthorsLabel": "อัปเดตผู้เขียน GameBanana",
     "SmartUpdateLabel": "เฉพาะผู้เขียนที่ไม่ทราบ (smart Update)",
+    "SkipInvalidUrlsLabel": "ข้าม mod ที่มี URL ไม่ถูกต้อง",
+    "SkipInvalidUrlsDescription": "ข้าม mod ที่ถูกทำเครื่องหมายว่ามี URL ไม่ถูกต้อง",
     "FetchAuthorsButton": "ดึงผู้เขียนจากเซิร์ฟเวอร์",
     "ConfirmFetchAuthors": "การดำเนินการนี้จะดึงและอัปเดตข้อมูลผู้เขียนจาก GameBanana สำหรับมอดทั้งหมด คุณต้องการดำเนินการต่อหรือไม่?",
     "ConfirmFetchDates": "การดำเนินการนี้จะดึงและอัปเดตข้อมูลวันที่จาก GameBanana สำหรับมอดทั้งหมด คุณต้องการดำเนินการต่อหรือไม่?",

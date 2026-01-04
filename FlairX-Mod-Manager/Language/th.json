@@ -51,6 +51,7 @@
     "ModDetailPage_Title": "รายละเอียด mod",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "มีอัปเดต",
+    "ModDetailPage_UrlUnavailable": "URL ของ mod ไม่พร้อมใช้งาน",
     "None": "ไม่มี",
     "OK": "ตกลง",
     "Browse_GameBanana_Tooltip": "เรียกดู Mod จาก GameBanana",

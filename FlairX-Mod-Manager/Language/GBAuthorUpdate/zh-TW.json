@@ -8,6 +8,8 @@
     "Start": "開始",
     "UpdateAuthorsLabel": "更新GameBanana作者",
     "SmartUpdateLabel": "僅未知作者（智慧更新）",
+    "SkipInvalidUrlsLabel": "跳過無效URL的模組",
+    "SkipInvalidUrlsDescription": "跳過標記為無效URL的模組",
     "FetchAuthorsButton": "從伺服器取得作者",
     "ConfirmFetchAuthors": "這將從GameBanana取得並更新所有模組的作者資訊。是否繼續？",
     "ConfirmFetchDates": "這將從GameBanana取得並更新所有模組的日期資訊。是否繼續？",

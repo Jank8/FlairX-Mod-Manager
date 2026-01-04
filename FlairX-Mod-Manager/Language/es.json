@@ -52,6 +52,7 @@
     "ModDetailPage_Title": "Detalles del mod",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "Actualización disponible",
+    "ModDetailPage_UrlUnavailable": "URL del mod no disponible",
     "None": "Ninguno",
     "OK": "Aceptar",
     "Browse_GameBanana_Tooltip": "Explorar mods de GameBanana",

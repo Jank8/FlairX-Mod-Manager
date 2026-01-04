@@ -52,6 +52,7 @@
     "ModDetailPage_Title": "Mod の詳細",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "アップデート利用可能",
+    "ModDetailPage_UrlUnavailable": "Mod URL利用不可",
     "None": "なし",
     "OK": "OK",
     "Browse_GameBanana_Tooltip": "GameBanana mod を閲覧",

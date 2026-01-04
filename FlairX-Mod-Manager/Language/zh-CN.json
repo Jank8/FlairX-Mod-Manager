@@ -52,6 +52,7 @@
     "ModDetailPage_Title": "模组详情",
     "ModDetailPage_URL": "URL:",
     "ModDetailPage_UpdateAvailable": "有可用更新",
+    "ModDetailPage_UrlUnavailable": "模组URL不可用",
     "None": "无",
     "OK": "确定",
     "Browse_GameBanana_Tooltip": "浏览 GameBanana 模组",

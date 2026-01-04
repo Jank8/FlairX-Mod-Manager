@@ -8,6 +8,8 @@
     "Start": "Simulan",
     "UpdateAuthorsLabel": "I-update ang mga GameBanana author",
     "SmartUpdateLabel": "Hindi kilalang mga author lang (smart Update)",
+    "SkipInvalidUrlsLabel": "Laktawan ang mga mod na may invalid na URL",
+    "SkipInvalidUrlsDescription": "Laktawan ang mga mod na minarkahan na may invalid na URL",
     "FetchAuthorsButton": "Kunin ang mga author mula sa server",
     "ConfirmFetchAuthors": "Kukunin at ia-update nito ang impormasyon ng author mula sa GameBanana para sa lahat ng mod. Gusto mo bang magpatuloy?",
     "ConfirmFetchDates": "Kukunin at ia-update nito ang impormasyon ng petsa mula sa GameBanana para sa lahat ng mod. Gusto mo bang magpatuloy?",
