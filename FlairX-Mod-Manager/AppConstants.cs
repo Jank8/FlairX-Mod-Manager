@@ -3,7 +3,7 @@ namespace FlairX_Mod_Manager
     public static class AppConstants
     {
         // Application Version
-        public const string APP_VERSION = "3.4.6";
+        public const string APP_VERSION = "3.4.7";
         
         // File Extensions
         public const string MOD_JSON_FILENAME = "mod.json";

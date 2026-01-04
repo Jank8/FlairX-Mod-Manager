@@ -1,6 +1,6 @@
 {
     "BrowseTitle": "{0} Modlarına Göz At - GameBanana",
-    "SearchPlaceholder": "Mod ara...",
+    "SearchPlaceholder": "Mod ara veya URL/ID gir...",
     "NoModsFound": "Mod bulunamadı",
     "NoModsMatchSearch": "Aramanızla eşleşen mod yok",
     "FailedToLoadMods": "Modlar yüklenemedi. Lütfen tekrar deneyin.",

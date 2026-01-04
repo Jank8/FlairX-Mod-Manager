@@ -1,6 +1,6 @@
 {
     "BrowseTitle": "{0}のMODを閲覧 - GameBanana",
-    "SearchPlaceholder": "MODを検索...",
+    "SearchPlaceholder": "モッドを検索またはURL/IDを入力...",
     "NoModsFound": "MODが見つかりません",
     "NoModsMatchSearch": "検索に一致するMODがありません",
     "FailedToLoadMods": "MODの読み込みに失敗しました。もう一度お試しください。",

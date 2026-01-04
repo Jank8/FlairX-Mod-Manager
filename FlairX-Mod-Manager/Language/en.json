@@ -280,7 +280,7 @@
     "SettingsPage_AutoCreateModThumbnails_Label": "Auto-create mod thumbnails",
     "SettingsPage_AutoCreateModThumbnails_Description": "Skip manual selection and cropping for mod thumbnails, use first preview with selected crop mode",
     "CropPanel_Status_Pending": "Pending",
-    "CropPanel_Status_Edited": "Edited", 
+    "CropPanel_Status_Edited": "Edited",
     "CropPanel_Status_WillBeDeleted": "Will be deleted",
     "CropPanel_Status_NoCrop": "No crop",
     "HotkeyConflict_Title": "Hotkey Conflict",

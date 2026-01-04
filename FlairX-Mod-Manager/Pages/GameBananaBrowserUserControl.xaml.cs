@@ -36,9 +36,7 @@ namespace FlairX_Mod_Manager.Pages
         private bool _hasMorePages = true;
         private ScrollViewer? _modsScrollViewer = null;
         private DateTime _lastScrollTime = DateTime.MinValue;
-        
 
-        
         // Image slider for details
         private System.Collections.Generic.List<string> _detailPreviewImages = new();
         private int _currentDetailImageIndex = 0;
@@ -183,7 +181,7 @@ namespace FlairX_Mod_Manager.Pages
             TitleText.Text = string.Format(titleFormat, gameName);
 
             // Set UI text
-            SearchBox.PlaceholderText = SharedUtilities.GetTranslation(_lang, "SearchPlaceholder");
+            SearchBox.PlaceholderText = SharedUtilities.GetTranslation(_lang, "SearchPlaceholder") ?? "Search mods or enter URL/ID...";
             DetailInstalledBadgeText.Text = SharedUtilities.GetTranslation(_lang, "Installed");
             DetailAuthorLabel.Text = SharedUtilities.GetTranslation(_lang, "Author");
             DetailViewProfileText.Text = SharedUtilities.GetTranslation(_lang, "ViewProfile");
@@ -793,11 +791,82 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        private async void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
-            _currentSearch = string.IsNullOrWhiteSpace(args.QueryText) ? null : args.QueryText;
+            var queryText = args.QueryText?.Trim();
+            
+            // Check if the query looks like a GameBanana URL
+            if (!string.IsNullOrEmpty(queryText) && IsGameBananaUrl(queryText))
+            {
+                // Clear the search box and open the URL
+                sender.Text = "";
+                await OpenGameBananaUrlAsync(queryText);
+                return;
+            }
+            
+            // Regular search
+            _currentSearch = string.IsNullOrWhiteSpace(queryText) ? null : queryText;
             _currentPage = 1;
             _ = LoadModsAsync();
+        }
+
+        private bool IsGameBananaUrl(string text)
+        {
+            try
+            {
+                // Check if it looks like a GameBanana URL
+                if (text.Contains("gamebanana.com") && text.Contains("/mods/"))
+                {
+                    return true;
+                }
+                
+                // Check if it's just a mod ID (numbers only)
+                if (text.All(char.IsDigit) && text.Length >= 4)
+                {
+                    return true;
+                }
+                
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task OpenGameBananaUrlAsync(string input)
+        {
+            try
+            {
+                string modUrl;
+                
+                // If it's just a mod ID (numbers only), construct the full URL
+                if (input.All(char.IsDigit) && input.Length >= 4)
+                {
+                    modUrl = $"https://gamebanana.com/mods/{input}";
+                }
+                // If it's a partial URL without https, add it
+                else if (input.StartsWith("gamebanana.com"))
+                {
+                    modUrl = $"https://{input}";
+                }
+                // Otherwise use as-is
+                else
+                {
+                    modUrl = input;
+                }
+                
+                Logger.LogInfo($"Opening GameBanana URL: {modUrl}");
+                await LoadModDetailsFromUrlAsync(modUrl);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to open GameBanana URL: {input}", ex);
+                // Show error and fallback to normal search
+                ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
+                ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
+                ConnectionErrorBar.IsOpen = true;
+            }
         }
 
         private void PrevPageButton_Click(object sender, RoutedEventArgs e)
@@ -1301,12 +1370,6 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-
-
-
-
-
-
         // Detail image slider methods
         private async void LoadCurrentDetailImage()
         {
@@ -1733,8 +1796,6 @@ namespace FlairX_Mod_Manager.Pages
             // Images will be resized on SizeChanged event, but also trigger an update here
             UpdateMarkdownImages();
         }
-
-
 
         private void UpdateMarkdownImages()
         {
