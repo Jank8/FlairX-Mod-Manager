@@ -293,6 +293,7 @@ namespace FlairX_Mod_Manager.Pages
                         string modName = modFolderName;
                         string currentAuthor = string.Empty;
                         bool shouldUpdate = false;
+                        string displayName = modFolderName; // Initialize displayName outside using block
                         
                         using (var doc = JsonDocument.Parse(json))
                         {
@@ -309,7 +310,7 @@ namespace FlairX_Mod_Manager.Pages
                                 : modFolderName;
                             
                             // Use clean name for display
-                            var displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
+                            displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
                                 ? displayNameProp.GetString()! 
                                 : displayFolderName;
                             
@@ -1082,6 +1083,7 @@ namespace FlairX_Mod_Manager.Pages
                         var json = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
                         string? url = null;
                         string modName = modFolderName;
+                        string displayName = modFolderName; // Initialize displayName outside using block
                         
                         using (var doc = JsonDocument.Parse(json))
                         {
@@ -1097,7 +1099,7 @@ namespace FlairX_Mod_Manager.Pages
                                 : modFolderName;
                             
                             // Use clean name for display
-                            var displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
+                            displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
                                 ? displayNameProp.GetString()! 
                                 : displayFolderName;
                             
@@ -1442,6 +1444,7 @@ namespace FlairX_Mod_Manager.Pages
                         var json = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
                         string? url = null;
                         string modName = modFolderName;
+                        string displayName = modFolderName; // Initialize displayName outside using block
                         
                         using (var doc = JsonDocument.Parse(json))
                         {
@@ -1457,7 +1460,7 @@ namespace FlairX_Mod_Manager.Pages
                                 : modFolderName;
                             
                             // Use clean name for display
-                            var displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
+                            displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
                                 ? displayNameProp.GetString()! 
                                 : displayFolderName;
                             
