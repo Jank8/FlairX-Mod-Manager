@@ -429,9 +429,11 @@ FlairX automatically organizes your mods using a **two-level folder structure**:
 For developers who want to build FlairX themselves:
 
 ### Prerequisites
-- **Visual Studio 2022** or later
+- **Visual Studio 2026** (required for .NET 10 support) or **Visual Studio 2022** with preview .NET 10 SDK
 - **[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)**
 - **[Windows App SDK 1.8](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads)**
+
+⚠️ **Important**: .NET 10 is officially supported only in Visual Studio 2026. Visual Studio 2022 requires enabling preview .NET SDK support and may have compatibility issues.
 
 ### Build Steps
 ```bash
