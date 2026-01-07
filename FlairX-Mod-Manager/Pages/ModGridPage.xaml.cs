@@ -245,7 +245,10 @@ namespace FlairX_Mod_Manager.Pages
                 if (_currentCategory == "Active" && !modData.IsActive)
                     shouldInclude = false;
                 
-                if (!string.IsNullOrEmpty(_currentCategory) && _currentCategory != "Active" && 
+                if (_currentCategory == "Broken" && !modData.IsBroken)
+                    shouldInclude = false;
+                
+                if (!string.IsNullOrEmpty(_currentCategory) && _currentCategory != "Active" && _currentCategory != "Broken" && 
                     !string.Equals(modData.Category, _currentCategory, StringComparison.OrdinalIgnoreCase))
                     shouldInclude = false;
 
@@ -264,6 +267,7 @@ namespace FlairX_Mod_Manager.Pages
                         LastUpdated = modData.LastUpdated,
                         HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
+                        IsBroken = modData.IsBroken,
                         ImageSource = null // Will be loaded immediately below
                     };
                     
@@ -607,6 +611,13 @@ namespace FlairX_Mod_Manager.Pages
                 LoadActiveModsOnly();
                 CategoryBackButton.Visibility = Visibility.Visible;
             }
+            else if (string.Equals(_currentCategory, "Broken", StringComparison.OrdinalIgnoreCase))
+            {
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Broken_Mods");
+                LoadBrokenModsOnly();
+                CategoryBackButton.Visibility = Visibility.Visible;
+            }
             else
             {
                 CategoryTitle.Text = _currentCategory;
@@ -945,6 +956,7 @@ namespace FlairX_Mod_Manager.Pages
             public DateTime LastUpdated { get; set; } = DateTime.MinValue;
             public bool HasUpdate { get; set; } = false;
             public bool IsNSFW { get; set; } = false;
+            public bool IsBroken { get; set; } = false;
         }
 
         // Check for updates without cache - always reads fresh from mod.json
@@ -1279,6 +1291,7 @@ namespace FlairX_Mod_Manager.Pages
                             LastUpdated = modData.LastUpdated,
                             HasUpdate = modData.HasUpdate,
                             IsVisible = true,
+                            IsBroken = modData.IsBroken,
                             ImageSource = null
                         };
                         modsToAdd.Add(modTile);
@@ -1326,6 +1339,43 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 });
             });
+        }
+
+        // Refresh specific mod tile when modBroken status changes
+        public void RefreshModTile(string modDirectoryName, bool isBroken)
+        {
+            if (ModsGrid?.ItemsSource is not ObservableCollection<ModTile> mods) return;
+            if (string.IsNullOrEmpty(modDirectoryName)) return;
+            
+            Logger.LogGrid($"RefreshModTile called: modDirectoryName={modDirectoryName}, isBroken={isBroken}");
+            
+            // Find the mod tile in current view by directory name
+            var modTile = mods.FirstOrDefault(m => m.Directory == modDirectoryName);
+            if (modTile != null)
+            {
+                Logger.LogGrid($"Found mod tile: {modTile.Name}, current IsBroken: {modTile.IsBroken}");
+                
+                // Update the IsBroken property which will trigger UI refresh via PropertyChanged
+                modTile.IsBroken = isBroken;
+                Logger.LogGrid($"Updated mod tile IsBroken property: {modDirectoryName} -> {isBroken}");
+            }
+            else
+            {
+                Logger.LogGrid($"Mod tile not found in current view: {modDirectoryName}");
+                Logger.LogGrid($"Available tiles: {string.Join(", ", mods.Select(m => m.Directory))}");
+            }
+            
+            // Also update the mod data in cache if it exists
+            var modData = _allModData.FirstOrDefault(m => m.Directory == modDirectoryName);
+            if (modData != null)
+            {
+                modData.IsBroken = isBroken;
+                Logger.LogGrid($"Updated mod data IsBroken property: {modDirectoryName} -> {isBroken}");
+            }
+            else
+            {
+                Logger.LogGrid($"Mod data not found in cache: {modDirectoryName}");
+            }
         }
 
         // Drag & Drop Event Handlers

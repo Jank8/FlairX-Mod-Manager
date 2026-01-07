@@ -97,7 +97,8 @@ namespace FlairX_Mod_Manager.Pages
                         shouldLoadCategories = mainWindow.IsCurrentlyInCategoryMode();
                     }
                     
-                    if (shouldLoadCategories && !string.Equals(parameter, "Active", StringComparison.OrdinalIgnoreCase))
+                    if (shouldLoadCategories && !string.Equals(parameter, "Active", StringComparison.OrdinalIgnoreCase) && 
+                        !string.Equals(parameter, "Broken", StringComparison.OrdinalIgnoreCase))
                     {
                         // In category mode, ignore legacy navigation and load categories (except for Active)
                         _currentViewMode = ViewMode.Categories;
@@ -121,6 +122,12 @@ namespace FlairX_Mod_Manager.Pages
                             var langDict = SharedUtilities.LoadLanguageDictionary();
                             CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
                             LoadActiveModsOnly();
+                        }
+                        else if (string.Equals(character, "Broken", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var langDict = SharedUtilities.LoadLanguageDictionary();
+                            CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Broken_Mods");
+                            LoadBrokenModsOnly();
                         }
                         else
                         {
@@ -214,6 +221,12 @@ namespace FlairX_Mod_Manager.Pages
                         CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
                         LoadActiveModsOnly();
                     }
+                    else if (string.Equals(_previousCategory, "Broken", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var langDict = SharedUtilities.LoadLanguageDictionary();
+                        CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Broken_Mods");
+                        LoadBrokenModsOnly();
+                    }
                     else if (string.Equals(_previousCategory, "other", StringComparison.OrdinalIgnoreCase))
                     {
                         var langDict = SharedUtilities.LoadLanguageDictionary();
@@ -279,6 +292,7 @@ namespace FlairX_Mod_Manager.Pages
                         LastUpdated = modData.LastUpdated,
                         HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
+                        IsBroken = modData.IsBroken,
                         ImageSource = null // Start with no image - lazy load when visible
                     };
                     filteredMods.Add(modTile);

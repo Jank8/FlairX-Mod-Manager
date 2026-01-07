@@ -117,6 +117,13 @@ namespace FlairX_Mod_Manager.Pages
             set { if (_openDirectoryText != value) { _openDirectoryText = value; OnPropertyChanged(nameof(OpenDirectoryText)); } }
         }
         
+        private bool _isBroken = false;
+        public bool IsBroken
+        {
+            get => _isBroken;
+            set { if (_isBroken != value) { _isBroken = value; OnPropertyChanged(nameof(IsBroken)); } }
+        }
+        
         // Removed IsInViewport - using new scroll-based lazy loading instead
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

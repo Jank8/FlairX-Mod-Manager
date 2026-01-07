@@ -285,6 +285,10 @@
     "HotkeyConflict_Title": "Konflikt skrótu",
     "HotkeyConflict_Message": "Ten skrót jest już używany. Wybierz inny lub przywróć domyślny.",
     "OpenModsFolder": "Otwórz folder modów",
+    "ShowBroken": "Pokaż zepsute",
+    "Category_Broken_Mods": "Zepsute mody",
+    "ModDetail_Broken_Label": "Mod zepsuty",
+    "ModDetail_Broken_Desc": "Oznacz ten mod jako zepsuty lub niekompatybilny",
     "SettingsPage_AutoCreateModThumbnails_Label": "Automatyczne tworzenie miniatur modów",
     "SettingsPage_AutoCreateModThumbnails_Description": "Pomiń ręczny wybór i przycinanie miniatur modów, użyj pierwszego podglądu z wybranym trybem przycinania"
 }

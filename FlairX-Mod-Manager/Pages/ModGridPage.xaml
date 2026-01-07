@@ -279,6 +279,11 @@
                             <FontIcon Glyph="&#xEB52;"/>
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
+                    <MenuFlyoutItem x:Name="ShowBrokenItem" Click="ShowBroken_Click">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xEA92;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
                     <MenuFlyoutSeparator/>
                     <MenuFlyoutItem x:Name="OpenModsFolderItem" Click="OpenModsFolder_Click">
                         <MenuFlyoutItem.Icon>
@@ -358,6 +363,19 @@
                                          HorizontalAlignment="Left"
                                          Margin="8,8,0,0"
                                          Visibility="{Binding HasUpdate, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                
+                                <!-- Broken Mod Indicator -->
+                                <Border Background="{ThemeResource LauncherAcrylicBrush}"
+                                        CornerRadius="8"
+                                        Padding="6"
+                                        VerticalAlignment="Top"
+                                        HorizontalAlignment="Right"
+                                        Margin="0,8,8,0"
+                                        Visibility="{Binding IsBroken, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <FontIcon Glyph="&#xEA92;" 
+                                              FontSize="14" 
+                                              Foreground="White"/>
+                                </Border>
                                 
                                 <!-- Action Buttons Panel -->
                                 <Grid VerticalAlignment="Top" 

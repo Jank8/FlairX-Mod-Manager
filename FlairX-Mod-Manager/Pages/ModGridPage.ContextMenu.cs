@@ -37,6 +37,7 @@ namespace FlairX_Mod_Manager.Pages
             SortByLastUpdatedOldestItem.Text = SharedUtilities.GetTranslation(langDict, "SortOldest");
             ShowOutdatedItem.Text = SharedUtilities.GetTranslation(langDict, "ShowOutdated");
             ShowActiveItem.Text = SharedUtilities.GetTranslation(langDict, "ShowActive");
+            ShowBrokenItem.Text = SharedUtilities.GetTranslation(langDict, "ShowBroken");
             OpenModsFolderItem.Text = SharedUtilities.GetTranslation(langDict, "OpenModsFolder");
         }
 
@@ -45,9 +46,10 @@ namespace FlairX_Mod_Manager.Pages
             // Check if we're in category mode showing all categories
             bool isInCategoryModeShowingCategories = (CurrentViewMode == ViewMode.Categories && string.IsNullOrEmpty(_currentCategory));
             
-            // Check if we're in a specific category (not "All Mods" or "Active")
+            // Check if we're in a specific category (not "All Mods", "Active", or "Broken")
             bool isInSpecificCategory = !string.IsNullOrEmpty(_currentCategory) && 
                                        _currentCategory != "Active" && 
+                                       _currentCategory != "Broken" && 
                                        !_currentCategory.Equals("All Mods", StringComparison.OrdinalIgnoreCase);
             
             if (isInCategoryModeShowingCategories)
@@ -115,6 +117,24 @@ namespace FlairX_Mod_Manager.Pages
             LoadActiveModsOnly();
             CategoryBackButton.Visibility = Visibility.Visible;
             CategoryOpenFolderButton.Visibility = Visibility.Collapsed; // Hide folder button for Active mods
+        }
+
+        private void ShowBroken_Click(object sender, RoutedEventArgs e)
+        {
+            // Exit table view if active and clear sorting
+            if (CurrentViewMode == ViewMode.Table)
+            {
+                _currentSortMode = SortMode.None;
+                CurrentViewMode = ViewMode.Mods;
+            }
+            
+            // Show broken mods functionality
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Broken_Mods");
+            _currentCategory = "Broken"; // Set current category to Broken
+            LoadBrokenModsOnly();
+            CategoryBackButton.Visibility = Visibility.Visible;
+            CategoryOpenFolderButton.Visibility = Visibility.Collapsed; // Hide folder button for Broken mods
         }
 
         private void OpenModsFolder_Click(object sender, RoutedEventArgs e)
@@ -374,8 +394,12 @@ namespace FlairX_Mod_Manager.Pages
                 if (_currentCategory == "Active" && !modData.IsActive)
                     shouldInclude = false;
                 
+                // Check if we're in broken mods view
+                if (_currentCategory == "Broken" && !modData.IsBroken)
+                    shouldInclude = false;
+                
                 // Check if we're in specific category view
-                if (!string.IsNullOrEmpty(_currentCategory) && _currentCategory != "Active" && 
+                if (!string.IsNullOrEmpty(_currentCategory) && _currentCategory != "Active" && _currentCategory != "Broken" && 
                     !string.Equals(modData.Category, _currentCategory, StringComparison.OrdinalIgnoreCase))
                     shouldInclude = false;
 
@@ -394,6 +418,7 @@ namespace FlairX_Mod_Manager.Pages
                         LastUpdated = modData.LastUpdated,
                         HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
+                        IsBroken = modData.IsBroken,
                         ImageSource = null // Lazy load when visible
                     };
                     modTiles.Add(modTile);

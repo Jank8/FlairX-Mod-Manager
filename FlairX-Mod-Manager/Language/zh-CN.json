@@ -286,5 +286,9 @@
     "CropPanel_Status_Pending": "待处理",
     "CropPanel_Status_Edited": "已编辑",
     "CropPanel_Status_WillBeDeleted": "将被删除",
-    "CropPanel_Status_NoCrop": "不裁剪"
+    "CropPanel_Status_NoCrop": "不裁剪",
+    "ShowBroken": "显示损坏的",
+    "Category_Broken_Mods": "损坏的模组",
+    "ModDetail_Broken_Label": "模组损坏",
+    "ModDetail_Broken_Desc": "将此模组标记为损坏或不兼容"
 }

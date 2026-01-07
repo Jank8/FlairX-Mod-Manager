@@ -286,5 +286,9 @@
     "CropPanel_Status_Pending": "En attente",
     "CropPanel_Status_Edited": "Édité",
     "CropPanel_Status_WillBeDeleted": "Sera supprimé",
-    "CropPanel_Status_NoCrop": "Sans recadrage"
+    "CropPanel_Status_NoCrop": "Sans recadrage",
+    "ShowBroken": "Afficher cassés",
+    "Category_Broken_Mods": "Mods cassés",
+    "ModDetail_Broken_Label": "Mod cassé",
+    "ModDetail_Broken_Desc": "Marquer ce mod comme cassé ou incompatible"
 }

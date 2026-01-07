@@ -107,6 +107,7 @@ namespace FlairX_Mod_Manager.Pages
                             var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
                             var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
                             var isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
+                            var isBroken = root.TryGetProperty("modBroken", out var brokenProp) && brokenProp.ValueKind == JsonValueKind.True;
                             
                             // Parse dates for sorting
                             var lastChecked = DateTime.MinValue;
@@ -162,7 +163,8 @@ namespace FlairX_Mod_Manager.Pages
                                 LastChecked = lastChecked,
                                 LastUpdated = lastUpdated,
                                 HasUpdate = hasUpdate,
-                                IsNSFW = isNSFW
+                                IsNSFW = isNSFW,
+                                IsBroken = isBroken
                             };
                             
                             // Cache the data
@@ -353,6 +355,7 @@ namespace FlairX_Mod_Manager.Pages
                     LastUpdated = modData.LastUpdated,
                     HasUpdate = CheckForUpdateLive(modData.Directory),
                     IsVisible = true,
+                    IsBroken = modData.IsBroken,
                     ImageSource = null // Lazy load via LoadVisibleImages
                 };
                 _allMods.Add(modTile);

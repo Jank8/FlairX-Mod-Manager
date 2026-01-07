@@ -286,5 +286,9 @@
     "CropPanel_Status_Pending": "Pendente",
     "CropPanel_Status_Edited": "Editado",
     "CropPanel_Status_WillBeDeleted": "Será eliminado",
-    "CropPanel_Status_NoCrop": "Sem corte"
+    "CropPanel_Status_NoCrop": "Sem corte",
+    "ShowBroken": "Mostrar quebrados",
+    "Category_Broken_Mods": "Mods quebrados",
+    "ModDetail_Broken_Label": "Mod quebrado",
+    "ModDetail_Broken_Desc": "Marcar este mod como quebrado ou incompatível"
 }

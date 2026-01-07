@@ -730,6 +730,10 @@ namespace FlairX_Mod_Manager.Pages
             {
                 LoadActiveModsOnly();
             }
+            else if (string.Equals(_currentCategory, "Broken", StringComparison.OrdinalIgnoreCase))
+            {
+                LoadBrokenModsOnly();
+            }
             else
             {
                 LoadMods(_currentCategory);

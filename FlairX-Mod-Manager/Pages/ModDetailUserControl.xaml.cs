@@ -91,6 +91,8 @@ namespace FlairX_Mod_Manager.Pages
                 ModNSFWDesc.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_NSFW_Desc");
                 ModStatusKeeperSyncLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_StatusKeeperSync_Label");
                 ModStatusKeeperSyncDesc.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_StatusKeeperSync_Desc");
+                ModBrokenLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetail_Broken_Label");
+                ModBrokenDesc.Text = SharedUtilities.GetTranslation(lang, "ModDetail_Broken_Desc");
                 ModPreviewHeader.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Preview_Header");
                 ModDetailsHeader.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_Details_Header");
                 UpdateAvailableNotification.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_UpdateAvailable");
@@ -302,6 +304,10 @@ namespace FlairX_Mod_Manager.Pages
                 // Load StatusKeeper sync setting (default true if not present)
                 bool statusKeeperSync = !root.TryGetProperty("statusKeeperSync", out var syncProp) || syncProp.ValueKind != JsonValueKind.False;
                 ModStatusKeeperSyncCheckBox.IsChecked = statusKeeperSync;
+                
+                // Load modBroken setting (default false if not present)
+                bool modBroken = root.TryGetProperty("modBroken", out var brokenProp) && brokenProp.ValueKind == JsonValueKind.True;
+                ModBrokenCheckBox.IsChecked = modBroken;
                 
                 // Check for available updates
                 CheckForUpdates(root);
@@ -2069,7 +2075,7 @@ namespace FlairX_Mod_Manager.Pages
                         else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || 
                                  prop.Name == "dateChecked" || prop.Name == "dateUpdated")
                             dict[prop.Name] = prop.Value.GetString();
-                        else if (prop.Name == "isNSFW" || prop.Name == "statusKeeperSync")
+                        else if (prop.Name == "isNSFW" || prop.Name == "statusKeeperSync" || prop.Name == "modBroken")
                             dict[prop.Name] = prop.Value.GetBoolean();
                         else
                             dict[prop.Name] = prop.Value.Deserialize<object>();
@@ -2275,6 +2281,18 @@ namespace FlairX_Mod_Manager.Pages
             await UpdateModJsonFieldBool("statusKeeperSync", false);
         }
 
+        private async void ModBrokenCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            Logger.LogInfo("ModBrokenCheckBox_Checked called");
+            await UpdateModJsonFieldBool("modBroken", true);
+        }
+
+        private async void ModBrokenCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Logger.LogInfo("ModBrokenCheckBox_Unchecked called");
+            await UpdateModJsonFieldBool("modBroken", false);
+        }
+
         private void OpenUrlButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -2440,7 +2458,7 @@ namespace FlairX_Mod_Manager.Pages
                             dict[field] = value;
                         else if (prop.Name == "author" || prop.Name == "url" || prop.Name == "version" || prop.Name == "dateChecked" || prop.Name == "dateUpdated")
                             dict[prop.Name] = prop.Value.GetString();
-                        else if (prop.Name == "isNSFW" || prop.Name == "statusKeeperSync")
+                        else if (prop.Name == "isNSFW" || prop.Name == "statusKeeperSync" || prop.Name == "modBroken")
                             dict[prop.Name] = prop.Value.GetBoolean();
                         else
                             dict[prop.Name] = prop.Value.Deserialize<object>();
@@ -2458,6 +2476,25 @@ namespace FlairX_Mod_Manager.Pages
                     if (mainWindow?.CurrentModGridPage != null)
                     {
                         mainWindow.CurrentModGridPage.FilterNSFWMods(SettingsManager.Current.BlurNSFWThumbnails);
+                    }
+                }
+                
+                // Trigger tile refresh for modBroken field
+                if (field == "modBroken")
+                {
+                    Logger.LogInfo($"Triggering tile refresh for modBroken: {_currentModDirectory} -> {value}");
+                    var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                    if (mainWindow?.CurrentModGridPage != null && !string.IsNullOrEmpty(_currentModDirectory))
+                    {
+                        // Extract just the folder name from full path
+                        var modDirectoryName = Path.GetFileName(_currentModDirectory);
+                        Logger.LogInfo($"Extracted folder name: '{modDirectoryName}' from full path: '{_currentModDirectory}'");
+                        Logger.LogInfo($"Calling RefreshModTile for: {modDirectoryName} (from full path: {_currentModDirectory})");
+                        mainWindow.CurrentModGridPage.RefreshModTile(modDirectoryName, value);
+                    }
+                    else
+                    {
+                        Logger.LogWarning($"Cannot refresh tile - mainWindow: {mainWindow != null}, CurrentModGridPage: {mainWindow?.CurrentModGridPage != null}, _currentModDirectory: '{_currentModDirectory}'");
                     }
                 }
             }

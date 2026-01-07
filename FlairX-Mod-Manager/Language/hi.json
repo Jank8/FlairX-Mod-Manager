@@ -286,5 +286,9 @@
     "CropPanel_Status_Pending": "प्रतीक्षारत",
     "CropPanel_Status_Edited": "संपादित",
     "CropPanel_Status_WillBeDeleted": "हटाया जाएगा",
-    "CropPanel_Status_NoCrop": "कोई क्रॉप नहीं"
+    "CropPanel_Status_NoCrop": "कोई क्रॉप नहीं",
+    "ShowBroken": "टूटे हुए दिखाएं",
+    "Category_Broken_Mods": "टूटे हुए मॉड्स",
+    "ModDetail_Broken_Label": "मॉड टूटा हुआ",
+    "ModDetail_Broken_Desc": "इस मॉड को टूटा हुआ या असंगत के रूप में चिह्नित करें"
 }

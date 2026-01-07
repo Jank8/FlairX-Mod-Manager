@@ -186,6 +186,7 @@ namespace FlairX_Mod_Manager.Pages
                         var lastChecked = DateTime.MinValue;
                         var lastUpdated = DateTime.MinValue;
                         var isNSFW = false;
+                        var isBroken = false;
                         
                         bool hasUpdate = false;
                         
@@ -199,6 +200,13 @@ namespace FlairX_Mod_Manager.Pages
                             modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
                             modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
                             isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
+                            isBroken = root.TryGetProperty("modBroken", out var brokenProp) && brokenProp.ValueKind == JsonValueKind.True;
+                            
+                            // Debug logging for broken mods
+                            if (isBroken)
+                            {
+                                Logger.LogInfo($"LoadCategoryModData: FOUND BROKEN MOD in JSON: {name} (Directory: {dirName}) - Category: {category}");
+                            }
                             
                             if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && dateCheckedProp.ValueKind == JsonValueKind.String)
                             {
@@ -250,7 +258,8 @@ namespace FlairX_Mod_Manager.Pages
                             LastChecked = lastChecked,
                             LastUpdated = lastUpdated,
                             HasUpdate = hasUpdate,
-                            IsNSFW = isNSFW
+                            IsNSFW = isNSFW,
+                            IsBroken = isBroken
                         };
                         
                         _allModData.Add(modData);
@@ -311,6 +320,7 @@ namespace FlairX_Mod_Manager.Pages
                     LastUpdated = modData.LastUpdated,
                     HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                     IsVisible = true,
+                    IsBroken = modData.IsBroken,
                     ImageSource = null // Start with no image - lazy load when visible
                 };
                 
@@ -355,8 +365,6 @@ namespace FlairX_Mod_Manager.Pages
             if (!Directory.Exists(modsPath)) return;
             
             _allModData.Clear();
-            var cacheHits = 0;
-            var cacheMisses = 0;
             
             // Process category directories (1st level) and mod directories (2nd level)
             foreach (var categoryDir in Directory.GetDirectories(modsPath))
@@ -369,26 +377,66 @@ namespace FlairX_Mod_Manager.Pages
                     if (!File.Exists(modJsonPath)) continue;
                     
                     var dirName = Path.GetFileName(modDir);
-                    var modData = GetCachedModData(modDir, modJsonPath);
                     
-                    if (modData != null)
+                    // Read mod data directly from file (no cache)
+                    try
                     {
-                        // Update active state (this can change without file modification)
-                        modData.IsActive = IsModActive(dirName);
+                        var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
+                        using var doc = JsonDocument.Parse(json);
+                        var root = doc.RootElement;
                         
-                        // Add category information from folder structure
-                        modData.Category = Path.GetFileName(categoryDir);
+                        var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
+                        var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
+                        var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
+                        var isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
+                        var isBroken = root.TryGetProperty("modBroken", out var brokenProp) && brokenProp.ValueKind == JsonValueKind.True;
                         
-                        // Skip "Other" category mods in All Mods view - they have their own category
-                        if (!string.Equals(modData.Category, "Other", StringComparison.OrdinalIgnoreCase))
+                        // Parse dates
+                        var lastChecked = DateTime.MinValue;
+                        var lastUpdated = DateTime.MinValue;
+                        if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && dateCheckedProp.ValueKind == JsonValueKind.String)
                         {
-                            _allModData.Add(modData);
+                            DateTime.TryParse(dateCheckedProp.GetString(), out lastChecked);
                         }
-                        cacheHits++;
+                        if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && dateUpdatedProp.ValueKind == JsonValueKind.String)
+                        {
+                            DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
+                        }
+                        
+                        var cleanName = GetCleanModName(dirName);
+                        var isActive = IsModActive(dirName);
+                        var categoryName = Path.GetFileName(categoryDir);
+                        
+                        // Debug logging for broken mods
+                        if (isBroken)
+                        {
+                            Logger.LogInfo($"LoadAllModData: FOUND BROKEN MOD in JSON: {cleanName} (Directory: {dirName}) - Category: {categoryName}");
+                        }
+                        
+                        var modData = new ModData
+                        {
+                            Name = cleanName,
+                            ImagePath = GetOptimalImagePath(modDir),
+                            Directory = dirName,
+                            IsActive = isActive,
+                            Character = modCharacter,
+                            Author = modAuthor,
+                            Url = modUrl,
+                            Category = categoryName,
+                            LastChecked = lastChecked,
+                            LastUpdated = lastUpdated,
+                            IsNSFW = isNSFW,
+                            IsBroken = isBroken
+                        };
+                        
+                        Logger.LogInfo($"Loaded mod: {cleanName} - IsBroken: {isBroken}, Category: {categoryName}");
+                        
+                        // Include ALL mods including "Other" category
+                        _allModData.Add(modData);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        cacheMisses++;
+                        Logger.LogError($"Error loading mod data from {modJsonPath}: {ex.Message}");
                     }
                 }
             }
@@ -408,7 +456,7 @@ namespace FlairX_Mod_Manager.Pages
                     .ToList();
             }
                 
-            LogToGridLog($"Loaded {_allModData.Count} mod data entries (Cache hits: {cacheHits}, Cache misses: {cacheMisses})");
+            LogToGridLog($"Loaded {_allModData.Count} mod data entries");
         }
 
         private ModData? GetCachedModData(string dir, string modJsonPath)
@@ -416,100 +464,94 @@ namespace FlairX_Mod_Manager.Pages
             var dirName = Path.GetFileName(dir);
             var cleanName = GetCleanModName(dirName);
             
-            lock (_cacheLock)
+            Logger.LogInfo($"GetCachedModData called for: {cleanName} (Directory: {dirName})");
+            
+            // Always read from file - no cache for modBroken
+            try
             {
-                // Check if file has been modified since last cache
-                var lastWriteTime = File.GetLastWriteTime(modJsonPath);
+                var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
+                var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
+                var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
+                var isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
+                var isBroken = root.TryGetProperty("modBroken", out var brokenProp) && brokenProp.ValueKind == JsonValueKind.True;
                 
-                // Use actual folder name for cache lookup
-                if (_modJsonCache.TryGetValue(dirName, out var cachedData) &&
-                    _modFileTimestamps.TryGetValue(dirName, out var cachedTime) &&
-                    cachedTime >= lastWriteTime)
+                // Debug logging for broken mods
+                if (isBroken)
                 {
-                    // Cache hit - return cached data
-                    return cachedData;
+                    Logger.LogInfo($"GetCachedModData: Found BROKEN mod in JSON: {cleanName} (Directory: {dirName}) - IsBroken will be set to TRUE");
+                }
+                else
+                {
+                    Logger.LogInfo($"GetCachedModData: Mod {cleanName} (Directory: {dirName}) - IsBroken will be set to FALSE");
                 }
                 
-                // Cache miss - load and cache the data
+                // Parse dates for sorting
+                var lastChecked = DateTime.MinValue;
+                var lastUpdated = DateTime.MinValue;
+                
+                if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && dateCheckedProp.ValueKind == JsonValueKind.String)
+                {
+                    DateTime.TryParse(dateCheckedProp.GetString(), out lastChecked);
+                }
+                
+                if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && dateUpdatedProp.ValueKind == JsonValueKind.String)
+                {
+                    DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
+                }
+                
+                // Use file system dates as fallback
+                if (lastChecked == DateTime.MinValue)
+                {
+                    lastChecked = File.GetLastAccessTime(dir);
+                }
+                
+                if (lastUpdated == DateTime.MinValue)
+                {
+                    lastUpdated = File.GetLastWriteTime(dir);
+                }
+                
+                string previewPath = GetOptimalImagePath(dir);
+                var isActive = IsModActive(dirName);
+                
+                // Determine category from directory structure
+                var categoryName = "Unknown";
                 try
                 {
-                    var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
-                    using var doc = JsonDocument.Parse(json);
-                    var root = doc.RootElement;
-                    var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
-                    var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
-                    var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
-                    var isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
-                    
-                    // Parse dates for sorting
-                    var lastChecked = DateTime.MinValue;
-                    var lastUpdated = DateTime.MinValue;
-                    
-                    if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && dateCheckedProp.ValueKind == JsonValueKind.String)
+                    var parentDir = Directory.GetParent(dir);
+                    if (parentDir != null)
                     {
-                        DateTime.TryParse(dateCheckedProp.GetString(), out lastChecked);
+                        categoryName = parentDir.Name;
                     }
-                    
-                    if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && dateUpdatedProp.ValueKind == JsonValueKind.String)
-                    {
-                        DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
-                    }
-                    
-                    // Use file system dates as fallback
-                    if (lastChecked == DateTime.MinValue)
-                    {
-                        lastChecked = File.GetLastAccessTime(dir);
-                    }
-                    
-                    if (lastUpdated == DateTime.MinValue)
-                    {
-                        lastUpdated = File.GetLastWriteTime(dir);
-                    }
-                    
-                    // cleanName already declared at the beginning of the method
-                    string previewPath = GetOptimalImagePath(dir);
-                    var isActive = IsModActive(dirName);
-                    
-                    // Determine category from directory structure
-                    var categoryName = "Unknown";
-                    try
-                    {
-                        var parentDir = Directory.GetParent(dir);
-                        if (parentDir != null)
-                        {
-                            categoryName = parentDir.Name;
-                        }
-                    }
-                    catch
-                    {
-                        // Use default if unable to determine category
-                    }
-                    
-                    var modData = new ModData
-                    { 
-                        Name = cleanName,  // Display name without DISABLED_ prefix
-                        ImagePath = previewPath, 
-                        Directory = dirName,  // Use actual folder name for file operations
-                        IsActive = isActive,
-                        Character = modCharacter,
-                        Author = modAuthor,
-                        Url = modUrl,
-                        Category = categoryName,
-                        LastChecked = lastChecked,
-                        LastUpdated = lastUpdated,
-                        IsNSFW = isNSFW
-                    };
-                    
-                    // Cache the data using actual folder name as key
-                    _modJsonCache[dirName] = modData;
-                    _modFileTimestamps[dirName] = lastWriteTime;
-                    
-                    return modData;
                 }
                 catch
                 {
-                    return null;
+                    // Use default if unable to determine category
                 }
+                
+                var modData = new ModData
+                { 
+                    Name = cleanName,  // Display name without DISABLED_ prefix
+                    ImagePath = previewPath, 
+                    Directory = dirName,  // Use actual folder name for file operations
+                    IsActive = isActive,
+                    Character = modCharacter,
+                    Author = modAuthor,
+                    Url = modUrl,
+                    Category = categoryName,
+                    LastChecked = lastChecked,
+                    LastUpdated = lastUpdated,
+                    IsNSFW = isNSFW,
+                    IsBroken = isBroken
+                };
+                
+                return modData;
+            }
+            catch
+            {
+                return null;
             }
         }
 
@@ -545,8 +587,16 @@ namespace FlairX_Mod_Manager.Pages
                     LastUpdated = modData.LastUpdated,
                     HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                     IsVisible = true,
+                    IsBroken = modData.IsBroken,
                     ImageSource = null // Start with no image - lazy load when visible
                 };
+                
+                // Debug logging for broken mods
+                if (modData.IsBroken)
+                {
+                    Logger.LogInfo($"LoadVirtualizedModTiles: Creating ModTile for BROKEN mod: {modData.Name} (Directory: {modData.Directory}) - IsBroken: {modTile.IsBroken}");
+                }
+                
                 initialMods.Add(modTile);
                 loaded++;
             }
@@ -618,6 +668,7 @@ namespace FlairX_Mod_Manager.Pages
                         LastUpdated = modData.LastUpdated,
                         HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
+                        IsBroken = modData.IsBroken,
                         ImageSource = null // Start with no image - lazy load when visible
                     };
                     activeModTiles.Add(modTile);
@@ -631,6 +682,55 @@ namespace FlairX_Mod_Manager.Pages
             
             LogToGridLog($"Found {sortedActiveMods.Count} active mods");
             ModsGrid.ItemsSource = sortedActiveMods;
+            
+            // Load visible images after setting new data source
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100); // Small delay to let the grid update
+                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+            });
+        }
+
+        private void LoadBrokenModsOnly()
+        {
+            LogToGridLog("LoadBrokenModsOnly() called");
+            
+            // For broken mods, we need to load from ALL categories including "Other"
+            LoadActiveModData(); // This now loads all categories including "Other"
+            
+            // Filter to show only broken mods from _allModData
+            var brokenModTiles = new List<ModTile>();
+            foreach (var modData in _allModData)
+            {
+                if (modData.IsBroken)
+                {
+                    var modTile = new ModTile 
+                    { 
+                        Name = modData.Name, 
+                        ImagePath = modData.ImagePath, 
+                        Directory = modData.Directory, 
+                        IsActive = _activeMods.TryGetValue(modData.Directory, out var active) && active,
+                        Category = modData.Category,
+                        Author = modData.Author,
+                        Url = modData.Url,
+                        LastChecked = modData.LastChecked,
+                        LastUpdated = modData.LastUpdated,
+                        HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
+                        IsVisible = true,
+                        IsBroken = modData.IsBroken,
+                        ImageSource = null // Start with no image - lazy load when visible
+                    };
+                    brokenModTiles.Add(modTile);
+                }
+            }
+            
+            // Sort broken mods alphabetically
+            var sortedBrokenMods = brokenModTiles
+                .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            
+            LogToGridLog($"Found {sortedBrokenMods.Count} broken mods");
+            ModsGrid.ItemsSource = sortedBrokenMods;
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>
@@ -672,6 +772,7 @@ namespace FlairX_Mod_Manager.Pages
                         LastUpdated = modData.LastUpdated,
                         HasUpdate = hasUpdate,
                         IsVisible = true,
+                        IsBroken = modData.IsBroken,
                         ImageSource = null // Start with no image - lazy load when visible
                     };
                     outdatedModTiles.Add(modTile);
@@ -725,11 +826,8 @@ namespace FlairX_Mod_Manager.Pages
                         // Add category information from folder structure
                         modData.Category = Path.GetFileName(categoryDir);
                         
-                        // Skip "Other" category mods in Active Mods view - same as All Mods
-                        if (!string.Equals(modData.Category, "Other", StringComparison.OrdinalIgnoreCase))
-                        {
-                            _allModData.Add(modData);
-                        }
+                        // Include ALL mods including "Other" category
+                        _allModData.Add(modData);
                         cacheHits++;
                     }
                     else
