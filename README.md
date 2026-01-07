@@ -120,6 +120,7 @@ FlairX Mod Manager works seamlessly with all games supported by XXMI frameworks:
 - **Multiple View Modes**: Switch between Mods grid, Categories grid, and Table view
 - **Duplicate Detection**: Identify and manage duplicate mods across categories
 - **Recycle Bin Deletion**: Safe mod removal with recovery option
+- **Broken mods tagging**: Tag broken mods that will allow to filter and get visual feedback
 
 **Mod Tile Features:**
 - **Footer Activation**: Click the footer area of any mod tile to toggle activation on/off
