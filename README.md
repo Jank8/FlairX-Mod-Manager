@@ -1,196 +1,441 @@
 # FlairX Mod Manager
 
-<img align="right" width="256" height="256" alt="appicon" src="https://github.com/user-attachments/assets/f020d49b-1c4c-46a3-a97c-352e4735180f" />
+<img align="right" width="256" height="256" alt="FlairX Mod Manager Logo" src="https://github.com/user-attachments/assets/f020d49b-1c4c-46a3-a97c-352e4735180f" />
 
-Modern mod manager for miHoYo games built with **WinUI 3** and **.NET 10**. Handles **1100+ mods** using less than **600MB RAM** with smooth performance and intuitive interface.
+**The ultimate mod manager for XXMI-supported games**
 
-## Supported Games
+FlairX Mod Manager is a powerful, feature-rich application designed specifically for managing game modifications across all major games supported by XXMI frameworks. Built with .NET 10 and WinUI 3, it offers professional-grade mod management with an intuitive interface that scales from casual users to power modders.
 
-- **Zenless Zone Zero** (ZZMI)
-- **Genshin Impact** (GIMI)
-- **Honkai Impact 3rd** (HIMI)
-- **Honkai: Star Rail** (SRMI)
-- **Wuthering Waves** (WWMI)
+✨ **Key Highlights:**
+- Supports 1100+ mods with optimized performance
+- One-click GameBanana integration with Cloudflare support
+- Advanced image optimization with AI-powered cropping
+- Game overlay with full controller support
+- 16 languages with specialized font support
+- **One-click updates** for FlairX Mod Manager (popup notification when available)
+- **Automatic XXMI framework download** and installation
+- **Automatic starter pack installation** for all supported games
 
-## Features
+## 🎮 Supported Games
 
-### Mod Management
-- **One-Click Activation** - Click tile footer to toggle mods on/off
-- **Drag & Drop Images** - Drop up to 100 preview images directly on mod tiles
-- **Visual Grid & Table Views** - Multiple ways to browse your collection
-- **Category Organization** - Automatic sorting by Characters, Weapons, UI, etc.
-- **Multi-Game Support** - Separate libraries per game with automatic switching
+FlairX Mod Manager works seamlessly with all games supported by XXMI frameworks:
 
-### GameBanana Integration
-- **Browse & Search** - Find mods directly in the app
-- **One-Click Install** - Download and extract automatically
-- **Cloudflare Protection Bypass** - Automatic handling with browser verification
-- **Update Checking** - See which mods have updates available
-- **NSFW Filter** - Optional content filtering
-- **Smart Extraction** - Handles complex archive structures automatically
+| Game | Framework | Status |
+|------|-----------|--------|
+| **Zenless Zone Zero** | ZZMI | ✅ Fully Supported |
+| **Genshin Impact** | GIMI | ✅ Fully Supported |
+| **Honkai Impact 3rd** | HIMI | ✅ Fully Supported |
+| **Honkai: Star Rail** | SRMI | ✅ Fully Supported |
+| **Wuthering Waves** | WWMI | ✅ Fully Supported |
 
-### Image Management
-- **Advanced Optimization System** - Multiple modes: Full, Lite, Rename, RenameOnly
-- **Smart Reoptimization** - Preserves originals with `_original` suffix for multiple optimization passes
-- **Flexible Image Sizes** - Preview: 1000×1000, Minitile: 600×722, Category Preview: 600×600, Category Mini: 600×722
-- **100 Images Per Mod** - Support for extensive mod galleries
-- **Automatic Processing** - Optimizes on download and drag & drop
-- **Parallel Processing** - Configurable thread count for faster batch optimization
-- **Crop Inspection** - Optional manual crop adjustment before optimization
+## 💻 System Requirements
 
-### System Features
-- **No Admin Required** - Works on any Windows file system (NTFS, FAT32, exFAT)
-- **Preset System** - Save and load mod configurations
-- **StatusKeeper Integration** - Backup and restore mod states
-- **Global Hotkeys** - System-wide shortcuts (Ctrl+O, Ctrl+R, Ctrl+S, Ctrl+D, Alt+W)
-- **Xbox Controller Support** - Full gamepad navigation for overlay (XInput)
-- **Game Overlay** - Quick mod toggle window with keyboard/gamepad controls
-- **16 Languages** - Automatic detection with specialized fonts
-- **Zoom Support** - Ctrl + Mouse Wheel (100%-250%)
-- **Modern UI** - Fluent Design with Mica/Acrylic effects
+**Minimum Requirements:**
+- **Windows 11** (recommended) or Windows 10 22H2
+- 4GB RAM (8GB recommended)
+- 1280×720 display resolution
+- 500MB free disk space
 
-### Overlay & Gamepad
-- **Quick Overlay** - Alt+W or Back+Start (gamepad) to toggle overlay window
-- **Grid Navigation** - D-Pad or Left Stick for mod selection
-- **Category Switching** - LB/RB to change categories
-- **Mod Toggle** - A to activate/deactivate, B to close
-- **Active Filter** - Back+A to show only active mods
-- **Haptic Feedback** - Optional vibration on actions
-- **Always On Top** - Overlay stays visible over games
+**Automatic Setup:**
+- .NET 10 and Windows App SDK may require manual installation if Windows doesn't prompt automatically
+- XXMI Framework is installed automatically if you confirm the installation prompt
+- No administrator rights required for normal operation
 
-## System Requirements
+⚠️ **Note**: Windows 11 is recommended for the best experience and latest security updates. **Microsoft ended support for Windows 10 in October 2025** - upgrade is strongly recommended for security reasons.
 
-- **Windows 10 22H2** or **Windows 11**
-- **[.NET 10 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/10.0)**
-- **[Windows App SDK 1.8](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads)**
-- **XXMI Framework** (Portable version)
-- **2GB RAM** minimum, 4GB recommended
-- **1280×720** minimum display resolution
-- **No administrator rights required** - works on any file system
+## 📥 Installation
 
-## Installation
+1. **Download** the latest release from the releases page
+2. **Extract** the files to your desired location
+3. **Run** `FlairX Mod Manager Launcher.exe`
+4. **Select** your game and start managing mods
 
-1. Download latest release
-2. Extract to desired location
-3. Run `FlairX Mod Manager Launcher.exe`
-4. Select your game and start managing mods
+**Everything else is automatic:**
+- FlairX will prompt for required components if needed (.NET 10, Windows App SDK)
+- XXMI frameworks are installed automatically when you confirm the installation prompt
+- Essential starter packs are installed with one click
+- Updates are available with one-click installation when detected
 
-## Quick Start
+## 🚀 Quick Start Guide
 
 ### Adding Mods
 
-**Option 1: GameBanana Browser**
-1. Click "Browse GameBanana" button
-2. Search for mods
-3. Click download - mod installs automatically
-4. Click tile footer to activate
+**Option 1: GameBanana Browser (Recommended)**
+1. Click the **"Browse GameBanana"** button in the main interface
+2. Browse mod cards showing preview images, author info, and statistics
+3. Complete reCAPTCHA verification if prompted
+4. Click **"Download and Install"** or **"Download and Update"** on the mod card
+5. Configure installation options (previews, backups, etc.)
+6. Click **"Start"** to begin download and extraction
+7. **Mod library reloads automatically** after installation
+8. **Click the mod tile footer** to activate
 
 **Option 2: Manual Installation**
 1. Download mods from GameBanana or other sources
-2. Extract to: `XXMI/[GameTag]/Mods/[Category]/[ModName]/`
+2. **Create a category folder** if it doesn't exist (e.g., Characters, Weapons, UI)
+3. Extract to: `XXMI/[GameTag]/Mods/[Category]/[ModName]/`
    - Example: `XXMI/GIMI/Mods/Characters/Ayaka/`
-3. Click reload button (↻)
-4. Click tile footer to activate
+   - **Category folders are created manually or during GameBanana installation**
+4. Click the **reload button** (↻) in FlairX
+5. **Click the mod tile footer** to activate
 
-### Adding Preview Images
+### Using the Game Overlay
+
+**Access During Gameplay:**
+- Press **Alt+W** (or your custom hotkey) to open the overlay
+- Use **Xbox controller**: Back+Start buttons simultaneously
+- Navigate with **D-Pad** or **Left Stick** (if enabled)
+- **A button** to toggle mods, **B button** to close
+
+**Overlay Features:**
+- Quick mod activation/deactivation without leaving your game
+- Category browsing with **LB/RB** shoulder buttons
+- Filter active mods only with **Back+A**
+- Always stays on top of games
+- Customizable size, position, theme, and backdrop effects
+
+### Managing Preview Images
 
 **Adding Images:**
-- **GameBanana Browser:** Mods installed via internal browser have previews automatically downloaded and optimized, you can add more inside and optimize manually to combine with more images.
-- **Drag & Drop:** Select up to 100 images (JPG/PNG) and drag onto any mod tile - automatically optimized
-- **Manual:** Place `preview.jpg`, `preview001.jpg`, `preview002.jpg`, etc. in mod folder, then run "Optimize Previews" from Settings
+- **Automatic**: GameBanana mods include optimized previews automatically
+- **Drag & Drop**: Select up to 100 images and drag onto any mod tile
+- **Drag & Drop (Category)**: Drag a single image onto category tiles to set category preview
+- **Manual**: Place images in mod folder, then run "Optimize Previews" from Functions menu
 
-**Image Optimization Modes:**
-- **Full Mode:** 
-  - Resize to 1000×1000 (mods) or 600×600/600×722 (categories)
-  - Smart crop with 4 algorithms (Center, Smart, Entropy, Attention) or manual adjustment
-  - Convert to JPEG with configurable quality
-  - Generate all thumbnails (minitile, catprev, catmini)
-  - Optional backup and original preservation
-- **Lite Mode:** 
-  - Convert to JPEG with compression
-  - Preserve original dimensions (no resizing or cropping)
-  - Generate thumbnails
-  - Faster processing for large batches
-- **Rename + Thumbnails:** 
-  - Standardize filenames (preview.jpg, preview-01.jpg, etc.)
-  - Generate thumbnails from existing images
-  - No quality changes to source files
-- **Rename Only:** 
-  - Only rename files to standard naming convention
-  - No processing or thumbnail generation
-  - Fastest option for organization
+**Image Optimization Results:**
+- **Mod Images**: `preview.jpg`, `preview-01.jpg`, etc. (1000×1000px in Standard mode)
+- **Mod Thumbnail**: `minitile.jpg` (600×722px for fast grid loading)
+- **Category Preview**: `catprev.jpg` (600×600px for hover popup)
+- **Category Tile**: `catmini.jpg` (600×722px for category grid)
 
-**Optimization Results:**
-- **Mod Images:** `preview.jpg`, `preview-01.jpg`, `preview-02.jpg`, etc. (1000×1000px in Full mode)
-- **Mod Thumbnail:** `minitile.jpg` (600×722px for fast grid loading)
-- **Category Preview:** `catprev.jpg` (600×600px for hover popup and navigation icons)
-- **Category Tile:** `catmini.jpg` (600×722px for category grid tiles)
-- **Limit:** Up to 100 images per mod
+## 🚀 Core Features
 
-**Smart Cropping Algorithms:**
-- **Center Crop** - Traditional center-based cropping (fastest)
-- **Smart Crop** - Edge detection to find optimal framing
-- **Entropy Crop** - Focuses on areas with highest detail/complexity
-- **Attention Crop** - Detects faces and important visual elements
-- **Manual Crop** - Interactive adjustment with live preview and drag-resize
+### 🎯 **Mod Management**
+- **Visual Mod Tiles**: Large preview images (277×333px) with mod names displayed in footer bars
+- **One-Click Activation**: Toggle mods on/off by clicking the footer area of mod tiles
+- **Smart Activation System**: Mods are activated by removing the `DISABLED_` prefix from folder names, allowing instant on/off switching
+- **Category Navigation**: Left sidebar with expandable categories and "All Mods" button
+- **Game Selection**: Top dropdown for switching between supported games (GIMI, HIMI, SRMI, WWMI, ZZMI)
+- **Advanced Search**: Dynamic search with real-time filtering across all mods
+- **Multiple View Modes**: Switch between Mods grid, Categories grid, and Table view
+- **Duplicate Detection**: Identify and manage duplicate mods across categories
+- **Recycle Bin Deletion**: Safe mod removal with recovery option
 
-**Original File Preservation:**
-- Enable "Keep Originals" to preserve source files with `_original` suffix
-- Allows unlimited reoptimization attempts with different settings
-- Automatically uses `_original` files when reoptimizing
-- Example: `preview000_original.png` preserved while `preview.jpg` is optimized multiple times
+**Mod Tile Features:**
+- **Footer Activation**: Click the footer area of any mod tile to toggle activation on/off
+- **Hover Effects**: Activation button with "Activate"/"Deactivate" text appears on hover over the footer
+- **Visual Status**: Active mods show accent color footer, inactive mods show acrylic background
+- **Update Indicators**: Orange dot in top-left corner for mods with available updates
+- **Drag & Drop Support**: Drop images directly onto mod tiles to add preview images
+- **Context Menus**: Right-click for mod-specific actions (activate/deactivate, open folder, view details, open URL, copy name, rename, delete) and sorting options
+- **Category Context Menu**: Right-click categories for folder access, copy name, and rename options
+- **Sorting Context Menu**: Right-click empty space for sorting options (by name, category, date) and filtering (active mods, outdated mods)
 
-**Category Thumbnails:**
-- Place `preview.jpg` in category folder (e.g., `XXMI/GIMI/Mods/Category/`)
-- Run "Optimize Previews" from Settings to generate `catprev.jpg` (600×600) and `catmini.jpg` (600×722)
-- Categories use Full or RenameOnly modes only (Lite/Rename modes skipped)
+**Detailed Mod Information:**
+- **Preview Gallery**: Navigate through multiple mod images with arrow controls
+- **Verification Tracking**: View when mods were last checked and verified
+- **Update Monitoring**: Track last update dates and author changes
+- **Author Information**: Direct links to mod creators and GameBanana pages
+- **NSFW Content Control**: Per-mod adult content marking and filtering
+- **StatusKeeper Integration**: Individual mod sync control with game launcher
 
-**Example Mod Structure:**
+**Individual Mod Hotkeys:**
+- **Component-Specific Keys**: Assign unique hotkeys to different mod parts (color, hair, accessories, etc.)
+- **Flexible Assignment**: Use any key combination (Ctrl+Number, single keys, etc.)
+- **Visual Management**: Edit, reset, and toggle individual hotkey assignments
+- **Real-Time Control**: Instantly switch mod components during gameplay
+
+### 🌐 **GameBanana Integration**
+- **Built-in Browser**: Browse and search GameBanana directly within the app
+- **Advanced Cloudflare Support**: Automatic handling of Cloudflare protection with intelligent cookie management and bypass system
+- **Smart Mod Cards**: Rich mod tiles showing preview images, author, dates, and statistics
+- **Installation Status**: Clear visual indicators (green "Installed" badges) for downloaded mods
+- **NSFW Content Control**: Advanced filtering system with blur options for adult content
+- **Metadata Display**: Complete mod information including upload/update dates, views (66.9K), and download counts (672)
+
+**Advanced Download System:**
+- **Flexible Installation Options**: Choose between full install or previews-only download
+- **Preview Management**: Download, keep, or combine preview images with existing ones
+- **Clean Install Mode**: Remove existing mod files before installing updates
+- **Backup Creation**: Automatic backup of existing mods before updates
+- **Manual Category Selection**: Choose appropriate category during installation
+- **Progress Tracking**: Real-time download and extraction progress bars
+- **File Information**: Detailed file data (size: 154.88 MB, downloads: 5.5K, date added)
+- **Dual Action Buttons**: "Download and Update" for full installation, "Open in Browser" for web access
+
+**GameBanana Update System:**
+- **Author Update Checking**: Toggle to update all mod authors from GameBanana database
+- **Smart Update Mode**: Option to only update mods with unknown or missing authors
+- **Invalid URL Handling**: Skip mods that have been removed or have invalid URLs
+- **Batch Operations**: Multiple update actions available:
+  - **Fetch Authors**: Retrieve and update author information from GameBanana
+  - **Fetch Dates**: Update publication/update dates for all mods
+  - **Fetch Versions**: Get latest version information for installed mods
+  - **Fetch All Previews**: Download preview images for all mods
+  - **Fetch Missing Previews**: Download previews only for mods without preview images
+
+### 🎨 **Advanced Image System**
+- **Multiple Optimization Modes**:
+  - **Standard**: Quality optimization + thumbnail generation + auto-crop + manual crop support
+  - **CategoryFull**: Manual crop inspection for category previews
+
+- **AI-Powered Cropping**:
+  - **Center Crop**: Traditional center-based cropping
+  - **Smart Crop**: Edge detection for optimal framing
+  - **Entropy Crop**: Focus on areas with highest detail
+  - **Attention Crop**: Detect faces and important visual elements
+  - **Manual Crop**: Interactive adjustment with live preview
+
+- **Image Processing**:
+  - Support for up to 100 images per mod
+  - Automatic thumbnail generation (minitile, catprev, catmini)
+  - Configurable JPEG quality (1-100%)
+  - Multi-threaded batch processing
+  - Original file preservation option
+  - Drag & drop image addition with automatic optimization
+
+### 🖼️ **Image Optimizer Functions**
+**Advanced Cropping Options:**
+- **Image Crop Type**: Choose cropping method (Center, Smart, Entropy, Attention)
+- **Smart Crop**: AI-powered edge detection for optimal framing
+- **Entropy Crop**: Focus on areas with highest visual detail
+- **Attention Crop**: Automatically detect faces and important visual elements
+- **Inspect and Edit**: Enable manual cropping with live preview and frame editing
+- **Auto-create Mod Thumbnails**: Skip manual selection and use first preview with selected crop mode
+
+**Multi-threaded Processing:**
+- **Parallel Threads**: Configure processing threads (31 default) for faster optimization on multi-core systems
+- **Batch Processing**: Handle up to 100 images per mod simultaneously
+- **Quality Control**: Adjustable JPEG quality (1-100%) with 80% default for optimal size/quality balance
+
+**Optimization Scenarios:**
+- **Manual Optimization**: Process all mod and category images with "Start" button
+- **Drag & Drop Mod**: Automatically optimize images dropped onto mod tiles
+- **Drag & Drop Category**: Auto-enable Inspect and Edit for category tiles (722×722 square and 600×722 rectangle)
+- **GameBanana Download**: Automatic optimization for downloaded mod images
+
+**Backup & Safety:**
+- **Create Backups**: Generate ZIP archives with original files before optimization
+- **Keep Original Files**: Preserve original images alongside optimized versions
+- **Re-optimize Already Optimized**: When enabled, allows re-processing files that already have correct names (catprev, catmini, minitile, etc.)
+
+### 🎮 **Game Overlay System**
+- **Always-On-Top Window**: Quick mod toggle accessible during gameplay
+- **Category Navigation**: Browse mods by category within the overlay
+- **Active-Only Filter**: Show only active mods for quick management (Alt+A hotkey)
+- **Smart Performance**: Virtualized loading - only renders visible mods for optimal performance with large collections
+- **Customizable Appearance**: Configurable theme (Auto/Light/Dark) and backdrop effects (Mica/MicaAlt/Acrylic/Thin/None)
+- **Cache System**: Intelligent caching of mod metadata for instant loading
+
+**Overlay Configuration:**
+- **Theme Options**: Auto, Light, Dark overlay themes
+- **Backdrop Effects**: Mica, MicaAlt, Acrylic, Thin, None for window transparency
+- **Test Overlay**: "Open Overlay" button to preview overlay window
+- **Auto-reload Mods**: Automatically reload mods when activation changes (enables folder picker and drag & drop)
+
+**Controller Support (SDL3):**
+- **Universal Gamepad Support**: Compatible with Xbox, PlayStation, Nintendo Switch, Steam Controller, and generic controllers via SDL3
+- **Advanced Navigation**: 2D grid navigation with automatic scrolling to visible elements
+- **Haptic Feedback**: Configurable vibration feedback on navigation and actions (supported controllers only)
+- **Enable Gamepad**: Toggle controller support for overlay navigation
+- **Use Left Stick**: Navigate with analog stick instead of D-Pad
+- **Vibrate on Navigation**: Haptic feedback when moving through mods (supported controllers only)
+- **Controller Status**: Real-time detection with "Test" button for any connected controller
+
+**Hotkey Controls:**
+- **Toggle Hotkey**: Customizable key combination (Alt+W default) to show/hide overlay
+- **Filter Active Hotkey**: Quick toggle to show only active mods (Alt+A default)
+
+**Gamepad Button Mapping:**
+- **A Button**: Select/Toggle Mod
+- **B Button**: Back/Close Overlay  
+- **RB/LB**: Next/Previous Category
+- **Back+Start**: Toggle Overlay Combo
+- **Back+A**: Filter Active Combo
+- **D-Pad/Left Stick**: Navigation (Up/Down/Left/Right)
+
+### 🎯 **Controller Support**
+FlairX includes comprehensive gamepad support using SDL3:
+
+**Supported Controllers:**
+- Xbox (360, One, Series X/S)
+- PlayStation (3, 4, 5)
+- Nintendo Switch (Pro Controller, Joy-Cons)
+- Steam Controller & Steam Deck
+- Generic controllers
+
+**Navigation:**
+- **D-Pad or Left Stick**: Navigate through mod grid (configurable)
+- **A Button**: Select/activate mods
+- **B Button**: Go back/close overlay
+- **LB/RB**: Switch categories in overlay
+- **Back+Start**: Toggle overlay window (customizable)
+- **Back+A**: Filter active mods only (customizable)
+- **Vibration Feedback**: Optional haptic feedback on actions
+
+### ⌨️ **Keyboard Shortcuts**
+
+**Global Hotkeys (work system-wide):**
+- **Ctrl+R**: Reload mod library
+- **Ctrl+S**: Shuffle active mods (random 1 per category)
+- **Ctrl+D**: Deactivate all mods
+- **Alt+W**: Toggle game overlay
+- **Alt+A**: Filter active mods only (in overlay and main interface)
+
+**In-App Shortcuts:**
+- **Ctrl + Mouse Wheel**: Zoom in/out (100%-250%)
+- **Escape**: Close dialogs/panels
+
+*All hotkeys are fully customizable in Settings*
+
+### 🔒 **Performance & Safety Features**
+- **File Access Queue**: Advanced system preventing file conflicts during mod operations
+- **Intelligent Caching**: Smart metadata caching with timestamp validation for instant loading
+- **Memory Optimization**: Lazy loading of images and automatic cache cleanup for large mod collections
+- **Comprehensive Logging**: Detailed logging system with configurable levels (Grid, Debug, Info, Warning, Error)
+- **Safe File Operations**: Protected file handling with automatic backup creation before modifications
+
+### 💾 **Preset System**
+- **Load Preset**: Select from dropdown of saved presets and click "Load" to apply configuration
+- **Save New Preset**: Enter a custom name and click "Save" to store current mod states
+- **Delete Preset**: Remove unwanted presets from the list with "Delete" button
+- **Default Preset**: Built-in "Default Preset" available as baseline configuration
+- **Per-Game Presets**: Separate preset collections for each supported game
+- **Quick Switching**: Instantly switch between different mod configurations
+- **Persistent Storage**: Presets saved automatically and restored between sessions
+
+### 🔄 **StatusKeeper Integration**
+- **XXMI Synchronization**: Keep mod states synchronized with XXMI launcher through d3dx_user.ini file
+- **File Path Management**: Configure path to d3dx_user.ini file (e.g., `[...] > XXMI > ZZMI > d3dx_user.ini`)
+- **Backup Safety System**: Confirm backups are created before enabling synchronization
+- **Dynamic Synchronization**: Automatically sync mod status when d3dx_user.ini changes
+- **Manual Synchronization**: Trigger manual sync of mod status with "Start" button
+- **Three-Tab Interface**: 
+  - **Synchronization**: Configure sync settings and trigger manual sync
+  - **Backup**: Manage backup confirmations and safety overrides
+  - **Logs**: View detailed StatusKeeper operation logs
+- **Per-Mod Control**: Individual mods can be excluded from StatusKeeper sync via mod details
+- **Safety Confirmations**: Multiple backup confirmation toggles to prevent data loss
+
+### 💾 **ModInfo Backup System**
+- **Create Backup**: Generate backups of all mod JSON files and preview images with "Create" button
+- **Multiple Backup Slots**: Maintain up to 3 backup versions (Newest, Middle, Oldest)
+- **Backup Information**: View creation dates and file counts for each backup
+- **One-Click Restore**: Restore any backup with "Restore" button to recover mod configurations
+- **Backup Management**: Delete unwanted backups with trash icon
+- **Complete Data Protection**: Backs up both mod metadata (JSON files) and preview images
+- **Automatic Versioning**: Newest backups automatically become middle/oldest as new ones are created
+
+## 🌍 Multi-Language Support
+
+FlairX supports **16 languages** with automatic detection:
+- English, Spanish, French, German, Italian
+- Japanese, Korean, Chinese (Simplified/Traditional)
+- Russian, Polish, Portuguese (BR/PT)
+- Hindi, Thai, Filipino, Turkish, Vietnamese
+
+**Features:**
+- Automatic language detection based on system locale
+- Specialized fonts for Asian and RTL languages
+- Complete UI localization including dialogs and messages
+- Language-specific font optimization
+
+## 🛠️ Settings & Configuration
+
+### **Appearance**
+- **Theme**: Automatic, Light, Dark
+- **Backdrop Effect**: Mica, Mica Alt, Acrylic, Acrylic Thin, None
+- **Preview Effect**: None, Frame, Accent, Parallax, Glass
+- **Language**: 16 languages with automatic detection
+
+### **Display**
+- **Default Resolution on Start**: Use fixed window size instead of remembering last size
+- **Default Window Size**: Configurable startup dimensions (e.g., 3862 x 2110)
+
+### **Directories**
+- **XXMI Root Directory**: Configurable path to XXMI installation with folder browser and refresh
+
+### **Behavior**
+- **Skip XXMI Launcher Startup**: Bypass launcher (disables automatic updates)
+- **Move Active Mods to Top**: Prioritize active mods in the list
+- **Dynamic Filtering**: Enable real-time filtering as you type
+- **Animation**: Show decorative animation under the manager title
+- **Grid Zoom**: Enable zoom functionality for mod grid (100%-250%)
+- **Grid Logging**: Enable detailed logging for performance debugging
+- **Error-Only Logging**: Log only errors and warnings to reduce file size
+- **Minimize to Tray**: Minimize to system tray instead of taskbar
+- **Hide NSFW Content**: Hide mods marked as NSFW in mod grid and GameBanana browser
+
+### **Hotkeys**
+- **Hotkeys Toggle**: Enable/disable all global hotkeys
+- **Customizable Shortcuts**: All hotkeys can be remapped with edit and reset options
+  - Reload Manager (default: Ctrl+R)
+  - Shuffle Active Mods (default: Ctrl+S)
+  - Deactivate All Mods (default: Ctrl+D)
+
+### **Update System**
+- **Automatic Update Check**: Built-in update checker
+- **Version Display**: Shows current version and update status
+
+## 📁 How Mods Are Organized
+
+FlairX automatically organizes your mods using a **two-level folder structure**:
+
 ```
-📁 XXMI/GIMI/Mods/
-├── 📁 Category/
-│   ├── 📄 preview.jpg          # Source image for category
-│   ├── 📄 catprev.jpg          # Category preview 600x600 (hover/navigation, auto-generated)
-│   ├── 📄 catmini.jpg          # Category tile 600x722 (grid display, auto-generated)
-│   └── 📁 ModName/
-│       ├── 📄 mod.json
-│       ├── 📄 preview.jpg      # Optimized image 1 (1000x1000 in Full mode)
-│       ├── 📄 preview000_original.png  # Original preserved (if Keep Originals enabled)
-│       ├── 📄 minitile.jpg     # Mini thumbnail for grid (600x722, auto-generated)
-│       ├── 📄 preview-01.jpg   # Optimized image 2 (1000x1000 in Full mode)
-│       ├── 📄 preview-02.jpg   # Optimized image 3 (1000x1000 in Full mode)
-│       └── 📁 [mod files...]
+📁 Your FlairX Installation/
+├── 📁 XXMI/                    # All game frameworks
+│   ├── 📁 ZZMI/Mods/          # Zenless Zone Zero mods
+│   │   ├── 📁 Characters/     # Category folder (required)
+│   │   │   ├── 📁 Ayaka/      # Individual mod folder
+│   │   │   ├── 📁 Ganyu/      # Individual mod folder
+│   │   │   └── 📁 Zhongli/    # Individual mod folder
+│   │   ├── 📁 Weapons/        # Category folder (required)
+│   │   │   ├── 📁 Sword_Mod/  # Individual mod folder
+│   │   │   └── 📁 Bow_Mod/    # Individual mod folder
+│   │   ├── 📁 UI/             # Category folder (required)
+│   │   │   └── 📁 Menu_Mod/   # Individual mod folder
+│   │   └── 📁 Other/          # Category folder (optional)
+│   │       └── 📁 Misc_Mod/   # Individual mod folder
+│   ├── 📁 GIMI/Mods/          # Genshin Impact mods
+│   │   ├── 📁 Characters/     # Same structure for each game
+│   │   ├── 📁 Weapons/
+│   │   └── 📁 UI/
+│   └── 📁 [Other Games]/Mods/ # Other supported games
+└── 📁 Settings/               # Your presets and configuration
 ```
 
-### Directory Structure
+### 📋 **Required Structure:**
 
-```
-📁 app/
-├── 📁 XXMI/
-│   ├── 📁 ZZMI/Mods/          # Zenless Zone Zero
-│   ├── 📁 GIMI/Mods/          # Genshin Impact
-│   ├── 📁 HIMI/Mods/          # Honkai Impact 3rd
-│   ├── 📁 SRMI/Mods/          # Honkai: Star Rail
-│   └── 📁 WWMI/Mods/          # Wuthering Waves
-├── 📁 Settings/
-│   ├── 📄 Settings.json
-│   ├── 📁 Presets/
-│   │   ├── 📁 ZZ/
-│   │   ├── 📁 GI/
-│   │   ├── 📁 HI/
-│   │   ├── 📁 SR/
-│   │   └── 📁 WW/
-│   └── 📄 *.log
-└── 📁 Language/
-```
+**Two-Level Organization:**
+1. **Category Folders** (1st level): Created manually or during GameBanana installation
+2. **Mod Folders** (2nd level): Individual mods within each category
 
-## Building from Source
+**Category Management:**
+- **Manual creation**: You can create category folders yourself with any name
+- **GameBanana installation**: Categories are suggested/created automatically during mod download
+- **No predefined categories** - you can name folders however you want
+- **"Other" category** is the only special category (has its own menu item)
+- **Examples**: Characters, Weapons, UI, Outfits, Maps, etc. - any name works
+
+**Important Notes:**
+- **Category folders are required** - mods must be placed inside category folders
+- **Mod names are automatically cleaned** - `DISABLED_` prefixes are removed from display
+- **Activation works by folder renaming** - adding/removing `DISABLED_` prefix
+- **Each mod needs a `mod.json` file** to be recognized by FlairX
+- **Optional `hotkeys.json` file** for individual mod hotkey assignments
+
+## 🏗️ Building from Source
+
+For developers who want to build FlairX themselves:
 
 ### Prerequisites
-- Visual Studio 2026 with **[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)**
+- **Visual Studio 2026** (required for .NET 10 support) or **Visual Studio 2022** with preview .NET 10 SDK
+- **[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)**
 - **[Windows App SDK 1.8](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads)**
 
-### Build Main Application
+⚠️ **Important**: .NET 10 is officially supported only in Visual Studio 2026. Visual Studio 2022 requires enabling preview .NET SDK support and may have compatibility issues.
+
+### Build Steps
 ```bash
 git clone [repository-url]
 cd "FlairX Mod Manager"
@@ -203,47 +448,27 @@ dotnet build --configuration Release
 dotnet publish "FlairX-Mod-Manager Launcher/FlairX Mod Manager Launcher.csproj" -c Release -p:PublishSingleFile=true -r win-x64 --self-contained true
 ```
 
-Output: `FlairX-Mod-Manager Launcher\bin\Release\net10.0\win-x64\publish\FlairX Mod Manager Launcher.exe`
+### Key Technologies Used
+- Microsoft.WindowsAppSDK (1.8.251106002) - Modern Windows UI
+- CommunityToolkit.WinUI (7.1.2) - UI components
+- ppy.SDL3-CS (2025.1205.0) - Controller support
+- Microsoft.Web.WebView2 (1.0.3179.45) - GameBanana browser
+- SharpSevenZip (2.0.33) - Archive extraction
 
-### Key Dependencies
-- Microsoft.WindowsAppSDK (1.8.251106002)
-- CommunityToolkit.WinUI (8.2.x)
-- Microsoft.Graphics.Win2D (1.3.2)
-- SharpSevenZip (2.0.33) + 7z.dll
-- ReverseMarkdown (4.7.1)
-- NLua (1.7.5)
+## 📄 License
 
-## Troubleshooting
+GNU General Public License v3.0
 
-**Mods not activating?**
-- Verify game is selected
-- Check mod folder names are valid
-- Reload manager (Ctrl+R)
-
-**Missing thumbnails?**
-- Ensure mod folders contain preview images
-- Run image optimization from Settings
-
-**XXMI not launching?**
-- Verify XXMI portable version in XXMI/ directory
-- Check launcher path in settings
-
-**Logs:** Check `Settings/` directory for `Application.log`, `StatusKeeper.log`, `GridLog.log`
-
-## Credits
+## 🙏 Credits
 
 **Author:** [Jank8](https://github.com/Jank8)
 
 **AI Assistance:** [Kiro](https://kiro.dev/), [GitHub Copilot](https://github.com/features/copilot), [Qoder](https://qoder.org/)
 
-**Special Thanks:** [XLXZ](https://github.com/XiaoLinXiaoZhu), [Noto Fonts](https://notofonts.github.io/), Microsoft WinUI 3, XXMI Framework
-
-## License
-
-GNU General Public License v3.0
+**Special Thanks:** [XLXZ](https://github.com/XiaoLinXiaoZhu), [Noto Fonts](https://notofonts.github.io/), [Kenney Input Prompts](https://kenney.nl/assets/input-prompts), Microsoft WinUI 3, XXMI Framework
 
 ---
 
-*Not affiliated with miHoYo/HoYoverse. Community tool for managing game modifications.*
+*Not affiliated with HoYoverse. Community tool for managing game modifications.*
 
 **Built entirely through AI-assisted development! 🤖**
