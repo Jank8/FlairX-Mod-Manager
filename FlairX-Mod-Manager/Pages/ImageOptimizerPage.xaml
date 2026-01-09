@@ -211,7 +211,7 @@
                     BorderThickness="1" 
                     CornerRadius="8" 
                     Padding="16" 
-                    Margin="0,0,0,2">
+                    Margin="0,0,0,24">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -230,6 +230,40 @@
                     <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
                         <TextBlock x:Name="AutoCreateModThumbnailsToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
                         <ToggleSwitch x:Name="AutoCreateModThumbnailsToggle" Toggled="AutoCreateModThumbnailsToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Screenshot Capture Section -->
+            <TextBlock x:Name="ScreenshotCaptureHeader" Text="Screenshot Capture" FontSize="20" FontWeight="SemiBold" Margin="0,24,0,12"/>
+            
+            <!-- Screenshot Directory Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE8B9;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="ScreenshotDirectoryLabel" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="ScreenshotDirectoryDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                        <TextBox x:Name="ScreenshotDirectoryTextBox" Width="300" TextChanged="ScreenshotDirectoryTextBox_TextChanged" PlaceholderText="C:\Users\[Username]\Pictures\Screenshots"/>
+                        <Button x:Name="BrowseScreenshotDirectoryButton" Click="BrowseScreenshotDirectoryButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Browse">
+                            <FontIcon Glyph="&#xE838;" FontSize="16"/>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Border>

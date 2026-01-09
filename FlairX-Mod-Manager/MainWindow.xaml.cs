@@ -1303,6 +1303,91 @@ namespace FlairX_Mod_Manager
             Logger.LogInfo("Minitile source selection handler setup complete");
         }
 
+        /// <summary>
+        /// Open crop panel in screenshot capture mode
+        /// </summary>
+        public async Task<List<string>?> OpenScreenshotCaptureCropPanel(string modDirectory, string screenshotDirectory)
+        {
+            try
+            {
+                var captureService = new Services.ScreenshotCaptureService();
+                
+                // Start monitoring screenshot directory
+                await captureService.StartCaptureMode(modDirectory, screenshotDirectory);
+                
+                // Create crop panel in capture mode
+                var cropPanel = new Controls.ImageCropInspectionPanel();
+                
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                var title = SharedUtilities.GetTranslation(lang, "CropPanel_Title") ?? "Adjust Crop Area";
+                ShowSlidingPanel(cropPanel, $"{title} - Screenshot Capture");
+                
+                // Show panel in capture mode (this would need to be implemented in the panel)
+                // For now, we'll use a simplified approach
+                var results = await cropPanel.ShowForScreenshotCaptureAsync(captureService);
+                
+                // Stop capture service
+                captureService.StopCapture();
+                
+                // If we have captured files, run optimization
+                if (results != null && results.Count > 0)
+                {
+                    Logger.LogInfo($"Running optimization for {results.Count} captured screenshots");
+                    await OptimizeCapturedScreenshots(modDirectory, results);
+                }
+                
+                return results;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error opening screenshot capture crop panel", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Optimize captured screenshots using manual mode without crop and without minitile creation
+        /// </summary>
+        private async Task OptimizeCapturedScreenshots(string modDirectory, List<string> capturedFiles)
+        {
+            try
+            {
+                // Create optimization context for manual mode without crop and minitile
+                var context = Services.ImageOptimizationService.GetOptimizationContext(Services.OptimizationTrigger.Manual);
+                
+                // Override settings for screenshot capture
+                context.AllowUIInteraction = false; // No UI interaction needed
+                context.InspectAndEditEnabled = false; // No crop inspection
+                context.Mode = FlairX_Mod_Manager.Models.OptimizationMode.Standard; // Use Standard mode (quality conversion)
+                context.CreateMinitile = false; // Don't create minitile.jpg
+
+                Logger.LogInfo($"Starting optimization of {capturedFiles.Count} captured screenshots in mod: {modDirectory}");
+
+                // Run optimization on the mod directory
+                await Services.ImageOptimizationService.ProcessModPreviewImagesAsync(modDirectory, context);
+
+                Logger.LogInfo("Screenshot optimization completed successfully");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error optimizing captured screenshots in {modDirectory}", ex);
+                
+                // Show error to user
+                DispatcherQueue.TryEnqueue(async () =>
+                {
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "Error_Generic") ?? "Error",
+                        Content = $"Failed to optimize captured screenshots: {ex.Message}",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                });
+            }
+        }
+
     }
 
     // Helper class for system dispatcher queue

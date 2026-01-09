@@ -66,5 +66,8 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "Show crop inspection only for minitile and catmini thumbnails, process other images automatically",
     "CropPanel_Next": "Next",
     "CropPanel_FinalizeAll": "Finalize All",
-    "CropPanel_FilesToProcess": "Files to Process"
+    "CropPanel_FilesToProcess": "Files to Process",
+    "ImageOptimizer_ScreenshotCaptureHeader": "Screenshot Capture",
+    "ImageOptimizer_ScreenshotDirectory_Label": "Screenshot Directory",
+    "ImageOptimizer_ScreenshotDirectory_Description": "Directory to monitor for new screenshots during capture mode"
 }

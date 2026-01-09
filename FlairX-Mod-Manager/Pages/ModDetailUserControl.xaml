@@ -136,7 +136,7 @@
                                 Width="36" Height="36"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Bottom"
-                                Margin="0,0,0,-24"
+                                Margin="30,0,0,-24"
                                 CornerRadius="8"
                                 Background="{ThemeResource LauncherAcrylicBrush}"
                                 PointerPressed="DeletePreviewButton_Click"
@@ -145,11 +145,24 @@
                                 Visibility="Collapsed">
                             <FontIcon x:Name="DeletePreviewIcon" Glyph="&#xE74D;" FontSize="14" 
                                       Foreground="{ThemeResource ButtonForeground}" 
-                                      HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <FontIcon.RenderTransform>
-                                    <ScaleTransform x:Name="DeletePreviewIconScale" ScaleX="1" ScaleY="1"/>
-                                </FontIcon.RenderTransform>
-                            </FontIcon>
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        
+                        <!-- Add Screenshot Capture Button positioned directly below image -->
+                        <Border x:Name="CaptureScreenshotButton" 
+                                Width="36" Height="36"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Bottom"
+                                Margin="-30,0,0,-24"
+                                CornerRadius="8"
+                                Background="{ThemeResource LauncherAcrylicBrush}"
+                                PointerPressed="CaptureScreenshotButton_Click"
+                                PointerEntered="CaptureScreenshotButton_PointerEntered"
+                                PointerExited="CaptureScreenshotButton_PointerExited"
+                                Visibility="Collapsed">
+                            <FontIcon x:Name="CaptureScreenshotIcon" Glyph="&#xE710;" FontSize="14" 
+                                      Foreground="{ThemeResource ButtonForeground}" 
+                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </Grid>
                     

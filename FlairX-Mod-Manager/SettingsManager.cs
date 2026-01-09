@@ -118,6 +118,7 @@ namespace FlairX_Mod_Manager
         public bool PreviewBeforeCrop { get; set; } = false; // Show preview dialog before each crop
         public bool AutoCreateModThumbnails { get; set; } = false; // Auto-create mod thumbnails without manual selection/cropping
         public bool ImageOptimizerReoptimize { get; set; } = false; // Re-optimize already optimized files
+        public string ScreenshotCaptureDirectory { get; set; } = ""; // Directory to monitor for screenshot capture, empty = default %USERPROFILE%\Pictures\Screenshots
         
         // Starter Pack settings (per-game, stored as comma-separated game tags that dismissed the dialog)
         public string StarterPackDismissedGames { get; set; } = ""; // e.g. "ZZMI,GIMI" - games where user clicked "No thanks" or checkbox

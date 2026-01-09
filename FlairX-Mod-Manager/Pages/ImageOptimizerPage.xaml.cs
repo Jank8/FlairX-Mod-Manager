@@ -127,6 +127,18 @@ namespace FlairX_Mod_Manager.Pages
             PreviewBeforeCropToggle.IsOn = SettingsManager.Current.PreviewBeforeCrop;
             AutoCreateModThumbnailsToggle.IsOn = SettingsManager.Current.AutoCreateModThumbnails;
             ReoptimizeCheckBox.IsOn = SettingsManager.Current.ImageOptimizerReoptimize;
+            
+            // Load screenshot directory setting - expand environment variables
+            string screenshotDir = SettingsManager.Current.ScreenshotCaptureDirectory;
+            if (string.IsNullOrEmpty(screenshotDir))
+            {
+                screenshotDir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Pictures", "Screenshots");
+            }
+            else
+            {
+                screenshotDir = Environment.ExpandEnvironmentVariables(screenshotDir);
+            }
+            ScreenshotDirectoryTextBox.Text = screenshotDir;
         }
 
         private void InitializeUI()
@@ -172,6 +184,7 @@ namespace FlairX_Mod_Manager.Pages
             CroppingHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_CroppingHeader");
             PerformanceHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_PerformanceHeader");
             BackupHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_BackupHeader");
+            ScreenshotCaptureHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_ScreenshotCaptureHeader");
             OptimizationModesHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_OptimizationModesHeader");
             OptimizationModesDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_OptimizationModesDescription");
             ManualModeHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_ManualModeHeader");
@@ -192,6 +205,8 @@ namespace FlairX_Mod_Manager.Pages
             PreviewBeforeCropDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PreviewBeforeCrop_Description");
             AutoCreateModThumbnailsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoCreateModThumbnails_Label");
             AutoCreateModThumbnailsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoCreateModThumbnails_Description");
+            ScreenshotDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_ScreenshotDirectory_Label");
+            ScreenshotDirectoryDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_ScreenshotDirectory_Description");
             
             // Crop type ComboBox items
             CropTypeCenterText.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CropType_Center");
@@ -380,6 +395,42 @@ namespace FlairX_Mod_Manager.Pages
             SettingsManager.Current.AutoCreateModThumbnails = AutoCreateModThumbnailsToggle.IsOn;
             SettingsManager.Save();
             UpdateToggleLabels();
+        }
+
+        private void ScreenshotDirectoryTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (!_isInitialized) return;
+            
+            SettingsManager.Current.ScreenshotCaptureDirectory = ScreenshotDirectoryTextBox.Text;
+            SettingsManager.Save();
+        }
+
+        private async void BrowseScreenshotDirectoryButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var folderPicker = new Windows.Storage.Pickers.FolderPicker();
+                folderPicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+                folderPicker.FileTypeFilter.Add("*");
+
+                // Get the current window handle for the picker
+                var mainWindow = (App.Current as App)?.MainWindow;
+                if (mainWindow != null)
+                {
+                    var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
+                    WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+                }
+
+                var folder = await folderPicker.PickSingleFolderAsync();
+                if (folder != null)
+                {
+                    ScreenshotDirectoryTextBox.Text = folder.Path;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error browsing for screenshot directory", ex);
+            }
         }
     }
 }

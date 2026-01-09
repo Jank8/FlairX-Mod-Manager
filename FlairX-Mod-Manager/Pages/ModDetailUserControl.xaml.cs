@@ -107,6 +107,10 @@ namespace FlairX_Mod_Manager.Pages
                 // Set tooltip for Restore Default Hotkeys button
                 ToolTipService.SetToolTip(RestoreDefaultHotkeysButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_RestoreDefaultHotkeys_Tooltip"));
                 
+                // Set tooltips for image buttons
+                ToolTipService.SetToolTip(DeletePreviewButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_DeletePreview_Simple_Tooltip"));
+                ToolTipService.SetToolTip(CaptureScreenshotButton, SharedUtilities.GetTranslation(lang, "ModDetailPage_CaptureScreenshot_Simple_Tooltip"));
+                
                 // Set placeholder text for date pickers
                 ModDateCheckedPicker.PlaceholderText = SharedUtilities.GetTranslation(lang, "ModDetailPage_SelectDate_Placeholder");
                 ModDateUpdatedPicker.PlaceholderText = SharedUtilities.GetTranslation(lang, "ModDetailPage_SelectDate_Placeholder");
@@ -586,6 +590,9 @@ namespace FlairX_Mod_Manager.Pages
             
             // Show/hide delete preview button (only when there's at least one image)
             DeletePreviewButton.Visibility = hasAnyImages ? Visibility.Visible : Visibility.Collapsed;
+            
+            // Show/hide capture screenshot button (always visible when mod is loaded)
+            CaptureScreenshotButton.Visibility = !string.IsNullOrEmpty(_currentModDirectory) ? Visibility.Visible : Visibility.Collapsed;
             
             if (hasMultipleImages)
             {
@@ -2665,19 +2672,127 @@ namespace FlairX_Mod_Manager.Pages
         
         private void DeletePreviewButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (DeletePreviewIconScale != null)
-            {
-                DeletePreviewIconScale.ScaleX = 1.15;
-                DeletePreviewIconScale.ScaleY = 1.15;
-            }
+            // No animation needed
         }
         
         private void DeletePreviewButton_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (DeletePreviewIconScale != null)
+            // No animation needed
+        }
+
+        private async void CaptureScreenshotButton_Click(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            e.Handled = true;
+            
+            try
             {
-                DeletePreviewIconScale.ScaleX = 1.0;
-                DeletePreviewIconScale.ScaleY = 1.0;
+                // Get screenshot directory from settings or use default
+                string screenshotDir = SettingsManager.Current.ScreenshotCaptureDirectory;
+                if (string.IsNullOrEmpty(screenshotDir))
+                {
+                    screenshotDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Pictures", "Screenshots");
+                }
+                else
+                {
+                    // Expand environment variables like %USERPROFILE%
+                    screenshotDir = Environment.ExpandEnvironmentVariables(screenshotDir);
+                }
+                
+                // Ensure directory exists
+                if (!Directory.Exists(screenshotDir))
+                {
+                    Directory.CreateDirectory(screenshotDir);
+                }
+                
+                // Start screenshot capture mode with crop panel
+                await StartScreenshotCaptureMode(screenshotDir);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error starting screenshot capture mode", ex);
+                
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                var errorDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
+                    Content = ex.Message,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
+        }
+        
+        private void CaptureScreenshotButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            // No animation needed
+        }
+        
+        private void CaptureScreenshotButton_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            // No animation needed
+        }
+
+        private async Task StartScreenshotCaptureMode(string screenshotDirectory)
+        {
+            if (string.IsNullOrEmpty(_currentModDirectory))
+            {
+                Logger.LogWarning("Cannot start screenshot capture - no mod directory");
+                return;
+            }
+            
+            try
+            {
+                // Get MainWindow instance
+                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                if (mainWindow == null)
+                {
+                    Logger.LogError("Cannot access MainWindow for screenshot capture");
+                    return;
+                }
+                
+                // Open screenshot capture crop panel
+                var capturedFiles = await mainWindow.OpenScreenshotCaptureCropPanel(_currentModDirectory, screenshotDirectory);
+                
+                if (capturedFiles != null && capturedFiles.Count > 0)
+                {
+                    Logger.LogInfo($"Screenshot capture completed with {capturedFiles.Count} files");
+                    
+                    // Refresh the preview images to show new captures
+                    LoadPreviewImages(_currentModDirectory);
+                    
+                    // Show success message
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var successDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "Success_Title"),
+                        Content = string.Format(SharedUtilities.GetTranslation(lang, "ScreenshotCapture_Success") ?? "Captured {0} screenshot(s) successfully.", capturedFiles.Count),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await successDialog.ShowAsync();
+                }
+                else
+                {
+                    // Show cancellation message to user
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var cancelledMessage = SharedUtilities.GetTranslation(lang, "ScreenshotCapture_Cancelled") ?? "Screenshot capture was cancelled and captured files were deleted";
+                    Logger.LogInfo(cancelledMessage);
+                    
+                    var cancelledDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "Cancelled_Title") ?? "Cancelled",
+                        Content = cancelledMessage,
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await cancelledDialog.ShowAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in screenshot capture mode", ex);
+                throw;
             }
         }
 

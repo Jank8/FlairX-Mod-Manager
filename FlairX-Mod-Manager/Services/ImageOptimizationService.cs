@@ -1806,7 +1806,7 @@ namespace FlairX_Mod_Manager.Services
                 // Always show selection - user can decide to create new minitile even if one exists
                 string? selectedMinitileSource = null;
                 bool skipMinitileOnly = false;
-                if (newFilesToProcess.Count > 0)
+                if (newFilesToProcess.Count > 0 && context.CreateMinitile)
                 {
                     // Ask user to select minitile source from new files
                     selectedMinitileSource = await SelectMinitileSourceAsync(newFilesToProcess, modDir, context);
@@ -1816,6 +1816,11 @@ namespace FlairX_Mod_Manager.Services
                         Logger.LogInfo($"User skipped minitile source selection, continuing with file processing");
                         skipMinitileOnly = true;
                     }
+                }
+                else if (!context.CreateMinitile)
+                {
+                    Logger.LogInfo("Minitile creation disabled - skipping minitile source selection");
+                    skipMinitileOnly = true;
                 }
                 
                 // Determine if we should use batch mode (list of files on the right side)
@@ -1898,7 +1903,7 @@ namespace FlairX_Mod_Manager.Services
                 
                 // Generate minitile.jpg (600x722 thumbnail) from the correct source file
                 // Find the actual position of selected minitile source in the processed files
-                if (!skipMinitileOnly && !string.IsNullOrEmpty(selectedMinitileSource))
+                if (!skipMinitileOnly && !string.IsNullOrEmpty(selectedMinitileSource) && context.CreateMinitile)
                 {
                     // First try to use the original file if it still exists
                     if (File.Exists(selectedMinitileSource))
@@ -2583,6 +2588,7 @@ namespace FlairX_Mod_Manager.Services
         public OptimizationTrigger Trigger { get; set; }
         public bool AllowUIInteraction { get; set; } = true; // Can show crop inspection UI
         public bool Reoptimize { get; set; } = false; // Re-optimize already optimized files
+        public bool CreateMinitile { get; set; } = true; // Create minitile.jpg thumbnail
     }
 
     /// <summary>
