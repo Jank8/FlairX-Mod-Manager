@@ -66,5 +66,8 @@
     "ImageOptimizer_DragDropCategory_Description": "การลากและวางรูปภาพลงบนไทล์หมวดหมู่จะเปิดใช้งานโหมดตรวจสอบและแก้ไขเสมอ เนื่องจากต้องครอบตัดให้เหมาะสมสำหรับ catprev (722×722 สี่เหลี่ยมจัตุรัส) และ catmini (600×722 สี่เหลี่ยมผืนผ้า)",
     "ImageOptimizer_AutoDownload_Description": "รูปภาพที่ดาวน์โหลดจาก GameBanana จะได้รับการปรับให้เหมาะสมโดยอัตโนมัติ แปลงเป็น JPEG และสร้างภาพขนาดย่อ (minitile.jpg สำหรับมอด)",
     "SettingsPage_AutoCreateModThumbnails_Label": "สร้างภาพขนาดย่อของมอดอัตโนมัติ",
-    "SettingsPage_AutoCreateModThumbnails_Description": "ข้ามการเลือกและการครอบตัดด้วยตนเองสำหรับภาพขนาดย่อของมอด ใช้ตัวอย่างแรกกับโหมดครอบตัดที่เลือก"
+    "SettingsPage_AutoCreateModThumbnails_Description": "ข้ามการเลือกและการครอบตัดด้วยตนเองสำหรับภาพขนาดย่อของมอด ใช้ตัวอย่างแรกกับโหมดครอบตัดที่เลือก",
+    "ImageOptimizer_ScreenshotCaptureHeader": "การจับภาพหน้าจอ",
+    "ImageOptimizer_ScreenshotDirectory_Label": "โฟลเดอร์ภาพหน้าจอ",
+    "ImageOptimizer_ScreenshotDirectory_Description": "เลือกโฟลเดอร์สำหรับบันทึกภาพหน้าจอที่จับได้"
 }

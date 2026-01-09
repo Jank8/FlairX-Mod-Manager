@@ -66,5 +66,8 @@
     "ImageOptimizer_DragDropCategory_Description": "Kéo và thả hình ảnh lên ô danh mục luôn bật chế độ Kiểm tra và Chỉnh sửa vì nó phải được cắt thích hợp cho catprev (722×722 hình vuông) và catmini (600×722 hình chữ nhật).",
     "ImageOptimizer_AutoDownload_Description": "Hình ảnh được tải xuống từ GameBanana sẽ được tối ưu hóa tự động. Chuyển đổi sang JPEG và tạo hình thu nhỏ (minitile.jpg cho mod).",
     "SettingsPage_AutoCreateModThumbnails_Label": "Tự động tạo hình thu nhỏ mod",
-    "SettingsPage_AutoCreateModThumbnails_Description": "Bỏ qua việc chọn và cắt thủ công cho hình thu nhỏ mod, sử dụng bản xem trước đầu tiên với chế độ cắt đã chọn"
+    "SettingsPage_AutoCreateModThumbnails_Description": "Bỏ qua việc chọn và cắt thủ công cho hình thu nhỏ mod, sử dụng bản xem trước đầu tiên với chế độ cắt đã chọn",
+    "ImageOptimizer_ScreenshotCaptureHeader": "Chụp Ảnh Màn Hình",
+    "ImageOptimizer_ScreenshotDirectory_Label": "Thư Mục Ảnh Màn Hình",
+    "ImageOptimizer_ScreenshotDirectory_Description": "Chọn thư mục để lưu các ảnh màn hình đã chụp"
 }

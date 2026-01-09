@@ -307,7 +307,7 @@
     "ScreenshotCapture_WaitingForFiles": "等待截图中...",
     "ScreenshotCapture_TakeScreenshots": "在您的游戏/应用程序中截图",
     "ScreenshotCapture_FilesWillBeCopied": "文件将自动复制并编号（Preview001.jpg、Preview002.jpg等）",
-    "ScreenshotCapture_EditAndContinue": "编辑裁剪区域，然后继续截图或点击"完成捕获"",
+    "ScreenshotCapture_EditAndContinue": "编辑裁剪区域，然后继续截图或点击\"完成捕获\"",
     "ScreenshotCapture_FinishCapture": "完成捕获",
     "ScreenshotCapture_Success": "成功捕获了 {0} 张截图。",
     "ScreenshotCapture_Cancelled": "截图捕获已取消，捕获的文件已删除",

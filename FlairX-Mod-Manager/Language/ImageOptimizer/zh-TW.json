@@ -66,5 +66,8 @@
     "ImageOptimizer_DragDropCategory_Description": "將圖像拖放到類別磚塊上總是啟用檢查和編輯模式，因為必須為catprev（722×722正方形）和catmini（600×722矩形）適當裁剪。",
     "ImageOptimizer_AutoDownload_Description": "從GameBanana下載的圖像會自動優化。轉換為JPEG並生成縮圖（模組的minitile.jpg）。",
     "SettingsPage_AutoCreateModThumbnails_Label": "自動建立模組縮圖",
-    "SettingsPage_AutoCreateModThumbnails_Description": "跳過模組縮圖的手動選擇和裁剪，使用選定裁剪模式的第一個預覽"
+    "SettingsPage_AutoCreateModThumbnails_Description": "跳過模組縮圖的手動選擇和裁剪，使用選定裁剪模式的第一個預覽",
+    "ImageOptimizer_ScreenshotCaptureHeader": "截圖捕獲",
+    "ImageOptimizer_ScreenshotDirectory_Label": "截圖資料夾",
+    "ImageOptimizer_ScreenshotDirectory_Description": "選擇保存捕獲截圖的資料夾"
 }

@@ -66,5 +66,8 @@
     "ImageOptimizer_DragDropCategory_Description": "Ang pag-drag at pag-drop ng larawan sa category tile ay laging nagpapagana ng Inspect at Edit mode dahil dapat itong ma-crop nang tama para sa catprev (722×722 parisukat) at catmini (600×722 parihaba).",
     "ImageOptimizer_AutoDownload_Description": "Ang mga larawang na-download mula sa GameBanana ay awtomatikong na-optimize. Nagko-convert sa JPEG at gumagawa ng mga thumbnail (minitile.jpg para sa mga mod).",
     "SettingsPage_AutoCreateModThumbnails_Label": "Awtomatikong gumawa ng mga thumbnail ng mod",
-    "SettingsPage_AutoCreateModThumbnails_Description": "Laktawan ang manual na pagpili at pag-crop para sa mga thumbnail ng mod, gamitin ang unang preview na may napiling crop mode"
+    "SettingsPage_AutoCreateModThumbnails_Description": "Laktawan ang manual na pagpili at pag-crop para sa mga thumbnail ng mod, gamitin ang unang preview na may napiling crop mode",
+    "ImageOptimizer_ScreenshotCaptureHeader": "Pagkuha ng Screenshot",
+    "ImageOptimizer_ScreenshotDirectory_Label": "Folder ng Screenshot",
+    "ImageOptimizer_ScreenshotDirectory_Description": "Pumili ng folder para sa pag-save ng mga nakuhang screenshot"
 }

@@ -138,7 +138,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 screenshotDir = Environment.ExpandEnvironmentVariables(screenshotDir);
             }
-            ScreenshotDirectoryTextBox.Text = screenshotDir;
+            SharedUtilities.SetBreadcrumbBarPath(ScreenshotDirectoryBreadcrumb, screenshotDir);
         }
 
         private void InitializeUI()
@@ -397,11 +397,12 @@ namespace FlairX_Mod_Manager.Pages
             UpdateToggleLabels();
         }
 
-        private void ScreenshotDirectoryTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void ScreenshotDirectoryBreadcrumb_ItemClicked(BreadcrumbBar sender, BreadcrumbBarItemClickedEventArgs args)
         {
             if (!_isInitialized) return;
             
-            SettingsManager.Current.ScreenshotCaptureDirectory = ScreenshotDirectoryTextBox.Text;
+            var path = SharedUtilities.GetBreadcrumbBarPath(sender);
+            SettingsManager.Current.ScreenshotCaptureDirectory = path;
             SettingsManager.Save();
         }
 
@@ -424,7 +425,9 @@ namespace FlairX_Mod_Manager.Pages
                 var folder = await folderPicker.PickSingleFolderAsync();
                 if (folder != null)
                 {
-                    ScreenshotDirectoryTextBox.Text = folder.Path;
+                    SharedUtilities.SetBreadcrumbBarPath(ScreenshotDirectoryBreadcrumb, folder.Path);
+                    SettingsManager.Current.ScreenshotCaptureDirectory = folder.Path;
+                    SettingsManager.Save();
                 }
             }
             catch (Exception ex)

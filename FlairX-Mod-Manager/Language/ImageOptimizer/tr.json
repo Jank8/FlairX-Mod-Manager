@@ -66,5 +66,8 @@
     "ImageOptimizer_DragDropCategory_Description": "Bir kategori karosu üzerine görüntü sürükleyip bırakmak her zaman İnceleme ve Düzenleme modunu etkinleştirir çünkü catprev (722×722 kare) ve catmini (600×722 dikdörtgen) için uygun şekilde kırpılması gerekir.",
     "ImageOptimizer_AutoDownload_Description": "GameBanana'dan indirilen görüntüler otomatik olarak optimize edilir. JPEG'e dönüştürür ve küçük resimler oluşturur (modlar için minitile.jpg).",
     "SettingsPage_AutoCreateModThumbnails_Label": "Mod küçük resimlerini otomatik oluştur",
-    "SettingsPage_AutoCreateModThumbnails_Description": "Mod küçük resimleri için manuel seçim ve kırpmayı atla, seçilen kırpma moduyla ilk önizlemeyi kullan"
+    "SettingsPage_AutoCreateModThumbnails_Description": "Mod küçük resimleri için manuel seçim ve kırpmayı atla, seçilen kırpma moduyla ilk önizlemeyi kullan",
+    "ImageOptimizer_ScreenshotCaptureHeader": "Ekran Görüntüsü Yakalama",
+    "ImageOptimizer_ScreenshotDirectory_Label": "Ekran Görüntüsü Klasörü",
+    "ImageOptimizer_ScreenshotDirectory_Description": "Yakalanan ekran görüntülerini kaydetmek için klasör seçin"
 }

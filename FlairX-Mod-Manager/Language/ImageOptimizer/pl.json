@@ -66,5 +66,8 @@
     "SettingsPage_InspectThumbnailsOnly_Description": "Pokaż inspekcję przycinania tylko dla miniatur minitile i catmini, pozostałe obrazy przetwarzaj automatycznie",
     "CropPanel_Next": "Następny",
     "CropPanel_FinalizeAll": "Finalizuj wszystko",
-    "CropPanel_FilesToProcess": "Pliki do przetworzenia"
+    "CropPanel_FilesToProcess": "Pliki do przetworzenia",
+    "ImageOptimizer_ScreenshotCaptureHeader": "Przechwytywanie zrzutów ekranu",
+    "ImageOptimizer_ScreenshotDirectory_Label": "Katalog zrzutów ekranu",
+    "ImageOptimizer_ScreenshotDirectory_Description": "Katalog do monitorowania nowych zrzutów ekranu podczas trybu przechwytywania"
 }

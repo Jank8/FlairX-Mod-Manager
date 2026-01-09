@@ -66,5 +66,8 @@
     "ImageOptimizer_DragDropCategory_Description": "Перетаскивание изображения на плитку категории всегда включает режим Проверки и Редактирования, поскольку оно должно быть правильно обрезано для catprev (722×722 квадрат) и catmini (600×722 прямоугольник).",
     "ImageOptimizer_AutoDownload_Description": "Изображения, загруженные с GameBanana, автоматически оптимизируются. Конвертирует в JPEG и генерирует миниатюры (minitile.jpg для модов).",
     "SettingsPage_AutoCreateModThumbnails_Label": "Автоматическое создание миниатюр модов",
-    "SettingsPage_AutoCreateModThumbnails_Description": "Пропустить ручной выбор и обрезку для миниатюр модов, использовать первый предпросмотр с выбранным режимом обрезки"
+    "SettingsPage_AutoCreateModThumbnails_Description": "Пропустить ручной выбор и обрезку для миниатюр модов, использовать первый предпросмотр с выбранным режимом обрезки",
+    "ImageOptimizer_ScreenshotCaptureHeader": "Захват скриншотов",
+    "ImageOptimizer_ScreenshotDirectory_Label": "Папка скриншотов",
+    "ImageOptimizer_ScreenshotDirectory_Description": "Выберите папку для сохранения захваченных скриншотов"
 }

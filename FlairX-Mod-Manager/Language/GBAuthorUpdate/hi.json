@@ -10,6 +10,7 @@
     "SmartUpdateLabel": "केवल अज्ञात लेखक (स्मार्ट अपडेट)",
     "SkipInvalidUrlsLabel": "अमान्य URL वाले मॉड्स को छोड़ें",
     "SkipInvalidUrlsDescription": "अमान्य URL के रूप में चिह्नित मॉड्स को छोड़ें",
+    "SkipInvalidUrlsToggleLabel": "OFF/ON",
     "FetchAuthorsButton": "सर्वर से लेखक प्राप्त करें",
     "ConfirmFetchAuthors": "यह सभी मॉड्स के लिए GameBanana से लेखक जानकारी प्राप्त और अपडेट करेगा। क्या आप जारी रखना चाहते हैं?",
     "ConfirmFetchDates": "यह सभी मॉड्स के लिए GameBanana से तारीख जानकारी प्राप्त और अपडेट करेगा। क्या आप जारी रखना चाहते हैं?",

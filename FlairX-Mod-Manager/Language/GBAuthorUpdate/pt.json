@@ -10,6 +10,7 @@
     "SmartUpdateLabel": "Apenas autores desconhecidos (actualização inteligente)",
     "SkipInvalidUrlsLabel": "Ignorar mods com URLs inválidos",
     "SkipInvalidUrlsDescription": "Ignorar mods marcados com URLs inválidos",
+    "SkipInvalidUrlsToggleLabel": "OFF/ON",
     "FetchAuthorsButton": "Obter autores do servidor",
     "ConfirmFetchAuthors": "Isto irá obter e actualizar informações de autores do GameBanana para todos os mods. Deseja continuar?",
     "ConfirmFetchDates": "Isto irá obter e actualizar informações de datas do GameBanana para todos os mods. Deseja continuar?",

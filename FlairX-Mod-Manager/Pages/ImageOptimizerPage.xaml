@@ -260,7 +260,7 @@
                     </StackPanel>
                     
                     <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
-                        <TextBox x:Name="ScreenshotDirectoryTextBox" Width="300" TextChanged="ScreenshotDirectoryTextBox_TextChanged" PlaceholderText="C:\Users\[Username]\Pictures\Screenshots"/>
+                        <BreadcrumbBar x:Name="ScreenshotDirectoryBreadcrumb" Width="300" ItemClicked="ScreenshotDirectoryBreadcrumb_ItemClicked"/>
                         <Button x:Name="BrowseScreenshotDirectoryButton" Click="BrowseScreenshotDirectoryButton_Click" Width="32" Height="32" Padding="0" ToolTipService.ToolTip="Browse">
                             <FontIcon Glyph="&#xE838;" FontSize="16"/>
                         </Button>

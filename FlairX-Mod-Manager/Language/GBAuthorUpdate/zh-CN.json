@@ -10,6 +10,7 @@
     "SmartUpdateLabel": "仅未知作者（智能更新）",
     "SkipInvalidUrlsLabel": "跳过无效URL的模组",
     "SkipInvalidUrlsDescription": "跳过标记为无效URL的模组",
+    "SkipInvalidUrlsToggleLabel": "关/开",
     "FetchAuthorsButton": "从服务器获取作者",
     "ConfirmFetchAuthors": "这将从GameBanana获取并更新所有模组的作者信息。是否继续？",
     "ConfirmFetchDates": "这将从GameBanana获取并更新所有模组的日期信息。是否继续？",
