@@ -575,6 +575,7 @@ namespace FlairX_Mod_Manager.Pages
         private void UpdateImageNavigation()
         {
             bool hasMultipleImages = _availablePreviewImages.Count > 1;
+            bool hasAnyImages = _availablePreviewImages.Count > 0;
             
             // Show/hide navigation buttons
             PrevImageButton.Visibility = hasMultipleImages ? Visibility.Visible : Visibility.Collapsed;
@@ -582,6 +583,9 @@ namespace FlairX_Mod_Manager.Pages
             
             // Show/hide image counter
             ImageCounterBorder.Visibility = hasMultipleImages ? Visibility.Visible : Visibility.Collapsed;
+            
+            // Show/hide delete preview button (only when there's at least one image)
+            DeletePreviewButton.Visibility = hasAnyImages ? Visibility.Visible : Visibility.Collapsed;
             
             if (hasMultipleImages)
             {
@@ -2584,6 +2588,97 @@ namespace FlairX_Mod_Manager.Pages
                 : 0;
             LoadCurrentImage();
             UpdateImageNavigation();
+        }
+
+        private async void DeletePreviewButton_Click(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            e.Handled = true;
+            if (_availablePreviewImages.Count == 0 || _currentImageIndex < 0 || _currentImageIndex >= _availablePreviewImages.Count) return;
+            
+            var currentImagePath = _availablePreviewImages[_currentImageIndex];
+            var fileName = Path.GetFileName(currentImagePath);
+            
+            // Show confirmation dialog
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            var dialog = new ContentDialog
+            {
+                Title = SharedUtilities.GetTranslation(lang, "ModDetailPage_DeletePreview_Title"),
+                Content = string.Format(SharedUtilities.GetTranslation(lang, "ModDetailPage_DeletePreview_Content"), fileName),
+                PrimaryButtonText = SharedUtilities.GetTranslation(lang, "ModDetailPage_DeletePreview_Confirm"),
+                CloseButtonText = SharedUtilities.GetTranslation(lang, "ModDetailPage_DeletePreview_Cancel"),
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot
+            };
+            
+            var result = await dialog.ShowAsync();
+            
+            if (result == ContentDialogResult.Primary)
+            {
+                try
+                {
+                    // Clear image source before deleting
+                    ModImage.Source = null;
+                    
+                    // Small delay to ensure file handle is released
+                    await Task.Delay(50);
+                    
+                    // Delete the file
+                    if (File.Exists(currentImagePath))
+                    {
+                        File.Delete(currentImagePath);
+                        Logger.LogInfo($"Deleted preview image: {currentImagePath}");
+                    }
+                    
+                    // Remove from list
+                    _availablePreviewImages.RemoveAt(_currentImageIndex);
+                    
+                    // Adjust index if needed
+                    if (_availablePreviewImages.Count == 0)
+                    {
+                        _currentImageIndex = 0;
+                    }
+                    else if (_currentImageIndex >= _availablePreviewImages.Count)
+                    {
+                        _currentImageIndex = _availablePreviewImages.Count - 1;
+                    }
+                    
+                    // Reload current image and update navigation
+                    LoadCurrentImage();
+                    UpdateImageNavigation();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to delete preview image: {currentImagePath}", ex);
+                    
+                    // Show error dialog
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "ModDetailPage_DeletePreview_Error_Title"),
+                        Content = ex.Message,
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                }
+            }
+        }
+        
+        private void DeletePreviewButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (DeletePreviewIconScale != null)
+            {
+                DeletePreviewIconScale.ScaleX = 1.15;
+                DeletePreviewIconScale.ScaleY = 1.15;
+            }
+        }
+        
+        private void DeletePreviewButton_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (DeletePreviewIconScale != null)
+            {
+                DeletePreviewIconScale.ScaleX = 1.0;
+                DeletePreviewIconScale.ScaleY = 1.0;
+            }
         }
 
         // MAIN HOVER TILT EFFECT - 6 degrees for entire preview area

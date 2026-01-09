@@ -131,7 +131,27 @@
                                        Foreground="{ThemeResource ButtonForeground}"/>
                         </Border>
                     </Grid>
-
+                    
+                    <!-- Delete Preview Button (5px below image) -->
+                    <Border x:Name="DeletePreviewButton" 
+                            Width="36" Height="36"
+                            HorizontalAlignment="Center"
+                            Margin="0,5,0,0"
+                            CornerRadius="8"
+                            Background="{ThemeResource LauncherAcrylicBrush}"
+                            PointerPressed="DeletePreviewButton_Click"
+                            PointerEntered="DeletePreviewButton_PointerEntered"
+                            PointerExited="DeletePreviewButton_PointerExited"
+                            Visibility="Collapsed">
+                        <FontIcon x:Name="DeletePreviewIcon" Glyph="&#xE74D;" FontSize="14" 
+                                  Foreground="{ThemeResource ButtonForeground}" 
+                                  HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <FontIcon.RenderTransform>
+                                <ScaleTransform x:Name="DeletePreviewIconScale" ScaleX="1" ScaleY="1"/>
+                            </FontIcon.RenderTransform>
+                        </FontIcon>
+                    </Border>
+                    
                     <!-- Details Section -->
                     <TextBlock x:Name="ModDetailsHeader" Text="Details" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
                     

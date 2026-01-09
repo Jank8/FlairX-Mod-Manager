@@ -290,5 +290,11 @@
     "ShowBroken": "Show Broken",
     "Category_Broken_Mods": "Broken Mods",
     "ModDetail_Broken_Label": "Mod Broken",
-    "ModDetail_Broken_Desc": "Mark this mod as broken or incompatible"
+    "ModDetail_Broken_Desc": "Mark this mod as broken or incompatible",
+    "ModDetailPage_DeletePreview_Title": "Delete Preview",
+    "ModDetailPage_DeletePreview_Content": "Are you sure you want to delete '{0}'?",
+    "ModDetailPage_DeletePreview_Confirm": "Delete",
+    "ModDetailPage_DeletePreview_Cancel": "Cancel",
+    "ModDetailPage_DeletePreview_Error_Title": "Error",
+    "ModDetailPage_DeletePreview_Tooltip": "Delete this preview image"
 }

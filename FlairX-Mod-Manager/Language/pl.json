@@ -290,5 +290,11 @@
     "ModDetail_Broken_Label": "Mod zepsuty",
     "ModDetail_Broken_Desc": "Oznacz ten mod jako zepsuty lub niekompatybilny",
     "SettingsPage_AutoCreateModThumbnails_Label": "Automatyczne tworzenie miniatur modów",
-    "SettingsPage_AutoCreateModThumbnails_Description": "Pomiń ręczny wybór i przycinanie miniatur modów, użyj pierwszego podglądu z wybranym trybem przycinania"
+    "SettingsPage_AutoCreateModThumbnails_Description": "Pomiń ręczny wybór i przycinanie miniatur modów, użyj pierwszego podglądu z wybranym trybem przycinania",
+    "ModDetailPage_DeletePreview_Title": "Usuń podgląd",
+    "ModDetailPage_DeletePreview_Content": "Czy na pewno chcesz usunąć '{0}'?",
+    "ModDetailPage_DeletePreview_Confirm": "Usuń",
+    "ModDetailPage_DeletePreview_Cancel": "Anuluj",
+    "ModDetailPage_DeletePreview_Error_Title": "Błąd",
+    "ModDetailPage_DeletePreview_Tooltip": "Usuń ten obraz podglądu"
 }
