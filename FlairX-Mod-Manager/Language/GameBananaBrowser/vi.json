@@ -1,6 +1,6 @@
 {
     "BrowseTitle": "Duyệt Mod {0} - GameBanana",
-    "SearchPlaceholder": "Tìm mod hoặc nhập URL/ID...",
+    "SearchPlaceholder": "Tìm mod, nhập URL/ID, hoặc user:exampleuser",
     "NoModsFound": "Không tìm thấy mod",
     "NoModsMatchSearch": "Không có mod nào khớp với tìm kiếm của bạn",
     "FailedToLoadMods": "Không thể tải mod. Vui lòng thử lại.",

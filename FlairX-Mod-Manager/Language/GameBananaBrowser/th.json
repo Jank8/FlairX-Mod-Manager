@@ -1,6 +1,6 @@
 {
     "BrowseTitle": "เรียกดูม็อด {0} - GameBanana",
-    "SearchPlaceholder": "คนหามอดหรอใส URL/ID...",
+    "SearchPlaceholder": "คนหามอด, ใส่ URL/ID, หรือ user:exampleuser",
     "NoModsFound": "ไม่พบม็อด",
     "NoModsMatchSearch": "ไม่มีม็อดที่ตรงกับการค้นหาของคุณ",
     "FailedToLoadMods": "โหลดม็อดไม่สำเร็จ กรุณาลองอีกครั้ง",

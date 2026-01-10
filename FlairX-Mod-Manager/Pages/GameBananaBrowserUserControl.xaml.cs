@@ -51,7 +51,7 @@ namespace FlairX_Mod_Manager.Pages
         private int? _currentAuthorId = null;
         private string? _currentAuthorName = null;
         private ObservableCollection<ModViewModel> _authorMods = new();
-        private bool _isLoadingAuthorMods = false;
+        private bool _authorModsOpenedFromSearch = false; // Track if opened from search vs mod details
         
         private enum NavigationState
         {
@@ -606,7 +606,6 @@ namespace FlairX_Mod_Manager.Pages
             
             try
             {
-                _isLoadingAuthorMods = true;
                 LoadingPanel.Visibility = Visibility.Visible;
                 EmptyPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Collapsed;
@@ -757,10 +756,6 @@ namespace FlairX_Mod_Manager.Pages
                 ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
                 ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
                 ConnectionErrorBar.IsOpen = true;
-            }
-            finally
-            {
-                _isLoadingAuthorMods = false;
             }
         }
 
@@ -997,6 +992,15 @@ namespace FlairX_Mod_Manager.Pages
         {
             var queryText = args.QueryText?.Trim();
             
+            // Check if the query is for author search
+            if (!string.IsNullOrEmpty(queryText) && IsAuthorSearch(queryText))
+            {
+                // Clear the search box and search for author
+                sender.Text = "";
+                await SearchAuthorModsAsync(queryText);
+                return;
+            }
+            
             // Check if the query looks like a GameBanana URL
             if (!string.IsNullOrEmpty(queryText) && IsGameBananaUrl(queryText))
             {
@@ -1010,6 +1014,64 @@ namespace FlairX_Mod_Manager.Pages
             _currentSearch = string.IsNullOrWhiteSpace(queryText) ? null : queryText;
             _currentPage = 1;
             _ = LoadModsAsync();
+        }
+
+        private bool IsAuthorSearch(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return false;
+            
+            // Check for user: prefix only
+            return text.StartsWith("user:", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private async Task SearchAuthorModsAsync(string query)
+        {
+            try
+            {
+                // Extract username from query (remove user: prefix)
+                if (!query.StartsWith("user:", StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+                
+                string username = query.Substring(5).Trim();
+                
+                if (string.IsNullOrWhiteSpace(username))
+                {
+                    ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "Error");
+                    ConnectionErrorBar.Message = "Please provide a username after 'user:'";
+                    ConnectionErrorBar.IsOpen = true;
+                    return;
+                }
+                
+                Logger.LogInfo($"Searching for mods by user: {username}");
+                
+                // Get author ID
+                var authorId = await GameBananaService.GetAuthorIdByUsernameAsync(username);
+                
+                if (authorId == null)
+                {
+                    ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "Error");
+                    ConnectionErrorBar.Message = $"User '{username}' not found. Username must be exact (case-sensitive).";
+                    ConnectionErrorBar.IsOpen = true;
+                    return;
+                }
+                
+                // Set up author search and load mods
+                _currentAuthorId = authorId;
+                _currentAuthorName = username;
+                _authorModsOpenedFromSearch = true; // Mark as opened from search
+                
+                // Navigate to author mods view
+                await ShowAuthorModsAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to search for author mods: {query}", ex);
+                ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
+                ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
+                ConnectionErrorBar.IsOpen = true;
+            }
         }
 
         private bool IsGameBananaUrl(string text)
@@ -1124,8 +1186,17 @@ namespace FlairX_Mod_Manager.Pages
             }
             else if (_currentState == NavigationState.AuthorMods)
             {
-                // Go back to mod details
-                CloseAuthorModsPanel();
+                // Check if opened from search or mod details
+                if (_authorModsOpenedFromSearch)
+                {
+                    // Go back to main mods list
+                    CloseAuthorModsToMainPanel();
+                }
+                else
+                {
+                    // Go back to mod details
+                    CloseAuthorModsPanel();
+                }
             }
             else if (_returnToModId.HasValue)
             {
@@ -1498,6 +1569,7 @@ namespace FlairX_Mod_Manager.Pages
             _authorMods.Clear();
             _currentAuthorId = null;
             _currentAuthorName = null;
+            _authorModsOpenedFromSearch = false;
             
             // Restore title to mod details
             if (_currentModDetails != null)
@@ -1514,6 +1586,29 @@ namespace FlairX_Mod_Manager.Pages
             {
                 BackIcon.Glyph = "\uE72B"; // Left arrow
             }
+        }
+
+        private void CloseAuthorModsToMainPanel()
+        {
+            // No animation needed since we're already in ModsListGrid view, just update state
+            _currentState = NavigationState.ModsList;
+            
+            // Restore original mods collection to grid
+            ModsGridView.ItemsSource = _mods;
+            
+            // Clear author mods data
+            _authorMods.Clear();
+            _currentAuthorId = null;
+            _currentAuthorName = null;
+            _authorModsOpenedFromSearch = false;
+            
+            // Restore title to main browser
+            var gameName = GetGameName(_gameTag);
+            var titleFormat = SharedUtilities.GetTranslation(_lang, "BrowseTitle");
+            TitleText.Text = string.Format(titleFormat, gameName);
+            
+            // Change back button icon to close
+            BackIcon.Glyph = "\uE711"; // Close (X)
         }
 
         private void AnimateContentSwitch(UIElement hideElement, UIElement showElement)
@@ -1993,6 +2088,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 _currentAuthorId = _currentModDetails.Submitter.Id;
                 _currentAuthorName = _currentModDetails.Submitter.Name;
+                _authorModsOpenedFromSearch = false; // Mark as opened from mod details
                 
                 // Navigate to author mods view
                 await ShowAuthorModsAsync();

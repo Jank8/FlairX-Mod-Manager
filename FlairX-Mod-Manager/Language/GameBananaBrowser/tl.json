@@ -1,6 +1,6 @@
 {
     "BrowseTitle": "Mag-browse ng {0} Mods - GameBanana",
-    "SearchPlaceholder": "Maghanap ng mods o maglagay ng URL/ID...",
+    "SearchPlaceholder": "Maghanap ng mods, maglagay ng URL/ID, o user:exampleuser",
     "NoModsFound": "Walang nahanap na mods",
     "NoModsMatchSearch": "Walang mod na tumutugma sa iyong paghahanap",
     "FailedToLoadMods": "Nabigo ang pag-load ng mods. Pakisubukan muli.",

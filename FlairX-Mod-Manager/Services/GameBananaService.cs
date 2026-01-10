@@ -258,6 +258,18 @@ namespace FlairX_Mod_Manager.Services
             public string Abbreviation { get; set; } = "";
         }
 
+        public class AuthorMatchResponse
+        {
+            [JsonPropertyName("id")]
+            public int Id { get; set; }
+            
+            [JsonPropertyName("name")]
+            public string Name { get; set; } = "";
+            
+            [JsonPropertyName("avatar")]
+            public string? Avatar { get; set; }
+        }
+
         // Mod details response
         public class ModDetailsResponse
         {
@@ -657,6 +669,35 @@ namespace FlairX_Mod_Manager.Services
             {
                 Logger.LogError($"Failed to make API call to {url}: {ex.Message}", ex);
                 return default(T);
+            }
+        }
+
+        /// <summary>
+        /// Get author ID by username
+        /// </summary>
+        public static async Task<int?> GetAuthorIdByUsernameAsync(string username)
+        {
+            try
+            {
+                var url = $"https://api.gamebanana.com/Core/Member/Match?username={Uri.EscapeDataString(username)}";
+                Logger.LogInfo($"Looking up author ID for username: {username}");
+                
+                var response = await MakeApiCallAsync<AuthorMatchResponse[]>(url);
+                
+                if (response != null && response.Length > 0 && response[0].Id > 0)
+                {
+                    var author = response[0];
+                    Logger.LogInfo($"Found author ID {author.Id} for username {username} (display name: {author.Name})");
+                    return author.Id;
+                }
+                
+                Logger.LogInfo($"No author found for username: {username}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to get author ID for username {username}: {ex.Message}", ex);
+                return null;
             }
         }
     }

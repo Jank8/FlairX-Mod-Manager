@@ -1,6 +1,6 @@
 {
     "BrowseTitle": "瀏覽{0}模組 - GameBanana",
-    "SearchPlaceholder": "搜尋模組或輸入URL/ID...",
+    "SearchPlaceholder": "搜尋模組, 輸入URL/ID, 或user:exampleuser",
     "NoModsFound": "未找到模組",
     "NoModsMatchSearch": "沒有模組符合您的搜尋",
     "FailedToLoadMods": "載入模組失敗。請重試。",

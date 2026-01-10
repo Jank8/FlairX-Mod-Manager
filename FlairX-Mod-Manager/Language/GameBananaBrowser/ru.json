@@ -1,6 +1,6 @@
 {
     "BrowseTitle": "Обзор модов {0} - GameBanana",
-    "SearchPlaceholder": "Поиск модов или ввод URL/ID...",
+    "SearchPlaceholder": "Поиск модов, ввод URL/ID, или user:exampleuser",
     "NoModsFound": "Моды не найдены",
     "NoModsMatchSearch": "Ни один мод не соответствует вашему запросу",
     "FailedToLoadMods": "Не удалось загрузить моды. Пожалуйста, попробуйте снова.",

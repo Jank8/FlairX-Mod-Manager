@@ -1,6 +1,6 @@
 {
     "BrowseTitle": "Navegar Mods de {0} - GameBanana",
-    "SearchPlaceholder": "Buscar mods ou inserir URL/ID...",
+    "SearchPlaceholder": "Buscar mods, inserir URL/ID, ou user:exampleuser",
     "NoModsFound": "Nenhum mod encontrado",
     "NoModsMatchSearch": "Nenhum mod corresponde à sua pesquisa",
     "FailedToLoadMods": "Falha ao carregar mods. Por favor, tente novamente.",
