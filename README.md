@@ -9,6 +9,8 @@ FlairX Mod Manager is a powerful, feature-rich application designed specifically
 ✨ **Key Highlights:**
 - Supports 1100+ mods with optimized performance
 - One-click GameBanana integration with Cloudflare support
+- **Screenshot capture system** with cropping and preview management
+- **Author mod search** - find all mods by specific creators
 - Advanced image optimization with AI-powered cropping
 - Game overlay with full controller support
 - 16 languages with specialized font support
@@ -63,12 +65,14 @@ FlairX Mod Manager works seamlessly with all games supported by XXMI frameworks:
 **Option 1: GameBanana Browser (Recommended)**
 1. Click the **"Browse GameBanana"** button in the main interface
 2. Browse mod cards showing preview images, author info, and statistics
-3. Complete reCAPTCHA verification if prompted
-4. Click **"Download and Install"** or **"Download and Update"** on the mod card
-5. Configure installation options (previews, backups, etc.)
-6. Click **"Start"** to begin download and extraction
-7. **Mod library reloads automatically** after installation
-8. **Click the mod tile footer** to activate
+3. **Search by author**: Use `user:exampleuser` to find all mods by specific creators
+4. **View author collections**: Click "View All Author's Mods" on mod detail pages
+5. Complete reCAPTCHA verification if prompted
+6. Click **"Download and Install"** or **"Download and Update"** on the mod card
+7. Configure installation options (previews, backups, etc.)
+8. Click **"Start"** to begin download and extraction
+9. **Mod library reloads automatically** after installation
+10. **Click the mod tile footer** to activate
 
 **Option 2: Manual Installation**
 1. Download mods from GameBanana or other sources
@@ -97,10 +101,18 @@ FlairX Mod Manager works seamlessly with all games supported by XXMI frameworks:
 ### Managing Preview Images
 
 **Adding Images:**
+- **Screenshot Capture**: Use the plus (+) button on mod detail pages to capture screenshots with cropping
 - **Automatic**: GameBanana mods include optimized previews automatically
 - **Drag & Drop**: Select up to 100 images and drag onto any mod tile
 - **Drag & Drop (Category)**: Drag a single image onto category tiles to set category preview
 - **Manual**: Place images in mod folder, then run "Optimize Previews" from Functions menu
+
+**Screenshot Capture Workflow:**
+1. **Open mod details** and click the plus (+) icon next to the trash button
+2. **Capture screenshots** using the built-in capture interface
+3. **Crop and adjust** captured images with interactive cropping tools
+4. **Add to previews** or cancel to automatically clean up temporary files
+5. **Integration**: Captured images are automatically optimized and added to mod gallery
 
 **Image Optimization Results:**
 - **Mod Images**: `preview.jpg`, `preview-01.jpg`, etc. (1000×1000px in Standard mode)
@@ -148,6 +160,8 @@ FlairX Mod Manager works seamlessly with all games supported by XXMI frameworks:
 
 ### 🌐 **GameBanana Integration**
 - **Built-in Browser**: Browse and search GameBanana directly within the app
+- **Author Search**: Find all mods by specific creators using `user:exampleuser` syntax
+- **Author Mod Collections**: View complete mod portfolios with game filtering
 - **Advanced Cloudflare Support**: Automatic handling of Cloudflare protection with intelligent cookie management and bypass system
 - **Smart Mod Cards**: Rich mod tiles showing preview images, author, dates, and statistics
 - **Installation Status**: Clear visual indicators (green "Installed" badges) for downloaded mods
@@ -176,6 +190,7 @@ FlairX Mod Manager works seamlessly with all games supported by XXMI frameworks:
   - **Fetch Missing Previews**: Download previews only for mods without preview images
 
 ### 🎨 **Advanced Image System**
+- **Screenshot Capture**: Built-in screenshot capture with cropping and preview management
 - **Multiple Optimization Modes**:
   - **Standard**: Quality optimization + thumbnail generation + auto-crop + manual crop support
   - **CategoryFull**: Manual crop inspection for category previews
@@ -194,6 +209,13 @@ FlairX Mod Manager works seamlessly with all games supported by XXMI frameworks:
   - Multi-threaded batch processing
   - Original file preservation option
   - Drag & drop image addition with automatic optimization
+
+**Screenshot Capture System:**
+- **Capture Button**: Plus (+) icon on mod detail pages for quick screenshot capture
+- **Cropping Interface**: Interactive cropping with live preview and adjustment handles
+- **Preview Management**: Add captured screenshots to mod preview galleries
+- **Cancellation Safety**: Automatic cleanup of captured files when cancelled
+- **Integration**: Seamlessly integrates with existing image optimization pipeline
 
 ### 🖼️ **Image Optimizer Functions**
 **Advanced Cropping Options:**
