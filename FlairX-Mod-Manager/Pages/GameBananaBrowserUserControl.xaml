@@ -352,13 +352,23 @@
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                         <TextBlock x:Name="DetailAuthorLabel" Text="Author" FontWeight="SemiBold" FontSize="14"/>
                                         <TextBlock x:Name="DetailAuthor" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                                        <HyperlinkButton x:Name="DetailAuthorProfileLink" 
-                                                        FontSize="11"
-                                                        Padding="0"
-                                                        Margin="0,2,0,0"
-                                                        Click="DetailAuthorProfileLink_Click">
-                                            <TextBlock x:Name="DetailViewProfileText" Text="View Profile"/>
-                                        </HyperlinkButton>
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <HyperlinkButton x:Name="DetailAuthorProfileLink" 
+                                                            FontSize="11"
+                                                            Padding="0"
+                                                            Margin="0"
+                                                            Click="DetailAuthorProfileLink_Click">
+                                                <TextBlock x:Name="DetailViewProfileText" Text="View Profile"/>
+                                            </HyperlinkButton>
+                                            <TextBlock Text="|" FontSize="11" Opacity="0.5" VerticalAlignment="Center"/>
+                                            <HyperlinkButton x:Name="DetailAuthorModsLink" 
+                                                            FontSize="11"
+                                                            Padding="0"
+                                                            Margin="0"
+                                                            Click="DetailAuthorModsLink_Click">
+                                                <TextBlock x:Name="DetailViewAuthorModsText" Text="View All Author's Mods"/>
+                                            </HyperlinkButton>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Grid>
                             </Border>

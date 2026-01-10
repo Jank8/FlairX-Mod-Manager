@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "下载预览失败：{0}",
     "StarterPack_Button": "新手包",
     "StarterPack_Button_Tooltip": "下载此游戏的新手包",
-    "StarterPack_NotAvailable": "此游戏的新手包尚未可用。"
+    "StarterPack_NotAvailable": "此游戏的新手包尚未可用。",
+    "ViewAllAuthorMods": "查看作者的所有模组",
+    "AuthorModsTitle": "所有模组"
 }

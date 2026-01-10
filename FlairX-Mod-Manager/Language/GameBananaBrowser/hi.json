@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "पूर्वावलोकन डाउनलोड विफल: {0}",
     "StarterPack_Button": "स्टार्टर पैक",
     "StarterPack_Button_Tooltip": "इस गेम के लिए स्टार्टर पैक डाउनलोड करें",
-    "StarterPack_NotAvailable": "इस गेम के लिए स्टार्टर पैक अभी तक उपलब्ध नहीं है।"
+    "StarterPack_NotAvailable": "इस गेम के लिए स्टार्टर पैक अभी तक उपलब्ध नहीं है।",
+    "ViewAllAuthorMods": "लेखक के सभी मॉड्स देखें",
+    "AuthorModsTitle": "सभी मॉड्स"
 }

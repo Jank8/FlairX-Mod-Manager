@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "Tải xuống xem trước thất bại: {0}",
     "StarterPack_Button": "Gói khởi đầu",
     "StarterPack_Button_Tooltip": "Tải xuống gói khởi đầu cho trò chơi này",
-    "StarterPack_NotAvailable": "Gói khởi đầu cho trò chơi này chưa có sẵn."
+    "StarterPack_NotAvailable": "Gói khởi đầu cho trò chơi này chưa có sẵn.",
+    "ViewAllAuthorMods": "Xem tất cả mod của tác giả",
+    "AuthorModsTitle": "Tất cả mod"
 }

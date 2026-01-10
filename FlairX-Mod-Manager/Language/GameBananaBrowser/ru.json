@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "Не удалось загрузить превью: {0}",
     "StarterPack_Button": "Стартовый пакет",
     "StarterPack_Button_Tooltip": "Скачать стартовый пакет для этой игры",
-    "StarterPack_NotAvailable": "Стартовый пакет для этой игры пока недоступен."
+    "StarterPack_NotAvailable": "Стартовый пакет для этой игры пока недоступен.",
+    "ViewAllAuthorMods": "Посмотреть все моды автора",
+    "AuthorModsTitle": "Все моды"
 }

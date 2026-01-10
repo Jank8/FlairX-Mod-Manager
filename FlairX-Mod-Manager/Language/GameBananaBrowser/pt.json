@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "Falha ao descarregar pré-visualizações: {0}",
     "StarterPack_Button": "Pacote inicial",
     "StarterPack_Button_Tooltip": "Descarregar pacote inicial para este jogo",
-    "StarterPack_NotAvailable": "O pacote inicial ainda não está disponível para este jogo."
+    "StarterPack_NotAvailable": "O pacote inicial ainda não está disponível para este jogo.",
+    "ViewAllAuthorMods": "Ver todos os mods do autor",
+    "AuthorModsTitle": "Todos os mods"
 }

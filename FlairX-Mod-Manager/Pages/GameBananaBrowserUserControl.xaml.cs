@@ -47,10 +47,17 @@ namespace FlairX_Mod_Manager.Pages
         // Track if any mod was installed during this session (internal for MainWindow access)
         internal bool _modWasInstalled = false;
         
+        // Author mods functionality
+        private int? _currentAuthorId = null;
+        private string? _currentAuthorName = null;
+        private ObservableCollection<ModViewModel> _authorMods = new();
+        private bool _isLoadingAuthorMods = false;
+        
         private enum NavigationState
         {
             ModsList,
-            ModDetails
+            ModDetails,
+            AuthorMods
         }
         
         private NavigationState _currentState = NavigationState.ModsList;
@@ -76,6 +83,7 @@ namespace FlairX_Mod_Manager.Pages
             public long DateModified { get; set; }
             public long DateUpdated { get; set; }
             public bool IsRated { get; set; } = false;
+            public bool IsNSFW { get; set; } = false;
             
             private bool _isInstalled = false;
             public bool IsInstalled 
@@ -185,6 +193,7 @@ namespace FlairX_Mod_Manager.Pages
             DetailInstalledBadgeText.Text = SharedUtilities.GetTranslation(_lang, "Installed");
             DetailAuthorLabel.Text = SharedUtilities.GetTranslation(_lang, "Author");
             DetailViewProfileText.Text = SharedUtilities.GetTranslation(_lang, "ViewProfile");
+            DetailViewAuthorModsText.Text = SharedUtilities.GetTranslation(_lang, "ViewAllAuthorMods");
             DetailCategoryLabel.Text = SharedUtilities.GetTranslation(_lang, "Category");
             DetailCategoryViewText.Text = SharedUtilities.GetTranslation(_lang, "ViewCategory");
             DetailPreviewHeader.Text = SharedUtilities.GetTranslation(_lang, "Preview");
@@ -591,6 +600,170 @@ namespace FlairX_Mod_Manager.Pages
             _ = LoadModsAsync();
         }
 
+        private async Task LoadAuthorModsAsync()
+        {
+            if (_currentAuthorId == null) return;
+            
+            try
+            {
+                _isLoadingAuthorMods = true;
+                LoadingPanel.Visibility = Visibility.Visible;
+                EmptyPanel.Visibility = Visibility.Collapsed;
+                ModsGridView.Visibility = Visibility.Collapsed;
+                ConnectionErrorBar.IsOpen = false;
+
+                _authorMods.Clear();
+                
+                // Get all pages of author's mods
+                int page = 1;
+                var allModIds = new List<int>();
+                
+                while (true)
+                {
+                    try
+                    {
+                        var url = $"https://api.gamebanana.com/Core/List/New?page={page}&userid={_currentAuthorId}&itemtype=Mod";
+                        Logger.LogInfo($"Fetching author mods page {page}: {url}");
+                        
+                        var response = await GameBananaService.MakeApiCallAsync<List<List<object>>>(url);
+                        
+                        if (response == null || response.Count == 0)
+                        {
+                            Logger.LogInfo($"No more mods found on page {page}, stopping pagination");
+                            break;
+                        }
+                        
+                        // Extract mod IDs from response
+                        foreach (var item in response)
+                        {
+                            if (item.Count >= 2 && item[0].ToString() == "Mod" && int.TryParse(item[1].ToString(), out int modId))
+                            {
+                                allModIds.Add(modId);
+                            }
+                        }
+                        
+                        Logger.LogInfo($"Found {response.Count} mods on page {page}");
+                        page++;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Error fetching author mods page {page}", ex);
+                        break;
+                    }
+                }
+                
+                Logger.LogInfo($"Total mod IDs found for author {_currentAuthorName}: {allModIds.Count}");
+                
+                if (allModIds.Count == 0)
+                {
+                    LoadingPanel.Visibility = Visibility.Collapsed;
+                    EmptyPanel.Visibility = Visibility.Visible;
+                    EmptyText.Text = SharedUtilities.GetTranslation(_lang, "NoModsFound");
+                    return;
+                }
+                
+                // Fetch details for each mod in parallel batches
+                const int batchSize = 10; // Process 10 mods at once
+                var modViewModels = new List<ModViewModel>();
+                var currentGameId = GameBananaService.GetGameId(_gameTag);
+                
+                Logger.LogInfo($"Filtering mods for game ID {currentGameId} ({_gameTag})");
+                
+                for (int i = 0; i < allModIds.Count; i += batchSize)
+                {
+                    var batch = allModIds.Skip(i).Take(batchSize);
+                    var batchTasks = batch.Select(async modId =>
+                    {
+                        try
+                        {
+                            var modDetails = await GameBananaService.GetModDetailsAsync(modId);
+                            if (modDetails != null)
+                            {
+                                // Filter by game ID - only show mods for current game
+                                if (modDetails.Game?.Id != currentGameId)
+                                {
+                                    Logger.LogDebug($"Skipping mod {modId} - belongs to game {modDetails.Game?.Id} ({modDetails.Game?.Name}), not {currentGameId} ({_gameTag})");
+                                    return null;
+                                }
+                                
+                                var viewModel = new ModViewModel
+                                {
+                                    Id = modDetails.Id,
+                                    Name = modDetails.Name,
+                                    AuthorName = modDetails.Submitter?.Name ?? "Unknown",
+                                    AuthorProfileUrl = modDetails.Submitter?.ProfileUrl ?? "",
+                                    AuthorAvatarUrl = modDetails.Submitter?.AvatarUrl,
+                                    ProfileUrl = modDetails.ProfileUrl,
+                                    CategoryName = modDetails.Category?.Name ?? "",
+                                    CategoryUrl = modDetails.Category?.ProfileUrl ?? "",
+                                    LikeCount = modDetails.GetLikeCount(),
+                                    ViewCount = modDetails.GetViewCount(),
+                                    DownloadCount = modDetails.GetDownloadCount(),
+                                    DateAdded = modDetails.DateAdded ?? 0,
+                                    DateUpdated = modDetails.DateUpdated ?? 0,
+                                    IsNSFW = modDetails.IsNSFW()
+                                };
+                                
+                                // Set preview image
+                                if (modDetails.PreviewMedia?.Images?.Any() == true)
+                                {
+                                    var image = modDetails.PreviewMedia.Images.First();
+                                    viewModel.ImageUrl = $"{image.BaseUrl}/{image.File220 ?? image.File100 ?? image.File}";
+                                }
+                                
+                                return viewModel;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Error fetching details for mod {modId}", ex);
+                        }
+                        return null;
+                    });
+                    
+                    var batchResults = await Task.WhenAll(batchTasks);
+                    var validResults = batchResults.Where(vm => vm != null).Cast<ModViewModel>();
+                    modViewModels.AddRange(validResults);
+                    
+                    // Add results to UI as we get them for better UX
+                    foreach (var viewModel in validResults)
+                    {
+                        _authorMods.Add(viewModel);
+                    }
+                    
+                    Logger.LogInfo($"Processed batch {i / batchSize + 1}/{(allModIds.Count + batchSize - 1) / batchSize}, loaded {validResults.Count()} mods for {_gameTag}");
+                }
+                
+                Logger.LogInfo($"Successfully loaded {_authorMods.Count} {_gameTag} mods for author {_currentAuthorName} (from {allModIds.Count} total mods across all games)");
+                
+                if (_authorMods.Count == 0)
+                {
+                    LoadingPanel.Visibility = Visibility.Collapsed;
+                    EmptyPanel.Visibility = Visibility.Visible;
+                    EmptyText.Text = SharedUtilities.GetTranslation(_lang, "NoModsFound");
+                    return;
+                }
+
+                // Load images asynchronously
+                _ = LoadAuthorModImagesAsync();
+
+                LoadingPanel.Visibility = Visibility.Collapsed;
+                ModsGridView.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to load mods for author {_currentAuthorName}", ex);
+                LoadingPanel.Visibility = Visibility.Collapsed;
+                ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
+                ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
+                ConnectionErrorBar.IsOpen = true;
+            }
+            finally
+            {
+                _isLoadingAuthorMods = false;
+            }
+        }
+
         private async void StarterPackButton_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -780,6 +953,35 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        private async Task LoadAuthorModImagesAsync()
+        {
+            foreach (var mod in _authorMods.Where(m => !string.IsNullOrEmpty(m.ImageUrl)))
+            {
+                try
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.ImageOpened += async (s, e) =>
+                    {
+                        // Fade in animation
+                        for (double opacity = 0; opacity <= 1; opacity += 0.1)
+                        {
+                            mod.ImageOpacity = opacity;
+                            await Task.Delay(20);
+                        }
+                        mod.ImageOpacity = 1;
+                    };
+                    bitmap.UriSource = new Uri(mod.ImageUrl!);
+                    mod.ImageSource = bitmap;
+                }
+                catch
+                {
+                    // Image loading failed, skip
+                }
+                
+                await Task.Delay(10);
+            }
+        }
+
         private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
             // If search box is cleared, reset to main page
@@ -919,6 +1121,11 @@ namespace FlairX_Mod_Manager.Pages
                     // Go back to mods list
                     CloseDetailsPanel();
                 }
+            }
+            else if (_currentState == NavigationState.AuthorMods)
+            {
+                // Go back to mod details
+                CloseAuthorModsPanel();
             }
             else if (_returnToModId.HasValue)
             {
@@ -1209,6 +1416,35 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
         
+        private async Task ShowAuthorModsAsync()
+        {
+            try
+            {
+                // Update title to show author name
+                TitleText.Text = $"{_currentAuthorName} - {SharedUtilities.GetTranslation(_lang, "AuthorModsTitle")}";
+                
+                // Change back button to left arrow
+                BackIcon.Glyph = "\uE72B"; // Left arrow
+                
+                // Switch to author mods view
+                AnimateContentSwitch(DetailsPanel, ModsListGrid);
+                _currentState = NavigationState.AuthorMods;
+                
+                // Bind author mods to the grid
+                ModsGridView.ItemsSource = _authorMods;
+                
+                // Load author mods
+                await LoadAuthorModsAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to show author mods for {_currentAuthorName}", ex);
+                ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
+                ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
+                ConnectionErrorBar.IsOpen = true;
+            }
+        }
+        
         private void DetailDescriptionMarkdown_LayoutUpdated(object? sender, object e)
         {
             // Update images when the markdown layout is updated
@@ -1247,6 +1483,37 @@ namespace FlairX_Mod_Manager.Pages
             
             // Clean up markdown layout updated event handler
             DetailDescriptionMarkdown.LayoutUpdated -= DetailDescriptionMarkdown_LayoutUpdated;
+        }
+
+        private void CloseAuthorModsPanel()
+        {
+            // Animate transition back to details
+            AnimateContentSwitch(ModsListGrid, DetailsPanel);
+            _currentState = NavigationState.ModDetails;
+            
+            // Restore original mods collection to grid
+            ModsGridView.ItemsSource = _mods;
+            
+            // Clear author mods data
+            _authorMods.Clear();
+            _currentAuthorId = null;
+            _currentAuthorName = null;
+            
+            // Restore title to mod details
+            if (_currentModDetails != null)
+            {
+                TitleText.Text = _currentModDetails.Name;
+            }
+            
+            // Change back button icon based on how we got to details
+            if (_openedDirectlyToModDetails)
+            {
+                BackIcon.Glyph = "\uE711"; // Close (X)
+            }
+            else
+            {
+                BackIcon.Glyph = "\uE72B"; // Left arrow
+            }
         }
 
         private void AnimateContentSwitch(UIElement hideElement, UIElement showElement)
@@ -1717,6 +1984,18 @@ namespace FlairX_Mod_Manager.Pages
             if (sender is HyperlinkButton button && button.Tag is string profileUrl && !string.IsNullOrEmpty(profileUrl))
             {
                 await Windows.System.Launcher.LaunchUriAsync(new Uri(profileUrl));
+            }
+        }
+
+        private async void DetailAuthorModsLink_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentModDetails?.Submitter != null)
+            {
+                _currentAuthorId = _currentModDetails.Submitter.Id;
+                _currentAuthorName = _currentModDetails.Submitter.Name;
+                
+                // Navigate to author mods view
+                await ShowAuthorModsAsync();
             }
         }
 

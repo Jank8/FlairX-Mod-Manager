@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "Önizleme indirme başarısız: {0}",
     "StarterPack_Button": "Başlangıç paketi",
     "StarterPack_Button_Tooltip": "Bu oyun için başlangıç paketini indir",
-    "StarterPack_NotAvailable": "Bu oyun için başlangıç paketi henüz mevcut değil."
+    "StarterPack_NotAvailable": "Bu oyun için başlangıç paketi henüz mevcut değil.",
+    "ViewAllAuthorMods": "Yazarın tüm modlarını görüntüle",
+    "AuthorModsTitle": "Tüm modlar"
 }

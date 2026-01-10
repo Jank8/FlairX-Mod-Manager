@@ -246,6 +246,18 @@ namespace FlairX_Mod_Manager.Services
             public string? IconUrl { get; set; }
         }
 
+        public class Game
+        {
+            [JsonPropertyName("_idRow")]
+            public int Id { get; set; }
+            
+            [JsonPropertyName("_sName")]
+            public string Name { get; set; } = "";
+            
+            [JsonPropertyName("_sAbbreviation")]
+            public string Abbreviation { get; set; } = "";
+        }
+
         // Mod details response
         public class ModDetailsResponse
         {
@@ -295,7 +307,7 @@ namespace FlairX_Mod_Manager.Services
             public ModCategory? Category { get; set; }
             
             [JsonPropertyName("_aGame")]
-            public object? Game { get; set; }
+            public Game? Game { get; set; }
             
             [JsonPropertyName("_sVersion")]
             public string? Version { get; set; }
@@ -310,6 +322,26 @@ namespace FlairX_Mod_Manager.Services
             /// Check if mod data is valid (not private/removed)
             /// </summary>
             public bool IsAvailable => Submitter != null && Files != null;
+            
+            /// <summary>
+            /// Get download count with fallback to 0
+            /// </summary>
+            public int GetDownloadCount() => DownloadCount ?? 0;
+            
+            /// <summary>
+            /// Get view count with fallback to 0
+            /// </summary>
+            public int GetViewCount() => ViewCount ?? 0;
+            
+            /// <summary>
+            /// Get like count with fallback to 0
+            /// </summary>
+            public int GetLikeCount() => LikeCount ?? 0;
+            
+            /// <summary>
+            /// Check if mod has NSFW content (using RootCategory)
+            /// </summary>
+            public bool IsNSFW() => RootCategory?.Name?.Contains("NSFW", StringComparison.OrdinalIgnoreCase) == true;
         }
 
         public class ModFile
@@ -571,6 +603,60 @@ namespace FlairX_Mod_Manager.Services
             catch
             {
                 return null;
+            }
+        }
+
+        /// <summary>
+        /// Generic method for making API calls to GameBanana
+        /// </summary>
+        public static async Task<T?> MakeApiCallAsync<T>(string url, string? cookies = null)
+        {
+            try
+            {
+                Logger.LogInfo($"Making API call to: {url}");
+                
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                
+                if (!string.IsNullOrEmpty(cookies))
+                {
+                    request.Headers.Add("Cookie", cookies);
+                }
+
+                var response = await _httpClient.SendAsync(request);
+                
+                // If we get 403/503, return default to trigger dialog in UI layer
+                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden || 
+                    response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+                {
+                    Logger.LogInfo("Got blocked by Cloudflare, need user verification");
+                    return default(T);
+                }
+                
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<T>(content);
+                return result;
+            }
+            catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+            {
+                Logger.LogError($"Timeout while making API call to {url}", ex);
+                return default(T);
+            }
+            catch (TaskCanceledException ex)
+            {
+                Logger.LogError($"Request cancelled while making API call to {url}", ex);
+                return default(T);
+            }
+            catch (HttpRequestException ex)
+            {
+                Logger.LogError($"Network error while making API call to {url}: {ex.Message}", ex);
+                return default(T);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to make API call to {url}: {ex.Message}", ex);
+                return default(T);
             }
         }
     }

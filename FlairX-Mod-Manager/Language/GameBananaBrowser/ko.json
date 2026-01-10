@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "미리보기 다운로드 실패: {0}",
     "StarterPack_Button": "스타터 팩",
     "StarterPack_Button_Tooltip": "이 게임용 스타터 팩 다운로드",
-    "StarterPack_NotAvailable": "이 게임용 스타터 팩은 아직 사용할 수 없습니다."
+    "StarterPack_NotAvailable": "이 게임용 스타터 팩은 아직 사용할 수 없습니다.",
+    "ViewAllAuthorMods": "작성자의 모든 모드 보기",
+    "AuthorModsTitle": "모든 모드"
 }

@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "ดาวน์โหลดตัวอย่างล้มเหลว: {0}",
     "StarterPack_Button": "แพ็คเริ่มต้น",
     "StarterPack_Button_Tooltip": "ดาวน์โหลดแพ็คเริ่มต้นสำหรับเกมนี้",
-    "StarterPack_NotAvailable": "แพ็คเริ่มต้นสำหรับเกมนี้ยังไม่พร้อมใช้งาน"
+    "StarterPack_NotAvailable": "แพ็คเริ่มต้นสำหรับเกมนี้ยังไม่พร้อมใช้งาน",
+    "ViewAllAuthorMods": "ดูมอดทั้งหมดของผู้เขียน",
+    "AuthorModsTitle": "มอดทั้งหมด"
 }

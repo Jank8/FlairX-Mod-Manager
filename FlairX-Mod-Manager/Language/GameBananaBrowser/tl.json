@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "Nabigo ang pag-download ng mga preview: {0}",
     "StarterPack_Button": "Starter Pack",
     "StarterPack_Button_Tooltip": "I-download ang Starter Pack para sa larong ito",
-    "StarterPack_NotAvailable": "Ang Starter Pack ay hindi pa available para sa larong ito."
+    "StarterPack_NotAvailable": "Ang Starter Pack ay hindi pa available para sa larong ito.",
+    "ViewAllAuthorMods": "Tingnan ang lahat ng mod ng may-akda",
+    "AuthorModsTitle": "Lahat ng mod"
 }

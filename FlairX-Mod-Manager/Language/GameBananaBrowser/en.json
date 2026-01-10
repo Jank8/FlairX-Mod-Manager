@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "Failed to download previews: {0}",
     "StarterPack_Button": "Starter Pack",
     "StarterPack_Button_Tooltip": "Download Starter Pack for this game",
-    "StarterPack_NotAvailable": "Starter Pack is not available for this game yet."
+    "StarterPack_NotAvailable": "Starter Pack is not available for this game yet.",
+    "ViewAllAuthorMods": "View All Author's Mods",
+    "AuthorModsTitle": "All Mods"
 }

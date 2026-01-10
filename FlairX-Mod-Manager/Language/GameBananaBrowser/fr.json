@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "Échec du téléchargement des aperçus : {0}",
     "StarterPack_Button": "Pack de démarrage",
     "StarterPack_Button_Tooltip": "Télécharger le pack de démarrage pour ce jeu",
-    "StarterPack_NotAvailable": "Le pack de démarrage n'est pas encore disponible pour ce jeu."
+    "StarterPack_NotAvailable": "Le pack de démarrage n'est pas encore disponible pour ce jeu.",
+    "ViewAllAuthorMods": "Voir tous les mods de l'auteur",
+    "AuthorModsTitle": "Tous les mods"
 }

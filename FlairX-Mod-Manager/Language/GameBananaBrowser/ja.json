@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "プレビューのダウンロードに失敗しました: {0}",
     "StarterPack_Button": "スターターパック",
     "StarterPack_Button_Tooltip": "このゲーム用のスターターパックをダウンロード",
-    "StarterPack_NotAvailable": "このゲーム用のスターターパックはまだ利用できません。"
+    "StarterPack_NotAvailable": "このゲーム用のスターターパックはまだ利用できません。",
+    "ViewAllAuthorMods": "作者のすべてのModを表示",
+    "AuthorModsTitle": "すべてのMod"
 }

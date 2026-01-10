@@ -76,5 +76,7 @@
     "DownloadPreviewsFailed": "Nie udało się pobrać podglądów: {0}",
     "StarterPack_Button": "Pakiet startowy",
     "StarterPack_Button_Tooltip": "Pobierz pakiet startowy dla tej gry",
-    "StarterPack_NotAvailable": "Pakiet startowy nie jest jeszcze dostępny dla tej gry."
+    "StarterPack_NotAvailable": "Pakiet startowy nie jest jeszcze dostępny dla tej gry.",
+    "ViewAllAuthorMods": "Wyświetl wszystkie mody autora",
+    "AuthorModsTitle": "Wszystkie mody"
 }
