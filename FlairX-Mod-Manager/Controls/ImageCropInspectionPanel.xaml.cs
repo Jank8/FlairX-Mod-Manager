@@ -153,9 +153,24 @@ namespace FlairX_Mod_Manager.Controls
             
             // Update title based on image type
             TitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_Title") ?? "Adjust Crop Area"} - {imageType}";
-            SubtitleText.Text = maintainAspectRatio 
-                ? $"{SharedUtilities.GetTranslation(lang, "CropPanel_AspectLocked") ?? "Aspect ratio locked to"} {targetAspectRatio:F2}:1" 
-                : SharedUtilities.GetTranslation(lang, "CropPanel_FreeAspect") ?? "Free aspect ratio - drag handles to resize";
+            
+            // Show aspect ratio info only for specific image types (minitile, catprev, catmini)
+            bool showAspectRatio = imageType.StartsWith("minitile", StringComparison.OrdinalIgnoreCase) ||
+                                   imageType.StartsWith("catprev", StringComparison.OrdinalIgnoreCase) ||
+                                   imageType.StartsWith("catmini", StringComparison.OrdinalIgnoreCase);
+            
+            if (showAspectRatio && maintainAspectRatio)
+            {
+                SubtitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_AspectLocked") ?? "Aspect ratio locked to"} {targetAspectRatio:F2}:1";
+            }
+            else if (maintainAspectRatio)
+            {
+                SubtitleText.Text = "Drag to reposition, use handles to resize";
+            }
+            else
+            {
+                SubtitleText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_FreeAspect") ?? "Free aspect ratio - drag handles to resize";
+            }
             
             // Update button texts
             StopButtonText.Text = SharedUtilities.GetTranslation(lang, "Stop") ?? "Stop";
@@ -244,7 +259,21 @@ namespace FlairX_Mod_Manager.Controls
                 
                 // Update UI
                 TitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_Title") ?? "Adjust Crop Area"} - {item.ImageType}";
-                SubtitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_AspectLocked") ?? "Aspect ratio locked to"} {_aspectRatio:F2}:1";
+                
+                // Show aspect ratio info only for specific image types
+                bool showAspectRatio = item.ImageType.StartsWith("minitile", StringComparison.OrdinalIgnoreCase) ||
+                                       item.ImageType.StartsWith("catprev", StringComparison.OrdinalIgnoreCase) ||
+                                       item.ImageType.StartsWith("catmini", StringComparison.OrdinalIgnoreCase);
+                
+                if (showAspectRatio)
+                {
+                    SubtitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_AspectLocked") ?? "Aspect ratio locked to"} {_aspectRatio:F2}:1";
+                }
+                else
+                {
+                    SubtitleText.Text = "Drag to reposition, use handles to resize";
+                }
+                
                 BatchCounterText.Text = $"(1/{_batchItems.Count})";
                 
                 DeleteButton.IsEnabled = !item.IsProtected;
@@ -286,7 +315,21 @@ namespace FlairX_Mod_Manager.Controls
             // Update UI
             var lang = SharedUtilities.LoadLanguageDictionary();
             TitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_Title") ?? "Adjust Crop Area"} - {item.ImageType}";
-            SubtitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_AspectLocked") ?? "Aspect ratio locked to"} {_aspectRatio:F2}:1";
+            
+            // Show aspect ratio info only for specific image types
+            bool showAspectRatio = item.ImageType.StartsWith("minitile", StringComparison.OrdinalIgnoreCase) ||
+                                   item.ImageType.StartsWith("catprev", StringComparison.OrdinalIgnoreCase) ||
+                                   item.ImageType.StartsWith("catmini", StringComparison.OrdinalIgnoreCase);
+            
+            if (showAspectRatio)
+            {
+                SubtitleText.Text = $"{SharedUtilities.GetTranslation(lang, "CropPanel_AspectLocked") ?? "Aspect ratio locked to"} {_aspectRatio:F2}:1";
+            }
+            else
+            {
+                SubtitleText.Text = "Drag to reposition, use handles to resize";
+            }
+            
             BatchCounterText.Text = $"({index + 1}/{_batchItems.Count})";
             
             // Update delete button state
@@ -877,7 +920,7 @@ namespace FlairX_Mod_Manager.Controls
                 
                 // Update UI for capture mode
                 TitleText.Text = SharedUtilities.GetTranslation(lang, "ScreenshotCapture_Title") ?? "Screenshot Capture";
-                SubtitleText.Text = SharedUtilities.GetTranslation(lang, "ScreenshotCapture_Instructions") ?? "Take screenshots in your game/application. They will appear here for editing.";
+                SubtitleText.Text = ""; // Empty subtitle for screenshot capture mode
                 BatchCounterText.Visibility = Visibility.Collapsed; // Hide initially, will show when files are added
                 
                 // Show batch mode UI
