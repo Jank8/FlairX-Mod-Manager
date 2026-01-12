@@ -1264,6 +1264,14 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                // Clear source mod path when navigating to different mod
+                // This prevents dialog from thinking we're updating the original mod
+                if (_currentModDetails == null || _currentModDetails.Id != modId)
+                {
+                    _sourceModPath = null;
+                    Logger.LogInfo($"Cleared _sourceModPath when navigating to different mod (ID: {modId})");
+                }
+                
                 // Show loading state in details panel first
                 DetailLoadingPanel.Visibility = Visibility.Visible;
                 DetailAuthor.Visibility = Visibility.Collapsed;
@@ -1668,30 +1676,55 @@ namespace FlairX_Mod_Manager.Pages
                 return;
             }
 
-            // Show file extraction dialog
-            var authorName = _currentModDetails.Submitter?.Name ?? "unknown";
-            var dateUpdated = (_currentModDetails.DateUpdated ?? 0) > 0 ? _currentModDetails.DateUpdated ?? 0 : _currentModDetails.DateAdded ?? 0;
-            var categoryName = _currentModDetails.Category?.Name; // Get category from API
+            // FORCE REFRESH: Always get fresh mod details from API before installation
+            // This ensures we have the correct category and mod name even when navigating through author links
+            Logger.LogInfo($"Refreshing mod details from API before installation for mod ID: {_currentModDetails.Id}");
+            var freshModDetails = await GameBananaService.GetModDetailsAsync(_currentModDetails.Id);
+            
+            if (freshModDetails == null || !freshModDetails.IsAvailable)
+            {
+                Logger.LogError("Failed to get fresh mod details from API or mod is unavailable");
+                var errorDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(_lang, "Error"),
+                    Content = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage"),
+                    CloseButtonText = "OK",
+                    XamlRoot = XamlRoot
+                };
+                await errorDialog.ShowAsync();
+                return;
+            }
+
+            // UPDATE _currentModDetails with fresh data so dialog logic works correctly
+            _currentModDetails = freshModDetails;
+            
+            // Use fresh data from API for installation dialog
+            var authorName = freshModDetails.Submitter?.Name ?? "unknown";
+            var dateUpdated = (freshModDetails.DateUpdated ?? 0) > 0 ? freshModDetails.DateUpdated ?? 0 : freshModDetails.DateAdded ?? 0;
+            var categoryName = freshModDetails.Category?.Name; // Fresh category from API
+            var modName = freshModDetails.Name; // Fresh mod name from API
+            
+            Logger.LogInfo($"Using fresh API data - Mod: '{modName}', Category: '{categoryName}', Author: '{authorName}'");
             
             // Use source mod path if provided (from mod library), otherwise search for installed mod
             var existingModPath = _sourceModPath;
-            if (string.IsNullOrEmpty(existingModPath) && !string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
+            if (string.IsNullOrEmpty(existingModPath) && !string.IsNullOrEmpty(freshModDetails.ProfileUrl))
             {
-                existingModPath = GetInstalledModPath(_currentModDetails.ProfileUrl);
+                existingModPath = GetInstalledModPath(freshModDetails.ProfileUrl);
             }
             
             var extractDialog = new Dialogs.GameBananaFileExtractionDialog(
                 selectedFiles, 
-                _currentModDetails.Name, 
+                modName, // Use fresh mod name from API
                 _gameTag, 
-                _currentModDetails.ProfileUrl,
+                freshModDetails.ProfileUrl,
                 authorName,
-                _currentModDetails.Id,
+                freshModDetails.Id,
                 dateUpdated,
-                categoryName,
-                _currentModDetails.PreviewMedia,
+                categoryName, // Use fresh category from API
+                freshModDetails.PreviewMedia,
                 _currentModIsNSFW, // Pass NSFW status from mod list
-                _currentModDetails.Version, // Pass version from API (_sVersion)
+                freshModDetails.Version, // Pass version from API (_sVersion)
                 existingModPath); // Pass existing mod path if installed
             extractDialog.XamlRoot = XamlRoot;
             
