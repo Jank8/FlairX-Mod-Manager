@@ -100,6 +100,11 @@ namespace FlairX_Mod_Manager
         public string GamepadLeftStickLeft { get; set; } = "XB L←";
         public string GamepadLeftStickRight { get; set; } = "XB L→";
         
+        // Right stick for hotkeys scrolling
+        public bool GamepadUseRightStickForHotkeys { get; set; } = true; // Use right analog stick for hotkeys scrolling
+        public string GamepadRightStickUp { get; set; } = "XB R↑";
+        public string GamepadRightStickDown { get; set; } = "XB R↓";
+        
         // Navigation state persistence
         public string? LastSelectedCategory { get; set; }
         public string? LastSelectedPage { get; set; } = "ModGridPage";

@@ -251,6 +251,7 @@ namespace FlairX_Mod_Manager
                 _gamepadManager.ButtonPressed -= OnGamepadButtonPressed;
                 _gamepadManager.ButtonReleased -= OnGamepadButtonReleased;
                 _gamepadManager.LeftThumbstickMoved -= OnLeftThumbstickMoved;
+                _gamepadManager.StickMoved -= OnGamepadStickMoved;
                 _gamepadManager.Dispose();
                 _gamepadManager = null;
             }
@@ -633,6 +634,7 @@ namespace FlairX_Mod_Manager
                 _gamepadManager.ButtonPressed += OnGamepadButtonPressed;
                 _gamepadManager.ButtonReleased += OnGamepadButtonReleased;
                 _gamepadManager.LeftThumbstickMoved += OnLeftThumbstickMoved;
+                _gamepadManager.StickMoved += OnGamepadStickMoved;
                 _gamepadManager.ControllerConnected += (s, e) =>
                 {
                     Logger.LogInfo("Gamepad connected - overlay navigation enabled");
@@ -778,6 +780,71 @@ namespace FlairX_Mod_Manager
                     Logger.LogError("Error handling left thumbstick input", ex);
                 }
             });
+        }
+
+        private void OnGamepadStickMoved(object? sender, GamepadButtonEventArgs e)
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                try
+                {
+                    // Ignore input if overlay is not visible
+                    if (!IsOverlayVisible) return;
+                    
+                    var settings = SettingsManager.Current;
+                    var buttonName = e.GetButtonDisplayName();
+                    
+                    // Handle right stick for hotkeys scrolling
+                    if (settings.GamepadUseRightStickForHotkeys && HotkeysScrollViewer != null)
+                    {
+                        if (IsButtonMatch(buttonName, settings.GamepadRightStickUp))
+                        {
+                            Logger.LogInfo("Right stick UP - scroll hotkeys up");
+                            ScrollHotkeysPanel(-1);
+                            return;
+                        }
+                        else if (IsButtonMatch(buttonName, settings.GamepadRightStickDown))
+                        {
+                            Logger.LogInfo("Right stick DOWN - scroll hotkeys down");
+                            ScrollHotkeysPanel(1);
+                            return;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Error handling gamepad stick input", ex);
+                }
+            });
+        }
+
+        private void ScrollHotkeysPanel(int direction)
+        {
+            try
+            {
+                if (HotkeysScrollViewer == null) return;
+                
+                // Scroll by one hotkey row height (approximately 56px including margin)
+                var scrollAmount = 56.0 * direction;
+                var newOffset = HotkeysScrollViewer.VerticalOffset + scrollAmount;
+                
+                // Clamp to valid range
+                newOffset = Math.Max(0, Math.Min(newOffset, HotkeysScrollViewer.ScrollableHeight));
+                
+                HotkeysScrollViewer.ScrollToVerticalOffset(newOffset);
+                
+                // Vibrate on scroll if enabled
+                if (SettingsManager.Current.GamepadVibrateOnNavigation)
+                {
+                    _gamepadManager?.Vibrate(0, 10000, 30);
+                }
+                
+                Logger.LogInfo($"Scrolled hotkeys panel to offset: {newOffset}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error scrolling hotkeys panel", ex);
+            }
         }
 
         private bool IsButtonMatch(string pressedButton, string configuredButton)

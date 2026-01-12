@@ -315,6 +315,32 @@
                 </Grid>
             </Border>
             
+            <!-- Use Right Stick for Hotkeys -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xF109;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="UseRightStickForHotkeysLabel" Text="Use Right Stick for Hotkeys" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="UseRightStickForHotkeysDescription" Text="Scroll hotkeys panel with right analog stick" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <ToggleSwitch Grid.Column="3" x:Name="UseRightStickForHotkeysToggle" Toggled="UseRightStickForHotkeysToggle_Toggled" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            
             <!-- Vibrate on Navigation -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
@@ -938,6 +964,89 @@
                 </Grid>
             </Border>
             
+            <!-- Right Stick Section Header -->
+            <TextBlock x:Name="RightStickSectionHeader" Text="Right Stick (Hotkeys Scrolling)" FontSize="16" FontWeight="SemiBold" Margin="0,24,0,12"/>
+            
+            <!-- Right Stick Up -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16,0,16,0"
+                    Height="60"
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel x:Name="RightStickUpKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
+                    
+                    <TextBlock x:Name="RightStickUpLabel" Grid.Column="2" Text="Right Stick Up" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="RightStickUpRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="RightStickUpRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="RightStickUpSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="RightStickUpSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="RightStickUpRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="RightStickUpRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
+            <!-- Right Stick Down -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16,0,16,0"
+                    Height="60"
+                    Margin="0,0,0,2">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel x:Name="RightStickDownKeysPanel" Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center"/>
+                    
+                    <TextBlock x:Name="RightStickDownLabel" Grid.Column="2" Text="Right Stick Down" FontSize="14" VerticalAlignment="Center" Opacity="0.9"/>
+                    
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                        <Border x:Name="RightStickDownRecordButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="RightStickDownRecordButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Record button">
+                            <FontIcon Glyph="&#xE7C8;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="RightStickDownSaveButton" Width="32" Height="32" CornerRadius="6" Background="Transparent" Visibility="Collapsed"
+                                PointerPressed="RightStickDownSaveButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Save">
+                            <FontIcon Glyph="&#xE73E;" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Border x:Name="RightStickDownRestoreButton" Width="32" Height="32" CornerRadius="6" Background="Transparent"
+                                PointerPressed="RightStickDownRestoreButton_PointerPressed" PointerEntered="HotkeyActionButton_PointerEntered" PointerExited="HotkeyActionButton_PointerExited"
+                                ToolTipService.ToolTip="Restore default">
+                            <FontIcon Glyph="&#xE777;" FontSize="16" Foreground="Gray" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
             </StackPanel>
         </Grid>
     </ScrollViewer>

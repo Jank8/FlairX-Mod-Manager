@@ -97,6 +97,10 @@ namespace FlairX_Mod_Manager.Pages
             if (UseLeftStickLabel != null) UseLeftStickLabel.Text = SharedUtilities.GetTranslation(lang, "UseLeftStick_Label");
             if (UseLeftStickDescription != null) UseLeftStickDescription.Text = SharedUtilities.GetTranslation(lang, "UseLeftStick_Description");
             
+            // Use Right Stick for Hotkeys
+            if (UseRightStickForHotkeysLabel != null) UseRightStickForHotkeysLabel.Text = SharedUtilities.GetTranslation(lang, "UseRightStickForHotkeys_Label");
+            if (UseRightStickForHotkeysDescription != null) UseRightStickForHotkeysDescription.Text = SharedUtilities.GetTranslation(lang, "UseRightStickForHotkeys_Description");
+            
             // Vibrate on Navigation
             if (VibrateOnNavLabel != null) VibrateOnNavLabel.Text = SharedUtilities.GetTranslation(lang, "VibrateOnNav_Label");
             if (VibrateOnNavDescription != null) VibrateOnNavDescription.Text = SharedUtilities.GetTranslation(lang, "VibrateOnNav_Description");
@@ -133,6 +137,9 @@ namespace FlairX_Mod_Manager.Pages
             if (LeftStickDownLabel != null) LeftStickDownLabel.Text = SharedUtilities.GetTranslation(lang, "LeftStickDown_Label");
             if (LeftStickLeftLabel != null) LeftStickLeftLabel.Text = SharedUtilities.GetTranslation(lang, "LeftStickLeft_Label");
             if (LeftStickRightLabel != null) LeftStickRightLabel.Text = SharedUtilities.GetTranslation(lang, "LeftStickRight_Label");
+            if (RightStickUpLabel != null) RightStickUpLabel.Text = SharedUtilities.GetTranslation(lang, "RightStickUp_Label");
+            if (RightStickDownLabel != null) RightStickDownLabel.Text = SharedUtilities.GetTranslation(lang, "RightStickDown_Label");
+            if (RightStickSectionHeader != null) RightStickSectionHeader.Text = SharedUtilities.GetTranslation(lang, "Section_RightStick") ?? "Right Stick (Hotkeys Scrolling)";
             
             // Toggle switch labels
             UpdateToggleSwitchLabels(lang);
@@ -206,6 +213,7 @@ namespace FlairX_Mod_Manager.Pages
             
             // Load gamepad options
             UseLeftStickToggle.IsOn = settings.GamepadUseLeftStick;
+            UseRightStickForHotkeysToggle.IsOn = settings.GamepadUseRightStickForHotkeys;
             VibrateOnNavToggle.IsOn = settings.GamepadVibrateOnNavigation;
             
             // Initialize gamepad button keys panels (convert to Kenney format if needed)
@@ -229,6 +237,8 @@ namespace FlairX_Mod_Manager.Pages
             InitializeHotkeyPanel(LeftStickDownKeysPanel, ConvertToKenneyFormat(settings.GamepadLeftStickDown ?? "XB L↓"));
             InitializeHotkeyPanel(LeftStickLeftKeysPanel, ConvertToKenneyFormat(settings.GamepadLeftStickLeft ?? "XB L←"));
             InitializeHotkeyPanel(LeftStickRightKeysPanel, ConvertToKenneyFormat(settings.GamepadLeftStickRight ?? "XB L→"));
+            InitializeHotkeyPanel(RightStickUpKeysPanel, ConvertToKenneyFormat(settings.GamepadRightStickUp ?? "XB R↑"));
+            InitializeHotkeyPanel(RightStickDownKeysPanel, ConvertToKenneyFormat(settings.GamepadRightStickDown ?? "XB R↓"));
         }
         
         private string ConvertToKenneyFormat(string button)
@@ -469,6 +479,16 @@ namespace FlairX_Mod_Manager.Pages
             SettingsManager.Save();
             
             Logger.LogInfo($"Use left stick: {UseLeftStickToggle.IsOn}");
+        }
+
+        private void UseRightStickForHotkeysToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (_isInitializing) return;
+            
+            SettingsManager.Current.GamepadUseRightStickForHotkeys = UseRightStickForHotkeysToggle.IsOn;
+            SettingsManager.Save();
+            
+            Logger.LogInfo($"Use right stick for hotkeys: {UseRightStickForHotkeysToggle.IsOn}");
         }
 
         private void VibrateOnNavToggle_Toggled(object sender, RoutedEventArgs e)
@@ -909,6 +929,8 @@ namespace FlairX_Mod_Manager.Pages
                 case "leftStickDown": SettingsManager.Current.GamepadLeftStickDown = value; break;
                 case "leftStickLeft": SettingsManager.Current.GamepadLeftStickLeft = value; break;
                 case "leftStickRight": SettingsManager.Current.GamepadLeftStickRight = value; break;
+                case "rightStickUp": SettingsManager.Current.GamepadRightStickUp = value; break;
+                case "rightStickDown": SettingsManager.Current.GamepadRightStickDown = value; break;
             }
             SettingsManager.Save();
             Logger.LogInfo($"Gamepad {settingType} set to: {value}");
@@ -949,6 +971,8 @@ namespace FlairX_Mod_Manager.Pages
                 case "leftStickDown": SettingsManager.Current.GamepadLeftStickDown = defaultValue; break;
                 case "leftStickLeft": SettingsManager.Current.GamepadLeftStickLeft = defaultValue; break;
                 case "leftStickRight": SettingsManager.Current.GamepadLeftStickRight = defaultValue; break;
+                case "rightStickUp": SettingsManager.Current.GamepadRightStickUp = defaultValue; break;
+                case "rightStickDown": SettingsManager.Current.GamepadRightStickDown = defaultValue; break;
             }
             SettingsManager.Save();
             Logger.LogInfo($"Gamepad {settingType} restored to: {defaultValue}");
@@ -1213,6 +1237,31 @@ namespace FlairX_Mod_Manager.Pages
         { if (!IsAnyEditInProgress()) RestoreGamepadSetting("leftStickLeft", LeftStickLeftKeysPanel, "XB L←"); }
         private void LeftStickRightRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         { if (!IsAnyEditInProgress()) RestoreGamepadSetting("leftStickRight", LeftStickRightKeysPanel, "XB L→"); }
+
+        // Right Stick methods
+        private void RightStickUpRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(RightStickUpKeysPanel, RightStickUpRecordButton, RightStickUpSaveButton,
+                SettingsManager.Current.GamepadRightStickUp ?? "XB R↑", "rightStickUp", singleInputOnly: true);
+        }
+
+        private void RightStickDownRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(RightStickDownKeysPanel, RightStickDownRecordButton, RightStickDownSaveButton,
+                SettingsManager.Current.GamepadRightStickDown ?? "XB R↓", "rightStickDown", singleInputOnly: true);
+        }
+
+        private void RightStickUpSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("rightStickUp", RightStickUpKeysPanel, RightStickUpSaveButton, "XB R↑");
+        private void RightStickDownSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("rightStickDown", RightStickDownKeysPanel, RightStickDownSaveButton, "XB R↓");
+
+        private void RightStickUpRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("rightStickUp", RightStickUpKeysPanel, "XB R↑"); }
+        private void RightStickDownRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("rightStickDown", RightStickDownKeysPanel, "XB R↓"); }
         
         // Hotkey action button hover effects
         private void HotkeyActionButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
