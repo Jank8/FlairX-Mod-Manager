@@ -84,9 +84,7 @@
     </Content>
     
     <!-- Kenney Input Prompts Fonts -->
-    <Content Include="Assets\KenneyFonts\*.ttf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Resource Include="Assets\KenneyFonts\*.ttf" />
     <Content Include="Assets\KenneyFonts\License.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

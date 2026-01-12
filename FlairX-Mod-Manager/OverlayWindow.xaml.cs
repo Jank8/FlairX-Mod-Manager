@@ -13,6 +13,8 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using WinRT;
 using WinRT.Interop;
@@ -80,6 +82,7 @@ namespace FlairX_Mod_Manager
         public string Name { get; set; } = "";
         public string Directory { get; set; } = "";
         public BitmapImage? Thumbnail { get; set; }
+        public List<(string Key, string Description)> Hotkeys { get; set; } = new();
         
         private bool _isActive;
         public bool IsActive
@@ -139,6 +142,7 @@ namespace FlairX_Mod_Manager
         
         private string? _selectedCategoryPath;
         private int _selectedModIndex = -1;
+        private OverlayModItem? _selectedMod;
         
         private AppWindow? _appWindow;
         private MainWindow? _mainWindow;
@@ -820,7 +824,11 @@ namespace FlairX_Mod_Manager
             {
                 _selectedModIndex = 0;
                 if (OverlayMods.Count > 0)
+                {
                     OverlayMods[_selectedModIndex].IsSelected = true;
+                    _selectedMod = OverlayMods[_selectedModIndex];
+                    UpdateHotkeysPanel(_selectedMod);
+                }
                 return;
             }
 
@@ -868,6 +876,10 @@ namespace FlairX_Mod_Manager
 
             // Select new
             OverlayMods[_selectedModIndex].IsSelected = true;
+            _selectedMod = OverlayMods[_selectedModIndex];
+            
+            // Update hotkeys panel for newly selected mod
+            UpdateHotkeysPanel(_selectedMod);
             
             // Scroll selected mod into view
             ScrollModIntoView(_selectedModIndex);
@@ -945,6 +957,8 @@ namespace FlairX_Mod_Manager
             
             // Reset mod selection
             _selectedModIndex = -1;
+            _selectedMod = null;
+            UpdateHotkeysPanel(null);
             
             // Vibrate on category change (right motor only - small)
             _gamepadManager?.Vibrate(0, 30000, 300);
@@ -1138,7 +1152,8 @@ namespace FlairX_Mod_Manager
                         Name = displayName,
                         Directory = modDir,
                         IsActive = isActive,
-                        Thumbnail = await LoadThumbnailAsync(modDir)
+                        Thumbnail = await LoadThumbnailAsync(modDir),
+                        Hotkeys = await LoadModHotkeysAsync(modDir)
                     };
                     
                     OverlayMods.Add(item);
@@ -1163,6 +1178,10 @@ namespace FlairX_Mod_Manager
             // Select this one
             category.IsSelected = true;
             _selectedCategoryPath = category.Directory;
+            
+            // Clear selected mod and hotkeys when changing category
+            _selectedMod = null;
+            UpdateHotkeysPanel(null);
             
             // Load mods
             LoadModsFromCategory(category.Directory, _showActiveOnly);
@@ -1191,6 +1210,8 @@ namespace FlairX_Mod_Manager
             
             // Reset mod selection
             _selectedModIndex = -1;
+            _selectedMod = null;
+            UpdateHotkeysPanel(null);
             
             Logger.LogInfo($"Overlay filter: show active only = {_showActiveOnly}");
         }
@@ -1352,7 +1373,36 @@ namespace FlairX_Mod_Manager
         {
             if (sender is Button button && button.DataContext is OverlayModItem item)
             {
+                // Update selected mod and hotkeys panel
+                UpdateSelectedMod(item);
+                
                 ToggleMod(item);
+            }
+        }
+
+        /// <summary>
+        /// Update selected mod and refresh hotkeys panel
+        /// </summary>
+        private void UpdateSelectedMod(OverlayModItem item)
+        {
+            try
+            {
+                // Deselect all mods
+                foreach (var mod in OverlayMods)
+                {
+                    mod.IsSelected = false;
+                }
+                
+                // Select clicked mod
+                item.IsSelected = true;
+                _selectedMod = item;
+                
+                // Update hotkeys panel
+                UpdateHotkeysPanel(item);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to update selected mod", ex);
             }
         }
 
@@ -1473,6 +1523,12 @@ namespace FlairX_Mod_Manager
                         var accentColor = (Windows.UI.Color)Application.Current.Resources["SystemAccentColor"];
                         tileBorder.BorderBrush = new SolidColorBrush(accentColor);
                     }
+                    
+                    // Show hotkeys for hovered mod
+                    if (button.DataContext is OverlayModItem item)
+                    {
+                        UpdateHotkeysPanel(item);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -1494,6 +1550,9 @@ namespace FlairX_Mod_Manager
                     {
                         tileBorder.BorderBrush = item.SelectionBorderBrush;
                     }
+                    
+                    // Restore hotkeys to selected mod or hide if no selection
+                    UpdateHotkeysPanel(_selectedMod);
                 }
                 catch (Exception ex)
                 {
@@ -1522,5 +1581,136 @@ namespace FlairX_Mod_Manager
         }
 
         #endregion
+
+        #region Hotkeys Support
+
+        /// <summary>
+        /// Load hotkeys for a specific mod
+        /// </summary>
+        private async Task<List<(string Key, string Description)>> LoadModHotkeysAsync(string modDirectory)
+        {
+            var hotkeys = new List<(string Key, string Description)>();
+            
+            try
+            {
+                var hotkeysJsonPath = Path.Combine(modDirectory, "hotkeys.json");
+                
+                if (!File.Exists(hotkeysJsonPath))
+                    return hotkeys;
+                
+                var json = await Services.FileAccessQueue.ReadAllTextAsync(hotkeysJsonPath);
+                using var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+                
+                if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var hotkey in hotkeysProp.EnumerateArray())
+                    {
+                        var key = hotkey.TryGetProperty("key", out var keyProp) ? keyProp.GetString() : null;
+                        var desc = hotkey.TryGetProperty("description", out var descProp) ? descProp.GetString() : null;
+                        
+                        if (!string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(desc))
+                        {
+                            hotkeys.Add((key, desc));
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to load hotkeys for mod: {modDirectory}", ex);
+            }
+            
+            return hotkeys;
+        }
+
+        /// <summary>
+        /// Update hotkeys panel for selected mod
+        /// </summary>
+        private void UpdateHotkeysPanel(OverlayModItem? selectedMod)
+        {
+            try
+            {
+                // Clear existing hotkeys
+                HotkeysList.Children.Clear();
+                
+                if (selectedMod == null || selectedMod.Hotkeys.Count == 0)
+                {
+                    // Hide hotkeys panel if no mod selected or no hotkeys
+                    HotkeysScrollViewer.Visibility = Visibility.Collapsed;
+                    HotkeysSeparator.Visibility = Visibility.Collapsed;
+                    HotkeysColumn.Width = new GridLength(0);
+                    return;
+                }
+                
+                // Show hotkeys panel
+                HotkeysScrollViewer.Visibility = Visibility.Visible;
+                HotkeysSeparator.Visibility = Visibility.Visible;
+                HotkeysColumn.Width = new GridLength(280, GridUnitType.Pixel);
+                
+                // Update header
+                var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
+                HotkeysHeader.Text = SharedUtilities.GetTranslation(lang, "Hotkeys");
+                
+                // Create simplified hotkey rows
+                foreach (var (key, description) in selectedMod.Hotkeys)
+                {
+                    var hotkeyRow = CreateSimpleHotkeyRow(key, description);
+                    HotkeysList.Children.Add(hotkeyRow);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to update hotkeys panel", ex);
+                HotkeysScrollViewer.Visibility = Visibility.Collapsed;
+                HotkeysSeparator.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        /// <summary>
+        /// Create simplified hotkey row for overlay (no edit buttons)
+        /// </summary>
+        private Border CreateSimpleHotkeyRow(string keyCombo, string description)
+        {
+            var keyBackground = (Brush)Application.Current.Resources["HotkeyKeyBackground"];
+            
+            var rowBorder = new Border
+            {
+                Background = (Brush)Application.Current.Resources["CardBackgroundFillColorSecondaryBrush"],
+                CornerRadius = new CornerRadius(6),
+                Padding = new Thickness(12, 8, 12, 8),
+                Margin = new Thickness(0, 0, 0, 4),
+                MinHeight = 48
+            };
+            
+            var grid = new Grid();
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto }); // Keys
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(8) }); // Spacer
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }); // Description
+            
+            // Create keys panel (smaller size for overlay)
+            var keysPanel = HotkeyIconHelper.CreateKeysPanelFromCombo(keyCombo, keyBackground, 48);
+            Grid.SetColumn(keysPanel, 0);
+            grid.Children.Add(keysPanel);
+            
+            // Description
+            var descText = new TextBlock
+            {
+                Text = description,
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextWrapping = TextWrapping.Wrap,
+                Opacity = 0.9,
+                Foreground = (Brush)Application.Current.Resources["TextFillColorPrimaryBrush"]
+            };
+            Grid.SetColumn(descText, 2);
+            grid.Children.Add(descText);
+            
+            rowBorder.Child = grid;
+            return rowBorder;
+        }
+
+        #endregion
+
     }
 }

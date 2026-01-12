@@ -52,6 +52,9 @@ namespace FlairX_Mod_Manager.Pages
         private string? _currentAuthorName = null;
         private ObservableCollection<ModViewModel> _authorMods = new();
         private bool _authorModsOpenedFromSearch = false; // Track if opened from search vs mod details
+        private int _authorCurrentPage = 1;
+        private bool _authorHasMorePages = true;
+        private bool _authorIsLoadingMore = false;
         
         private enum NavigationState
         {
@@ -400,6 +403,40 @@ namespace FlairX_Mod_Manager.Pages
                 return;
             }
             
+            // Check if we're in author mods view
+            if (_currentState == NavigationState.AuthorMods)
+            {
+                if (_authorIsLoadingMore)
+                {
+                    Logger.LogInfo("Already loading more author mods");
+                    return;
+                }
+                
+                if (!_authorHasMorePages)
+                {
+                    Logger.LogInfo("No more author pages available");
+                    return;
+                }
+                
+                // Check if we're near the bottom
+                var authorScrollableHeight = _modsScrollViewer.ScrollableHeight;
+                var authorCurrentVerticalOffset = _modsScrollViewer.VerticalOffset;
+                var authorViewportHeight = _modsScrollViewer.ViewportHeight;
+                
+                // Load more when we're within 2 viewport heights of the bottom
+                var authorLoadMoreThreshold = authorScrollableHeight - (authorViewportHeight * 2);
+                
+                Logger.LogInfo($"Checking author load threshold: {authorCurrentVerticalOffset} >= {authorLoadMoreThreshold} (scrollable: {authorScrollableHeight}, viewport: {authorViewportHeight})");
+                
+                if (authorCurrentVerticalOffset >= authorLoadMoreThreshold)
+                {
+                    Logger.LogInfo("Loading more author mods...");
+                    _ = LoadAuthorModsAsync(loadMore: true);
+                }
+                return;
+            }
+            
+            // Original logic for regular mods
             if (_isLoadingMore)
             {
                 Logger.LogInfo("Already loading more mods");
@@ -600,77 +637,86 @@ namespace FlairX_Mod_Manager.Pages
             _ = LoadModsAsync();
         }
 
-        private async Task LoadAuthorModsAsync()
+        private async Task LoadAuthorModsAsync(bool loadMore = false)
         {
             if (_currentAuthorId == null) return;
             
             try
             {
-                LoadingPanel.Visibility = Visibility.Visible;
-                EmptyPanel.Visibility = Visibility.Collapsed;
-                ModsGridView.Visibility = Visibility.Collapsed;
+                if (!loadMore)
+                {
+                    _authorCurrentPage = 1;
+                    _authorHasMorePages = true;
+                    _authorIsLoadingMore = false;
+                }
+                
+                if (_authorIsLoadingMore || !_authorHasMorePages) return;
+                _authorIsLoadingMore = true;
+                
+                if (!loadMore)
+                {
+                    LoadingPanel.Visibility = Visibility.Visible;
+                    EmptyPanel.Visibility = Visibility.Collapsed;
+                    ModsGridView.Visibility = Visibility.Collapsed;
+                }
+                
                 ConnectionErrorBar.IsOpen = false;
 
-                _authorMods.Clear();
-                
-                // Get all pages of author's mods
-                int page = 1;
-                var allModIds = new List<int>();
-                
-                while (true)
+                if (!loadMore)
                 {
-                    try
+                    _authorMods.Clear();
+                }
+                
+                // Get current page of author's mods
+                var url = $"https://api.gamebanana.com/Core/List/New?page={_authorCurrentPage}&userid={_currentAuthorId}&itemtype=Mod";
+                Logger.LogInfo($"Fetching author mods page {_authorCurrentPage}: {url}");
+                
+                var response = await GameBananaService.MakeApiCallAsync<List<List<object>>>(url);
+                
+                if (response == null || response.Count == 0)
+                {
+                    _authorHasMorePages = false;
+                    _authorIsLoadingMore = false;
+                    
+                    if (!loadMore && _authorMods.Count == 0)
                     {
-                        var url = $"https://api.gamebanana.com/Core/List/New?page={page}&userid={_currentAuthorId}&itemtype=Mod";
-                        Logger.LogInfo($"Fetching author mods page {page}: {url}");
-                        
-                        var response = await GameBananaService.MakeApiCallAsync<List<List<object>>>(url);
-                        
-                        if (response == null || response.Count == 0)
-                        {
-                            Logger.LogInfo($"No more mods found on page {page}, stopping pagination");
-                            break;
-                        }
-                        
-                        // Extract mod IDs from response
-                        foreach (var item in response)
-                        {
-                            if (item.Count >= 2 && item[0].ToString() == "Mod" && int.TryParse(item[1].ToString(), out int modId))
-                            {
-                                allModIds.Add(modId);
-                            }
-                        }
-                        
-                        Logger.LogInfo($"Found {response.Count} mods on page {page}");
-                        page++;
+                        LoadingPanel.Visibility = Visibility.Collapsed;
+                        EmptyPanel.Visibility = Visibility.Visible;
+                        EmptyText.Text = SharedUtilities.GetTranslation(_lang, "NoModsFound");
                     }
-                    catch (Exception ex)
+                    return;
+                }
+                
+                // Extract mod IDs from response
+                var modIds = new List<int>();
+                foreach (var item in response)
+                {
+                    if (item.Count >= 2 && item[0].ToString() == "Mod" && int.TryParse(item[1].ToString(), out int modId))
                     {
-                        Logger.LogError($"Error fetching author mods page {page}", ex);
-                        break;
+                        modIds.Add(modId);
                     }
                 }
                 
-                Logger.LogInfo($"Total mod IDs found for author {_currentAuthorName}: {allModIds.Count}");
+                Logger.LogInfo($"Found {modIds.Count} mod IDs on page {_authorCurrentPage}");
                 
-                if (allModIds.Count == 0)
+                if (modIds.Count == 0)
                 {
-                    LoadingPanel.Visibility = Visibility.Collapsed;
-                    EmptyPanel.Visibility = Visibility.Visible;
-                    EmptyText.Text = SharedUtilities.GetTranslation(_lang, "NoModsFound");
+                    _authorHasMorePages = false;
+                    _authorIsLoadingMore = false;
                     return;
                 }
                 
                 // Fetch details for each mod in parallel batches
-                const int batchSize = 10; // Process 10 mods at once
+                const int batchSize = 10;
                 var modViewModels = new List<ModViewModel>();
                 var currentGameId = GameBananaService.GetGameId(_gameTag);
+                var installedText = SharedUtilities.GetTranslation(_lang, "Installed");
                 
                 Logger.LogInfo($"Filtering mods for game ID {currentGameId} ({_gameTag})");
                 
-                for (int i = 0; i < allModIds.Count; i += batchSize)
+                for (int i = 0; i < modIds.Count; i += batchSize)
                 {
-                    var batch = allModIds.Skip(i).Take(batchSize);
+                    var batch = modIds.Skip(i).Take(batchSize);
                     var batchTasks = batch.Select(async modId =>
                     {
                         try
@@ -700,7 +746,9 @@ namespace FlairX_Mod_Manager.Pages
                                     DownloadCount = modDetails.GetDownloadCount(),
                                     DateAdded = modDetails.DateAdded ?? 0,
                                     DateUpdated = modDetails.DateUpdated ?? 0,
-                                    IsNSFW = modDetails.IsNSFW()
+                                    IsNSFW = modDetails.IsNSFW(),
+                                    IsInstalled = IsModInstalled(modDetails.ProfileUrl),
+                                    InstalledText = installedText
                                 };
                                 
                                 // Set preview image
@@ -730,32 +778,54 @@ namespace FlairX_Mod_Manager.Pages
                         _authorMods.Add(viewModel);
                     }
                     
-                    Logger.LogInfo($"Processed batch {i / batchSize + 1}/{(allModIds.Count + batchSize - 1) / batchSize}, loaded {validResults.Count()} mods for {_gameTag}");
+                    Logger.LogInfo($"Processed batch {i / batchSize + 1}/{(modIds.Count + batchSize - 1) / batchSize}, loaded {validResults.Count()} mods for {_gameTag}");
                 }
                 
-                Logger.LogInfo($"Successfully loaded {_authorMods.Count} {_gameTag} mods for author {_currentAuthorName} (from {allModIds.Count} total mods across all games)");
+                Logger.LogInfo($"Successfully loaded {modViewModels.Count} {_gameTag} mods for author {_currentAuthorName} page {_authorCurrentPage}");
+                Logger.LogInfo($"Total author mods in collection: {_authorMods.Count}");
                 
-                if (_authorMods.Count == 0)
+                // Check if there are more pages (GameBanana API returns empty or fewer results when no more pages)
+                if (response.Count < 50) // GameBanana typically returns up to 50 items per page for author mods
                 {
-                    LoadingPanel.Visibility = Visibility.Collapsed;
-                    EmptyPanel.Visibility = Visibility.Visible;
-                    EmptyText.Text = SharedUtilities.GetTranslation(_lang, "NoModsFound");
-                    return;
+                    _authorHasMorePages = false;
                 }
+                else
+                {
+                    _authorCurrentPage++;
+                }
+                
+                if (!loadMore)
+                {
+                    // Check if we have any mods after filtering
+                    if (_authorMods.Count == 0)
+                    {
+                        LoadingPanel.Visibility = Visibility.Collapsed;
+                        EmptyPanel.Visibility = Visibility.Visible;
+                        EmptyText.Text = SharedUtilities.GetTranslation(_lang, "NoModsFound");
+                        return;
+                    }
+                    
+                    // Load images asynchronously
+                    _ = LoadAuthorModImagesAsync();
 
-                // Load images asynchronously
-                _ = LoadAuthorModImagesAsync();
-
-                LoadingPanel.Visibility = Visibility.Collapsed;
-                ModsGridView.Visibility = Visibility.Visible;
+                    LoadingPanel.Visibility = Visibility.Collapsed;
+                    ModsGridView.Visibility = Visibility.Visible;
+                }
+                
+                _authorIsLoadingMore = false;
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Failed to load mods for author {_currentAuthorName}", ex);
-                LoadingPanel.Visibility = Visibility.Collapsed;
-                ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
-                ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
-                ConnectionErrorBar.IsOpen = true;
+                Logger.LogError($"Failed to load author mods for {_currentAuthorName}", ex);
+                _authorIsLoadingMore = false;
+                
+                if (!loadMore)
+                {
+                    LoadingPanel.Visibility = Visibility.Collapsed;
+                    ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
+                    ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
+                    ConnectionErrorBar.IsOpen = true;
+                }
             }
         }
 
@@ -1014,6 +1084,13 @@ namespace FlairX_Mod_Manager.Pages
             _currentSearch = string.IsNullOrWhiteSpace(queryText) ? null : queryText;
             _currentPage = 1;
             _ = LoadModsAsync();
+        }
+
+        private async Task PerformSearchAsync(string searchText)
+        {
+            _currentSearch = string.IsNullOrWhiteSpace(searchText) ? null : searchText;
+            _currentPage = 1;
+            await LoadModsAsync();
         }
 
         private bool IsAuthorSearch(string text)
@@ -1500,7 +1577,10 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 // Update title to show author name
-                TitleText.Text = $"{_currentAuthorName} - {SharedUtilities.GetTranslation(_lang, "AuthorModsTitle")}";
+                var authorModsTitle = SharedUtilities.GetTranslation(_lang, "AuthorModsTitle");
+                var newTitle = $"{_currentAuthorName} - {authorModsTitle}";
+                Logger.LogInfo($"Setting author mods title to: {newTitle}");
+                TitleText.Text = newTitle;
                 
                 // Change back button to left arrow
                 BackIcon.Glyph = "\uE72B"; // Left arrow
@@ -1578,6 +1658,9 @@ namespace FlairX_Mod_Manager.Pages
             _currentAuthorId = null;
             _currentAuthorName = null;
             _authorModsOpenedFromSearch = false;
+            _authorCurrentPage = 1;
+            _authorHasMorePages = true;
+            _authorIsLoadingMore = false;
             
             // Restore title to mod details
             if (_currentModDetails != null)
@@ -1609,6 +1692,9 @@ namespace FlairX_Mod_Manager.Pages
             _currentAuthorId = null;
             _currentAuthorName = null;
             _authorModsOpenedFromSearch = false;
+            _authorCurrentPage = 1;
+            _authorHasMorePages = true;
+            _authorIsLoadingMore = false;
             
             // Restore title to main browser
             var gameName = GetGameName(_gameTag);
@@ -2353,37 +2439,21 @@ namespace FlairX_Mod_Manager.Pages
 
         private void DetailCategoryLink_Click(object sender, RoutedEventArgs e)
         {
-            if (_currentModDetails?.Category != null && !string.IsNullOrEmpty(_currentModDetails.Category.Name))
+            if (_currentModDetails?.Category != null && !string.IsNullOrEmpty(_currentModDetails.Category.ProfileUrl))
             {
                 try
                 {
-                    // Set search to category name BEFORE navigating back
-                    var categoryName = _currentModDetails.Category.Name;
-                    
-                    // Remember current mod ID so we can return to it
-                    _returnToModId = _currentModDetails.Id;
-                    
-                    // If opened directly to mod details, we need to show the list first
-                    if (_openedDirectlyToModDetails)
+                    // Open category in browser
+                    var startInfo = new System.Diagnostics.ProcessStartInfo
                     {
-                        _openedDirectlyToModDetails = false; // Reset flag so we don't close the panel
-                    }
-                    
-                    // Navigate back to mods list
-                    CloseDetailsPanel();
-                    
-                    // Set search and reload mods (needs to happen after UI is visible)
-                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () =>
-                    {
-                        SearchBox.Text = categoryName;
-                        _currentSearch = categoryName;
-                        _currentPage = 1;
-                        _ = LoadModsAsync();
-                    });
+                        FileName = _currentModDetails.Category.ProfileUrl,
+                        UseShellExecute = true
+                    };
+                    System.Diagnostics.Process.Start(startInfo);
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError("Failed to filter by category", ex);
+                    Logger.LogError($"Failed to open category URL: {_currentModDetails.Category.ProfileUrl}", ex);
                 }
             }
         }
