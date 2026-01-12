@@ -41,6 +41,11 @@ namespace FlairX_Mod_Manager
         public event EventHandler<SDL3ControllerEventArgs>? ControllerDisconnected;
 
         /// <summary>
+        /// Event for raw axis values - fires continuously while axis is moved
+        /// </summary>
+        public event EventHandler<SDL3RawAxisEventArgs>? RawAxisMoved;
+
+        /// <summary>
         /// Compatibility event for old GamepadManager API - fires when left thumbstick moves
         /// </summary>
         public event EventHandler<ThumbstickEventArgs>? LeftThumbstickMoved;
@@ -489,6 +494,9 @@ namespace FlairX_Mod_Manager
             var rightX = SDL3.SDL_GetGamepadAxis(_gamepad, SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHTX);
             var rightY = SDL3.SDL_GetGamepadAxis(_gamepad, SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHTY);
             CheckThumbstickDirection(rightX, rightY, ref _rightStickDirection, false);
+
+            // Fire raw axis event for continuous input
+            RawAxisMoved?.Invoke(this, new SDL3RawAxisEventArgs(leftX, leftY, rightX, rightY, leftTrigger, rightTrigger));
         }
 
         private void CheckTrigger(SDL_GamepadAxis axis, short value)
@@ -659,6 +667,39 @@ namespace FlairX_Mod_Manager
         }
 
         public string GetButtonDisplayName() => DisplayName;
+    }
+
+    /// <summary>
+    /// Event args for raw axis values - provides continuous axis data
+    /// </summary>
+    public class SDL3RawAxisEventArgs : EventArgs
+    {
+        public short LeftX { get; }
+        public short LeftY { get; }
+        public short RightX { get; }
+        public short RightY { get; }
+        public short LeftTrigger { get; }
+        public short RightTrigger { get; }
+
+        public SDL3RawAxisEventArgs(short leftX, short leftY, short rightX, short rightY, short leftTrigger, short rightTrigger)
+        {
+            LeftX = leftX;
+            LeftY = leftY;
+            RightX = rightX;
+            RightY = rightY;
+            LeftTrigger = leftTrigger;
+            RightTrigger = rightTrigger;
+        }
+
+        /// <summary>
+        /// Get normalized axis value (-1.0 to 1.0)
+        /// </summary>
+        public float GetNormalizedRightY() => RightY / 32767.0f;
+        
+        /// <summary>
+        /// Get normalized axis value (-1.0 to 1.0)
+        /// </summary>
+        public float GetNormalizedRightX() => RightX / 32767.0f;
     }
 
     #endregion

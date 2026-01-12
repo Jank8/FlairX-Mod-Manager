@@ -252,6 +252,7 @@ namespace FlairX_Mod_Manager
                 _gamepadManager.ButtonReleased -= OnGamepadButtonReleased;
                 _gamepadManager.LeftThumbstickMoved -= OnLeftThumbstickMoved;
                 _gamepadManager.StickMoved -= OnGamepadStickMoved;
+                _gamepadManager.RawAxisMoved -= OnGamepadRawAxisMoved;
                 _gamepadManager.Dispose();
                 _gamepadManager = null;
             }
@@ -635,6 +636,10 @@ namespace FlairX_Mod_Manager
                 _gamepadManager.ButtonReleased += OnGamepadButtonReleased;
                 _gamepadManager.LeftThumbstickMoved += OnLeftThumbstickMoved;
                 _gamepadManager.StickMoved += OnGamepadStickMoved;
+                
+                // Subscribe to raw axis events for smooth scrolling
+                _gamepadManager.RawAxisMoved += OnGamepadRawAxisMoved;
+                
                 _gamepadManager.ControllerConnected += (s, e) =>
                 {
                     Logger.LogInfo("Gamepad connected - overlay navigation enabled");
@@ -784,6 +789,12 @@ namespace FlairX_Mod_Manager
 
         private void OnGamepadStickMoved(object? sender, GamepadButtonEventArgs e)
         {
+            // This method is kept for compatibility but discrete scrolling is now handled by OnGamepadRawAxisMoved
+            // Only handle non-right-stick movements here if needed for other functionality
+        }
+
+        private void OnGamepadRawAxisMoved(object? sender, SDL3RawAxisEventArgs e)
+        {
             DispatcherQueue.TryEnqueue(() =>
             {
                 try
@@ -792,28 +803,45 @@ namespace FlairX_Mod_Manager
                     if (!IsOverlayVisible) return;
                     
                     var settings = SettingsManager.Current;
-                    var buttonName = e.GetButtonDisplayName();
                     
-                    // Handle right stick for hotkeys scrolling
+                    // Handle right stick for smooth hotkeys scrolling
                     if (settings.GamepadUseRightStickForHotkeys && HotkeysScrollViewer != null)
                     {
-                        if (IsButtonMatch(buttonName, settings.GamepadRightStickUp))
+                        var rightY = e.GetNormalizedRightY(); // -1.0 to 1.0
+                        
+                        // Apply deadzone (about 15% of full range)
+                        const float deadzone = 0.15f;
+                        if (Math.Abs(rightY) > deadzone)
                         {
-                            Logger.LogInfo("Right stick UP - scroll hotkeys up");
-                            ScrollHotkeysPanel(-1);
-                            return;
-                        }
-                        else if (IsButtonMatch(buttonName, settings.GamepadRightStickDown))
-                        {
-                            Logger.LogInfo("Right stick DOWN - scroll hotkeys down");
-                            ScrollHotkeysPanel(1);
-                            return;
+                            // Remove deadzone and rescale to full range
+                            var adjustedY = (Math.Abs(rightY) - deadzone) / (1.0f - deadzone);
+                            adjustedY *= Math.Sign(rightY); // Restore sign
+                            
+                            // Calculate scroll speed based on deflection
+                            // Max speed: 800 pixels per second, scaled by deflection
+                            var maxScrollSpeed = 800.0;
+                            var scrollSpeed = maxScrollSpeed * Math.Abs(adjustedY);
+                            
+                            // Calculate scroll amount for this frame (assuming ~60fps polling)
+                            var scrollAmount = scrollSpeed * (16.0 / 1000.0); // 16ms frame time
+                            
+                            // Apply direction (positive Y = down = scroll down)
+                            scrollAmount *= Math.Sign(adjustedY);
+                            
+                            // Apply scroll
+                            var currentOffset = HotkeysScrollViewer.VerticalOffset;
+                            var newOffset = currentOffset + scrollAmount;
+                            
+                            // Clamp to valid range
+                            newOffset = Math.Max(0, Math.Min(newOffset, HotkeysScrollViewer.ScrollableHeight));
+                            
+                            HotkeysScrollViewer.ScrollToVerticalOffset(newOffset);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError("Error handling gamepad stick input", ex);
+                    Logger.LogError("Error handling gamepad raw axis input", ex);
                 }
             });
         }
