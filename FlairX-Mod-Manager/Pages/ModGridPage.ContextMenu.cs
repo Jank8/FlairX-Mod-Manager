@@ -936,7 +936,18 @@ namespace FlairX_Mod_Manager.Pages
                 // Update the ModTile object (this will trigger PropertyChanged events)
                 var oldName = modTile.Directory;
                 modTile.Name = newName;
-                modTile.Directory = newName;
+                
+                // Set Directory to actual folder name (with DISABLED_ prefix if inactive)
+                if (!modTile.IsCategory && !wasActive)
+                {
+                    modTile.Directory = "DISABLED_" + newName;
+                }
+                else
+                {
+                    modTile.Directory = newName;
+                }
+                
+                Logger.LogInfo($"Updated ModTile: Name='{modTile.Name}', Directory='{modTile.Directory}'");
                 
                 // For mods: Update active mods file if this mod was active
                 if (!modTile.IsCategory && wasActive)
@@ -946,19 +957,20 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         try
                         {
+                            var cleanOldName = GetCleanModName(oldName);
                             await Services.FileAccessQueue.ExecuteAsync(activeModsPath, async () =>
                             {
                                 var json = await File.ReadAllTextAsync(activeModsPath);
                                 var activeMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
                                 
-                                if (activeMods.ContainsKey(oldName))
+                                if (activeMods.ContainsKey(cleanOldName))
                                 {
-                                    activeMods.Remove(oldName);
+                                    activeMods.Remove(cleanOldName);
                                     activeMods[newName] = true;
                                     
                                     var newJson = JsonSerializer.Serialize(activeMods, new JsonSerializerOptions { WriteIndented = true });
                                     await File.WriteAllTextAsync(activeModsPath, newJson);
-                                    Logger.LogInfo($"Updated active mods file: '{oldName}' -> '{newName}'");
+                                    Logger.LogInfo($"Updated active mods file: '{cleanOldName}' -> '{newName}'");
                                 }
                             });
                         }
@@ -984,11 +996,11 @@ namespace FlairX_Mod_Manager.Pages
                     // Update table view: the ModTile object has already been updated above
                     // and since it implements INotifyPropertyChanged, the table should update automatically
                     // We just need to update the _originalTableItems for search functionality
-                    var originalItem = _originalTableItems.FirstOrDefault(x => x.Directory == newName);
+                    var originalItem = _originalTableItems.FirstOrDefault(x => x.Directory == modTile.Directory);
                     if (originalItem != null && originalItem != modTile)
                     {
                         originalItem.Name = newName;
-                        originalItem.Directory = newName;
+                        originalItem.Directory = modTile.Directory;
                     }
                 }
                 else
@@ -997,15 +1009,31 @@ namespace FlairX_Mod_Manager.Pages
                     if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> collection)
                     {
                         // Find the item in the collection and trigger update
-                        var item = collection.FirstOrDefault(x => x.Directory == newName);
+                        var item = collection.FirstOrDefault(x => x == modTile);
                         if (item != null)
                         {
                             // Force UI refresh by temporarily removing and re-adding the item
                             var index = collection.IndexOf(item);
                             collection.RemoveAt(index);
                             collection.Insert(index, item);
+                            Logger.LogInfo($"Refreshed grid item at index {index}");
+                        }
+                        else
+                        {
+                            Logger.LogWarning("Could not find item in grid collection for refresh");
                         }
                     }
+                }
+                
+                // Refresh the mod tile image after rename
+                try
+                {
+                    RefreshModTileImage(newPath);
+                    Logger.LogInfo($"Refreshed tile image for renamed mod: {newPath}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to refresh tile image after rename", ex);
                 }
                 
                 // Restore scroll position after a short delay
