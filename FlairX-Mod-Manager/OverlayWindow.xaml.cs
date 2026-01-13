@@ -1,5 +1,6 @@
 using Microsoft.UI;
 using Microsoft.UI.Composition.SystemBackdrops;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -21,6 +22,18 @@ using WinRT.Interop;
 
 namespace FlairX_Mod_Manager
 {
+    /// <summary>
+    /// Animation direction for hotkeys panel
+    /// </summary>
+    public enum AnimationDirection
+    {
+        None,
+        Left,
+        Right,
+        Up,
+        Down
+    }
+
     /// <summary>
     /// Overlay category item for display
     /// </summary>
@@ -177,6 +190,15 @@ namespace FlairX_Mod_Manager
         // Held buttons for combo detection
         private HashSet<string> _heldButtons = new();
 
+        // Animation state management
+        private DispatcherTimer? _hideTimer;
+        private bool _isAnimatingIn;
+        private bool _isAnimatingOut;
+        
+        // Navigation direction tracking for slide animations
+        private OverlayModItem? _previousSelectedMod;
+        private int _previousSelectedIndex = -1;
+
         public OverlayWindow(MainWindow mainWindow)
         {
             try
@@ -197,6 +219,12 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo("OverlayWindow: LoadCurrentCategoryMods starting");
                 LoadCurrentCategoryMods();
                 Logger.LogInfo("OverlayWindow: LoadCurrentCategoryMods done");
+                
+                // Initialize separator opacity
+                if (HotkeysSeparator != null)
+                {
+                    HotkeysSeparator.Opacity = 0.3; // Start dimmed
+                }
                 
                 Logger.LogInfo("OverlayWindow: UpdateUITexts starting");
                 UpdateUITexts();
@@ -244,6 +272,14 @@ namespace FlairX_Mod_Manager
             
             // Save final window state
             SaveWindowState();
+            
+            // Clean up animation timers
+            _hideTimer?.Stop();
+            _hideTimer = null;
+            _isAnimatingIn = false;
+            _isAnimatingOut = false;
+            _previousSelectedMod = null;
+            _previousSelectedIndex = -1;
             
             // Clean up gamepad
             if (_gamepadManager != null)
@@ -1471,7 +1507,22 @@ namespace FlairX_Mod_Manager
                 // Update selected mod and hotkeys panel
                 UpdateSelectedMod(item);
                 
+                // Left click toggles the mod
                 ToggleMod(item);
+            }
+        }
+
+        private void ModItem_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            if (sender is Button button && button.DataContext is OverlayModItem item)
+            {
+                // Right click only selects the mod (shows hotkeys) without toggling
+                UpdateSelectedMod(item);
+                
+                // Mark event as handled to prevent context menu
+                e.Handled = true;
+                
+                Logger.LogInfo($"Right-clicked mod: {item.Name} - selected without toggling");
             }
         }
 
@@ -1720,50 +1771,319 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
-        /// Update hotkeys panel for selected mod
+        /// Update hotkeys panel for selected mod with directional animations
         /// </summary>
         private void UpdateHotkeysPanel(OverlayModItem? selectedMod)
         {
             try
             {
-                // Clear existing hotkeys
-                HotkeysList.Children.Clear();
-                
+                // Cancel any pending hide timer
+                _hideTimer?.Stop();
+                _hideTimer = null;
+
                 if (selectedMod == null || selectedMod.Hotkeys.Count == 0)
                 {
-                    // Hide hotkeys panel if no mod selected or no hotkeys
-                    HotkeysScrollViewer.Visibility = Visibility.Collapsed;
-                    HotkeysSeparator.Visibility = Visibility.Collapsed;
-                    HotkeysColumn.Width = new GridLength(0);
+                    // Hide hotkeys panel with animation
+                    HideHotkeysPanel();
+                    _previousSelectedMod = null;
+                    _previousSelectedIndex = -1;
                     return;
                 }
                 
-                // Show hotkeys panel
-                HotkeysScrollViewer.Visibility = Visibility.Visible;
-                HotkeysSeparator.Visibility = Visibility.Visible;
-                HotkeysColumn.Width = new GridLength(280, GridUnitType.Pixel);
+                // Determine animation direction based on navigation
+                var direction = DetermineAnimationDirection(selectedMod);
+                
+                // Update tracking for next time
+                _previousSelectedMod = selectedMod;
+                _previousSelectedIndex = OverlayMods.IndexOf(selectedMod);
+                
+                // Always show hotkeys panel with directional animation
+                ShowHotkeysPanelWithDirection(selectedMod, direction);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to update hotkeys panel", ex);
+                HideHotkeysPanel();
+            }
+        }
+
+        /// <summary>
+        /// Determine animation direction based on navigation pattern
+        /// </summary>
+        private AnimationDirection DetermineAnimationDirection(OverlayModItem selectedMod)
+        {
+            try
+            {
+                // If no previous selection, default to right (slide in from right)
+                if (_previousSelectedMod == null || _previousSelectedIndex < 0)
+                {
+                    return AnimationDirection.Right;
+                }
+                
+                var currentIndex = OverlayMods.IndexOf(selectedMod);
+                if (currentIndex < 0) return AnimationDirection.Right;
+                
+                var itemsPerRow = GetItemsPerRow();
+                if (itemsPerRow <= 0) itemsPerRow = 1;
+                
+                var prevRow = _previousSelectedIndex / itemsPerRow;
+                var prevCol = _previousSelectedIndex % itemsPerRow;
+                var currentRow = currentIndex / itemsPerRow;
+                var currentCol = currentIndex % itemsPerRow;
+                
+                // Determine primary direction of movement
+                var rowDiff = currentRow - prevRow;
+                var colDiff = currentCol - prevCol;
+                
+                // Prioritize row movement (up/down) over column movement
+                if (Math.Abs(rowDiff) > Math.Abs(colDiff))
+                {
+                    return rowDiff > 0 ? AnimationDirection.Down : AnimationDirection.Up;
+                }
+                else if (colDiff != 0)
+                {
+                    return colDiff > 0 ? AnimationDirection.Right : AnimationDirection.Left;
+                }
+                
+                // Fallback: if same position or can't determine, slide from right
+                return AnimationDirection.Right;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to determine animation direction", ex);
+                return AnimationDirection.Right;
+            }
+        }
+
+        /// <summary>
+        /// Show hotkeys panel with directional slide-in animation
+        /// </summary>
+        private void ShowHotkeysPanelWithDirection(OverlayModItem selectedMod, AnimationDirection direction)
+        {
+            try
+            {
+                // Cancel any ongoing hide animation
+                if (_isAnimatingOut)
+                {
+                    _isAnimatingOut = false;
+                }
+                
+                // If already animating in, cancel and start fresh
+                if (_isAnimatingIn)
+                {
+                    _isAnimatingIn = false;
+                }
+                
+                _isAnimatingIn = true;
+                
+                // Clear existing hotkeys
+                HotkeysList.Children.Clear();
                 
                 // Update header
                 var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
                 HotkeysHeader.Text = SharedUtilities.GetTranslation(lang, "Hotkeys");
                 
-                // Create simplified hotkey rows
-                foreach (var (key, description) in selectedMod.Hotkeys)
+                // Show column and separator - separator is always visible, just change opacity
+                HotkeysColumn.Width = new GridLength(280, GridUnitType.Pixel);
+                HotkeysScrollViewer.Visibility = Visibility.Visible;
+                HotkeysSeparator.Opacity = 1.0; // Full opacity when hotkeys are shown
+                
+                // Calculate slide direction based on navigation
+                var slideOffset = GetSlideOffset(direction);
+                
+                // Animate panel in with directional slide and fade
+                HotkeysScrollViewer.Translation = slideOffset;
+                HotkeysScrollViewer.Opacity = 0;
+                
+                // Animate to final position
+                HotkeysScrollViewer.Translation = new System.Numerics.Vector3(0, 0, 0);
+                HotkeysScrollViewer.Opacity = 1;
+                
+                // Always create and animate hotkey rows with wave effect
+                AnimateHotkeyRowsInWithDirection(selectedMod.Hotkeys, direction);
+                
+                // Mark animation as complete after main panel animation
+                var completeTimer = new DispatcherTimer();
+                completeTimer.Interval = TimeSpan.FromMilliseconds(300);
+                completeTimer.Tick += (s, e) =>
+                {
+                    completeTimer.Stop();
+                    _isAnimatingIn = false;
+                };
+                completeTimer.Start();
+                
+                Logger.LogInfo($"Showing hotkeys panel with {direction} animation");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to show hotkeys panel with direction", ex);
+                _isAnimatingIn = false;
+            }
+        }
+
+        /// <summary>
+        /// Get slide offset vector based on animation direction
+        /// </summary>
+        private System.Numerics.Vector3 GetSlideOffset(AnimationDirection direction)
+        {
+            return direction switch
+            {
+                AnimationDirection.Left => new System.Numerics.Vector3(-30, 0, 0),  // Slide from left
+                AnimationDirection.Right => new System.Numerics.Vector3(30, 0, 0),  // Slide from right
+                AnimationDirection.Up => new System.Numerics.Vector3(0, -20, 0),    // Slide from top
+                AnimationDirection.Down => new System.Numerics.Vector3(0, 20, 0),   // Slide from bottom
+                _ => new System.Numerics.Vector3(20, 0, 0)                          // Default: slide from right
+            };
+        }
+
+        /// <summary>
+        /// Animate hotkey rows in with directional wave effect
+        /// </summary>
+        private void AnimateHotkeyRowsInWithDirection(List<(string Key, string Description)> hotkeys, AnimationDirection direction)
+        {
+            try
+            {
+                if (hotkeys.Count == 0) return;
+                
+                // Calculate dynamic delay based on list length for consistent wave timing
+                var baseDelay = 50;
+                var delayPerItem = Math.Max(20, Math.Min(40, 250 / hotkeys.Count));
+                
+                // Maximum total animation time: ~600ms for better responsiveness
+                var maxTotalTime = 600;
+                var calculatedTotalTime = baseDelay + (hotkeys.Count * delayPerItem);
+                if (calculatedTotalTime > maxTotalTime)
+                {
+                    delayPerItem = Math.Max(20, (maxTotalTime - baseDelay) / hotkeys.Count);
+                }
+                
+                // Get slide offset for individual rows based on direction
+                var rowSlideOffset = GetRowSlideOffset(direction);
+                
+                // Create all rows with directional wave animation
+                for (int i = 0; i < hotkeys.Count; i++)
+                {
+                    var (key, description) = hotkeys[i];
+                    var hotkeyRow = CreateSimpleHotkeyRow(key, description);
+                    
+                    // Start invisible and with directional slide effect
+                    hotkeyRow.Opacity = 0;
+                    hotkeyRow.Translation = rowSlideOffset;
+                    
+                    HotkeysList.Children.Add(hotkeyRow);
+                    
+                    // Calculate delay for this item in the wave
+                    var itemDelay = (int)(baseDelay + (i * delayPerItem));
+                    
+                    var timer = new DispatcherTimer();
+                    timer.Interval = TimeSpan.FromMilliseconds(itemDelay);
+                    
+                    var currentRow = hotkeyRow;
+                    
+                    timer.Tick += (s, e) =>
+                    {
+                        timer.Stop();
+                        
+                        // Always animate if the row is still in the list
+                        if (HotkeysList.Children.Contains(currentRow))
+                        {
+                            currentRow.Translation = new System.Numerics.Vector3(0, 0, 0);
+                            currentRow.Opacity = 1;
+                        }
+                    };
+                    timer.Start();
+                }
+                
+                Logger.LogInfo($"Started {direction} wave animation for {hotkeys.Count} hotkeys with {delayPerItem:F1}ms delay per item");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to animate hotkey rows with direction", ex);
+                // Fallback: show all rows immediately
+                HotkeysList.Children.Clear();
+                foreach (var (key, description) in hotkeys)
                 {
                     var hotkeyRow = CreateSimpleHotkeyRow(key, description);
                     HotkeysList.Children.Add(hotkeyRow);
                 }
             }
+        }
+
+        /// <summary>
+        /// Get slide offset for individual hotkey rows
+        /// </summary>
+        private System.Numerics.Vector3 GetRowSlideOffset(AnimationDirection direction)
+        {
+            return direction switch
+            {
+                AnimationDirection.Left => new System.Numerics.Vector3(-20, 0, 0),   // Slide from left
+                AnimationDirection.Right => new System.Numerics.Vector3(20, 0, 0),   // Slide from right  
+                AnimationDirection.Up => new System.Numerics.Vector3(0, -15, 0),     // Slide from top
+                AnimationDirection.Down => new System.Numerics.Vector3(0, 15, 0),    // Slide from bottom
+                _ => new System.Numerics.Vector3(15, 0, 0)                           // Default: slide from right
+            };
+        }
+
+        /// <summary>
+        /// Hide hotkeys panel with smooth fade-out animation
+        /// </summary>
+        private void HideHotkeysPanel()
+        {
+            try
+            {
+                // Cancel any ongoing show animation
+                if (_isAnimatingIn)
+                {
+                    _isAnimatingIn = false;
+                }
+                
+                // If already animating out or already hidden, don't start another animation
+                if (_isAnimatingOut || HotkeysScrollViewer.Visibility == Visibility.Collapsed) return;
+                
+                _isAnimatingOut = true;
+                
+                // Cancel any existing hide timer
+                _hideTimer?.Stop();
+                
+                // Animate out with slide and fade
+                HotkeysScrollViewer.Translation = new System.Numerics.Vector3(20, 0, 0);
+                HotkeysScrollViewer.Opacity = 0;
+                HotkeysSeparator.Opacity = 0.3; // Dim separator when no hotkeys
+                
+                // Use a timer to hide after animation completes
+                _hideTimer = new DispatcherTimer();
+                _hideTimer.Interval = TimeSpan.FromMilliseconds(300);
+                _hideTimer.Tick += (s, e) =>
+                {
+                    _hideTimer.Stop();
+                    _hideTimer = null;
+                    
+                    // Only hide if we're still supposed to be animating out
+                    if (_isAnimatingOut)
+                    {
+                        HotkeysScrollViewer.Visibility = Visibility.Collapsed;
+                        HotkeysColumn.Width = new GridLength(0);
+                        HotkeysList.Children.Clear();
+                        _isAnimatingOut = false;
+                        // Keep separator visible but dimmed
+                    }
+                };
+                _hideTimer.Start();
+            }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to update hotkeys panel", ex);
+                Logger.LogError("Failed to hide hotkeys panel", ex);
+                // Fallback to immediate hide
                 HotkeysScrollViewer.Visibility = Visibility.Collapsed;
-                HotkeysSeparator.Visibility = Visibility.Collapsed;
+                HotkeysColumn.Width = new GridLength(0);
+                HotkeysList.Children.Clear();
+                HotkeysSeparator.Opacity = 0.3;
+                _isAnimatingOut = false;
             }
         }
 
         /// <summary>
-        /// Create simplified hotkey row for overlay (no edit buttons)
+        /// Create simplified hotkey row for overlay (no edit buttons) with animation support
         /// </summary>
         private Border CreateSimpleHotkeyRow(string keyCombo, string description)
         {
@@ -1776,6 +2096,34 @@ namespace FlairX_Mod_Manager
                 Padding = new Thickness(12, 8, 12, 8),
                 Margin = new Thickness(0, 0, 0, 4),
                 MinHeight = 48
+            };
+            
+            // Add smooth transitions for animations
+            rowBorder.OpacityTransition = new ScalarTransition { Duration = TimeSpan.FromMilliseconds(200) };
+            rowBorder.TranslationTransition = new Vector3Transition { Duration = TimeSpan.FromMilliseconds(250) };
+            
+            // Add hover effects
+            rowBorder.PointerEntered += (s, e) =>
+            {
+                rowBorder.Translation = new System.Numerics.Vector3(-2, 0, 0); // Slight left movement
+                if (rowBorder.Background is SolidColorBrush brush)
+                {
+                    // Slightly brighten on hover
+                    var color = brush.Color;
+                    var hoverColor = Windows.UI.Color.FromArgb(
+                        color.A,
+                        (byte)Math.Min(255, color.R + 10),
+                        (byte)Math.Min(255, color.G + 10),
+                        (byte)Math.Min(255, color.B + 10)
+                    );
+                    rowBorder.Background = new SolidColorBrush(hoverColor);
+                }
+            };
+            
+            rowBorder.PointerExited += (s, e) =>
+            {
+                rowBorder.Translation = new System.Numerics.Vector3(0, 0, 0); // Return to original position
+                rowBorder.Background = (Brush)Application.Current.Resources["CardBackgroundFillColorSecondaryBrush"];
             };
             
             var grid = new Grid();

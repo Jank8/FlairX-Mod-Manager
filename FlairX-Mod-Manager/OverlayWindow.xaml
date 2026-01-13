@@ -136,6 +136,7 @@
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch"
                                     Click="ModItem_Click"
+                                    RightTapped="ModItem_RightTapped"
                                     PointerEntered="ModTile_PointerEntered"
                                     PointerExited="ModTile_PointerExited">
                                 <Grid Width="208" Height="250">
@@ -203,11 +204,13 @@
             <Border Grid.Column="1" Grid.Row="0"
                     Width="1"
                     HorizontalAlignment="Right"
-                    Margin="0,4"
+                    Margin="4,8,4,8"
                     Background="{ThemeResource DividerStrokeColorDefaultBrush}"
-                    Opacity="0.3"
-                    x:Name="HotkeysSeparator"
-                    Visibility="Collapsed"/>
+                    x:Name="HotkeysSeparator">
+                <Border.OpacityTransition>
+                    <ScalarTransition Duration="0:0:0.25"/>
+                </Border.OpacityTransition>
+            </Border>
 
             <!-- Hotkeys Column -->
             <ScrollViewer x:Name="HotkeysScrollViewer"
@@ -216,7 +219,14 @@
                           Padding="0,0,8,0"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled"
-                          Visibility="Collapsed">
+                          Visibility="Collapsed"
+                          Opacity="0">
+                <ScrollViewer.OpacityTransition>
+                    <ScalarTransition Duration="0:0:0.3"/>
+                </ScrollViewer.OpacityTransition>
+                <ScrollViewer.TranslationTransition>
+                    <Vector3Transition Duration="0:0:0.3"/>
+                </ScrollViewer.TranslationTransition>
                 <StackPanel Spacing="8">
                     <!-- Hotkeys Header -->
                     <TextBlock x:Name="HotkeysHeader" 
