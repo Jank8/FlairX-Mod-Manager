@@ -31,6 +31,13 @@ namespace FlairX_Mod_Manager.Pages
                 if (token.IsCancellationRequested)
                     break;
 
+                // Skip if directory doesn't exist
+                if (!Directory.Exists(modDir))
+                {
+                    Logger.LogDebug($"Mod directory does not exist, skipping: {modDir}");
+                    continue;
+                }
+
                 // Collect INI files
                 var iniFiles = new List<string>();
                 if (recursive)
@@ -111,7 +118,11 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     if (Directory.Exists(categoryDir))
                     {
-                        modDirectories.AddRange(Directory.GetDirectories(categoryDir));
+                        // Get all mod directories and filter only existing ones
+                        var modDirs = Directory.GetDirectories(categoryDir)
+                            .Where(Directory.Exists)
+                            .ToArray();
+                        modDirectories.AddRange(modDirs);
                     }
                 }
                 
@@ -231,6 +242,13 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                // Check if directory exists before trying to access it
+                if (!Directory.Exists(folderPath))
+                {
+                    Logger.LogDebug($"Directory does not exist, skipping: {folderPath}");
+                    return;
+                }
+                
                 // First, find INI files in the current directory
                 var files = Directory.GetFiles(folderPath, "*.ini");
                 foreach (var file in files)
@@ -242,12 +260,21 @@ namespace FlairX_Mod_Manager.Pages
                         iniFiles.Add(file);
                     }
                 }
+                
                 // Then, search subdirectories
                 var directories = Directory.GetDirectories(folderPath);
                 foreach (var dir in directories)
                 {
                     FindIniFilesStaticRecursive(dir, iniFiles);
                 }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                Logger.LogDebug($"Access denied to directory: {folderPath} - {ex.Message}");
+            }
+            catch (DirectoryNotFoundException ex)
+            {
+                Logger.LogDebug($"Directory not found: {folderPath} - {ex.Message}");
             }
             catch (Exception ex)
             {

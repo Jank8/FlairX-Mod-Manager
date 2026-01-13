@@ -555,14 +555,22 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
-        /// Download a file from GameBanana
+        /// Download a file from GameBanana using multi-threaded downloader
         /// </summary>
         public static async Task<bool> DownloadFileAsync(string downloadUrl, string destinationPath, IProgress<double>? progress = null)
         {
             try
             {
+                // Use multi-threaded downloader if enabled
+                if (SettingsManager.GetFastDownloadEnabled())
+                {
+                    var maxConnections = SettingsManager.GetMaxDownloadConnections();
+                    return await MultiThreadDownloader.DownloadFileAsync(downloadUrl, destinationPath, progress, maxConnections);
+                }
+                
+                // Fallback to single connection download
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/2.6.8");
+                _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/3.6.5");
 
                 using var response = await _httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
                 response.EnsureSuccessStatusCode();

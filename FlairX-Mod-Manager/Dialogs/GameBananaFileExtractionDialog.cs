@@ -624,12 +624,18 @@ namespace FlairX_Mod_Manager.Dialogs
                 var existingModPath = FindExistingModPath(categoryPath, cleanModName);
                 
                 bool isUpdate = false;
+                bool wasActive = false;
                 string modPath;
                 
                 if (!string.IsNullOrEmpty(existingModPath) && Directory.Exists(existingModPath))
                 {
                     // Mod exists - check if it's an update
                     modPath = existingModPath;
+                    
+                    // Check if mod is currently active (no DISABLED_ prefix)
+                    var folderName = Path.GetFileName(modPath);
+                    wasActive = !folderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase);
+                    
                     var modJsonPath = Path.Combine(modPath, "mod.json");
                     if (File.Exists(modJsonPath))
                     {
@@ -644,7 +650,24 @@ namespace FlairX_Mod_Manager.Dialogs
                                 if (existingUrl == _modProfileUrl)
                                 {
                                     isUpdate = true;
-                                    Logger.LogInfo($"Updating existing mod at: {modPath}");
+                                    Logger.LogInfo($"Updating existing mod at: {modPath} (was active: {wasActive})");
+                                    
+                                    // If mod is active, temporarily deactivate it for update
+                                    if (wasActive)
+                                    {
+                                        var tempDisabledPath = Path.Combine(categoryPath, "DISABLED_" + cleanModName);
+                                        
+                                        // Check if DISABLED_ version already exists
+                                        if (Directory.Exists(tempDisabledPath))
+                                        {
+                                            throw new InvalidOperationException($"Cannot update active mod: A disabled version already exists at {tempDisabledPath}");
+                                        }
+                                        
+                                        // Temporarily deactivate mod for update
+                                        Directory.Move(modPath, tempDisabledPath);
+                                        modPath = tempDisabledPath;
+                                        Logger.LogInfo($"Temporarily deactivated mod for update: {modPath}");
+                                    }
                                     
                                     // Show update-specific options grid
                                     DispatcherQueue.TryEnqueue(() =>
@@ -760,6 +783,24 @@ namespace FlairX_Mod_Manager.Dialogs
                         }
                         
                         File.Move(file, destPath, true);
+                    }
+                    
+                    // If mod was active before update, reactivate it
+                    if (isUpdate && wasActive)
+                    {
+                        var finalActivePath = Path.Combine(categoryPath, cleanModName);
+                        
+                        // Check if active path is available
+                        if (Directory.Exists(finalActivePath))
+                        {
+                            Logger.LogWarning($"Cannot reactivate mod: Active path already exists at {finalActivePath}");
+                        }
+                        else
+                        {
+                            Directory.Move(modPath, finalActivePath);
+                            modPath = finalActivePath;
+                            Logger.LogInfo($"Reactivated mod after update: {modPath}");
+                        }
                     }
                 }
                 finally

@@ -114,6 +114,10 @@ namespace FlairX_Mod_Manager
         // GameBanana settings
         public bool BlurNSFWThumbnails { get; set; } = true;
         
+        // Download settings
+        public bool FastDownloadEnabled { get; set; } = true;
+        public int MaxDownloadConnections { get; set; } = 4;
+        
         // Image Optimizer settings
         public int ImageOptimizerJpegQuality { get; set; } = 80;
         public int ImageOptimizerThreadCount { get; set; } = 0; // 0 = auto-detect based on CPU cores
@@ -394,6 +398,29 @@ namespace FlairX_Mod_Manager
             Current.LastSelectedCategory = null;
             Current.LastSelectedPage = "ModGridPage";
             Current.LastViewMode = null;
+            Save();
+        }
+        
+        // Download settings
+        public static bool GetFastDownloadEnabled()
+        {
+            return Current.FastDownloadEnabled;
+        }
+        
+        public static void SetFastDownloadEnabled(bool enabled)
+        {
+            Current.FastDownloadEnabled = enabled;
+            Save();
+        }
+        
+        public static int GetMaxDownloadConnections()
+        {
+            return Math.Max(1, Math.Min(8, Current.MaxDownloadConnections)); // Clamp between 1-8
+        }
+        
+        public static void SetMaxDownloadConnections(int connections)
+        {
+            Current.MaxDownloadConnections = Math.Max(1, Math.Min(8, connections));
             Save();
         }
     }

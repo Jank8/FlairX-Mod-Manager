@@ -446,7 +446,8 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (resultCount == 0)
                 {
-                    TableSearchResultsText.Text = "No results found";
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    TableSearchResultsText.Text = SharedUtilities.GetTranslation(lang, "No_Results_Found");
                 }
                 else
                 {
@@ -1818,7 +1819,11 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             dropOverlay.Visibility = Visibility.Collapsed;
                             dropOverlay.Opacity = 0;
-                            if (dropText != null) dropText.Text = "Drop images here";
+                            if (dropText != null) 
+                            {
+                                var lang = SharedUtilities.LoadLanguageDictionary();
+                                dropText.Text = SharedUtilities.GetTranslation(lang, "Drop_Images_Here");
+                            }
                             if (dropIcon != null)
                             {
                                 dropIcon.Glyph = "\uE896";

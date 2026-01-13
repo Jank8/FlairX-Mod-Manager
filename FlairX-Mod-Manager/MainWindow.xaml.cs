@@ -911,7 +911,8 @@ namespace FlairX_Mod_Manager
                 _notifyIconData.uID = 1;
                 _notifyIconData.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
                 _notifyIconData.uCallbackMessage = WM_TRAYICON;
-                _notifyIconData.szTip = "FlairX Mod Manager";
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                _notifyIconData.szTip = SharedUtilities.GetTranslation(lang, "App_Name");
                 
                 // Load icon - keep reference to prevent GC
                 try

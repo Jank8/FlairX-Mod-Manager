@@ -138,6 +138,8 @@ namespace FlairX_Mod_Manager.Pages
                 BlurNSFWToggleLabel.Text = BlurNSFWToggle.IsOn ? onText : offText;
             if (HotkeysEnabledToggleLabel != null && HotkeysEnabledToggle != null)
                 HotkeysEnabledToggleLabel.Text = HotkeysEnabledToggle.IsOn ? onText : offText;
+            if (FastDownloadToggleLabel != null && FastDownloadToggle != null)
+                FastDownloadToggleLabel.Text = FastDownloadToggle.IsOn ? onText : offText;
         }
         
         private void BackButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -269,6 +271,7 @@ namespace FlairX_Mod_Manager.Pages
             if (DisplayHeader != null) DisplayHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DisplayHeader");
             if (DirectoriesHeader != null) DirectoriesHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DirectoriesHeader");
             if (BehaviorHeader != null) BehaviorHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_BehaviorHeader");
+            if (DownloadHeader != null) DownloadHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DownloadHeader");
             
             if (ThemeLabel != null) ThemeLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Theme");
             if (BackdropLabel != null) BackdropLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Backdrop");
@@ -286,6 +289,8 @@ namespace FlairX_Mod_Manager.Pages
             if (ErrorOnlyLoggingLabel != null) ErrorOnlyLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Label");
             if (MinimizeToTrayLabel != null) MinimizeToTrayLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Label");
             if (BlurNSFWLabel != null) BlurNSFWLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Label");
+            if (FastDownloadLabel != null) FastDownloadLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_FastDownload_Label");
+            if (MaxConnectionsLabel != null) MaxConnectionsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MaxConnections_Label");
             if (HotkeysHeader != null) HotkeysHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Hotkeys_Header");
 
             // Description texts - use null checks and fallback to empty string if missing
@@ -312,6 +317,8 @@ namespace FlairX_Mod_Manager.Pages
             if (ErrorOnlyLoggingDescription != null) ErrorOnlyLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Description") ?? string.Empty;
             if (MinimizeToTrayDescription != null) MinimizeToTrayDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Description") ?? string.Empty;
             if (BlurNSFWDescription != null) BlurNSFWDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Description") ?? string.Empty;
+            if (FastDownloadDescription != null) FastDownloadDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_FastDownload_Description") ?? string.Empty;
+            if (MaxConnectionsDescription != null) MaxConnectionsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MaxConnections_Description") ?? string.Empty;
             
             // ToggleSwitch labels - set initial state
             UpdateToggleLabels();
@@ -474,6 +481,10 @@ namespace FlairX_Mod_Manager.Pages
             MinimizeToTrayToggle.IsOn = SettingsManager.Current.MinimizeToTrayEnabled;
             BlurNSFWToggle.IsOn = SettingsManager.Current.BlurNSFWThumbnails;
             HotkeysEnabledToggle.IsOn = SettingsManager.Current.HotkeysEnabled;
+            
+            // Set download settings
+            FastDownloadToggle.IsOn = SettingsManager.GetFastDownloadEnabled();
+            MaxConnectionsNumberBox.Value = SettingsManager.GetMaxDownloadConnections();
             
             // Update hotkeys section state
             UpdateHotkeysSectionState(SettingsManager.Current.HotkeysEnabled);
@@ -2278,7 +2289,7 @@ namespace FlairX_Mod_Manager.Pages
             // Add title first
             var titleBlock = new TextBlock
             {
-                Text = "FlairX Mod Manager",
+                Text = SharedUtilities.GetTranslation(lang, "App_Name"),
                 FontWeight = Microsoft.UI.Text.FontWeights.Bold,
                 TextAlignment = TextAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -2772,6 +2783,25 @@ namespace FlairX_Mod_Manager.Pages
             };
         }
         
+
+        #region Download Settings
+        
+        private void FastDownloadToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.SetFastDownloadEnabled(FastDownloadToggle.IsOn);
+            UpdateToggleLabels();
+        }
+        
+        private void MaxConnectionsNumberBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+        {
+            if (sender.Value >= 1 && sender.Value <= 8)
+            {
+                SettingsManager.SetMaxDownloadConnections((int)sender.Value);
+            }
+        }
+        
+        #endregion
+
         #endregion
     }
 }
