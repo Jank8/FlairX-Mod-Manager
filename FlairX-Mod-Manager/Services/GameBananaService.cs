@@ -351,9 +351,11 @@ namespace FlairX_Mod_Manager.Services
             public int GetLikeCount() => LikeCount ?? 0;
             
             /// <summary>
-            /// Check if mod has NSFW content (using RootCategory)
+            /// Check if mod has NSFW content
+            /// Note: This information is not reliably available in mod details API
+            /// Use the IsRated field from mod list instead when available
             /// </summary>
-            public bool IsNSFW() => RootCategory?.Name?.Contains("NSFW", StringComparison.OrdinalIgnoreCase) == true;
+            public bool IsNSFW() => false; // Not available in details API, use IsRated from list
         }
 
         public class ModFile

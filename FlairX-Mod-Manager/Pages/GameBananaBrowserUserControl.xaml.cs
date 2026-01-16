@@ -746,7 +746,8 @@ namespace FlairX_Mod_Manager.Pages
                                     DownloadCount = modDetails.GetDownloadCount(),
                                     DateAdded = modDetails.DateAdded ?? 0,
                                     DateUpdated = modDetails.DateUpdated ?? 0,
-                                    IsNSFW = modDetails.IsNSFW(),
+                                    IsRated = false, // Not available in details API, will be set to false
+                                    IsNSFW = false, // Not available in details API
                                     IsInstalled = IsModInstalled(modDetails.ProfileUrl),
                                     InstalledText = installedText
                                 };
@@ -1809,7 +1810,7 @@ namespace FlairX_Mod_Manager.Pages
                 dateUpdated,
                 categoryName, // Use fresh category from API
                 freshModDetails.PreviewMedia,
-                _currentModIsNSFW, // Pass NSFW status from mod list
+                _currentModIsNSFW, // Use NSFW status from mod list (not available in details API)
                 freshModDetails.Version, // Pass version from API (_sVersion)
                 existingModPath); // Pass existing mod path if installed
             extractDialog.XamlRoot = XamlRoot;
