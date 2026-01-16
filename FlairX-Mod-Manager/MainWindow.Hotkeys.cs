@@ -581,12 +581,12 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                Logger.LogInfo("ToggleOverlayWindow: Starting");
+                Logger.LogInfo($"ToggleOverlayWindow: Starting (vibrate={vibrate})");
                 
                 // Check if game is selected
                 if (SettingsManager.Current.SelectedGameIndex <= 0)
                 {
-                    Logger.LogInfo("Cannot show overlay - no game selected");
+                    Logger.LogInfo("ToggleOverlayWindow: Cannot show overlay - no game selected");
                     return;
                 }
                 Logger.LogInfo($"ToggleOverlayWindow: Game selected index = {SettingsManager.Current.SelectedGameIndex}");

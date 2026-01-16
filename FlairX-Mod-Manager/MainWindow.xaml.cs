@@ -161,8 +161,9 @@ namespace FlairX_Mod_Manager
         {
             try
             {
+                Logger.LogInfo("MainWindow.RefreshGlobalHotkeys: Starting");
                 _globalHotkeyManager?.RefreshHotkeys();
-                Logger.LogInfo("Global hotkeys refreshed");
+                Logger.LogInfo("MainWindow.RefreshGlobalHotkeys: Completed - global hotkeys refreshed");
             }
             catch (Exception ex)
             {
@@ -176,6 +177,7 @@ namespace FlairX_Mod_Manager
             if (msg == WM_HOTKEY)
             {
                 int id = wParam.ToInt32();
+                Logger.LogInfo($"WndProc: WM_HOTKEY message received, ID: {id}");
                 _globalHotkeyManager?.OnHotkeyPressed(id);
                 return IntPtr.Zero;
             }
@@ -483,15 +485,19 @@ namespace FlairX_Mod_Manager
             // Initialize global hotkey manager for system-wide hotkeys
             try
             {
+                Logger.LogInfo("MainWindow: Starting global hotkey manager initialization");
                 _globalHotkeyManager = new GlobalHotkeyManager(this);
+                Logger.LogInfo("MainWindow: GlobalHotkeyManager instance created");
                 
                 // Subclass the window to handle WM_HOTKEY messages
                 var windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(this);
+                Logger.LogInfo($"MainWindow: Window handle obtained: 0x{windowHandle:X}");
                 _wndProcDelegate = WndProc;
                 _originalWndProc = SetWindowLongPtr(windowHandle, GWL_WNDPROC, Marshal.GetFunctionPointerForDelegate(_wndProcDelegate));
+                Logger.LogInfo($"MainWindow: WndProc subclassed, original proc: 0x{_originalWndProc:X}");
                 
                 _globalHotkeyManager.RegisterAllHotkeys();
-                Logger.LogInfo("Global hotkey manager initialized successfully");
+                Logger.LogInfo("MainWindow: Global hotkey manager initialized successfully");
             }
             catch (Exception ex)
             {

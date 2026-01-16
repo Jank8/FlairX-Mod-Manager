@@ -13,10 +13,10 @@ namespace FlairX_Mod_Manager
     public class GlobalHotkeyManager : IDisposable
     {
         // Win32 API imports
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
         [DllImport("user32.dll")]
@@ -100,13 +100,16 @@ namespace FlairX_Mod_Manager
 
         public GlobalHotkeyManager(MainWindow mainWindow)
         {
+            Logger.LogInfo("GlobalHotkeyManager: Constructor starting");
             _mainWindow = mainWindow ?? throw new ArgumentNullException(nameof(mainWindow));
             _windowHandle = WindowNative.GetWindowHandle(mainWindow);
+            Logger.LogInfo($"GlobalHotkeyManager: Window handle obtained: 0x{_windowHandle:X}");
             _hotkeyActions = new Dictionary<int, Func<Task>>();
             _registeredHotkeys = new HashSet<int>();
 
             // Setup hotkey actions
             SetupHotkeyActions();
+            Logger.LogInfo("GlobalHotkeyManager: Constructor completed");
         }
 
         private void SetupHotkeyActions()
@@ -148,9 +151,11 @@ namespace FlairX_Mod_Manager
         {
             try
             {
+                Logger.LogInfo("RegisterAllHotkeys: Starting hotkey registration");
                 var settings = SettingsManager.Current;
 
                 // Check if hotkeys are enabled
+                Logger.LogInfo($"RegisterAllHotkeys: HotkeysEnabled = {settings.HotkeysEnabled}");
                 if (!settings.HotkeysEnabled)
                 {
                     Logger.LogInfo("Hotkeys are disabled - skipping registration");
@@ -158,36 +163,41 @@ namespace FlairX_Mod_Manager
                 }
 
                 // Register reload manager hotkey
+                Logger.LogInfo($"RegisterAllHotkeys: ReloadManagerHotkey = '{settings.ReloadManagerHotkey}'");
                 if (!string.IsNullOrEmpty(settings.ReloadManagerHotkey))
                 {
                     RegisterHotkey(HOTKEY_RELOAD_MANAGER, settings.ReloadManagerHotkey);
                 }
 
                 // Register shuffle active mods hotkey
+                Logger.LogInfo($"RegisterAllHotkeys: ShuffleActiveModsHotkey = '{settings.ShuffleActiveModsHotkey}'");
                 if (!string.IsNullOrEmpty(settings.ShuffleActiveModsHotkey))
                 {
                     RegisterHotkey(HOTKEY_SHUFFLE_ACTIVE_MODS, settings.ShuffleActiveModsHotkey);
                 }
 
                 // Register deactivate all mods hotkey
+                Logger.LogInfo($"RegisterAllHotkeys: DeactivateAllModsHotkey = '{settings.DeactivateAllModsHotkey}'");
                 if (!string.IsNullOrEmpty(settings.DeactivateAllModsHotkey))
                 {
                     RegisterHotkey(HOTKEY_DEACTIVATE_ALL_MODS, settings.DeactivateAllModsHotkey);
                 }
 
                 // Register toggle overlay hotkey
+                Logger.LogInfo($"RegisterAllHotkeys: ToggleOverlayHotkey = '{settings.ToggleOverlayHotkey}'");
                 if (!string.IsNullOrEmpty(settings.ToggleOverlayHotkey))
                 {
                     RegisterHotkey(HOTKEY_TOGGLE_OVERLAY, settings.ToggleOverlayHotkey);
                 }
 
                 // Register filter active mods hotkey
+                Logger.LogInfo($"RegisterAllHotkeys: FilterActiveHotkey = '{settings.FilterActiveHotkey}'");
                 if (!string.IsNullOrEmpty(settings.FilterActiveHotkey))
                 {
                     RegisterHotkey(HOTKEY_FILTER_ACTIVE, settings.FilterActiveHotkey);
                 }
 
-                Logger.LogInfo($"Registered {_registeredHotkeys.Count} global hotkeys");
+                Logger.LogInfo($"RegisterAllHotkeys: Completed - registered {_registeredHotkeys.Count} global hotkeys");
             }
             catch (Exception ex)
             {
@@ -199,21 +209,24 @@ namespace FlairX_Mod_Manager
         {
             try
             {
+                Logger.LogInfo($"RegisterHotkey: Attempting to register '{hotkeyString}' with ID {id}");
                 if (ParseHotkeyString(hotkeyString, out uint modifiers, out uint virtualKey))
                 {
+                    Logger.LogInfo($"RegisterHotkey: Parsed '{hotkeyString}' - modifiers=0x{modifiers:X}, virtualKey=0x{virtualKey:X}");
                     if (RegisterHotKey(_windowHandle, id, modifiers, virtualKey))
                     {
                         _registeredHotkeys.Add(id);
-                        Logger.LogInfo($"Registered global hotkey: {hotkeyString} (ID: {id})");
+                        Logger.LogInfo($"RegisterHotkey: SUCCESS - Registered global hotkey: {hotkeyString} (ID: {id})");
                     }
                     else
                     {
-                        Logger.LogWarning($"Failed to register global hotkey: {hotkeyString} (ID: {id})");
+                        var lastError = Marshal.GetLastWin32Error();
+                        Logger.LogWarning($"RegisterHotkey: FAILED - Could not register global hotkey: {hotkeyString} (ID: {id}), Win32 Error: {lastError}");
                     }
                 }
                 else
                 {
-                    Logger.LogWarning($"Failed to parse hotkey string: {hotkeyString}");
+                    Logger.LogWarning($"RegisterHotkey: FAILED - Could not parse hotkey string: {hotkeyString}");
                 }
             }
             catch (Exception ex)
@@ -227,40 +240,60 @@ namespace FlairX_Mod_Manager
             modifiers = 0;
             virtualKey = 0;
 
+            Logger.LogInfo($"ParseHotkeyString: Parsing '{hotkeyString}'");
+
             if (string.IsNullOrEmpty(hotkeyString))
+            {
+                Logger.LogWarning("ParseHotkeyString: Hotkey string is null or empty");
                 return false;
+            }
 
             var parts = hotkeyString.Split('+');
             if (parts.Length == 0)
+            {
+                Logger.LogWarning("ParseHotkeyString: No parts found after split");
                 return false;
+            }
+
+            Logger.LogInfo($"ParseHotkeyString: Split into {parts.Length} parts: [{string.Join(", ", parts)}]");
 
             // Parse modifiers
             for (int i = 0; i < parts.Length - 1; i++)
             {
-                switch (parts[i].Trim().ToLower())
+                var modifier = parts[i].Trim().ToLower();
+                switch (modifier)
                 {
                     case "ctrl":
                         modifiers |= MOD_CONTROL;
+                        Logger.LogInfo($"ParseHotkeyString: Added CTRL modifier (0x{MOD_CONTROL:X})");
                         break;
                     case "alt":
                         modifiers |= MOD_ALT;
+                        Logger.LogInfo($"ParseHotkeyString: Added ALT modifier (0x{MOD_ALT:X})");
                         break;
                     case "shift":
                         modifiers |= MOD_SHIFT;
+                        Logger.LogInfo($"ParseHotkeyString: Added SHIFT modifier (0x{MOD_SHIFT:X})");
                         break;
                     case "win":
                         modifiers |= MOD_WIN;
+                        Logger.LogInfo($"ParseHotkeyString: Added WIN modifier (0x{MOD_WIN:X})");
+                        break;
+                    default:
+                        Logger.LogWarning($"ParseHotkeyString: Unknown modifier '{modifier}'");
                         break;
                 }
             }
 
             // Parse main key
             var keyString = parts[parts.Length - 1].Trim().ToUpper();
+            Logger.LogInfo($"ParseHotkeyString: Main key string: '{keyString}'");
             
             // Handle letters A-Z
             if (keyString.Length == 1 && keyString[0] >= 'A' && keyString[0] <= 'Z')
             {
                 virtualKey = (uint)keyString[0];
+                Logger.LogInfo($"ParseHotkeyString: Parsed as letter key, VK=0x{virtualKey:X} ('{keyString}')");
                 return true;
             }
             
@@ -268,6 +301,7 @@ namespace FlairX_Mod_Manager
             if (keyString.Length == 1 && keyString[0] >= '0' && keyString[0] <= '9')
             {
                 virtualKey = (uint)keyString[0];
+                Logger.LogInfo($"ParseHotkeyString: Parsed as number key, VK=0x{virtualKey:X} ('{keyString}')");
                 return true;
             }
             
@@ -277,10 +311,12 @@ namespace FlairX_Mod_Manager
                 if (int.TryParse(keyString.Substring(1), out int fKeyNum) && fKeyNum >= 1 && fKeyNum <= 12)
                 {
                     virtualKey = (uint)VirtualKeys.VK_F1 + (uint)(fKeyNum - 1);
+                    Logger.LogInfo($"ParseHotkeyString: Parsed as function key F{fKeyNum}, VK=0x{virtualKey:X}");
                     return true;
                 }
             }
 
+            Logger.LogWarning($"ParseHotkeyString: Could not parse key '{keyString}'");
             return false;
         }
 
@@ -288,12 +324,14 @@ namespace FlairX_Mod_Manager
         {
             try
             {
+                Logger.LogInfo($"UnregisterAllHotkeys: Unregistering {_registeredHotkeys.Count} hotkeys");
                 foreach (var id in _registeredHotkeys)
                 {
                     UnregisterHotKey(_windowHandle, id);
+                    Logger.LogInfo($"UnregisterAllHotkeys: Unregistered hotkey ID {id}");
                 }
                 _registeredHotkeys.Clear();
-                Logger.LogInfo("Unregistered all global hotkeys");
+                Logger.LogInfo("UnregisterAllHotkeys: Completed - all global hotkeys unregistered");
             }
             catch (Exception ex)
             {
@@ -303,24 +341,34 @@ namespace FlairX_Mod_Manager
 
         public void RefreshHotkeys()
         {
+            Logger.LogInfo("RefreshHotkeys: Starting hotkey refresh");
             UnregisterAllHotkeys();
             RegisterAllHotkeys();
+            Logger.LogInfo("RefreshHotkeys: Completed");
         }
 
         public async void OnHotkeyPressed(int id)
         {
             try
             {
+                Logger.LogInfo($"OnHotkeyPressed: Hotkey ID {id} pressed");
+                
                 // Check if hotkeys are enabled before executing
                 if (!SettingsManager.Current.HotkeysEnabled)
                 {
-                    Logger.LogInfo($"Hotkey {id} pressed but hotkeys are disabled - ignoring");
+                    Logger.LogInfo($"OnHotkeyPressed: Hotkey {id} pressed but hotkeys are disabled - ignoring");
                     return;
                 }
 
                 if (_hotkeyActions.TryGetValue(id, out var action))
                 {
+                    Logger.LogInfo($"OnHotkeyPressed: Executing action for hotkey ID {id}");
                     await action();
+                    Logger.LogInfo($"OnHotkeyPressed: Action completed for hotkey ID {id}");
+                }
+                else
+                {
+                    Logger.LogWarning($"OnHotkeyPressed: No action found for hotkey ID {id}");
                 }
             }
             catch (Exception ex)
@@ -333,8 +381,10 @@ namespace FlairX_Mod_Manager
         {
             if (!_disposed)
             {
+                Logger.LogInfo("GlobalHotkeyManager.Dispose: Starting cleanup");
                 UnregisterAllHotkeys();
                 _disposed = true;
+                Logger.LogInfo("GlobalHotkeyManager.Dispose: Completed");
             }
         }
     }
