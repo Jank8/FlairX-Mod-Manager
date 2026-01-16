@@ -67,7 +67,7 @@
     "Error_Generic": "Error",
     "OK": "Aceptar",
     "PickFolderDialog_Title": "Seleccionar carpeta",
-    "StatusKeeper_BackupConfirmationToggleLabel": "OFF/ON",
-    "StatusKeeper_DynamicSyncToggleLabel": "OFF/ON",
-    "StatusKeeper_LoggingToggleLabel": "OFF/ON"
+    "StatusKeeper_BackupConfirmationToggleLabel": "APAGADO/ENCENDIDO",
+    "StatusKeeper_DynamicSyncToggleLabel": "APAGADO/ENCENDIDO",
+    "StatusKeeper_LoggingToggleLabel": "APAGADO/ENCENDIDO"
 }

@@ -67,7 +67,7 @@
     "Error_Generic": "エラー",
     "OK": "OK",
     "PickFolderDialog_Title": "フォルダーを選択",
-    "StatusKeeper_BackupConfirmationToggleLabel": "オフ/オン",
     "StatusKeeper_DynamicSyncToggleLabel": "オフ/オン",
+    "StatusKeeper_BackupConfirmationToggleLabel": "オフ/オン",
     "StatusKeeper_LoggingToggleLabel": "オフ/オン"
 }

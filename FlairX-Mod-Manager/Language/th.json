@@ -302,7 +302,6 @@
     "ModDetailPage_CaptureScreenshot_Simple_Tooltip": "จับภาพหน้าจอ",
     "ScreenshotCapture_Title": "จับภาพหน้าจอ",
     "ScreenshotCapture_WaitingForFiles": "รอภาพหน้าจอ...",
-    "ScreenshotCapture_WaitingForFiles": "รอภาพหน้าจอ...",
     "ScreenshotCapture_TakeScreenshots": "เปิดหน้าต่างนี้ไว้",
     "ScreenshotCapture_FilesWillBeCopied": "ภาพหน้าจอจะถูกจับจากโฟลเดอร์ที่ตรวจสอบ (ตั้งค่าใน Image Optimizer)",
     "ScreenshotCapture_EditAndContinue": "แก้ไขพื้นที่ครอบตัด จากนั้นถ่ายภาพหน้าจอต่อหรือคลิก 'เสร็จสิ้นการจับภาพ'",
@@ -311,5 +310,13 @@
     "ScreenshotCapture_Cancelled": "การจับภาพหน้าจอถูกยกเลิกและไฟล์ที่จับภาพไว้ถูกลบแล้ว",
     "ScreenshotCapture_FileCount": "({0} ไฟล์)",
     "ScreenshotCapture_FileCountSingle": "(1 ไฟล์)",
-    "ScreenshotCapture_NoFiles": "(0 ไฟล์)"
+    "ScreenshotCapture_NoFiles": "(0 ไฟล์)",
+    "App_Name": "FlairX Mod Manager",
+    "Drop_Images_Here": "วางรูปภาพที่นี่",
+    "No_Results_Found": "ไม่พบผลลัพธ์",
+    "SettingsPage_DownloadHeader": "ดาวน์โหลด",
+    "SettingsPage_FastDownload_Label": "ดาวน์โหลดเร็ว",
+    "SettingsPage_FastDownload_Description": "ใช้การเชื่อมต่อหลายรายการเพื่อดาวน์โหลดไฟล์เร็วขึ้น",
+    "SettingsPage_MaxConnections_Label": "การเชื่อมต่อสูงสุด",
+    "SettingsPage_MaxConnections_Description": "จำนวนการเชื่อมต่อดาวน์โหลดพร้อมกัน (1-8)"
 }

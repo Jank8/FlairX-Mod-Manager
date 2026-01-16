@@ -310,5 +310,13 @@
     "ScreenshotCapture_Cancelled": "螢幕截圖擷取已取消，擷取的檔案已刪除",
     "ScreenshotCapture_FileCount": "({0} 個檔案)",
     "ScreenshotCapture_FileCountSingle": "(1 個檔案)",
-    "ScreenshotCapture_NoFiles": "(0 個檔案)"
+    "ScreenshotCapture_NoFiles": "(0 個檔案)",
+    "App_Name": "FlairX Mod Manager",
+    "Drop_Images_Here": "將圖片拖到這裡",
+    "No_Results_Found": "未找到結果",
+    "SettingsPage_DownloadHeader": "下載",
+    "SettingsPage_FastDownload_Label": "快速下載",
+    "SettingsPage_FastDownload_Description": "使用多個連接更快地下載檔案",
+    "SettingsPage_MaxConnections_Label": "最大連接數",
+    "SettingsPage_MaxConnections_Description": "同時下載連接數 (1-8)"
 }

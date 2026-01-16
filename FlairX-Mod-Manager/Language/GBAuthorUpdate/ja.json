@@ -10,7 +10,7 @@
     "SmartUpdateLabel": "不明な作者のみ (スマートアップデート)",
     "SkipInvalidUrlsLabel": "無効なURLのModをスキップ",
     "SkipInvalidUrlsDescription": "無効なURLとマークされたModをスキップ",
-    "SkipInvalidUrlsToggleLabel": "OFF/ON",
+    "SkipInvalidUrlsToggleLabel": "オフ/オン",
     "FetchAuthorsButton": "サーバーから作者を取得",
     "ConfirmFetchAuthors": "GameBananaからすべてのModの作者情報を取得して更新します。続行しますか？",
     "ConfirmFetchDates": "GameBananaからすべてのModの日付情報を取得して更新します。続行しますか？",

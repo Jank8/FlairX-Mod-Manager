@@ -310,5 +310,13 @@
     "ScreenshotCapture_Cancelled": "La capture d'écran a été annulée et les fichiers capturés ont été supprimés",
     "ScreenshotCapture_FileCount": "({0} fichiers)",
     "ScreenshotCapture_FileCountSingle": "(1 fichier)",
-    "ScreenshotCapture_NoFiles": "(0 fichiers)"
+    "ScreenshotCapture_NoFiles": "(0 fichiers)",
+    "App_Name": "FlairX Mod Manager",
+    "Drop_Images_Here": "Déposez les images ici",
+    "No_Results_Found": "Aucun résultat trouvé",
+    "SettingsPage_DownloadHeader": "Téléchargement",
+    "SettingsPage_FastDownload_Label": "Téléchargement rapide",
+    "SettingsPage_FastDownload_Description": "Utilisez plusieurs connexions pour télécharger les fichiers plus rapidement",
+    "SettingsPage_MaxConnections_Label": "Connexions maximales",
+    "SettingsPage_MaxConnections_Description": "Nombre de connexions de téléchargement simultanées (1-8)"
 }

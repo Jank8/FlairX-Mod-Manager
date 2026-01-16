@@ -67,7 +67,7 @@
     "Error_Generic": "Erreur",
     "OK": "OK",
     "PickFolderDialog_Title": "Sélectionner un dossier",
-    "StatusKeeper_BackupConfirmationToggleLabel": "OFF/ON",
-    "StatusKeeper_DynamicSyncToggleLabel": "OFF/ON",
-    "StatusKeeper_LoggingToggleLabel": "OFF/ON"
+    "StatusKeeper_BackupConfirmationToggleLabel": "ARRÊT/MARCHE",
+    "StatusKeeper_DynamicSyncToggleLabel": "ARRÊT/MARCHE",
+    "StatusKeeper_LoggingToggleLabel": "ARRÊT/MARCHE"
 }

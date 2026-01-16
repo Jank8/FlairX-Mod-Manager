@@ -310,5 +310,13 @@
     "ScreenshotCapture_Cancelled": "Ekran görüntüsü yakalama iptal edildi ve yakalanan dosyalar silindi",
     "ScreenshotCapture_FileCount": "({0} dosya)",
     "ScreenshotCapture_FileCountSingle": "(1 dosya)",
-    "ScreenshotCapture_NoFiles": "(0 dosya)"
+    "ScreenshotCapture_NoFiles": "(0 dosya)",
+    "App_Name": "FlairX Mod Manager",
+    "Drop_Images_Here": "Resimleri buraya sürükleyin",
+    "No_Results_Found": "Sonuç bulunamadı",
+    "SettingsPage_DownloadHeader": "İndirme",
+    "SettingsPage_FastDownload_Label": "Hızlı indirme",
+    "SettingsPage_FastDownload_Description": "Dosyaları daha hızlı indirmek için birden fazla bağlantı kullanın",
+    "SettingsPage_MaxConnections_Label": "Maksimum bağlantı",
+    "SettingsPage_MaxConnections_Description": "Eşzamanlı indirme bağlantısı sayısı (1-8)"
 }

@@ -5,7 +5,7 @@
     "SmartUpdateDescription": "Aktualizuj tylko mody z nieznanymi lub brakującymi autorami",
     "ActionsHeader": "Akcje",
     "FetchAuthorsDescription": "Pobierz i zaktualizuj informacje o autorach z GameBanana",
-    "Start": "Start",
+    "Start": "Rozpocznij",
     "UpdateAuthorsLabel": "Aktualizuj autorów GameBanana",
     "UpdateAuthorsToggleLabel": "WYŁ/WŁ",
     "SmartUpdateLabel": "Tylko nieznani autorzy (inteligentna aktualizacja)",

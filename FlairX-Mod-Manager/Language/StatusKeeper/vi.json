@@ -67,7 +67,7 @@
     "Error_Generic": "Lỗi",
     "OK": "OK",
     "PickFolderDialog_Title": "Chọn thư mục",
-    "StatusKeeper_BackupConfirmationToggleLabel": "TẮT/BẬT",
     "StatusKeeper_DynamicSyncToggleLabel": "TẮT/BẬT",
+    "StatusKeeper_BackupConfirmationToggleLabel": "TẮT/BẬT",
     "StatusKeeper_LoggingToggleLabel": "TẮT/BẬT"
 }

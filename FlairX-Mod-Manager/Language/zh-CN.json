@@ -310,5 +310,13 @@
     "ScreenshotCapture_Cancelled": "截图捕获已取消，捕获的文件已删除",
     "ScreenshotCapture_FileCount": "({0} 个文件)",
     "ScreenshotCapture_FileCountSingle": "(1 个文件)",
-    "ScreenshotCapture_NoFiles": "(0 个文件)"
+    "ScreenshotCapture_NoFiles": "(0 个文件)",
+    "App_Name": "FlairX Mod Manager",
+    "Drop_Images_Here": "将图片拖到这里",
+    "No_Results_Found": "未找到结果",
+    "SettingsPage_DownloadHeader": "下载",
+    "SettingsPage_FastDownload_Label": "快速下载",
+    "SettingsPage_FastDownload_Description": "使用多个连接更快地下载文件",
+    "SettingsPage_MaxConnections_Label": "最大连接数",
+    "SettingsPage_MaxConnections_Description": "同时下载连接数 (1-8)"
 }

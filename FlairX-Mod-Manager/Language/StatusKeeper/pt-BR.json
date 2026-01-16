@@ -67,7 +67,7 @@
     "Error_Generic": "Erro",
     "OK": "OK",
     "PickFolderDialog_Title": "Selecionar pasta",
-    "StatusKeeper_BackupConfirmationToggleLabel": "OFF/ON",
-    "StatusKeeper_DynamicSyncToggleLabel": "OFF/ON",
-    "StatusKeeper_LoggingToggleLabel": "OFF/ON"
+    "StatusKeeper_DynamicSyncToggleLabel": "DESLIGADO/LIGADO",
+    "StatusKeeper_BackupConfirmationToggleLabel": "DESLIGADO/LIGADO",
+    "StatusKeeper_LoggingToggleLabel": "DESLIGADO/LIGADO"
 }

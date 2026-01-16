@@ -310,5 +310,13 @@
     "ScreenshotCapture_Cancelled": "A captura de tela foi cancelada e os arquivos capturados foram excluídos",
     "ScreenshotCapture_FileCount": "({0} arquivos)",
     "ScreenshotCapture_FileCountSingle": "(1 arquivo)",
-    "ScreenshotCapture_NoFiles": "(0 arquivos)"
+    "ScreenshotCapture_NoFiles": "(0 arquivos)",
+    "App_Name": "FlairX Mod Manager",
+    "Drop_Images_Here": "Arraste imagens aqui",
+    "No_Results_Found": "Nenhum resultado encontrado",
+    "SettingsPage_DownloadHeader": "Transferência",
+    "SettingsPage_FastDownload_Label": "Transferência rápida",
+    "SettingsPage_FastDownload_Description": "Use múltiplas ligações para transferir ficheiros mais rapidamente",
+    "SettingsPage_MaxConnections_Label": "Ligações máximas",
+    "SettingsPage_MaxConnections_Description": "Número de ligações de transferência simultâneas (1-8)"
 }

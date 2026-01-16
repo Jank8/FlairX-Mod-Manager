@@ -310,5 +310,13 @@
     "ScreenshotCapture_Cancelled": "Việc chụp ảnh màn hình đã bị hủy và các tệp đã chụp đã được xóa",
     "ScreenshotCapture_FileCount": "({0} tệp)",
     "ScreenshotCapture_FileCountSingle": "(1 tệp)",
-    "ScreenshotCapture_NoFiles": "(0 tệp)"
+    "ScreenshotCapture_NoFiles": "(0 tệp)",
+    "App_Name": "FlairX Mod Manager",
+    "Drop_Images_Here": "Kéo hình ảnh vào đây",
+    "No_Results_Found": "Không tìm thấy kết quả",
+    "SettingsPage_DownloadHeader": "Tải xuống",
+    "SettingsPage_FastDownload_Label": "Tải xuống nhanh",
+    "SettingsPage_FastDownload_Description": "Sử dụng nhiều kết nối để tải xuống tệp nhanh hơn",
+    "SettingsPage_MaxConnections_Label": "Kết nối tối đa",
+    "SettingsPage_MaxConnections_Description": "Số lượng kết nối tải xuống đồng thời (1-8)"
 }
