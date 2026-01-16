@@ -58,7 +58,8 @@ namespace FlairX_Mod_Manager.Pages
                     Name = categoryName,
                     Directory = categoryName,
                     IsCategory = true,
-                    ImagePath = GetCategoryMiniTilePath(categoryName)
+                    ImagePath = GetCategoryMiniTilePath(categoryName),
+                    IsFavorite = SettingsManager.IsCategoryFavorite(gameTag, categoryName) // Load favorite status
                 };
                 
                 // Load mini tile image
@@ -66,11 +67,16 @@ namespace FlairX_Mod_Manager.Pages
                 categories.Add(categoryTile);
             }
             
+            // Sort categories: favorites first, then alphabetically
+            var sortedCategories = categories.OrderByDescending(c => c.IsFavorite)
+                                            .ThenBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
+                                            .ToList();
+            
             // Update UI on main thread
             DispatcherQueue.TryEnqueue(() =>
             {
                 _allMods.Clear();
-                foreach (var category in categories.OrderBy(c => c.Name))
+                foreach (var category in sortedCategories)
                 {
                     _allMods.Add(category);
                 }

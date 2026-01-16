@@ -131,6 +131,9 @@ namespace FlairX_Mod_Manager
         
         // Starter Pack settings (per-game, stored as comma-separated game tags that dismissed the dialog)
         public string StarterPackDismissedGames { get; set; } = ""; // e.g. "ZZMI,GIMI" - games where user clicked "No thanks" or checkbox
+        
+        // Favorite categories (per-game, stored as Dictionary<gameTag, List<categoryName>>)
+        public Dictionary<string, List<string>> FavoriteCategories { get; set; } = new Dictionary<string, List<string>>();
     }
 
     public static class SettingsManager
@@ -422,6 +425,45 @@ namespace FlairX_Mod_Manager
         {
             Current.MaxDownloadConnections = Math.Max(1, Math.Min(8, connections));
             Save();
+        }
+        
+        // Favorite categories management
+        public static bool IsCategoryFavorite(string gameTag, string categoryName)
+        {
+            if (Current.FavoriteCategories.TryGetValue(gameTag, out var favorites))
+            {
+                return favorites.Contains(categoryName);
+            }
+            return false;
+        }
+        
+        public static void ToggleCategoryFavorite(string gameTag, string categoryName)
+        {
+            if (!Current.FavoriteCategories.ContainsKey(gameTag))
+            {
+                Current.FavoriteCategories[gameTag] = new List<string>();
+            }
+            
+            var favorites = Current.FavoriteCategories[gameTag];
+            if (favorites.Contains(categoryName))
+            {
+                favorites.Remove(categoryName);
+            }
+            else
+            {
+                favorites.Add(categoryName);
+            }
+            
+            Save();
+        }
+        
+        public static List<string> GetFavoriteCategories(string gameTag)
+        {
+            if (Current.FavoriteCategories.TryGetValue(gameTag, out var favorites))
+            {
+                return new List<string>(favorites);
+            }
+            return new List<string>();
         }
     }
 }

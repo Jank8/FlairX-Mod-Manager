@@ -2,8 +2,10 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -582,6 +584,247 @@ namespace FlairX_Mod_Manager.Pages
             if (sender is Button btn && btn.Tag is ModTile mod)
             {
                 mod.IsFolderHovered = false;
+            }
+        }
+
+        private void FavoriteStarButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is ModTile tile && tile.IsCategory)
+            {
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                if (string.IsNullOrEmpty(gameTag)) return;
+                
+                // Toggle favorite status
+                SettingsManager.ToggleCategoryFavorite(gameTag, tile.Name);
+                tile.IsFavorite = SettingsManager.IsCategoryFavorite(gameTag, tile.Name);
+                
+                Logger.LogInfo($"Toggled favorite for category: {tile.Name}, IsFavorite: {tile.IsFavorite}");
+                
+                // Re-sort categories with animation to move favorites to top
+                if (_currentViewMode == ViewMode.Categories)
+                {
+                    SortCategoriesByFavoritesAnimated();
+                }
+                
+                // Update menu star in MainWindow with animation
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.UpdateMenuStarForCategoryAnimated(tile.Name, tile.IsFavorite);
+                }
+            }
+        }
+        
+        private async void SortCategoriesByFavoritesAnimated()
+        {
+            try
+            {
+                var items = ModsGrid.ItemsSource as ObservableCollection<ModTile>;
+                if (items == null || items.Count == 0) return;
+                
+                // Get current order
+                var currentOrder = items.ToList();
+                
+                // Calculate new order
+                var sortedItems = items.OrderByDescending(m => m.IsFavorite)
+                                      .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                                      .ToList();
+                
+                // Check if order changed
+                bool orderChanged = false;
+                for (int i = 0; i < currentOrder.Count; i++)
+                {
+                    if (currentOrder[i] != sortedItems[i])
+                    {
+                        orderChanged = true;
+                        break;
+                    }
+                }
+                if (!orderChanged) return;
+                
+                // Fade out the grid
+                var fadeOut = new DoubleAnimation
+                {
+                    From = 1,
+                    To = 0.3,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(100))
+                };
+                var fadeOutStoryboard = new Storyboard();
+                Storyboard.SetTarget(fadeOut, ModsGrid);
+                Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                fadeOutStoryboard.Children.Add(fadeOut);
+                fadeOutStoryboard.Begin();
+                
+                await Task.Delay(100);
+                
+                // Reorder using Move
+                for (int targetIndex = 0; targetIndex < sortedItems.Count; targetIndex++)
+                {
+                    var item = sortedItems[targetIndex];
+                    int currentIndex = items.IndexOf(item);
+                    if (currentIndex != targetIndex && currentIndex >= 0)
+                    {
+                        items.Move(currentIndex, targetIndex);
+                    }
+                }
+                
+                // Fade in the grid
+                var fadeIn = new DoubleAnimation
+                {
+                    From = 0.3,
+                    To = 1,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(150))
+                };
+                var fadeInStoryboard = new Storyboard();
+                Storyboard.SetTarget(fadeIn, ModsGrid);
+                Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                fadeInStoryboard.Children.Add(fadeIn);
+                fadeInStoryboard.Begin();
+                
+                Logger.LogInfo("Categories sorted by favorites with animation");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error sorting categories by favorites with animation", ex);
+                SortCategoriesByFavorites();
+            }
+        }
+
+        private void SortCategoriesByFavorites()
+        {
+            try
+            {
+                var items = ModsGrid.ItemsSource as ObservableCollection<ModTile>;
+                if (items == null) return;
+                
+                // Sort: favorites first, then alphabetically
+                var sortedItems = items.OrderByDescending(m => m.IsFavorite)
+                                      .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                                      .ToList();
+                
+                // Clear and re-add in sorted order
+                items.Clear();
+                foreach (var item in sortedItems)
+                {
+                    items.Add(item);
+                }
+                
+                Logger.LogInfo("Categories sorted by favorites");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error sorting categories by favorites", ex);
+            }
+        }
+        
+        public void RefreshCategoryFavorites()
+        {
+            try
+            {
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                if (string.IsNullOrEmpty(gameTag)) return;
+                
+                // Update favorite status for all category tiles
+                var items = ModsGrid.ItemsSource as ObservableCollection<ModTile>;
+                if (items != null)
+                {
+                    foreach (var item in items.Where(i => i.IsCategory))
+                    {
+                        item.IsFavorite = SettingsManager.IsCategoryFavorite(gameTag, item.Name);
+                    }
+                    
+                    // Re-sort
+                    SortCategoriesByFavorites();
+                }
+                
+                Logger.LogInfo("Refreshed category favorites from menu");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error refreshing category favorites", ex);
+            }
+        }
+        
+        public async void RefreshCategoryFavoritesAnimated()
+        {
+            try
+            {
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                if (string.IsNullOrEmpty(gameTag)) return;
+                
+                var items = ModsGrid.ItemsSource as ObservableCollection<ModTile>;
+                if (items == null || items.Count == 0) return;
+                
+                // Update favorite status for all category tiles
+                foreach (var item in items.Where(i => i.IsCategory))
+                {
+                    item.IsFavorite = SettingsManager.IsCategoryFavorite(gameTag, item.Name);
+                }
+                
+                // Get current order
+                var currentOrder = items.ToList();
+                
+                // Calculate new order
+                var sortedItems = items.OrderByDescending(m => m.IsFavorite)
+                                      .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                                      .ToList();
+                
+                // Check if order changed
+                bool orderChanged = false;
+                for (int i = 0; i < currentOrder.Count; i++)
+                {
+                    if (currentOrder[i] != sortedItems[i])
+                    {
+                        orderChanged = true;
+                        break;
+                    }
+                }
+                if (!orderChanged) return;
+                
+                // Fade out the grid
+                var fadeOut = new DoubleAnimation
+                {
+                    From = 1,
+                    To = 0.3,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(100))
+                };
+                var fadeOutStoryboard = new Storyboard();
+                Storyboard.SetTarget(fadeOut, ModsGrid);
+                Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                fadeOutStoryboard.Children.Add(fadeOut);
+                fadeOutStoryboard.Begin();
+                
+                await Task.Delay(100);
+                
+                // Reorder using Move
+                for (int targetIndex = 0; targetIndex < sortedItems.Count; targetIndex++)
+                {
+                    var item = sortedItems[targetIndex];
+                    int currentIndex = items.IndexOf(item);
+                    if (currentIndex != targetIndex && currentIndex >= 0)
+                    {
+                        items.Move(currentIndex, targetIndex);
+                    }
+                }
+                
+                // Fade in the grid
+                var fadeIn = new DoubleAnimation
+                {
+                    From = 0.3,
+                    To = 1,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(150))
+                };
+                var fadeInStoryboard = new Storyboard();
+                Storyboard.SetTarget(fadeIn, ModsGrid);
+                Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                fadeInStoryboard.Children.Add(fadeIn);
+                fadeInStoryboard.Begin();
+                
+                Logger.LogInfo("Refreshed category favorites with animation");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error refreshing category favorites with animation", ex);
+                RefreshCategoryFavorites();
             }
         }
 

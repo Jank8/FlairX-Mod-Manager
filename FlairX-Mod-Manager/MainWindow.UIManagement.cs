@@ -19,6 +19,10 @@ namespace FlairX_Mod_Manager
     {
         private readonly SemaphoreSlim _menuGenerationLock = new SemaphoreSlim(1, 1);
         private volatile bool _suppressMenuRegeneration = false;
+        
+        // Dictionary to store star buttons for each category
+        private readonly Dictionary<string, (Button button, FontIcon icon)> _categoryStarButtons = new Dictionary<string, (Button, FontIcon)>();
+        
         private void UpdateGameSelectionComboBoxTexts()
         {
             if (GameSelectionComboBox?.Items != null && _lang != null)
@@ -202,8 +206,12 @@ namespace FlairX_Mod_Manager
                         }
                     }
                     
-                    // Sort categories alphabetically
-                    categories.Sort(StringComparer.OrdinalIgnoreCase);
+                    // Sort categories: favorites first, then alphabetically
+                    var gameTag = SettingsManager.CurrentSelectedGame;
+                    var sortedCategories = categories
+                        .OrderByDescending(cat => !string.IsNullOrEmpty(gameTag) && SettingsManager.IsCategoryFavorite(gameTag, cat))
+                        .ThenBy(cat => cat, StringComparer.OrdinalIgnoreCase)
+                        .ToList();
                     
                     // Update UI on main thread
                     var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -232,9 +240,42 @@ namespace FlairX_Mod_Manager
                                     nvSample.FooterMenuItems.Add(item);
                                 }
                                 
-                                // Add character categories
-                                foreach (var category in categories)
+                                // Clear star buttons dictionary
+                                _categoryStarButtons.Clear();
+                                
+                                // Add character categories (already sorted)
+                                foreach (var category in sortedCategories)
                                 {
+                                    var gameTag = SettingsManager.CurrentSelectedGame ?? "";
+                                    bool isFavorite = SettingsManager.IsCategoryFavorite(gameTag, category);
+                                    
+                                    // Create star icon
+                                    var starIcon = new FontIcon
+                                    {
+                                        Glyph = isFavorite ? "\uE735" : "\uE734",
+                                        FontSize = 14,
+                                        Foreground = isFavorite 
+                                            ? new SolidColorBrush(Microsoft.UI.Colors.Gold) 
+                                            : new SolidColorBrush(Microsoft.UI.Colors.White)
+                                    };
+                                    
+                                    // Create star button for the first column
+                                    var starButton = new Button
+                                    {
+                                        Content = starIcon,
+                                        Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
+                                        BorderThickness = new Thickness(0),
+                                        Padding = new Thickness(0),
+                                        VerticalAlignment = VerticalAlignment.Center,
+                                        HorizontalAlignment = HorizontalAlignment.Center,
+                                        Width = 28,
+                                        Height = 28,
+                                        Tag = category
+                                    };
+                                    
+                                    // Store in dictionary for later access
+                                    _categoryStarButtons[category] = (starButton, starIcon);
+                                    
                                     var menuItem = new NavigationViewItem
                                     {
                                         Content = category,
@@ -243,15 +284,43 @@ namespace FlairX_Mod_Manager
                                         Style = (Style)Application.Current.Resources["CategoryAvatarNavigationViewItem"]
                                     };
                                     
-                                    // Add the menu item first
+                                    // Handle star click
+                                    starButton.Click += (s, e) =>
+                                    {
+                                        var catName = (string)((Button)s).Tag;
+                                        var currentGameTag = SettingsManager.CurrentSelectedGame ?? "";
+                                        
+                                        SettingsManager.ToggleCategoryFavorite(currentGameTag, catName);
+                                        bool newFavoriteState = SettingsManager.IsCategoryFavorite(currentGameTag, catName);
+                                        
+                                        // Update icon
+                                        starIcon.Glyph = newFavoriteState ? "\uE735" : "\uE734";
+                                        starIcon.Foreground = newFavoriteState 
+                                            ? new SolidColorBrush(Microsoft.UI.Colors.Gold) 
+                                            : new SolidColorBrush(Microsoft.UI.Colors.White);
+                                        
+                                        // Re-sort menu items with animation
+                                        SortMenuItemsByFavoritesAnimated();
+                                        
+                                        // Only update ModGridPage if it's showing categories view
+                                        if (contentFrame.Content is Pages.ModGridPage modGridPage && 
+                                            modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
+                                        {
+                                            modGridPage.RefreshCategoryFavoritesAnimated();
+                                        }
+                                        
+                                        Logger.LogInfo($"Toggled favorite for category in menu: {catName}, IsFavorite: {newFavoriteState}");
+                                    };
+                                    
+                                    // Add the menu item
                                     nvSample.MenuItems.Add(menuItem);
                                     
-                                    // Wait for the template to be applied, then find and attach hover events to the icon border
+                                    // Wait for the template to be applied, then attach star button and hover events
                                     menuItem.Loaded += async (s, e) => 
                                     {
-                                        // Small delay to ensure template is fully applied
                                         await Task.Delay(50);
                                         AttachIconHoverEvents(menuItem, category, modsPath);
+                                        AttachStarButtonToMenuItem(menuItem, starButton);
                                     };
                                 }
                                 
@@ -783,6 +852,205 @@ namespace FlairX_Mod_Manager
             }
             
             _categoryPreviewCloseTimer.Start();
+        }
+        
+        private void AttachStarButtonToMenuItem(NavigationViewItem menuItem, Button starButton)
+        {
+            try
+            {
+                // Find the StarPresenter in the template and set its content
+                var starPresenter = FindChildByName<ContentPresenter>(menuItem, "StarPresenter");
+                if (starPresenter != null)
+                {
+                    starPresenter.Content = starButton;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error attaching star button to menu item", ex);
+            }
+        }
+        
+        private void SortMenuItemsByFavorites()
+        {
+            try
+            {
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                if (string.IsNullOrEmpty(gameTag)) return;
+                
+                var menuItems = nvSample.MenuItems.OfType<NavigationViewItem>().ToList();
+                
+                // Sort: favorites first, then alphabetically
+                // Get category name from Tag (format: "Category_Name")
+                var sortedItems = menuItems
+                    .OrderByDescending(item => 
+                    {
+                        var tag = item.Tag?.ToString() ?? "";
+                        var catName = tag.StartsWith("Category_") ? tag.Substring(9) : item.Content?.ToString() ?? "";
+                        return SettingsManager.IsCategoryFavorite(gameTag, catName);
+                    })
+                    .ThenBy(item => 
+                    {
+                        var tag = item.Tag?.ToString() ?? "";
+                        var catName = tag.StartsWith("Category_") ? tag.Substring(9) : item.Content?.ToString() ?? "";
+                        return catName;
+                    }, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+                
+                // Clear and re-add
+                nvSample.MenuItems.Clear();
+                foreach (var item in sortedItems)
+                {
+                    nvSample.MenuItems.Add(item);
+                }
+                
+                Logger.LogInfo("Menu items sorted by favorites");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error sorting menu items by favorites", ex);
+            }
+        }
+        
+        private async void SortMenuItemsByFavoritesAnimated()
+        {
+            try
+            {
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                if (string.IsNullOrEmpty(gameTag)) return;
+                
+                var menuItems = nvSample.MenuItems.OfType<NavigationViewItem>().ToList();
+                if (menuItems.Count == 0) return;
+                
+                // Calculate new order
+                var sortedItems = menuItems
+                    .OrderByDescending(item => 
+                    {
+                        var tag = item.Tag?.ToString() ?? "";
+                        var catName = tag.StartsWith("Category_") ? tag.Substring(9) : item.Content?.ToString() ?? "";
+                        return SettingsManager.IsCategoryFavorite(gameTag, catName);
+                    })
+                    .ThenBy(item => 
+                    {
+                        var tag = item.Tag?.ToString() ?? "";
+                        var catName = tag.StartsWith("Category_") ? tag.Substring(9) : item.Content?.ToString() ?? "";
+                        return catName;
+                    }, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+                
+                // Check if order changed
+                bool orderChanged = false;
+                for (int i = 0; i < menuItems.Count; i++)
+                {
+                    if (menuItems[i] != sortedItems[i])
+                    {
+                        orderChanged = true;
+                        break;
+                    }
+                }
+                if (!orderChanged) return;
+                
+                // Fade out animation
+                var fadeOutStoryboard = new Storyboard();
+                foreach (var item in menuItems)
+                {
+                    var fadeOut = new DoubleAnimation
+                    {
+                        From = 1,
+                        To = 0.3,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(100))
+                    };
+                    Storyboard.SetTarget(fadeOut, item);
+                    Storyboard.SetTargetProperty(fadeOut, "Opacity");
+                    fadeOutStoryboard.Children.Add(fadeOut);
+                }
+                
+                fadeOutStoryboard.Begin();
+                await Task.Delay(100);
+                
+                // Reorder
+                nvSample.MenuItems.Clear();
+                foreach (var item in sortedItems)
+                {
+                    item.Opacity = 0.3;
+                    nvSample.MenuItems.Add(item);
+                }
+                
+                // Fade in animation
+                await Task.Delay(50);
+                var fadeInStoryboard = new Storyboard();
+                foreach (var item in sortedItems)
+                {
+                    var fadeIn = new DoubleAnimation
+                    {
+                        From = 0.3,
+                        To = 1,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(150))
+                    };
+                    Storyboard.SetTarget(fadeIn, item);
+                    Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                    fadeInStoryboard.Children.Add(fadeIn);
+                }
+                
+                fadeInStoryboard.Begin();
+                
+                Logger.LogInfo("Menu items sorted by favorites with animation");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error sorting menu items by favorites with animation", ex);
+                SortMenuItemsByFavorites();
+            }
+        }
+        
+        public void UpdateMenuStarForCategory(string categoryName, bool isFavorite)
+        {
+            try
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    // Use dictionary to find star button
+                    if (_categoryStarButtons.TryGetValue(categoryName, out var starData))
+                    {
+                        starData.icon.Glyph = isFavorite ? "\uE735" : "\uE734";
+                        starData.icon.Foreground = isFavorite 
+                            ? new SolidColorBrush(Microsoft.UI.Colors.Gold) 
+                            : new SolidColorBrush(Microsoft.UI.Colors.White);
+                        
+                        // Re-sort menu
+                        SortMenuItemsByFavorites();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error updating menu star for category: {categoryName}", ex);
+            }
+        }
+        
+        public void UpdateMenuStarForCategoryAnimated(string categoryName, bool isFavorite)
+        {
+            try
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    // Use dictionary to find star button
+                    if (_categoryStarButtons.TryGetValue(categoryName, out var starData))
+                    {
+                        starData.icon.Glyph = isFavorite ? "\uE735" : "\uE734";
+                        starData.icon.Foreground = isFavorite 
+                            ? new SolidColorBrush(Microsoft.UI.Colors.Gold) 
+                            : new SolidColorBrush(Microsoft.UI.Colors.White);
+                        
+                        // Re-sort menu with animation
+                        SortMenuItemsByFavoritesAnimated();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error updating menu star for category with animation: {categoryName}", ex);
+            }
         }
     }
 }

@@ -124,6 +124,13 @@ namespace FlairX_Mod_Manager.Pages
             set { if (_isBroken != value) { _isBroken = value; OnPropertyChanged(nameof(IsBroken)); } }
         }
         
+        private bool _isFavorite = false;
+        public bool IsFavorite
+        {
+            get => _isFavorite;
+            set { if (_isFavorite != value) { _isFavorite = value; OnPropertyChanged(nameof(IsFavorite)); } }
+        }
+        
         // Removed IsInViewport - using new scroll-based lazy loading instead
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

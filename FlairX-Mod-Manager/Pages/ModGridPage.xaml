@@ -13,6 +13,8 @@
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <local:BoolToHeartGlyphConverter x:Key="BoolToHeartGlyphConverter" />
         <local:BoolToHeartColorConverter x:Key="BoolToHeartColorConverter" />
+        <local:BoolToStarGlyphConverter x:Key="BoolToStarGlyphConverter" />
+        <local:BoolToStarColorConverter x:Key="BoolToStarColorConverter" />
         <Style x:Key="TransparentButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
@@ -381,7 +383,26 @@
                                 <Grid VerticalAlignment="Top" 
                                       HorizontalAlignment="Right" 
                                       Margin="8,8,8,0">
-                                    <!-- Removed folder button for categories - now in footer -->
+                                    <!-- Favorite Star Button (only for categories) -->
+                                    <Border x:Name="FavoriteStarBorder"
+                                            Width="32"
+                                            Height="32"
+                                            Background="{ThemeResource LauncherAcrylicBrush}"
+                                            CornerRadius="8"
+                                            Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Button x:Name="FavoriteStarButton"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="0"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch"
+                                                Click="FavoriteStarButton_Click"
+                                                Tag="{Binding}">
+                                            <FontIcon Glyph="{Binding IsFavorite, Converter={StaticResource BoolToStarGlyphConverter}}" 
+                                                      FontSize="16"
+                                                      Foreground="{Binding IsFavorite, Converter={StaticResource BoolToStarColorConverter}}"/>
+                                        </Button>
+                                    </Border>
                                 </Grid>
                                 
                                 <!-- Description Section with Acrylic Background -->

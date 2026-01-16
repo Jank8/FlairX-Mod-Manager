@@ -85,12 +85,20 @@
                                 </VisualStateManager.VisualStateGroups>
                                 
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="32"/>
                                     <ColumnDefinition Width="48"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 
+                                <!-- Favorite Star Button (first column) -->
+                                <ContentPresenter x:Name="StarPresenter" 
+                                                  Grid.Column="0"
+                                                  Content="{TemplateBinding Tag}"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                                
                                 <!-- Icon container with fixed size and rounded corners -->
-                                <Border x:Name="IconBorder" Grid.Column="0" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                <Border x:Name="IconBorder" Grid.Column="1" Width="32" Height="32" HorizontalAlignment="Center" VerticalAlignment="Center"
                                         CornerRadius="4" Background="Transparent">
                                     <Viewbox Stretch="Uniform">
                                         <ContentPresenter x:Name="Icon" Content="{TemplateBinding Icon}" />
@@ -98,7 +106,7 @@
                                 </Border>
                                 
                                 <!-- Content (text) -->
-                                <ContentPresenter Grid.Column="1" 
+                                <ContentPresenter Grid.Column="2" 
                                                 x:Name="ContentPresenter"
                                                 Content="{TemplateBinding Content}"
                                                 ContentTemplate="{TemplateBinding ContentTemplate}"

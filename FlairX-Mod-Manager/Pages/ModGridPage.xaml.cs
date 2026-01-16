@@ -64,6 +64,39 @@ namespace FlairX_Mod_Manager.Pages
         }
     }
 
+    // Converter for star icon glyph (favorite categories)
+    public class BoolToStarGlyphConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            return (bool)value ? "\uE735" : "\uE734"; // Filled star : Empty star
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    // Converter for star icon color (favorite categories)
+    public class BoolToStarColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if ((bool)value)
+            {
+                // Use gold/yellow color for favorite stars
+                return new SolidColorBrush(Colors.Gold);
+            }
+            return new SolidColorBrush(Colors.White);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 
 
     public sealed partial class ModGridPage : Page
