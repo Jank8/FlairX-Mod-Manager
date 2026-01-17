@@ -51,7 +51,7 @@ namespace FlairX_Mod_Manager.Services
             try
             {
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/3.6.5");
+                _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/3.7.0");
                 
                 // Check if server supports range requests
                 var (supportsRanges, fileSize) = await CheckRangeSupport(downloadUrl, cancellationToken);
@@ -233,7 +233,7 @@ namespace FlairX_Mod_Manager.Services
             try
             {
                 using var httpClient = new HttpClient();
-                httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/3.6.5");
+                httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/3.7.0");
                 httpClient.DefaultRequestHeaders.Range = new System.Net.Http.Headers.RangeHeaderValue(segment.Start, segment.End);
                 
                 using var response = await httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
