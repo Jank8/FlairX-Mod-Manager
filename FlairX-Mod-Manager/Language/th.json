@@ -269,7 +269,7 @@
     "StarterPack_Ready": "พร้อมดาวน์โหลด",
     "StarterPack_FetchingInfo": "กำลังดึงข้อมูลดาวน์โหลด...",
     "StarterPack_FetchFailed": "ไม่สามารถดึงข้อมูลดาวน์โหลดได้",
-    "StarterPack_Downloading": "กำลังดาวน์โหลด... ({0:F1} MB)",
+    "StarterPack_Downloading": "Downloading {0} files... ({1:F1} MB total)",
     "StarterPack_DownloadFailed": "ดาวน์โหลดล้มเหลว",
     "StarterPack_Extracting": "กำลังแตกไฟล์...",
     "StarterPack_Complete": "ติดตั้งแพ็คเริ่มต้นสำเร็จ!",
@@ -318,5 +318,7 @@
     "SettingsPage_FastDownload_Label": "ดาวน์โหลดเร็ว",
     "SettingsPage_FastDownload_Description": "ใช้การเชื่อมต่อหลายรายการเพื่อดาวน์โหลดไฟล์เร็วขึ้น",
     "SettingsPage_MaxConnections_Label": "การเชื่อมต่อสูงสุด",
-    "SettingsPage_MaxConnections_Description": "จำนวนการเชื่อมต่อดาวน์โหลดพร้อมกัน (1-8)"
+    "SettingsPage_MaxConnections_Description": "จำนวนการเชื่อมต่อดาวน์โหลดพร้อมกัน (1-8)",
+    "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
+    "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
 }

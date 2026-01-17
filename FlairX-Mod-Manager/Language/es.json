@@ -269,7 +269,7 @@
     "StarterPack_Ready": "Listo para descargar.",
     "StarterPack_FetchingInfo": "Obteniendo información de descarga...",
     "StarterPack_FetchFailed": "Error al obtener información de descarga.",
-    "StarterPack_Downloading": "Descargando... ({0:F1} MB)",
+    "StarterPack_Downloading": "Descargando {0} archivos... ({1:F1} MB total)",
     "StarterPack_DownloadFailed": "Error en la descarga.",
     "StarterPack_Extracting": "Extrayendo...",
     "StarterPack_Complete": "¡Paquete inicial instalado exitosamente!",
@@ -318,5 +318,7 @@
     "SettingsPage_FastDownload_Label": "Descarga rápida",
     "SettingsPage_FastDownload_Description": "Usa múltiples conexiones para descargar archivos más rápido",
     "SettingsPage_MaxConnections_Label": "Conexiones máximas",
-    "SettingsPage_MaxConnections_Description": "Número de conexiones de descarga simultáneas (1-8)"
+    "SettingsPage_MaxConnections_Description": "Número de conexiones de descarga simultáneas (1-8)",
+    "StarterPack_DownloadingFile": "Descargando archivo {0}/{1}: {2}",
+    "StarterPack_ExtractingFile": "Extrayendo archivo {0}/{1}: {2}"
 }

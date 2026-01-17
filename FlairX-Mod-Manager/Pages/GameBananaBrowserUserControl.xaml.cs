@@ -724,6 +724,8 @@ namespace FlairX_Mod_Manager.Pages
                             var modDetails = await GameBananaService.GetModDetailsAsync(modId);
                             if (modDetails != null)
                             {
+                                Logger.LogInfo($"Mod {modId} ({modDetails.Name}) belongs to game {modDetails.Game?.Id} ({modDetails.Game?.Name}), current game: {currentGameId} ({_gameTag})");
+                                
                                 // Filter by game ID - only show mods for current game
                                 if (modDetails.Game?.Id != currentGameId)
                                 {

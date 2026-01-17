@@ -269,7 +269,7 @@
     "StarterPack_Ready": "डाउनलोड के लिए तैयार।",
     "StarterPack_FetchingInfo": "डाउनलोड जानकारी प्राप्त कर रहे हैं...",
     "StarterPack_FetchFailed": "डाउनलोड जानकारी प्राप्त करने में विफल।",
-    "StarterPack_Downloading": "डाउनलोड हो रहा है... ({0:F1} MB)",
+    "StarterPack_Downloading": "Downloading {0} files... ({1:F1} MB total)",
     "StarterPack_DownloadFailed": "डाउनलोड विफल।",
     "StarterPack_Extracting": "निकाला जा रहा है...",
     "StarterPack_Complete": "स्टार्टर पैक सफलतापूर्वक इंस्टॉल हो गया!",
@@ -318,5 +318,7 @@
     "SettingsPage_FastDownload_Label": "तेज़ डाउनलोड",
     "SettingsPage_FastDownload_Description": "फ़ाइलों को तेज़ी से डाउनलोड करने के लिए एकाधिक कनेक्शन का उपयोग करें",
     "SettingsPage_MaxConnections_Label": "अधिकतम कनेक्शन",
-    "SettingsPage_MaxConnections_Description": "एक साथ डाउनलोड कनेक्शन की संख्या (1-8)"
+    "SettingsPage_MaxConnections_Description": "एक साथ डाउनलोड कनेक्शन की संख्या (1-8)",
+    "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
+    "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
 }

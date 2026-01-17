@@ -645,8 +645,8 @@ namespace FlairX_Mod_Manager.Pages
                 var fadeOut = new DoubleAnimation
                 {
                     From = 1,
-                    To = 0.3,
-                    Duration = new Duration(TimeSpan.FromMilliseconds(100))
+                    To = 0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(150))
                 };
                 var fadeOutStoryboard = new Storyboard();
                 Storyboard.SetTarget(fadeOut, ModsGrid);
@@ -654,9 +654,10 @@ namespace FlairX_Mod_Manager.Pages
                 fadeOutStoryboard.Children.Add(fadeOut);
                 fadeOutStoryboard.Begin();
                 
-                await Task.Delay(100);
+                // Wait for fade out to complete
+                await Task.Delay(150);
                 
-                // Reorder using Move
+                // Now do the refresh while invisible
                 for (int targetIndex = 0; targetIndex < sortedItems.Count; targetIndex++)
                 {
                     var item = sortedItems[targetIndex];
@@ -667,10 +668,13 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
                 
+                // Small delay to ensure refresh is complete
+                await Task.Delay(50);
+                
                 // Fade in the grid
                 var fadeIn = new DoubleAnimation
                 {
-                    From = 0.3,
+                    From = 0,
                     To = 1,
                     Duration = new Duration(TimeSpan.FromMilliseconds(150))
                 };
@@ -685,6 +689,8 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 Logger.LogError("Error sorting categories by favorites with animation", ex);
+                // Reset opacity and fallback
+                ModsGrid.Opacity = 1;
                 SortCategoriesByFavorites();
             }
         }
@@ -784,8 +790,8 @@ namespace FlairX_Mod_Manager.Pages
                 var fadeOut = new DoubleAnimation
                 {
                     From = 1,
-                    To = 0.3,
-                    Duration = new Duration(TimeSpan.FromMilliseconds(100))
+                    To = 0,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(150))
                 };
                 var fadeOutStoryboard = new Storyboard();
                 Storyboard.SetTarget(fadeOut, ModsGrid);
@@ -793,9 +799,10 @@ namespace FlairX_Mod_Manager.Pages
                 fadeOutStoryboard.Children.Add(fadeOut);
                 fadeOutStoryboard.Begin();
                 
-                await Task.Delay(100);
+                // Wait for fade out to complete
+                await Task.Delay(150);
                 
-                // Reorder using Move
+                // Now do the refresh while invisible
                 for (int targetIndex = 0; targetIndex < sortedItems.Count; targetIndex++)
                 {
                     var item = sortedItems[targetIndex];
@@ -806,10 +813,13 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
                 
+                // Small delay to ensure refresh is complete
+                await Task.Delay(50);
+                
                 // Fade in the grid
                 var fadeIn = new DoubleAnimation
                 {
-                    From = 0.3,
+                    From = 0,
                     To = 1,
                     Duration = new Duration(TimeSpan.FromMilliseconds(150))
                 };
@@ -824,6 +834,8 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 Logger.LogError("Error refreshing category favorites with animation", ex);
+                // Reset opacity and fallback
+                ModsGrid.Opacity = 1;
                 RefreshCategoryFavorites();
             }
         }

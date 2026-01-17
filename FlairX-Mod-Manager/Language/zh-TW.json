@@ -269,7 +269,7 @@
     "StarterPack_Ready": "準備下載。",
     "StarterPack_FetchingInfo": "正在獲取下載資訊...",
     "StarterPack_FetchFailed": "獲取下載資訊失敗。",
-    "StarterPack_Downloading": "下載中... ({0:F1} MB)",
+    "StarterPack_Downloading": "Downloading {0} files... ({1:F1} MB total)",
     "StarterPack_DownloadFailed": "下載失敗。",
     "StarterPack_Extracting": "解壓縮中...",
     "StarterPack_Complete": "新手包安裝成功！",
@@ -318,5 +318,7 @@
     "SettingsPage_FastDownload_Label": "快速下載",
     "SettingsPage_FastDownload_Description": "使用多個連接更快地下載檔案",
     "SettingsPage_MaxConnections_Label": "最大連接數",
-    "SettingsPage_MaxConnections_Description": "同時下載連接數 (1-8)"
+    "SettingsPage_MaxConnections_Description": "同時下載連接數 (1-8)",
+    "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
+    "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
 }

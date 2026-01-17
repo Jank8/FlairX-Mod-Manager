@@ -248,7 +248,7 @@
     "StarterPack_Ready": "Připraveno ke stažení.",
     "StarterPack_FetchingInfo": "Získávání informací o stažení...",
     "StarterPack_FetchFailed": "Nepodařilo se získat informace o stažení.",
-    "StarterPack_Downloading": "Stahování... ({0:F1} MB)",
+    "StarterPack_Downloading": "Stahování {0} souborů... ({1:F1} MB celkem)",
     "StarterPack_DownloadFailed": "Stahování selhalo.",
     "StarterPack_Extracting": "Rozbalování...",
     "StarterPack_Complete": "Startovací Balíček úspěšně nainstalován!",
@@ -318,5 +318,7 @@
     "ScreenshotCapture_Cancelled": "Zachycení snímků obrazovky bylo zrušeno a zachycené soubory byly smazány",
     "ScreenshotCapture_FileCount": "({0} souborů)",
     "ScreenshotCapture_FileCountSingle": "(1 soubor)",
-    "ScreenshotCapture_NoFiles": "(0 souborů)"
+    "ScreenshotCapture_NoFiles": "(0 souborů)",
+    "StarterPack_DownloadingFile": "Stahování souboru {0}/{1}: {2}",
+    "StarterPack_ExtractingFile": "Rozbalování souboru {0}/{1}: {2}"
 }

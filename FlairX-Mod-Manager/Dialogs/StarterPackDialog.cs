@@ -27,8 +27,8 @@ namespace FlairX_Mod_Manager.Dialogs
         private CheckBox _dontShowAgainCheckBox;
         private Button _cancelButton;
         private string _gameTag;
-        private string? _downloadUrl;
-        private long _fileSize;
+        private List<(string url, long size, string filename)> _downloadFiles = new();
+        private long _totalSize;
         private Dictionary<string, string> _lang;
         private CancellationTokenSource? _cancellationTokenSource;
 
@@ -202,7 +202,7 @@ namespace FlairX_Mod_Manager.Dialogs
 
             _cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = _cancellationTokenSource.Token;
-            string? tempPath = null;
+            var tempFiles = new List<string>();
 
             try
             {
@@ -218,8 +218,8 @@ namespace FlairX_Mod_Manager.Dialogs
                 _progressBar.Visibility = Visibility.Visible;
                 _progressBar.IsIndeterminate = true;
 
-                var downloadInfo = await FetchDownloadInfoAsync(cancellationToken);
-                if (downloadInfo == null)
+                var hasFiles = await FetchDownloadInfoAsync(cancellationToken);
+                if (!hasFiles)
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
@@ -235,65 +235,92 @@ namespace FlairX_Mod_Manager.Dialogs
                     return;
                 }
 
-                _downloadUrl = downloadInfo.Value.url;
-                _fileSize = downloadInfo.Value.size;
-
-                // Download the file
-                var fileSizeMB = _fileSize / (1024.0 * 1024.0);
+                // Download all files
+                var totalSizeMB = _totalSize / (1024.0 * 1024.0);
                 _statusText.Text = string.Format(
-                    SharedUtilities.GetTranslation(_lang, "StarterPack_Downloading") ?? "Downloading... ({0:F1} MB)",
-                    fileSizeMB);
+                    SharedUtilities.GetTranslation(_lang, "StarterPack_Downloading") ?? "Downloading {0} files... ({1:F1} MB total)",
+                    _downloadFiles.Count, totalSizeMB);
                 _progressBar.IsIndeterminate = false;
                 _progressBar.Value = 0;
 
-                tempPath = Path.Combine(Path.GetTempPath(), $"starterpack_{_gameTag}_{Guid.NewGuid()}.7z");
+                long totalDownloaded = 0;
                 
-                var success = await DownloadFileAsync(_downloadUrl, tempPath, cancellationToken);
-                if (!success)
+                for (int i = 0; i < _downloadFiles.Count; i++)
                 {
-                    // Clean up partial download
-                    try { if (tempPath != null && File.Exists(tempPath)) File.Delete(tempPath); } catch { }
+                    var (url, size, filename) = _downloadFiles[i];
                     
-                    if (cancellationToken.IsCancellationRequested)
+                    _statusText.Text = string.Format(
+                        SharedUtilities.GetTranslation(_lang, "StarterPack_DownloadingFile") ?? "Downloading file {0}/{1}: {2}",
+                        i + 1, _downloadFiles.Count, filename);
+                    
+                    var tempPath = Path.Combine(Path.GetTempPath(), $"starterpack_{_gameTag}_{i}_{Guid.NewGuid()}_{filename}");
+                    tempFiles.Add(tempPath);
+                    
+                    var success = await DownloadFileAsync(url, tempPath, size, totalDownloaded, cancellationToken);
+                    if (!success)
                     {
-                        ResetToInitialState();
+                        // Clean up partial downloads
+                        foreach (var temp in tempFiles)
+                        {
+                            try { if (File.Exists(temp)) File.Delete(temp); } catch { }
+                        }
+                        
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            ResetToInitialState();
+                            return;
+                        }
+                        _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_DownloadFailed") ?? "Download failed.";
+                        _progressBar.Visibility = Visibility.Collapsed;
+                        _cancelButton.Visibility = Visibility.Collapsed;
+                        IsPrimaryButtonEnabled = true;
+                        CloseButtonText = SharedUtilities.GetTranslation(_lang, "Close") ?? "Close";
+                        _dontShowAgainCheckBox.IsEnabled = true;
                         return;
                     }
-                    _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_DownloadFailed") ?? "Download failed.";
-                    _progressBar.Visibility = Visibility.Collapsed;
-                    _cancelButton.Visibility = Visibility.Collapsed;
-                    IsPrimaryButtonEnabled = true;
-                    CloseButtonText = SharedUtilities.GetTranslation(_lang, "Close") ?? "Close";
-                    _dontShowAgainCheckBox.IsEnabled = true;
-                    return;
+                    
+                    totalDownloaded += size;
                 }
 
                 // Disable cancel during extraction (can't cancel easily)
                 _cancelButton.IsEnabled = false;
 
-                // Extract to mods folder
+                // Extract all files to mods folder
                 _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_Extracting") ?? "Extracting...";
                 _progressBar.IsIndeterminate = false;
                 _progressBar.Value = 0;
 
                 var modsPath = AppConstants.GameConfig.GetModsPath(_gameTag);
                 var fullModsPath = PathManager.GetAbsolutePath(modsPath);
-                
-                // Ensure mods directory exists
-                Directory.CreateDirectory(fullModsPath);
 
-                var extractProgress = new Progress<int>(percent =>
+                for (int i = 0; i < tempFiles.Count; i++)
                 {
-                    DispatcherQueue.TryEnqueue(() =>
+                    var tempPath = tempFiles[i];
+                    var filename = _downloadFiles[i].filename;
+                    
+                    _statusText.Text = string.Format(
+                        SharedUtilities.GetTranslation(_lang, "StarterPack_ExtractingFile") ?? "Extracting file {0}/{1}: {2}",
+                        i + 1, tempFiles.Count, filename);
+                    
+                    _progressBar.Value = (double)i / tempFiles.Count * 100;
+                    
+                    // Ensure mods directory exists
+                    Directory.CreateDirectory(fullModsPath);
+
+                    var extractProgress = new Progress<int>(percent =>
                     {
-                        _progressBar.Value = percent;
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            var overallProgress = ((double)i / tempFiles.Count * 100) + (percent / tempFiles.Count);
+                            _progressBar.Value = Math.Min(overallProgress, 100);
+                        });
                     });
-                });
 
-                await Task.Run(() => ArchiveHelper.ExtractToDirectory(tempPath, fullModsPath, extractProgress));
+                    await Task.Run(() => ArchiveHelper.ExtractToDirectory(tempPath, fullModsPath, extractProgress));
 
-                // Clean up temp file
-                try { File.Delete(tempPath); } catch { }
+                    // Clean up temp file
+                    try { File.Delete(tempPath); } catch { }
+                }
 
                 // Mark as dismissed so we don't show again
                 DismissStarterPack(_gameTag);
@@ -311,8 +338,11 @@ namespace FlairX_Mod_Manager.Dialogs
             }
             catch (OperationCanceledException)
             {
-                // Clean up partial download
-                try { if (tempPath != null && File.Exists(tempPath)) File.Delete(tempPath); } catch { }
+                // Clean up partial downloads
+                foreach (var temp in tempFiles)
+                {
+                    try { if (File.Exists(temp)) File.Delete(temp); } catch { }
+                }
                 ResetToInitialState();
             }
             catch (Exception ex)
@@ -324,6 +354,12 @@ namespace FlairX_Mod_Manager.Dialogs
                 IsPrimaryButtonEnabled = true;
                 CloseButtonText = SharedUtilities.GetTranslation(_lang, "Close") ?? "Close";
                 _dontShowAgainCheckBox.IsEnabled = true;
+                
+                // Clean up temp files
+                foreach (var temp in tempFiles)
+                {
+                    try { if (File.Exists(temp)) File.Delete(temp); } catch { }
+                }
             }
             finally
             {
@@ -343,12 +379,12 @@ namespace FlairX_Mod_Manager.Dialogs
             _dontShowAgainCheckBox.IsEnabled = true;
         }
 
-        private async Task<(string url, long size)?> FetchDownloadInfoAsync(CancellationToken cancellationToken)
+        private async Task<bool> FetchDownloadInfoAsync(CancellationToken cancellationToken)
         {
             try
             {
                 if (!StarterPackToolIds.TryGetValue(_gameTag, out int toolId))
-                    return null;
+                    return false;
 
                 using var httpClient = new HttpClient();
                 httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager");
@@ -361,14 +397,24 @@ namespace FlairX_Mod_Manager.Dialogs
 
                 if (root.TryGetProperty("_aFiles", out var files) && files.GetArrayLength() > 0)
                 {
-                    var firstFile = files[0];
-                    var downloadUrl = firstFile.GetProperty("_sDownloadUrl").GetString();
-                    var fileSize = firstFile.GetProperty("_nFilesize").GetInt64();
-
-                    if (!string.IsNullOrEmpty(downloadUrl))
+                    _downloadFiles.Clear();
+                    _totalSize = 0;
+                    
+                    foreach (var file in files.EnumerateArray())
                     {
-                        return (downloadUrl, fileSize);
+                        var downloadUrl = file.GetProperty("_sDownloadUrl").GetString();
+                        var fileSize = file.GetProperty("_nFilesize").GetInt64();
+                        var filename = file.GetProperty("_sFile").GetString();
+
+                        if (!string.IsNullOrEmpty(downloadUrl) && !string.IsNullOrEmpty(filename))
+                        {
+                            _downloadFiles.Add((downloadUrl, fileSize, filename));
+                            _totalSize += fileSize;
+                        }
                     }
+                    
+                    Logger.LogInfo($"Found {_downloadFiles.Count} files for Starter Pack, total size: {_totalSize / (1024.0 * 1024.0):F1} MB");
+                    return _downloadFiles.Count > 0;
                 }
             }
             catch (OperationCanceledException)
@@ -380,10 +426,10 @@ namespace FlairX_Mod_Manager.Dialogs
                 Logger.LogError("Failed to fetch Starter Pack info from GameBanana", ex);
             }
 
-            return null;
+            return false;
         }
 
-        private async Task<bool> DownloadFileAsync(string url, string destinationPath, CancellationToken cancellationToken)
+        private async Task<bool> DownloadFileAsync(string url, string destinationPath, long fileSize, long totalDownloadedSoFar, CancellationToken cancellationToken)
         {
             try
             {
@@ -393,7 +439,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 using var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
                 response.EnsureSuccessStatusCode();
 
-                var totalBytes = response.Content.Headers.ContentLength ?? _fileSize;
+                var totalBytes = response.Content.Headers.ContentLength ?? fileSize;
                 var buffer = new byte[8192];
                 long bytesRead = 0;
 
@@ -408,11 +454,29 @@ namespace FlairX_Mod_Manager.Dialogs
                     await fileStream.WriteAsync(buffer, 0, read, cancellationToken);
                     bytesRead += read;
 
-                    if (totalBytes > 0)
+                    if (_totalSize > 0)
                     {
-                        var percent = (int)((bytesRead * 100) / totalBytes);
+                        var totalProgress = totalDownloadedSoFar + bytesRead;
+                        var percent = (int)((totalProgress * 100) / _totalSize);
                         DispatcherQueue.TryEnqueue(() =>
                         {
+                            _progressBar.Value = Math.Min(percent, 100);
+                        });
+                    }
+                }
+
+                return true;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to download file from {url}", ex);
+                return false;
+            }
+        }
                             _progressBar.Value = percent;
                         });
                     }

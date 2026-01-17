@@ -269,7 +269,7 @@
     "StarterPack_Ready": "ダウンロード準備完了。",
     "StarterPack_FetchingInfo": "ダウンロード情報を取得中...",
     "StarterPack_FetchFailed": "ダウンロード情報の取得に失敗しました。",
-    "StarterPack_Downloading": "ダウンロード中... ({0:F1} MB)",
+    "StarterPack_Downloading": "{0}個のファイルをダウンロード中... (合計{1:F1} MB)",
     "StarterPack_DownloadFailed": "ダウンロードに失敗しました。",
     "StarterPack_Extracting": "展開中...",
     "StarterPack_Complete": "スターターパックが正常にインストールされました！",
@@ -318,5 +318,7 @@
     "SettingsPage_FastDownload_Label": "高速ダウンロード",
     "SettingsPage_FastDownload_Description": "複数の接続を使用してファイルをより速くダウンロード",
     "SettingsPage_MaxConnections_Label": "最大接続数",
-    "SettingsPage_MaxConnections_Description": "同時ダウンロード接続数 (1-8)"
+    "SettingsPage_MaxConnections_Description": "同時ダウンロード接続数 (1-8)",
+    "StarterPack_DownloadingFile": "ファイル{0}/{1}をダウンロード中: {2}",
+    "StarterPack_ExtractingFile": "ファイル{0}/{1}を展開中: {2}"
 }

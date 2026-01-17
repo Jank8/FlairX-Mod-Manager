@@ -248,7 +248,7 @@
     "StarterPack_Ready": "Gotowy do pobrania.",
     "StarterPack_FetchingInfo": "Pobieranie informacji...",
     "StarterPack_FetchFailed": "Nie udało się pobrać informacji.",
-    "StarterPack_Downloading": "Pobieranie... ({0:F1} MB)",
+    "StarterPack_Downloading": "Pobieranie {0} plików... ({1:F1} MB łącznie)",
     "StarterPack_DownloadFailed": "Pobieranie nie powiodło się.",
     "StarterPack_Extracting": "Rozpakowywanie...",
     "StarterPack_Complete": "Pakiet startowy zainstalowany pomyślnie!",
@@ -318,5 +318,7 @@
     "ScreenshotCapture_Cancelled": "Przechwytywanie zrzutów ekranu zostało anulowane i przechwycone pliki zostały usunięte",
     "ScreenshotCapture_FileCount": "({0} plików)",
     "ScreenshotCapture_FileCountSingle": "(1 plik)",
-    "ScreenshotCapture_NoFiles": "(0 plików)"
+    "ScreenshotCapture_NoFiles": "(0 plików)",
+    "StarterPack_DownloadingFile": "Pobieranie pliku {0}/{1}: {2}",
+    "StarterPack_ExtractingFile": "Wypakowywanie pliku {0}/{1}: {2}"
 }

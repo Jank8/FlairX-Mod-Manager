@@ -269,7 +269,7 @@
     "StarterPack_Ready": "다운로드 준비 완료.",
     "StarterPack_FetchingInfo": "다운로드 정보 가져오는 중...",
     "StarterPack_FetchFailed": "다운로드 정보를 가져오지 못했습니다.",
-    "StarterPack_Downloading": "다운로드 중... ({0:F1} MB)",
+    "StarterPack_Downloading": "{0}개 파일 다운로드 중... (총 {1:F1} MB)",
     "StarterPack_DownloadFailed": "다운로드 실패.",
     "StarterPack_Extracting": "압축 해제 중...",
     "StarterPack_Complete": "스타터 팩이 성공적으로 설치되었습니다!",
@@ -318,5 +318,7 @@
     "SettingsPage_FastDownload_Label": "빠른 다운로드",
     "SettingsPage_FastDownload_Description": "여러 연결을 사용하여 파일을 더 빠르게 다운로드",
     "SettingsPage_MaxConnections_Label": "최대 연결 수",
-    "SettingsPage_MaxConnections_Description": "동시 다운로드 연결 수 (1-8)"
+    "SettingsPage_MaxConnections_Description": "동시 다운로드 연결 수 (1-8)",
+    "StarterPack_DownloadingFile": "파일 {0}/{1} 다운로드 중: {2}",
+    "StarterPack_ExtractingFile": "파일 {0}/{1} 압축 해제 중: {2}"
 }

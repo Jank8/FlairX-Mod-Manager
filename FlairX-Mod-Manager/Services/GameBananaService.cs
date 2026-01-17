@@ -691,22 +691,35 @@ namespace FlairX_Mod_Manager.Services
             {
                 var url = $"https://api.gamebanana.com/Core/Member/Match?username={Uri.EscapeDataString(username)}";
                 Logger.LogInfo($"Looking up author ID for username: {username}");
+                Logger.LogInfo($"API URL: {url}");
                 
                 var response = await MakeApiCallAsync<AuthorMatchResponse[]>(url);
                 
-                if (response != null && response.Length > 0 && response[0].Id > 0)
+                Logger.LogInfo($"API response received: {response?.Length ?? 0} results");
+                
+                if (response != null && response.Length > 0)
                 {
                     var author = response[0];
-                    Logger.LogInfo($"Found author ID {author.Id} for username {username} (display name: {author.Name})");
-                    return author.Id;
+                    Logger.LogInfo($"First result - ID: {author.Id}, Name: '{author.Name}', Avatar: {author.Avatar}");
+                    
+                    if (author.Id > 0)
+                    {
+                        Logger.LogInfo($"Found author ID {author.Id} for username {username} (display name: {author.Name})");
+                        return author.Id;
+                    }
+                    else
+                    {
+                        Logger.LogWarning($"Author ID is 0 or negative for username: {username}");
+                    }
                 }
                 
-                Logger.LogInfo($"No author found for username: {username}");
+                Logger.LogInfo($"No valid author found for username: {username}");
                 return null;
             }
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to get author ID for username {username}: {ex.Message}", ex);
+                Logger.LogError($"Exception details: {ex}");
                 return null;
             }
         }

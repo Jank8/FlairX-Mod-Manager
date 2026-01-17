@@ -269,7 +269,7 @@
     "StarterPack_Ready": "Prêt à télécharger.",
     "StarterPack_FetchingInfo": "Récupération des informations de téléchargement...",
     "StarterPack_FetchFailed": "Échec de la récupération des informations de téléchargement.",
-    "StarterPack_Downloading": "Téléchargement... ({0:F1} MB)",
+    "StarterPack_Downloading": "Téléchargement de {0} fichiers... ({1:F1} MB au total)",
     "StarterPack_DownloadFailed": "Échec du téléchargement.",
     "StarterPack_Extracting": "Extraction...",
     "StarterPack_Complete": "Pack de démarrage installé avec succès !",
@@ -318,5 +318,7 @@
     "SettingsPage_FastDownload_Label": "Téléchargement rapide",
     "SettingsPage_FastDownload_Description": "Utilisez plusieurs connexions pour télécharger les fichiers plus rapidement",
     "SettingsPage_MaxConnections_Label": "Connexions maximales",
-    "SettingsPage_MaxConnections_Description": "Nombre de connexions de téléchargement simultanées (1-8)"
+    "SettingsPage_MaxConnections_Description": "Nombre de connexions de téléchargement simultanées (1-8)",
+    "StarterPack_DownloadingFile": "Téléchargement du fichier {0}/{1}: {2}",
+    "StarterPack_ExtractingFile": "Extraction du fichier {0}/{1}: {2}"
 }

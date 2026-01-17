@@ -269,7 +269,7 @@
     "StarterPack_Ready": "İndirmeye hazır.",
     "StarterPack_FetchingInfo": "İndirme bilgisi alınıyor...",
     "StarterPack_FetchFailed": "İndirme bilgisi alınamadı.",
-    "StarterPack_Downloading": "İndiriliyor... ({0:F1} MB)",
+    "StarterPack_Downloading": "{0} dosya indiriliyor... (toplam {1:F1} MB)",
     "StarterPack_DownloadFailed": "İndirme başarısız.",
     "StarterPack_Extracting": "Çıkarılıyor...",
     "StarterPack_Complete": "Başlangıç paketi başarıyla kuruldu!",
@@ -318,5 +318,7 @@
     "SettingsPage_FastDownload_Label": "Hızlı indirme",
     "SettingsPage_FastDownload_Description": "Dosyaları daha hızlı indirmek için birden fazla bağlantı kullanın",
     "SettingsPage_MaxConnections_Label": "Maksimum bağlantı",
-    "SettingsPage_MaxConnections_Description": "Eşzamanlı indirme bağlantısı sayısı (1-8)"
+    "SettingsPage_MaxConnections_Description": "Eşzamanlı indirme bağlantısı sayısı (1-8)",
+    "StarterPack_DownloadingFile": "Dosya {0}/{1} indiriliyor: {2}",
+    "StarterPack_ExtractingFile": "Dosya {0}/{1} çıkarılıyor: {2}"
 }
