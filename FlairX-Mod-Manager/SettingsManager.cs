@@ -131,15 +131,23 @@ namespace FlairX_Mod_Manager
         
         // Starter Pack settings (per-game, stored as comma-separated game tags that dismissed the dialog)
         public string StarterPackDismissedGames { get; set; } = ""; // e.g. "ZZMI,GIMI" - games where user clicked "No thanks" or checkbox
-        
+    }
+
+    public class FavoritesData
+    {
         // Favorite categories (per-game, stored as Dictionary<gameTag, List<categoryName>>)
         public Dictionary<string, List<string>> FavoriteCategories { get; set; } = new Dictionary<string, List<string>>();
+        
+        // Favorite mods (per-game, stored as Dictionary<gameTag, List<modName>>)
+        public Dictionary<string, List<string>> FavoriteMods { get; set; } = new Dictionary<string, List<string>>();
     }
 
     public static class SettingsManager
     {
         private static readonly string SettingsPath = PathManager.GetSettingsPath();
+        private static readonly string FavoritesPath = PathManager.GetSettingsPath("Favorites.json");
         public static Settings Current { get; private set; } = new Settings();
+        public static FavoritesData Favorites { get; private set; } = new FavoritesData();
 
         public static void Load()
         {
@@ -167,6 +175,9 @@ namespace FlairX_Mod_Manager
                 Current = new Settings();
                 Save(); // Create the file with defaults
             }
+
+            // Load favorites from separate file
+            LoadFavorites();
         }
 
         public static void Save()
@@ -188,6 +199,53 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError("Failed to save settings file", ex);
+            }
+        }
+
+        private static void LoadFavorites()
+        {
+            Logger.LogInfo($"Loading favorites from: {PathManager.GetRelativePath(FavoritesPath)}");
+            
+            if (File.Exists(FavoritesPath))
+            {
+                try
+                {
+                    var json = File.ReadAllText(FavoritesPath);
+                    Logger.LogDebug($"Favorites file size: {json.Length} characters");
+                    
+                    Favorites = JsonSerializer.Deserialize<FavoritesData>(json) ?? new FavoritesData();
+                    Logger.LogInfo("Favorites loaded successfully");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to load favorites, using defaults", ex);
+                    Favorites = new FavoritesData();
+                }
+            }
+            else
+            {
+                Logger.LogInfo("No favorites file found, using defaults");
+                Favorites = new FavoritesData();
+            }
+        }
+
+        private static void SaveFavorites()
+        {
+            try
+            {
+                var dir = Path.GetDirectoryName(FavoritesPath);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                
+                var json = JsonSerializer.Serialize(Favorites, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(FavoritesPath, json);
+                Logger.LogDebug($"Favorites saved successfully - {json.Length} characters written");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to save favorites", ex);
             }
         }
 
@@ -430,7 +488,7 @@ namespace FlairX_Mod_Manager
         // Favorite categories management
         public static bool IsCategoryFavorite(string gameTag, string categoryName)
         {
-            if (Current.FavoriteCategories.TryGetValue(gameTag, out var favorites))
+            if (Favorites.FavoriteCategories.TryGetValue(gameTag, out var favorites))
             {
                 return favorites.Contains(categoryName);
             }
@@ -439,12 +497,12 @@ namespace FlairX_Mod_Manager
         
         public static void ToggleCategoryFavorite(string gameTag, string categoryName)
         {
-            if (!Current.FavoriteCategories.ContainsKey(gameTag))
+            if (!Favorites.FavoriteCategories.ContainsKey(gameTag))
             {
-                Current.FavoriteCategories[gameTag] = new List<string>();
+                Favorites.FavoriteCategories[gameTag] = new List<string>();
             }
             
-            var favorites = Current.FavoriteCategories[gameTag];
+            var favorites = Favorites.FavoriteCategories[gameTag];
             if (favorites.Contains(categoryName))
             {
                 favorites.Remove(categoryName);
@@ -454,16 +512,108 @@ namespace FlairX_Mod_Manager
                 favorites.Add(categoryName);
             }
             
-            Save();
+            SaveFavorites();
         }
         
         public static List<string> GetFavoriteCategories(string gameTag)
         {
-            if (Current.FavoriteCategories.TryGetValue(gameTag, out var favorites))
+            if (Favorites.FavoriteCategories.TryGetValue(gameTag, out var favorites))
             {
                 return new List<string>(favorites);
             }
             return new List<string>();
+        }
+        
+        // Favorite mods management
+        public static bool IsModFavorite(string gameTag, string modName)
+        {
+            if (Favorites.FavoriteMods.TryGetValue(gameTag, out var favorites))
+            {
+                return favorites.Contains(modName);
+            }
+            return false;
+        }
+        
+        public static void ToggleModFavorite(string gameTag, string modName)
+        {
+            if (!Favorites.FavoriteMods.ContainsKey(gameTag))
+            {
+                Favorites.FavoriteMods[gameTag] = new List<string>();
+            }
+            
+            var favorites = Favorites.FavoriteMods[gameTag];
+            if (favorites.Contains(modName))
+            {
+                favorites.Remove(modName);
+            }
+            else
+            {
+                favorites.Add(modName);
+            }
+            
+            SaveFavorites();
+        }
+        
+        public static List<string> GetFavoriteMods(string gameTag)
+        {
+            if (Favorites.FavoriteMods.TryGetValue(gameTag, out var favorites))
+            {
+                return new List<string>(favorites);
+            }
+            return new List<string>();
+        }
+
+        // Migration method to move favorites from Settings.json to Favorites.json (if they exist)
+        public static void MigrateFavoritesFromSettings()
+        {
+            try
+            {
+                // Check if Settings.json contains old favorites structure
+                if (File.Exists(SettingsPath))
+                {
+                    var json = File.ReadAllText(SettingsPath);
+                    if (json.Contains("\"FavoriteCategories\"") || json.Contains("\"FavoriteMods\""))
+                    {
+                        Logger.LogInfo("Found old favorites in Settings.json, migrating to Favorites.json");
+                        
+                        // Parse the old settings to extract favorites
+                        using var doc = JsonDocument.Parse(json);
+                        var root = doc.RootElement;
+                        
+                        // Migrate categories
+                        if (root.TryGetProperty("FavoriteCategories", out var categoriesElement))
+                        {
+                            var categories = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(categoriesElement.GetRawText());
+                            if (categories != null)
+                            {
+                                Favorites.FavoriteCategories = categories;
+                            }
+                        }
+                        
+                        // Migrate mods
+                        if (root.TryGetProperty("FavoriteMods", out var modsElement))
+                        {
+                            var mods = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(modsElement.GetRawText());
+                            if (mods != null)
+                            {
+                                Favorites.FavoriteMods = mods;
+                            }
+                        }
+                        
+                        // Save to new favorites file
+                        SaveFavorites();
+                        
+                        // Remove favorites from Settings.json by re-saving settings (they're no longer in the Settings class)
+                        Save();
+                        
+                        Logger.LogInfo("Favorites migration completed successfully");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to migrate favorites from Settings.json", ex);
+            }
         }
     }
 }

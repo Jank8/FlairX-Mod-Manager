@@ -56,6 +56,8 @@
     "None": "Aucun",
     "OK": "OK",
     "Browse_GameBanana_Tooltip": "Parcourir les mods GameBanana",
+    "AddToFavorites_Tooltip": "Ajouter aux favoris",
+    "RemoveFromFavorites_Tooltip": "Retirer des favoris",
     "ContextMenu_CheckUpdates": "Vérifier les mises à jour",
     "OpenDirectory_Tooltip": "Cliquez pour ouvrir le répertoire",
     "OptimizePreviews_Cancelled": "Optimisation annulée.",

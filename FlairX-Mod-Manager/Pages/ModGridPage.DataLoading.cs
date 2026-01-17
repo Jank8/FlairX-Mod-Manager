@@ -277,18 +277,22 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            // Sort the lightweight data: active first (if enabled), then alphabetically
+            // Sort the lightweight data: favorites first, then active first (if enabled), then alphabetically
             if (SettingsManager.Current.ActiveModsToTopEnabled)
             {
+                var gameTag = SettingsManager.CurrentSelectedGame ?? "";
                 _allModData = _allModData
-                    .OrderByDescending(m => m.IsActive)
+                    .OrderByDescending(m => SettingsManager.IsModFavorite(gameTag, m.Name))
+                    .ThenByDescending(m => m.IsActive)
                     .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
             }
             else
             {
+                var gameTag = SettingsManager.CurrentSelectedGame ?? "";
                 _allModData = _allModData
-                    .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .OrderByDescending(m => SettingsManager.IsModFavorite(gameTag, m.Name))
+                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
             }
             
@@ -327,6 +331,7 @@ namespace FlairX_Mod_Manager.Pages
                     HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name), // Load favorite status
                     ImageSource = null // Start with no image - lazy load when visible
                 };
                 
@@ -447,18 +452,22 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            // Sort the lightweight data: active first (if enabled), then alphabetically
+            // Sort the lightweight data: favorites first, then active first (if enabled), then alphabetically
             if (SettingsManager.Current.ActiveModsToTopEnabled)
             {
+                var gameTag = SettingsManager.CurrentSelectedGame ?? "";
                 _allModData = _allModData
-                    .OrderByDescending(m => m.IsActive)
+                    .OrderByDescending(m => SettingsManager.IsModFavorite(gameTag, m.Name))
+                    .ThenByDescending(m => m.IsActive)
                     .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
             }
             else
             {
+                var gameTag = SettingsManager.CurrentSelectedGame ?? "";
                 _allModData = _allModData
-                    .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .OrderByDescending(m => SettingsManager.IsModFavorite(gameTag, m.Name))
+                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
             }
                 
@@ -594,6 +603,7 @@ namespace FlairX_Mod_Manager.Pages
                     HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name), // Load favorite status
                     ImageSource = null // Start with no image - lazy load when visible
                 };
                 

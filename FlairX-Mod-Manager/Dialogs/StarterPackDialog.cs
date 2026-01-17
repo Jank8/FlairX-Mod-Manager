@@ -477,22 +477,5 @@ namespace FlairX_Mod_Manager.Dialogs
                 return false;
             }
         }
-                            _progressBar.Value = percent;
-                        });
-                    }
-                }
-
-                return true;
-            }
-            catch (OperationCanceledException)
-            {
-                return false;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Failed to download file from {url}", ex);
-                return false;
-            }
-        }
     }
 }

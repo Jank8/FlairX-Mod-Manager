@@ -249,45 +249,56 @@ namespace FlairX_Mod_Manager.Pages
                 switch (_currentSortMode)
                 {
                     case SortMode.NameAZ:
-                        sortedItems = sortedItems.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsFavorite)
+                                                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     case SortMode.NameZA:
-                        sortedItems = sortedItems.OrderByDescending(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsFavorite)
+                                                .ThenByDescending(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     case SortMode.CategoryAZ:
-                        sortedItems = sortedItems.OrderBy(m => m.Category, StringComparer.OrdinalIgnoreCase)
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsFavorite)
+                                                .ThenBy(m => m.Category, StringComparer.OrdinalIgnoreCase)
                                                 .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     case SortMode.CategoryZA:
-                        sortedItems = sortedItems.OrderByDescending(m => m.Category, StringComparer.OrdinalIgnoreCase)
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsFavorite)
+                                                .ThenByDescending(m => m.Category, StringComparer.OrdinalIgnoreCase)
                                                 .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     case SortMode.ActiveFirst:
-                        sortedItems = sortedItems.OrderByDescending(m => m.IsActive)
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsFavorite)
+                                                .ThenByDescending(m => m.IsActive)
                                                 .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     case SortMode.InactiveFirst:
-                        sortedItems = sortedItems.OrderBy(m => m.IsActive)
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsFavorite)
+                                                .ThenBy(m => m.IsActive)
                                                 .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     case SortMode.LastCheckedNewest:
-                        sortedItems = sortedItems.OrderByDescending(m => m.LastChecked)
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsFavorite)
+                                                .ThenByDescending(m => m.LastChecked)
                                                 .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     case SortMode.LastCheckedOldest:
-                        sortedItems = sortedItems.OrderBy(m => m.LastChecked)
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsFavorite)
+                                                .ThenBy(m => m.LastChecked)
                                                 .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     case SortMode.LastUpdatedNewest:
-                        sortedItems = sortedItems.OrderByDescending(m => m.LastUpdated)
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsFavorite)
+                                                .ThenByDescending(m => m.LastUpdated)
                                                 .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     case SortMode.LastUpdatedOldest:
-                        sortedItems = sortedItems.OrderBy(m => m.LastUpdated)
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsFavorite)
+                                                .ThenBy(m => m.LastUpdated)
                                                 .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                     default:
-                        sortedItems = sortedItems.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+                        sortedItems = sortedItems.OrderByDescending(m => m.IsFavorite)
+                                                .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
                         break;
                 }
 

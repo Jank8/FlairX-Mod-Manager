@@ -15,6 +15,7 @@
         <local:BoolToHeartColorConverter x:Key="BoolToHeartColorConverter" />
         <local:BoolToStarGlyphConverter x:Key="BoolToStarGlyphConverter" />
         <local:BoolToStarColorConverter x:Key="BoolToStarColorConverter" />
+        <local:BoolToFavoriteTooltipConverter x:Key="BoolToFavoriteTooltipConverter" />
         <Style x:Key="TransparentButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
@@ -383,13 +384,12 @@
                                 <Grid VerticalAlignment="Top" 
                                       HorizontalAlignment="Right" 
                                       Margin="8,8,8,0">
-                                    <!-- Favorite Star Button (only for categories) -->
+                                    <!-- Favorite Star Button (for both categories and mods) -->
                                     <Border x:Name="FavoriteStarBorder"
                                             Width="32"
                                             Height="32"
                                             Background="{ThemeResource LauncherAcrylicBrush}"
-                                            CornerRadius="8"
-                                            Visibility="{Binding IsCategory, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            CornerRadius="8">
                                         <Button x:Name="FavoriteStarButton"
                                                 Background="Transparent"
                                                 BorderThickness="0"
@@ -397,7 +397,8 @@
                                                 HorizontalAlignment="Stretch"
                                                 VerticalAlignment="Stretch"
                                                 Click="FavoriteStarButton_Click"
-                                                Tag="{Binding}">
+                                                Tag="{Binding}"
+                                                ToolTipService.ToolTip="{Binding IsFavorite, Converter={StaticResource BoolToFavoriteTooltipConverter}}">
                                             <FontIcon Glyph="{Binding IsFavorite, Converter={StaticResource BoolToStarGlyphConverter}}" 
                                                       FontSize="16"
                                                       Foreground="{Binding IsFavorite, Converter={StaticResource BoolToStarColorConverter}}"/>

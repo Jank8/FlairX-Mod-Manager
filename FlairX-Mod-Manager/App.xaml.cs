@@ -90,6 +90,9 @@ namespace FlairX_Mod_Manager
                 SettingsManager.Load(); // Load settings before creating window
                 Logger.LogInfo($"Settings loaded - Selected game index: {SettingsManager.Current.SelectedGameIndex}");
                 
+                // Migrate favorites from old Settings.json format if needed
+                SettingsManager.MigrateFavoritesFromSettings();
+                
                 // Check if we need to restart as admin (for auto-reload feature)
                 if (SettingsManager.Current.RunAsAdminEnabled && !IsRunningAsAdmin())
                 {
