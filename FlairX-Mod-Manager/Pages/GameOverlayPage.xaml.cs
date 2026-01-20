@@ -150,6 +150,8 @@ namespace FlairX_Mod_Manager.Pages
             var onText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_On");
             var offText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_Off");
             
+            if (OverlayHotkeysEnabledToggleLabel != null && OverlayHotkeysEnabledToggle != null)
+                OverlayHotkeysEnabledToggleLabel.Text = OverlayHotkeysEnabledToggle.IsOn ? onText : offText;
             if (GamepadEnabledToggle != null)
             {
                 GamepadEnabledToggle.OnContent = onText;
@@ -170,6 +172,9 @@ namespace FlairX_Mod_Manager.Pages
         private void LoadSettings()
         {
             var settings = SettingsManager.Current;
+            
+            // Load overlay hotkeys enabled
+            OverlayHotkeysEnabledToggle.IsOn = settings.OverlayHotkeysEnabled;
             
             // Load hotkey
             var overlayHotkey = settings.ToggleOverlayHotkey ?? "Alt+W";
@@ -239,6 +244,9 @@ namespace FlairX_Mod_Manager.Pages
             InitializeHotkeyPanel(LeftStickRightKeysPanel, ConvertToKenneyFormat(settings.GamepadLeftStickRight ?? "XB L→"));
             InitializeHotkeyPanel(RightStickUpKeysPanel, ConvertToKenneyFormat(settings.GamepadRightStickUp ?? "XB R↑"));
             InitializeHotkeyPanel(RightStickDownKeysPanel, ConvertToKenneyFormat(settings.GamepadRightStickDown ?? "XB R↓"));
+            
+            // Update overlay hotkeys section state
+            UpdateOverlayHotkeysSectionState(settings.OverlayHotkeysEnabled);
         }
         
         private string ConvertToKenneyFormat(string button)
@@ -499,6 +507,58 @@ namespace FlairX_Mod_Manager.Pages
             SettingsManager.Save();
             
             Logger.LogInfo($"Vibrate on navigation: {VibrateOnNavToggle.IsOn}");
+        }
+
+        private void OverlayHotkeysEnabledToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (_isInitializing) return;
+            
+            SettingsManager.Current.OverlayHotkeysEnabled = OverlayHotkeysEnabledToggle.IsOn;
+            SettingsManager.Save();
+            
+            // Update toggle label
+            var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
+            var onText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_On");
+            var offText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_Off");
+            if (OverlayHotkeysEnabledToggleLabel != null)
+                OverlayHotkeysEnabledToggleLabel.Text = OverlayHotkeysEnabledToggle.IsOn ? onText : offText;
+            
+            // Update hotkeys section state
+            UpdateOverlayHotkeysSectionState(OverlayHotkeysEnabledToggle.IsOn);
+            
+            // Refresh global hotkeys to apply the change
+            var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+            mainWindow?.RefreshGlobalHotkeys();
+            
+            Logger.LogInfo($"Overlay hotkeys enabled: {OverlayHotkeysEnabledToggle.IsOn}");
+        }
+
+        private void UpdateOverlayHotkeysSectionState(bool enabled)
+        {
+            try
+            {
+                // Update hotkeys header opacity
+                if (ControlsSectionHeader != null) ControlsSectionHeader.Opacity = enabled ? 1.0 : 0.5;
+                
+                // Update the entire OverlayHotkeysPanel opacity and disable/enable all children
+                if (OverlayHotkeysPanel != null)
+                {
+                    OverlayHotkeysPanel.Opacity = enabled ? 1.0 : 0.5;
+                    
+                    // Enable/disable all child controls in the hotkeys panel
+                    foreach (var child in OverlayHotkeysPanel.Children)
+                    {
+                        if (child is Control control)
+                        {
+                            control.IsEnabled = enabled;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error updating overlay hotkeys section state", ex);
+            }
         }
 
         private void GamepadTestButton_Click(object sender, RoutedEventArgs e)

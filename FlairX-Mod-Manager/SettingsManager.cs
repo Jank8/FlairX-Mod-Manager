@@ -20,6 +20,7 @@ namespace FlairX_Mod_Manager
         public bool ErrorOnlyLogging { get; set; } = false; // Log only errors to file
         public bool MinimizeToTrayEnabled { get; set; } = false;
         public bool HotkeysEnabled { get; set; } = true;
+        public bool OverlayHotkeysEnabled { get; set; } = true;
         public bool ShowOrangeAnimation { get; set; } = true;
         public int SelectedPresetIndex { get; set; } = 0; // 0 = default
         

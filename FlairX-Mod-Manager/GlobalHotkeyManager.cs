@@ -185,14 +185,14 @@ namespace FlairX_Mod_Manager
 
                 // Register toggle overlay hotkey
                 Logger.LogInfo($"RegisterAllHotkeys: ToggleOverlayHotkey = '{settings.ToggleOverlayHotkey}'");
-                if (!string.IsNullOrEmpty(settings.ToggleOverlayHotkey))
+                if (settings.OverlayHotkeysEnabled && !string.IsNullOrEmpty(settings.ToggleOverlayHotkey))
                 {
                     RegisterHotkey(HOTKEY_TOGGLE_OVERLAY, settings.ToggleOverlayHotkey);
                 }
 
                 // Register filter active mods hotkey
                 Logger.LogInfo($"RegisterAllHotkeys: FilterActiveHotkey = '{settings.FilterActiveHotkey}'");
-                if (!string.IsNullOrEmpty(settings.FilterActiveHotkey))
+                if (settings.OverlayHotkeysEnabled && !string.IsNullOrEmpty(settings.FilterActiveHotkey))
                 {
                     RegisterHotkey(HOTKEY_FILTER_ACTIVE, settings.FilterActiveHotkey);
                 }
