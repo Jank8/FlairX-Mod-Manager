@@ -572,7 +572,7 @@ namespace FlairX_Mod_Manager.Services
                 
                 // Fallback to single connection download
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.Add("User-Agent", "FlairX-Mod-Manager/3.7.0");
+                _httpClient.DefaultRequestHeaders.Add("User-Agent", $"FlairX-Mod-Manager/{AppConstants.APP_VERSION}");
 
                 using var response = await _httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
                 response.EnsureSuccessStatusCode();
