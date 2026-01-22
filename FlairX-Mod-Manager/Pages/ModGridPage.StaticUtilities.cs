@@ -137,6 +137,125 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         /// <summary>
+        /// Get list of active mods in the same category as the specified mod
+        /// </summary>
+        /// <param name="modDirectory">The mod directory name to check category for</param>
+        /// <returns>List of active mod names in the same category, or empty list if none found</returns>
+        public static List<string> GetActiveModsInCategory(string modDirectory)
+        {
+            var activeModsInCategory = new List<string>();
+            
+            try
+            {
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))
+                    return activeModsInCategory;
+
+                // Find the category of the specified mod
+                string? targetCategory = null;
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
+                {
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    var categoryName = Path.GetFileName(categoryDir);
+                    if (string.IsNullOrEmpty(categoryName)) continue;
+                    
+                    // Check if the mod exists in this category (active or disabled)
+                    var exactPath = Path.Combine(categoryDir, modDirectory);
+                    var disabledPath = Path.Combine(categoryDir, DISABLED_PREFIX + modDirectory);
+                    var cleanName = GetCleanModName(modDirectory);
+                    var cleanPath = Path.Combine(categoryDir, cleanName);
+                    
+                    if (Directory.Exists(exactPath) || Directory.Exists(disabledPath) || 
+                        (cleanName != modDirectory && Directory.Exists(cleanPath)))
+                    {
+                        targetCategory = categoryName;
+                        break;
+                    }
+                }
+                
+                if (string.IsNullOrEmpty(targetCategory))
+                    return activeModsInCategory;
+                
+                // Get all active mods in the found category
+                var categoryPath = Path.Combine(modsPath, targetCategory);
+                if (!Directory.Exists(categoryPath))
+                    return activeModsInCategory;
+                
+                foreach (var modDir in Directory.GetDirectories(categoryPath))
+                {
+                    var modFolderName = Path.GetFileName(modDir);
+                    
+                    // Skip if this is a disabled mod (has DISABLED_ prefix)
+                    if (modFolderName.StartsWith(DISABLED_PREFIX))
+                        continue;
+                    
+                    // Skip if this is the same mod we're trying to activate
+                    var cleanModName = GetCleanModName(modFolderName);
+                    var targetCleanName = GetCleanModName(modDirectory);
+                    if (string.Equals(cleanModName, targetCleanName, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    
+                    // Check if mod.json exists to confirm it's a valid mod
+                    var modJsonPath = Path.Combine(modDir, "mod.json");
+                    if (File.Exists(modJsonPath))
+                    {
+                        activeModsInCategory.Add(cleanModName);
+                    }
+                }
+                
+                Logger.LogInfo($"Found {activeModsInCategory.Count} active mods in category '{targetCategory}' for mod '{modDirectory}'");
+                return activeModsInCategory;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to get active mods in category for: {modDirectory}", ex);
+                return activeModsInCategory;
+            }
+        }
+
+        /// <summary>
+        /// Get the category name for a specific mod
+        /// </summary>
+        /// <param name="modDirectory">The mod directory name</param>
+        /// <returns>Category name or empty string if not found</returns>
+        public static string GetModCategory(string modDirectory)
+        {
+            try
+            {
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))
+                    return string.Empty;
+
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
+                {
+                    if (!Directory.Exists(categoryDir)) continue;
+                    
+                    var categoryName = Path.GetFileName(categoryDir);
+                    
+                    // Check if the mod exists in this category (active or disabled)
+                    var exactPath = Path.Combine(categoryDir, modDirectory);
+                    var disabledPath = Path.Combine(categoryDir, DISABLED_PREFIX + modDirectory);
+                    var cleanName = GetCleanModName(modDirectory);
+                    var cleanPath = Path.Combine(categoryDir, cleanName);
+                    
+                    if (Directory.Exists(exactPath) || Directory.Exists(disabledPath) || 
+                        (cleanName != modDirectory && Directory.Exists(cleanPath)))
+                    {
+                        return categoryName;
+                    }
+                }
+                
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to get category for mod: {modDirectory}", ex);
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Find mod folder path in category structure
         /// </summary>
         private static string FindModFolderPathStatic(string modsPath, string modDirectory)

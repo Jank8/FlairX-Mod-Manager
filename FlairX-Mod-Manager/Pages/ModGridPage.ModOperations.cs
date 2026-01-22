@@ -40,7 +40,7 @@ namespace FlairX_Mod_Manager.Pages
         private const ushort FOF_ALLOWUNDO = 0x0040;
         private const ushort FOF_NOCONFIRMATION = 0x0010;
 
-        private void ModActiveButton_Click(object sender, RoutedEventArgs e)
+        private async void ModActiveButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is ModTile mod)
             {
@@ -56,8 +56,33 @@ namespace FlairX_Mod_Manager.Pages
                 // NEW SYSTEM: Toggle activation by renaming with DISABLED_ prefix
                 if (!_activeMods.TryGetValue(mod.Directory, out var isActive) || !isActive)
                 {
-                    // Activate mod - remove DISABLED_ prefix
+                    // Activate mod - check for category conflicts first
                     Logger.LogInfo($"Activating mod: {mod.Directory}");
+                    
+                    // Check if there are already active mods in the same category
+                    var activeModsInCategory = GetActiveModsInCategory(mod.Directory);
+                    if (activeModsInCategory.Count > 0)
+                    {
+                        // Show category conflict dialog
+                        var categoryName = GetModCategory(mod.Directory);
+                        var dialog = new FlairX_Mod_Manager.Dialogs.CategoryConflictDialog(
+                            categoryName, 
+                            mod.Name, 
+                            activeModsInCategory);
+                        
+                        dialog.XamlRoot = this.Content.XamlRoot;
+                        
+                        var result = await dialog.ShowAsync();
+                        if (result != ContentDialogResult.Primary)
+                        {
+                            Logger.LogInfo($"User cancelled mod activation due to category conflict: {mod.Directory}");
+                            return; // User cancelled activation
+                        }
+                        
+                        Logger.LogInfo($"User confirmed mod activation despite category conflict: {mod.Directory}");
+                    }
+                    
+                    // Proceed with activation
                     if (ActivateModByRename(mod.Directory))
                     {
                         _activeMods[mod.Directory] = true;

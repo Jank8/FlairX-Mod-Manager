@@ -322,5 +322,12 @@
     "ScreenshotCapture_FileCountSingle": "(1 plik)",
     "ScreenshotCapture_NoFiles": "(0 plików)",
     "StarterPack_DownloadingFile": "Pobieranie pliku {0}/{1}: {2}",
-    "StarterPack_ExtractingFile": "Wypakowywanie pliku {0}/{1}: {2}"
+    "StarterPack_ExtractingFile": "Wypakowywanie pliku {0}/{1}: {2}",
+    "CategoryConflict_Title": "Konflikt kategorii",
+    "CategoryConflict_Activate": "Tak, aktywuj",
+    "CategoryConflict_Cancel": "Anuluj",
+    "CategoryConflict_Message": "W tej kategorii jest już aktywny mod. Czy na pewno chcesz aktywować kolejny?",
+    "CategoryConflict_Category": "Kategoria:",
+    "CategoryConflict_NewMod": "Mod do aktywacji:",
+    "CategoryConflict_ActiveMods": "Aktywne mody w tej kategorii:"
 }
