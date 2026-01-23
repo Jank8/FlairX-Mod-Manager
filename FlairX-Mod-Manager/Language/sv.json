@@ -322,5 +322,11 @@
   "ScreenshotCapture_FileCountSingle": "(1 fil)",
   "ScreenshotCapture_NoFiles": "(0 filer)",
   "StarterPack_DownloadingFile": "Laddar ner fil {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extraherar fil {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extraherar fil {0}/{1}: {2}",
+  "CategoryConflict_Title": "Kategorikonflikt",
+  "CategoryConflict_Activate": "Ja, aktivera",
+  "CategoryConflict_Cancel": "Avbryt",
+  "CategoryConflict_Message": "Det finns redan en aktiv mod i denna kategori. Är du säker på att du vill aktivera en annan?",
+  "CategoryConflict_Category": "Kategori:",
+  "CategoryConflict_ActiveMods": "Aktiva mods:"
 }

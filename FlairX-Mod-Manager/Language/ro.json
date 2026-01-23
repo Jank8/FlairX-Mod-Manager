@@ -322,5 +322,11 @@
   "ScreenshotCapture_FileCountSingle": "(1 fișier)",
   "ScreenshotCapture_NoFiles": "(0 fișiere)",
   "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}",
+  "CategoryConflict_Title": "Conflict de categorie",
+  "CategoryConflict_Activate": "Da, activează",
+  "CategoryConflict_Cancel": "Anulează",
+  "CategoryConflict_Message": "Există deja un mod activ în această categorie. Ești sigur că vrei să activezi altul?",
+  "CategoryConflict_Category": "Categorie:",
+  "CategoryConflict_ActiveMods": "Moduri active:"
 }

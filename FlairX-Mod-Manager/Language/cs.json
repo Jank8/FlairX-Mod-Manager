@@ -322,5 +322,11 @@
   "ScreenshotCapture_FileCountSingle": "(1 soubor)",
   "ScreenshotCapture_NoFiles": "(0 souborů)",
   "StarterPack_DownloadingFile": "Stahování souboru {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Rozbalování souboru {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Rozbalování souboru {0}/{1}: {2}",
+  "CategoryConflict_Title": "Konflikt kategorie",
+  "CategoryConflict_Activate": "Ano, aktivovat",
+  "CategoryConflict_Cancel": "Zrušit",
+  "CategoryConflict_Message": "V této kategorii je již aktivní mod. Opravdu chcete aktivovat další?",
+  "CategoryConflict_Category": "Kategorie:",
+  "CategoryConflict_ActiveMods": "Aktivní mody:"
 }

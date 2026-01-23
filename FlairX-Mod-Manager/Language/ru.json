@@ -322,5 +322,11 @@
   "SettingsPage_MaxConnections_Label": "Максимум соединений",
   "SettingsPage_MaxConnections_Description": "Количество одновременных соединений для загрузки (1-8)",
   "StarterPack_DownloadingFile": "Загрузка файла {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Извлечение файла {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Извлечение файла {0}/{1}: {2}",
+  "CategoryConflict_Title": "Конфликт категории",
+  "CategoryConflict_Activate": "Да, активировать",
+  "CategoryConflict_Cancel": "Отмена",
+  "CategoryConflict_Message": "В этой категории уже есть активный мод. Вы уверены, что хотите активировать другой?",
+  "CategoryConflict_Category": "Категория:",
+  "CategoryConflict_ActiveMods": "Активные моды:"
 }

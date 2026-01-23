@@ -322,5 +322,11 @@
   "ScreenshotCapture_FileCountSingle": "(1 файл)",
   "ScreenshotCapture_NoFiles": "(0 файлів)",
   "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}",
+  "CategoryConflict_Title": "Конфлікт категорії",
+  "CategoryConflict_Activate": "Так, активувати",
+  "CategoryConflict_Cancel": "Скасувати",
+  "CategoryConflict_Message": "У цій категорії вже є активний мод. Ви впевнені, що хочете активувати інший?",
+  "CategoryConflict_Category": "Категорія:",
+  "CategoryConflict_ActiveMods": "Активні моди:"
 }

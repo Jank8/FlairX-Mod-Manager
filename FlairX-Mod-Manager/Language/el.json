@@ -322,5 +322,11 @@
   "ScreenshotCapture_FileCountSingle": "(1 αρχείο)",
   "ScreenshotCapture_NoFiles": "(0 αρχεία)",
   "StarterPack_DownloadingFile": "Λήψη αρχείου {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Εξαγωγή αρχείου {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Εξαγωγή αρχείου {0}/{1}: {2}",
+  "CategoryConflict_Title": "Σύγκρουση κατηγορίας",
+  "CategoryConflict_Activate": "Ναι, ενεργοποίηση",
+  "CategoryConflict_Cancel": "Ακύρωση",
+  "CategoryConflict_Message": "Υπάρχει ήδη ένα ενεργό mod σε αυτή την κατηγορία. Είστε σίγουροι ότι θέλετε να ενεργοποιήσετε άλλο;",
+  "CategoryConflict_Category": "Κατηγορία:",
+  "CategoryConflict_ActiveMods": "Ενεργά mods:"
 }

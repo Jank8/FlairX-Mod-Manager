@@ -322,5 +322,11 @@
   "ScreenshotCapture_FileCountSingle": "(1 file)",
   "ScreenshotCapture_NoFiles": "(0 file)",
   "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}",
+  "CategoryConflict_Title": "Konflik kategori",
+  "CategoryConflict_Activate": "Ya, aktifkan",
+  "CategoryConflict_Cancel": "Batal",
+  "CategoryConflict_Message": "Sudah ada mod aktif di kategori ini. Apakah Anda yakin ingin mengaktifkan yang lain?",
+  "CategoryConflict_Category": "Kategori:",
+  "CategoryConflict_ActiveMods": "Mod aktif:"
 }

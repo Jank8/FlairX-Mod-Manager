@@ -322,5 +322,11 @@
   "SettingsPage_MaxConnections_Label": "การเชื่อมต่อสูงสุด",
   "SettingsPage_MaxConnections_Description": "จำนวนการเชื่อมต่อดาวน์โหลดพร้อมกัน (1-8)",
   "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}",
+  "CategoryConflict_Title": "ความขดแยงของหมวดหม",
+  "CategoryConflict_Activate": "ใช เปดใชงาน",
+  "CategoryConflict_Cancel": "ยกเลก",
+  "CategoryConflict_Message": "ม mod ทใชงานอยแลวในหมวดหมน คณแนใจหรอไมวาตองการเปดใชงานอกตวหนง?",
+  "CategoryConflict_Category": "หมวดหม:",
+  "CategoryConflict_ActiveMods": "Mod ทใชงาน:"
 }

@@ -204,7 +204,7 @@
     "CategoryConflict_Message": "There is already an active mod in this category. Are you sure you want to activate another one?",
     "CategoryConflict_Category": "Category:",
     "CategoryConflict_NewMod": "Mod to activate:",
-    "CategoryConflict_ActiveMods": "Active mods in this category:",
+    "CategoryConflict_ActiveMods": "Active mods:",
     "SettingsPage_GridLogging_Description": "Enable detailed logging for performance debugging",
     "SettingsPage_ErrorOnlyLogging_Label": "Error-only logging",
     "SettingsPage_ErrorOnlyLogging_Description": "Log only errors and warnings to file, reducing log size",

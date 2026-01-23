@@ -322,5 +322,11 @@
   "SettingsPage_MaxConnections_Label": "Maksimum bağlantı",
   "SettingsPage_MaxConnections_Description": "Eşzamanlı indirme bağlantısı sayısı (1-8)",
   "StarterPack_DownloadingFile": "Dosya {0}/{1} indiriliyor: {2}",
-  "StarterPack_ExtractingFile": "Dosya {0}/{1} çıkarılıyor: {2}"
+  "StarterPack_ExtractingFile": "Dosya {0}/{1} çıkarılıyor: {2}",
+  "CategoryConflict_Title": "Kategori çakışması",
+  "CategoryConflict_Activate": "Evet, etkinleştir",
+  "CategoryConflict_Cancel": "İptal",
+  "CategoryConflict_Message": "Bu kategoride zaten aktif bir mod var. Başka birini etkinleştirmek istediğinizden emin misiniz?",
+  "CategoryConflict_Category": "Kategori:",
+  "CategoryConflict_ActiveMods": "Aktif modlar:"
 }

@@ -322,5 +322,11 @@
   "SettingsPage_MaxConnections_Label": "Conexões máximas",
   "SettingsPage_MaxConnections_Description": "Número de conexões de download simultâneas (1-8)",
   "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}",
+  "CategoryConflict_Title": "Conflito de categoria",
+  "CategoryConflict_Activate": "Sim, ativar",
+  "CategoryConflict_Cancel": "Cancelar",
+  "CategoryConflict_Message": "Já existe um mod ativo nesta categoria. Tem certeza de que deseja ativar outro?",
+  "CategoryConflict_Category": "Categoria:",
+  "CategoryConflict_ActiveMods": "Mods ativos:"
 }

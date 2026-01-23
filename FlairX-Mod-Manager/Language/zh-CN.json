@@ -322,5 +322,11 @@
   "SettingsPage_MaxConnections_Label": "最大连接数",
   "SettingsPage_MaxConnections_Description": "同时下载连接数 (1-8)",
   "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}",
+  "CategoryConflict_Title": "类别冲突",
+  "CategoryConflict_Activate": "是的，激活",
+  "CategoryConflict_Cancel": "取消",
+  "CategoryConflict_Message": "此类别中已有一个活动的模组。您确定要激活另一个吗？",
+  "CategoryConflict_Category": "类别:",
+  "CategoryConflict_ActiveMods": "活动模组:"
 }

@@ -322,5 +322,11 @@
   "ScreenshotCapture_FileCountSingle": "(1 tiedosto)",
   "ScreenshotCapture_NoFiles": "(0 tiedostoa)",
   "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}",
+  "CategoryConflict_Title": "Kategoriakonflikti",
+  "CategoryConflict_Activate": "Kyllä, aktivoi",
+  "CategoryConflict_Cancel": "Peruuta",
+  "CategoryConflict_Message": "Tässä kategoriassa on jo aktiivinen mod. Haluatko varmasti aktivoida toisen?",
+  "CategoryConflict_Category": "Kategoria:",
+  "CategoryConflict_ActiveMods": "Aktiiviset modit:"
 }

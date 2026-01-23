@@ -322,5 +322,11 @@
   "ScreenshotCapture_FileCountSingle": "(1 bestand)",
   "ScreenshotCapture_NoFiles": "(0 bestanden)",
   "StarterPack_DownloadingFile": "Bestand {0}/{1} downloaden: {2}",
-  "StarterPack_ExtractingFile": "Bestand {0}/{1} uitpakken: {2}"
+  "StarterPack_ExtractingFile": "Bestand {0}/{1} uitpakken: {2}",
+  "CategoryConflict_Title": "Categorieconflict",
+  "CategoryConflict_Activate": "Ja, activeren",
+  "CategoryConflict_Cancel": "Annuleren",
+  "CategoryConflict_Message": "Er is al een actieve mod in deze categorie. Weet je zeker dat je er nog een wilt activeren?",
+  "CategoryConflict_Category": "Categorie:",
+  "CategoryConflict_ActiveMods": "Actieve mods:"
 }

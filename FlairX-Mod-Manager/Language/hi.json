@@ -322,5 +322,11 @@
   "SettingsPage_MaxConnections_Label": "अधिकतम कनेक्शन",
   "SettingsPage_MaxConnections_Description": "एक साथ डाउनलोड कनेक्शन की संख्या (1-8)",
   "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}",
+  "CategoryConflict_Title": "शरण सघरष",
+  "CategoryConflict_Activate": "ह, सकरय कर",
+  "CategoryConflict_Cancel": "रदद कर",
+  "CategoryConflict_Message": "इस शरण म पहल स ह एक सकरय मड ह कय आप वकई दसर सकरय करन चहत ह?",
+  "CategoryConflict_Category": "शरण:",
+  "CategoryConflict_ActiveMods": "सकरय मडस:"
 }

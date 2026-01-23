@@ -322,5 +322,11 @@
   "ScreenshotCapture_FileCountSingle": "(1 fájl)",
   "ScreenshotCapture_NoFiles": "(0 fájl)",
   "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}",
+  "CategoryConflict_Title": "Kategória konfliktus",
+  "CategoryConflict_Activate": "Igen, aktiválás",
+  "CategoryConflict_Cancel": "Mégse",
+  "CategoryConflict_Message": "Ebben a kategóriában már van egy aktív mod. Biztosan aktiválni szeretne egy másikat?",
+  "CategoryConflict_Category": "Kategória:",
+  "CategoryConflict_ActiveMods": "Aktív modok:"
 }

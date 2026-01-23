@@ -322,5 +322,11 @@
   "SettingsPage_MaxConnections_Label": "최대 연결 수",
   "SettingsPage_MaxConnections_Description": "동시 다운로드 연결 수 (1-8)",
   "StarterPack_DownloadingFile": "파일 {0}/{1} 다운로드 중: {2}",
-  "StarterPack_ExtractingFile": "파일 {0}/{1} 압축 해제 중: {2}"
+  "StarterPack_ExtractingFile": "파일 {0}/{1} 압축 해제 중: {2}",
+  "CategoryConflict_Title": "카테고리 충돌",
+  "CategoryConflict_Activate": "예, 활성화",
+  "CategoryConflict_Cancel": "취소",
+  "CategoryConflict_Message": "이 카테고리에 이미 활성화된 모드가 있습니다. 정말로 다른 모드를 활성화하시겠습니까?",
+  "CategoryConflict_Category": "카테고리:",
+  "CategoryConflict_ActiveMods": "활성 모드:"
 }

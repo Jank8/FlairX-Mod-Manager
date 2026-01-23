@@ -322,5 +322,11 @@
   "SettingsPage_MaxConnections_Label": "最大接続数",
   "SettingsPage_MaxConnections_Description": "同時ダウンロード接続数 (1-8)",
   "StarterPack_DownloadingFile": "ファイル{0}/{1}をダウンロード中: {2}",
-  "StarterPack_ExtractingFile": "ファイル{0}/{1}を展開中: {2}"
+  "StarterPack_ExtractingFile": "ファイル{0}/{1}を展開中: {2}",
+  "CategoryConflict_Title": "カテゴリの競合",
+  "CategoryConflict_Activate": "はい、有効にする",
+  "CategoryConflict_Cancel": "キャンセル",
+  "CategoryConflict_Message": "このカテゴリには既にアクティブなModがあります。本当に別のModを有効にしますか？",
+  "CategoryConflict_Category": "カテゴリ:",
+  "CategoryConflict_ActiveMods": "アクティブなMod:"
 }

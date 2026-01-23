@@ -322,5 +322,11 @@
   "SettingsPage_MaxConnections_Label": "Pinakamataas na koneksyon",
   "SettingsPage_MaxConnections_Description": "Bilang ng sabay-sabay na koneksyon sa pag-download (1-8)",
   "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}",
+  "CategoryConflict_Title": "Salungatan ng kategorya",
+  "CategoryConflict_Activate": "Oo, i-activate",
+  "CategoryConflict_Cancel": "Kanselahin",
+  "CategoryConflict_Message": "May aktibong mod na sa kategoryang ito. Sigurado ka bang gusto mong mag-activate ng isa pa?",
+  "CategoryConflict_Category": "Kategorya:",
+  "CategoryConflict_ActiveMods": "Mga aktibong mod:"
 }

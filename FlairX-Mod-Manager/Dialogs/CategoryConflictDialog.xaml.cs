@@ -16,18 +16,15 @@ namespace FlairX_Mod_Manager.Dialogs
             _lang = SharedUtilities.LoadLanguageDictionary();
             
             // Set localized text
-            Title = SharedUtilities.GetTranslation(_lang, "CategoryConflict_Title");
             PrimaryButtonText = SharedUtilities.GetTranslation(_lang, "CategoryConflict_Activate");
             SecondaryButtonText = SharedUtilities.GetTranslation(_lang, "CategoryConflict_Cancel");
             
             MainMessageText.Text = SharedUtilities.GetTranslation(_lang, "CategoryConflict_Message");
             CategoryLabel.Text = SharedUtilities.GetTranslation(_lang, "CategoryConflict_Category");
-            NewModLabel.Text = SharedUtilities.GetTranslation(_lang, "CategoryConflict_NewMod");
             ActiveModsLabel.Text = SharedUtilities.GetTranslation(_lang, "CategoryConflict_ActiveMods");
             
             // Set data
             CategoryNameText.Text = categoryName;
-            NewModNameText.Text = newModName;
             
             // Populate active mods list
             var activeModsCollection = new ObservableCollection<string>();

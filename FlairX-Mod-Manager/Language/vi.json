@@ -322,5 +322,11 @@
   "SettingsPage_MaxConnections_Label": "Kết nối tối đa",
   "SettingsPage_MaxConnections_Description": "Số lượng kết nối tải xuống đồng thời (1-8)",
   "StarterPack_DownloadingFile": "Downloading file {0}/{1}: {2}",
-  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}"
+  "StarterPack_ExtractingFile": "Extracting file {0}/{1}: {2}",
+  "CategoryConflict_Title": "Xung đột danh mục",
+  "CategoryConflict_Activate": "Có, kích hoạt",
+  "CategoryConflict_Cancel": "Hủy bỏ",
+  "CategoryConflict_Message": "Đã có một mod đang hoạt động trong danh mục này. Bạn có chắc chắn muốn kích hoạt mod khác không?",
+  "CategoryConflict_Category": "Danh mục:",
+  "CategoryConflict_ActiveMods": "Mod đang hoạt động:"
 }
