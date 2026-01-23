@@ -329,5 +329,7 @@
     "CategoryConflict_Message": "W tej kategorii jest już aktywny mod. Czy na pewno chcesz aktywować kolejny?",
     "CategoryConflict_Category": "Kategoria:",
     "CategoryConflict_NewMod": "Mod do aktywacji:",
-    "CategoryConflict_ActiveMods": "Aktywne mody:"
+    "CategoryConflict_ActiveMods": "Aktywne mody:",
+    "SettingsPage_AutoDeactivateConflictingMods_Label": "Automatycznie dezaktywuj konfliktowe mody",
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "Automatycznie dezaktywuj inne mody w tej samej kategorii podczas aktywacji nowego"
 }

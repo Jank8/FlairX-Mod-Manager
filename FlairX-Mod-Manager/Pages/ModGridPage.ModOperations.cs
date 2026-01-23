@@ -63,23 +63,72 @@ namespace FlairX_Mod_Manager.Pages
                     var activeModsInCategory = GetActiveModsInCategory(mod.Directory);
                     if (activeModsInCategory.Count > 0)
                     {
-                        // Show category conflict dialog
-                        var categoryName = GetModCategory(mod.Directory);
-                        var dialog = new FlairX_Mod_Manager.Dialogs.CategoryConflictDialog(
-                            categoryName, 
-                            mod.Name, 
-                            activeModsInCategory);
-                        
-                        dialog.XamlRoot = this.Content.XamlRoot;
-                        
-                        var result = await dialog.ShowAsync();
-                        if (result != ContentDialogResult.Primary)
+                        // Check if auto-deactivation is enabled
+                        if (SettingsManager.Current.AutoDeactivateConflictingMods)
                         {
-                            Logger.LogInfo($"User cancelled mod activation due to category conflict: {mod.Directory}");
-                            return; // User cancelled activation
+                            // Auto-deactivate conflicting mods
+                            var categoryName = GetModCategory(mod.Directory);
+                            Logger.LogInfo($"Auto-deactivating {activeModsInCategory.Count} conflicting mods in category '{categoryName}'");
+                            
+                            await DeactivateModsInCategory(categoryName, mod.Directory);
+                            
+                            // Update UI for deactivated mods
+                            foreach (var activeModName in activeModsInCategory)
+                            {
+                                // Update _activeMods dictionary
+                                _activeMods[activeModName] = false;
+                                
+                                // Find and update the ModTile in current view
+                                var deactivatedTile = _allMods?.FirstOrDefault(m => GetCleanModName(m.Directory) == GetCleanModName(activeModName));
+                                if (deactivatedTile != null)
+                                {
+                                    deactivatedTile.IsActive = false;
+                                    // Update directory name if it was renamed with DISABLED_ prefix
+                                    var newName = DISABLED_PREFIX + GetCleanModName(activeModName);
+                                    if (deactivatedTile.Directory != newName)
+                                    {
+                                        deactivatedTile.Directory = newName;
+                                        deactivatedTile.Name = GetCleanModName(activeModName); // Keep clean name for display
+                                    }
+                                }
+                                
+                                // Update table view if it exists
+                                if (_originalTableItems != null)
+                                {
+                                    var tableItem = _originalTableItems.FirstOrDefault(x => GetCleanModName(x.Directory) == GetCleanModName(activeModName));
+                                    if (tableItem != null)
+                                    {
+                                        tableItem.IsActive = false;
+                                        var newName = DISABLED_PREFIX + GetCleanModName(activeModName);
+                                        if (tableItem.Directory != newName)
+                                        {
+                                            tableItem.Directory = newName;
+                                            tableItem.Name = GetCleanModName(activeModName); // Keep clean name for display
+                                        }
+                                    }
+                                }
+                            }
                         }
-                        
-                        Logger.LogInfo($"User confirmed mod activation despite category conflict: {mod.Directory}");
+                        else
+                        {
+                            // Show category conflict dialog
+                            var categoryName = GetModCategory(mod.Directory);
+                            var dialog = new FlairX_Mod_Manager.Dialogs.CategoryConflictDialog(
+                                categoryName, 
+                                mod.Name, 
+                                activeModsInCategory);
+                            
+                            dialog.XamlRoot = this.Content.XamlRoot;
+                            
+                            var result = await dialog.ShowAsync();
+                            if (result != ContentDialogResult.Primary)
+                            {
+                                Logger.LogInfo($"User cancelled mod activation due to category conflict: {mod.Directory}");
+                                return; // User cancelled activation
+                            }
+                            
+                            Logger.LogInfo($"User confirmed mod activation despite category conflict: {mod.Directory}");
+                        }
                     }
                     
                     // Proceed with activation
@@ -113,7 +162,7 @@ namespace FlairX_Mod_Manager.Pages
                             
                             // Update the tile's directory and name
                             mod.Directory = newModName;
-                            mod.Name = newModName; // Update display name too
+                            mod.Name = GetCleanModName(newModName); // Keep clean name for display
                             Logger.LogInfo($"Updated mod tile name to: {newModName}");
                         }
                         

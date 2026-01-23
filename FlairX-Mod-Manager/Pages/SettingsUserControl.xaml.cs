@@ -122,6 +122,8 @@ namespace FlairX_Mod_Manager.Pages
                 SkipXXMILauncherToggleLabel.Text = SkipXXMILauncherToggle.IsOn ? onText : offText;
             if (ActiveModsToTopToggleLabel != null && ActiveModsToTopToggle != null)
                 ActiveModsToTopToggleLabel.Text = ActiveModsToTopToggle.IsOn ? onText : offText;
+            if (AutoDeactivateConflictingModsToggleLabel != null && AutoDeactivateConflictingModsToggle != null)
+                AutoDeactivateConflictingModsToggleLabel.Text = AutoDeactivateConflictingModsToggle.IsOn ? onText : offText;
             if (DynamicModSearchToggleLabel != null && DynamicModSearchToggle != null)
                 DynamicModSearchToggleLabel.Text = DynamicModSearchToggle.IsOn ? onText : offText;
             if (ShowOrangeAnimationToggleLabel != null && ShowOrangeAnimationToggle != null)
@@ -282,6 +284,7 @@ namespace FlairX_Mod_Manager.Pages
             if (XXMIRootDirectoryLabel != null) XXMIRootDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory");
                         if (SkipXXMILauncherLabel != null) SkipXXMILauncherLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_SkipXXMILauncher_Label");
             if (ActiveModsToTopLabel != null) ActiveModsToTopLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Label");
+            if (AutoDeactivateConflictingModsLabel != null) AutoDeactivateConflictingModsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoDeactivateConflictingMods_Label");
             if (DynamicModSearchLabel != null) DynamicModSearchLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Label");
             if (ShowOrangeAnimationLabel != null) ShowOrangeAnimationLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Label");
             if (ModGridZoomLabel != null) ModGridZoomLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Label");
@@ -310,6 +313,7 @@ namespace FlairX_Mod_Manager.Pages
             if (XXMIRootDirectoryDescription != null) XXMIRootDirectoryDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory_Description") ?? string.Empty;
                         if (SkipXXMILauncherDescription != null) SkipXXMILauncherDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_SkipXXMILauncher_Description") ?? string.Empty;
             if (ActiveModsToTopDescription != null) ActiveModsToTopDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Description") ?? string.Empty;
+            if (AutoDeactivateConflictingModsDescription != null) AutoDeactivateConflictingModsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoDeactivateConflictingMods_Description") ?? string.Empty;
             if (DynamicModSearchDescription != null) DynamicModSearchDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Description") ?? string.Empty;
             if (ShowOrangeAnimationDescription != null) ShowOrangeAnimationDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Description") ?? string.Empty;
             if (ModGridZoomDescription != null) ModGridZoomDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Description") ?? string.Empty;
@@ -493,6 +497,7 @@ namespace FlairX_Mod_Manager.Pages
             ModGridZoomToggle.IsOn = SettingsManager.Current.ModGridZoomEnabled;
             SkipXXMILauncherToggle.IsOn = SettingsManager.Current.SkipXXMILauncherEnabled;
             ActiveModsToTopToggle.IsOn = SettingsManager.Current.ActiveModsToTopEnabled;
+            AutoDeactivateConflictingModsToggle.IsOn = SettingsManager.Current.AutoDeactivateConflictingMods;
             
             // Set BreadcrumbBar paths
             SetBreadcrumbBar(XXMIRootDirectoryBreadcrumb, SettingsManager.GetCurrentGameXXMIRoot());
@@ -1441,6 +1446,13 @@ namespace FlairX_Mod_Manager.Pages
         private void ActiveModsToTopToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.ActiveModsToTopEnabled = ActiveModsToTopToggle.IsOn;
+            SettingsManager.Save();
+            UpdateToggleLabels();
+        }
+
+        private void AutoDeactivateConflictingModsToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.AutoDeactivateConflictingMods = AutoDeactivateConflictingModsToggle.IsOn;
             SettingsManager.Save();
             UpdateToggleLabels();
         }

@@ -177,6 +177,10 @@ namespace FlairX_Mod_Manager.Pages
                 if (string.IsNullOrEmpty(targetCategory))
                     return activeModsInCategory;
                 
+                // Skip conflict check for "Other" category - multiple mods allowed
+                if (string.Equals(targetCategory, "Other", StringComparison.OrdinalIgnoreCase))
+                    return activeModsInCategory;
+                
                 // Get all active mods in the found category
                 var categoryPath = Path.Combine(modsPath, targetCategory);
                 if (!Directory.Exists(categoryPath))
@@ -561,6 +565,62 @@ namespace FlairX_Mod_Manager.Pages
         public static string GetDisplayPath(string path)
         {
             return CleanPath(path);
+        }
+
+        /// <summary>
+        /// Deactivate all active mods in a specific category except the specified mod
+        /// </summary>
+        /// <param name="categoryName">Name of the category</param>
+        /// <param name="excludeModDirectory">Mod directory to exclude from deactivation</param>
+        /// <returns>Task representing the async operation</returns>
+        public static async Task DeactivateModsInCategory(string categoryName, string excludeModDirectory)
+        {
+            try
+            {
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))
+                    return;
+
+                var categoryPath = Path.Combine(modsPath, categoryName);
+                if (!Directory.Exists(categoryPath))
+                    return;
+
+                var deactivatedCount = 0;
+                var excludeCleanName = GetCleanModName(excludeModDirectory);
+
+                foreach (var modDir in Directory.GetDirectories(categoryPath))
+                {
+                    var modFolderName = Path.GetFileName(modDir);
+                    
+                    // Skip if already disabled
+                    if (modFolderName.StartsWith(DISABLED_PREFIX))
+                        continue;
+                    
+                    // Skip the mod we're about to activate
+                    var cleanModName = GetCleanModName(modFolderName);
+                    if (string.Equals(cleanModName, excludeCleanName, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    
+                    // Check if it's a valid mod
+                    var modJsonPath = Path.Combine(modDir, "mod.json");
+                    if (!File.Exists(modJsonPath))
+                        continue;
+                    
+                    // Deactivate the mod
+                    if (DeactivateModByRename(modFolderName))
+                    {
+                        deactivatedCount++;
+                        Logger.LogInfo($"Auto-deactivated conflicting mod: {modFolderName}");
+                    }
+                }
+
+                Logger.LogInfo($"Auto-deactivated {deactivatedCount} conflicting mods in category '{categoryName}'");
+                await Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to deactivate mods in category '{categoryName}'", ex);
+            }
         }
     }
 }
