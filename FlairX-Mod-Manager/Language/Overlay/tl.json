@@ -27,6 +27,7 @@
     "GamepadEnabled_Description": "Gamitin ang Xbox controller para mag-navigate sa overlay",
     "GamepadEnabled_Label": "I-enable ang Gamepad",
     "GamepadHint": "{0} toggle | {1}/{2} kategorya | {3} isara",
+    "GamepadHintWithFavorites": "{0} toggle | {1}/{2} kategorya | {3} isara | {4} fav kat | {5} fav mod",
     "HotkeyHint": "{0} para itago",
     "Hotkeys": "Mga Hotkey",
     "LeftStickDown_Label": "Kaliwang Stick Baba",

@@ -27,6 +27,7 @@
     "GamepadEnabled_Description": "ओवरले में नेविगेट करने के लिए Xbox कंट्रोलर का उपयोग करें",
     "GamepadEnabled_Label": "गेमपैड सक्षम करें",
     "GamepadHint": "{0} टॉगल | {1}/{2} श्रेणी | {3} बंद",
+    "GamepadHintWithFavorites": "{0} टॉगल | {1}/{2} श्रेणी | {3} बंद | {4} पसं श्रे | {5} पसं मॉड",
     "HotkeyHint": "छिपाने के लिए {0}",
     "Hotkeys": "हॉटकीज़",
     "LeftStickDown_Label": "बाएं स्टिक नीचे",

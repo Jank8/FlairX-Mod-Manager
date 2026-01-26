@@ -4,6 +4,7 @@
     "HotkeyHint": "{0} piilottaaksesi",
     "ClickToToggle": "Napsauta vaihtaaksesi",
     "GamepadHint": "{0} vaihda | {1}/{2} kategoria | {3} sulje",
+    "GamepadHintWithFavorites": "{0} vaihda | {1}/{2} kategoria | {3} sulje | {4} suos kat | {5} suos mod",
     "NoCategories": "Kategorioita ei löytynyt",
     "NoMods": "Ei modeja tässä kategoriassa",
     "ActiveOnly": "Vain aktiiviset",

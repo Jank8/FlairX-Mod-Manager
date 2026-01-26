@@ -4,6 +4,7 @@
     "HotkeyHint": "{0} untuk menyembunyikan",
     "ClickToToggle": "Klik untuk beralih",
     "GamepadHint": "{0} beralih | {1}/{2} kategori | {3} tutup",
+    "GamepadHintWithFavorites": "{0} beralih | {1}/{2} kategori | {3} tutup | {4} fav kat | {5} fav mod",
     "NoCategories": "Tidak ada kategori ditemukan",
     "NoMods": "Tidak ada mod dalam kategori ini",
     "ActiveOnly": "Hanya aktif",

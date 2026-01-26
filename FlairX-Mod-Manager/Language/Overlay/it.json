@@ -4,6 +4,7 @@
     "HotkeyHint": "{0} per nascondere",
     "ClickToToggle": "Clicca per alternare",
     "GamepadHint": "{0} alterna | {1}/{2} categoria | {3} chiudi",
+    "GamepadHintWithFavorites": "{0} alterna | {1}/{2} categoria | {3} chiudi | {4} fav cat | {5} fav mod",
     "NoCategories": "Nessuna categoria trovata",
     "NoMods": "Nessuna mod in questa categoria",
     "ActiveOnly": "Solo attive",

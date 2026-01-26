@@ -127,6 +127,11 @@ namespace FlairX_Mod_Manager.Pages
             // Filter Active Combo
             if (FilterActiveComboLabel != null) FilterActiveComboLabel.Text = SharedUtilities.GetTranslation(lang, "FilterActiveCombo_Label");
             
+            // Favorites section
+            if (FavoritesSectionHeader != null) FavoritesSectionHeader.Text = SharedUtilities.GetTranslation(lang, "Favorites_Section");
+            if (CategoryFavoriteLabel != null) CategoryFavoriteLabel.Text = SharedUtilities.GetTranslation(lang, "CategoryFavorite_Label");
+            if (ModFavoriteLabel != null) ModFavoriteLabel.Text = SharedUtilities.GetTranslation(lang, "ModFavorite_Label");
+            
             // Navigation labels
             if (NavigationSectionHeader != null) NavigationSectionHeader.Text = SharedUtilities.GetTranslation(lang, "Section_Navigation");
             if (DPadUpLabel != null) DPadUpLabel.Text = SharedUtilities.GetTranslation(lang, "DPadUp_Label");
@@ -226,6 +231,8 @@ namespace FlairX_Mod_Manager.Pages
             InitializeHotkeyPanel(BackButtonKeysPanel, ConvertToKenneyFormat(settings.GamepadBackButton ?? "B"));
             InitializeHotkeyPanel(NextCategoryButtonKeysPanel, ConvertToKenneyFormat(settings.GamepadNextCategoryButton ?? "RB"));
             InitializeHotkeyPanel(PrevCategoryButtonKeysPanel, ConvertToKenneyFormat(settings.GamepadPrevCategoryButton ?? "LB"));
+            InitializeHotkeyPanel(CategoryFavoriteButtonKeysPanel, ConvertToKenneyFormat(settings.GamepadCategoryFavoriteButton ?? "XB X"));
+            InitializeHotkeyPanel(ModFavoriteButtonKeysPanel, ConvertToKenneyFormat(settings.GamepadModFavoriteButton ?? "XB Y"));
             
             // Initialize combo panels
             var toggleCombo = settings.GamepadToggleOverlayCombo ?? "Back+Start";
@@ -906,6 +913,8 @@ namespace FlairX_Mod_Manager.Pages
                     "leftStickDown" => SettingsManager.Current.GamepadLeftStickDown ?? defaultValue,
                     "leftStickLeft" => SettingsManager.Current.GamepadLeftStickLeft ?? defaultValue,
                     "leftStickRight" => SettingsManager.Current.GamepadLeftStickRight ?? defaultValue,
+                    "categoryFavorite" => SettingsManager.Current.GamepadCategoryFavoriteButton ?? defaultValue,
+                    "modFavorite" => SettingsManager.Current.GamepadModFavoriteButton ?? defaultValue,
                     _ => defaultValue
                 };
             }
@@ -927,6 +936,8 @@ namespace FlairX_Mod_Manager.Pages
                 "leftStickDown" => "GamepadLeftStickDown",
                 "leftStickLeft" => "GamepadLeftStickLeft",
                 "leftStickRight" => "GamepadLeftStickRight",
+                "categoryFavorite" => "GamepadCategoryFavoriteButton",
+                "modFavorite" => "GamepadModFavoriteButton",
                 _ => ""
             };
             var conflict = SharedUtilities.GetConflictingGamepadCombo(value, settingKey);
@@ -959,6 +970,8 @@ namespace FlairX_Mod_Manager.Pages
                     "leftStickDown" => SettingsManager.Current.GamepadLeftStickDown ?? defaultValue,
                     "leftStickLeft" => SettingsManager.Current.GamepadLeftStickLeft ?? defaultValue,
                     "leftStickRight" => SettingsManager.Current.GamepadLeftStickRight ?? defaultValue,
+                    "categoryFavorite" => SettingsManager.Current.GamepadCategoryFavoriteButton ?? defaultValue,
+                    "modFavorite" => SettingsManager.Current.GamepadModFavoriteButton ?? defaultValue,
                     _ => defaultValue
                 };
                 var kenneyOriginal = originalValue.Contains("+") ? ConvertComboToKenneyFormat(originalValue) : ConvertToKenneyFormat(originalValue);
@@ -991,6 +1004,8 @@ namespace FlairX_Mod_Manager.Pages
                 case "leftStickRight": SettingsManager.Current.GamepadLeftStickRight = value; break;
                 case "rightStickUp": SettingsManager.Current.GamepadRightStickUp = value; break;
                 case "rightStickDown": SettingsManager.Current.GamepadRightStickDown = value; break;
+                case "categoryFavorite": SettingsManager.Current.GamepadCategoryFavoriteButton = value; break;
+                case "modFavorite": SettingsManager.Current.GamepadModFavoriteButton = value; break;
             }
             SettingsManager.Save();
             Logger.LogInfo($"Gamepad {settingType} set to: {value}");
@@ -1033,6 +1048,8 @@ namespace FlairX_Mod_Manager.Pages
                 case "leftStickRight": SettingsManager.Current.GamepadLeftStickRight = defaultValue; break;
                 case "rightStickUp": SettingsManager.Current.GamepadRightStickUp = defaultValue; break;
                 case "rightStickDown": SettingsManager.Current.GamepadRightStickDown = defaultValue; break;
+                case "categoryFavorite": SettingsManager.Current.GamepadCategoryFavoriteButton = defaultValue; break;
+                case "modFavorite": SettingsManager.Current.GamepadModFavoriteButton = defaultValue; break;
             }
             SettingsManager.Save();
             Logger.LogInfo($"Gamepad {settingType} restored to: {defaultValue}");
@@ -1543,5 +1560,32 @@ namespace FlairX_Mod_Manager.Pages
             else
                 editBox.Text = keyStr;
         }
+
+        // Favorite button handlers
+        private void CategoryFavoriteButtonRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(CategoryFavoriteButtonKeysPanel, CategoryFavoriteButtonRecordButton, CategoryFavoriteButtonSaveButton,
+                SettingsManager.Current.GamepadCategoryFavoriteButton ?? "XB X", "categoryFavorite");
+        }
+
+        private void ModFavoriteButtonRecordButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            if (IsAnyEditInProgress()) return;
+            StartComboRecording(ModFavoriteButtonKeysPanel, ModFavoriteButtonRecordButton, ModFavoriteButtonSaveButton,
+                SettingsManager.Current.GamepadModFavoriteButton ?? "XB Y", "modFavorite");
+        }
+
+        private void CategoryFavoriteButtonSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("categoryFavorite", CategoryFavoriteButtonKeysPanel, CategoryFavoriteButtonSaveButton, "XB X");
+
+        private void ModFavoriteButtonSaveButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+            => SaveGamepadSetting("modFavorite", ModFavoriteButtonKeysPanel, ModFavoriteButtonSaveButton, "XB Y");
+
+        private void CategoryFavoriteButtonRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("categoryFavorite", CategoryFavoriteButtonKeysPanel, "XB X"); }
+
+        private void ModFavoriteButtonRestoreButton_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        { if (!IsAnyEditInProgress()) RestoreGamepadSetting("modFavorite", ModFavoriteButtonKeysPanel, "XB Y"); }
     }
 }

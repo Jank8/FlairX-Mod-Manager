@@ -4,6 +4,7 @@
     "HotkeyHint": "{0} az elrejtéshez",
     "ClickToToggle": "Kattintson a váltáshoz",
     "GamepadHint": "{0} váltás | {1}/{2} kategória | {3} bezárás",
+    "GamepadHintWithFavorites": "{0} váltás | {1}/{2} kategória | {3} bezárás | {4} kedv kat | {5} kedv mod",
     "NoCategories": "Nem találhatók kategóriák",
     "NoMods": "Nincsenek modok ebben a kategóriában",
     "ActiveOnly": "Csak aktívak",

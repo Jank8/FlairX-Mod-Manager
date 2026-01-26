@@ -58,12 +58,28 @@
                                     Click="CategoryItem_Click">
                                 <Grid MinHeight="40" Margin="4">
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="40"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     
+                                    <!-- Favorite Star (left side) -->
+                                    <Button Grid.Column="0"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="4"
+                                            Width="28"
+                                            Height="28"
+                                            VerticalAlignment="Center"
+                                            Click="CategoryFavoriteButton_Click"
+                                            Tag="{x:Bind}">
+                                        <FontIcon Glyph="{x:Bind FavoriteStarGlyph, Mode=OneWay}"
+                                                  FontSize="14"
+                                                  Foreground="{x:Bind FavoriteStarColor, Mode=OneWay}"/>
+                                    </Button>
+                                    
                                     <!-- Thumbnail -->
-                                    <Grid Grid.Column="0" Width="40" Height="40">
+                                    <Grid Grid.Column="1" Width="40" Height="40">
                                         <!-- Selection background -->
                                         <Border CornerRadius="4"
                                                 Background="{x:Bind SelectionBackground, Mode=OneWay}"/>
@@ -87,11 +103,10 @@
                                     </Grid>
                                     
                                     <!-- Category Name -->
-                                    <TextBlock Grid.Column="1"
+                                    <TextBlock Grid.Column="2"
                                                Text="{x:Bind Name}"
                                                VerticalAlignment="Center"
                                                Margin="8,0,0,0"
-                                               MaxWidth="160"
                                                FontSize="13"
                                                Foreground="{ThemeResource TextFillColorPrimaryBrush}"
                                                TextWrapping="Wrap"/>
@@ -150,6 +165,22 @@
                                                    Stretch="UniformToFill"
                                                    VerticalAlignment="Stretch"
                                                    HorizontalAlignment="Stretch"/>
+                                            
+                                            <!-- Favorite Star (top-left corner) -->
+                                            <Button HorizontalAlignment="Right"
+                                                    VerticalAlignment="Top"
+                                                    Width="28"
+                                                    Height="28"
+                                                    Margin="4"
+                                                    Background="{ThemeResource LauncherAcrylicBrush}"
+                                                    BorderThickness="0"
+                                                    CornerRadius="14"
+                                                    Click="ModFavoriteButton_Click"
+                                                    Tag="{x:Bind}">
+                                                <FontIcon Glyph="{x:Bind FavoriteStarGlyph, Mode=OneWay}"
+                                                          FontSize="14"
+                                                          Foreground="{x:Bind FavoriteStarColor, Mode=OneWay}"/>
+                                            </Button>
                                             
                                             <!-- Caption Section -->
                                             <Grid VerticalAlignment="Bottom" Height="42">

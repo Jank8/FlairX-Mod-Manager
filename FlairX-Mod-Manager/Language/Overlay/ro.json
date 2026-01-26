@@ -4,6 +4,7 @@
     "HotkeyHint": "{0} pentru a ascunde",
     "ClickToToggle": "Faceți clic pentru a comuta",
     "GamepadHint": "{0} comută | {1}/{2} categorie | {3} închide",
+    "GamepadHintWithFavorites": "{0} comută | {1}/{2} categorie | {3} închide | {4} fav cat | {5} fav mod",
     "NoCategories": "Nu s-au găsit categorii",
     "NoMods": "Niciun mod în această categorie",
     "ActiveOnly": "Doar active",

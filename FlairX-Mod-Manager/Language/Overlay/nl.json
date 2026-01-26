@@ -4,6 +4,7 @@
     "HotkeyHint": "{0} om te verbergen",
     "ClickToToggle": "Klik om te schakelen",
     "GamepadHint": "{0} schakelen | {1}/{2} categorie | {3} sluiten",
+    "GamepadHintWithFavorites": "{0} schakelen | {1}/{2} categorie | {3} sluiten | {4} fav cat | {5} fav mod",
     "NoCategories": "Geen categorieën gevonden",
     "NoMods": "Geen mods in deze categorie",
     "ActiveOnly": "Alleen actief",

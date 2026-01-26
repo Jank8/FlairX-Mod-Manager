@@ -27,6 +27,7 @@
     "GamepadEnabled_Description": "ใช้คอนโทรลเลอร์ Xbox เพื่อนำทางในโอเวอร์เลย์",
     "GamepadEnabled_Label": "เปิดใช้เกมแพด",
     "GamepadHint": "{0} สลับ | {1}/{2} หมวดหมู่ | {3} ปิด",
+    "GamepadHintWithFavorites": "{0} สลับ | {1}/{2} หมวดหมู่ | {3} ปิด | {4} รายการโปรด หมวด | {5} รายการโปรด มอด",
     "HotkeyHint": "{0} เพื่อซ่อน",
     "Hotkeys": "ปุ่มลัด",
     "LeftStickDown_Label": "สติ๊กซ้าย ลง",

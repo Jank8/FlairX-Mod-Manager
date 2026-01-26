@@ -27,6 +27,7 @@
     "GamepadEnabled_Description": "Overlay'de gezinmek için Xbox kumandası kullan",
     "GamepadEnabled_Label": "Gamepad'i Etkinleştir",
     "GamepadHint": "{0} değiştir | {1}/{2} kategori | {3} kapat",
+    "GamepadHintWithFavorites": "{0} değiştir | {1}/{2} kategori | {3} kapat | {4} fav kat | {5} fav mod",
     "HotkeyHint": "Gizlemek için {0}",
     "Hotkeys": "Kısayollar",
     "LeftStickDown_Label": "Sol Analog Çubuk Aşağı",

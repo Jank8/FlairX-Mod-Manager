@@ -4,6 +4,7 @@
   "HotkeyHint": "{0} pro skrytí",
   "ClickToToggle": "Klikněte pro přepnutí",
   "GamepadHint": "{0} přepnout | {1}/{2} kategorie | {3} zavřít",
+  "GamepadHintWithFavorites": "{0} přepnout | {1}/{2} kategorie | {3} zavřít | {4} obl kat | {5} obl mod",
   "NoCategories": "Nenalezeny žádné kategorie",
   "NoMods": "V této kategorii nejsou žádné mody",
   "ActiveOnly": "Pouze aktivní",

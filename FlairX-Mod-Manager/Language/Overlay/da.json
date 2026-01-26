@@ -4,6 +4,7 @@
     "HotkeyHint": "{0} for at skjule",
     "ClickToToggle": "Klik for at skifte",
     "GamepadHint": "{0} skift | {1}/{2} kategori | {3} luk",
+    "GamepadHintWithFavorites": "{0} skift | {1}/{2} kategori | {3} luk | {4} kat fav | {5} mod fav",
     "NoCategories": "Ingen kategorier fundet",
     "NoMods": "Ingen mods i denne kategori",
     "ActiveOnly": "Kun aktive",

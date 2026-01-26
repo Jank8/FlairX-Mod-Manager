@@ -27,6 +27,7 @@
   "GamepadEnabled_Description": "Использовать контроллер Xbox для навигации в оверлее",
   "GamepadEnabled_Label": "Включить геймпад",
   "GamepadHint": "{0} переключить | {1}/{2} категория | {3} закрыть",
+  "GamepadHintWithFavorites": "{0} переключить | {1}/{2} категория | {3} закрыть | {4} изб кат | {5} изб мод",
   "HotkeyHint": "{0} чтобы скрыть",
   "Hotkeys": "Горячие клавиши",
   "LeftStickDown_Label": "Левый стик Вниз",

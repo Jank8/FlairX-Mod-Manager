@@ -27,6 +27,7 @@
     "GamepadEnabled_Description": "Dùng tay cầm Xbox để điều hướng overlay",
     "GamepadEnabled_Label": "Bật Gamepad",
     "GamepadHint": "{0} chuyển | {1}/{2} danh mục | {3} đóng",
+    "GamepadHintWithFavorites": "{0} chuyển | {1}/{2} danh mục | {3} đóng | {4} yêu thích danh mục | {5} yêu thích mod",
     "HotkeyHint": "{0} để ẩn",
     "Hotkeys": "Phím tắt",
     "LeftStickDown_Label": "Cần Trái Xuống",

@@ -27,6 +27,7 @@
   "GamepadEnabled_Description": "使用Xbox手把導航覆蓋層",
   "GamepadEnabled_Label": "啟用手把",
   "GamepadHint": "{0} 切換 | {1}/{2} 分類 | {3} 關閉",
+  "GamepadHintWithFavorites": "{0} 切換 | {1}/{2} 分類 | {3} 關閉 | {4} 收藏分類 | {5} 收藏模組",
   "HotkeyHint": "{0} 隱藏",
   "Hotkeys": "快捷鍵",
   "LeftStickDown_Label": "左搖桿 下",

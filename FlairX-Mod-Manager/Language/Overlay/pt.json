@@ -27,6 +27,7 @@
     "GamepadEnabled_Description": "Usar comando Xbox para navegar no overlay",
     "GamepadEnabled_Label": "Ativar Gamepad",
     "GamepadHint": "{0} alternar | {1}/{2} categoria | {3} fechar",
+    "GamepadHintWithFavorites": "{0} alternar | {1}/{2} categoria | {3} fechar | {4} fav cat | {5} fav mod",
     "HotkeyHint": "{0} para ocultar",
     "Hotkeys": "Atalhos",
     "LeftStickDown_Label": "Analógico Esquerdo Baixo",

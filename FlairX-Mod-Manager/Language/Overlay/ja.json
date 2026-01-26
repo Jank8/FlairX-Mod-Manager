@@ -27,6 +27,7 @@
   "GamepadEnabled_Description": "Xboxコントローラーでオーバーレイをナビゲート",
   "GamepadEnabled_Label": "ゲームパッドを有効化",
   "GamepadHint": "{0} 切替 | {1}/{2} カテゴリ | {3} 閉じる",
+  "GamepadHintWithFavorites": "{0} 切替 | {1}/{2} カテゴリ | {3} 閉じる | {4} お気に入りカテ | {5} お気に入りモッド",
   "HotkeyHint": "{0} で非表示",
   "Hotkeys": "ホットキー",
   "LeftStickDown_Label": "左スティック 下",

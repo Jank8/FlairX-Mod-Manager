@@ -27,6 +27,7 @@
   "GamepadEnabled_Description": "Usar control Xbox para navegar en overlay",
   "GamepadEnabled_Label": "Habilitar Gamepad",
   "GamepadHint": "{0} alternar | {1}/{2} categoría | {3} cerrar",
+  "GamepadHintWithFavorites": "{0} alternar | {1}/{2} categoría | {3} cerrar | {4} fav cat | {5} fav mod",
   "HotkeyHint": "{0} para ocultar",
   "Hotkeys": "Atajos",
   "LeftStickDown_Label": "Stick Izquierdo Abajo",

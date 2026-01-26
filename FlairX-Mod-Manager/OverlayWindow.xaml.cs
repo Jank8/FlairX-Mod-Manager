@@ -72,9 +72,16 @@ namespace FlairX_Mod_Manager
                 {
                     _isFavorite = value;
                     OnPropertyChanged(nameof(IsFavorite));
+                    OnPropertyChanged(nameof(FavoriteStarGlyph));
+                    OnPropertyChanged(nameof(FavoriteStarColor));
                 }
             }
         }
+
+        public string FavoriteStarGlyph => IsFavorite ? "\uE735" : "\uE734";
+        public SolidColorBrush FavoriteStarColor => IsFavorite 
+            ? new SolidColorBrush(Colors.Gold) 
+            : new SolidColorBrush(Colors.White);
 
         public SolidColorBrush SelectionBackground
         {
@@ -153,9 +160,16 @@ namespace FlairX_Mod_Manager
                 {
                     _isFavorite = value;
                     OnPropertyChanged(nameof(IsFavorite));
+                    OnPropertyChanged(nameof(FavoriteStarGlyph));
+                    OnPropertyChanged(nameof(FavoriteStarColor));
                 }
             }
         }
+
+        public string FavoriteStarGlyph => IsFavorite ? "\uE735" : "\uE734";
+        public SolidColorBrush FavoriteStarColor => IsFavorite 
+            ? new SolidColorBrush(Colors.Gold) 
+            : new SolidColorBrush(Colors.White);
 
         public SolidColorBrush StatusColor => IsActive 
             ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, 76, 175, 80))  // Green
@@ -640,12 +654,14 @@ namespace FlairX_Mod_Manager
                 var prevCatBtn = settings.GamepadPrevCategoryButton ?? "LB";
                 var nextCatBtn = settings.GamepadNextCategoryButton ?? "RB";
                 var backBtn = settings.GamepadBackButton ?? "B";
+                var categoryFavBtn = "X"; // Xbox X for category favorites
+                var modFavBtn = "Y"; // Xbox Y for mod favorites
                 
-                var gamepadHintTemplate = SharedUtilities.GetTranslation(lang, "GamepadHint");
+                var gamepadHintTemplate = SharedUtilities.GetTranslation(lang, "GamepadHintWithFavorites");
                 
                 if (GamepadHintText != null)
                 {
-                    GamepadHintText.Text = string.Format(gamepadHintTemplate, selectBtn, prevCatBtn, nextCatBtn, backBtn);
+                    GamepadHintText.Text = string.Format(gamepadHintTemplate, selectBtn, prevCatBtn, nextCatBtn, backBtn, categoryFavBtn, modFavBtn);
                     GamepadHintText.Visibility = Visibility.Visible;
                 }
                 if (GamepadSeparator != null)
@@ -781,6 +797,16 @@ namespace FlairX_Mod_Manager
                     if (IsButtonMatch(buttonName, settings.GamepadSelectButton))
                     {
                         ToggleSelectedMod();
+                    }
+                    // Toggle category favorite (Xbox X)
+                    else if (IsButtonMatch(buttonName, "X"))
+                    {
+                        ToggleCategoryFavorite();
+                    }
+                    // Toggle mod favorite (Xbox Y)
+                    else if (IsButtonMatch(buttonName, "Y"))
+                    {
+                        ToggleModFavorite();
                     }
                     // Next category
                     else if (IsButtonMatch(buttonName, settings.GamepadNextCategoryButton))
@@ -2231,6 +2257,181 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError("RefreshOverlayData: Failed to refresh overlay", ex);
+            }
+        }
+
+        #endregion
+
+        #region Favorite Button Handlers
+
+        private void CategoryFavoriteButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is Button button && button.Tag is OverlayCategoryItem category)
+                {
+                    var gameTag = SettingsManager.CurrentSelectedGame;
+                    if (string.IsNullOrEmpty(gameTag)) return;
+
+                    // Toggle favorite status
+                    SettingsManager.ToggleCategoryFavorite(gameTag, category.Name);
+                    category.IsFavorite = SettingsManager.IsCategoryFavorite(gameTag, category.Name);
+                    
+                    Logger.LogInfo($"Overlay: Toggled favorite for category: {category.Name}, IsFavorite: {category.IsFavorite}");
+                    
+                    // Refresh categories to update sorting
+                    LoadCurrentCategoryMods();
+                    
+                    // Update main window menu if it exists
+                    if (_mainWindow != null)
+                    {
+                        _mainWindow.UpdateMenuStarForCategoryAnimated(category.Name, category.IsFavorite);
+                        
+                        // Update ModGridPage if it's showing categories
+                        var contentFrameField = _mainWindow.GetType().GetField("contentFrame", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (contentFrameField?.GetValue(_mainWindow) is Microsoft.UI.Xaml.Controls.Frame contentFrame &&
+                            contentFrame.Content is Pages.ModGridPage modGridPage && 
+                            modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
+                        {
+                            modGridPage.RefreshCategoryFavoritesAnimated();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to toggle category favorite in overlay", ex);
+            }
+        }
+
+        private void ModFavoriteButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is Button button && button.Tag is OverlayModItem mod)
+                {
+                    var gameTag = SettingsManager.CurrentSelectedGame;
+                    if (string.IsNullOrEmpty(gameTag)) return;
+
+                    // Toggle favorite status
+                    SettingsManager.ToggleModFavorite(gameTag, mod.Name);
+                    mod.IsFavorite = SettingsManager.IsModFavorite(gameTag, mod.Name);
+                    
+                    Logger.LogInfo($"Overlay: Toggled favorite for mod: {mod.Name}, IsFavorite: {mod.IsFavorite}");
+                    
+                    // Refresh current category to update sorting
+                    if (!string.IsNullOrEmpty(_selectedCategoryPath))
+                    {
+                        LoadModsFromCategory(_selectedCategoryPath, _showActiveOnly);
+                    }
+                    
+                    // Update ModGridPage if it's showing mods
+                    if (_mainWindow != null)
+                    {
+                        var contentFrameField = _mainWindow.GetType().GetField("contentFrame", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                        if (contentFrameField?.GetValue(_mainWindow) is Microsoft.UI.Xaml.Controls.Frame contentFrame &&
+                            contentFrame.Content is Pages.ModGridPage modGridPage && 
+                            modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Mods)
+                        {
+                            modGridPage.RefreshModFavorites();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to toggle mod favorite in overlay", ex);
+            }
+        }
+
+        #endregion
+        
+        #region Gamepad Favorite Handlers
+
+        private void ToggleCategoryFavorite()
+        {
+            try
+            {
+                // Find currently selected category
+                var selectedCategory = OverlayCategories.FirstOrDefault(c => c.IsSelected);
+                if (selectedCategory == null) return;
+
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                if (string.IsNullOrEmpty(gameTag)) return;
+
+                // Toggle favorite status
+                SettingsManager.ToggleCategoryFavorite(gameTag, selectedCategory.Name);
+                selectedCategory.IsFavorite = SettingsManager.IsCategoryFavorite(gameTag, selectedCategory.Name);
+                
+                Logger.LogInfo($"Overlay Gamepad: Toggled favorite for category: {selectedCategory.Name}, IsFavorite: {selectedCategory.IsFavorite}");
+                
+                // Vibrate to confirm action
+                _gamepadManager?.Vibrate((ushort)(selectedCategory.IsFavorite ? 40000 : 20000), 0, 200);
+                
+                // Refresh categories to update sorting
+                LoadCurrentCategoryMods();
+                
+                // Update main window menu if it exists
+                if (_mainWindow != null)
+                {
+                    _mainWindow.UpdateMenuStarForCategoryAnimated(selectedCategory.Name, selectedCategory.IsFavorite);
+                    
+                    // Update ModGridPage if it's showing categories
+                    var contentFrameField = _mainWindow.GetType().GetField("contentFrame", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (contentFrameField?.GetValue(_mainWindow) is Microsoft.UI.Xaml.Controls.Frame contentFrame &&
+                        contentFrame.Content is Pages.ModGridPage modGridPage && 
+                        modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
+                    {
+                        modGridPage.RefreshCategoryFavoritesAnimated();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to toggle category favorite via gamepad in overlay", ex);
+            }
+        }
+
+        private void ToggleModFavorite()
+        {
+            try
+            {
+                // Find currently selected mod
+                if (_selectedMod == null) return;
+
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                if (string.IsNullOrEmpty(gameTag)) return;
+
+                // Toggle favorite status
+                SettingsManager.ToggleModFavorite(gameTag, _selectedMod.Name);
+                _selectedMod.IsFavorite = SettingsManager.IsModFavorite(gameTag, _selectedMod.Name);
+                
+                Logger.LogInfo($"Overlay Gamepad: Toggled favorite for mod: {_selectedMod.Name}, IsFavorite: {_selectedMod.IsFavorite}");
+                
+                // Vibrate to confirm action
+                _gamepadManager?.Vibrate((ushort)(_selectedMod.IsFavorite ? 40000 : 20000), 0, 200);
+                
+                // Refresh current category to update sorting
+                if (!string.IsNullOrEmpty(_selectedCategoryPath))
+                {
+                    LoadModsFromCategory(_selectedCategoryPath, _showActiveOnly);
+                }
+                
+                // Update ModGridPage if it's showing mods
+                if (_mainWindow != null)
+                {
+                    var contentFrameField = _mainWindow.GetType().GetField("contentFrame", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    if (contentFrameField?.GetValue(_mainWindow) is Microsoft.UI.Xaml.Controls.Frame contentFrame &&
+                        contentFrame.Content is Pages.ModGridPage modGridPage && 
+                        modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Mods)
+                    {
+                        modGridPage.RefreshModFavorites();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to toggle mod favorite via gamepad in overlay", ex);
             }
         }
 

@@ -4,6 +4,7 @@
     "HotkeyHint": "{0} för att dölja",
     "ClickToToggle": "Klicka för att växla",
     "GamepadHint": "{0} växla | {1}/{2} kategori | {3} stäng",
+    "GamepadHintWithFavorites": "{0} växla | {1}/{2} kategori | {3} stäng | {4} fav kat | {5} fav mod",
     "NoCategories": "Inga kategorier hittades",
     "NoMods": "Inga moddar i denna kategori",
     "ActiveOnly": "Endast aktiva",

@@ -89,6 +89,8 @@ namespace FlairX_Mod_Manager
         public string GamepadBackButton { get; set; } = "XB B";
         public string GamepadNextCategoryButton { get; set; } = "XB RB";
         public string GamepadPrevCategoryButton { get; set; } = "XB LB";
+        public string GamepadCategoryFavoriteButton { get; set; } = "XB X";
+        public string GamepadModFavoriteButton { get; set; } = "XB Y";
         
         // Gamepad D-Pad navigation
         public string GamepadDPadUp { get; set; } = "XB ↑";

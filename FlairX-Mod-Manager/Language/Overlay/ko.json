@@ -27,6 +27,7 @@
   "GamepadEnabled_Description": "Xbox 컨트롤러로 오버레이 탐색",
   "GamepadEnabled_Label": "게임패드 활성화",
   "GamepadHint": "{0} 전환 | {1}/{2} 카테고리 | {3} 닫기",
+  "GamepadHintWithFavorites": "{0} 전환 | {1}/{2} 카테고리 | {3} 닫기 | {4} 즐겨찾기 카테 | {5} 즐겨찾기 모드",
   "HotkeyHint": "{0} 숨기기",
   "Hotkeys": "단축키",
   "LeftStickDown_Label": "왼쪽 스틱 아래",
