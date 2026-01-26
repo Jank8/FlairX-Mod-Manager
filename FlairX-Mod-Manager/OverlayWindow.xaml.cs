@@ -361,10 +361,25 @@ namespace FlairX_Mod_Manager
 
             if (_appWindow != null)
             {
+                // Configure presenter first - always on top for overlay
+                if (_appWindow.Presenter is OverlappedPresenter presenter)
+                {
+                    presenter.IsAlwaysOnTop = true;
+                    presenter.IsResizable = true;
+                    presenter.IsMinimizable = false;
+                    presenter.IsMaximizable = false;
+                    
+                    // Ensure window is not maximized
+                    if (presenter.State == OverlappedPresenterState.Maximized)
+                    {
+                        presenter.Restore();
+                    }
+                }
+
                 // Restore saved size or use defaults
                 var settings = SettingsManager.Current;
-                var width = settings.OverlayWidth > 0 ? settings.OverlayWidth : 1200;
-                var height = settings.OverlayHeight > 0 ? settings.OverlayHeight : 720;
+                var width = settings.OverlayWidth > 0 ? settings.OverlayWidth : 1500;
+                var height = settings.OverlayHeight > 0 ? settings.OverlayHeight : 800;
                 _appWindow.Resize(new Windows.Graphics.SizeInt32(width, height));
                 
                 // Extend title bar into content
@@ -374,15 +389,6 @@ namespace FlairX_Mod_Manager
                 
                 // Set drag region for custom title bar
                 SetTitleBar(AppTitleBar);
-                
-                // Configure presenter - always on top for overlay
-                if (_appWindow.Presenter is OverlappedPresenter presenter)
-                {
-                    presenter.IsAlwaysOnTop = true;
-                    presenter.IsResizable = true;
-                    presenter.IsMinimizable = false;
-                    presenter.IsMaximizable = false;
-                }
 
                 // Restore saved position or center on screen
                 var displayArea = DisplayArea.GetFromWindowId(windowId, DisplayAreaFallback.Primary);
@@ -723,7 +729,7 @@ namespace FlairX_Mod_Manager
                 _gamepadManager.ControllerConnected += (s, e) =>
                 {
                     Logger.LogInfo("Gamepad connected - overlay navigation enabled");
-                    DispatcherQueue.TryEnqueue(() => _gamepadManager?.Vibrate(20000, 20000, 300));
+                    DispatcherQueue.TryEnqueue(() => _gamepadManager?.Vibrate((ushort)20000, (ushort)20000, 300));
                 };
                 _gamepadManager.ControllerDisconnected += (s, e) =>
                 {
@@ -2288,9 +2294,7 @@ namespace FlairX_Mod_Manager
                         _mainWindow.UpdateMenuStarForCategoryAnimated(category.Name, category.IsFavorite);
                         
                         // Update ModGridPage if it's showing categories
-                        var contentFrameField = _mainWindow.GetType().GetField("contentFrame", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                        if (contentFrameField?.GetValue(_mainWindow) is Microsoft.UI.Xaml.Controls.Frame contentFrame &&
-                            contentFrame.Content is Pages.ModGridPage modGridPage && 
+                        if (_mainWindow.ContentFrame?.Content is Pages.ModGridPage modGridPage && 
                             modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
                         {
                             modGridPage.RefreshCategoryFavoritesAnimated();
@@ -2328,9 +2332,7 @@ namespace FlairX_Mod_Manager
                     // Update ModGridPage if it's showing mods
                     if (_mainWindow != null)
                     {
-                        var contentFrameField = _mainWindow.GetType().GetField("contentFrame", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                        if (contentFrameField?.GetValue(_mainWindow) is Microsoft.UI.Xaml.Controls.Frame contentFrame &&
-                            contentFrame.Content is Pages.ModGridPage modGridPage && 
+                        if (_mainWindow.ContentFrame?.Content is Pages.ModGridPage modGridPage && 
                             modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Mods)
                         {
                             modGridPage.RefreshModFavorites();
@@ -2366,7 +2368,7 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo($"Overlay Gamepad: Toggled favorite for category: {selectedCategory.Name}, IsFavorite: {selectedCategory.IsFavorite}");
                 
                 // Vibrate to confirm action
-                _gamepadManager?.Vibrate((ushort)(selectedCategory.IsFavorite ? 40000 : 20000), 0, 200);
+                _gamepadManager?.Vibrate((ushort)(selectedCategory.IsFavorite ? 40000 : 20000), (ushort)0, 200);
                 
                 // Refresh categories to update sorting
                 LoadCurrentCategoryMods();
@@ -2377,12 +2379,13 @@ namespace FlairX_Mod_Manager
                     _mainWindow.UpdateMenuStarForCategoryAnimated(selectedCategory.Name, selectedCategory.IsFavorite);
                     
                     // Update ModGridPage if it's showing categories
-                    var contentFrameField = _mainWindow.GetType().GetField("contentFrame", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    if (contentFrameField?.GetValue(_mainWindow) is Microsoft.UI.Xaml.Controls.Frame contentFrame &&
-                        contentFrame.Content is Pages.ModGridPage modGridPage && 
-                        modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
+                    if (_mainWindow != null)
                     {
-                        modGridPage.RefreshCategoryFavoritesAnimated();
+                        if (_mainWindow.ContentFrame?.Content is Pages.ModGridPage modGridPage && 
+                            modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
+                        {
+                            modGridPage.RefreshCategoryFavoritesAnimated();
+                        }
                     }
                 }
             }
@@ -2409,7 +2412,7 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo($"Overlay Gamepad: Toggled favorite for mod: {_selectedMod.Name}, IsFavorite: {_selectedMod.IsFavorite}");
                 
                 // Vibrate to confirm action
-                _gamepadManager?.Vibrate((ushort)(_selectedMod.IsFavorite ? 40000 : 20000), 0, 200);
+                _gamepadManager?.Vibrate((ushort)(_selectedMod.IsFavorite ? 40000 : 20000), (ushort)0, 200);
                 
                 // Refresh current category to update sorting
                 if (!string.IsNullOrEmpty(_selectedCategoryPath))
@@ -2420,9 +2423,7 @@ namespace FlairX_Mod_Manager
                 // Update ModGridPage if it's showing mods
                 if (_mainWindow != null)
                 {
-                    var contentFrameField = _mainWindow.GetType().GetField("contentFrame", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    if (contentFrameField?.GetValue(_mainWindow) is Microsoft.UI.Xaml.Controls.Frame contentFrame &&
-                        contentFrame.Content is Pages.ModGridPage modGridPage && 
+                    if (_mainWindow.ContentFrame?.Content is Pages.ModGridPage modGridPage && 
                         modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Mods)
                     {
                         modGridPage.RefreshModFavorites();

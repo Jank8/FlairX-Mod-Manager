@@ -154,47 +154,57 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo("RegisterAllHotkeys: Starting hotkey registration");
                 var settings = SettingsManager.Current;
 
-                // Check if hotkeys are enabled
+                // Register main hotkeys only if main hotkeys are enabled
                 Logger.LogInfo($"RegisterAllHotkeys: HotkeysEnabled = {settings.HotkeysEnabled}");
-                if (!settings.HotkeysEnabled)
+                if (settings.HotkeysEnabled)
                 {
-                    Logger.LogInfo("Hotkeys are disabled - skipping registration");
-                    return;
+                    // Register reload manager hotkey
+                    Logger.LogInfo($"RegisterAllHotkeys: ReloadManagerHotkey = '{settings.ReloadManagerHotkey}'");
+                    if (!string.IsNullOrEmpty(settings.ReloadManagerHotkey))
+                    {
+                        RegisterHotkey(HOTKEY_RELOAD_MANAGER, settings.ReloadManagerHotkey);
+                    }
+
+                    // Register shuffle active mods hotkey
+                    Logger.LogInfo($"RegisterAllHotkeys: ShuffleActiveModsHotkey = '{settings.ShuffleActiveModsHotkey}'");
+                    if (!string.IsNullOrEmpty(settings.ShuffleActiveModsHotkey))
+                    {
+                        RegisterHotkey(HOTKEY_SHUFFLE_ACTIVE_MODS, settings.ShuffleActiveModsHotkey);
+                    }
+
+                    // Register deactivate all mods hotkey
+                    Logger.LogInfo($"RegisterAllHotkeys: DeactivateAllModsHotkey = '{settings.DeactivateAllModsHotkey}'");
+                    if (!string.IsNullOrEmpty(settings.DeactivateAllModsHotkey))
+                    {
+                        RegisterHotkey(HOTKEY_DEACTIVATE_ALL_MODS, settings.DeactivateAllModsHotkey);
+                    }
+                }
+                else
+                {
+                    Logger.LogInfo("Main hotkeys are disabled - skipping main hotkey registration");
                 }
 
-                // Register reload manager hotkey
-                Logger.LogInfo($"RegisterAllHotkeys: ReloadManagerHotkey = '{settings.ReloadManagerHotkey}'");
-                if (!string.IsNullOrEmpty(settings.ReloadManagerHotkey))
+                // Register overlay hotkeys independently if overlay hotkeys are enabled
+                Logger.LogInfo($"RegisterAllHotkeys: OverlayHotkeysEnabled = {settings.OverlayHotkeysEnabled}");
+                if (settings.OverlayHotkeysEnabled)
                 {
-                    RegisterHotkey(HOTKEY_RELOAD_MANAGER, settings.ReloadManagerHotkey);
-                }
+                    // Register toggle overlay hotkey
+                    Logger.LogInfo($"RegisterAllHotkeys: ToggleOverlayHotkey = '{settings.ToggleOverlayHotkey}'");
+                    if (!string.IsNullOrEmpty(settings.ToggleOverlayHotkey))
+                    {
+                        RegisterHotkey(HOTKEY_TOGGLE_OVERLAY, settings.ToggleOverlayHotkey);
+                    }
 
-                // Register shuffle active mods hotkey
-                Logger.LogInfo($"RegisterAllHotkeys: ShuffleActiveModsHotkey = '{settings.ShuffleActiveModsHotkey}'");
-                if (!string.IsNullOrEmpty(settings.ShuffleActiveModsHotkey))
-                {
-                    RegisterHotkey(HOTKEY_SHUFFLE_ACTIVE_MODS, settings.ShuffleActiveModsHotkey);
+                    // Register filter active mods hotkey
+                    Logger.LogInfo($"RegisterAllHotkeys: FilterActiveHotkey = '{settings.FilterActiveHotkey}'");
+                    if (!string.IsNullOrEmpty(settings.FilterActiveHotkey))
+                    {
+                        RegisterHotkey(HOTKEY_FILTER_ACTIVE, settings.FilterActiveHotkey);
+                    }
                 }
-
-                // Register deactivate all mods hotkey
-                Logger.LogInfo($"RegisterAllHotkeys: DeactivateAllModsHotkey = '{settings.DeactivateAllModsHotkey}'");
-                if (!string.IsNullOrEmpty(settings.DeactivateAllModsHotkey))
+                else
                 {
-                    RegisterHotkey(HOTKEY_DEACTIVATE_ALL_MODS, settings.DeactivateAllModsHotkey);
-                }
-
-                // Register toggle overlay hotkey
-                Logger.LogInfo($"RegisterAllHotkeys: ToggleOverlayHotkey = '{settings.ToggleOverlayHotkey}'");
-                if (settings.OverlayHotkeysEnabled && !string.IsNullOrEmpty(settings.ToggleOverlayHotkey))
-                {
-                    RegisterHotkey(HOTKEY_TOGGLE_OVERLAY, settings.ToggleOverlayHotkey);
-                }
-
-                // Register filter active mods hotkey
-                Logger.LogInfo($"RegisterAllHotkeys: FilterActiveHotkey = '{settings.FilterActiveHotkey}'");
-                if (settings.OverlayHotkeysEnabled && !string.IsNullOrEmpty(settings.FilterActiveHotkey))
-                {
-                    RegisterHotkey(HOTKEY_FILTER_ACTIVE, settings.FilterActiveHotkey);
+                    Logger.LogInfo("Overlay hotkeys are disabled - skipping overlay hotkey registration");
                 }
 
                 Logger.LogInfo($"RegisterAllHotkeys: Completed - registered {_registeredHotkeys.Count} global hotkeys");
@@ -353,10 +363,22 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogInfo($"OnHotkeyPressed: Hotkey ID {id} pressed");
                 
-                // Check if hotkeys are enabled before executing
-                if (!SettingsManager.Current.HotkeysEnabled)
+                var settings = SettingsManager.Current;
+                
+                // Check if this is an overlay hotkey
+                bool isOverlayHotkey = (id == HOTKEY_TOGGLE_OVERLAY || id == HOTKEY_FILTER_ACTIVE);
+                
+                // For main hotkeys, check if main hotkeys are enabled
+                if (!isOverlayHotkey && !settings.HotkeysEnabled)
                 {
-                    Logger.LogInfo($"OnHotkeyPressed: Hotkey {id} pressed but hotkeys are disabled - ignoring");
+                    Logger.LogInfo($"OnHotkeyPressed: Main hotkey {id} pressed but main hotkeys are disabled - ignoring");
+                    return;
+                }
+                
+                // For overlay hotkeys, check if overlay hotkeys are enabled
+                if (isOverlayHotkey && !settings.OverlayHotkeysEnabled)
+                {
+                    Logger.LogInfo($"OnHotkeyPressed: Overlay hotkey {id} pressed but overlay hotkeys are disabled - ignoring");
                     return;
                 }
 

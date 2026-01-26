@@ -37,6 +37,11 @@ namespace FlairX_Mod_Manager
         public FlairX_Mod_Manager.Pages.ModGridPage? CurrentModGridPage { get; set; }
 
         /// <summary>
+        /// Public access to the content frame for overlay integration
+        /// </summary>
+        public Frame ContentFrame => contentFrame;
+
+        /// <summary>
         /// Get the current ModGridPage instance if available
         /// </summary>
         public FlairX_Mod_Manager.Pages.ModGridPage? GetCurrentModGridPage()
