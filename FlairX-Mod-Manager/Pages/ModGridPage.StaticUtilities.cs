@@ -97,14 +97,14 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     // Add _duplicate suffix before deactivating
                     finalName = DISABLED_PREFIX + modName + "_duplicate";
-                    newModName = modName + "_duplicate"; // Return the new clean name for UI
+                    newModName = finalName; // Return the actual new folder name
                     Logger.LogInfo($"Handling duplicate mod during deactivation: {modName} -> {finalName}");
                 }
                 else
                 {
                     // Regular deactivation
                     finalName = DISABLED_PREFIX + modName;
-                    newModName = modName; // Keep original name for UI
+                    newModName = finalName; // Return the actual new folder name
                 }
 
                 var newPath = Path.Combine(parentDir, finalName);

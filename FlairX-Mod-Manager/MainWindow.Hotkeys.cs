@@ -21,6 +21,9 @@ namespace FlairX_Mod_Manager
         // Overlay window instance
         private OverlayWindow? _overlayWindow;
         
+        // Public property to access overlay window
+        public OverlayWindow? OverlayWindow => _overlayWindow;
+        
         // Global gamepad manager for overlay toggle
         private GamepadManager? _globalGamepadManager;
 

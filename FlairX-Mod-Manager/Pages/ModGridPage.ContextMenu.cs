@@ -489,9 +489,10 @@ namespace FlairX_Mod_Manager.Pages
                         _allMods.Remove(modTile);
                         
                         // Also remove from active mods if it exists there
-                        if (_activeMods.ContainsKey(modTile.Directory))
+                        var cleanName = GetCleanModName(modTile.Directory);
+                        if (_activeMods.ContainsKey(cleanName))
                         {
-                            _activeMods.Remove(modTile.Directory);
+                            _activeMods.Remove(cleanName);
                             SaveActiveMods();
                         }
                         
@@ -1048,9 +1049,10 @@ namespace FlairX_Mod_Manager.Pages
                             _allMods.Remove(tile);
                             
                             // Also remove from active mods if it exists there
-                            if (_activeMods.ContainsKey(tile.Directory))
+                            var cleanName = GetCleanModName(tile.Directory);
+                            if (_activeMods.ContainsKey(cleanName))
                             {
-                                _activeMods.Remove(tile.Directory);
+                                _activeMods.Remove(cleanName);
                                 SaveActiveMods();
                             }
                             

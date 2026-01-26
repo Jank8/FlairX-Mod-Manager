@@ -292,7 +292,7 @@ namespace FlairX_Mod_Manager.Pages
                         Name = modData.Name, 
                         ImagePath = modData.ImagePath, 
                         Directory = modData.Directory, 
-                        IsActive = _activeMods.TryGetValue(modData.Directory, out var isActive) && isActive,
+                        IsActive = _activeMods.TryGetValue(GetCleanModName(modData.Directory), out var isActive) && isActive,
                         Category = modData.Category,
                         Author = modData.Author,
                         Url = modData.Url,

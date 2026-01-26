@@ -54,10 +54,11 @@ namespace FlairX_Mod_Manager.Pages
                 }
 
                 // NEW SYSTEM: Toggle activation by renaming with DISABLED_ prefix
-                if (!_activeMods.TryGetValue(mod.Directory, out var isActive) || !isActive)
+                // Use mod.IsActive (UI state) to determine action instead of folder state
+                if (!mod.IsActive)
                 {
                     // Activate mod - check for category conflicts first
-                    Logger.LogInfo($"Activating mod: {mod.Directory}");
+                    Logger.LogInfo($"ENTERING ACTIVATION BRANCH - Activating mod: {mod.Directory}");
                     
                     // Check if there are already active mods in the same category
                     var activeModsInCategory = GetActiveModsInCategory(mod.Directory);
@@ -75,8 +76,9 @@ namespace FlairX_Mod_Manager.Pages
                             // Update UI for deactivated mods
                             foreach (var activeModName in activeModsInCategory)
                             {
-                                // Update _activeMods dictionary
-                                _activeMods[activeModName] = false;
+                                // Update _activeMods dictionary using clean name
+                                var cleanName = GetCleanModName(activeModName);
+                                _activeMods[cleanName] = false;
                                 
                                 // Find and update the ModTile in current view
                                 var deactivatedTile = _allMods?.FirstOrDefault(m => GetCleanModName(m.Directory) == GetCleanModName(activeModName));
@@ -134,7 +136,8 @@ namespace FlairX_Mod_Manager.Pages
                     // Proceed with activation
                     if (ActivateModByRename(mod.Directory))
                     {
-                        _activeMods[mod.Directory] = true;
+                        var cleanName = GetCleanModName(mod.Directory);
+                        _activeMods[cleanName] = true;
                         mod.IsActive = true;
                         Logger.LogInfo($"Mod activated successfully: {mod.Directory}");
                     }
@@ -150,16 +153,13 @@ namespace FlairX_Mod_Manager.Pages
                     Logger.LogInfo($"Deactivating mod: {mod.Directory}");
                     if (DeactivateModByRename(mod.Directory, out string newModName))
                     {
-                        _activeMods[mod.Directory] = false;
+                        var cleanName = GetCleanModName(mod.Directory);
+                        _activeMods[cleanName] = false;
                         mod.IsActive = false;
                         
                         // Update the mod directory name if it changed (due to duplicate handling)
                         if (newModName != mod.Directory)
                         {
-                            // Remove old entry and add new one
-                            _activeMods.Remove(mod.Directory);
-                            _activeMods[newModName] = false;
-                            
                             // Update the tile's directory and name
                             mod.Directory = newModName;
                             mod.Name = GetCleanModName(newModName); // Keep clean name for display
@@ -686,6 +686,12 @@ namespace FlairX_Mod_Manager.Pages
                     if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                     {
                         mainWindow.UpdateMenuStarForCategoryAnimated(tile.Name, tile.IsFavorite);
+                        
+                        // Refresh overlay if it exists
+                        if (mainWindow.OverlayWindow != null)
+                        {
+                            mainWindow.OverlayWindow.RefreshOverlayData();
+                        }
                     }
                 }
                 else
@@ -700,6 +706,15 @@ namespace FlairX_Mod_Manager.Pages
                     if (_currentViewMode == ViewMode.Mods)
                     {
                         SortModsByFavoritesAnimated();
+                    }
+                    
+                    // Refresh overlay if it exists
+                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                    {
+                        if (mainWindow.OverlayWindow != null)
+                        {
+                            mainWindow.OverlayWindow.RefreshOverlayData();
+                        }
                     }
                 }
             }
@@ -1183,9 +1198,10 @@ namespace FlairX_Mod_Manager.Pages
                 MoveToRecycleBin(modFolderPath);
 
                 // Remove from active mods if it was active
-                if (mod.IsActive && _activeMods.ContainsKey(mod.Directory))
+                var cleanName = GetCleanModName(mod.Directory);
+                if (mod.IsActive && _activeMods.ContainsKey(cleanName))
                 {
-                    _activeMods.Remove(mod.Directory);
+                    _activeMods.Remove(cleanName);
                     SaveActiveMods();
                 }
 

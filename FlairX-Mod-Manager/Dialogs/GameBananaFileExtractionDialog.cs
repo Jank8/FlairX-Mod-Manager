@@ -497,14 +497,24 @@ namespace FlairX_Mod_Manager.Dialogs
                 _extractProgressBar.Value = 100;
                 await Task.Delay(1000);
 
-                // Fire event to notify that mod was installed
-                ModInstalled?.Invoke(this, new ModInstalledEventArgs 
-                { 
-                    ModProfileUrl = _modProfileUrl,
-                    ModId = _modId,
-                    ModPath = _installedModPath,
-                    Category = _categoryTextBox.Text.Trim()
-                });
+                // Fire event to notify that mod was installed - only if installation was successful
+                if (!string.IsNullOrEmpty(_installedModPath) && Directory.Exists(_installedModPath))
+                {
+                    ModInstalled?.Invoke(this, new ModInstalledEventArgs 
+                    { 
+                        ModProfileUrl = _modProfileUrl,
+                        ModId = _modId,
+                        ModPath = _installedModPath,
+                        Category = _categoryTextBox.Text.Trim()
+                    });
+                }
+                else
+                {
+                    await ShowError(SharedUtilities.GetTranslation(_lang, "InstallationFailed"));
+                    IsPrimaryButtonEnabled = true;
+                    IsSecondaryButtonEnabled = true;
+                    return;
+                }
 
                 // Close dialog - optimization will run in background after dialog closes
                 Hide();
@@ -960,38 +970,53 @@ namespace FlairX_Mod_Manager.Dialogs
 
         private async Task InstallFiles(string sourceDir, string category)
         {
-            var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
-
-            var categoryPath = Path.Combine(modsPath, category);
-            Directory.CreateDirectory(categoryPath);
-
-            var modFolderName = SanitizeFileName(_modName);
-            var modPath = Path.Combine(categoryPath, modFolderName);
-
-            if (Directory.Exists(modPath))
+            try
             {
-                int counter = 1;
-                while (Directory.Exists($"{modPath}_{counter}"))
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+
+                var categoryPath = Path.Combine(modsPath, category);
+                Directory.CreateDirectory(categoryPath);
+
+                // Use the sanitized mod name from the text box instead of _modName
+                var cleanModName = SanitizeFileName(_modNameTextBox.Text.Trim());
+                
+                // New mods are disabled by default - add DISABLED_ prefix
+                var modFolderName = "DISABLED_" + cleanModName;
+                var modPath = Path.Combine(categoryPath, modFolderName);
+
+                if (Directory.Exists(modPath))
                 {
-                    counter++;
+                    int counter = 1;
+                    while (Directory.Exists($"{modPath}_{counter}"))
+                    {
+                        counter++;
+                    }
+                    modPath = $"{modPath}_{counter}";
                 }
-                modPath = $"{modPath}_{counter}";
+
+                Directory.CreateDirectory(modPath);
+
+                // Copy all files
+                foreach (var file in Directory.GetFiles(sourceDir))
+                {
+                    var destFile = Path.Combine(modPath, Path.GetFileName(file));
+                    File.Copy(file, destFile, true);
+                }
+
+                // Create mod.json
+                await CreateModJson(modPath);
+
+                // Save mod path for preview download and event firing
+                _installedModPath = modPath;
+
+                // Cleanup
+                Directory.Delete(sourceDir, true);
             }
-
-            Directory.CreateDirectory(modPath);
-
-            // Copy all files
-            foreach (var file in Directory.GetFiles(sourceDir))
+            catch (Exception ex)
             {
-                var destFile = Path.Combine(modPath, Path.GetFileName(file));
-                File.Copy(file, destFile, true);
+                Logger.LogError($"InstallFiles failed", ex);
+                throw;
             }
-
-            // Create mod.json
-            await CreateModJson(modPath);
-
-            // Cleanup
-            Directory.Delete(sourceDir, true);
         }
 
         private async Task CreateModJson(string modPath)

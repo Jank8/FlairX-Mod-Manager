@@ -333,12 +333,55 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     var json = Services.FileAccessQueue.ReadAllText(ActiveModsStatePath);
                     _activeMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
+                    
+                    // Migrate old format (with DISABLED_ prefixes) to new format (clean names only)
+                    MigrateActiveModsFormat();
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError("Failed to load active mods", ex);
                     _activeMods = new();
                 }
+            }
+        }
+        
+        private void MigrateActiveModsFormat()
+        {
+            var keysToMigrate = new List<string>();
+            var newEntries = new Dictionary<string, bool>();
+            
+            foreach (var kvp in _activeMods)
+            {
+                var key = kvp.Key;
+                var value = kvp.Value;
+                
+                // If key has DISABLED_ prefix, migrate to clean name
+                if (key.StartsWith(DISABLED_PREFIX))
+                {
+                    var cleanName = GetCleanModName(key);
+                    keysToMigrate.Add(key);
+                    newEntries[cleanName] = value;
+                }
+                // If key doesn't have prefix but value is false, it might be an old inactive mod
+                // Keep it as is since it's already using clean name
+            }
+            
+            // Remove old entries and add new ones
+            foreach (var oldKey in keysToMigrate)
+            {
+                _activeMods.Remove(oldKey);
+            }
+            
+            foreach (var newEntry in newEntries)
+            {
+                _activeMods[newEntry.Key] = newEntry.Value;
+            }
+            
+            // Save migrated format
+            if (keysToMigrate.Count > 0)
+            {
+                Logger.LogInfo($"Migrated {keysToMigrate.Count} active mod entries to new format");
+                SaveActiveMods();
             }
         }
 

@@ -309,6 +309,12 @@ namespace FlairX_Mod_Manager
                                             modGridPage.RefreshCategoryFavoritesAnimated();
                                         }
                                         
+                                        // Refresh overlay if it exists
+                                        if (OverlayWindow != null)
+                                        {
+                                            OverlayWindow.RefreshOverlayData();
+                                        }
+                                        
                                         Logger.LogInfo($"Toggled favorite for category in menu: {catName}, IsFavorite: {newFavoriteState}");
                                     };
                                     

@@ -62,6 +62,20 @@ namespace FlairX_Mod_Manager
             }
         }
 
+        private bool _isFavorite;
+        public bool IsFavorite
+        {
+            get => _isFavorite;
+            set
+            {
+                if (_isFavorite != value)
+                {
+                    _isFavorite = value;
+                    OnPropertyChanged(nameof(IsFavorite));
+                }
+            }
+        }
+
         public SolidColorBrush SelectionBackground
         {
             get
@@ -125,6 +139,20 @@ namespace FlairX_Mod_Manager
                     _isSelected = value;
                     OnPropertyChanged(nameof(IsSelected));
                     OnPropertyChanged(nameof(SelectionBorderBrush));
+                }
+            }
+        }
+
+        private bool _isFavorite;
+        public bool IsFavorite
+        {
+            get => _isFavorite;
+            set
+            {
+                if (_isFavorite != value)
+                {
+                    _isFavorite = value;
+                    OnPropertyChanged(nameof(IsFavorite));
                 }
             }
         }
@@ -1205,22 +1233,44 @@ namespace FlairX_Mod_Manager
                     return;
 
                 var categories = System.IO.Directory.GetDirectories(modsPath);
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                var categoryItems = new List<OverlayCategoryItem>();
                 
                 foreach (var categoryDir in categories)
                 {
                     var categoryName = Path.GetFileName(categoryDir);
-                    if (categoryName.Equals("Other", StringComparison.OrdinalIgnoreCase))
-                        continue; // Skip Other category
+                    var isFavorite = !string.IsNullOrEmpty(gameTag) && SettingsManager.IsCategoryFavorite(gameTag, categoryName);
                     
                     var item = new OverlayCategoryItem
                     {
                         Name = categoryName,
                         Directory = categoryDir,
+                        IsFavorite = isFavorite,
                         Thumbnail = await LoadCategoryThumbnailAsync(categoryDir),
                         IsSelected = false // Don't set selection here, let SelectCategory handle it
                     };
                     
-                    OverlayCategories.Add(item);
+                    categoryItems.Add(item);
+                }
+                
+                // Sort categories: favorites first (excluding "Other"), then alphabetically, then "Other" at the end
+                var sortedCategories = categoryItems
+                    .Where(c => !c.Name.Equals("Other", StringComparison.OrdinalIgnoreCase))
+                    .OrderByDescending(c => !string.IsNullOrEmpty(gameTag) && SettingsManager.IsCategoryFavorite(gameTag, c.Name))
+                    .ThenBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+                
+                // Add "Other" category at the end if it exists
+                var otherCategory = categoryItems.FirstOrDefault(c => c.Name.Equals("Other", StringComparison.OrdinalIgnoreCase));
+                if (otherCategory != null)
+                {
+                    sortedCategories.Add(otherCategory);
+                }
+                
+                // Add sorted categories to collection
+                foreach (var category in sortedCategories)
+                {
+                    OverlayCategories.Add(category);
                 }
             }
             catch (Exception ex)
@@ -1253,8 +1303,10 @@ namespace FlairX_Mod_Manager
 
                 var modDirs = System.IO.Directory.GetDirectories(categoryPath);
                 
-                // Build list of mods with their active status
-                var modItems = new List<(string dir, string name, bool isActive)>();
+                // Build list of mods with their active status and favorite status
+                var modItems = new List<(string dir, string name, bool isActive, bool isFavorite)>();
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                
                 foreach (var modDir in modDirs)
                 {
                     var modName = Path.GetFileName(modDir);
@@ -1264,16 +1316,21 @@ namespace FlairX_Mod_Manager
                     if (activeOnly && !isActive)
                         continue;
                     
-                    modItems.Add((modDir, modName, isActive));
+                    // Get clean name for favorite check
+                    var cleanName = isActive ? modName : modName.Substring(8).TrimStart('_', '-', ' ');
+                    var isFavorite = !string.IsNullOrEmpty(gameTag) && SettingsManager.IsModFavorite(gameTag, cleanName);
+                    
+                    modItems.Add((modDir, modName, isActive, isFavorite));
                 }
                 
-                // Sort: active mods first, then alphabetically by name
+                // Sort: favorites first, then active mods, then alphabetically by name
                 var sortedMods = modItems
-                    .OrderByDescending(m => m.isActive)
+                    .OrderByDescending(m => m.isFavorite)
+                    .ThenByDescending(m => m.isActive)
                     .ThenBy(m => m.isActive ? m.name : m.name.Substring(8).TrimStart('_', '-', ' '))
                     .ToList();
                 
-                foreach (var (modDir, modName, isActive) in sortedMods)
+                foreach (var (modDir, modName, isActive, isFavorite) in sortedMods)
                 {
                     // Clean name for display
                     var displayName = isActive ? modName : modName.Substring(8).TrimStart('_', '-', ' ');
@@ -1283,6 +1340,7 @@ namespace FlairX_Mod_Manager
                         Name = displayName,
                         Directory = modDir,
                         IsActive = isActive,
+                        IsFavorite = isFavorite,
                         Thumbnail = await LoadThumbnailAsync(modDir),
                         Hotkeys = await LoadModHotkeysAsync(modDir)
                     };
@@ -2151,6 +2209,29 @@ namespace FlairX_Mod_Manager
             
             rowBorder.Child = grid;
             return rowBorder;
+        }
+
+        /// <summary>
+        /// Refresh overlay data when favorites change
+        /// </summary>
+        public void RefreshOverlayData()
+        {
+            try
+            {
+                Logger.LogInfo("RefreshOverlayData: Starting overlay refresh");
+                
+                // Refresh categories and mods to update favorite status and sorting
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    LoadCurrentCategoryMods();
+                });
+                
+                Logger.LogInfo("RefreshOverlayData: Overlay refresh completed");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("RefreshOverlayData: Failed to refresh overlay", ex);
+            }
         }
 
         #endregion

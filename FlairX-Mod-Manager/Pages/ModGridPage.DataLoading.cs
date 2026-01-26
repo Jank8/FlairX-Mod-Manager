@@ -382,6 +382,12 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (!Directory.Exists(categoryDir)) continue;
                 
+                var categoryName = Path.GetFileName(categoryDir);
+                
+                // Skip "Other" category in All Mods view - it has its own menu item
+                if (categoryName.Equals("Other", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                
                 foreach (var modDir in Directory.GetDirectories(categoryDir))
                 {
                     var modJsonPath = Path.Combine(modDir, "mod.json");
@@ -416,7 +422,7 @@ namespace FlairX_Mod_Manager.Pages
                         
                         var cleanName = GetCleanModName(dirName);
                         var isActive = IsModActive(dirName);
-                        var categoryName = Path.GetFileName(categoryDir);
+                        // categoryName is already declared in outer scope
                         
                         // Debug logging for broken mods
                         if (isBroken)
@@ -442,7 +448,7 @@ namespace FlairX_Mod_Manager.Pages
                         
                         Logger.LogInfo($"Loaded mod: {cleanName} - IsBroken: {isBroken}, Category: {categoryName}");
                         
-                        // Include ALL mods including "Other" category
+                        // Add mod to all mods data (Other category is already filtered out above)
                         _allModData.Add(modData);
                     }
                     catch (Exception ex)
@@ -667,7 +673,7 @@ namespace FlairX_Mod_Manager.Pages
             foreach (var modData in _allModData)
             {
                 // Update active state first
-                modData.IsActive = _activeMods.TryGetValue(modData.Directory, out var active) && active;
+                modData.IsActive = _activeMods.TryGetValue(GetCleanModName(modData.Directory), out var active) && active;
                 
                 if (modData.IsActive)
                 {
@@ -725,7 +731,7 @@ namespace FlairX_Mod_Manager.Pages
                         Name = modData.Name, 
                         ImagePath = modData.ImagePath, 
                         Directory = modData.Directory, 
-                        IsActive = _activeMods.TryGetValue(modData.Directory, out var active) && active,
+                        IsActive = _activeMods.TryGetValue(GetCleanModName(modData.Directory), out var active) && active,
                         Category = modData.Category,
                         Author = modData.Author,
                         Url = modData.Url,
@@ -768,7 +774,7 @@ namespace FlairX_Mod_Manager.Pages
             foreach (var modData in _allModData)
             {
                 // Update active state
-                modData.IsActive = _activeMods.TryGetValue(modData.Directory, out var active) && active;
+                modData.IsActive = _activeMods.TryGetValue(GetCleanModName(modData.Directory), out var active) && active;
                 
                 // Check if mod has update (live check)
                 bool hasUpdate = CheckForUpdateLive(modData.Directory);
@@ -826,6 +832,12 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (!Directory.Exists(categoryDir)) continue;
                 
+                var categoryName = Path.GetFileName(categoryDir);
+                
+                // Skip "Other" category in Active Mods view - it has its own menu item
+                if (categoryName.Equals("Other", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                
                 foreach (var modDir in Directory.GetDirectories(categoryDir))
                 {
                     var modJsonPath = Path.Combine(modDir, "mod.json");
@@ -842,7 +854,7 @@ namespace FlairX_Mod_Manager.Pages
                         // Add category information from folder structure
                         modData.Category = Path.GetFileName(categoryDir);
                         
-                        // Include ALL mods including "Other" category
+                        // Add mod to active mods data (Other category is already filtered out above)
                         _allModData.Add(modData);
                         cacheHits++;
                     }
