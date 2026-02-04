@@ -94,133 +94,198 @@ namespace FlairX_Mod_Manager.Dialogs
             CloseButtonText = SharedUtilities.GetTranslation(_lang, "Cancel");
             DefaultButton = ContentDialogButton.Primary;
             
-            // Enable "Download Previews Only" button if previews are available
-            IsSecondaryButtonEnabled = _previewMedia?.Images != null && _previewMedia.Images.Any(img => img.Type == "screenshot");
+            // Check if this is preview-only mode (empty file list)
+            bool isPreviewOnlyMode = selectedFiles.Count == 0;
+            
+            if (isPreviewOnlyMode)
+            {
+                // Preview-only mode: hide primary button, make secondary button the main action
+                Title = SharedUtilities.GetTranslation(_lang, "DownloadPreviewsOnly");
+                PrimaryButtonText = SharedUtilities.GetTranslation(_lang, "Cancel");
+                SecondaryButtonText = SharedUtilities.GetTranslation(_lang, "DownloadPreviewsOnly");
+                CloseButtonText = ""; // Hide close button to avoid double cancel
+                DefaultButton = ContentDialogButton.Secondary;
+                
+                // Enable "Download Previews Only" button if previews are available
+                IsSecondaryButtonEnabled = _previewMedia?.Images != null && _previewMedia.Images.Any(img => img.Type == "screenshot");
+                IsPrimaryButtonEnabled = true; // Cancel button
+            }
+            else
+            {
+                // Normal mode: Enable "Download Previews Only" button if previews are available
+                IsSecondaryButtonEnabled = _previewMedia?.Images != null && _previewMedia.Images.Any(img => img.Type == "screenshot");
+            }
 
             // Create content
             var stackPanel = new StackPanel { Spacing = 16 };
 
-            // Mod Name
-            var modNameLabel = new TextBlock
+            if (!isPreviewOnlyMode)
             {
-                Text = SharedUtilities.GetTranslation(_lang, "ModName"),
-                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                Margin = new Thickness(0, 0, 0, 4)
-            };
-            stackPanel.Children.Add(modNameLabel);
+                // Mod Name (only show in normal mode)
+                var modNameLabel = new TextBlock
+                {
+                    Text = SharedUtilities.GetTranslation(_lang, "ModName"),
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                stackPanel.Children.Add(modNameLabel);
 
-            _modNameTextBox = new TextBox
+                _modNameTextBox = new TextBox
+                {
+                    Text = modName,
+                    Margin = new Thickness(0, 0, 0, 8)
+                };
+                _modNameTextBox.BeforeTextChanging += ModNameTextBox_BeforeTextChanging;
+                _modNameTextBox.TextChanged += (s, e) => ValidateInputs();
+                stackPanel.Children.Add(_modNameTextBox);
+
+                // Category selection (only show in normal mode)
+                var categoryLabel = new TextBlock
+                {
+                    Text = SharedUtilities.GetTranslation(_lang, "Category"),
+                    FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                    Margin = new Thickness(0, 0, 0, 4)
+                };
+                stackPanel.Children.Add(categoryLabel);
+
+                _categoryTextBox = new TextBox
+                {
+                    PlaceholderText = SharedUtilities.GetTranslation(_lang, "EnterCategoryName"),
+                    Text = categoryName ?? "Characters",
+                    Margin = new Thickness(0, 0, 0, 8)
+                };
+                _categoryTextBox.BeforeTextChanging += CategoryTextBox_BeforeTextChanging;
+                _categoryTextBox.TextChanged += (s, e) => ValidateInputs();
+                stackPanel.Children.Add(_categoryTextBox);
+            }
+            else
             {
-                Text = modName,
-                Margin = new Thickness(0, 0, 0, 8)
-            };
-            _modNameTextBox.BeforeTextChanging += ModNameTextBox_BeforeTextChanging;
-            _modNameTextBox.TextChanged += (s, e) => ValidateInputs();
-            stackPanel.Children.Add(_modNameTextBox);
+                // Preview-only mode: create hidden textboxes with default values
+                _modNameTextBox = new TextBox { Text = modName, Visibility = Visibility.Collapsed };
+                _categoryTextBox = new TextBox { Text = categoryName ?? "Characters", Visibility = Visibility.Collapsed };
+                
+                // Show info message for preview-only mode
+                var infoMessage = new TextBlock
+                {
+                    Text = SharedUtilities.GetTranslation(_lang, "PreviewOnlyMode_Info"),
+                    FontSize = 14,
+                    Margin = new Thickness(0, 0, 0, 16),
+                    TextWrapping = TextWrapping.Wrap
+                };
+                stackPanel.Children.Add(infoMessage);
+            }
 
-            // Category selection
-            var categoryLabel = new TextBlock
+            // Download previews checkbox (only visible in normal mode, always enabled in preview-only mode)
+            if (!isPreviewOnlyMode)
             {
-                Text = SharedUtilities.GetTranslation(_lang, "Category"),
-                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-                Margin = new Thickness(0, 0, 0, 4)
-            };
-            stackPanel.Children.Add(categoryLabel);
-
-            _categoryTextBox = new TextBox
+                var downloadPreviewsCheckBox = new CheckBox
+                {
+                    Content = SharedUtilities.GetTranslation(_lang, "DownloadPreviews"),
+                    IsChecked = false,
+                    Margin = new Thickness(0, 0, 0, 16)
+                };
+                Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(downloadPreviewsCheckBox, 
+                    SharedUtilities.GetTranslation(_lang, "DownloadPreviews_Tooltip"));
+                downloadPreviewsCheckBox.Checked += (s, e) => _downloadPreviews = true;
+                downloadPreviewsCheckBox.Unchecked += (s, e) => _downloadPreviews = false;
+                stackPanel.Children.Add(downloadPreviewsCheckBox);
+            }
+            else
             {
-                PlaceholderText = SharedUtilities.GetTranslation(_lang, "EnterCategoryName"),
-                Text = categoryName ?? "Characters",
-                Margin = new Thickness(0, 0, 0, 8)
-            };
-            _categoryTextBox.BeforeTextChanging += CategoryTextBox_BeforeTextChanging;
-            _categoryTextBox.TextChanged += (s, e) => ValidateInputs();
-            stackPanel.Children.Add(_categoryTextBox);
+                // In preview-only mode, always download previews
+                _downloadPreviews = true;
+                
+                // Show only "Combine Previews" option in preview-only mode
+                var combinePreviewsCheckBox = new CheckBox
+                {
+                    Content = SharedUtilities.GetTranslation(_lang, "CombinePreviews"),
+                    IsChecked = false,
+                    Margin = new Thickness(0, 0, 0, 16)
+                };
+                Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(combinePreviewsCheckBox, 
+                    SharedUtilities.GetTranslation(_lang, "CombinePreviews_Tooltip"));
+                combinePreviewsCheckBox.Checked += (s, e) => _combinePreviews = true;
+                combinePreviewsCheckBox.Unchecked += (s, e) => _combinePreviews = false;
+                stackPanel.Children.Add(combinePreviewsCheckBox);
+                
+                // Store reference for later use
+                _combinePreviewsCheckBox = combinePreviewsCheckBox;
+            }
 
-            // Download previews checkbox (always visible)
-            var downloadPreviewsCheckBox = new CheckBox
+            // Two-column layout for update-only checkboxes (only in normal mode)
+            if (!isPreviewOnlyMode)
             {
-                Content = SharedUtilities.GetTranslation(_lang, "DownloadPreviews"),
-                IsChecked = false,
-                Margin = new Thickness(0, 0, 0, 16)
-            };
-            Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(downloadPreviewsCheckBox, 
-                SharedUtilities.GetTranslation(_lang, "DownloadPreviews_Tooltip"));
-            downloadPreviewsCheckBox.Checked += (s, e) => _downloadPreviews = true;
-            downloadPreviewsCheckBox.Unchecked += (s, e) => _downloadPreviews = false;
-            stackPanel.Children.Add(downloadPreviewsCheckBox);
+                _updateOptionsGrid = new Grid
+                {
+                    ColumnSpacing = 16,
+                    Margin = new Thickness(0, 0, 0, 16),
+                    Visibility = Visibility.Collapsed // Will be shown if update is detected
+                };
+                _updateOptionsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                _updateOptionsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Two-column layout for update-only checkboxes
-            _updateOptionsGrid = new Grid
-            {
-                ColumnSpacing = 16,
-                Margin = new Thickness(0, 0, 0, 16),
-                Visibility = Visibility.Collapsed // Will be shown if update is detected
-            };
-            _updateOptionsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-            _updateOptionsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                // Left column - Installation options
+                var leftColumn = new StackPanel { Spacing = 4 };
+                
+                // Clean install checkbox
+                _cleanInstallCheckBox = new CheckBox
+                {
+                    Content = SharedUtilities.GetTranslation(_lang, "CleanInstall"),
+                    IsChecked = false
+                };
+                Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_cleanInstallCheckBox, 
+                    SharedUtilities.GetTranslation(_lang, "CleanInstall_Tooltip"));
+                _cleanInstallCheckBox.Checked += (s, e) => _cleanInstall = true;
+                _cleanInstallCheckBox.Unchecked += (s, e) => _cleanInstall = false;
+                leftColumn.Children.Add(_cleanInstallCheckBox);
 
-            // Left column - Installation options
-            var leftColumn = new StackPanel { Spacing = 4 };
-            
-            // Clean install checkbox
-            _cleanInstallCheckBox = new CheckBox
-            {
-                Content = SharedUtilities.GetTranslation(_lang, "CleanInstall"),
-                IsChecked = false
-            };
-            Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_cleanInstallCheckBox, 
-                SharedUtilities.GetTranslation(_lang, "CleanInstall_Tooltip"));
-            _cleanInstallCheckBox.Checked += (s, e) => _cleanInstall = true;
-            _cleanInstallCheckBox.Unchecked += (s, e) => _cleanInstall = false;
-            leftColumn.Children.Add(_cleanInstallCheckBox);
+                // Create backup checkbox
+                _createBackupCheckBox = new CheckBox
+                {
+                    Content = SharedUtilities.GetTranslation(_lang, "CreateBackup"),
+                    IsChecked = false
+                };
+                Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_createBackupCheckBox, 
+                    SharedUtilities.GetTranslation(_lang, "CreateBackup_Tooltip"));
+                _createBackupCheckBox.Checked += (s, e) => _createBackup = true;
+                _createBackupCheckBox.Unchecked += (s, e) => _createBackup = false;
+                leftColumn.Children.Add(_createBackupCheckBox);
 
-            // Create backup checkbox
-            _createBackupCheckBox = new CheckBox
-            {
-                Content = SharedUtilities.GetTranslation(_lang, "CreateBackup"),
-                IsChecked = false
-            };
-            Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_createBackupCheckBox, 
-                SharedUtilities.GetTranslation(_lang, "CreateBackup_Tooltip"));
-            _createBackupCheckBox.Checked += (s, e) => _createBackup = true;
-            _createBackupCheckBox.Unchecked += (s, e) => _createBackup = false;
-            leftColumn.Children.Add(_createBackupCheckBox);
+                Grid.SetColumn(leftColumn, 0);
+                _updateOptionsGrid.Children.Add(leftColumn);
 
-            Grid.SetColumn(leftColumn, 0);
-            _updateOptionsGrid.Children.Add(leftColumn);
+                // Right column - Preview options
+                var rightColumn = new StackPanel { Spacing = 4 };
 
-            // Right column - Preview options
-            var rightColumn = new StackPanel { Spacing = 4 };
+                // Keep previews checkbox
+                _keepPreviewsCheckBox = new CheckBox
+                {
+                    Content = SharedUtilities.GetTranslation(_lang, "KeepPreviews"),
+                    IsChecked = true
+                };
+                Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_keepPreviewsCheckBox, 
+                    SharedUtilities.GetTranslation(_lang, "KeepPreviews_Tooltip"));
+                _keepPreviewsCheckBox.Checked += (s, e) => _keepPreviews = true;
+                _keepPreviewsCheckBox.Unchecked += (s, e) => _keepPreviews = false;
+                rightColumn.Children.Add(_keepPreviewsCheckBox);
 
-            // Keep previews checkbox
-            _keepPreviewsCheckBox = new CheckBox
-            {
-                Content = SharedUtilities.GetTranslation(_lang, "KeepPreviews"),
-                IsChecked = true
-            };
-            Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_keepPreviewsCheckBox, 
-                SharedUtilities.GetTranslation(_lang, "KeepPreviews_Tooltip"));
-            _keepPreviewsCheckBox.Checked += (s, e) => _keepPreviews = true;
-            _keepPreviewsCheckBox.Unchecked += (s, e) => _keepPreviews = false;
-            rightColumn.Children.Add(_keepPreviewsCheckBox);
+                // Combine previews checkbox
+                _combinePreviewsCheckBox = new CheckBox
+                {
+                    Content = SharedUtilities.GetTranslation(_lang, "CombinePreviews"),
+                    IsChecked = false
+                };
+                Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_combinePreviewsCheckBox, 
+                    SharedUtilities.GetTranslation(_lang, "CombinePreviews_Tooltip"));
+                _combinePreviewsCheckBox.Checked += (s, e) => _combinePreviews = true;
+                _combinePreviewsCheckBox.Unchecked += (s, e) => _combinePreviews = false;
+                rightColumn.Children.Add(_combinePreviewsCheckBox);
 
-            // Combine previews checkbox
-            _combinePreviewsCheckBox = new CheckBox
-            {
-                Content = SharedUtilities.GetTranslation(_lang, "CombinePreviews"),
-                IsChecked = false
-            };
-            Microsoft.UI.Xaml.Controls.ToolTipService.SetToolTip(_combinePreviewsCheckBox, 
-                SharedUtilities.GetTranslation(_lang, "CombinePreviews_Tooltip"));
-            _combinePreviewsCheckBox.Checked += (s, e) => _combinePreviews = true;
-            _combinePreviewsCheckBox.Unchecked += (s, e) => _combinePreviews = false;
-            rightColumn.Children.Add(_combinePreviewsCheckBox);
+                Grid.SetColumn(rightColumn, 1);
+                _updateOptionsGrid.Children.Add(rightColumn);
 
-            Grid.SetColumn(rightColumn, 1);
-            _updateOptionsGrid.Children.Add(rightColumn);
-
-            stackPanel.Children.Add(_updateOptionsGrid);
+                stackPanel.Children.Add(_updateOptionsGrid);
+            }
 
             // Download Progress
             _downloadStatusText = new TextBlock
@@ -240,20 +305,22 @@ namespace FlairX_Mod_Manager.Dialogs
             };
             stackPanel.Children.Add(_downloadProgressBar);
 
-            // Extract Progress
+            // Extract Progress (hide in preview-only mode)
             _extractStatusText = new TextBlock
             {
                 Text = SharedUtilities.GetTranslation(_lang, "Extract"),
                 FontSize = 12,
                 Opacity = 0.7,
-                Margin = new Thickness(0, 0, 0, 4)
+                Margin = new Thickness(0, 0, 0, 4),
+                Visibility = isPreviewOnlyMode ? Visibility.Collapsed : Visibility.Visible
             };
             stackPanel.Children.Add(_extractStatusText);
 
             _extractProgressBar = new ProgressBar
             {
                 IsIndeterminate = false,
-                Value = 0
+                Value = 0,
+                Visibility = isPreviewOnlyMode ? Visibility.Collapsed : Visibility.Visible
             };
             stackPanel.Children.Add(_extractProgressBar);
 
@@ -289,14 +356,19 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             try
             {
+                // Check if this is preview-only mode (empty file list)
+                bool isPreviewOnlyMode = _selectedFiles.Count == 0;
+                
                 // If existingModPath was provided in constructor, use it directly
                 if (!string.IsNullOrEmpty(_existingModPathForPreviewsOnly) && Directory.Exists(_existingModPathForPreviewsOnly))
                 {
-                    // Show update-specific options grid
-                    if (_updateOptionsGrid != null)
+                    // Show update-specific options grid only in normal mode
+                    if (!isPreviewOnlyMode && _updateOptionsGrid != null)
                         _updateOptionsGrid.Visibility = Visibility.Visible;
                     
-                    Title = SharedUtilities.GetTranslation(_lang, "DownloadAndUpdateMod");
+                    Title = isPreviewOnlyMode ? 
+                        SharedUtilities.GetTranslation(_lang, "DownloadPreviewsOnly") :
+                        SharedUtilities.GetTranslation(_lang, "DownloadAndUpdateMod");
                     Logger.LogInfo($"Update detected for mod (from provided path): {_existingModPathForPreviewsOnly}");
                     
                     // Use existing folder name instead of GameBanana name
@@ -349,11 +421,13 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Check if mod exists - this is an update
                 if (!string.IsNullOrEmpty(existingModPath) && Directory.Exists(existingModPath))
                 {
-                    // Show update-specific options grid
-                    if (_updateOptionsGrid != null)
+                    // Show update-specific options grid only in normal mode
+                    if (!isPreviewOnlyMode && _updateOptionsGrid != null)
                         _updateOptionsGrid.Visibility = Visibility.Visible;
                     
-                    Title = SharedUtilities.GetTranslation(_lang, "DownloadAndUpdateMod");
+                    Title = isPreviewOnlyMode ? 
+                        SharedUtilities.GetTranslation(_lang, "DownloadPreviewsOnly") :
+                        SharedUtilities.GetTranslation(_lang, "DownloadAndUpdateMod");
                     Logger.LogInfo($"Update detected for mod: {existingModPath}");
                     
                     // Use existing folder name instead of GameBanana name
@@ -390,6 +464,16 @@ namespace FlairX_Mod_Manager.Dialogs
 
         private async void OnPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
+            // Check if this is preview-only mode (empty file list)
+            bool isPreviewOnlyMode = _selectedFiles.Count == 0;
+            
+            if (isPreviewOnlyMode)
+            {
+                // In preview-only mode, primary button is Cancel
+                Hide();
+                return;
+            }
+            
             // Prevent dialog from closing immediately
             args.Cancel = true;
 
@@ -591,8 +675,6 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Download preview images only
                 _downloadStatusText.Text = SharedUtilities.GetTranslation(_lang, "DownloadingPreviews");
                 _downloadProgressBar.IsIndeterminate = true;
-                _extractStatusText.Text = "";
-                _extractProgressBar.Value = 0;
 
                 await DownloadPreviewImagesAsync(modPath);
 
@@ -679,10 +761,11 @@ namespace FlairX_Mod_Manager.Dialogs
                                         Logger.LogInfo($"Temporarily deactivated mod for update: {modPath}");
                                     }
                                     
-                                    // Show update-specific options grid
+                                    // Show update-specific options grid only in normal mode
                                     DispatcherQueue.TryEnqueue(() =>
                                     {
-                                        if (_updateOptionsGrid != null)
+                                        bool isPreviewOnlyMode = _selectedFiles.Count == 0;
+                                        if (!isPreviewOnlyMode && _updateOptionsGrid != null)
                                             _updateOptionsGrid.Visibility = Visibility.Visible;
                                     });
                                 }

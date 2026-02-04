@@ -78,5 +78,6 @@
     "StarterPack_Button_Tooltip": "Download startpakke til dette spil",
     "StarterPack_NotAvailable": "Startpakke er ikke tilgængelig for dette spil endnu.",
     "ViewAllAuthorMods": "Vis alle forfatterens mods",
-    "AuthorModsTitle": "Alle mods"
+    "AuthorModsTitle": "Alle mods",
+    "PreviewOnlyMode_Info": "Dette vil kun downloade forhåndsvisningsbilleder for den installerede mod."
 }

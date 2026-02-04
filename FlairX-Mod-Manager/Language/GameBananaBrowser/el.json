@@ -78,5 +78,6 @@
     "StarterPack_Button_Tooltip": "Λήψη πακέτου εκκίνησης για αυτό το παιχνίδι",
     "StarterPack_NotAvailable": "Το πακέτο εκκίνησης δεν είναι ακόμα διαθέσιμο για αυτό το παιχνίδι.",
     "ViewAllAuthorMods": "Προβολή όλων των Mods του δημιουργού",
-    "AuthorModsTitle": "Όλα τα Mods"
+    "AuthorModsTitle": "Όλα τα Mods",
+    "PreviewOnlyMode_Info": "Αυτό θα κατεβάσει μόνο εικόνες προεπισκόπησης για το εγκατεστημένο mod."
 }

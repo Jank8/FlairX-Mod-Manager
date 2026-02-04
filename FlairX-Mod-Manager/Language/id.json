@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "Kategori:",
     "CategoryConflict_ActiveMods": "Mod aktif:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "Nonaktifkan mod yang bertentangan secara otomatis",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "Nonaktifkan mod lain dalam kategori yang sama secara otomatis saat mengaktifkan yang baru"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "Nonaktifkan mod lain dalam kategori yang sama secara otomatis saat mengaktifkan yang baru",
+    "ModDetailPage_DownloadPreviews_Label": "Unduh pratinjau",
+    "ModDetailPage_DownloadPreviews_Desc": "Unduh gambar pratinjau dari GameBanana.",
+    "ModDetailPage_DownloadPreviews_Button": "Unduh",
+    "ModDetailPage_DownloadPreviews_Tooltip": "Unduh gambar pratinjau dari GameBanana untuk mod ini",
+    "CategoryConflict_NewMod": "Mod baru:"
 }

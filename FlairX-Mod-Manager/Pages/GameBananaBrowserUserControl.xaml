@@ -574,7 +574,9 @@
                         <Grid Margin="0,12,0,0" HorizontalAlignment="Stretch">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             
@@ -585,19 +587,32 @@
                                     HorizontalAlignment="Stretch"
                                     Click="DetailDownloadButton_Click"
                                     Height="48">
-                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon Glyph="&#xE896;" FontSize="16"/>
                                     <TextBlock x:Name="DetailDownloadButtonText" Text="Download and Install" FontSize="14" FontWeight="SemiBold"/>
                                 </StackPanel>
                             </Button>
                             
+                            <!-- Download Previews button (only visible if mod is installed) -->
+                            <Button x:Name="DetailDownloadPreviewsButton" 
+                                    Grid.Column="2"
+                                    HorizontalAlignment="Stretch"
+                                    Click="DetailDownloadPreviewsButton_Click"
+                                    Height="48"
+                                    Visibility="Collapsed">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE91B;" FontSize="16"/>
+                                    <TextBlock x:Name="DetailDownloadPreviewsButtonText" Text="Download Previews" FontSize="14" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Button>
+                            
                             <!-- Open in browser button -->
                             <Button x:Name="DetailOpenBrowserButton" 
-                                    Grid.Column="2"
+                                    Grid.Column="4"
                                     HorizontalAlignment="Stretch"
                                     Click="DetailOpenBrowserButton_Click"
                                     Height="48">
-                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
                                     <FontIcon Glyph="&#xE774;" FontSize="16"/>
                                     <TextBlock x:Name="DetailOpenBrowserButtonText" Text="Open in Browser" FontSize="14" FontWeight="SemiBold"/>
                                 </StackPanel>

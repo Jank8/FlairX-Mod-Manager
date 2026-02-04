@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "카테고리:",
     "CategoryConflict_ActiveMods": "활성 모드:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "충돌하는 모드 자동 비활성화",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "새 모드를 활성화할 때 같은 카테고리의 다른 모드를 자동으로 비활성화"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "새 모드를 활성화할 때 같은 카테고리의 다른 모드를 자동으로 비활성화",
+    "ModDetailPage_DownloadPreviews_Label": "미리보기 다운로드",
+    "ModDetailPage_DownloadPreviews_Desc": "GameBanana에서 미리보기 이미지를 다운로드합니다.",
+    "ModDetailPage_DownloadPreviews_Button": "다운로드",
+    "ModDetailPage_DownloadPreviews_Tooltip": "이 모드의 GameBanana에서 미리보기 이미지 다운로드",
+    "CategoryConflict_NewMod": "새 모드:"
 }

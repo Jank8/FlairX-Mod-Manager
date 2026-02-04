@@ -77,5 +77,10 @@
     "UseRightStickForHotkeys_Label": "ใช้สติ๊กขวาสำหรับปุ่มลัด",
     "VibrateOnNav_Description": "การตอบสนองแบบสัมผัสเมื่อเลื่อนผ่านม็อด",
     "VibrateOnNav_Label": "สั่นเมื่อนำทาง",
-    "WindowTitle": "FlairX โอเวอร์เลย์"
+    "WindowTitle": "FlairX โอเวอร์เลย์",
+    "CategoryFavorite_Description": "ทำเครื่องหมายหมวดหมู่นี้เป็นรายการโปรด",
+    "CategoryFavorite_Label": "หมวดหมู่โปรด",
+    "Favorites_Section": "รายการโปรด",
+    "ModFavorite_Description": "ทำเครื่องหมายม็อดนี้เป็นรายการโปรด",
+    "ModFavorite_Label": "ม็อดโปรด"
 }

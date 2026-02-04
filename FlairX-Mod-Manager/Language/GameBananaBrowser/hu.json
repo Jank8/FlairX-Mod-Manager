@@ -78,5 +78,6 @@
     "StarterPack_Button_Tooltip": "Kezdőcsomag letöltése ehhez a játékhoz",
     "StarterPack_NotAvailable": "A kezdőcsomag még nem érhető el ehhez a játékhoz.",
     "ViewAllAuthorMods": "A szerző összes modjának megtekintése",
-    "AuthorModsTitle": "Összes mod"
+    "AuthorModsTitle": "Összes mod",
+    "PreviewOnlyMode_Info": "Ez csak az előnézeti képeket tölti le a telepített modhoz."
 }

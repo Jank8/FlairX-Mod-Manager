@@ -77,5 +77,10 @@
     "Recording_NoController": "Немає контролера!",
     "ToggleSwitch_On": "Увімкнено",
     "ToggleSwitch_Off": "Вимкнено",
-    "Hotkeys": "Гарячі клавіші"
+    "Hotkeys": "Гарячі клавіші",
+    "CategoryFavorite_Description": "Позначити цю категорію як улюблену",
+    "CategoryFavorite_Label": "Улюблена категорія",
+    "Favorites_Section": "Улюблені",
+    "ModFavorite_Description": "Позначити цей мод як улюблений",
+    "ModFavorite_Label": "Улюблений мод"
 }

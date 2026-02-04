@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "शरण:",
     "CategoryConflict_ActiveMods": "सकरय मडस:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "संघर्षरत मॉड्स को स्वचालित रूप से निष्क्रिय करें",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "नया सक्रिय करते समय समान श्रेणी में अन्य मॉड्स को स्वचालित रूप से निष्क्रिय करें"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "नया सक्रिय करते समय समान श्रेणी में अन्य मॉड्स को स्वचालित रूप से निष्क्रिय करें",
+    "ModDetailPage_DownloadPreviews_Label": "पूर्वावलोकन डाउनलोड करें",
+    "ModDetailPage_DownloadPreviews_Desc": "GameBanana से पूर्वावलोकन छवियां डाउनलोड करें।",
+    "ModDetailPage_DownloadPreviews_Button": "डाउनलोड करें",
+    "ModDetailPage_DownloadPreviews_Tooltip": "इस मॉड के लिए GameBanana से पूर्वावलोकन छवियां डाउनलोड करें",
+    "CategoryConflict_NewMod": "नया मॉड:"
 }

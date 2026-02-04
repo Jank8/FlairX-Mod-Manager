@@ -78,5 +78,6 @@
     "StarterPack_Button_Tooltip": "Ladda ner startpaket för detta spel",
     "StarterPack_NotAvailable": "Startpaket är inte tillgängligt för detta spel ännu.",
     "ViewAllAuthorMods": "Visa alla författarens mods",
-    "AuthorModsTitle": "Alla mods"
+    "AuthorModsTitle": "Alla mods",
+    "PreviewOnlyMode_Info": "Detta kommer endast att ladda ner förhandsvisningsbilder för den installerade modden."
 }

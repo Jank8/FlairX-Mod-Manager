@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "Κατηγορία:",
     "CategoryConflict_ActiveMods": "Ενεργά mods:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "Αυτόματη απενεργοποίηση συγκρουόμενων mods",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "Αυτόματη απενεργοποίηση άλλων mods στην ίδια κατηγορία όταν ενεργοποιείται ένα νέο"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "Αυτόματη απενεργοποίηση άλλων mods στην ίδια κατηγορία όταν ενεργοποιείται ένα νέο",
+    "ModDetailPage_DownloadPreviews_Label": "Λήψη προεπισκοπήσεων",
+    "ModDetailPage_DownloadPreviews_Desc": "Λήψη εικόνων προεπισκόπησης από το GameBanana.",
+    "ModDetailPage_DownloadPreviews_Button": "Λήψη",
+    "ModDetailPage_DownloadPreviews_Tooltip": "Λήψη εικόνων προεπισκόπησης από το GameBanana για αυτό το mod",
+    "CategoryConflict_NewMod": "Νέο mod:"
 }

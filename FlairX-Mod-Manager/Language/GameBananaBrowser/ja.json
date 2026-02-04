@@ -78,5 +78,6 @@
     "StarterPack_Button_Tooltip": "このゲーム用のスターターパックをダウンロード",
     "StarterPack_NotAvailable": "このゲーム用のスターターパックはまだ利用できません。",
     "ViewAllAuthorMods": "作者のすべてのModを表示",
-    "AuthorModsTitle": "すべてのMod"
+    "AuthorModsTitle": "すべてのMod",
+    "PreviewOnlyMode_Info": "これはインストールされたModのプレビュー画像のみをダウンロードします。"
 }

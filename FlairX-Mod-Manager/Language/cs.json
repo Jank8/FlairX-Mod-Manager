@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "Kategorie:",
     "CategoryConflict_ActiveMods": "Aktivní mody:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "Automaticky deaktivovat konfliktní módy",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "Automaticky deaktivovat ostatní módy ve stejné kategorii při aktivaci nového"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "Automaticky deaktivovat ostatní módy ve stejné kategorii při aktivaci nového",
+    "ModDetailPage_DownloadPreviews_Label": "Stáhnout náhledy",
+    "ModDetailPage_DownloadPreviews_Desc": "Stáhnout náhledy obrázků z GameBanana.",
+    "ModDetailPage_DownloadPreviews_Button": "Stáhnout",
+    "ModDetailPage_DownloadPreviews_Tooltip": "Stáhnout náhledy obrázků z GameBanana pro tento mod",
+    "CategoryConflict_NewMod": "Nový mod:"
 }

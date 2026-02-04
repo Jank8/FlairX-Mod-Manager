@@ -78,5 +78,6 @@
     "StarterPack_Button_Tooltip": "Завантажити стартовий пакет для цієї гри",
     "StarterPack_NotAvailable": "Стартовий пакет ще не доступний для цієї гри.",
     "ViewAllAuthorMods": "Переглянути всі моди автора",
-    "AuthorModsTitle": "Всі моди"
+    "AuthorModsTitle": "Всі моди",
+    "PreviewOnlyMode_Info": "Це завантажить лише превʼю зображення для встановленого мода."
 }

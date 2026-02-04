@@ -78,5 +78,6 @@
     "StarterPack_Button_Tooltip": "下載此遊戲的新手包",
     "StarterPack_NotAvailable": "此遊戲的新手包尚未可用。",
     "ViewAllAuthorMods": "查看作者的所有模組",
-    "AuthorModsTitle": "所有模組"
+    "AuthorModsTitle": "所有模組",
+    "PreviewOnlyMode_Info": "這將僅為已安裝的模組下載預覽圖片。"
 }

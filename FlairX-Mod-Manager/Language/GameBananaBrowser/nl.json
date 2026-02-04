@@ -78,5 +78,6 @@
     "StarterPack_Button_Tooltip": "Download starterspakket voor dit spel",
     "StarterPack_NotAvailable": "Starterspakket is nog niet beschikbaar voor dit spel.",
     "ViewAllAuthorMods": "Bekijk alle mods van auteur",
-    "AuthorModsTitle": "Alle mods"
+    "AuthorModsTitle": "Alle mods",
+    "PreviewOnlyMode_Info": "Dit zal alleen voorbeeldafbeeldingen downloaden voor de geïnstalleerde mod."
 }

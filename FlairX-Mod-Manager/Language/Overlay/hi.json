@@ -77,5 +77,10 @@
     "UseRightStickForHotkeys_Label": "हॉटकीज़ के लिए दाएं स्टिक का उपयोग करें",
     "VibrateOnNav_Description": "मॉड के बीच जाने पर हैप्टिक फीडबैक",
     "VibrateOnNav_Label": "नेविगेशन पर कंपन",
-    "WindowTitle": "FlairX ओवरले"
+    "WindowTitle": "FlairX ओवरले",
+    "CategoryFavorite_Description": "इस श्रेणी को पसंदीदा के रूप में चिह्नित करें",
+    "CategoryFavorite_Label": "पसंदीदा श्रेणी",
+    "Favorites_Section": "पसंदीदा",
+    "ModFavorite_Description": "इस मॉड को पसंदीदा के रूप में चिह्नित करें",
+    "ModFavorite_Label": "पसंदीदा मॉड"
 }

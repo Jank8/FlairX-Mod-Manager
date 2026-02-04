@@ -77,5 +77,10 @@
   "Recording_NoController": "Žádný ovladač!",
   "ToggleSwitch_On": "Zapnuto",
   "ToggleSwitch_Off": "Vypnuto",
-  "Hotkeys": "Klávesové zkratky"
+  "Hotkeys": "Klávesové zkratky",
+  "CategoryFavorite_Description": "Označit tuto kategorii jako oblíbenou",
+  "CategoryFavorite_Label": "Oblíbená kategorie",
+  "Favorites_Section": "Oblíbené",
+  "ModFavorite_Description": "Označit tento mod jako oblíbený",
+  "ModFavorite_Label": "Oblíbený mod"
 }

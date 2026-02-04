@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "Categoría:",
     "CategoryConflict_ActiveMods": "Mods activos:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "Desactivar automáticamente mods en conflicto",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "Desactivar automáticamente otros mods en la misma categoría al activar uno nuevo"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "Desactivar automáticamente otros mods en la misma categoría al activar uno nuevo",
+    "ModDetailPage_DownloadPreviews_Label": "Descargar vistas previas",
+    "ModDetailPage_DownloadPreviews_Desc": "Descargar imágenes de vista previa de GameBanana.",
+    "ModDetailPage_DownloadPreviews_Button": "Descargar",
+    "ModDetailPage_DownloadPreviews_Tooltip": "Descargar imágenes de vista previa de GameBanana para este mod",
+    "CategoryConflict_NewMod": "Nuevo mod:"
 }

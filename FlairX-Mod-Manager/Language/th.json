@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "หมวดหม:",
     "CategoryConflict_ActiveMods": "Mod ทใชงาน:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "ปิดการใช้งาน mod ที่ขัดแย้งโดยอัตโนมัติ",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "ปิดการใช้งาน mod อื่นในหมวดหมู่เดียวกันโดยอัตโนมัติเมื่อเปิดใช้งานใหม่"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "ปิดการใช้งาน mod อื่นในหมวดหมู่เดียวกันโดยอัตโนมัติเมื่อเปิดใช้งานใหม่",
+    "ModDetailPage_DownloadPreviews_Label": "ดาวน์โหลดตัวอย่าง",
+    "ModDetailPage_DownloadPreviews_Desc": "ดาวน์โหลดภาพตัวอย่างจาก GameBanana",
+    "ModDetailPage_DownloadPreviews_Button": "ดาวน์โหลด",
+    "ModDetailPage_DownloadPreviews_Tooltip": "ดาวน์โหลดภาพตัวอย่างจาก GameBanana สำหรับม็อดนี้",
+    "CategoryConflict_NewMod": "ม็อดใหม่:"
 }

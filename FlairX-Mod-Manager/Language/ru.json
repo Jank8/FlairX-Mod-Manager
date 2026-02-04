@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "Категория:",
     "CategoryConflict_ActiveMods": "Активные моды:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "Автоматически отключать конфликтующие моды",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "Автоматически отключать другие моды в той же категории при активации нового"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "Автоматически отключать другие моды в той же категории при активации нового",
+    "ModDetailPage_DownloadPreviews_Label": "Скачать превью",
+    "ModDetailPage_DownloadPreviews_Desc": "Скачать превью изображения с GameBanana.",
+    "ModDetailPage_DownloadPreviews_Button": "Скачать",
+    "ModDetailPage_DownloadPreviews_Tooltip": "Скачать превью изображения с GameBanana для этого мода",
+    "CategoryConflict_NewMod": "Новый мод:"
 }

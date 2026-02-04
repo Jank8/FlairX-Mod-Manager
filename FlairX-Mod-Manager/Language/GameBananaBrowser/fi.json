@@ -78,5 +78,6 @@
     "StarterPack_Button_Tooltip": "Lataa aloituspaketti tälle pelille",
     "StarterPack_NotAvailable": "Aloituspaketti ei ole vielä saatavilla tälle pelille.",
     "ViewAllAuthorMods": "Näytä kaikki tekijän modit",
-    "AuthorModsTitle": "Kaikki modit"
+    "AuthorModsTitle": "Kaikki modit",
+    "PreviewOnlyMode_Info": "Tämä lataa vain esikatselukuvat asennetulle modille."
 }

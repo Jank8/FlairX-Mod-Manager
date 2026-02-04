@@ -300,6 +300,9 @@ namespace FlairX_Mod_Manager.Pages
                 
                 ModVersionTextBox.Text = version;
                 
+                // Check if mod has GameBanana URL and show/hide Download Previews button
+                CheckDownloadPreviewsButtonVisibility(url);
+                
                 // Check if mod is NSFW and show badge + set checkbox
                 bool isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
                 NSFWBadge.Visibility = isNSFW ? Visibility.Visible : Visibility.Collapsed;
@@ -337,6 +340,46 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogError($"Error parsing mod.json at {_modJsonPath}", ex);
                 SetDefaultValues();
+            }
+        }
+
+        private void CheckDownloadPreviewsButtonVisibility(string url)
+        {
+            try
+            {
+                // Show Download Previews button only if:
+                // 1. Mod has a valid GameBanana URL
+                // 2. Mod is installed (we're viewing it from mod library)
+                bool hasGameBananaUrl = !string.IsNullOrEmpty(url) && 
+                                       url != "https://" && 
+                                       url.Contains("gamebanana.com/mods/");
+
+                bool isModInstalled = !string.IsNullOrEmpty(_currentModDirectory) && 
+                                    Directory.Exists(_currentModDirectory);
+
+                if (hasGameBananaUrl && isModInstalled)
+                {
+                    DownloadPreviewsBorder.Visibility = Visibility.Visible;
+                    
+                    // Load language translations for the button
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    DownloadPreviewsLabel.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_DownloadPreviews_Label");
+                    DownloadPreviewsDesc.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_DownloadPreviews_Desc");
+                    DownloadPreviewsButtonText.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_DownloadPreviews_Button");
+                    
+                    // Set tooltip
+                    ToolTipService.SetToolTip(DownloadPreviewsButton, 
+                        SharedUtilities.GetTranslation(lang, "ModDetailPage_DownloadPreviews_Tooltip"));
+                }
+                else
+                {
+                    DownloadPreviewsBorder.Visibility = Visibility.Collapsed;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error checking download previews button visibility", ex);
+                DownloadPreviewsBorder.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -3110,6 +3153,169 @@ namespace FlairX_Mod_Manager.Pages
                 var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
                 var modName = ModDetailTitle.Text ?? "Preview";
                 mainWindow?.ShowImagePreviewPanel(_availablePreviewImages, _currentImageIndex, modName);
+            }
+        }
+
+        // Download Previews button click handler
+        private async void DownloadPreviewsButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Get mod.json data to extract GameBanana URL
+                if (string.IsNullOrEmpty(_modJsonPath) || !File.Exists(_modJsonPath))
+                {
+                    Logger.LogError("Cannot download previews: mod.json not found");
+                    return;
+                }
+
+                var jsonContent = Services.FileAccessQueue.ReadAllText(_modJsonPath);
+                var modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, System.Text.Json.JsonElement>>(jsonContent);
+                
+                if (modData == null || !modData.TryGetValue("url", out var urlElement))
+                {
+                    Logger.LogError("Cannot download previews: No URL found in mod.json");
+                    return;
+                }
+
+                var modUrl = urlElement.GetString();
+                if (string.IsNullOrEmpty(modUrl) || modUrl == "https://")
+                {
+                    Logger.LogError("Cannot download previews: Invalid URL in mod.json");
+                    return;
+                }
+
+                // Extract mod ID from URL
+                var modIdMatch = System.Text.RegularExpressions.Regex.Match(modUrl, @"gamebanana\.com/mods/(\d+)");
+                if (!modIdMatch.Success)
+                {
+                    Logger.LogError("Cannot download previews: Invalid GameBanana URL format");
+                    return;
+                }
+
+                var modId = int.Parse(modIdMatch.Groups[1].Value);
+                Logger.LogInfo($"Downloading previews for mod ID: {modId}");
+
+                // Get mod details from GameBanana API to fetch preview media
+                var modDetails = await Services.GameBananaService.GetModDetailsAsync(modId);
+                if (modDetails == null || !modDetails.IsAvailable)
+                {
+                    Logger.LogError("Cannot download previews: Failed to get mod details from GameBanana API");
+                    return;
+                }
+
+                // Check if previews are available
+                if (modDetails.PreviewMedia?.Images == null || !modDetails.PreviewMedia.Images.Any(img => img.Type == "screenshot"))
+                {
+                    Logger.LogInfo("No preview images available for this mod");
+                    return;
+                }
+
+                // Get mod name and other details from mod.json
+                var modName = modData.TryGetValue("name", out var nameElement) ? nameElement.GetString() : "Unknown Mod";
+                var category = modData.TryGetValue("category", out var categoryElement) ? categoryElement.GetString() : "Unknown";
+                var author = modData.TryGetValue("author", out var authorElement) ? authorElement.GetString() : "Unknown";
+                var version = modData.TryGetValue("version", out var versionElement) ? versionElement.GetString() : null;
+
+                // Create installation dialog in preview-only mode
+                var extractDialog = new Dialogs.GameBananaFileExtractionDialog(
+                    new List<Models.GameBananaFileViewModel>(), // Empty file list for preview-only mode
+                    modName ?? "Unknown Mod",
+                    SettingsManager.CurrentSelectedGame ?? "tekken8", // Use current game
+                    modUrl,
+                    author,
+                    modId,
+                    modDetails.DateUpdated ?? modDetails.DateAdded ?? 0,
+                    category,
+                    modDetails.PreviewMedia,
+                    false, // isNSFW - we don't have this info in mod.json
+                    version,
+                    _currentModDirectory); // Pass current mod directory for preview-only installation
+
+                extractDialog.XamlRoot = XamlRoot;
+                
+                // Show dialog - in preview-only mode, secondary button is the main action
+                var result = await extractDialog.ShowAsync();
+
+                if (result == ContentDialogResult.Secondary) // Secondary button is "Download Previews Only"
+                {
+                    // Reload preview images after download
+                    if (!string.IsNullOrEmpty(_currentModDirectory))
+                    {
+                        LoadPreviewImages(_currentModDirectory);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error downloading previews", ex);
+            }
+        }
+
+        // Download Previews button hover effects
+        private void DownloadPreviewsButton_PointerEntered(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button button)
+            {
+                var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                var scaleAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = 1.05,
+                    Duration = TimeSpan.FromMilliseconds(150),
+                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+                };
+
+                var scaleTransform = new Microsoft.UI.Xaml.Media.ScaleTransform
+                {
+                    CenterX = 0.5,
+                    CenterY = 0.5
+                };
+                button.RenderTransform = scaleTransform;
+
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimation, scaleTransform);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimation, "ScaleX");
+                storyboard.Children.Add(scaleAnimation);
+
+                var scaleAnimationY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = 1.05,
+                    Duration = TimeSpan.FromMilliseconds(150),
+                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimationY, scaleTransform);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimationY, "ScaleY");
+                storyboard.Children.Add(scaleAnimationY);
+
+                storyboard.Begin();
+            }
+        }
+
+        private void DownloadPreviewsButton_PointerExited(object sender, PointerRoutedEventArgs e)
+        {
+            if (sender is Button button && button.RenderTransform is Microsoft.UI.Xaml.Media.ScaleTransform scaleTransform)
+            {
+                var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                var scaleAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = 1.0,
+                    Duration = TimeSpan.FromMilliseconds(150),
+                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+                };
+
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimation, scaleTransform);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimation, "ScaleX");
+                storyboard.Children.Add(scaleAnimation);
+
+                var scaleAnimationY = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    To = 1.0,
+                    Duration = TimeSpan.FromMilliseconds(150),
+                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase()
+                };
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(scaleAnimationY, scaleTransform);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(scaleAnimationY, "ScaleY");
+                storyboard.Children.Add(scaleAnimationY);
+
+                storyboard.Begin();
             }
         }
     }

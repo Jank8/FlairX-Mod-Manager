@@ -78,5 +78,6 @@
     "StarterPack_Button_Tooltip": "Stáhnout startovací balíček pro tuto hru",
     "StarterPack_NotAvailable": "Startovací balíček pro tuto hru ještě není k dispozici.",
     "ViewAllAuthorMods": "Zobrazit všechny mody autora",
-    "AuthorModsTitle": "Všechny mody"
+    "AuthorModsTitle": "Všechny mody",
+    "PreviewOnlyMode_Info": "Toto stáhne pouze náhledy obrázků pro nainstalovaný mod."
 }

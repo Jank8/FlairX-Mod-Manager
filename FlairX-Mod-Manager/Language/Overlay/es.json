@@ -77,5 +77,10 @@
   "UseRightStickForHotkeys_Label": "Usar Stick Derecho para Atajos",
   "VibrateOnNav_Description": "Retroalimentación háptica al moverse por los mods",
   "VibrateOnNav_Label": "Vibrar al navegar",
-  "WindowTitle": "FlairX Overlay"
+  "WindowTitle": "FlairX Overlay",
+  "CategoryFavorite_Description": "Marcar esta categoría como favorita",
+  "CategoryFavorite_Label": "Categoría favorita",
+  "Favorites_Section": "Favoritos",
+  "ModFavorite_Description": "Marcar este mod como favorito",
+  "ModFavorite_Label": "Mod favorito"
 }

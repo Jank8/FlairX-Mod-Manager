@@ -203,6 +203,7 @@ namespace FlairX_Mod_Manager.Pages
             DetailDescriptionTitle.Text = SharedUtilities.GetTranslation(_lang, "Description");
             DetailFilesTitle.Text = SharedUtilities.GetTranslation(_lang, "Files");
             DetailOpenBrowserButtonText.Text = SharedUtilities.GetTranslation(_lang, "OpenInBrowser");
+            DetailDownloadPreviewsButtonText.Text = SharedUtilities.GetTranslation(_lang, "DownloadPreviews");
             RetryButton.Content = SharedUtilities.GetTranslation(_lang, "Retry");
             StarterPackButtonText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_Button") ?? "Starter Pack";
             ToolTipService.SetToolTip(StarterPackButton, SharedUtilities.GetTranslation(_lang, "StarterPack_Button_Tooltip") ?? "Download Starter Pack for this game");
@@ -1360,6 +1361,7 @@ namespace FlairX_Mod_Manager.Pages
                 DetailFilesTitle.Visibility = Visibility.Collapsed;
                 DetailFilesList.Visibility = Visibility.Collapsed;
                 DetailDownloadButton.Visibility = Visibility.Collapsed;
+                DetailDownloadPreviewsButton.Visibility = Visibility.Collapsed;
                 DetailOpenBrowserButton.Visibility = Visibility.Collapsed;
                 
                 // Animate transition to details
@@ -1553,6 +1555,13 @@ namespace FlairX_Mod_Manager.Pages
                 DetailFilesTitle.Visibility = Visibility.Visible;
                 DetailFilesList.Visibility = Visibility.Visible;
                 DetailDownloadButton.Visibility = Visibility.Visible;
+                
+                // Show Download Previews button always, but enable only if mod is installed and has preview images
+                bool hasPreviewImages = _currentModDetails.PreviewMedia?.Images != null && 
+                                       _currentModDetails.PreviewMedia.Images.Any(img => img.Type == "screenshot");
+                DetailDownloadPreviewsButton.Visibility = hasPreviewImages ? Visibility.Visible : Visibility.Collapsed;
+                DetailDownloadPreviewsButton.IsEnabled = isInstalled && hasPreviewImages;
+                
                 DetailOpenBrowserButton.Visibility = Visibility.Visible;
                 
                 // Ensure size changed event is attached for markdown images
@@ -1851,6 +1860,94 @@ namespace FlairX_Mod_Manager.Pages
             if (_currentModDetails != null && !string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
             {
                 await Windows.System.Launcher.LaunchUriAsync(new Uri(_currentModDetails.ProfileUrl));
+            }
+        }
+
+        private async void DetailDownloadPreviewsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentModDetails == null) return;
+
+            try
+            {
+                // Check if mod is installed
+                if (string.IsNullOrEmpty(_currentModDetails.ProfileUrl) || !IsModInstalled(_currentModDetails.ProfileUrl))
+                {
+                    Logger.LogInfo("Cannot download previews: mod is not installed");
+                    return;
+                }
+
+                // Get installed mod path
+                var installedModPath = GetInstalledModPath(_currentModDetails.ProfileUrl);
+                if (string.IsNullOrEmpty(installedModPath))
+                {
+                    Logger.LogError("Cannot download previews: installed mod path not found");
+                    return;
+                }
+
+                // Get fresh mod details from API
+                Logger.LogInfo($"Downloading previews for mod ID: {_currentModDetails.Id}");
+                var freshModDetails = await GameBananaService.GetModDetailsAsync(_currentModDetails.Id);
+                
+                if (freshModDetails == null || !freshModDetails.IsAvailable)
+                {
+                    Logger.LogError("Failed to get fresh mod details from API or mod is unavailable");
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(_lang, "Error"),
+                        Content = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage"),
+                        CloseButtonText = "OK",
+                        XamlRoot = XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
+                // Check if previews are available
+                if (freshModDetails.PreviewMedia?.Images == null || !freshModDetails.PreviewMedia.Images.Any(img => img.Type == "screenshot"))
+                {
+                    Logger.LogInfo("No preview images available for this mod");
+                    return;
+                }
+
+                // Use fresh data from API
+                var authorName = freshModDetails.Submitter?.Name ?? "unknown";
+                var categoryName = freshModDetails.Category?.Name ?? "Unknown";
+                var modName = freshModDetails.Name ?? "Unknown Mod";
+
+                // Create installation dialog in preview-only mode
+                var extractDialog = new Dialogs.GameBananaFileExtractionDialog(
+                    new List<Models.GameBananaFileViewModel>(), // Empty file list for preview-only mode
+                    modName,
+                    _gameTag,
+                    freshModDetails.ProfileUrl,
+                    authorName,
+                    freshModDetails.Id,
+                    freshModDetails.DateUpdated ?? freshModDetails.DateAdded ?? 0,
+                    categoryName,
+                    freshModDetails.PreviewMedia,
+                    _currentModIsNSFW,
+                    freshModDetails.Version,
+                    installedModPath); // Pass installed mod path for preview-only installation
+
+                extractDialog.XamlRoot = XamlRoot;
+                
+                // Show dialog - in preview-only mode, secondary button is the main action
+                var result = await extractDialog.ShowAsync();
+
+                if (result == ContentDialogResult.Secondary) // Secondary button is "Download Previews Only"
+                {
+                    // Refresh the current image display if we're still viewing this mod
+                    if (_currentModDetails?.Id == freshModDetails.Id)
+                    {
+                        // Reload preview images to show newly downloaded ones
+                        await Task.Delay(1000); // Give time for files to be written
+                        LoadCurrentDetailImage();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error downloading previews from browser", ex);
             }
         }
 

@@ -78,5 +78,6 @@
     "StarterPack_Button_Tooltip": "ดาวน์โหลดแพ็คเริ่มต้นสำหรับเกมนี้",
     "StarterPack_NotAvailable": "แพ็คเริ่มต้นสำหรับเกมนี้ยังไม่พร้อมใช้งาน",
     "ViewAllAuthorMods": "ดูมอดทั้งหมดของผู้เขียน",
-    "AuthorModsTitle": "มอดทั้งหมด"
+    "AuthorModsTitle": "มอดทั้งหมด",
+    "PreviewOnlyMode_Info": "สิ่งนี้จะดาวน์โหลดเฉพาะภาพตัวอย่างสำหรับม็อดที่ติดตั้งแล้ว"
 }

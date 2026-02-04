@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "カテゴリ:",
     "CategoryConflict_ActiveMods": "アクティブなMod:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "競合するModを自動的に無効化",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "新しいModを有効化する際に同じカテゴリの他のModを自動的に無効化"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "新しいModを有効化する際に同じカテゴリの他のModを自動的に無効化",
+    "ModDetailPage_DownloadPreviews_Label": "プレビューをダウンロード",
+    "ModDetailPage_DownloadPreviews_Desc": "GameBananaからプレビュー画像をダウンロードします。",
+    "ModDetailPage_DownloadPreviews_Button": "ダウンロード",
+    "ModDetailPage_DownloadPreviews_Tooltip": "このModのGameBananaからプレビュー画像をダウンロード",
+    "CategoryConflict_NewMod": "新しいMod:"
 }

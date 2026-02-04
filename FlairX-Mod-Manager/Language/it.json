@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "Categoria:",
     "CategoryConflict_ActiveMods": "Mod attivi:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "Disattiva automaticamente i mod in conflitto",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "Disattiva automaticamente altri mod nella stessa categoria quando ne attivi uno nuovo"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "Disattiva automaticamente altri mod nella stessa categoria quando ne attivi uno nuovo",
+    "ModDetailPage_DownloadPreviews_Label": "Scarica anteprime",
+    "ModDetailPage_DownloadPreviews_Desc": "Scarica immagini di anteprima da GameBanana.",
+    "ModDetailPage_DownloadPreviews_Button": "Scarica",
+    "ModDetailPage_DownloadPreviews_Tooltip": "Scarica immagini di anteprima da GameBanana per questa mod",
+    "CategoryConflict_NewMod": "Nuova mod:"
 }

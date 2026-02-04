@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "Categorie:",
     "CategoryConflict_ActiveMods": "Moduri active:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "Dezactivează automat mod-urile în conflict",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "Dezactivează automat alte mod-uri din aceeași categorie când activezi unul nou"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "Dezactivează automat alte mod-uri din aceeași categorie când activezi unul nou",
+    "ModDetailPage_DownloadPreviews_Label": "Descarcă previzualizări",
+    "ModDetailPage_DownloadPreviews_Desc": "Descarcă imagini de previzualizare de pe GameBanana.",
+    "ModDetailPage_DownloadPreviews_Button": "Descarcă",
+    "ModDetailPage_DownloadPreviews_Tooltip": "Descarcă imagini de previzualizare de pe GameBanana pentru acest mod",
+    "CategoryConflict_NewMod": "Mod nou:"
 }

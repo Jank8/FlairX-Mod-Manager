@@ -330,5 +330,10 @@
     "CategoryConflict_Category": "Kategória:",
     "CategoryConflict_ActiveMods": "Aktív modok:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "Ütköző modok automatikus kikapcsolása",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "Automatikusan kikapcsolja az ugyanabban a kategóriában lévő többi modot új aktiválásakor"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "Automatikusan kikapcsolja az ugyanabban a kategóriában lévő többi modot új aktiválásakor",
+    "ModDetailPage_DownloadPreviews_Label": "Előnézetek letöltése",
+    "ModDetailPage_DownloadPreviews_Desc": "Előnézeti képek letöltése a GameBanana-ról.",
+    "ModDetailPage_DownloadPreviews_Button": "Letöltés",
+    "ModDetailPage_DownloadPreviews_Tooltip": "Előnézeti képek letöltése a GameBanana-ról ehhez a modhoz",
+    "CategoryConflict_NewMod": "Új mod:"
 }
