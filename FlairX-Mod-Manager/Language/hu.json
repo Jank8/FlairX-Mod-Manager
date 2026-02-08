@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "Előnézeti képek letöltése a GameBanana-ról.",
     "ModDetailPage_DownloadPreviews_Button": "Letöltés",
     "ModDetailPage_DownloadPreviews_Tooltip": "Előnézeti képek letöltése a GameBanana-ról ehhez a modhoz",
-    "CategoryConflict_NewMod": "Új mod:"
+    "CategoryConflict_NewMod": "Új mod:",
+    "HideBroken": "Törött elrejtése",
+    "RuntimeCheck_Download_Button": "Letöltés",
+    "RuntimeCheck_MaybeLater_Button": "Talán később",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Windows App Runtime hiányzik",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "Frissítés ajánlott",
+    "RuntimeCheck_ContinueAnyway_Button": "Folytatás mindenképpen",
+    "RuntimeCheck_DotNet_Update_Title": ".NET Runtime frissítés szükséges",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "A Windows App Runtime 1.8 nincs telepítve a rendszerére.\n\nAz alkalmazás működni fog, de egyes funkciók korlátozottak lehetnek.\n\nA telepítéshez töltse le innen:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nVagy használja a winget-et:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "A Windows App Runtime 1.8 ajánlott az optimális teljesítményhez.\n\nÚgy tűnik, hogy régebbi verzió van telepítve.\n\nA frissítéshez töltse le innen:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nVagy használja a winget-et:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "A Windows App Runtime 1.8 frissítése szükséges.\n\nTelepített verzió: {0}\nSzükséges verzió: {1} vagy újabb\n\nA frissítéshez töltse le innen:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nVagy használja a winget-et:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": "A .NET 10 Runtime frissítése szükséges.\n\nTelepített verzió: {0}\nSzükséges verzió: {1} vagy újabb\n\nA frissítéshez töltse le innen:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nVagy használja a winget-et:\nwinget install Microsoft.DotNet.Runtime.10"
 }

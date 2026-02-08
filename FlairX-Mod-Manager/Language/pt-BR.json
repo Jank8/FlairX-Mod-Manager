@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "Baixar imagens de visualização do GameBanana.",
     "ModDetailPage_DownloadPreviews_Button": "Baixar",
     "ModDetailPage_DownloadPreviews_Tooltip": "Baixar imagens de visualização do GameBanana para este mod",
-    "CategoryConflict_NewMod": "Novo mod:"
+    "CategoryConflict_NewMod": "Novo mod:",
+    "HideBroken": "Esconder quebrado",
+    "RuntimeCheck_Download_Button": "Baixar",
+    "RuntimeCheck_MaybeLater_Button": "Talvez mais tarde",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Tempo de execução do aplicativo Windows ausente",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "Atualização recomendada",
+    "RuntimeCheck_ContinueAnyway_Button": "Continuar mesmo assim",
+    "RuntimeCheck_DotNet_Update_Title": "Atualização de tempo de execução do .NET necessária",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "O Windows App Runtime 1.8 não está instalado em seu sistema.\n\nO aplicativo funcionará, mas alguns recursos podem ser limitados.\n\nPara instalá-lo, baixe em:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nOu use o winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "O Windows App Runtime 1.8 é recomendado para desempenho ideal.\n\nParece que você tem uma versão mais antiga instalada.\n\nPara atualizar, baixe em:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nOu use o winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "O Windows App Runtime 1.8 precisa ser atualizado.\n\nVersão instalada: {0}\nVersão necessária: {1} ou mais recente\n\nPara atualizar, baixe em:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nOu use o winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": "O tempo de execução do .NET 10 precisa ser atualizado.\n\nVersão instalada: {0}\nVersão necessária: {1} ou mais recente\n\nPara atualizar, baixe em:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nOu use o winget:\nwinget install Microsoft.DotNet.Runtime.10"
 }

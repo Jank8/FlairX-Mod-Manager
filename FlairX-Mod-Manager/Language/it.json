@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "Scarica immagini di anteprima da GameBanana.",
     "ModDetailPage_DownloadPreviews_Button": "Scarica",
     "ModDetailPage_DownloadPreviews_Tooltip": "Scarica immagini di anteprima da GameBanana per questa mod",
-    "CategoryConflict_NewMod": "Nuova mod:"
+    "CategoryConflict_NewMod": "Nuova mod:",
+    "HideBroken": "Nascondi rotto",
+    "RuntimeCheck_Download_Button": "Scaricamento",
+    "RuntimeCheck_MaybeLater_Button": "Forse più tardi",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Runtime dell'app Windows mancante",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "Aggiornamento consigliato",
+    "RuntimeCheck_ContinueAnyway_Button": "Continua comunque",
+    "RuntimeCheck_DotNet_Update_Title": "È richiesto l'aggiornamento del runtime .NET",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "Windows App Runtime 1.8 non è installato nel sistema.\n\nL'applicazione funzionerà, ma alcune funzionalità potrebbero essere limitate.\n\nPer installarlo, scaricalo da:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nOppure usa Winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "Per prestazioni ottimali è consigliato Windows App Runtime 1.8.\n\nSembra che tu abbia installato una versione precedente.\n\nPer aggiornare, scaricare da:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nOppure usa Winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "È necessario aggiornare Windows App Runtime 1.8.\n\nVersione installata: {0}\nVersione richiesta: {1} o più recente\n\nPer aggiornare, scaricare da:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nOppure usa Winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": "È necessario aggiornare .NET 10 Runtime.\n\nVersione installata: {0}\nVersione richiesta: {1} o più recente\n\nPer aggiornare, scaricare da:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nOppure usa Winget:\nwinget install Microsoft.DotNet.Runtime.10"
 }

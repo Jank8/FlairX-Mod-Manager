@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "GameBanana से पूर्वावलोकन छवियां डाउनलोड करें।",
     "ModDetailPage_DownloadPreviews_Button": "डाउनलोड करें",
     "ModDetailPage_DownloadPreviews_Tooltip": "इस मॉड के लिए GameBanana से पूर्वावलोकन छवियां डाउनलोड करें",
-    "CategoryConflict_NewMod": "नया मॉड:"
+    "CategoryConflict_NewMod": "नया मॉड:",
+    "HideBroken": "टूटा हुआ छिपाएँ",
+    "RuntimeCheck_Download_Button": "डाउनलोड करना",
+    "RuntimeCheck_MaybeLater_Button": "शायद बाद में",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "विंडोज़ ऐप रनटाइम गुम है",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "अपडेट की सलाह दी गई",
+    "RuntimeCheck_ContinueAnyway_Button": "फिर भी जारी रखें",
+    "RuntimeCheck_DotNet_Update_Title": ".NET रनटाइम अद्यतन आवश्यक है",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "आपके सिस्टम पर विंडोज़ ऐप रनटाइम 1.8 स्थापित नहीं है।\n\nएप्लिकेशन काम करेगा, लेकिन कुछ सुविधाएं सीमित हो सकती हैं।\n\nइसे स्थापित करने के लिए, यहां से डाउनलोड करें:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nया विंगेट का उपयोग करें:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "इष्टतम प्रदर्शन के लिए विंडोज़ ऐप रनटाइम 1.8 की अनुशंसा की जाती है।\n\nऐसा प्रतीत होता है कि आपने पुराना संस्करण स्थापित कर लिया है।\n\nअद्यतन करने के लिए, यहां से डाउनलोड करें:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nया विंगेट का उपयोग करें:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "विंडोज़ ऐप रनटाइम 1.8 को अद्यतन करने की आवश्यकता है।\n\nस्थापित संस्करण: {0}\nआवश्यक संस्करण: {1} या नया\n\nअद्यतन करने के लिए, यहां से डाउनलोड करें:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nया विंगेट का उपयोग करें:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": ".NET 10 रनटाइम को अद्यतन करने की आवश्यकता है।\n\nस्थापित संस्करण: {0}\nआवश्यक संस्करण: {1} या नया\n\nअद्यतन करने के लिए, यहां से डाउनलोड करें:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nया विंगेट का उपयोग करें:\nwinget install Microsoft.DotNet.Runtime.10"
 }

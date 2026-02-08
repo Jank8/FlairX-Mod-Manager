@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "GameBananaからプレビュー画像をダウンロードします。",
     "ModDetailPage_DownloadPreviews_Button": "ダウンロード",
     "ModDetailPage_DownloadPreviews_Tooltip": "このModのGameBananaからプレビュー画像をダウンロード",
-    "CategoryConflict_NewMod": "新しいMod:"
+    "CategoryConflict_NewMod": "新しいMod:",
+    "HideBroken": "壊れたものを隠す",
+    "RuntimeCheck_Download_Button": "ダウンロード",
+    "RuntimeCheck_MaybeLater_Button": "たぶん後で",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Windows アプリのランタイムがありません",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "アップデートを推奨",
+    "RuntimeCheck_ContinueAnyway_Button": "とにかく続ける",
+    "RuntimeCheck_DotNet_Update_Title": ".NETランタイムアップデートが必要です",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "Windows アプリ ランタイム 1.8 がシステムにインストールされていません。\n\nアプリケーションは動作しますが、一部の機能が制限される場合があります。\n\nインストールするには、次からダウンロードします。\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nまたは、winget を使用します。\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "最適なパフォーマンスを得るには、Windows アプリ ランタイム 1.8 をお勧めします。\n\n古いバージョンがインストールされているようです。\n\n更新するには、次からダウンロードします。\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nまたは、winget を使用します。\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "Windows アプリ ランタイム 1.8 を更新する必要があります。\n\nインストールされているバージョン: {0}\n必要なバージョン: {1} またはそれ以降の\n\n更新するには、次からダウンロードします。\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nまたは、winget を使用します。\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": ".NET 10 ランタイムを更新する必要があります。\n\nインストールされているバージョン: {0}\n必要なバージョン: {1} またはそれ以降の\n\n更新するには、次からダウンロードします。\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nまたは、winget を使用します。\nwinget install Microsoft.DotNet.Runtime.10"
 }

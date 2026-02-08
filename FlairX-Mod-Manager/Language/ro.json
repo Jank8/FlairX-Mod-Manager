@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "Descarcă imagini de previzualizare de pe GameBanana.",
     "ModDetailPage_DownloadPreviews_Button": "Descarcă",
     "ModDetailPage_DownloadPreviews_Tooltip": "Descarcă imagini de previzualizare de pe GameBanana pentru acest mod",
-    "CategoryConflict_NewMod": "Mod nou:"
+    "CategoryConflict_NewMod": "Mod nou:",
+    "HideBroken": "Ascunde Broken",
+    "RuntimeCheck_Download_Button": "Descărcați",
+    "RuntimeCheck_MaybeLater_Button": "Poate Mai târziu",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Windows App Runtime lipsește",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "Actualizare recomandată",
+    "RuntimeCheck_ContinueAnyway_Button": "Continuați oricum",
+    "RuntimeCheck_DotNet_Update_Title": "Este necesară actualizarea .NET Runtime",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "Windows App Runtime 1.8 nu este instalat pe sistemul dumneavoastră.\n\nAplicația va funcționa, dar unele funcții pot fi limitate.\n\nPentru a-l instala, descărcați de pe:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nSau folosește winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "Windows App Runtime 1.8 este recomandat pentru o performanță optimă.\n\nSe pare că aveți o versiune mai veche instalată.\n\nPentru a actualiza, descărcați de la:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nSau folosește winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "Windows App Runtime 1.8 trebuie actualizat.\n\nVersiunea instalata: {0}\nVersiunea necesară: {1} sau mai nou\n\nPentru a actualiza, descărcați de la:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nSau folosește winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": ".NET 10 Runtime trebuie actualizat.\n\nVersiunea instalata: {0}\nVersiunea necesară: {1} sau mai nou\n\nPentru a actualiza, descărcați de la:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nSau folosește winget:\nwinget install Microsoft.DotNet.Runtime.10"
 }

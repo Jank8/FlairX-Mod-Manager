@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "Unduh gambar pratinjau dari GameBanana.",
     "ModDetailPage_DownloadPreviews_Button": "Unduh",
     "ModDetailPage_DownloadPreviews_Tooltip": "Unduh gambar pratinjau dari GameBanana untuk mod ini",
-    "CategoryConflict_NewMod": "Mod baru:"
+    "CategoryConflict_NewMod": "Mod baru:",
+    "HideBroken": "Sembunyikan Rusak",
+    "RuntimeCheck_Download_Button": "Unduh",
+    "RuntimeCheck_MaybeLater_Button": "Mungkin nanti",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Waktu Proses Aplikasi Windows Hilang",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "Pembaruan Direkomendasikan",
+    "RuntimeCheck_ContinueAnyway_Button": "Tetap Lanjutkan",
+    "RuntimeCheck_DotNet_Update_Title": "Diperlukan Pembaruan Waktu Proses .NET",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "Windows App Runtime 1.8 tidak diinstal pada sistem Anda.\n\nAplikasi akan berfungsi, namun beberapa fitur mungkin terbatas.\n\nUntuk menginstalnya, unduh dari:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nAtau gunakan winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "Windows App Runtime 1.8 direkomendasikan untuk kinerja optimal.\n\nTampaknya Anda menginstal versi yang lebih lama.\n\nUntuk memperbarui, unduh dari:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nAtau gunakan winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "Windows App Runtime 1.8 perlu diperbarui.\n\nVersi terinstal: {0}\nVersi yang diperlukan: {1} atau lebih baru\n\nUntuk memperbarui, unduh dari:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nAtau gunakan winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": ".NET 10 Runtime perlu diperbarui.\n\nVersi terinstal: {0}\nVersi yang diperlukan: {1} atau lebih baru\n\nUntuk memperbarui, unduh dari:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nAtau gunakan winget:\nwinget install Microsoft.DotNet.Runtime.10"
 }

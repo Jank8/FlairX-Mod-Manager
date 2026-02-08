@@ -336,5 +336,15 @@
     "ScreenshotCapture_Cancelled": "Screenshot capture was cancelled and captured files were deleted",
     "ScreenshotCapture_FileCount": "({0} files)",
     "ScreenshotCapture_FileCountSingle": "(1 file)",
-    "ScreenshotCapture_NoFiles": "(0 files)"
+    "ScreenshotCapture_NoFiles": "(0 files)",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Windows App Runtime Missing",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "Windows App Runtime 1.8 is not installed on your system.\n\nThe application will work, but some features may be limited.\n\nTo install it, download from:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nOr use winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "Update Recommended",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "Windows App Runtime 1.8 is recommended for optimal performance.\n\nYou appear to have an older version installed.\n\nTo update, download from:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nOr use winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "Windows App Runtime 1.8 needs to be updated.\n\nInstalled version: {0}\nRequired version: {1} or newer\n\nTo update, download from:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nOr use winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_Download_Button": "Download",
+    "RuntimeCheck_ContinueAnyway_Button": "Continue Anyway",
+    "RuntimeCheck_MaybeLater_Button": "Maybe Later",
+    "RuntimeCheck_DotNet_Update_Title": ".NET Runtime Update Required",
+    "RuntimeCheck_DotNet_Update_Content": ".NET 10 Runtime needs to be updated.\n\nInstalled version: {0}\nRequired version: {1} or newer\n\nTo update, download from:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nOr use winget:\nwinget install Microsoft.DotNet.Runtime.10"
 }

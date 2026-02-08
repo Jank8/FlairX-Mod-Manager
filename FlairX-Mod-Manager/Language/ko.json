@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "GameBanana에서 미리보기 이미지를 다운로드합니다.",
     "ModDetailPage_DownloadPreviews_Button": "다운로드",
     "ModDetailPage_DownloadPreviews_Tooltip": "이 모드의 GameBanana에서 미리보기 이미지 다운로드",
-    "CategoryConflict_NewMod": "새 모드:"
+    "CategoryConflict_NewMod": "새 모드:",
+    "HideBroken": "깨진 숨기기",
+    "RuntimeCheck_Download_Button": "다운로드",
+    "RuntimeCheck_MaybeLater_Button": "어쩌면 나중에",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Windows 앱 런타임 누락",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "업데이트 권장",
+    "RuntimeCheck_ContinueAnyway_Button": "계속 진행",
+    "RuntimeCheck_DotNet_Update_Title": ".NET 런타임 업데이트 필요",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "Windows App Runtime 1.8이 시스템에 설치되어 있지 않습니다.\n\n응용프로그램은 작동하지만 일부 기능이 제한될 수 있습니다.\n\n설치하려면 다음에서 다운로드하세요.\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\n또는 Winget을 사용하십시오.\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "최적의 성능을 위해서는 Windows App Runtime 1.8이 권장됩니다.\n\n이전 버전이 설치되어 있는 것 같습니다.\n\n업데이트하려면 다음에서 다운로드하세요.\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\n또는 Winget을 사용하십시오.\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "Windows 앱 런타임 1.8을 업데이트해야 합니다.\n\n설치된 버전: {0}\n필수 버전: {1} 또는 최신\n\n업데이트하려면 다음에서 다운로드하세요.\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\n또는 Winget을 사용하십시오.\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": ".NET 10 런타임을 업데이트해야 합니다.\n\n설치된 버전: {0}\n필수 버전: {1} 또는 최신\n\n업데이트하려면 다음에서 다운로드하세요.\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\n또는 Winget을 사용하십시오.\nwinget install Microsoft.DotNet.Runtime.10"
 }

@@ -336,5 +336,15 @@
     "CategoryConflict_NewMod": "Mod do aktywacji:",
     "CategoryConflict_ActiveMods": "Aktywne mody:",
     "SettingsPage_AutoDeactivateConflictingMods_Label": "Automatycznie dezaktywuj konfliktowe mody",
-    "SettingsPage_AutoDeactivateConflictingMods_Description": "Automatycznie dezaktywuj inne mody w tej samej kategorii podczas aktywacji nowego"
+    "SettingsPage_AutoDeactivateConflictingMods_Description": "Automatycznie dezaktywuj inne mody w tej samej kategorii podczas aktywacji nowego",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Brak Windows App Runtime",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "Windows App Runtime 1.8 nie jest zainstalowany w systemie.\n\nAplikacja będzie działać, ale niektóre funkcje mogą być ograniczone.\n\nAby zainstalować, pobierz z:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nLub użyj winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "Zalecana aktualizacja",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "Windows App Runtime 1.8 jest zalecany dla optymalnej wydajności.\n\nWydaje się, że masz zainstalowaną starszą wersję.\n\nAby zaktualizować, pobierz z:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nLub użyj winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "Windows App Runtime 1.8 wymaga aktualizacji.\n\nZainstalowana wersja: {0}\nWymagana wersja: {1} lub nowsza\n\nAby zaktualizować, pobierz z:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nLub użyj winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_Download_Button": "Pobierz",
+    "RuntimeCheck_ContinueAnyway_Button": "Kontynuuj mimo to",
+    "RuntimeCheck_MaybeLater_Button": "Może później",
+    "RuntimeCheck_DotNet_Update_Title": "Wymagana aktualizacja .NET Runtime",
+    "RuntimeCheck_DotNet_Update_Content": ".NET 10 Runtime wymaga aktualizacji.\n\nZainstalowana wersja: {0}\nWymagana wersja: {1} lub nowsza\n\nAby zaktualizować, pobierz z:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nLub użyj winget:\nwinget install Microsoft.DotNet.Runtime.10"
 }

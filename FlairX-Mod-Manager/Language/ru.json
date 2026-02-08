@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "Скачать превью изображения с GameBanana.",
     "ModDetailPage_DownloadPreviews_Button": "Скачать",
     "ModDetailPage_DownloadPreviews_Tooltip": "Скачать превью изображения с GameBanana для этого мода",
-    "CategoryConflict_NewMod": "Новый мод:"
+    "CategoryConflict_NewMod": "Новый мод:",
+    "HideBroken": "Скрыть сломанные",
+    "RuntimeCheck_Download_Button": "Скачать",
+    "RuntimeCheck_MaybeLater_Button": "Может быть, позже",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Отсутствует среда выполнения приложений Windows",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "Обновление рекомендуется",
+    "RuntimeCheck_ContinueAnyway_Button": "Продолжить в любом случае",
+    "RuntimeCheck_DotNet_Update_Title": "Требуется обновление среды выполнения .NET",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "Среда выполнения приложений Windows 1.8 не установлена ​​в вашей системе.\n\nПриложение будет работать, но некоторые функции могут быть ограничены.\n\nЧтобы установить его, скачайте с:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nИли используйте вингет:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "Для оптимальной производительности рекомендуется использовать среду выполнения приложений Windows 1.8.\n\nСудя по всему, у вас установлена ​​более старая версия.\n\nДля обновления скачайте с:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nИли используйте вингет:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "Необходимо обновить среду выполнения приложений Windows 1.8.\n\nУстановленная версия: {0}\nТребуемая версия: {1} или новее\n\nДля обновления скачайте с:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nИли используйте вингет:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": "Необходимо обновить среду выполнения .NET 10.\n\nУстановленная версия: {0}\nТребуемая версия: {1} или новее\n\nДля обновления скачайте с:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nИли используйте вингет:\nwinget install Microsoft.DotNet.Runtime.10"
 }

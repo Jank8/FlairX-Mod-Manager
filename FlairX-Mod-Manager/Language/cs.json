@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "Stáhnout náhledy obrázků z GameBanana.",
     "ModDetailPage_DownloadPreviews_Button": "Stáhnout",
     "ModDetailPage_DownloadPreviews_Tooltip": "Stáhnout náhledy obrázků z GameBanana pro tento mod",
-    "CategoryConflict_NewMod": "Nový mod:"
+    "CategoryConflict_NewMod": "Nový mod:",
+    "HideBroken": "Skrýt zlomený",
+    "RuntimeCheck_Download_Button": "Stáhnout",
+    "RuntimeCheck_MaybeLater_Button": "Možná později",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Chybí runtime aplikace pro Windows",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "Aktualizace doporučena",
+    "RuntimeCheck_ContinueAnyway_Button": "Přesto pokračovat",
+    "RuntimeCheck_DotNet_Update_Title": "Je vyžadována aktualizace .NET Runtime",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "Windows App Runtime 1.8 není ve vašem systému nainstalován.\n\nAplikace bude fungovat, ale některé funkce mohou být omezené.\n\nChcete-li jej nainstalovat, stáhněte si z:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nNebo použijte winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "Pro optimální výkon se doporučuje Windows App Runtime 1.8.\n\nZdá se, že máte nainstalovanou starší verzi.\n\nChcete-li aktualizovat, stáhněte si z:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nNebo použijte winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "Windows App Runtime 1.8 je třeba aktualizovat.\n\nNainstalovaná verze: {0}\nPožadovaná verze: {1} nebo novější\n\nChcete-li aktualizovat, stáhněte si z:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nNebo použijte winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": ".NET 10 Runtime je třeba aktualizovat.\n\nNainstalovaná verze: {0}\nPožadovaná verze: {1} nebo novější\n\nChcete-li aktualizovat, stáhněte si z:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nNebo použijte winget:\nwinget install Microsoft.DotNet.Runtime.10"
 }

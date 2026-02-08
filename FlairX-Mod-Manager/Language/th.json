@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "ดาวน์โหลดภาพตัวอย่างจาก GameBanana",
     "ModDetailPage_DownloadPreviews_Button": "ดาวน์โหลด",
     "ModDetailPage_DownloadPreviews_Tooltip": "ดาวน์โหลดภาพตัวอย่างจาก GameBanana สำหรับม็อดนี้",
-    "CategoryConflict_NewMod": "ม็อดใหม่:"
+    "CategoryConflict_NewMod": "ม็อดใหม่:",
+    "HideBroken": "ซ่อนเสีย",
+    "RuntimeCheck_Download_Button": "ดาวน์โหลด",
+    "RuntimeCheck_MaybeLater_Button": "อาจจะภายหลัง",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "รันไทม์ของแอป Windows หายไป",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "แนะนำให้อัปเดต",
+    "RuntimeCheck_ContinueAnyway_Button": "ดำเนินการต่อต่อไป",
+    "RuntimeCheck_DotNet_Update_Title": "จำเป็นต้องมีการอัปเดตรันไทม์ .NET",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "ไม่ได้ติดตั้ง Windows App Runtime 1.8 ในระบบของคุณ\n\nแอปพลิเคชันจะทำงาน แต่ฟีเจอร์บางอย่างอาจถูกจำกัด\n\nหากต้องการติดตั้ง ให้ดาวน์โหลดจาก:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nหรือใช้วิงเก็ต:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "แนะนำให้ใช้ Windows App Runtime 1.8 เพื่อประสิทธิภาพสูงสุด\n\nดูเหมือนว่าคุณจะติดตั้งเวอร์ชันเก่าไว้\n\nหากต้องการอัปเดต ให้ดาวน์โหลดจาก:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nหรือใช้วิงเก็ต:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "จำเป็นต้องอัปเดต Windows App Runtime 1.8\n\nเวอร์ชันที่ติดตั้ง: {0}\nเวอร์ชันที่ต้องการ: {1} หรือใหม่กว่า\n\nหากต้องการอัปเดต ให้ดาวน์โหลดจาก:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nหรือใช้วิงเก็ต:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": "จำเป็นต้องอัปเดตรันไทม์ .NET 10\n\nเวอร์ชันที่ติดตั้ง: {0}\nเวอร์ชันที่ต้องการ: {1} หรือใหม่กว่า\n\nหากต้องการอัปเดต ให้ดาวน์โหลดจาก:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nหรือใช้วิงเก็ต:\nwinget install Microsoft.DotNet.Runtime.10"
 }

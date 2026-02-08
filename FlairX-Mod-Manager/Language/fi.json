@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "Lataa esikatselukuvat GameBananasta.",
     "ModDetailPage_DownloadPreviews_Button": "Lataa",
     "ModDetailPage_DownloadPreviews_Tooltip": "Lataa esikatselukuvat GameBananasta tälle modille",
-    "CategoryConflict_NewMod": "Uusi modi:"
+    "CategoryConflict_NewMod": "Uusi modi:",
+    "HideBroken": "Piilota rikki",
+    "RuntimeCheck_Download_Button": "Lataa",
+    "RuntimeCheck_MaybeLater_Button": "Ehkä myöhemmin",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Windows App Runtime puuttuu",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "Päivitystä suositellaan",
+    "RuntimeCheck_ContinueAnyway_Button": "Jatka joka tapauksessa",
+    "RuntimeCheck_DotNet_Update_Title": ".NET Runtime -päivitys vaaditaan",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "Windows App Runtime 1.8:aa ei ole asennettu järjestelmääsi.\n\nSovellus toimii, mutta jotkin ominaisuudet voivat olla rajoitettuja.\n\nAsenna se lataamalla osoitteesta:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nTai käytä wingetiä:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "Windows App Runtime 1.8:aa suositellaan optimaalisen suorituskyvyn takaamiseksi.\n\nSinulla näyttää olevan vanhempi versio asennettuna.\n\nPäivitä lataamalla osoitteesta:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nTai käytä wingetiä:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "Windows App Runtime 1.8 on päivitettävä.\n\nAsennettu versio: {0}\nVaadittu versio: {1} tai uudempi\n\nPäivitä lataamalla osoitteesta:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nTai käytä wingetiä:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": ".NET 10 Runtime on päivitettävä.\n\nAsennettu versio: {0}\nVaadittu versio: {1} tai uudempi\n\nPäivitä lataamalla osoitteesta:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nTai käytä wingetiä:\nwinget install Microsoft.DotNet.Runtime.10"
 }

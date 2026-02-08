@@ -335,5 +335,16 @@
     "ModDetailPage_DownloadPreviews_Desc": "Λήψη εικόνων προεπισκόπησης από το GameBanana.",
     "ModDetailPage_DownloadPreviews_Button": "Λήψη",
     "ModDetailPage_DownloadPreviews_Tooltip": "Λήψη εικόνων προεπισκόπησης από το GameBanana για αυτό το mod",
-    "CategoryConflict_NewMod": "Νέο mod:"
+    "CategoryConflict_NewMod": "Νέο mod:",
+    "HideBroken": "Απόκρυψη Σπασμένο",
+    "RuntimeCheck_Download_Button": "Λήψη",
+    "RuntimeCheck_MaybeLater_Button": "Ίσως Αργότερα",
+    "RuntimeCheck_WinAppRuntime_Missing_Title": "Λείπει ο χρόνος εκτέλεσης της εφαρμογής των Windows",
+    "RuntimeCheck_WinAppRuntime_Update_Title": "Συνιστάται ενημέρωση",
+    "RuntimeCheck_ContinueAnyway_Button": "Συνέχισε πάντως",
+    "RuntimeCheck_DotNet_Update_Title": "Απαιτείται ενημέρωση χρόνου εκτέλεσης .NET",
+    "RuntimeCheck_WinAppRuntime_Missing_Content": "Το Windows App Runtime 1.8 δεν είναι εγκατεστημένο στο σύστημά σας.\n\nΗ εφαρμογή θα λειτουργήσει, αλλά ορισμένες δυνατότητες ενδέχεται να είναι περιορισμένες.\n\nΓια να το εγκαταστήσετε, κάντε λήψη από:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nΉ χρησιμοποιήστε το winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion": "Το Windows App Runtime 1.8 συνιστάται για βέλτιστη απόδοση.\n\nΦαίνεται ότι έχετε εγκαταστήσει μια παλαιότερη έκδοση.\n\nΓια ενημέρωση, πραγματοποιήστε λήψη από:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nΉ χρησιμοποιήστε το winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion": "Το Windows App Runtime 1.8 πρέπει να ενημερωθεί.\n\nΕγκατεστημένη έκδοση: {0}\nΑπαιτούμενη έκδοση: {1} ή νεότερο\n\nΓια ενημέρωση, πραγματοποιήστε λήψη από:\nhttps://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\nΉ χρησιμοποιήστε το winget:\nwinget install Microsoft.WindowsAppRuntime.1.8",
+    "RuntimeCheck_DotNet_Update_Content": "Το .NET 10 Runtime πρέπει να ενημερωθεί.\n\nΕγκατεστημένη έκδοση: {0}\nΑπαιτούμενη έκδοση: {1} ή νεότερο\n\nΓια ενημέρωση, πραγματοποιήστε λήψη από:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nΉ χρησιμοποιήστε το winget:\nwinget install Microsoft.DotNet.Runtime.10"
 }

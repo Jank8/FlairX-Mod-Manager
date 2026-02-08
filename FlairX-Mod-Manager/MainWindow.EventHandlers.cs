@@ -30,19 +30,8 @@ namespace FlairX_Mod_Manager
             // Mark initialization as complete after game selection is restored
             _isInitializationComplete = true;
             
-            // Check .NET Runtime version
-            _ = CheckDotNetRuntimeVersionAsync();
-            
-            // Check if Windows App Runtime is missing and show warning
-            if (App.IsWindowsAppRuntimeMissing)
-            {
-                _ = ShowWindowsAppRuntimeWarningAsync();
-            }
-            else
-            {
-                // Runtime exists, but check if it's version 1.8
-                _ = CheckWindowsAppRuntimeVersionAsync();
-            }
+            // Check both .NET and Windows App Runtime versions in one dialog
+            _ = CheckRuntimeVersionsAsync();
             
             // Auto-detect hotkeys for all mods in background on startup
             _ = Task.Run(async () =>
@@ -58,6 +47,174 @@ namespace FlairX_Mod_Manager
                     Logger.LogError("Failed to auto-detect hotkeys on startup", ex);
                 }
             });
+        }
+        
+        private async Task CheckRuntimeVersionsAsync()
+        {
+            try
+            {
+                // Small delay to let the window fully load
+                await Task.Delay(1000);
+                
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                
+                // Check .NET Runtime
+                var requiredDotNetVersion = new Version(10, 0, 2);
+                var currentDotNetVersion = Environment.Version;
+                bool dotNetNeedsUpdate = currentDotNetVersion < requiredDotNetVersion;
+                
+                Logger.LogInfo($".NET Runtime version: {currentDotNetVersion}");
+                
+                // Check Windows App Runtime
+                var requiredWinAppVersion = new Version("8000.731.1532.0");
+                Version? installedWinAppVersion = null;
+                bool winAppNeedsUpdate = false;
+                bool winAppMissing = App.IsWindowsAppRuntimeMissing;
+                
+                if (!winAppMissing)
+                {
+                    installedWinAppVersion = await Task.Run(() =>
+                    {
+                        try
+                        {
+                            var psi = new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = "powershell.exe",
+                                Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.1.8' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
+                                RedirectStandardOutput = true,
+                                UseShellExecute = false,
+                                CreateNoWindow = true
+                            };
+                            
+                            using var process = System.Diagnostics.Process.Start(psi);
+                            if (process != null)
+                            {
+                                var output = process.StandardOutput.ReadToEnd().Trim();
+                                process.WaitForExit();
+                                
+                                if (!string.IsNullOrWhiteSpace(output) && Version.TryParse(output, out var version))
+                                {
+                                    return version;
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogDebug($"Failed to check Windows App Runtime version: {ex.Message}");
+                        }
+                        return null;
+                    });
+                    
+                    if (installedWinAppVersion != null)
+                    {
+                        winAppNeedsUpdate = installedWinAppVersion < requiredWinAppVersion;
+                        Logger.LogInfo($"Windows App Runtime version: {installedWinAppVersion}");
+                    }
+                    else
+                    {
+                        winAppNeedsUpdate = true;
+                    }
+                }
+                
+                // Show dialog only if something needs update
+                if (dotNetNeedsUpdate || winAppNeedsUpdate || winAppMissing)
+                {
+                    var contentBuilder = new System.Text.StringBuilder();
+                    
+                    // .NET section
+                    if (dotNetNeedsUpdate)
+                    {
+                        contentBuilder.AppendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                        contentBuilder.AppendLine(".NET Runtime");
+                        contentBuilder.AppendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                        contentBuilder.AppendLine($"Zainstalowana wersja: {currentDotNetVersion}");
+                        contentBuilder.AppendLine($"Wymagana wersja: {requiredDotNetVersion} lub nowsza");
+                        contentBuilder.AppendLine();
+                        contentBuilder.AppendLine("Pobierz z:");
+                        contentBuilder.AppendLine("https://dotnet.microsoft.com/download/dotnet/10.0");
+                        contentBuilder.AppendLine();
+                        contentBuilder.AppendLine("Lub użyj winget:");
+                        contentBuilder.AppendLine("winget install Microsoft.DotNet.Runtime.10");
+                        contentBuilder.AppendLine();
+                    }
+                    
+                    // Windows App Runtime section
+                    if (winAppMissing || winAppNeedsUpdate)
+                    {
+                        contentBuilder.AppendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                        contentBuilder.AppendLine("Windows App Runtime");
+                        contentBuilder.AppendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                        
+                        if (winAppMissing)
+                        {
+                            contentBuilder.AppendLine("Status: Nie zainstalowany");
+                        }
+                        else if (installedWinAppVersion != null)
+                        {
+                            contentBuilder.AppendLine($"Zainstalowana wersja: {installedWinAppVersion}");
+                            contentBuilder.AppendLine($"Wymagana wersja: {requiredWinAppVersion} lub nowsza");
+                        }
+                        else
+                        {
+                            contentBuilder.AppendLine("Status: Nieznana wersja");
+                        }
+                        
+                        contentBuilder.AppendLine();
+                        contentBuilder.AppendLine("Pobierz z:");
+                        contentBuilder.AppendLine("https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe");
+                        contentBuilder.AppendLine();
+                        contentBuilder.AppendLine("Lub użyj winget:");
+                        contentBuilder.AppendLine("winget install Microsoft.WindowsAppRuntime.1.8");
+                    }
+                    
+                    var dialog = new ContentDialog
+                    {
+                        Title = "Wymagane aktualizacje Runtime",
+                        Content = contentBuilder.ToString(),
+                        PrimaryButtonText = "Pobierz .NET",
+                        SecondaryButtonText = "Pobierz Windows App Runtime",
+                        CloseButtonText = "Może później",
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    
+                    ContentDialogResult result;
+                    do
+                    {
+                        result = await dialog.ShowAsync();
+                        
+                        if (result == ContentDialogResult.Primary)
+                        {
+                            // Download .NET
+                            var psi = new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = "https://dotnet.microsoft.com/download/dotnet/10.0",
+                                UseShellExecute = true
+                            };
+                            System.Diagnostics.Process.Start(psi);
+                            // Don't close dialog, show it again
+                        }
+                        else if (result == ContentDialogResult.Secondary)
+                        {
+                            // Download Windows App Runtime
+                            var psi = new System.Diagnostics.ProcessStartInfo
+                            {
+                                FileName = "https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe",
+                                UseShellExecute = true
+                            };
+                            System.Diagnostics.Process.Start(psi);
+                            // Don't close dialog, show it again
+                        }
+                    } while (result != ContentDialogResult.None); // None = CloseButton clicked
+                }
+                else
+                {
+                    Logger.LogInfo("All runtime versions OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to check runtime versions", ex);
+            }
         }
         
         private async Task CheckDotNetRuntimeVersionAsync()
@@ -77,18 +234,16 @@ namespace FlairX_Mod_Manager
                 {
                     Logger.LogWarning($"Outdated .NET Runtime detected: {currentVersion} (required: {requiredVersion})");
                     
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    var contentTemplate = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_DotNet_Update_Content");
+                    var content = string.Format(contentTemplate, currentVersion, requiredVersion);
+                    
                     var dialog = new ContentDialog
                     {
-                        Title = ".NET Runtime Update Required",
-                        Content = $".NET 10 Runtime needs to be updated.\n\n" +
-                                 $"Installed version: {currentVersion}\n" +
-                                 $"Required version: {requiredVersion} or newer\n\n" +
-                                 "To update, download from:\n" +
-                                 "https://dotnet.microsoft.com/download/dotnet/10.0\n\n" +
-                                 "Or use winget:\n" +
-                                 "winget install Microsoft.DotNet.Runtime.10",
-                        PrimaryButtonText = "Download",
-                        CloseButtonText = "Maybe Later",
+                        Title = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_DotNet_Update_Title"),
+                        Content = content,
+                        PrimaryButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_Download_Button"),
+                        CloseButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_MaybeLater_Button"),
                         XamlRoot = this.Content.XamlRoot
                     };
                     
@@ -122,17 +277,14 @@ namespace FlairX_Mod_Manager
                 // Small delay to let the window fully load
                 await Task.Delay(1000);
                 
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                
                 var dialog = new ContentDialog
                 {
-                    Title = "Windows App Runtime Missing",
-                    Content = "Windows App Runtime 1.8 is not installed on your system.\n\n" +
-                             "The application will work, but some features may be limited.\n\n" +
-                             "To install it, download from:\n" +
-                             "https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\n" +
-                             "Or use winget:\n" +
-                             "winget install Microsoft.WindowsAppRuntime.1.8",
-                    PrimaryButtonText = "Download",
-                    CloseButtonText = "Continue Anyway",
+                    Title = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Missing_Title"),
+                    Content = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Missing_Content"),
+                    PrimaryButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_Download_Button"),
+                    CloseButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_ContinueAnyway_Button"),
                     XamlRoot = this.Content.XamlRoot
                 };
                 
@@ -203,17 +355,14 @@ namespace FlairX_Mod_Manager
                 if (installedVersion == null)
                 {
                     // No runtime 1.8 found at all
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    
                     var dialog = new ContentDialog
                     {
-                        Title = "Update Recommended",
-                        Content = "Windows App Runtime 1.8 is recommended for optimal performance.\n\n" +
-                                 "You appear to have an older version installed.\n\n" +
-                                 "To update, download from:\n" +
-                                 "https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\n" +
-                                 "Or use winget:\n" +
-                                 "winget install Microsoft.WindowsAppRuntime.1.8",
-                        PrimaryButtonText = "Download",
-                        CloseButtonText = "Maybe Later",
+                        Title = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Title"),
+                        Content = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion"),
+                        PrimaryButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_Download_Button"),
+                        CloseButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_MaybeLater_Button"),
                         XamlRoot = this.Content.XamlRoot
                     };
                     
@@ -234,18 +383,16 @@ namespace FlairX_Mod_Manager
                     // Runtime 1.8 found but outdated
                     Logger.LogInfo($"Outdated Windows App Runtime 1.8 detected: {installedVersion} (required: {requiredVersion})");
                     
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    var contentTemplate = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion");
+                    var content = string.Format(contentTemplate, installedVersion, requiredVersion);
+                    
                     var dialog = new ContentDialog
                     {
-                        Title = "Update Recommended",
-                        Content = $"Windows App Runtime 1.8 needs to be updated.\n\n" +
-                                 $"Installed version: {installedVersion}\n" +
-                                 $"Required version: {requiredVersion} or newer\n\n" +
-                                 "To update, download from:\n" +
-                                 "https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe\n\n" +
-                                 "Or use winget:\n" +
-                                 "winget install Microsoft.WindowsAppRuntime.1.8",
-                        PrimaryButtonText = "Download",
-                        CloseButtonText = "Maybe Later",
+                        Title = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Title"),
+                        Content = content,
+                        PrimaryButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_Download_Button"),
+                        CloseButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_MaybeLater_Button"),
                         XamlRoot = this.Content.XamlRoot
                     };
                     
