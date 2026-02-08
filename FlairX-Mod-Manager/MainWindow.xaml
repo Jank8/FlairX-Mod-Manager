@@ -43,6 +43,12 @@
                             <TextBlock x:Name="SelectGameText" VerticalAlignment="Center"/>
                         </StackPanel>
                     </ComboBoxItem>
+                    <ComboBoxItem Tag="EFMI" HorizontalContentAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                            <FontIcon Glyph="&#xE7FC;" FontSize="16"/>
+                            <TextBlock Text="Arknights: Endfield" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ComboBoxItem>
                     <ComboBoxItem Tag="GIMI" HorizontalContentAlignment="Center">
                         <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
                             <FontIcon Glyph="&#xE7FC;" FontSize="16"/>

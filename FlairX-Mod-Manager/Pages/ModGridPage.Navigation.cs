@@ -98,9 +98,10 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     
                     if (shouldLoadCategories && !string.Equals(parameter, "Active", StringComparison.OrdinalIgnoreCase) && 
-                        !string.Equals(parameter, "Broken", StringComparison.OrdinalIgnoreCase))
+                        !string.Equals(parameter, "Broken", StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(parameter, "Outdated", StringComparison.OrdinalIgnoreCase))
                     {
-                        // In category mode, ignore legacy navigation and load categories (except for Active)
+                        // In category mode, ignore legacy navigation and load categories (except for Active, Broken, Outdated)
                         _currentViewMode = ViewMode.Categories;
                         LoadCategories();
                         CategoryBackButton.Visibility = Visibility.Collapsed;
@@ -128,6 +129,12 @@ namespace FlairX_Mod_Manager.Pages
                             var langDict = SharedUtilities.LoadLanguageDictionary();
                             CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Broken_Mods");
                             LoadBrokenModsOnly();
+                        }
+                        else if (string.Equals(character, "Outdated", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var langDict = SharedUtilities.LoadLanguageDictionary();
+                            CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Outdated_Mods");
+                            LoadOutdatedModsOnly();
                         }
                         else
                         {

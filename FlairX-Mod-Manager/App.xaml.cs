@@ -35,6 +35,9 @@ namespace FlairX_Mod_Manager
         private Window? _window;
         public Window? MainWindow => _window;
         private static Mutex? _instanceMutex;
+        
+        // Track if Windows App Runtime is missing
+        public static bool IsWindowsAppRuntimeMissing { get; private set; } = false;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -71,7 +74,22 @@ namespace FlairX_Mod_Manager
                 InitializeComponent();
                 
                 Logger.LogInfo("Registering system notifications");
-                AppNotificationManager.Default.Register();
+                try
+                {
+                    AppNotificationManager.Default.Register();
+                    Logger.LogInfo("System notifications registered successfully");
+                }
+                catch (System.Runtime.InteropServices.COMException comEx) when (comEx.HResult == unchecked((int)0x80040154))
+                {
+                    // Class not registered - Windows App Runtime is missing
+                    Logger.LogWarning($"Windows App Runtime not found: {comEx.Message}");
+                    IsWindowsAppRuntimeMissing = true;
+                }
+                catch (Exception notifEx)
+                {
+                    // Other notification errors - non-critical
+                    Logger.LogWarning($"Could not register app notifications: {notifEx.Message}");
+                }
                 
                 Logger.LogInfo("App constructor completed successfully");
             }

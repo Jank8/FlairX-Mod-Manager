@@ -287,6 +287,11 @@
                             <FontIcon Glyph="&#xEA92;"/>
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
+                    <ToggleMenuFlyoutItem x:Name="HideBrokenItem" Click="HideBroken_Click">
+                        <ToggleMenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xED1A;"/>
+                        </ToggleMenuFlyoutItem.Icon>
+                    </ToggleMenuFlyoutItem>
                     <MenuFlyoutSeparator/>
                     <MenuFlyoutItem x:Name="OpenModsFolderItem" Click="OpenModsFolder_Click">
                         <MenuFlyoutItem.Icon>

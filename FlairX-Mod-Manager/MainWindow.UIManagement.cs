@@ -117,7 +117,29 @@ namespace FlairX_Mod_Manager
                         bool wasInitComplete = _isInitializationComplete;
                         _isInitializationComplete = false;
                         
-                        GameSelectionComboBox.SelectedIndex = settings.SelectedGameIndex;
+                        // Get game tag from saved index
+                        string gameTag = SettingsManager.GetGameTagFromIndex(settings.SelectedGameIndex);
+                        
+                        // Find the ComboBoxItem with matching Tag
+                        ComboBoxItem? itemToSelect = null;
+                        foreach (var item in GameSelectionComboBox.Items.OfType<ComboBoxItem>())
+                        {
+                            if (item.Tag?.ToString() == gameTag)
+                            {
+                                itemToSelect = item;
+                                break;
+                            }
+                        }
+                        
+                        // Select the item (or first item if not found)
+                        if (itemToSelect != null)
+                        {
+                            GameSelectionComboBox.SelectedItem = itemToSelect;
+                        }
+                        else
+                        {
+                            GameSelectionComboBox.SelectedIndex = 0; // Select "no game" option
+                        }
                         
                         // Restore initialization flag
                         _isInitializationComplete = wasInitComplete;

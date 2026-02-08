@@ -50,7 +50,8 @@ namespace FlairX_Mod_Manager.Services
             { "GIMI", 8552 },   // Genshin Impact
             { "HIMI", 10349 },  // Honkai Impact 3rd
             { "WWMI", 20357 },  // Wuthering Waves
-            { "SRMI", 18366 }   // Honkai Star Rail
+            { "SRMI", 18366 },  // Honkai Star Rail
+            { "EFMI", 21842 }   // Arknights: Endfield
         };
 
         public static int GetGameId(string gameTag)

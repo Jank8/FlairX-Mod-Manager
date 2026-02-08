@@ -309,10 +309,18 @@ namespace FlairX_Mod_Manager.Pages
             
             // Then create ModTiles directly (not virtualized like LoadModsByCategory)
             var mods = new List<ModTile>();
+            bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            
             foreach (var modData in _allModData)
             {
                 // Filter NSFW mods if setting is enabled
                 if (modData.IsNSFW && SettingsManager.Current.BlurNSFWThumbnails)
+                {
+                    continue;
+                }
+                
+                // Filter broken mods if setting is enabled
+                if (modData.IsBroken && hideBroken)
                 {
                     continue;
                 }
@@ -338,7 +346,7 @@ namespace FlairX_Mod_Manager.Pages
                 mods.Add(modTile);
             }
                 
-            LogToGridLog($"Loaded {mods.Count} mods for category: {category}");
+            LogToGridLog($"Loaded {mods.Count} mods for category: {category} (Broken filter: {hideBroken})");
             ModsGrid.ItemsSource = mods;
             
             // Load visible images after setting new data source
@@ -584,6 +592,7 @@ namespace FlairX_Mod_Manager.Pages
             var initialMods = new List<ModTile>();
             int loaded = 0;
             bool hideNSFW = SettingsManager.Current.BlurNSFWThumbnails;
+            bool hideBroken = SettingsManager.Current.HideBrokenMods;
             
             for (int i = 0; i < _allModData.Count && loaded < initialLoadCount; i++)
             {
@@ -591,6 +600,12 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Filter NSFW mods if setting is enabled
                 if (modData.IsNSFW && hideNSFW)
+                {
+                    continue;
+                }
+                
+                // Filter broken mods if setting is enabled
+                if (modData.IsBroken && hideBroken)
                 {
                     continue;
                 }
@@ -625,7 +640,7 @@ namespace FlairX_Mod_Manager.Pages
             
             _allMods = new ObservableCollection<ModTile>(initialMods);
             ModsGrid.ItemsSource = _allMods;
-            LogToGridLog($"Created {initialMods.Count} initial ModTiles out of {_allModData.Count} total (NSFW filter: {hideNSFW})");
+            LogToGridLog($"Created {initialMods.Count} initial ModTiles out of {_allModData.Count} total (NSFW filter: {hideNSFW}, Broken filter: {hideBroken})");
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>
@@ -670,6 +685,8 @@ namespace FlairX_Mod_Manager.Pages
             
             // Filter to show only active mods from _allModData
             var activeModTiles = new List<ModTile>();
+            bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            
             foreach (var modData in _allModData)
             {
                 // Update active state first
@@ -677,6 +694,12 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (modData.IsActive)
                 {
+                    // Filter broken mods if setting is enabled
+                    if (modData.IsBroken && hideBroken)
+                    {
+                        continue;
+                    }
+                    
                     var modTile = new ModTile 
                     { 
                         Name = modData.Name, 
@@ -702,7 +725,7 @@ namespace FlairX_Mod_Manager.Pages
                 .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
                 .ToList();
             
-            LogToGridLog($"Found {sortedActiveMods.Count} active mods");
+            LogToGridLog($"Found {sortedActiveMods.Count} active mods (Broken filter: {hideBroken})");
             ModsGrid.ItemsSource = sortedActiveMods;
             
             // Load visible images after setting new data source
@@ -771,6 +794,8 @@ namespace FlairX_Mod_Manager.Pages
             
             // Filter to show only outdated mods from _allModData
             var outdatedModTiles = new List<ModTile>();
+            bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            
             foreach (var modData in _allModData)
             {
                 // Update active state
@@ -781,6 +806,12 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (hasUpdate)
                 {
+                    // Filter broken mods if setting is enabled
+                    if (modData.IsBroken && hideBroken)
+                    {
+                        continue;
+                    }
+                    
                     var modTile = new ModTile 
                     { 
                         Name = modData.Name, 
@@ -806,7 +837,7 @@ namespace FlairX_Mod_Manager.Pages
                 .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
                 .ToList();
             
-            LogToGridLog($"Found {sortedOutdatedMods.Count} outdated mods");
+            LogToGridLog($"Found {sortedOutdatedMods.Count} outdated mods (Broken filter: {hideBroken})");
             ModsGrid.ItemsSource = sortedOutdatedMods;
             
             // Load visible images after setting new data source

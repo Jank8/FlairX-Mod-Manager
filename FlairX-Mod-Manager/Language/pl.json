@@ -296,6 +296,7 @@
     "HotkeyConflict_Message": "Ten skrót jest już używany. Wybierz inny lub przywróć domyślny.",
     "OpenModsFolder": "Otwórz folder modów",
     "ShowBroken": "Pokaż zepsute",
+    "HideBroken": "Ukryj zepsute",
     "Category_Broken_Mods": "Zepsute mody",
     "ModDetail_Broken_Label": "Mod zepsuty",
     "ModDetail_Broken_Desc": "Oznacz ten mod jako zepsuty lub niekompatybilny.",

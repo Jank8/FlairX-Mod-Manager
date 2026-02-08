@@ -595,9 +595,25 @@ namespace FlairX_Mod_Manager
                 var langDict = SharedUtilities.LoadLanguageDictionary();
                 var allModsText = SharedUtilities.GetTranslation(langDict, "Category_All_Mods");
                 var allCategoriesText = SharedUtilities.GetTranslation(langDict, "All_Categories");
+                var activeModsText = SharedUtilities.GetTranslation(langDict, "Category_Active_Mods");
+                var brokenModsText = SharedUtilities.GetTranslation(langDict, "Category_Broken_Mods");
+                var outdatedModsText = SharedUtilities.GetTranslation(langDict, "Category_Outdated_Mods");
                 
+                // Check if we're in special views (Active, Broken, Outdated)
+                if (categoryTitle == activeModsText)
+                {
+                    SettingsManager.SaveLastPosition("Active", "ModGridPage", currentViewMode);
+                }
+                else if (categoryTitle == brokenModsText)
+                {
+                    SettingsManager.SaveLastPosition("Broken", "ModGridPage", currentViewMode);
+                }
+                else if (categoryTitle == outdatedModsText)
+                {
+                    SettingsManager.SaveLastPosition("Outdated", "ModGridPage", currentViewMode);
+                }
                 // Check if we're in a specific category (not "All Mods" or "All Categories")
-                if (!string.IsNullOrEmpty(categoryTitle) && 
+                else if (!string.IsNullOrEmpty(categoryTitle) && 
                     categoryTitle != allModsText && 
                     categoryTitle != allCategoriesText)
                 {
@@ -656,6 +672,18 @@ namespace FlairX_Mod_Manager
                     // Navigate to Active mods
                     contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Active", new DrillInNavigationTransitionInfo());
                     // Don't select any menu item for Active mods
+                }
+                else if (lastCategory == "Outdated")
+                {
+                    // Navigate to Outdated mods
+                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Outdated", new DrillInNavigationTransitionInfo());
+                    // Don't select any menu item for Outdated mods
+                }
+                else if (lastCategory == "Broken")
+                {
+                    // Navigate to Broken mods
+                    contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Broken", new DrillInNavigationTransitionInfo());
+                    // Don't select any menu item for Broken mods
                 }
                 else
                 {

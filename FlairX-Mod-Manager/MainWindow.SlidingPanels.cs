@@ -62,6 +62,7 @@ namespace FlairX_Mod_Manager
                 "HIMI" => "Honkai Impact 3rd",
                 "WWMI" => "Wuthering Waves",
                 "SRMI" => "Honkai Star Rail",
+                "EFMI" => "Arknights: Endfield",
                 _ => "Game"
             };
             var title = string.Format(SharedUtilities.GetTranslation(lang, "BrowseTitle"), gameName);

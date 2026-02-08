@@ -38,6 +38,8 @@ namespace FlairX_Mod_Manager.Pages
             ShowOutdatedItem.Text = SharedUtilities.GetTranslation(langDict, "ShowOutdated");
             ShowActiveItem.Text = SharedUtilities.GetTranslation(langDict, "ShowActive");
             ShowBrokenItem.Text = SharedUtilities.GetTranslation(langDict, "ShowBroken");
+            HideBrokenItem.Text = SharedUtilities.GetTranslation(langDict, "HideBroken");
+            HideBrokenItem.IsChecked = SettingsManager.Current.HideBrokenMods;
             OpenModsFolderItem.Text = SharedUtilities.GetTranslation(langDict, "OpenModsFolder");
         }
 
@@ -135,6 +137,51 @@ namespace FlairX_Mod_Manager.Pages
             LoadBrokenModsOnly();
             CategoryBackButton.Visibility = Visibility.Visible;
             CategoryOpenFolderButton.Visibility = Visibility.Collapsed; // Hide folder button for Broken mods
+        }
+
+        private void HideBroken_Click(object sender, RoutedEventArgs e)
+        {
+            // Toggle the setting
+            SettingsManager.Current.HideBrokenMods = !SettingsManager.Current.HideBrokenMods;
+            SettingsManager.Save();
+            
+            // Update the toggle state
+            HideBrokenItem.IsChecked = SettingsManager.Current.HideBrokenMods;
+            
+            Logger.LogInfo($"Hide Broken Mods filter toggled: {SettingsManager.Current.HideBrokenMods}");
+            
+            // Reload current view to apply filter
+            if (!string.IsNullOrEmpty(_currentCategory))
+            {
+                if (_currentCategory == "Active")
+                {
+                    LoadActiveModsOnly();
+                }
+                else if (_currentCategory == "Broken")
+                {
+                    // Don't reload if we're in the "Show Broken" view - that would be confusing
+                    return;
+                }
+                else if (_currentCategory == "Outdated")
+                {
+                    LoadOutdatedModsOnly();
+                }
+                else
+                {
+                    // Specific category
+                    LoadModsByCategory(_currentCategory);
+                }
+            }
+            else if (CurrentViewMode == ViewMode.Categories)
+            {
+                // In categories view - no reload needed
+                return;
+            }
+            else
+            {
+                // All mods view
+                LoadAllMods();
+            }
         }
 
         private void OpenModsFolder_Click(object sender, RoutedEventArgs e)

@@ -476,6 +476,7 @@ namespace FlairX_Mod_Manager.Pages
                 "HIMI" => "Honkai Impact 3rd",
                 "WWMI" => "Wuthering Waves",
                 "SRMI" => "Honkai Star Rail",
+                "EFMI" => "Arknights: Endfield",
                 _ => "Game"
             };
         }

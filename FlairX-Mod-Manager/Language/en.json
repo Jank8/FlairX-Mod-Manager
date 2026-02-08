@@ -309,6 +309,7 @@
     "HotkeyConflict_Message": "This hotkey is already in use. Please choose a different one or restore the default.",
     "OpenModsFolder": "Open Mods Folder",
     "ShowBroken": "Show Broken",
+    "HideBroken": "Hide Broken",
     "Category_Broken_Mods": "Broken Mods",
     "ModDetail_Broken_Label": "Mod Broken",
     "ModDetail_Broken_Desc": "Mark this mod as broken or incompatible.",

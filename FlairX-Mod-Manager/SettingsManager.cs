@@ -118,6 +118,9 @@ namespace FlairX_Mod_Manager
         // GameBanana settings
         public bool BlurNSFWThumbnails { get; set; } = true;
         
+        // Mod filtering settings
+        public bool HideBrokenMods { get; set; } = false;
+        
         // Download settings
         public bool FastDownloadEnabled { get; set; } = true;
         public int MaxDownloadConnections { get; set; } = 4;
@@ -288,6 +291,7 @@ namespace FlairX_Mod_Manager
                 3 => "SRMI", // Star Rail
                 4 => "WWMI", // Wuthering Waves
                 5 => "ZZMI", // Zenless Zone Zero
+                6 => "EFMI", // Arknights: Endfield
                 _ => ""
             };
         }
@@ -301,6 +305,7 @@ namespace FlairX_Mod_Manager
                 "SRMI" => 3,
                 "WWMI" => 4,
                 "ZZMI" => 5,
+                "EFMI" => 6,
                 _ => 0
             };
         }

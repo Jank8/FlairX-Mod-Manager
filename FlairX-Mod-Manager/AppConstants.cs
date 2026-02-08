@@ -55,6 +55,7 @@ namespace FlairX_Mod_Manager
                     "SRMI" => "SR",
                     "GIMI" => "GI",
                     "HIMI" => "HI",
+                    "EFMI" => "EF",
                     _ => "ZZ"
                 };
                 
@@ -76,6 +77,7 @@ namespace FlairX_Mod_Manager
                     "SRMI" => "SR",
                     "GIMI" => "GI",
                     "HIMI" => "HI",
+                    "EFMI" => "EF",
                     _ => "ZZ"
                 };
                 
