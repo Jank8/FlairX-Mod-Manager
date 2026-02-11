@@ -256,7 +256,7 @@ FlairX supports **27 languages** with automatic detection:
 
 **Example:**
 - ✅ Correct: `XXMI/GIMI/Mods/Raiden/Outfit_Casual/`
-- ❌ Wrong: `XXMI/GIMI/Mods/Raiden/Raiden/Outfit_Casual/`
+- ❌ Wrong: `XXMI/GIMI/Mods/Characters/Raiden/Outfit_Casual/`
 
 **Game Tags:**
 - EFMI = Arknights: Endfield
