@@ -79,5 +79,6 @@
     "StarterPack_NotAvailable": "Startpakke er ikke tilgængelig for dette spil endnu.",
     "ViewAllAuthorMods": "Vis alle forfatterens mods",
     "AuthorModsTitle": "Alle mods",
-    "PreviewOnlyMode_Info": "Dette vil kun downloade forhåndsvisningsbilleder for den installerede mod."
+    "PreviewOnlyMode_Info": "Dette vil kun downloade forhåndsvisningsbilleder for den installerede mod.",
+    "LoadMore": "Indlæs mere"
 }

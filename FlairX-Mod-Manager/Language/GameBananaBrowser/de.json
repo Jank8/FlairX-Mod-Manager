@@ -79,5 +79,6 @@
     "StarterPack_Button_Tooltip": "Starter-Paket für dieses Spiel herunterladen",
     "StarterPack_NotAvailable": "Starter-Paket ist für dieses Spiel noch nicht verfügbar.",
     "ViewAllAuthorMods": "Alle Mods des Autors anzeigen",
-    "AuthorModsTitle": "Alle Mods"
+    "AuthorModsTitle": "Alle Mods",
+    "LoadMore": "Mehr laden"
 }

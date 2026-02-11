@@ -79,5 +79,6 @@
     "StarterPack_NotAvailable": "Bu oyun için başlangıç paketi henüz mevcut değil.",
     "ViewAllAuthorMods": "Yazarın tüm modlarını görüntüle",
     "AuthorModsTitle": "Tüm modlar",
-    "PreviewOnlyMode_Info": "Bu, yalnızca yüklü mod için önizleme görüntülerini indirecektir."
+    "PreviewOnlyMode_Info": "Bu, yalnızca yüklü mod için önizleme görüntülerini indirecektir.",
+    "LoadMore": "Daha fazla yükle"
 }

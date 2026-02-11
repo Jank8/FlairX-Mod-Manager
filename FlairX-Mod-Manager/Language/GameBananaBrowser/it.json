@@ -79,5 +79,6 @@
     "StarterPack_NotAvailable": "Il pacchetto iniziale non è ancora disponibile per questo gioco.",
     "ViewAllAuthorMods": "Visualizza tutte le mod dell'autore",
     "AuthorModsTitle": "Tutte le mod",
-    "PreviewOnlyMode_Info": "Questo scaricherà solo immagini di anteprima per la mod installata."
+    "PreviewOnlyMode_Info": "Questo scaricherà solo immagini di anteprima per la mod installata.",
+    "LoadMore": "Carica altro"
 }

@@ -79,5 +79,6 @@
     "StarterPack_NotAvailable": "このゲーム用のスターターパックはまだ利用できません。",
     "ViewAllAuthorMods": "作者のすべてのModを表示",
     "AuthorModsTitle": "すべてのMod",
-    "PreviewOnlyMode_Info": "これはインストールされたModのプレビュー画像のみをダウンロードします。"
+    "PreviewOnlyMode_Info": "これはインストールされたModのプレビュー画像のみをダウンロードします。",
+    "LoadMore": "さらに読み込む"
 }

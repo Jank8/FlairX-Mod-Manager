@@ -207,6 +207,7 @@ namespace FlairX_Mod_Manager.Pages
             RetryButton.Content = SharedUtilities.GetTranslation(_lang, "Retry");
             StarterPackButtonText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_Button") ?? "Starter Pack";
             ToolTipService.SetToolTip(StarterPackButton, SharedUtilities.GetTranslation(_lang, "StarterPack_Button_Tooltip") ?? "Download Starter Pack for this game");
+            LoadMoreButtonText.Text = SharedUtilities.GetTranslation(_lang, "LoadMore");
             
             // Hide Starter Pack button if not available for this game
             StarterPackButton.Visibility = Dialogs.StarterPackDialog.IsStarterPackAvailable(_gameTag) 
@@ -375,7 +376,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void ModsScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
+        private async void ModsScrollViewer_ViewChanged(object? sender, ScrollViewerViewChangedEventArgs e)
         {
             var now = DateTime.Now;
             
@@ -390,13 +391,10 @@ namespace FlairX_Mod_Manager.Pages
             Logger.LogInfo($"Scroll detected - Offset: {_modsScrollViewer?.VerticalOffset}, Scrollable: {_modsScrollViewer?.ScrollableHeight}");
             
             // Load more mods if user is scrolling near the end
-            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
-            {
-                LoadMoreModsIfNeeded();
-            });
+            await LoadMoreModsIfNeeded();
         }
 
-        private void LoadMoreModsIfNeeded()
+        private async Task LoadMoreModsIfNeeded()
         {
             if (_modsScrollViewer == null)
             {
@@ -431,8 +429,17 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (authorCurrentVerticalOffset >= authorLoadMoreThreshold)
                 {
-                    Logger.LogInfo("Loading more author mods...");
-                    _ = LoadAuthorModsAsync(loadMore: true);
+                    Logger.LogInfo("Loading more author mods via scroll...");
+                    
+                    // Show progress bar and hide button while loading
+                    LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
+                    LoadMoreProgressBar.Visibility = Visibility.Visible;
+                    
+                    await LoadAuthorModsAsync(loadMore: true);
+                    
+                    // Hide progress bar and show button again
+                    LoadMoreProgressBar.Visibility = Visibility.Collapsed;
+                    LoadMoreAuthorModsButton.Visibility = Visibility.Visible;
                 }
                 return;
             }
@@ -650,6 +657,9 @@ namespace FlairX_Mod_Manager.Pages
                     _authorCurrentPage = 1;
                     _authorHasMorePages = true;
                     _authorIsLoadingMore = false;
+                    
+                    // Re-enable the button for new search
+                    LoadMoreAuthorModsButton.IsEnabled = true;
                 }
                 
                 if (_authorIsLoadingMore || !_authorHasMorePages) return;
@@ -677,8 +687,12 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (response == null || response.Count == 0)
                 {
+                    Logger.LogInfo($"API returned 0 results for page {_authorCurrentPage}, no more pages available");
                     _authorHasMorePages = false;
                     _authorIsLoadingMore = false;
+                    
+                    // Disable the button instead of hiding it
+                    LoadMoreAuthorModsButton.IsEnabled = false;
                     
                     if (!loadMore && _authorMods.Count == 0)
                     {
@@ -788,25 +802,24 @@ namespace FlairX_Mod_Manager.Pages
                 
                 Logger.LogInfo($"Successfully loaded {modViewModels.Count} {_gameTag} mods for author {_currentAuthorName} page {_authorCurrentPage}");
                 Logger.LogInfo($"Total author mods in collection: {_authorMods.Count}");
+                Logger.LogInfo($"API returned {response.Count} total items on this page");
                 
-                // Check if there are more pages (GameBanana API returns empty or fewer results when no more pages)
-                if (response.Count < 50) // GameBanana typically returns up to 50 items per page for author mods
-                {
-                    _authorHasMorePages = false;
-                }
-                else
-                {
-                    _authorCurrentPage++;
-                }
+                // Always keep trying - never assume we've reached the end
+                Logger.LogInfo($"Button will remain visible for manual loading");
+                
+                // Increment page for next load
+                _authorCurrentPage++;
+                Logger.LogInfo($"Next page will be: {_authorCurrentPage}");
                 
                 if (!loadMore)
                 {
                     // Check if we have any mods after filtering
                     if (_authorMods.Count == 0)
                     {
-                        LoadingPanel.Visibility = Visibility.Collapsed;
-                        EmptyPanel.Visibility = Visibility.Visible;
-                        EmptyText.Text = SharedUtilities.GetTranslation(_lang, "NoModsFound");
+                        // If no mods found on first page, try loading next page automatically
+                        Logger.LogInfo($"No mods found for {_gameTag} on page {_authorCurrentPage - 1}, trying next page automatically...");
+                        _authorIsLoadingMore = false;
+                        await LoadAuthorModsAsync(loadMore: true);
                         return;
                     }
                     
@@ -815,6 +828,39 @@ namespace FlairX_Mod_Manager.Pages
 
                     LoadingPanel.Visibility = Visibility.Collapsed;
                     ModsGridView.Visibility = Visibility.Visible;
+                    
+                    // Always show load more button
+                    Logger.LogInfo($"Setting LoadMoreButton visibility to: Visible (first load with {_authorMods.Count} mods)");
+                    LoadMoreAuthorModsButton.Visibility = Visibility.Visible;
+                    
+                    // Check if we need to load more content to fill the screen
+                    _ = CheckIfNeedMoreAuthorContent();
+                }
+                else
+                {
+                    // When loading more, check if we got any mods for this game
+                    var modsLoadedThisPage = modViewModels.Count;
+                    Logger.LogInfo($"Loaded {modsLoadedThisPage} mods for {_gameTag} on page {_authorCurrentPage - 1}");
+                    
+                    // If loading more pages and no mods found, try next page automatically
+                    if (modsLoadedThisPage == 0)
+                    {
+                        Logger.LogInfo($"No mods found for {_gameTag} on page {_authorCurrentPage - 1}, trying next page automatically...");
+                        _authorIsLoadingMore = false;
+                        await LoadAuthorModsAsync(loadMore: true);
+                        return;
+                    }
+                    
+                    // Load images for newly added mods
+                    Logger.LogInfo($"Loading images for {modsLoadedThisPage} newly added mods");
+                    _ = LoadAuthorModImagesForNewModsAsync(modViewModels);
+                    
+                    // Always keep button visible
+                    Logger.LogInfo($"Keeping LoadMoreButton visible (loaded {modsLoadedThisPage} mods this page)");
+                    LoadMoreAuthorModsButton.Visibility = Visibility.Visible;
+                    
+                    // Check if we need to load more content to fill the screen
+                    _ = CheckIfNeedMoreAuthorContent();
                 }
                 
                 _authorIsLoadingMore = false;
@@ -993,6 +1039,34 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
         }
+        
+        private async Task CheckIfNeedMoreAuthorContent()
+        {
+            // Wait for layout to update
+            await Task.Delay(200);
+            
+            // If ScrollViewer doesn't have enough content to scroll, load more
+            if (_modsScrollViewer != null && _authorHasMorePages && !_authorIsLoadingMore)
+            {
+                var scrollableHeight = _modsScrollViewer.ScrollableHeight;
+                
+                // If there's no scrollable content (everything fits on screen), load more
+                if (scrollableHeight <= 0)
+                {
+                    Logger.LogInfo("No scrollable content for author mods, loading more automatically");
+                    
+                    // Show progress bar
+                    LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
+                    LoadMoreProgressBar.Visibility = Visibility.Visible;
+                    
+                    await LoadAuthorModsAsync(loadMore: true);
+                    
+                    // Hide progress bar and show button
+                    LoadMoreProgressBar.Visibility = Visibility.Collapsed;
+                    LoadMoreAuthorModsButton.Visibility = Visibility.Visible;
+                }
+            }
+        }
 
         private async Task LoadImagesAsync()
         {
@@ -1026,6 +1100,35 @@ namespace FlairX_Mod_Manager.Pages
         private async Task LoadAuthorModImagesAsync()
         {
             foreach (var mod in _authorMods.Where(m => !string.IsNullOrEmpty(m.ImageUrl)))
+            {
+                try
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.ImageOpened += async (s, e) =>
+                    {
+                        // Fade in animation
+                        for (double opacity = 0; opacity <= 1; opacity += 0.1)
+                        {
+                            mod.ImageOpacity = opacity;
+                            await Task.Delay(20);
+                        }
+                        mod.ImageOpacity = 1;
+                    };
+                    bitmap.UriSource = new Uri(mod.ImageUrl!);
+                    mod.ImageSource = bitmap;
+                }
+                catch
+                {
+                    // Image loading failed, skip
+                }
+                
+                await Task.Delay(10);
+            }
+        }
+        
+        private async Task LoadAuthorModImagesForNewModsAsync(List<ModViewModel> newMods)
+        {
+            foreach (var mod in newMods.Where(m => !string.IsNullOrEmpty(m.ImageUrl)))
             {
                 try
                 {
@@ -1228,6 +1331,19 @@ namespace FlairX_Mod_Manager.Pages
         {
             _currentPage++;
             _ = LoadModsAsync();
+        }
+        
+        private async void LoadMoreAuthorModsButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Show progress bar and hide button while loading
+            LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
+            LoadMoreProgressBar.Visibility = Visibility.Visible;
+            
+            await LoadAuthorModsAsync(loadMore: true);
+            
+            // Hide progress bar and show button again
+            LoadMoreProgressBar.Visibility = Visibility.Collapsed;
+            LoadMoreAuthorModsButton.Visibility = Visibility.Visible;
         }
 
         private void ModsGridView_ItemClick(object sender, ItemClickEventArgs e)
@@ -1666,6 +1782,11 @@ namespace FlairX_Mod_Manager.Pages
             // Restore original mods collection to grid
             ModsGridView.ItemsSource = _mods;
             
+            // Hide load more button and reset state
+            LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
+            LoadMoreAuthorModsButton.IsEnabled = true;
+            LoadMoreProgressBar.Visibility = Visibility.Collapsed;
+            
             // Clear author mods data
             _authorMods.Clear();
             _currentAuthorId = null;
@@ -1699,6 +1820,11 @@ namespace FlairX_Mod_Manager.Pages
             
             // Restore original mods collection to grid
             ModsGridView.ItemsSource = _mods;
+            
+            // Hide load more button and reset state
+            LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
+            LoadMoreAuthorModsButton.IsEnabled = true;
+            LoadMoreProgressBar.Visibility = Visibility.Collapsed;
             
             // Clear author mods data
             _authorMods.Clear();

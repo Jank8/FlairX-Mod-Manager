@@ -79,5 +79,6 @@
     "StarterPack_NotAvailable": "이 게임용 스타터 팩은 아직 사용할 수 없습니다.",
     "ViewAllAuthorMods": "작성자의 모든 모드 보기",
     "AuthorModsTitle": "모든 모드",
-    "PreviewOnlyMode_Info": "설치된 모드의 미리보기 이미지만 다운로드합니다."
+    "PreviewOnlyMode_Info": "설치된 모드의 미리보기 이미지만 다운로드합니다.",
+    "LoadMore": "더 불러오기"
 }

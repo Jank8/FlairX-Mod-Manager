@@ -48,6 +48,7 @@
     "DownloadingFile": "Downloading {0} ({1}/{2})...",
     "ExtractingProgress": "Extracting: {0}/{1} files",
     "DownloadingPreviews_Progress": "Download: Previews {0}/{1}",
+    "LoadMore": "Load More",
     "EnterCategoryNameError": "Please enter a category name.",
     "FailedToDownload": "Failed to download {0}",
     "InstallationFailed": "Installation failed: {0}",

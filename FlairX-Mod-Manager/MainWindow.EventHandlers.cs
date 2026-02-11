@@ -66,7 +66,9 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo($".NET Runtime version: {currentDotNetVersion}");
                 
                 // Check Windows App Runtime
-                var requiredWinAppVersion = new Version("8000.731.1532.0");
+                // We only check major version (8000 = SDK 1.8, 7000 = SDK 1.7, etc.)
+                // Minor builds don't matter, only major SDK version
+                var requiredWinAppMajor = 8000; // SDK 1.8
                 Version? installedWinAppVersion = null;
                 bool winAppNeedsUpdate = false;
                 bool winAppMissing = App.IsWindowsAppRuntimeMissing;
@@ -107,8 +109,9 @@ namespace FlairX_Mod_Manager
                     
                     if (installedWinAppVersion != null)
                     {
-                        winAppNeedsUpdate = installedWinAppVersion < requiredWinAppVersion;
-                        Logger.LogInfo($"Windows App Runtime version: {installedWinAppVersion}");
+                        // Only check major version (8000 = 1.8, 7000 = 1.7, etc.)
+                        winAppNeedsUpdate = installedWinAppVersion.Major < requiredWinAppMajor;
+                        Logger.LogInfo($"Windows App Runtime version: {installedWinAppVersion} (major: {installedWinAppVersion.Major}, required: {requiredWinAppMajor})");
                     }
                     else
                     {
@@ -127,14 +130,9 @@ namespace FlairX_Mod_Manager
                         contentBuilder.AppendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
                         contentBuilder.AppendLine(".NET Runtime");
                         contentBuilder.AppendLine("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-                        contentBuilder.AppendLine($"Zainstalowana wersja: {currentDotNetVersion}");
-                        contentBuilder.AppendLine($"Wymagana wersja: {requiredDotNetVersion} lub nowsza");
-                        contentBuilder.AppendLine();
-                        contentBuilder.AppendLine("Pobierz z:");
-                        contentBuilder.AppendLine("https://dotnet.microsoft.com/download/dotnet/10.0");
-                        contentBuilder.AppendLine();
-                        contentBuilder.AppendLine("Lub użyj winget:");
-                        contentBuilder.AppendLine("winget install Microsoft.DotNet.Runtime.10");
+                        
+                        var dotNetContent = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_DotNet_Update_Content");
+                        contentBuilder.AppendLine(string.Format(dotNetContent, currentDotNetVersion, requiredDotNetVersion));
                         contentBuilder.AppendLine();
                     }
                     
@@ -147,33 +145,28 @@ namespace FlairX_Mod_Manager
                         
                         if (winAppMissing)
                         {
-                            contentBuilder.AppendLine("Status: Nie zainstalowany");
+                            var missingContent = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Missing_Content");
+                            contentBuilder.AppendLine(missingContent);
                         }
                         else if (installedWinAppVersion != null)
                         {
-                            contentBuilder.AppendLine($"Zainstalowana wersja: {installedWinAppVersion}");
-                            contentBuilder.AppendLine($"Wymagana wersja: {requiredWinAppVersion} lub nowsza");
+                            var updateContent = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion");
+                            contentBuilder.AppendLine(string.Format(updateContent, installedWinAppVersion, $"{requiredWinAppMajor}.x"));
                         }
                         else
                         {
-                            contentBuilder.AppendLine("Status: Nieznana wersja");
+                            var noVersionContent = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion");
+                            contentBuilder.AppendLine(noVersionContent);
                         }
-                        
-                        contentBuilder.AppendLine();
-                        contentBuilder.AppendLine("Pobierz z:");
-                        contentBuilder.AppendLine("https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe");
-                        contentBuilder.AppendLine();
-                        contentBuilder.AppendLine("Lub użyj winget:");
-                        contentBuilder.AppendLine("winget install Microsoft.WindowsAppRuntime.1.8");
                     }
                     
                     var dialog = new ContentDialog
                     {
-                        Title = "Wymagane aktualizacje Runtime",
+                        Title = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_DotNet_Update_Title"),
                         Content = contentBuilder.ToString(),
-                        PrimaryButtonText = "Pobierz .NET",
-                        SecondaryButtonText = "Pobierz Windows App Runtime",
-                        CloseButtonText = "Może później",
+                        PrimaryButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_Download_Button") + " .NET",
+                        SecondaryButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_Download_Button") + " Windows App Runtime",
+                        CloseButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_MaybeLater_Button"),
                         XamlRoot = this.Content.XamlRoot
                     };
                     

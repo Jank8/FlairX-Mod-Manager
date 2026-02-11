@@ -48,6 +48,7 @@
     "DownloadingFile": "Pobieranie {0} ({1}/{2})...",
     "ExtractingProgress": "Wypakowywanie: {0}/{1} plików",
     "DownloadingPreviews_Progress": "Pobieranie: Podglądy {0}/{1}",
+    "LoadMore": "Załaduj więcej",
     "EnterCategoryNameError": "Wpisz nazwę kategorii.",
     "FailedToDownload": "Nie udało się pobrać {0}",
     "InstallationFailed": "Instalacja nie powiodła się: {0}",

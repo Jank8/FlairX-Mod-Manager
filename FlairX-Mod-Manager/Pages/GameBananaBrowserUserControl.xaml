@@ -147,7 +147,7 @@
 
         <!-- Mods grid -->
         <ScrollViewer x:Name="ModsScrollViewer" Grid.Row="2" Padding="16">
-            <Grid>
+            <StackPanel>
                 <!-- Loading indicator -->
                 <StackPanel x:Name="LoadingPanel" 
                             HorizontalAlignment="Center" 
@@ -172,7 +172,7 @@
                 <GridView x:Name="ModsGridView"
                           SelectionMode="None"
                           IsItemClickEnabled="False"
-                          Padding="0,0,0,80">
+                          Padding="0,0,0,20">
                     <GridView.ItemTemplate>
                         <DataTemplate>
                             <Button Style="{StaticResource NoHoverTileButtonStyle}"
@@ -290,7 +290,28 @@
                         </DataTemplate>
                     </GridView.ItemTemplate>
                 </GridView>
-            </Grid>
+                
+                <!-- Load More Button for Author Mods -->
+                <Button x:Name="LoadMoreAuthorModsButton"
+                        HorizontalAlignment="Center"
+                        Margin="0,20,0,12"
+                        Padding="24,12"
+                        Visibility="Collapsed"
+                        Click="LoadMoreAuthorModsButton_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE896;" FontSize="16"/>
+                        <TextBlock x:Name="LoadMoreButtonText" Text="Load More" FontSize="14"/>
+                    </StackPanel>
+                </Button>
+                
+                <!-- Loading Progress Bar -->
+                <ProgressBar x:Name="LoadMoreProgressBar"
+                             IsIndeterminate="True"
+                             Visibility="Collapsed"
+                             Width="300"
+                             Margin="0,0,0,60"
+                             HorizontalAlignment="Center"/>
+            </StackPanel>
         </ScrollViewer>
 
 

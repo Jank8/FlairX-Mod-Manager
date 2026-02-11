@@ -79,5 +79,6 @@
     "StarterPack_NotAvailable": "Startpaket är inte tillgängligt för detta spel ännu.",
     "ViewAllAuthorMods": "Visa alla författarens mods",
     "AuthorModsTitle": "Alla mods",
-    "PreviewOnlyMode_Info": "Detta kommer endast att ladda ner förhandsvisningsbilder för den installerade modden."
+    "PreviewOnlyMode_Info": "Detta kommer endast att ladda ner förhandsvisningsbilder för den installerade modden.",
+    "LoadMore": "Ladda mer"
 }

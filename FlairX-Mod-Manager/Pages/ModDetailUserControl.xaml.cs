@@ -289,7 +289,8 @@ namespace FlairX_Mod_Manager.Pages
                 // Set URL with placeholder logic
                 if (string.IsNullOrWhiteSpace(url))
                 {
-                    ModUrlTextBox.Text = "https://";
+                    ModUrlTextBox.Text = "";
+                    ModUrlTextBox.PlaceholderText = "https://";
                     ModUrlTextBox.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray);
                 }
                 else
@@ -652,7 +653,8 @@ namespace FlairX_Mod_Manager.Pages
             ModHotkeysPanel.Children.Clear();
             HotkeysSection.Visibility = Visibility.Collapsed;
             ModAuthorTextBox.Text = "";
-            ModUrlTextBox.Text = "https://";
+            ModUrlTextBox.Text = "";
+            ModUrlTextBox.PlaceholderText = "https://";
             ModUrlTextBox.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray);
             ModVersionTextBox.Text = "";
             ModDateCheckedPicker.Date = null;
@@ -2150,18 +2152,18 @@ namespace FlairX_Mod_Manager.Pages
         
         private void ModUrlTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (ModUrlTextBox.Text == "https://")
+            // Clear placeholder text styling when focused
+            if (string.IsNullOrWhiteSpace(ModUrlTextBox.Text))
             {
-                ModUrlTextBox.Text = "";
                 ModUrlTextBox.ClearValue(TextBox.ForegroundProperty); // Use default theme color
             }
         }
         
         private void ModUrlTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
+            // Restore placeholder styling if empty
             if (string.IsNullOrWhiteSpace(ModUrlTextBox.Text))
             {
-                ModUrlTextBox.Text = "https://";
                 ModUrlTextBox.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Gray);
             }
         }
@@ -2296,8 +2298,8 @@ namespace FlairX_Mod_Manager.Pages
 
         private async void ModUrlTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // Don't save the placeholder text
-            var urlValue = ModUrlTextBox.Text == "https://" ? "" : ModUrlTextBox.Text;
+            // Don't save empty text or placeholder
+            var urlValue = string.IsNullOrWhiteSpace(ModUrlTextBox.Text) ? "" : ModUrlTextBox.Text;
             await UpdateModJsonField("url", urlValue);
         }
 

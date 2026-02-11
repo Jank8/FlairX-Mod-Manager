@@ -79,5 +79,6 @@
     "StarterPack_NotAvailable": "此游戏的新手包尚未可用。",
     "ViewAllAuthorMods": "查看作者的所有模组",
     "AuthorModsTitle": "所有模组",
-    "PreviewOnlyMode_Info": "这将仅为已安装的模组下载预览图片。"
+    "PreviewOnlyMode_Info": "这将仅为已安装的模组下载预览图片。",
+    "LoadMore": "加载更多"
 }

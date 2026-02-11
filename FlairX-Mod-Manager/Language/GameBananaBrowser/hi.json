@@ -79,5 +79,6 @@
     "StarterPack_NotAvailable": "इस गेम के लिए स्टार्टर पैक अभी तक उपलब्ध नहीं है।",
     "ViewAllAuthorMods": "लेखक के सभी मॉड्स देखें",
     "AuthorModsTitle": "सभी मॉड्स",
-    "PreviewOnlyMode_Info": "यह केवल स्थापित मॉड के लिए पूर्वावलोकन छवियां डाउनलोड करेगा।"
+    "PreviewOnlyMode_Info": "यह केवल स्थापित मॉड के लिए पूर्वावलोकन छवियां डाउनलोड करेगा।",
+    "LoadMore": "और लोड करें"
 }
