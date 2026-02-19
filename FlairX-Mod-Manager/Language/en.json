@@ -207,6 +207,7 @@
     "CategoryConflict_Category": "Category:",
     "CategoryConflict_NewMod": "Mod to activate:",
     "CategoryConflict_ActiveMods": "Active mods:",
+    "CategoryConflict_DontAskAgain": "Don't ask again",
     "SettingsPage_GridLogging_Description": "Enable detailed logging for performance debugging",
     "SettingsPage_ErrorOnlyLogging_Label": "Error-only logging",
     "SettingsPage_ErrorOnlyLogging_Description": "Log only errors and warnings to file, reducing log size",

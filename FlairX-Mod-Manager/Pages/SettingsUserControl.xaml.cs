@@ -1453,8 +1453,15 @@ namespace FlairX_Mod_Manager.Pages
         private void AutoDeactivateConflictingModsToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.AutoDeactivateConflictingMods = AutoDeactivateConflictingModsToggle.IsOn;
+            
+            // Reset "don't ask again" preference when toggling this setting
+            // This allows the dialog to show again if user re-enables manual conflict resolution
+            SettingsManager.Current.DontAskCategoryConflictAgain = false;
+            
             SettingsManager.Save();
             UpdateToggleLabels();
+            
+            Logger.LogInfo($"AutoDeactivateConflictingMods toggled to {AutoDeactivateConflictingModsToggle.IsOn}, reset DontAskCategoryConflictAgain");
         }
 
         private void DynamicModSearchToggle_Toggled(object sender, RoutedEventArgs e)

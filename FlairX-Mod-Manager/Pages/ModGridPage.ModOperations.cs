@@ -113,23 +113,39 @@ namespace FlairX_Mod_Manager.Pages
                         }
                         else
                         {
-                            // Show category conflict dialog
-                            var categoryName = GetModCategory(mod.Directory);
-                            var dialog = new FlairX_Mod_Manager.Dialogs.CategoryConflictDialog(
-                                categoryName, 
-                                mod.Name, 
-                                activeModsInCategory);
-                            
-                            dialog.XamlRoot = this.Content.XamlRoot;
-                            
-                            var result = await dialog.ShowAsync();
-                            if (result != ContentDialogResult.Primary)
+                            // Check if user has chosen "don't ask again"
+                            if (!SettingsManager.Current.DontAskCategoryConflictAgain)
                             {
-                                Logger.LogInfo($"User cancelled mod activation due to category conflict: {mod.Directory}");
-                                return; // User cancelled activation
+                                // Show category conflict dialog
+                                var categoryName = GetModCategory(mod.Directory);
+                                var dialog = new FlairX_Mod_Manager.Dialogs.CategoryConflictDialog(
+                                    categoryName, 
+                                    mod.Name, 
+                                    activeModsInCategory);
+                                
+                                dialog.XamlRoot = this.Content.XamlRoot;
+                                
+                                var result = await dialog.ShowAsync();
+                                if (result != ContentDialogResult.Primary)
+                                {
+                                    Logger.LogInfo($"User cancelled mod activation due to category conflict: {mod.Directory}");
+                                    return; // User cancelled activation
+                                }
+                                
+                                // Save "don't ask again" preference if user confirmed and checked the box
+                                if (dialog.DontAskAgain)
+                                {
+                                    SettingsManager.Current.DontAskCategoryConflictAgain = true;
+                                    SettingsManager.Save();
+                                    Logger.LogInfo("User selected 'Don't ask again' for category conflicts");
+                                }
+                                
+                                Logger.LogInfo($"User confirmed mod activation despite category conflict: {mod.Directory}");
                             }
-                            
-                            Logger.LogInfo($"User confirmed mod activation despite category conflict: {mod.Directory}");
+                            else
+                            {
+                                Logger.LogInfo($"Skipping category conflict dialog (user chose 'don't ask again'): {mod.Directory}");
+                            }
                         }
                     }
                     

@@ -62,6 +62,11 @@
                     </ListView.ItemTemplate>
                 </ListView>
             </ScrollViewer>
+            
+            <!-- Don't ask again checkbox -->
+            <CheckBox x:Name="DontAskAgainCheckBox" 
+                      Content="Nie pytaj ponownie"
+                      Margin="0,15,0,0"/>
         </StackPanel>
     </Grid>
 </ContentDialog>

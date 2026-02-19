@@ -240,6 +240,9 @@ namespace FlairX_Mod_Manager
         // Navigation direction tracking for slide animations
         private OverlayModItem? _previousSelectedMod;
         private int _previousSelectedIndex = -1;
+        
+        // State restoration flag
+        private bool _isRestoringState = false;
 
         public OverlayWindow(MainWindow mainWindow)
         {
@@ -296,6 +299,9 @@ namespace FlairX_Mod_Manager
 
         private void OverlayWindow_Closed(object sender, WindowEventArgs args)
         {
+            // Save state before closing
+            SaveOverlayState();
+            
             // Unsubscribe from events
             WindowStyleHelper.SettingsChanged -= OnSettingsChanged;
             
@@ -1000,7 +1006,7 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        private void NavigateModGrid(int deltaX, int deltaY)
+        private async void NavigateModGrid(int deltaX, int deltaY)
         {
             if (OverlayMods.Count == 0) return;
 
@@ -1073,7 +1079,7 @@ namespace FlairX_Mod_Manager
             UpdateHotkeysPanel(_selectedMod);
             
             // Scroll selected mod into view
-            ScrollModIntoView(_selectedModIndex);
+            await ScrollModIntoView(_selectedModIndex);
             
             // Vibrate on navigation if enabled
             if (SettingsManager.Current.GamepadVibrateOnNavigation)
@@ -1084,15 +1090,29 @@ namespace FlairX_Mod_Manager
             Logger.LogInfo($"Gamepad grid navigation: index {_selectedModIndex} (row {newRow}, col {newCol})");
         }
         
-        private void ScrollModIntoView(int index)
+        private async Task ScrollModIntoView(int index)
         {
             if (ModsScrollViewer == null || ModsRepeater == null) return;
             if (index < 0 || index >= OverlayMods.Count) return;
             
             try
             {
-                var element = ModsRepeater.TryGetElement(index);
-                if (element == null) return;
+                // Try multiple times to get the element (it might not be realized yet)
+                UIElement? element = null;
+                for (int attempt = 0; attempt < 5; attempt++)
+                {
+                    element = ModsRepeater.TryGetElement(index);
+                    if (element != null) break;
+                    
+                    Logger.LogWarning($"ScrollModIntoView: Element at index {index} not realized yet, attempt {attempt + 1}/5");
+                    await Task.Delay(100);
+                }
+                
+                if (element == null)
+                {
+                    Logger.LogWarning($"ScrollModIntoView: Failed to get element at index {index} after 5 attempts");
+                    return;
+                }
                 
                 var transform = element.TransformToVisual(ModsScrollViewer);
                 var position = transform.TransformPoint(new Windows.Foundation.Point(0, 0));
@@ -1101,17 +1121,15 @@ namespace FlairX_Mod_Manager
                 var viewportHeight = ModsScrollViewer.ViewportHeight;
                 var currentOffset = ModsScrollViewer.VerticalOffset;
                 
-                // If element is above viewport, scroll up
-                if (position.Y < 0)
-                {
-                    ModsScrollViewer.ChangeView(null, currentOffset + position.Y - 8, null);
-                }
-                // If element is below viewport, scroll down
-                else if (position.Y + elementHeight > viewportHeight)
-                {
-                    var scrollAmount = position.Y + elementHeight - viewportHeight + 8;
-                    ModsScrollViewer.ChangeView(null, currentOffset + scrollAmount, null);
-                }
+                // Center the element in viewport if possible
+                var targetOffset = currentOffset + position.Y - (viewportHeight / 2) + (elementHeight / 2);
+                
+                // Clamp to valid scroll range
+                var maxOffset = ModsScrollViewer.ScrollableHeight;
+                targetOffset = Math.Max(0, Math.Min(targetOffset, maxOffset));
+                
+                ModsScrollViewer.ChangeView(null, targetOffset, null, false);
+                Logger.LogInfo($"Scrolled to mod at index {index}, offset: {targetOffset}");
             }
             catch (Exception ex)
             {
@@ -1406,6 +1424,12 @@ namespace FlairX_Mod_Manager
             
             // Load mods
             LoadModsFromCategory(category.Directory, _showActiveOnly);
+            
+            // Save state after category change (unless we're restoring state)
+            if (!_isRestoringState)
+            {
+                SaveOverlayState();
+            }
         }
         
         /// <summary>
@@ -1433,6 +1457,9 @@ namespace FlairX_Mod_Manager
             _selectedModIndex = -1;
             _selectedMod = null;
             UpdateHotkeysPanel(null);
+            
+            // Save state after filter change
+            SaveOverlayState();
             
             Logger.LogInfo($"Overlay filter: show active only = {_showActiveOnly}");
         }
@@ -1635,6 +1662,12 @@ namespace FlairX_Mod_Manager
                 
                 // Update hotkeys panel
                 UpdateHotkeysPanel(item);
+                
+                // Save state after mod selection (unless we're restoring state)
+                if (!_isRestoringState)
+                {
+                    SaveOverlayState();
+                }
             }
             catch (Exception ex)
             {
@@ -1703,8 +1736,11 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo("OverlayWindow.Show: Starting");
                 _appWindow?.Show();
                 Logger.LogInfo("OverlayWindow.Show: Window shown");
-                LoadCurrentCategoryMods(); // Refresh on show
-                Logger.LogInfo("OverlayWindow.Show: Categories loaded");
+                
+                // Always restore state when showing overlay
+                RestoreOverlayState();
+                
+                Logger.LogInfo("OverlayWindow.Show: State restored");
                 UpdateHotkeyHint();
                 Logger.LogInfo("OverlayWindow.Show: Hotkey hint updated");
                 
@@ -1723,6 +1759,9 @@ namespace FlairX_Mod_Manager
 
         public void Hide()
         {
+            // Save state before hiding
+            SaveOverlayState();
+            
             _appWindow?.Hide();
             
             // Notify that window was hidden
@@ -2436,6 +2475,128 @@ namespace FlairX_Mod_Manager
             }
         }
 
+        #endregion
+        
+        #region State Persistence
+        
+        /// <summary>
+        /// Save current overlay state to settings
+        /// </summary>
+        private void SaveOverlayState()
+        {
+            try
+            {
+                SettingsManager.Current.OverlayLastCategoryPath = _selectedCategoryPath;
+                SettingsManager.Current.OverlayLastModIndex = _selectedModIndex;
+                SettingsManager.Current.OverlayLastModDirectory = _selectedMod?.Directory;
+                SettingsManager.Current.OverlayLastShowActiveOnly = _showActiveOnly;
+                
+                // Save scroll position if ModsScrollViewer exists
+                if (ModsScrollViewer != null)
+                {
+                    SettingsManager.Current.OverlayLastScrollPosition = ModsScrollViewer.VerticalOffset;
+                }
+                
+                SettingsManager.Save();
+                Logger.LogInfo($"Overlay state saved: Category={_selectedCategoryPath}, ModIndex={_selectedModIndex}, ShowActiveOnly={_showActiveOnly}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to save overlay state", ex);
+            }
+        }
+        
+        /// <summary>
+        /// Restore overlay state from settings
+        /// </summary>
+        private async void RestoreOverlayState()
+        {
+            try
+            {
+                _isRestoringState = true;
+                
+                var lastCategoryPath = SettingsManager.Current.OverlayLastCategoryPath;
+                var lastModIndex = SettingsManager.Current.OverlayLastModIndex;
+                var lastModDirectory = SettingsManager.Current.OverlayLastModDirectory;
+                var lastShowActiveOnly = SettingsManager.Current.OverlayLastShowActiveOnly;
+                var lastScrollPosition = SettingsManager.Current.OverlayLastScrollPosition;
+                
+                Logger.LogInfo($"Restoring overlay state: Category={lastCategoryPath}, ModIndex={lastModIndex}, ShowActiveOnly={lastShowActiveOnly}");
+                
+                // First, load categories to ensure we have fresh data
+                LoadCurrentCategoryMods();
+                await Task.Delay(50);
+                
+                // Restore active-only filter
+                if (lastShowActiveOnly != _showActiveOnly)
+                {
+                    _showActiveOnly = lastShowActiveOnly;
+                    if (_showActiveOnly)
+                    {
+                        LoadAllActiveMods();
+                    }
+                }
+                
+                // Restore category selection
+                if (!string.IsNullOrEmpty(lastCategoryPath) && Directory.Exists(lastCategoryPath))
+                {
+                    // Find and select the category
+                    var category = OverlayCategories.FirstOrDefault(c => c.Directory == lastCategoryPath);
+                    if (category != null)
+                    {
+                        SelectCategory(category);
+                        
+                        // Wait for mods to load
+                        await Task.Delay(100);
+                        
+                        // Restore mod selection
+                        if (!string.IsNullOrEmpty(lastModDirectory))
+                        {
+                            // Try to find mod by directory first (more reliable)
+                            var mod = OverlayMods.FirstOrDefault(m => m.Directory == lastModDirectory);
+                            if (mod != null)
+                            {
+                                _selectedModIndex = OverlayMods.IndexOf(mod);
+                                UpdateSelectedMod(mod);
+                                
+                                // Wait for UI to update and scroll to selected mod
+                                await Task.Delay(200);
+                                await ScrollModIntoView(_selectedModIndex);
+                                Logger.LogInfo($"Restored mod selection: {mod.Name} at index {_selectedModIndex}");
+                            }
+                        }
+                        else if (lastModIndex >= 0 && lastModIndex < OverlayMods.Count)
+                        {
+                            // Fallback to index-based selection
+                            var mod = OverlayMods[lastModIndex];
+                            _selectedModIndex = lastModIndex;
+                            UpdateSelectedMod(mod);
+                            
+                            // Wait for UI to update and scroll to selected mod
+                            await Task.Delay(200);
+                            await ScrollModIntoView(_selectedModIndex);
+                            Logger.LogInfo($"Restored mod selection by index: {mod.Name} at index {_selectedModIndex}");
+                        }
+                        
+                        // Restore scroll position if no mod was selected
+                        if (_selectedModIndex < 0 && lastScrollPosition > 0 && ModsScrollViewer != null)
+                        {
+                            await Task.Delay(100);
+                            ModsScrollViewer.ChangeView(null, lastScrollPosition, null, true);
+                        }
+                    }
+                }
+                
+                _isRestoringState = false;
+                Logger.LogInfo("Overlay state restored successfully");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to restore overlay state", ex);
+                _isRestoringState = false;
+            }
+        }
+        
         #endregion
 
     }

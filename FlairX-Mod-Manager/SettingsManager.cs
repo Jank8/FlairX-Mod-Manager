@@ -98,6 +98,16 @@ namespace FlairX_Mod_Manager
         public string GamepadDPadLeft { get; set; } = "XB ←";
         public string GamepadDPadRight { get; set; } = "XB →";
         
+        // Overlay state persistence
+        public string? OverlayLastCategoryPath { get; set; } = null;
+        public int OverlayLastModIndex { get; set; } = -1;
+        public string? OverlayLastModDirectory { get; set; } = null;
+        public bool OverlayLastShowActiveOnly { get; set; } = false;
+        public double OverlayLastScrollPosition { get; set; } = 0;
+        
+        // Category conflict dialog settings
+        public bool DontAskCategoryConflictAgain { get; set; } = false;
+        
         // Gamepad stick navigation
         public string GamepadLeftStickUp { get; set; } = "XB L↑";
         public string GamepadLeftStickDown { get; set; } = "XB L↓";
