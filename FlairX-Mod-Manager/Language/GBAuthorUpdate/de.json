@@ -55,5 +55,19 @@
     "PreviewsSummaryTitle": "Zusammenfassung des Vorschau-Downloads",
     "AlreadyHasPreviews": "Hat bereits Vorschaubilder",
     "NoPreviewsAvailable": "Keine Vorschauen auf GameBanana verfügbar",
-    "PreviewFetchError": "Fehler beim Abrufen der Vorschauen"
+    "PreviewFetchError": "Fehler beim Abrufen der Vorschauen",
+    "CreateCategoryFoldersButton": "Kategorieordner erstellen",
+    "CreateCategoryFoldersButton_Tooltip": "Erstellt Ordner für alle Charakterkategorien und lädt ihre Symbole herunter",
+    "NoGameSelected": "Kein Spiel ausgewählt. Bitte wählen Sie zuerst ein Spiel aus.",
+    "CategoryNotSupported": "Charakterkategorien werden für {0} nicht unterstützt.",
+    "ConfirmCreateCategoryFolders": "Dies erstellt Kategorieordner für alle Charaktere in {0} und lädt ihre Symbole herunter. Fortfahren?",
+    "CategoryFoldersCreatedTitle": "Kategorieordner erstellt",
+    "TotalCategories": "Kategorien insgesamt: {0}",
+    "Success": "Erfolgreich: {0}",
+    "Failed": "Fehlgeschlagen: {0}",
+    "Skipped": "Übersprungen: {0}",
+    "Issues": "Probleme:",
+    "FailedToFetchCategories": "Charakterkategorien konnten nicht abgerufen werden oder es wurden keine Kategorien gefunden.",
+    "FailedToDownloadIcon": "Symbol konnte nicht heruntergeladen werden",
+    "NoIconUrlAvailable": "Keine Symbol-URL verfügbar"
 }

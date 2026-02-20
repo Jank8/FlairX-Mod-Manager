@@ -55,5 +55,19 @@
     "PreviewModeDialogTitle": "プレビューダウンロードモード",
     "PreviewModeDialogContent": "既存のプレビューをどう処理するか選択してください：",
     "PreviewModeReplace": "置き換え",
-    "PreviewModeMerge": "結合"
+    "PreviewModeMerge": "結合",
+    "CreateCategoryFoldersButton": "カテゴリフォルダを作成",
+    "CreateCategoryFoldersButton_Tooltip": "すべてのキャラクターカテゴリのフォルダを作成し、アイコンをダウンロードします",
+    "NoGameSelected": "ゲームが選択されていません。最初にゲームを選択してください。",
+    "CategoryNotSupported": "{0}ではキャラクターカテゴリはサポートされていません。",
+    "ConfirmCreateCategoryFolders": "{0}のすべてのキャラクターのカテゴリフォルダを作成し、アイコンをダウンロードします。続行しますか？",
+    "CategoryFoldersCreatedTitle": "カテゴリフォルダが作成されました",
+    "TotalCategories": "合計カテゴリ数: {0}",
+    "Success": "成功: {0}",
+    "Failed": "失敗: {0}",
+    "Skipped": "スキップ: {0}",
+    "Issues": "問題:",
+    "FailedToFetchCategories": "キャラクターカテゴリの取得に失敗したか、カテゴリが見つかりませんでした。",
+    "FailedToDownloadIcon": "アイコンのダウンロードに失敗しました",
+    "NoIconUrlAvailable": "アイコンのURLが利用できません"
 }

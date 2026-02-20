@@ -55,5 +55,19 @@
     "PreviewModeDialogTitle": "Chế độ tải xuống xem trước",
     "PreviewModeDialogContent": "Chọn cách xử lý với các bản xem trước hiện có:",
     "PreviewModeReplace": "Thay thế",
-    "PreviewModeMerge": "Hợp nhất"
+    "PreviewModeMerge": "Hợp nhất",
+    "CreateCategoryFoldersButton": "Create category folders",
+    "CreateCategoryFoldersButton_Tooltip": "Creates folders for all character categories and downloads their icons",
+    "NoGameSelected": "No game selected. Please select a game first.",
+    "CategoryNotSupported": "Character categories are not supported for {0}.",
+    "ConfirmCreateCategoryFolders": "This will create category folders for all characters in {0} and download their icons. Continue?",
+    "CategoryFoldersCreatedTitle": "Category Folders Created",
+    "TotalCategories": "Total categories: {0}",
+    "Success": "Success: {0}",
+    "Failed": "Failed: {0}",
+    "Skipped": "Skipped: {0}",
+    "Issues": "Issues:",
+    "FailedToFetchCategories": "Failed to fetch character categories or no categories found.",
+    "FailedToDownloadIcon": "Failed to download icon",
+    "NoIconUrlAvailable": "No icon URL available"
 }

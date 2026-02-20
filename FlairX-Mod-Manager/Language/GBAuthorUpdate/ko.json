@@ -55,5 +55,19 @@
     "PreviewModeDialogTitle": "미리보기 다운로드 모드",
     "PreviewModeDialogContent": "기존 미리보기를 어떻게 처리할지 선택하세요:",
     "PreviewModeReplace": "교체",
-    "PreviewModeMerge": "병합"
+    "PreviewModeMerge": "병합",
+    "CreateCategoryFoldersButton": "카테고리 폴더 생성",
+    "CreateCategoryFoldersButton_Tooltip": "모든 캐릭터 카테고리의 폴더를 생성하고 아이콘을 다운로드합니다",
+    "NoGameSelected": "게임이 선택되지 않았습니다. 먼저 게임을 선택하세요.",
+    "CategoryNotSupported": "{0}에서는 캐릭터 카테고리가 지원되지 않습니다.",
+    "ConfirmCreateCategoryFolders": "{0}의 모든 캐릭터에 대한 카테고리 폴더를 생성하고 아이콘을 다운로드합니다. 계속하시겠습니까?",
+    "CategoryFoldersCreatedTitle": "카테고리 폴더 생성됨",
+    "TotalCategories": "총 카테고리: {0}",
+    "Success": "성공: {0}",
+    "Failed": "실패: {0}",
+    "Skipped": "건너뜀: {0}",
+    "Issues": "문제:",
+    "FailedToFetchCategories": "캐릭터 카테고리를 가져오지 못했거나 카테고리를 찾을 수 없습니다.",
+    "FailedToDownloadIcon": "아이콘 다운로드 실패",
+    "NoIconUrlAvailable": "아이콘 URL을 사용할 수 없음"
 }

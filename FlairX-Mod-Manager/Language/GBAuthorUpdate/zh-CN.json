@@ -55,5 +55,19 @@
     "PreviewModeDialogTitle": "预览下载模式",
     "PreviewModeDialogContent": "选择如何处理现有预览：",
     "PreviewModeReplace": "替换",
-    "PreviewModeMerge": "合并"
+    "PreviewModeMerge": "合并",
+    "CreateCategoryFoldersButton": "创建类别文件夹",
+    "CreateCategoryFoldersButton_Tooltip": "为所有角色类别创建文件夹并下载其图标",
+    "NoGameSelected": "未选择游戏。请先选择一个游戏。",
+    "CategoryNotSupported": "{0}不支持角色类别。",
+    "ConfirmCreateCategoryFolders": "这将为{0}中的所有角色创建类别文件夹并下载其图标。继续？",
+    "CategoryFoldersCreatedTitle": "类别文件夹已创建",
+    "TotalCategories": "总类别数: {0}",
+    "Success": "成功: {0}",
+    "Failed": "失败: {0}",
+    "Skipped": "跳过: {0}",
+    "Issues": "问题:",
+    "FailedToFetchCategories": "获取角色类别失败或未找到类别。",
+    "FailedToDownloadIcon": "下载图标失败",
+    "NoIconUrlAvailable": "没有可用的图标URL"
 }

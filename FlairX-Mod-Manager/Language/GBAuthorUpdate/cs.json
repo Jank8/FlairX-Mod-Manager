@@ -55,5 +55,19 @@
     "PreviewsSummaryTitle": "Souhrn stahování náhledů",
     "AlreadyHasPreviews": "Již má náhledové obrázky",
     "NoPreviewsAvailable": "Na GameBanana nejsou dostupné žádné náhledy",
-    "PreviewFetchError": "Chyba při načítání náhledů"
+    "PreviewFetchError": "Chyba při načítání náhledů",
+    "CreateCategoryFoldersButton": "Vytvořit složky kategorií",
+    "CreateCategoryFoldersButton_Tooltip": "Vytvoří složky pro všechny kategorie postav a stáhne jejich ikony",
+    "NoGameSelected": "Není vybrána žádná hra. Nejprve vyberte hru.",
+    "CategoryNotSupported": "Kategorie postav nejsou podporovány pro {0}.",
+    "ConfirmCreateCategoryFolders": "Tím se vytvoří složky kategorií pro všechny postavy v {0} a stáhnou se jejich ikony. Pokračovat?",
+    "CategoryFoldersCreatedTitle": "Složky kategorií vytvořeny",
+    "TotalCategories": "Celkem kategorií: {0}",
+    "Success": "Úspěch: {0}",
+    "Failed": "Selhalo: {0}",
+    "Skipped": "Přeskočeno: {0}",
+    "Issues": "Problémy:",
+    "FailedToFetchCategories": "Nepodařilo se načíst kategorie postav nebo nebyly nalezeny žádné kategorie.",
+    "FailedToDownloadIcon": "Nepodařilo se stáhnout ikonu",
+    "NoIconUrlAvailable": "Není k dispozici URL ikony"
 }

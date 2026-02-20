@@ -55,5 +55,19 @@
     "PreviewModeDialogTitle": "Modo de descarga de vistas previas",
     "PreviewModeDialogContent": "Elige cómo proceder con las vistas previas existentes:",
     "PreviewModeReplace": "Reemplazar",
-    "PreviewModeMerge": "Combinar"
+    "PreviewModeMerge": "Combinar",
+    "CreateCategoryFoldersButton": "Crear carpetas de categorías",
+    "CreateCategoryFoldersButton_Tooltip": "Crea carpetas para todas las categorías de personajes y descarga sus iconos",
+    "NoGameSelected": "No se ha seleccionado ningún juego. Por favor, seleccione un juego primero.",
+    "CategoryNotSupported": "Las categorías de personajes no son compatibles con {0}.",
+    "ConfirmCreateCategoryFolders": "Esto creará carpetas de categorías para todos los personajes en {0} y descargará sus iconos. ¿Continuar?",
+    "CategoryFoldersCreatedTitle": "Carpetas de categorías creadas",
+    "TotalCategories": "Total de categorías: {0}",
+    "Success": "Éxito: {0}",
+    "Failed": "Fallido: {0}",
+    "Skipped": "Omitido: {0}",
+    "Issues": "Problemas:",
+    "FailedToFetchCategories": "No se pudieron obtener las categorías de personajes o no se encontraron categorías.",
+    "FailedToDownloadIcon": "No se pudo descargar el icono",
+    "NoIconUrlAvailable": "No hay URL de icono disponible"
 }

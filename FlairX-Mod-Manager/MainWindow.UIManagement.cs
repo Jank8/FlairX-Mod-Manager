@@ -394,16 +394,16 @@ namespace FlairX_Mod_Manager
                 var categoryPath = Path.Combine(modsPath, categoryName);
                 var categoryPreviewPath = Path.Combine(categoryPath, "catprev.jpg");
                 var categoryMiniPath = Path.Combine(categoryPath, "catmini.jpg");
-                var iconPath = Path.Combine(categoryPath, "icon.png");
+                var gbIconPath = Path.Combine(categoryPath, "gbicon.png");
                 
-                // Try catprev.jpg first, then catmini.jpg, then icon.png as fallback
+                // Try catprev.jpg first, then catmini.jpg, then gbicon.png
                 string? imagePath = null;
                 if (File.Exists(categoryPreviewPath))
                     imagePath = categoryPreviewPath;
                 else if (File.Exists(categoryMiniPath))
                     imagePath = categoryMiniPath;
-                else if (File.Exists(iconPath))
-                    imagePath = iconPath;
+                else if (File.Exists(gbIconPath))
+                    imagePath = gbIconPath;
                 
                 // Check if any category image exists
                 if (imagePath != null)

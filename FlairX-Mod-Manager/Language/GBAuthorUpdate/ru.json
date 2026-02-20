@@ -55,5 +55,19 @@
     "PreviewModeDialogTitle": "Режим загрузки превью",
     "PreviewModeDialogContent": "Выберите, как поступить с существующими превью:",
     "PreviewModeReplace": "Заменить",
-    "PreviewModeMerge": "Объединить"
+    "PreviewModeMerge": "Объединить",
+    "CreateCategoryFoldersButton": "Создать папки категорий",
+    "CreateCategoryFoldersButton_Tooltip": "Создает папки для всех категорий персонажей и загружает их значки",
+    "NoGameSelected": "Игра не выбрана. Пожалуйста, сначала выберите игру.",
+    "CategoryNotSupported": "Категории персонажей не поддерживаются для {0}.",
+    "ConfirmCreateCategoryFolders": "Это создаст папки категорий для всех персонажей в {0} и загрузит их значки. Продолжить?",
+    "CategoryFoldersCreatedTitle": "Папки категорий созданы",
+    "TotalCategories": "Всего категорий: {0}",
+    "Success": "Успешно: {0}",
+    "Failed": "Не удалось: {0}",
+    "Skipped": "Пропущено: {0}",
+    "Issues": "Проблемы:",
+    "FailedToFetchCategories": "Не удалось получить категории персонажей или категории не найдены.",
+    "FailedToDownloadIcon": "Не удалось загрузить значок",
+    "NoIconUrlAvailable": "URL значка недоступен"
 }

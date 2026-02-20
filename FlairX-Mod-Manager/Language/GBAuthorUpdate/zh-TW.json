@@ -55,5 +55,19 @@
     "PreviewModeDialogTitle": "預覽下載模式",
     "PreviewModeDialogContent": "選擇如何處理現有預覽：",
     "PreviewModeReplace": "替換",
-    "PreviewModeMerge": "合併"
+    "PreviewModeMerge": "合併",
+    "CreateCategoryFoldersButton": "建立類別資料夾",
+    "CreateCategoryFoldersButton_Tooltip": "為所有角色類別建立資料夾並下載其圖示",
+    "NoGameSelected": "未選擇遊戲。請先選擇一個遊戲。",
+    "CategoryNotSupported": "{0}不支援角色類別。",
+    "ConfirmCreateCategoryFolders": "這將為{0}中的所有角色建立類別資料夾並下載其圖示。繼續？",
+    "CategoryFoldersCreatedTitle": "類別資料夾已建立",
+    "TotalCategories": "總類別數: {0}",
+    "Success": "成功: {0}",
+    "Failed": "失敗: {0}",
+    "Skipped": "略過: {0}",
+    "Issues": "問題:",
+    "FailedToFetchCategories": "獲取角色類別失敗或未找到類別。",
+    "FailedToDownloadIcon": "下載圖示失敗",
+    "NoIconUrlAvailable": "沒有可用的圖示URL"
 }

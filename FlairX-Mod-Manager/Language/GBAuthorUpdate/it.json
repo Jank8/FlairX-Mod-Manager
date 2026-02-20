@@ -55,5 +55,19 @@
     "PreviewsSummaryTitle": "Riepilogo download anteprime",
     "AlreadyHasPreviews": "Ha già immagini di anteprima",
     "NoPreviewsAvailable": "Nessuna anteprima disponibile su GameBanana",
-    "PreviewFetchError": "Errore durante il recupero delle anteprime"
+    "PreviewFetchError": "Errore durante il recupero delle anteprime",
+    "CreateCategoryFoldersButton": "Crea cartelle di categorie",
+    "CreateCategoryFoldersButton_Tooltip": "Crea cartelle per tutte le categorie di personaggi e scarica le loro icone",
+    "NoGameSelected": "Nessun gioco selezionato. Seleziona prima un gioco.",
+    "CategoryNotSupported": "Le categorie di personaggi non sono supportate per {0}.",
+    "ConfirmCreateCategoryFolders": "Questo creerà cartelle di categorie per tutti i personaggi in {0} e scaricherà le loro icone. Continuare?",
+    "CategoryFoldersCreatedTitle": "Cartelle di categorie create",
+    "TotalCategories": "Totale categorie: {0}",
+    "Success": "Successo: {0}",
+    "Failed": "Fallito: {0}",
+    "Skipped": "Saltato: {0}",
+    "Issues": "Problemi:",
+    "FailedToFetchCategories": "Impossibile recuperare le categorie di personaggi o nessuna categoria trovata.",
+    "FailedToDownloadIcon": "Impossibile scaricare l'icona",
+    "NoIconUrlAvailable": "Nessun URL icona disponibile"
 }

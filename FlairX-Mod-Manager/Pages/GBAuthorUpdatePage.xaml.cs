@@ -60,8 +60,8 @@ namespace FlairX_Mod_Manager.Pages
             // Button text is now handled by UpdateButtonStates()
             
             // Create category folders card
-            CreateCategoryFoldersTitle.Text = "Create Category Folders";
-            CreateCategoryFoldersDescription.Text = "Create folders for all character categories and download their icons";
+            CreateCategoryFoldersTitle.Text = SharedUtilities.GetTranslation(lang, "CreateCategoryFoldersButton");
+            CreateCategoryFoldersDescription.Text = SharedUtilities.GetTranslation(lang, "CreateCategoryFoldersButton_Tooltip");
             // Button text is now handled by UpdateButtonStates()
             
             // Skip invalid URLs card
@@ -2394,7 +2394,7 @@ namespace FlairX_Mod_Manager.Pages
                 var errorDialog = new ContentDialog
                 {
                     Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
-                    Content = "No game selected. Please select a game first.",
+                    Content = SharedUtilities.GetTranslation(lang, "NoGameSelected"),
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };
@@ -2409,7 +2409,7 @@ namespace FlairX_Mod_Manager.Pages
                 var errorDialog = new ContentDialog
                 {
                     Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
-                    Content = $"Character categories are not supported for {gameTag}.",
+                    Content = string.Format(SharedUtilities.GetTranslation(lang, "CategoryNotSupported"), gameTag),
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };
@@ -2420,8 +2420,8 @@ namespace FlairX_Mod_Manager.Pages
             // Add confirmation dialog
             var confirmDialog = new ContentDialog
             {
-                Title = "Create Category Folders",
-                Content = $"This will create category folders for all characters in {gameTag} and download their icons. Continue?",
+                Title = SharedUtilities.GetTranslation(lang, "CreateCategoryFoldersButton"),
+                Content = string.Format(SharedUtilities.GetTranslation(lang, "ConfirmCreateCategoryFolders"), gameTag),
                 PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
                 CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
                 XamlRoot = this.XamlRoot
@@ -2441,6 +2441,7 @@ namespace FlairX_Mod_Manager.Pages
                 _failedMods.Clear();
                 _progressValue = 0;
                 _totalMods = 0;
+                _currentProcessingMod = "";
             }
             NotifyProgressChanged();
             await CreateCategoryFoldersAsync(gameTag, _ctsCategoryFolders.Token);
@@ -2466,7 +2467,7 @@ namespace FlairX_Mod_Manager.Pages
                     var errorDialog = new ContentDialog
                     {
                         Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
-                        Content = "Failed to fetch character categories or no categories found.",
+                        Content = SharedUtilities.GetTranslation(lang, "FailedToFetchCategories"),
                         CloseButtonText = "OK",
                         XamlRoot = this.XamlRoot
                     };
@@ -2511,13 +2512,13 @@ namespace FlairX_Mod_Manager.Pages
                             else
                             {
                                 SafeIncrementFail();
-                                SafeAddFailedMod($"{category.Name}: Failed to download icon");
+                                SafeAddFailedMod($"{category.Name}: {SharedUtilities.GetTranslation(lang, "FailedToDownloadIcon")}");
                             }
                         }
                         else
                         {
                             SafeIncrementSkip();
-                            SafeAddSkippedMod($"{category.Name}: No icon URL available");
+                            SafeAddSkippedMod($"{category.Name}: {SharedUtilities.GetTranslation(lang, "NoIconUrlAvailable")}");
                         }
                     }
                     catch (Exception ex)
@@ -2548,17 +2549,17 @@ namespace FlairX_Mod_Manager.Pages
 
                 // Show summary
                 ResetCategoryFoldersButtonToCreateState();
-                string summary = $"Total categories: {_totalMods}\n" +
-                                $"Success: {_success}\n" +
-                                $"Failed: {_fail}\n" +
-                                $"Skipped: {_skip}";
+                string summary = string.Format(SharedUtilities.GetTranslation(lang, "TotalCategories"), _totalMods) + "\n" +
+                                string.Format(SharedUtilities.GetTranslation(lang, "Success"), _success) + "\n" +
+                                string.Format(SharedUtilities.GetTranslation(lang, "Failed"), _fail) + "\n" +
+                                string.Format(SharedUtilities.GetTranslation(lang, "Skipped"), _skip);
 
                 if (_failedMods.Count > 0 || _skippedMods.Count > 0)
                 {
                     var allIssues = new List<string>();
                     allIssues.AddRange(_failedMods);
                     allIssues.AddRange(_skippedMods);
-                    summary += "\n\nIssues:\n" + string.Join("\n", allIssues);
+                    summary += "\n\n" + SharedUtilities.GetTranslation(lang, "Issues") + "\n" + string.Join("\n", allIssues);
                 }
 
                 var textBlock = new TextBlock
@@ -2580,12 +2581,28 @@ namespace FlairX_Mod_Manager.Pages
 
                 var dialog = new ContentDialog
                 {
-                    Title = "Category Folders Created",
+                    Title = SharedUtilities.GetTranslation(lang, "CategoryFoldersCreatedTitle"),
                     Content = scrollViewer,
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
                 };
                 await dialog.ShowAsync();
+
+                // Reload mods to show new folders
+                try
+                {
+                    var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                    if (mainWindow != null)
+                    {
+                        Logger.LogInfo("Reloading mods after category folders creation");
+                        await mainWindow.ReloadModsAsync();
+                        Logger.LogInfo("Mods reloaded successfully");
+                    }
+                }
+                catch (Exception reloadEx)
+                {
+                    Logger.LogError("Failed to reload mods after category folders creation", reloadEx);
+                }
             }
             catch (OperationCanceledException)
             {

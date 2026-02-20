@@ -55,5 +55,19 @@
     "PreviewsSummaryTitle": "Esikatselujen latauksen yhteenveto",
     "AlreadyHasPreviews": "Esikatselukuvat ovat jo olemassa",
     "NoPreviewsAvailable": "Ei saatavilla olevia esikatseluja GameBananassa",
-    "PreviewFetchError": "Virhe haettaessa esikatseluja"
+    "PreviewFetchError": "Virhe haettaessa esikatseluja",
+    "CreateCategoryFoldersButton": "Luo kategoriakansiot",
+    "CreateCategoryFoldersButton_Tooltip": "Luo kansiot kaikille hahmokategorioille ja lataa niiden kuvakkeet",
+    "NoGameSelected": "Peliä ei ole valittu. Valitse ensin peli.",
+    "CategoryNotSupported": "Hahmokategorioita ei tueta pelille {0}.",
+    "ConfirmCreateCategoryFolders": "Tämä luo kategoriakansiot kaikille hahmoille pelissä {0} ja lataa niiden kuvakkeet. Jatka?",
+    "CategoryFoldersCreatedTitle": "Kategoriakansiot luotu",
+    "TotalCategories": "Kategorioita yhteensä: {0}",
+    "Success": "Onnistui: {0}",
+    "Failed": "Epäonnistui: {0}",
+    "Skipped": "Ohitettu: {0}",
+    "Issues": "Ongelmat:",
+    "FailedToFetchCategories": "Hahmokategorioiden hakeminen epäonnistui tai kategorioita ei löytynyt.",
+    "FailedToDownloadIcon": "Kuvakkeen lataaminen epäonnistui",
+    "NoIconUrlAvailable": "Kuvakkeen URL ei ole saatavilla"
 }

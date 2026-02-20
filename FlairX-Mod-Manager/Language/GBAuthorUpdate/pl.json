@@ -55,5 +55,19 @@
     "PreviewsSummaryTitle": "Podsumowanie pobierania podglądów",
     "AlreadyHasPreviews": "Ma już obrazy podglądu",
     "NoPreviewsAvailable": "Brak podglądów na GameBanana",
-    "PreviewFetchError": "Błąd podczas pobierania podglądów"
+    "PreviewFetchError": "Błąd podczas pobierania podglądów",
+    "CreateCategoryFoldersButton": "Utwórz foldery kategorii",
+    "CreateCategoryFoldersButton_Tooltip": "Tworzy foldery dla wszystkich kategorii postaci i pobiera ich ikony",
+    "NoGameSelected": "Nie wybrano gry. Najpierw wybierz grę.",
+    "CategoryNotSupported": "Kategorie postaci nie są obsługiwane dla {0}.",
+    "ConfirmCreateCategoryFolders": "Spowoduje to utworzenie folderów kategorii dla wszystkich postaci w {0} i pobranie ich ikon. Kontynuować?",
+    "CategoryFoldersCreatedTitle": "Utworzono foldery kategorii",
+    "TotalCategories": "Łącznie kategorii: {0}",
+    "Success": "Sukces: {0}",
+    "Failed": "Niepowodzenie: {0}",
+    "Skipped": "Pominięto: {0}",
+    "Issues": "Problemy:",
+    "FailedToFetchCategories": "Nie udało się pobrać kategorii postaci lub nie znaleziono kategorii.",
+    "FailedToDownloadIcon": "Nie udało się pobrać ikony",
+    "NoIconUrlAvailable": "Brak dostępnego URL ikony"
 }

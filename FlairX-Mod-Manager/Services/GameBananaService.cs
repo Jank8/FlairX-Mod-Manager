@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -7,6 +9,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace FlairX_Mod_Manager.Services
 {
@@ -864,17 +869,17 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         private static async Task<string?> RenderPageWithWebView2Async(string url)
         {
+            Microsoft.UI.Xaml.Controls.WebView2? webView = null;
             try
             {
                 Logger.LogInfo($"Initializing WebView2 for URL: {url}");
-                
+
                 var tcs = new TaskCompletionSource<string?>();
-                Microsoft.UI.Xaml.Controls.WebView2? webView = null;
 
                 // Must run on UI thread - get from App.Current
                 var app = App.Current as App;
                 var mainWindow = app?.MainWindow as MainWindow;
-                
+
                 if (mainWindow == null)
                 {
                     Logger.LogError("Could not get main window for WebView2");
@@ -886,12 +891,12 @@ namespace FlairX_Mod_Manager.Services
                     try
                     {
                         webView = new Microsoft.UI.Xaml.Controls.WebView2();
-                        
+
                         // Initialize WebView2
                         await webView.EnsureCoreWebView2Async();
-                        
+
                         Logger.LogInfo("WebView2 initialized, navigating to URL");
-                        
+
                         // Set up navigation completed handler
                         webView.CoreWebView2.NavigationCompleted += async (sender, args) =>
                         {
@@ -900,19 +905,19 @@ namespace FlairX_Mod_Manager.Services
                                 if (args.IsSuccess)
                                 {
                                     Logger.LogInfo("Navigation completed successfully, waiting for content to load");
-                                    
-                                    // Wait for JavaScript to render content
-                                    await Task.Delay(3000);
-                                    
+
+                                    // Wait for JavaScript to render content and lazy-load images
+                                    await Task.Delay(5000);
+
                                     // Get the rendered HTML
                                     var renderedHtml = await webView.CoreWebView2.ExecuteScriptAsync("document.documentElement.outerHTML");
-                                    
+
                                     // Remove JSON string quotes
                                     if (!string.IsNullOrEmpty(renderedHtml) && renderedHtml.StartsWith("\"") && renderedHtml.EndsWith("\""))
                                     {
                                         renderedHtml = System.Text.Json.JsonSerializer.Deserialize<string>(renderedHtml);
                                     }
-                                    
+
                                     Logger.LogInfo($"Retrieved rendered HTML, length: {renderedHtml?.Length ?? 0}");
                                     tcs.SetResult(renderedHtml);
                                 }
@@ -928,7 +933,7 @@ namespace FlairX_Mod_Manager.Services
                                 tcs.SetResult(null);
                             }
                         };
-                        
+
                         // Navigate to the URL
                         webView.CoreWebView2.Navigate(url);
                     }
@@ -942,7 +947,7 @@ namespace FlairX_Mod_Manager.Services
                 // Wait for the result with timeout
                 var timeoutTask = Task.Delay(15000);
                 var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
-                
+
                 if (completedTask == timeoutTask)
                 {
                     Logger.LogError("WebView2 rendering timed out");
@@ -956,7 +961,37 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogError($"Failed to render page with WebView2: {ex.Message}", ex);
                 return null;
             }
+            finally
+            {
+                // Clean up WebView2 to prevent memory leaks
+                if (webView != null)
+                {
+                    try
+                    {
+                        var app = App.Current as App;
+                        var mainWindow = app?.MainWindow as MainWindow;
+
+                        mainWindow?.DispatcherQueue.TryEnqueue(() =>
+                        {
+                            try
+                            {
+                                webView.Close();
+                                Logger.LogInfo("WebView2 cleaned up successfully");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogWarning($"Error cleaning up WebView2: {ex.Message}");
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogWarning($"Error during WebView2 cleanup: {ex.Message}");
+                    }
+                }
+            }
         }
+
 
         /// <summary>
         /// Parse character categories from HTML
@@ -987,25 +1022,34 @@ namespace FlairX_Mod_Manager.Services
                     }
                     var idStr = idMatch.Groups[1].Value;
                     
-                    // Extract icon URL from img src
-                    var iconMatch = System.Text.RegularExpressions.Regex.Match(recordContent, @"<img[^>]*src=""([^""]+)""");
-                    if (!iconMatch.Success)
+                    // Extract icon URL from img src (handle loading="lazy" attribute) - may not exist for all games
+                    string? iconUrl = null;
+                    var iconMatch = System.Text.RegularExpressions.Regex.Match(recordContent, @"<img[^>]*\s+src=""([^""]+)""");
+                    if (iconMatch.Success)
                     {
-                        Logger.LogWarning($"Could not find icon URL for category ID {idStr}");
-                        continue;
-                    }
-                    var iconUrl = iconMatch.Groups[1].Value;
-                    
-                    // Extract name from alt attribute
-                    var altMatch = System.Text.RegularExpressions.Regex.Match(recordContent, @"alt=""([^""]+)\s+category\s+icon""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                    string name;
-                    if (altMatch.Success)
-                    {
-                        name = altMatch.Groups[1].Value.Trim();
+                        iconUrl = iconMatch.Groups[1].Value;
                     }
                     else
                     {
-                        // Fallback: try to get name from the second <a> tag content
+                        Logger.LogInfo($"No icon found for category ID {idStr} (this is normal for some games)");
+                    }
+                    
+                    // Extract name from alt attribute or from Info cell
+                    string? name = null;
+                    
+                    // Try alt attribute first (if icon exists)
+                    if (iconUrl != null)
+                    {
+                        var altMatch = System.Text.RegularExpressions.Regex.Match(recordContent, @"alt=""([^""]+)\s+category\s+icon""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        if (altMatch.Success)
+                        {
+                            name = altMatch.Groups[1].Value.Trim();
+                        }
+                    }
+                    
+                    // Fallback: get name from the Info cell <a> tag content
+                    if (name == null)
+                    {
                         var nameMatch = System.Text.RegularExpressions.Regex.Match(recordContent, @"<recordcell[^>]*class=""Info""[^>]*>.*?<a[^>]*>([^<]+)</a>", System.Text.RegularExpressions.RegexOptions.Singleline);
                         if (nameMatch.Success)
                         {
@@ -1029,7 +1073,7 @@ namespace FlairX_Mod_Manager.Services
                         };
 
                         categories.Add(category);
-                        Logger.LogInfo($"Parsed category: {name} (ID: {id}, Icon: {iconUrl})");
+                        Logger.LogInfo($"Parsed category: {name} (ID: {id}, Icon: {iconUrl ?? "none"})");
                     }
                     else
                     {
@@ -1089,7 +1133,7 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
-        /// Download category icon and save as icon.png
+        /// Download category icon and save as gbicon.png (converted from downloaded icon.png)
         /// </summary>
         public static async Task<bool> DownloadCategoryIconAsync(string iconUrl, string destinationFolder)
         {
@@ -1107,16 +1151,83 @@ namespace FlairX_Mod_Manager.Services
                     Directory.CreateDirectory(destinationFolder);
                 }
 
-                var iconPath = Path.Combine(destinationFolder, "icon.png");
+                var tempIconPath = Path.Combine(destinationFolder, "icon_temp");
+                var finalIconPath = Path.Combine(destinationFolder, "gbicon.png");
                 
-                Logger.LogInfo($"Downloading icon from {iconUrl} to {iconPath}");
+                Logger.LogInfo($"Downloading icon from {iconUrl} to {tempIconPath}");
 
-                // Download the icon
-                var success = await DownloadFileAsync(iconUrl, iconPath);
+                // Download the icon to temporary location (without extension)
+                var success = await DownloadFileAsync(iconUrl, tempIconPath);
                 
                 if (success)
                 {
-                    Logger.LogInfo($"Successfully downloaded icon to {iconPath}");
+                    Logger.LogInfo($"Successfully downloaded icon to {tempIconPath}");
+                    
+                    // Verify the downloaded file is valid before conversion
+                    if (!File.Exists(tempIconPath))
+                    {
+                        Logger.LogError("Downloaded file does not exist");
+                        return false;
+                    }
+                    
+                    var fileInfo = new FileInfo(tempIconPath);
+                    if (fileInfo.Length == 0)
+                    {
+                        Logger.LogError("Downloaded file is empty");
+                        File.Delete(tempIconPath);
+                        return false;
+                    }
+                    
+                    Logger.LogInfo($"Downloaded file size: {fileInfo.Length} bytes");
+                    
+                    // Convert downloaded image (any format) to gbicon.png using ImageSharp
+                    try
+                    {
+                        // ImageSharp can load any image format (PNG, JPEG, WebP, GIF, BMP, etc.)
+                        using (var image = SixLabors.ImageSharp.Image.Load(tempIconPath))
+                        {
+                            Logger.LogInfo($"Detected image format, Size: {image.Width}x{image.Height}");
+                            
+                            // Save as PNG with high quality
+                            var encoder = new PngEncoder
+                            {
+                                CompressionLevel = PngCompressionLevel.BestCompression,
+                                ColorType = PngColorType.RgbWithAlpha
+                            };
+                            
+                            image.Save(finalIconPath, encoder);
+                            Logger.LogInfo($"Converted image to PNG and saved as {finalIconPath}");
+                        }
+                        
+                        // Delete the temporary file
+                        if (File.Exists(tempIconPath))
+                        {
+                            File.Delete(tempIconPath);
+                            Logger.LogInfo($"Deleted temporary file {tempIconPath}");
+                        }
+                        
+                        return true;
+                    }
+                    catch (Exception conversionEx)
+                    {
+                        Logger.LogError($"Failed to convert icon: {conversionEx.Message}", conversionEx);
+                        
+                        // Delete the temporary file
+                        if (File.Exists(tempIconPath))
+                        {
+                            try
+                            {
+                                File.Delete(tempIconPath);
+                                Logger.LogInfo($"Deleted temporary file after conversion failure");
+                            }
+                            catch (Exception deleteEx)
+                            {
+                                Logger.LogWarning($"Failed to delete temporary file: {deleteEx.Message}");
+                            }
+                        }
+                        
+                        return false;
+                    }
                 }
                 else
                 {

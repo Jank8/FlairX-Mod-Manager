@@ -55,5 +55,19 @@
     "PreviewsSummaryTitle": "Forhåndsvisnings downloadresumé",
     "AlreadyHasPreviews": "Har allerede forhåndsvisningsbilleder",
     "NoPreviewsAvailable": "Ingen forhåndsvisninger tilgængelige på GameBanana",
-    "PreviewFetchError": "Fejl ved hentning af forhåndsvisninger"
+    "PreviewFetchError": "Fejl ved hentning af forhåndsvisninger",
+    "CreateCategoryFoldersButton": "Opret kategorimapper",
+    "CreateCategoryFoldersButton_Tooltip": "Opretter mapper til alle karakterkategorier og downloader deres ikoner",
+    "NoGameSelected": "Intet spil valgt. Vælg venligst et spil først.",
+    "CategoryNotSupported": "Karakterkategorier understøttes ikke for {0}.",
+    "ConfirmCreateCategoryFolders": "Dette vil oprette kategorimapper for alle karakterer i {0} og downloade deres ikoner. Fortsæt?",
+    "CategoryFoldersCreatedTitle": "Kategorimapper oprettet",
+    "TotalCategories": "Kategorier i alt: {0}",
+    "Success": "Succes: {0}",
+    "Failed": "Mislykkedes: {0}",
+    "Skipped": "Sprunget over: {0}",
+    "Issues": "Problemer:",
+    "FailedToFetchCategories": "Kunne ikke hente karakterkategorier eller ingen kategorier fundet.",
+    "FailedToDownloadIcon": "Kunne ikke downloade ikon",
+    "NoIconUrlAvailable": "Ingen ikon-URL tilgængelig"
 }
