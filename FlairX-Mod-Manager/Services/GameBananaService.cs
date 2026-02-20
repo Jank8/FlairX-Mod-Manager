@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace FlairX_Mod_Manager.Services
 {
@@ -818,7 +819,7 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
-        /// Get all character categories for a specific game by parsing the character category page
+        /// Get all character categories for a specific game using WebView2 to render JavaScript
         /// </summary>
         public static async Task<List<CategoryRecord>?> GetCharacterCategoriesAsync(string gameTag)
         {
@@ -834,24 +835,16 @@ namespace FlairX_Mod_Manager.Services
                 var url = $"https://gamebanana.com/mods/cats/{categoryId}";
                 Logger.LogInfo($"Fetching character categories from: {url}");
 
-                var cookies = CloudflareBypassService.GetCachedCookies();
-                var userAgent = CloudflareBypassService.GetCachedUserAgent();
-
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                request.Headers.Add("User-Agent", userAgent ?? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-                if (!string.IsNullOrEmpty(cookies))
+                // Use WebView2 to render the page and get the HTML
+                var html = await RenderPageWithWebView2Async(url);
+                
+                if (string.IsNullOrEmpty(html))
                 {
-                    request.Headers.Add("Cookie", cookies);
+                    Logger.LogError("Failed to render page with WebView2");
+                    return null;
                 }
 
-                Logger.LogInfo($"Sending request with User-Agent: {userAgent ?? "default"}");
-                var response = await _httpClient.SendAsync(request);
-                Logger.LogInfo($"Response status: {response.StatusCode}");
-                
-                response.EnsureSuccessStatusCode();
-
-                var html = await response.Content.ReadAsStringAsync();
-                Logger.LogInfo($"Received HTML length: {html.Length} characters");
+                Logger.LogInfo($"Received rendered HTML length: {html.Length} characters");
 
                 // Parse HTML to extract subcategories
                 var categories = ParseCharacterCategoriesFromHtml(html);
@@ -867,6 +860,96 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
+        /// Render a page using WebView2 and return the HTML after JavaScript execution
+        /// </summary>
+        private static async Task<string?> RenderPageWithWebView2Async(string url)
+        {
+            try
+            {
+                Logger.LogInfo($"Initializing WebView2 for URL: {url}");
+                
+                var tcs = new TaskCompletionSource<string?>();
+                string? renderedHtml = null;
+
+                // Must run on UI thread
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                {
+                    try
+                    {
+                        var webView = new Microsoft.Web.WebView2.Wpf.WebView2();
+                        
+                        // Initialize WebView2
+                        await webView.EnsureCoreWebView2Async(null);
+                        
+                        Logger.LogInfo("WebView2 initialized, navigating to URL");
+                        
+                        // Set up navigation completed handler
+                        webView.NavigationCompleted += async (sender, args) =>
+                        {
+                            try
+                            {
+                                if (args.IsSuccess)
+                                {
+                                    Logger.LogInfo("Navigation completed successfully, waiting for content to load");
+                                    
+                                    // Wait for JavaScript to render content (adjust delay if needed)
+                                    await Task.Delay(3000);
+                                    
+                                    // Get the rendered HTML
+                                    renderedHtml = await webView.CoreWebView2.ExecuteScriptAsync("document.documentElement.outerHTML");
+                                    
+                                    // Remove JSON string quotes
+                                    if (!string.IsNullOrEmpty(renderedHtml) && renderedHtml.StartsWith("\"") && renderedHtml.EndsWith("\""))
+                                    {
+                                        renderedHtml = System.Text.Json.JsonSerializer.Deserialize<string>(renderedHtml);
+                                    }
+                                    
+                                    Logger.LogInfo($"Retrieved rendered HTML, length: {renderedHtml?.Length ?? 0}");
+                                    tcs.SetResult(renderedHtml);
+                                }
+                                else
+                                {
+                                    Logger.LogError($"Navigation failed: {args.WebErrorStatus}");
+                                    tcs.SetResult(null);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Error in NavigationCompleted handler: {ex.Message}", ex);
+                                tcs.SetResult(null);
+                            }
+                        };
+                        
+                        // Navigate to the URL
+                        webView.Source = new Uri(url);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Error initializing WebView2: {ex.Message}", ex);
+                        tcs.SetResult(null);
+                    }
+                });
+
+                // Wait for the result with timeout
+                var timeoutTask = Task.Delay(15000);
+                var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
+                
+                if (completedTask == timeoutTask)
+                {
+                    Logger.LogError("WebView2 rendering timed out");
+                    return null;
+                }
+
+                return await tcs.Task;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to render page with WebView2: {ex.Message}", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Parse character categories from HTML
         /// </summary>
         private static List<CategoryRecord> ParseCharacterCategoriesFromHtml(string html)
@@ -877,43 +960,71 @@ namespace FlairX_Mod_Manager.Services
             {
                 Logger.LogInfo("Starting HTML parsing for character categories");
                 
-                // New pattern for the actual HTML structure:
-                // <record><recordcell class="Icon"><a href="...cats/ID"><img src="ICON_URL" alt="NAME category icon"></a></recordcell><recordcell class="Info"><a href="...">NAME</a>...
-                var recordPattern = @"<record[^>]*>.*?<a\s+href=""https://gamebanana\.com/mods/cats/(\d+)"">.*?<img[^>]*src=""([^""]+)""[^>]*alt=""([^""]+)\s+category\s+icon""[^>]*>.*?</record>";
+                // Split by <record> tags to process each record individually
+                var recordPattern = @"<record[^>]*>(.*?)</record>";
                 var recordMatches = System.Text.RegularExpressions.Regex.Matches(html, recordPattern, System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-                Logger.LogInfo($"Found {recordMatches.Count} record matches in HTML");
+                Logger.LogInfo($"Found {recordMatches.Count} record elements in HTML");
 
-                foreach (System.Text.RegularExpressions.Match match in recordMatches)
+                foreach (System.Text.RegularExpressions.Match recordMatch in recordMatches)
                 {
-                    if (match.Groups.Count >= 4)
+                    var recordContent = recordMatch.Groups[1].Value;
+                    
+                    // Extract category ID from href
+                    var idMatch = System.Text.RegularExpressions.Regex.Match(recordContent, @"href=""https://gamebanana\.com/mods/cats/(\d+)""");
+                    if (!idMatch.Success)
                     {
-                        var idStr = match.Groups[1].Value;
-                        var iconUrl = match.Groups[2].Value;
-                        var name = match.Groups[3].Value.Trim();
-
-                        Logger.LogInfo($"Parsing category: ID={idStr}, Name={name}, IconUrl={iconUrl}");
-
-                        if (int.TryParse(idStr, out var id))
-                        {
-                            var category = new CategoryRecord
-                            {
-                                Id = id,
-                                Name = name,
-                                IconUrl = iconUrl,
-                                ProfileUrl = $"https://gamebanana.com/mods/cats/{id}"
-                            };
-
-                            categories.Add(category);
-                            Logger.LogInfo($"Parsed category: {name} (ID: {id})");
-                        }
-                        else
-                        {
-                            Logger.LogWarning($"Failed to parse category ID: {idStr}");
-                        }
+                        Logger.LogWarning("Could not find category ID in record");
+                        continue;
+                    }
+                    var idStr = idMatch.Groups[1].Value;
+                    
+                    // Extract icon URL from img src
+                    var iconMatch = System.Text.RegularExpressions.Regex.Match(recordContent, @"<img[^>]*src=""([^""]+)""");
+                    if (!iconMatch.Success)
+                    {
+                        Logger.LogWarning($"Could not find icon URL for category ID {idStr}");
+                        continue;
+                    }
+                    var iconUrl = iconMatch.Groups[1].Value;
+                    
+                    // Extract name from alt attribute
+                    var altMatch = System.Text.RegularExpressions.Regex.Match(recordContent, @"alt=""([^""]+)\s+category\s+icon""", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    string name;
+                    if (altMatch.Success)
+                    {
+                        name = altMatch.Groups[1].Value.Trim();
                     }
                     else
                     {
-                        Logger.LogWarning($"Match has insufficient groups: {match.Groups.Count}");
+                        // Fallback: try to get name from the second <a> tag content
+                        var nameMatch = System.Text.RegularExpressions.Regex.Match(recordContent, @"<recordcell[^>]*class=""Info""[^>]*>.*?<a[^>]*>([^<]+)</a>", System.Text.RegularExpressions.RegexOptions.Singleline);
+                        if (nameMatch.Success)
+                        {
+                            name = nameMatch.Groups[1].Value.Trim();
+                        }
+                        else
+                        {
+                            Logger.LogWarning($"Could not find name for category ID {idStr}");
+                            continue;
+                        }
+                    }
+
+                    if (int.TryParse(idStr, out var id))
+                    {
+                        var category = new CategoryRecord
+                        {
+                            Id = id,
+                            Name = name,
+                            IconUrl = iconUrl,
+                            ProfileUrl = $"https://gamebanana.com/mods/cats/{id}"
+                        };
+
+                        categories.Add(category);
+                        Logger.LogInfo($"Parsed category: {name} (ID: {id}, Icon: {iconUrl})");
+                    }
+                    else
+                    {
+                        Logger.LogWarning($"Failed to parse category ID: {idStr}");
                     }
                 }
 
