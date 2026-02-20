@@ -877,15 +877,10 @@ namespace FlairX_Mod_Manager.Services
             {
                 Logger.LogInfo("Starting HTML parsing for character categories");
                 
-                // Regex to extract category links: href="https://gamebanana.com/mods/cats/(\d+)"
-                var linkPattern = @"href=""https://gamebanana\.com/mods/cats/(\d+)""";
-                var linkMatches = System.Text.RegularExpressions.Regex.Matches(html, linkPattern);
-                Logger.LogInfo($"Found {linkMatches.Count} category links in HTML");
-
-                // Regex to extract category names and icons from record elements
-                // Pattern: <a href="...cats/ID">NAME</a> and <img ... src="ICON_URL" alt="NAME category icon">
-                var recordPattern = @"<record[^>]*>.*?<a href=""https://gamebanana\.com/mods/cats/(\d+)"">([^<]+)</a>.*?<img[^>]*src=""([^""]+)""[^>]*alt=""[^""]*category icon""[^>]*>.*?</record>";
-                var recordMatches = System.Text.RegularExpressions.Regex.Matches(html, recordPattern, System.Text.RegularExpressions.RegexOptions.Singleline);
+                // New pattern for the actual HTML structure:
+                // <record><recordcell class="Icon"><a href="...cats/ID"><img src="ICON_URL" alt="NAME category icon"></a></recordcell><recordcell class="Info"><a href="...">NAME</a>...
+                var recordPattern = @"<record[^>]*>.*?<a\s+href=""https://gamebanana\.com/mods/cats/(\d+)"">.*?<img[^>]*src=""([^""]+)""[^>]*alt=""([^""]+)\s+category\s+icon""[^>]*>.*?</record>";
+                var recordMatches = System.Text.RegularExpressions.Regex.Matches(html, recordPattern, System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 Logger.LogInfo($"Found {recordMatches.Count} record matches in HTML");
 
                 foreach (System.Text.RegularExpressions.Match match in recordMatches)
@@ -893,8 +888,8 @@ namespace FlairX_Mod_Manager.Services
                     if (match.Groups.Count >= 4)
                     {
                         var idStr = match.Groups[1].Value;
-                        var name = match.Groups[2].Value.Trim();
-                        var iconUrl = match.Groups[3].Value;
+                        var iconUrl = match.Groups[2].Value;
+                        var name = match.Groups[3].Value.Trim();
 
                         Logger.LogInfo($"Parsing category: ID={idStr}, Name={name}, IconUrl={iconUrl}");
 
