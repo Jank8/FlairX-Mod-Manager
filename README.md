@@ -289,11 +289,11 @@ dotnet publish "FlairX-Mod-Manager Launcher/FlairX Mod Manager Launcher.csproj" 
 ```
 
 ### Key Technologies Used
-- Microsoft.WindowsAppSDK (1.8.260101001) - Modern Windows UI
+- Microsoft.WindowsAppSDK (1.8.260209005) - Modern Windows UI
 - CommunityToolkit.WinUI (7.1.2) - UI components
 - ppy.SDL3-CS (2025.1205.0) - Controller support
-- Microsoft.Web.WebView2 (1.0.3179.45) - GameBanana browser
-- SharpSevenZip (2.0.33) - Archive extraction
+- Microsoft.Web.WebView2 (1.0.3800.47) - GameBanana browser
+- SharpSevenZip (2.0.36) - Archive extraction
 
 ## 📄 License
 
