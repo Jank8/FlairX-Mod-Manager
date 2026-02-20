@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -54,9 +55,25 @@ namespace FlairX_Mod_Manager.Services
             { "EFMI", 21842 }   // Arknights: Endfield
         };
 
+        // Character category ID mapping (parent categories containing character subcategories)
+        private static readonly Dictionary<string, int> CharacterCategoryIds = new()
+        {
+            { "ZZMI", 30305 },  // Zenless Zone Zero - Characters
+            { "GIMI", 18140 },  // Genshin Impact - Characters
+            { "HIMI", 23620 },  // Honkai Impact 3rd - Characters
+            { "WWMI", 29524 },  // Wuthering Waves - Skins
+            { "SRMI", 22832 },  // Honkai Star Rail - Characters
+            { "EFMI", 42770 }   // Arknights: Endfield - Operators
+        };
+
         public static int GetGameId(string gameTag)
         {
             return GameIds.TryGetValue(gameTag, out var id) ? id : 0;
+        }
+
+        public static int GetCharacterCategoryId(string gameTag)
+        {
+            return CharacterCategoryIds.TryGetValue(gameTag, out var id) ? id : 0;
         }
 
         // Mod list response models
@@ -722,6 +739,281 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogError($"Failed to get author ID for username {username}: {ex.Message}", ex);
                 Logger.LogError($"Exception details: {ex}");
                 return null;
+            }
+        }
+
+        // Category response models
+        public class CategoryListResponse
+        {
+            [JsonPropertyName("_aRecords")]
+            public List<CategoryRecord>? Records { get; set; }
+            
+            [JsonPropertyName("_aMetadata")]
+            public ResponseMetadata? Metadata { get; set; }
+            
+            [JsonPropertyName("_nRecordCount")]
+            public int RecordCount { get; set; }
+        }
+
+        public class CategoryRecord
+        {
+            [JsonPropertyName("_idRow")]
+            public int Id { get; set; }
+            
+            [JsonPropertyName("_sName")]
+            public string Name { get; set; } = "";
+            
+            [JsonPropertyName("_sProfileUrl")]
+            public string ProfileUrl { get; set; } = "";
+            
+            [JsonPropertyName("_sIconUrl")]
+            public string? IconUrl { get; set; }
+            
+            [JsonPropertyName("_aPreviewMedia")]
+            public PreviewMediaCategory? PreviewMedia { get; set; }
+            
+            [JsonPropertyName("_aGame")]
+            public Game? Game { get; set; }
+            
+            [JsonPropertyName("_bHasFiles")]
+            public bool HasFiles { get; set; }
+            
+            [JsonPropertyName("_tsDateAdded")]
+            public long? DateAdded { get; set; }
+            
+            /// <summary>
+            /// Get icon URL from either _sIconUrl or _aPreviewMedia
+            /// </summary>
+            public string? GetIconUrl()
+            {
+                // Try _sIconUrl first
+                if (!string.IsNullOrEmpty(IconUrl))
+                    return IconUrl;
+                
+                // Try _aPreviewMedia._aImages[0]._sUrl
+                if (PreviewMedia?.Images != null && PreviewMedia.Images.Count > 0)
+                {
+                    var iconImage = PreviewMedia.Images.FirstOrDefault(i => i.Type == "icon");
+                    if (iconImage != null)
+                        return iconImage.Url;
+                }
+                
+                return null;
+            }
+        }
+
+        public class PreviewMediaCategory
+        {
+            [JsonPropertyName("_aImages")]
+            public List<CategoryImage>? Images { get; set; }
+        }
+
+        public class CategoryImage
+        {
+            [JsonPropertyName("_sType")]
+            public string Type { get; set; } = "";
+            
+            [JsonPropertyName("_sUrl")]
+            public string Url { get; set; } = "";
+        }
+
+        /// <summary>
+        /// Get all character categories for a specific game by parsing the character category page
+        /// </summary>
+        public static async Task<List<CategoryRecord>?> GetCharacterCategoriesAsync(string gameTag)
+        {
+            try
+            {
+                var categoryId = GetCharacterCategoryId(gameTag);
+                if (categoryId == 0)
+                {
+                    Logger.LogError($"Unknown game tag or no character category defined: {gameTag}");
+                    return null;
+                }
+
+                var url = $"https://gamebanana.com/mods/cats/{categoryId}";
+                Logger.LogInfo($"Fetching character categories from: {url}");
+
+                var cookies = CloudflareBypassService.GetCachedCookies();
+                var userAgent = CloudflareBypassService.GetCachedUserAgent();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("User-Agent", userAgent ?? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+                if (!string.IsNullOrEmpty(cookies))
+                {
+                    request.Headers.Add("Cookie", cookies);
+                }
+
+                Logger.LogInfo($"Sending request with User-Agent: {userAgent ?? "default"}");
+                var response = await _httpClient.SendAsync(request);
+                Logger.LogInfo($"Response status: {response.StatusCode}");
+                
+                response.EnsureSuccessStatusCode();
+
+                var html = await response.Content.ReadAsStringAsync();
+                Logger.LogInfo($"Received HTML length: {html.Length} characters");
+
+                // Parse HTML to extract subcategories
+                var categories = ParseCharacterCategoriesFromHtml(html);
+
+                Logger.LogInfo($"Found {categories.Count} character categories for {gameTag}");
+                return categories;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to fetch character categories for {gameTag}: {ex.Message}", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Parse character categories from HTML
+        /// </summary>
+        private static List<CategoryRecord> ParseCharacterCategoriesFromHtml(string html)
+        {
+            var categories = new List<CategoryRecord>();
+
+            try
+            {
+                Logger.LogInfo("Starting HTML parsing for character categories");
+                
+                // Regex to extract category links: href="https://gamebanana.com/mods/cats/(\d+)"
+                var linkPattern = @"href=""https://gamebanana\.com/mods/cats/(\d+)""";
+                var linkMatches = System.Text.RegularExpressions.Regex.Matches(html, linkPattern);
+                Logger.LogInfo($"Found {linkMatches.Count} category links in HTML");
+
+                // Regex to extract category names and icons from record elements
+                // Pattern: <a href="...cats/ID">NAME</a> and <img ... src="ICON_URL" alt="NAME category icon">
+                var recordPattern = @"<record[^>]*>.*?<a href=""https://gamebanana\.com/mods/cats/(\d+)"">([^<]+)</a>.*?<img[^>]*src=""([^""]+)""[^>]*alt=""[^""]*category icon""[^>]*>.*?</record>";
+                var recordMatches = System.Text.RegularExpressions.Regex.Matches(html, recordPattern, System.Text.RegularExpressions.RegexOptions.Singleline);
+                Logger.LogInfo($"Found {recordMatches.Count} record matches in HTML");
+
+                foreach (System.Text.RegularExpressions.Match match in recordMatches)
+                {
+                    if (match.Groups.Count >= 4)
+                    {
+                        var idStr = match.Groups[1].Value;
+                        var name = match.Groups[2].Value.Trim();
+                        var iconUrl = match.Groups[3].Value;
+
+                        Logger.LogInfo($"Parsing category: ID={idStr}, Name={name}, IconUrl={iconUrl}");
+
+                        if (int.TryParse(idStr, out var id))
+                        {
+                            var category = new CategoryRecord
+                            {
+                                Id = id,
+                                Name = name,
+                                IconUrl = iconUrl,
+                                ProfileUrl = $"https://gamebanana.com/mods/cats/{id}"
+                            };
+
+                            categories.Add(category);
+                            Logger.LogInfo($"Parsed category: {name} (ID: {id})");
+                        }
+                        else
+                        {
+                            Logger.LogWarning($"Failed to parse category ID: {idStr}");
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogWarning($"Match has insufficient groups: {match.Groups.Count}");
+                    }
+                }
+
+                Logger.LogInfo($"Successfully parsed {categories.Count} categories from HTML");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to parse categories from HTML: {ex.Message}", ex);
+            }
+
+            return categories;
+        }
+
+        /// <summary>
+        /// Filter categories to get only character/skin categories (exclude generic categories)
+        /// </summary>
+        private static List<CategoryRecord> FilterCharacterCategories(List<CategoryRecord> categories)
+        {
+            // Blacklist of generic category names to exclude
+            var blacklist = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Characters", "Skins", "Other/Misc", "Other", "Misc",
+                "Weapons", "UI", "Maps", "Textures", "Sounds", "Audio",
+                "Scripts", "Tools", "Utilities", "Patches", "Fixes",
+                "Translations", "Translation", "Mods", "Modpacks",
+                "Save Files", "Saves", "Config", "Configuration",
+                "Effects", "Particles", "Shaders", "Models", "Animations",
+                "HUD", "Menu", "Interface", "Icons", "Fonts",
+                "Music", "Voice", "SFX", "Gameplay", "Balance",
+                "Cheats", "Trainers", "Mods & Maps", "Input Icons",
+                "House Exteriors", "Patch"
+            };
+
+            return categories
+                .Where(c =>
+                {
+                    // Must have an icon
+                    if (string.IsNullOrEmpty(c.GetIconUrl()))
+                        return false;
+
+                    // Must not be in blacklist
+                    if (blacklist.Contains(c.Name))
+                        return false;
+
+                    // Optionally: must have files (uncomment if needed)
+                    // if (!c.HasFiles)
+                    //     return false;
+
+                    return true;
+                })
+                .OrderBy(c => c.Name)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Download category icon and save as icon.png
+        /// </summary>
+        public static async Task<bool> DownloadCategoryIconAsync(string iconUrl, string destinationFolder)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(iconUrl))
+                {
+                    Logger.LogWarning("Icon URL is empty, skipping download");
+                    return false;
+                }
+
+                // Create destination folder if it doesn't exist
+                if (!Directory.Exists(destinationFolder))
+                {
+                    Directory.CreateDirectory(destinationFolder);
+                }
+
+                var iconPath = Path.Combine(destinationFolder, "icon.png");
+                
+                Logger.LogInfo($"Downloading icon from {iconUrl} to {iconPath}");
+
+                // Download the icon
+                var success = await DownloadFileAsync(iconUrl, iconPath);
+                
+                if (success)
+                {
+                    Logger.LogInfo($"Successfully downloaded icon to {iconPath}");
+                }
+                else
+                {
+                    Logger.LogWarning($"Failed to download icon from {iconUrl}");
+                }
+
+                return success;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to download category icon: {ex.Message}", ex);
+                return false;
             }
         }
     }

@@ -393,9 +393,20 @@ namespace FlairX_Mod_Manager
             {
                 var categoryPath = Path.Combine(modsPath, categoryName);
                 var categoryPreviewPath = Path.Combine(categoryPath, "catprev.jpg");
+                var categoryMiniPath = Path.Combine(categoryPath, "catmini.jpg");
+                var iconPath = Path.Combine(categoryPath, "icon.png");
                 
-                // Check if category preview image exists
+                // Try catprev.jpg first, then catmini.jpg, then icon.png as fallback
+                string? imagePath = null;
                 if (File.Exists(categoryPreviewPath))
+                    imagePath = categoryPreviewPath;
+                else if (File.Exists(categoryMiniPath))
+                    imagePath = categoryMiniPath;
+                else if (File.Exists(iconPath))
+                    imagePath = iconPath;
+                
+                // Check if any category image exists
+                if (imagePath != null)
                 {
                     // Create a high-quality bitmap from the category image
                     var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
@@ -404,7 +415,7 @@ namespace FlairX_Mod_Manager
                     bitmap.DecodePixelWidth = 64;  // 2x for high DPI displays
                     bitmap.DecodePixelHeight = 64; // 2x for high DPI displays
                     
-                    using (var stream = File.OpenRead(categoryPreviewPath))
+                    using (var stream = File.OpenRead(imagePath))
                     {
                         await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
                     }
@@ -777,15 +788,25 @@ namespace FlairX_Mod_Manager
                     
                 var categoryPath = Path.Combine(modsPath, categoryName);
                 var categoryPreviewPath = Path.Combine(categoryPath, "catprev.jpg");
+                var categoryMiniPath = Path.Combine(categoryPath, "catmini.jpg");
+                var iconPath = Path.Combine(categoryPath, "icon.png");
                 
-                // Popup uses catprev.jpg (722x722 square)
-                if (File.Exists(categoryPreviewPath) && CategoryPreviewPopup != null && CategoryPreviewImage != null)
+                // Try catprev.jpg first, then catmini.jpg
+                // Skip icon.png for preview popup as it's too small
+                string? previewPath = null;
+                if (File.Exists(categoryPreviewPath))
+                    previewPath = categoryPreviewPath;
+                else if (File.Exists(categoryMiniPath))
+                    previewPath = categoryMiniPath;
+                
+                // Only show popup if we have catprev or catmini (not icon.png)
+                if (previewPath != null && CategoryPreviewPopup != null && CategoryPreviewImage != null)
                 {
                     try
                     {
                         // Load the category preview image
                         var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                        using (var stream = File.OpenRead(categoryPreviewPath))
+                        using (var stream = File.OpenRead(previewPath))
                         {
                             await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
                         }

@@ -59,6 +59,11 @@ namespace FlairX_Mod_Manager.Pages
             FetchMissingPreviewsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchMissingPreviewsButton_Tooltip");
             // Button text is now handled by UpdateButtonStates()
             
+            // Create category folders card
+            CreateCategoryFoldersTitle.Text = "Create Category Folders";
+            CreateCategoryFoldersDescription.Text = "Create folders for all character categories and download their icons";
+            // Button text is now handled by UpdateButtonStates()
+            
             // Skip invalid URLs card
             SkipInvalidUrlsLabel.Text = SharedUtilities.GetTranslation(lang, "SkipInvalidUrlsLabel");
             SkipInvalidUrlsDescription.Text = SharedUtilities.GetTranslation(lang, "SkipInvalidUrlsDescription");
@@ -638,7 +643,7 @@ namespace FlairX_Mod_Manager.Pages
             
             // Check if any operation is currently running
             bool anyOperationRunning = _isUpdatingAuthors || _isFetchingDates || _isFetchingVersions || 
-                                     _isFetchingAllPreviews || _isFetchingMissingPreviews;
+                                     _isFetchingAllPreviews || _isFetchingMissingPreviews || _isCreatingCategoryFolders;
             
             // Update Authors button
             if (UpdateButton != null && UpdateButtonText != null)
@@ -712,6 +717,21 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     FetchMissingPreviewsButton.IsEnabled = !anyOperationRunning; // Disable if any other operation is running
                     FetchMissingPreviewsButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
+                }
+            }
+            
+            // Create Category Folders button
+            if (CreateCategoryFoldersButton != null && CreateCategoryFoldersButtonText != null)
+            {
+                if (_isCreatingCategoryFolders)
+                {
+                    CreateCategoryFoldersButton.IsEnabled = true; // Keep enabled so user can cancel
+                    CreateCategoryFoldersButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
+                }
+                else
+                {
+                    CreateCategoryFoldersButton.IsEnabled = !anyOperationRunning; // Disable if any other operation is running
+                    CreateCategoryFoldersButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
                 }
             }
         }
@@ -897,6 +917,42 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         FetchMissingPreviewsStatusText.Visibility = Visibility.Collapsed;
                         FetchMissingPreviewsStatusText.Text = "";
+                    }
+                }
+            }
+            
+            if (CreateCategoryFoldersProgressBar != null)
+            {
+                if (_isCreatingCategoryFolders)
+                {
+                    CreateCategoryFoldersProgressBar.Visibility = Visibility.Visible;
+                    CreateCategoryFoldersProgressBar.IsIndeterminate = false;
+                    CreateCategoryFoldersProgressBar.Value = _progressValue * 100;
+                    
+                    // Update status text
+                    if (CreateCategoryFoldersStatusText != null)
+                    {
+                        CreateCategoryFoldersStatusText.Visibility = Visibility.Visible;
+                        if (!string.IsNullOrEmpty(_currentProcessingMod))
+                        {
+                            CreateCategoryFoldersStatusText.Text = _currentProcessingMod;
+                        }
+                        else
+                        {
+                            CreateCategoryFoldersStatusText.Text = "";
+                        }
+                    }
+                }
+                else
+                {
+                    CreateCategoryFoldersProgressBar.Value = 0;
+                    CreateCategoryFoldersProgressBar.IsIndeterminate = false;
+                    CreateCategoryFoldersProgressBar.Visibility = Visibility.Collapsed;
+                    
+                    if (CreateCategoryFoldersStatusText != null)
+                    {
+                        CreateCategoryFoldersStatusText.Visibility = Visibility.Collapsed;
+                        CreateCategoryFoldersStatusText.Text = "";
                     }
                 }
             }
@@ -2290,6 +2346,272 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogError($"Failed to fetch previews from API for URL: {url}", ex);
                 return 0;
+            }
+        }
+
+        // Create Category Folders functionality
+        private static volatile bool _isCreatingCategoryFolders = false;
+        private CancellationTokenSource? _ctsCategoryFolders;
+
+        private async void CreateCategoryFoldersButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                await CreateCategoryFoldersButtonClickAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error in CreateCategoryFoldersButton_Click", ex);
+                ResetCategoryFoldersButtonToCreateState();
+            }
+        }
+
+        private async Task CreateCategoryFoldersButtonClickAsync()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+            var mainLang = SharedUtilities.LoadLanguageDictionary();
+
+            if (_isCreatingCategoryFolders)
+            {
+                _ctsCategoryFolders?.Cancel();
+                _isCreatingCategoryFolders = false;
+                ResetCategoryFoldersButtonToCreateState();
+                var cancelDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await cancelDialog.ShowAsync();
+                return;
+            }
+
+            // Get current game tag
+            var gameTag = SettingsManager.CurrentSelectedGame;
+            if (string.IsNullOrEmpty(gameTag))
+            {
+                var errorDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
+                    Content = "No game selected. Please select a game first.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+                return;
+            }
+
+            // Check if game has character categories defined
+            var categoryId = Services.GameBananaService.GetCharacterCategoryId(gameTag);
+            if (categoryId == 0)
+            {
+                var errorDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
+                    Content = $"Character categories are not supported for {gameTag}.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await errorDialog.ShowAsync();
+                return;
+            }
+
+            // Add confirmation dialog
+            var confirmDialog = new ContentDialog
+            {
+                Title = "Create Category Folders",
+                Content = $"This will create category folders for all characters in {gameTag} and download their icons. Continue?",
+                PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
+                CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
+                XamlRoot = this.XamlRoot
+            };
+            var result = await confirmDialog.ShowAsync();
+            if (result != ContentDialogResult.Primary)
+            {
+                return;
+            }
+
+            _ctsCategoryFolders = new CancellationTokenSource();
+            _isCreatingCategoryFolders = true;
+            lock (_lockObject)
+            {
+                _success = 0; _fail = 0; _skip = 0;
+                _skippedMods.Clear();
+                _failedMods.Clear();
+                _progressValue = 0;
+                _totalMods = 0;
+            }
+            NotifyProgressChanged();
+            await CreateCategoryFoldersAsync(gameTag, _ctsCategoryFolders.Token);
+            ResetCategoryFoldersButtonToCreateState();
+        }
+
+        private void ResetCategoryFoldersButtonToCreateState()
+        {
+            _isCreatingCategoryFolders = false;
+            NotifyProgressChanged();
+        }
+
+        private async Task CreateCategoryFoldersAsync(string gameTag, CancellationToken token)
+        {
+            try
+            {
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+
+                // Fetch character categories
+                var categories = await Services.GameBananaService.GetCharacterCategoriesAsync(gameTag);
+                if (categories == null || categories.Count == 0)
+                {
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
+                        Content = "Failed to fetch character categories or no categories found.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    return;
+                }
+
+                _totalMods = categories.Count;
+                int processed = 0;
+
+                // Get mods path
+                string modsPath = SharedUtilities.GetSafeXXMIModsPath();
+
+                // Process each category
+                foreach (var category in categories)
+                {
+                    if (token.IsCancellationRequested) break;
+
+                    SafeSetCurrentProcessingMod(category.Name);
+                    NotifyProgressChanged();
+
+                    try
+                    {
+                        // Create category folder
+                        var categoryPath = Path.Combine(modsPath, category.Name);
+                        if (!Directory.Exists(categoryPath))
+                        {
+                            Directory.CreateDirectory(categoryPath);
+                            Logger.LogInfo($"Created category folder: {category.Name}");
+                        }
+
+                        // Download icon if URL is available
+                        var iconUrl = category.GetIconUrl();
+                        if (!string.IsNullOrEmpty(iconUrl))
+                        {
+                            var success = await Services.GameBananaService.DownloadCategoryIconAsync(iconUrl, categoryPath);
+                            if (success)
+                            {
+                                SafeIncrementSuccess();
+                                Logger.LogInfo($"Downloaded icon for category: {category.Name}");
+                            }
+                            else
+                            {
+                                SafeIncrementFail();
+                                SafeAddFailedMod($"{category.Name}: Failed to download icon");
+                            }
+                        }
+                        else
+                        {
+                            SafeIncrementSkip();
+                            SafeAddSkippedMod($"{category.Name}: No icon URL available");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to create category folder for {category.Name}", ex);
+                        SafeIncrementFail();
+                        SafeAddFailedMod($"{category.Name}: {ex.Message}");
+                    }
+
+                    processed++;
+                    lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
+                    NotifyProgressChanged();
+                }
+
+                if (token.IsCancellationRequested)
+                {
+                    ResetCategoryFoldersButtonToCreateState();
+                    var cancelDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                        Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                        CloseButtonText = "OK",
+                        XamlRoot = this.XamlRoot
+                    };
+                    await cancelDialog.ShowAsync();
+                    return;
+                }
+
+                // Show summary
+                ResetCategoryFoldersButtonToCreateState();
+                string summary = $"Total categories: {_totalMods}\n" +
+                                $"Success: {_success}\n" +
+                                $"Failed: {_fail}\n" +
+                                $"Skipped: {_skip}";
+
+                if (_failedMods.Count > 0 || _skippedMods.Count > 0)
+                {
+                    var allIssues = new List<string>();
+                    allIssues.AddRange(_failedMods);
+                    allIssues.AddRange(_skippedMods);
+                    summary += "\n\nIssues:\n" + string.Join("\n", allIssues);
+                }
+
+                var textBlock = new TextBlock
+                {
+                    Text = summary,
+                    TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap,
+                    IsTextSelectionEnabled = true,
+                    Width = 500
+                };
+
+                var scrollViewer = new ScrollViewer
+                {
+                    Content = textBlock,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                    HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                    MaxHeight = 400,
+                    Padding = new Microsoft.UI.Xaml.Thickness(10)
+                };
+
+                var dialog = new ContentDialog
+                {
+                    Title = "Category Folders Created",
+                    Content = scrollViewer,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+            catch (OperationCanceledException)
+            {
+                ResetCategoryFoldersButtonToCreateState();
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+                var dialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
+                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                ResetCategoryFoldersButtonToCreateState();
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+                var dialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
+                    Content = ex.Message,
+                    CloseButtonText = "OK",
+                    XamlRoot = this.XamlRoot
+                };
+                await dialog.ShowAsync();
             }
         }
 
