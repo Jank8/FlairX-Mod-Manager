@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using System.Windows;
+using Microsoft.UI.Dispatching;
 
 namespace FlairX_Mod_Manager.Services
 {
@@ -869,22 +869,31 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"Initializing WebView2 for URL: {url}");
                 
                 var tcs = new TaskCompletionSource<string?>();
-                string? renderedHtml = null;
+                Microsoft.UI.Xaml.Controls.WebView2? webView = null;
 
-                // Must run on UI thread
-                await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+                // Must run on UI thread - get from App.Current
+                var app = App.Current as App;
+                var mainWindow = app?.MainWindow as MainWindow;
+                
+                if (mainWindow == null)
+                {
+                    Logger.LogError("Could not get main window for WebView2");
+                    return null;
+                }
+
+                mainWindow.DispatcherQueue.TryEnqueue(async () =>
                 {
                     try
                     {
-                        var webView = new Microsoft.Web.WebView2.Wpf.WebView2();
+                        webView = new Microsoft.UI.Xaml.Controls.WebView2();
                         
                         // Initialize WebView2
-                        await webView.EnsureCoreWebView2Async(null);
+                        await webView.EnsureCoreWebView2Async();
                         
                         Logger.LogInfo("WebView2 initialized, navigating to URL");
                         
                         // Set up navigation completed handler
-                        webView.NavigationCompleted += async (sender, args) =>
+                        webView.CoreWebView2.NavigationCompleted += async (sender, args) =>
                         {
                             try
                             {
@@ -892,11 +901,11 @@ namespace FlairX_Mod_Manager.Services
                                 {
                                     Logger.LogInfo("Navigation completed successfully, waiting for content to load");
                                     
-                                    // Wait for JavaScript to render content (adjust delay if needed)
+                                    // Wait for JavaScript to render content
                                     await Task.Delay(3000);
                                     
                                     // Get the rendered HTML
-                                    renderedHtml = await webView.CoreWebView2.ExecuteScriptAsync("document.documentElement.outerHTML");
+                                    var renderedHtml = await webView.CoreWebView2.ExecuteScriptAsync("document.documentElement.outerHTML");
                                     
                                     // Remove JSON string quotes
                                     if (!string.IsNullOrEmpty(renderedHtml) && renderedHtml.StartsWith("\"") && renderedHtml.EndsWith("\""))
@@ -921,7 +930,7 @@ namespace FlairX_Mod_Manager.Services
                         };
                         
                         // Navigate to the URL
-                        webView.Source = new Uri(url);
+                        webView.CoreWebView2.Navigate(url);
                     }
                     catch (Exception ex)
                     {
