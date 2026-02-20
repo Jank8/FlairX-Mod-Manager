@@ -12,7 +12,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - Screenshot capture with cropping and preview management
 - Advanced image optimization with AI-powered cropping
 - Game overlay with full controller support
-- 27 languages with specialized font support
+- 29 languages with specialized font support
 - One-click updates and automatic XXMI framework installation
 - Runtime version checking (.NET and Windows App SDK)
 
@@ -44,7 +44,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 
 ## 📥 Installation
 
-1. Download the latest release (v3.7.8)
+1. Download the latest release (v3.8.0)
 2. Extract files to your desired location
 3. Run `FlairX Mod Manager Launcher.exe`
 4. FlairX will check runtime versions and prompt for updates if needed
@@ -59,29 +59,29 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 2. Search mods (use `user:exampleuser` to find by author)
 3. Click "Download and Install" on mod card
 4. Configure options and click "Start"
-5. Click mod tile footer to activate
+5. Activate mod by clicking its tile footer
 
 **Manual Installation:**
 1. Download mods from any source
 2. Extract to: `XXMI/[GameTag]/Mods/[Category]/[ModName]/`
 3. Click reload button (↻) in FlairX
-4. Click mod tile footer to activate
+4. Activate mod by clicking its tile footer
 
 ### Game Overlay
 
 **Access:**
-- Press **Alt+W** or **Back+Start** on controller
+- Press **Alt+W** (keyboard) or **Back+Start** (controller)
 - Navigate with D-Pad/Left Stick
 - **A** to toggle mods, **B** to close
 - **LB/RB** to switch categories
-- **Back+A** to filter active mods
+- **Alt+A** (keyboard) or **Back+A** (controller) to filter active mods
 
 ### Preview Images
 
 **Add Images:**
 - Screenshot Capture: Plus (+) button on mod details
 - Drag & Drop: Drop images onto mod tiles
-- GameBanana: Automatic with downloads
+- GameBanana: Automatic with downloads or use "Download Previews" button
 
 **Optimize:**
 - AI-powered cropping (Center, Smart, Entropy, Attention)
@@ -99,7 +99,6 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Advanced Search**: Real-time filtering across all mods
 - **Multiple View Modes**: Mods grid, Categories grid, and Table view
 - **Duplicate Detection**: Identify and manage duplicate mods
-- **Broken Mods Filter**: Hide broken mods with context menu toggle
 - **Persistent Views**: Remembers Active/Broken/Outdated filter states
 
 **Context Menus:**
@@ -110,6 +109,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 
 **Mod Details:**
 - **Preview Gallery**: Navigate through multiple images
+- **Download Previews**: Fetch preview images from GameBanana for installed mods
 - **Update Monitoring**: Track dates and author changes
 - **Author Information**: Direct links to creators and GameBanana
 - **NSFW Control**: Per-mod adult content marking
@@ -121,6 +121,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Cloudflare Support**: Automatic handling of protection with cookie management
 - **Smart Mod Cards**: Preview images, author info, dates, and statistics
 - **Installation Status**: Visual indicators for downloaded mods
+- **Download Previews**: Fetch preview images for mods in browser or library
 - **NSFW Control**: Filtering with blur options
 
 **Download System:**
@@ -137,8 +138,8 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Fetch Previews**: Download all or missing preview images
 
 ### 🎨 **Image System**
-- **Screenshot Capture**: Built-in capture with cropping and preview management
-- **AI-Powered Cropping**: Center, Smart, Entropy, Attention, and Manual crop modes
+- **Screenshot Capture**: Built-in capture with cropping
+- **AI-Powered Cropping**: Center, Smart, Entropy, Attention, and Manual modes
 - **Multi-threaded Processing**: Configurable threads for batch optimization
 - **Automatic Thumbnails**: Generate minitile, catprev, catmini
 - **Drag & Drop**: Add images with automatic optimization
@@ -148,7 +149,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 ### 🎮 **Game Overlay**
 - **Always-On-Top**: Quick mod toggle during gameplay
 - **Category Navigation**: Browse mods by category
-- **Active-Only Filter**: Show only active mods (Alt+A)
+- **Active-Only Filter**: Show only active mods
 - **Virtualized Loading**: Optimal performance with large collections
 - **Customizable Theme**: Auto/Light/Dark with backdrop effects
 
@@ -174,11 +175,10 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **ModInfo Backup**: Up to 3 backup versions with one-click restore
 - **File Access Queue**: Prevents conflicts during operations
 - **Intelligent Caching**: Fast loading with timestamp validation
-- **Comprehensive Logging**: Configurable levels (Grid, Debug, Info, Warning, Error)
 
 ## 🌍 Multi-Language Support
 
-FlairX supports **27 languages** with automatic detection:
+FlairX supports **29 languages** with automatic detection:
 - English, Spanish, French, German, Italian, Dutch, Swedish, Danish, Norwegian, Finnish
 - Japanese, Korean, Chinese (Simplified/Traditional)
 - Russian, Polish, Portuguese (BR/PT), Czech, Romanian, Ukrainian
@@ -195,11 +195,12 @@ FlairX supports **27 languages** with automatic detection:
 - Theme: Auto, Light, Dark
 - Backdrop Effect: Mica, Mica Alt, Acrylic, Acrylic Thin, None
 - Preview Effect: None, Frame, Accent, Parallax, Glass
-- Language: 27 languages with automatic detection
+- Language: 29 languages with automatic detection
 
 ### **Behavior**
 - Skip XXMI Launcher Startup
 - Move Active Mods to Top
+- Auto-deactivate Conflicting Mods (can be disabled; re-enable to reset "don't ask again" preference)
 - Dynamic Filtering
 - Grid Zoom (100%-250%)
 - Minimize to Tray
@@ -248,11 +249,8 @@ FlairX supports **27 languages** with automatic detection:
 **Structure:**
 - Path format: `XXMI/[GameTag]/Mods/[Category]/[ModName]/`
 - **Two-level organization**: Category → Mod
-- **Category folders** (e.g., "Ayaka", "Ganyu", "UI") contain mod folders directly
-- **Mod folders** contain the actual mod files (textures, configs, etc.)
 - Categories created manually or during GameBanana install
 - Mods activate by removing `DISABLED_` prefix
-- Each mod needs `mod.json` file
 
 **Example:**
 - ✅ Correct: `XXMI/GIMI/Mods/Raiden/Outfit_Casual/`
