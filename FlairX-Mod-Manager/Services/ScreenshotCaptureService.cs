@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Drawing;
 using FlairX_Mod_Manager.Models;
 using System.Collections.ObjectModel;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace FlairX_Mod_Manager.Services
 {
@@ -136,17 +138,10 @@ namespace FlairX_Mod_Manager.Services
                 string targetPath = System.IO.Path.Combine(_modDirectory, targetFileName);
 
                 // Copy and convert to JPEG if needed
-                using var sourceImage = Image.FromFile(sourceFilePath);
+                using var sourceImage = Image.Load<Rgba32>(sourceFilePath);
                 
                 // Save as JPEG with high quality
-                var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders()
-                    .First(codec => codec.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
-                
-                var encoderParams = new System.Drawing.Imaging.EncoderParameters(1);
-                encoderParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(
-                    System.Drawing.Imaging.Encoder.Quality, 95L);
-
-                sourceImage.Save(targetPath, jpegEncoder, encoderParams);
+                sourceImage.SaveAsJpeg(targetPath, new JpegEncoder { Quality = 95 });
 
                 _capturedFiles.Add(targetPath);
                 Logger.LogInfo($"Captured screenshot: {targetFileName}");

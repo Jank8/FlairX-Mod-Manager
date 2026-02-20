@@ -8,12 +8,16 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using System.Runtime.InteropServices.WindowsRuntime;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using XamlImage = Microsoft.UI.Xaml.Controls.Image;
+using SharpImage = SixLabors.ImageSharp.Image;
 
 namespace FlairX_Mod_Manager.Controls
 {
@@ -26,9 +30,9 @@ namespace FlairX_Mod_Manager.Controls
         public string DisplayName { get; set; } = "";
         public string ImageType { get; set; } = "";
         public BitmapImage? Thumbnail { get; set; }
-        public System.Drawing.Image? SourceImage { get; set; }
-        public Rectangle InitialCropRect { get; set; }
-        public Rectangle? CropRect { get; set; }
+        public Image<Rgba32>? SourceImage { get; set; }
+        public SixLabors.ImageSharp.Rectangle InitialCropRect { get; set; }
+        public SixLabors.ImageSharp.Rectangle? CropRect { get; set; }
         public int TargetWidth { get; set; }
         public int TargetHeight { get; set; }
         public int TargetIndex { get; set; }
@@ -83,14 +87,14 @@ namespace FlairX_Mod_Manager.Controls
 
     public sealed partial class ImageCropInspectionPanel : UserControl
     {
-        private System.Drawing.Image? _sourceImage;
-        private Rectangle _cropRect;
-        private Rectangle _initialCropRect;
+        private Image<Rgba32>? _sourceImage;
+        private SixLabors.ImageSharp.Rectangle _cropRect;
+        private SixLabors.ImageSharp.Rectangle _initialCropRect;
         private double _aspectRatio;
         private bool _maintainAspectRatio;
         private string? _dragHandle;
         private Windows.Foundation.Point _dragStartPoint;
-        private Rectangle _dragStartRect;
+        private SixLabors.ImageSharp.Rectangle _dragStartRect;
         private bool _isDragging;
         private TaskCompletionSource<CropResult>? _completionSource;
         private TaskCompletionSource<List<BatchCropResult>?>? _batchCompletionSource;
@@ -138,7 +142,7 @@ namespace FlairX_Mod_Manager.Controls
         /// <summary>
         /// Single image mode - original behavior
         /// </summary>
-        public Task<CropResult> ShowForImageAsync(System.Drawing.Image sourceImage, Rectangle initialCropRect, double targetAspectRatio, bool maintainAspectRatio, string imageType, bool isProtected = false)
+        public Task<CropResult> ShowForImageAsync(Image<Rgba32> sourceImage, SixLabors.ImageSharp.Rectangle initialCropRect, double targetAspectRatio, bool maintainAspectRatio, string imageType, bool isProtected = false)
         {
             _isBatchMode = false;
             _sourceImage = sourceImage;
@@ -240,8 +244,15 @@ namespace FlairX_Mod_Manager.Controls
             FinalizeButton.Visibility = Visibility.Visible;
             ConfirmButton.Visibility = Visibility.Collapsed;
             
-            // Setup items repeater
+            // Setup items repeater - force update by setting to null first
+            BatchItemsRepeater.ItemsSource = null;
             BatchItemsRepeater.ItemsSource = _batchItems;
+            
+            // Force layout update to ensure all items are rendered
+            BatchItemsRepeater.UpdateLayout();
+            
+            // Debug: Log the count
+            Logger.LogInfo($"BatchCropInspection: Created ObservableCollection with {_batchItems.Count} items");
             
             // Load first item (this will set up the image and crop rect)
             if (_batchItems.Count > 0)
@@ -378,9 +389,9 @@ namespace FlairX_Mod_Manager.Controls
 
             try
             {
-                // Convert System.Drawing.Image to BitmapImage
+                // Convert ImageSharp Image to BitmapImage
                 using var ms = new System.IO.MemoryStream();
-                _sourceImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                _sourceImage.SaveAsPng(ms);
                 ms.Position = 0;
 
                 var bitmapImage = new BitmapImage();
@@ -634,7 +645,7 @@ namespace FlairX_Mod_Manager.Controls
             // Don't stop dragging when pointer exits - user might drag outside
         }
 
-        private void AdjustForAspectRatio(ref Rectangle rect, string corner)
+        private void AdjustForAspectRatio(ref SixLabors.ImageSharp.Rectangle rect, string corner)
         {
             // Use CURRENT crop aspect ratio (not initial _aspectRatio)
             // This allows user to change aspect with edge handles, then maintain it with corners
@@ -674,7 +685,7 @@ namespace FlairX_Mod_Manager.Controls
             }
         }
 
-        private Rectangle ConstrainToImageBounds(Rectangle rect)
+        private SixLabors.ImageSharp.Rectangle ConstrainToImageBounds(SixLabors.ImageSharp.Rectangle rect)
         {
             if (_sourceImage == null) return rect;
 
@@ -1057,7 +1068,7 @@ namespace FlairX_Mod_Manager.Controls
             try
             {
                 // Load the image
-                using var sourceImage = System.Drawing.Image.FromFile(filePath);
+                using var sourceImage = SharpImage.Load<Rgba32>(filePath);
                 
                 // Create batch item
                 var batchItem = new BatchCropItem
@@ -1065,8 +1076,8 @@ namespace FlairX_Mod_Manager.Controls
                     FilePath = filePath,
                     DisplayName = System.IO.Path.GetFileName(filePath),
                     ImageType = "preview",
-                    SourceImage = (System.Drawing.Image)sourceImage.Clone(),
-                    InitialCropRect = new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
+                    SourceImage = sourceImage.Clone(ctx => { }),
+                    InitialCropRect = new SixLabors.ImageSharp.Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
                     TargetWidth = 1000,
                     TargetHeight = 1000,
                     IsProtected = false,
@@ -1118,23 +1129,22 @@ namespace FlairX_Mod_Manager.Controls
             BatchCounterText.Text = $"({_currentBatchIndex + 1}/{_batchItems.Count})";
         }
 
-        private Microsoft.UI.Xaml.Media.Imaging.BitmapImage? CreateThumbnailFromImage(System.Drawing.Image image)
+        private Microsoft.UI.Xaml.Media.Imaging.BitmapImage? CreateThumbnailFromImage(Image<Rgba32> image)
         {
             try
             {
-                // Create thumbnail (64x64)
-                using var thumbnail = new System.Drawing.Bitmap(64, 64);
-                using var graphics = System.Drawing.Graphics.FromImage(thumbnail);
-                graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                graphics.DrawImage(image, 0, 0, 64, 64);
+                // Create thumbnail (64x64) using ImageSharp
+                var thumbnail = image.Clone(ctx => ctx.Resize(64, 64));
                 
                 // Convert to BitmapImage
                 using var ms = new System.IO.MemoryStream();
-                thumbnail.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                thumbnail.SaveAsPng(ms);
                 ms.Position = 0;
                 
                 var bitmapImage = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
                 bitmapImage.SetSource(ms.AsRandomAccessStream());
+                
+                thumbnail.Dispose();
                 return bitmapImage;
             }
             catch
@@ -1205,7 +1215,7 @@ namespace FlairX_Mod_Manager.Controls
     public class CropResult
     {
         public CropAction Action { get; set; }
-        public Rectangle CropRectangle { get; set; }
+        public SixLabors.ImageSharp.Rectangle CropRectangle { get; set; }
     }
 
     public class BatchCropResult
@@ -1213,7 +1223,7 @@ namespace FlairX_Mod_Manager.Controls
         public string FilePath { get; set; } = "";
         public string ImageType { get; set; } = "";
         public CropAction Action { get; set; }
-        public Rectangle CropRectangle { get; set; }
+        public SixLabors.ImageSharp.Rectangle CropRectangle { get; set; }
         public int TargetWidth { get; set; }
         public int TargetHeight { get; set; }
         public int TargetIndex { get; set; }

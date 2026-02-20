@@ -21,6 +21,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 using WinRT;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Composition.SystemBackdrops;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace FlairX_Mod_Manager
 {
@@ -1278,14 +1279,14 @@ namespace FlairX_Mod_Manager
             Logger.LogInfo("Batch crop inspection handler setup complete");
         }
 
-        private static Microsoft.UI.Xaml.Media.Imaging.BitmapImage? CreateThumbnailFromImage(System.Drawing.Image? sourceImage)
+        private static Microsoft.UI.Xaml.Media.Imaging.BitmapImage? CreateThumbnailFromImage(SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>? sourceImage)
         {
             if (sourceImage == null) return null;
             
             try
             {
                 using var ms = new MemoryStream();
-                sourceImage.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                sourceImage.Save(ms, new PngEncoder());
                 ms.Position = 0;
                 
                 var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();

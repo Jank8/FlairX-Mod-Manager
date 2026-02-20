@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -10,13 +7,17 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Runtime.InteropServices;
 using FlairX_Mod_Manager.Models;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Jpeg;
 
 namespace FlairX_Mod_Manager.Services
 {
     /// <summary>
     /// Delegate for crop inspection callback
     /// </summary>
-    public delegate Task<CropInspectionResult?> CropInspectionHandler(Image sourceImage, Rectangle suggestedCrop, int targetWidth, int targetHeight, string imageType, bool isProtected);
+    public delegate Task<CropInspectionResult?> CropInspectionHandler(Image<Rgba32> sourceImage, Rectangle suggestedCrop, int targetWidth, int targetHeight, string imageType, bool isProtected);
 
     /// <summary>
     /// Action to take with the image
@@ -65,7 +66,7 @@ namespace FlairX_Mod_Manager.Services
     {
         public string FilePath { get; set; } = "";
         public string ImageType { get; set; } = "";
-        public Image? SourceImage { get; set; }
+        public Image<Rgba32>? SourceImage { get; set; }
         public Rectangle InitialCropRect { get; set; }
         public int TargetWidth { get; set; }
         public int TargetHeight { get; set; }
@@ -113,6 +114,21 @@ namespace FlairX_Mod_Manager.Services
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
         private static extern int SHFileOperation(ref SHFILEOPSTRUCT FileOp);
+        
+        /// <summary>
+        /// Helper method to crop and resize image with ImageSharp (replaces GDI+ Graphics operations)
+        /// </summary>
+        private static Image<Rgba32> CropAndResize(Image<Rgba32> sourceImage, Rectangle cropRect, int targetWidth, int targetHeight)
+        {
+            return sourceImage.Clone(ctx => ctx
+                .Crop(cropRect)
+                .Resize(new ResizeOptions
+                {
+                    Size = new Size(targetWidth, targetHeight),
+                    Mode = ResizeMode.Stretch,
+                    Sampler = KnownResamplers.Bicubic  // Equivalent to HighQualityBicubic
+                }));
+        }
         
         /// <summary>
         /// Event raised when crop inspection is needed (single image)
@@ -453,7 +469,7 @@ namespace FlairX_Mod_Manager.Services
                     ? Path.Combine(categoryDir, $"_temp_catprev_{Guid.NewGuid()}.jpg")
                     : catprevPath;
                 
-                using (var img = Image.FromFile(previewPath))
+                using (var img = Image.Load<Rgba32>(previewPath))
                 {
                     // Get crop rectangle with optional inspection for catprev
                     var catprevCropRect = await GetCropRectangleWithInspectionAsync(
@@ -472,27 +488,18 @@ namespace FlairX_Mod_Manager.Services
                         return;
                     }
                     
-                    // Generate catprev.jpg (722x722)
-                    using (var catprev = new Bitmap(722, 722))
-                    using (var g = Graphics.FromImage(catprev))
-                    {
-                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                        g.CompositingQuality = CompositingQuality.HighQuality;
-                        g.SmoothingMode = SmoothingMode.HighQuality;
-                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                        
-                        var destRect = new Rectangle(0, 0, 722, 722);
-                        g.DrawImage(img, destRect, catprevCropRect.Value, GraphicsUnit.Pixel);
-                        
-                        var jpegEncoder = ImageCodecInfo.GetImageEncoders()
-                            .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
+                    // Generate catprev.jpg (722x722) - crop and resize
+                    using (var catprev = img.Clone(ctx => ctx
+                        .Crop(catprevCropRect.Value)
+                        .Resize(new ResizeOptions
                         {
-                            var jpegParams = new EncoderParameters(1);
-                            jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            catprev.Save(actualCatprevPath, jpegEncoder, jpegParams);
-                            Logger.LogInfo($"Generated catprev.jpg");
-                        }
+                            Size = new Size(722, 722),
+                            Mode = ResizeMode.Stretch,
+                            Sampler = KnownResamplers.Bicubic  // = HighQualityBicubic
+                        })))
+                    {
+                        catprev.SaveAsJpeg(actualCatprevPath, new JpegEncoder { Quality = context.JpegQuality });
+                        Logger.LogInfo($"Generated catprev.jpg");
                     }
                     
                     // Get crop rectangle with optional inspection for catmini (thumbnail)
@@ -512,27 +519,18 @@ namespace FlairX_Mod_Manager.Services
                         return;
                     }
                     
-                    // Generate catmini.jpg (600x722)
-                    using (var catmini = new Bitmap(600, 722))
-                    using (var g = Graphics.FromImage(catmini))
-                    {
-                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                        g.CompositingQuality = CompositingQuality.HighQuality;
-                        g.SmoothingMode = SmoothingMode.HighQuality;
-                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                        
-                        var destRect = new Rectangle(0, 0, 600, 722);
-                        g.DrawImage(img, destRect, catminiCropRect.Value, GraphicsUnit.Pixel);
-                        
-                        var jpegEncoder = ImageCodecInfo.GetImageEncoders()
-                            .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
+                    // Generate catmini.jpg (600x722) - crop and resize
+                    using (var catmini = img.Clone(ctx => ctx
+                        .Crop(catminiCropRect.Value)
+                        .Resize(new ResizeOptions
                         {
-                            var jpegParams = new EncoderParameters(1);
-                            jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            catmini.Save(catminiPath, jpegEncoder, jpegParams);
-                            Logger.LogInfo($"Generated catmini.jpg");
-                        }
+                            Size = new Size(600, 722),
+                            Mode = ResizeMode.Stretch,
+                            Sampler = KnownResamplers.Bicubic  // = HighQualityBicubic
+                        })))
+                    {
+                        catmini.SaveAsJpeg(catminiPath, new JpegEncoder { Quality = context.JpegQuality });
+                        Logger.LogInfo($"Generated catmini.jpg");
                     }
                 }
                 
@@ -746,35 +744,25 @@ namespace FlairX_Mod_Manager.Services
                     ? Path.Combine(categoryDir, $"_temp_catprev_{Guid.NewGuid()}.jpg")
                     : catprevPath;
                 
-                using (var img = Image.FromFile(sourceFile))
+                using (var img = Image.Load<Rgba32>(sourceFile))
                 {
-                    var jpegEncoder = ImageCodecInfo.GetImageEncoders()
-                        .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                    // Save catprev.jpg without resizing (just convert to JPEG)
+                    img.SaveAsJpeg(actualCatprevPath, new JpegEncoder { Quality = context.JpegQuality });
+                    Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> catprev.jpg");
                     
-                    if (jpegEncoder != null)
-                    {
-                        var jpegParams = new EncoderParameters(1);
-                        jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                        
-                        // Generate catprev.jpg - preserve original dimensions
-                        img.Save(actualCatprevPath, jpegEncoder, jpegParams);
-                        Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> catprev.jpg");
-                        
-                        // Generate catmini.jpg (600x722) - cropped thumbnail
-                        var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
-                        using (var catmini = new Bitmap(600, 722))
-                        using (var g = Graphics.FromImage(catmini))
+                    // Generate catmini.jpg (600x722) - cropped thumbnail
+                    var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
+                    using (var catmini = img.Clone(ctx => ctx
+                        .Crop(catminiCropRect)
+                        .Resize(new ResizeOptions
                         {
-                            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                            g.CompositingQuality = CompositingQuality.HighQuality;
-                            g.SmoothingMode = SmoothingMode.HighQuality;
-                            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                            
-                            var destRect = new Rectangle(0, 0, 600, 722);
-                            g.DrawImage(img, destRect, catminiCropRect, GraphicsUnit.Pixel);
-                            catmini.Save(catminiPath, jpegEncoder, jpegParams);
-                            Logger.LogInfo($"Generated catmini.jpg (Standard)");
-                        }
+                            Size = new Size(600, 722),
+                            Mode = ResizeMode.Stretch,
+                            Sampler = KnownResamplers.Bicubic
+                        })))
+                    {
+                        catmini.SaveAsJpeg(catminiPath, new JpegEncoder { Quality = context.JpegQuality });
+                        Logger.LogInfo($"Generated catmini.jpg (Standard)");
                     }
                 }
                 
@@ -904,7 +892,7 @@ namespace FlairX_Mod_Manager.Services
                 var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
                 var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
                 
-                using (var img = Image.FromFile(catprevPath))
+                using (var img = Image.Load<Rgba32>(catprevPath))
                 {
                     // Get crop rectangle with optional inspection for catmini
                     var catminiCropRect = await GetCropRectangleWithInspectionAsync(
@@ -924,26 +912,17 @@ namespace FlairX_Mod_Manager.Services
                     }
                     
                     // Generate catmini.jpg (600x722)
-                    using (var catmini = new Bitmap(600, 722))
-                    using (var g = Graphics.FromImage(catmini))
-                    {
-                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                        g.CompositingQuality = CompositingQuality.HighQuality;
-                        g.SmoothingMode = SmoothingMode.HighQuality;
-                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                        
-                        var destRect = new Rectangle(0, 0, 600, 722);
-                        g.DrawImage(img, destRect, catminiCropRect.Value, GraphicsUnit.Pixel);
-                        
-                        var jpegEncoder = ImageCodecInfo.GetImageEncoders()
-                            .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
+                    using (var catmini = img.Clone(ctx => ctx
+                        .Crop(catminiCropRect.Value)
+                        .Resize(new ResizeOptions
                         {
-                            var jpegParams = new EncoderParameters(1);
-                            jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            catmini.Save(catminiPath, jpegEncoder, jpegParams);
-                            Logger.LogInfo($"Generated catmini.jpg from existing catprev.jpg");
-                        }
+                            Size = new Size(600, 722),
+                            Mode = ResizeMode.Stretch,
+                            Sampler = KnownResamplers.Bicubic
+                        })))
+                    {
+                        catmini.SaveAsJpeg(catminiPath, new JpegEncoder { Quality = context.JpegQuality });
+                        Logger.LogInfo($"Generated catmini.jpg from existing catprev.jpg");
                     }
                 }
             }
@@ -963,31 +942,21 @@ namespace FlairX_Mod_Manager.Services
                 var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
                 var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
                 
-                using (var img = Image.FromFile(catprevPath))
+                using (var img = Image.Load<Rgba32>(catprevPath))
                 {
-                    var jpegEncoder = ImageCodecInfo.GetImageEncoders()
-                        .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                    
-                    if (jpegEncoder != null)
-                    {
-                        var jpegParams = new EncoderParameters(1);
-                        jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                        
-                        // Generate catmini.jpg (600x722) with auto center crop
-                        var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
-                        using (var catmini = new Bitmap(600, 722))
-                        using (var g = Graphics.FromImage(catmini))
+                    // Generate catmini.jpg (600x722) with auto crop
+                    var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
+                    using (var catmini = img.Clone(ctx => ctx
+                        .Crop(catminiCropRect)
+                        .Resize(new ResizeOptions
                         {
-                            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                            g.CompositingQuality = CompositingQuality.HighQuality;
-                            g.SmoothingMode = SmoothingMode.HighQuality;
-                            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                            
-                            var destRect = new Rectangle(0, 0, 600, 722);
-                            g.DrawImage(img, destRect, catminiCropRect, GraphicsUnit.Pixel);
-                            catmini.Save(catminiPath, jpegEncoder, jpegParams);
-                            Logger.LogInfo($"Generated catmini.jpg from existing catprev.jpg (Standard)");
-                        }
+                            Size = new Size(600, 722),
+                            Mode = ResizeMode.Stretch,
+                            Sampler = KnownResamplers.Bicubic
+                        })))
+                    {
+                        catmini.SaveAsJpeg(catminiPath, new JpegEncoder { Quality = context.JpegQuality });
+                        Logger.LogInfo($"Generated catmini.jpg from existing catprev.jpg (Standard)");
                     }
                 }
             }
@@ -1269,7 +1238,7 @@ namespace FlairX_Mod_Manager.Services
                         ? Path.Combine(modDir, $"_temp_{Guid.NewGuid()}.jpg")
                         : targetPath;
                     
-                    using (var img = Image.FromFile(sourceFile))
+                    using (var img = Image.Load<Rgba32>(sourceFile))
                     {
                         bool isMinitileSource = sourceFile.Equals(selectedMinitileSource, StringComparison.OrdinalIgnoreCase);
                         var squareCropRect = await GetCropRectangleWithInspectionAsync(
@@ -1377,7 +1346,7 @@ namespace FlairX_Mod_Manager.Services
             
             // Collect all files with their suggested crop rectangles
             var batchItems = new List<BatchCropItem>();
-            var loadedImages = new Dictionary<string, Image>();
+            var loadedImages = new Dictionary<string, Image<Rgba32>>();
             
             try
             {
@@ -1387,7 +1356,7 @@ namespace FlairX_Mod_Manager.Services
                     int targetIndex = startIndex + i;
                     try
                     {
-                        var img = Image.FromFile(sourceFile);
+                        var img = Image.Load<Rgba32>(sourceFile);
                         loadedImages[sourceFile] = img;
                         
                         var suggestedCrop = GetSuggestedCropRectangle(img, targetSize, targetSize, context.CropStrategy);
@@ -1570,31 +1539,15 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Save optimized image with crop (no resize for preview files)
         /// </summary>
-        private static bool SaveOptimizedImage(Image sourceImage, string targetPath, Rectangle cropRect, int jpegQuality)
+        private static bool SaveOptimizedImage(Image<Rgba32> sourceImage, string targetPath, Rectangle cropRect, int jpegQuality)
         {
             try
             {
-                // Create bitmap with crop size (no scaling)
-                using (var optimized = new Bitmap(cropRect.Width, cropRect.Height))
-                using (var g = Graphics.FromImage(optimized))
+                // Crop the image using ImageSharp
+                using (var cropped = sourceImage.Clone(ctx => ctx.Crop(cropRect)))
                 {
-                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g.CompositingQuality = CompositingQuality.HighQuality;
-                    g.SmoothingMode = SmoothingMode.HighQuality;
-                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    
-                    var destRect = new Rectangle(0, 0, cropRect.Width, cropRect.Height);
-                    g.DrawImage(sourceImage, destRect, cropRect, GraphicsUnit.Pixel);
-                    
-                    var jpegEncoder = ImageCodecInfo.GetImageEncoders()
-                        .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                    if (jpegEncoder != null)
-                    {
-                        var jpegParams = new EncoderParameters(1);
-                        jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)jpegQuality);
-                        optimized.Save(targetPath, jpegEncoder, jpegParams);
-                        return true;
-                    }
+                    cropped.SaveAsJpeg(targetPath, new JpegEncoder { Quality = jpegQuality });
+                    return true;
                 }
             }
             catch (Exception ex)
@@ -1607,19 +1560,12 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Save image as JPEG without any cropping or resizing (No Crop mode)
         /// </summary>
-        private static bool SaveAsJpegOnly(Image sourceImage, string targetPath, int jpegQuality)
+        private static bool SaveAsJpegOnly(Image<Rgba32> sourceImage, string targetPath, int jpegQuality)
         {
             try
             {
-                var jpegEncoder = ImageCodecInfo.GetImageEncoders()
-                    .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                if (jpegEncoder != null)
-                {
-                    var jpegParams = new EncoderParameters(1);
-                    jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)jpegQuality);
-                    sourceImage.Save(targetPath, jpegEncoder, jpegParams);
-                    return true;
-                }
+                sourceImage.SaveAsJpeg(targetPath, new JpegEncoder { Quality = jpegQuality });
+                return true;
             }
             catch (Exception ex)
             {
@@ -1858,17 +1804,10 @@ namespace FlairX_Mod_Manager.Services
                                 ? Path.Combine(modDir, $"_temp_{Guid.NewGuid()}.jpg")
                                 : targetPath;
                             
-                            using (var img = Image.FromFile(sourceFile))
+                            using (var img = Image.Load<Rgba32>(sourceFile))
                             {
-                                var jpegEncoder = ImageCodecInfo.GetImageEncoders()
-                                    .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                                if (jpegEncoder != null)
-                                {
-                                    var jpegParams = new EncoderParameters(1);
-                                    jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                                    img.Save(actualTargetPath, jpegEncoder, jpegParams);
-                                    savedSuccessfully = true;
-                                }
+                                img.SaveAsJpeg(actualTargetPath, new JpegEncoder { Quality = context.JpegQuality });
+                                savedSuccessfully = true;
                             }
                             
                             // If we used a temp file, move it to the actual target after closing the source
@@ -2166,7 +2105,7 @@ namespace FlairX_Mod_Manager.Services
                 
                 var minitilePath = Path.Combine(modDir, "minitile.jpg");
                 
-                using (var img = Image.FromFile(previewPath))
+                using (var img = Image.Load<Rgba32>(previewPath))
                 {
                     // Get crop rectangle with optional inspection (minitile is a thumbnail)
                     var srcRect = await GetCropRectangleWithInspectionAsync(
@@ -2186,27 +2125,18 @@ namespace FlairX_Mod_Manager.Services
                         return;
                     }
                     
-                    using (var minitile = new Bitmap(600, 722))
-                    using (var g = Graphics.FromImage(minitile))
-                    {
-                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                        g.CompositingQuality = CompositingQuality.HighQuality;
-                        g.SmoothingMode = SmoothingMode.HighQuality;
-                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                        
-                        var destRect = new Rectangle(0, 0, 600, 722);
-                        g.DrawImage(img, destRect, srcRect.Value, GraphicsUnit.Pixel);
-                        
-                        // Save as JPEG with quality setting (overwrites existing)
-                        var jpegEncoder = ImageCodecInfo.GetImageEncoders()
-                            .FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
+                    // Generate minitile.jpg (600x722)
+                    using (var minitile = img.Clone(ctx => ctx
+                        .Crop(srcRect.Value)
+                        .Resize(new ResizeOptions
                         {
-                            var jpegParams = new EncoderParameters(1);
-                            jpegParams.Param[0] = new EncoderParameter(Encoder.Quality, (long)context.JpegQuality);
-                            minitile.Save(minitilePath, jpegEncoder, jpegParams);
-                            Logger.LogInfo($"Minitile generated: {minitilePath}");
-                        }
+                            Size = new Size(600, 722),
+                            Mode = ResizeMode.Stretch,
+                            Sampler = KnownResamplers.Bicubic
+                        })))
+                    {
+                        minitile.SaveAsJpeg(minitilePath, new JpegEncoder { Quality = context.JpegQuality });
+                        Logger.LogInfo($"Minitile generated: {minitilePath}");
                     }
                 }
             }
@@ -2246,7 +2176,7 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Get suggested crop rectangle without inspection (for batch mode)
         /// </summary>
-        private static Rectangle GetSuggestedCropRectangle(Image image, int targetWidth, int targetHeight, CropStrategy strategy)
+        private static Rectangle GetSuggestedCropRectangle(Image<Rgba32> image, int targetWidth, int targetHeight, CropStrategy strategy)
         {
             var cropType = ConvertCropStrategy(strategy);
             return ImageCropService.CalculateCropRectangle(image, targetWidth, targetHeight, cropType);
@@ -2256,7 +2186,7 @@ namespace FlairX_Mod_Manager.Services
         /// Get crop rectangle with optional inspection
         /// </summary>
         public static async Task<Rectangle?> GetCropRectangleWithInspectionAsync(
-            Image image, 
+            Image<Rgba32> image, 
             int targetWidth, 
             int targetHeight, 
             OptimizationContext context,

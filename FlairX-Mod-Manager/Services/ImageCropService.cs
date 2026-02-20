@@ -1,7 +1,8 @@
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace FlairX_Mod_Manager.Services
 {
@@ -16,14 +17,9 @@ namespace FlairX_Mod_Manager.Services
     public static class ImageCropService
     {
         /// <summary>
-        /// Calculate crop rectangle based on the specified crop type
+        /// Calculate crop rectangle based on the specified crop type (ImageSharp version)
         /// </summary>
-        /// <param name="image">Source image</param>
-        /// <param name="targetWidth">Target width</param>
-        /// <param name="targetHeight">Target height</param>
-        /// <param name="cropType">Type of cropping algorithm</param>
-        /// <returns>Rectangle with crop coordinates</returns>
-        public static Rectangle CalculateCropRectangle(Image image, int targetWidth, int targetHeight, CropType cropType)
+        public static Rectangle CalculateCropRectangle(Image<Rgba32> image, int targetWidth, int targetHeight, CropType cropType)
         {
             double targetRatio = (double)targetWidth / targetHeight;
             double sourceRatio = (double)image.Width / image.Height;
@@ -90,44 +86,42 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Smart crop - uses edge detection to find the most interesting area
         /// </summary>
-        private static (int x, int y) CalculateSmartCrop(Image image, int cropWidth, int cropHeight)
+        private static (int x, int y) CalculateSmartCrop(Image<Rgba32> image, int cropWidth, int cropHeight)
         {
             try
             {
-                using (var bmp = new Bitmap(image))
+                // Create a low-resolution version for faster processing
+                int sampleWidth = Math.Min(image.Width, 400);
+                int sampleHeight = Math.Min(image.Height, 400);
+                
+                using (var sample = image.Clone(ctx => ctx.Resize(new ResizeOptions
                 {
-                    // Create a low-resolution version for faster processing
-                    int sampleWidth = Math.Min(image.Width, 400);
-                    int sampleHeight = Math.Min(image.Height, 400);
+                    Size = new Size(sampleWidth, sampleHeight),
+                    Mode = ResizeMode.Stretch,
+                    Sampler = KnownResamplers.Bicubic  // = HighQualityBicubic
+                })))
+                {
+                    // Calculate edge intensity map
+                    double[,] edgeMap = CalculateEdgeMap(sample);
                     
-                    using (var sample = new Bitmap(sampleWidth, sampleHeight))
-                    using (var g = Graphics.FromImage(sample))
-                    {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(bmp, 0, 0, sampleWidth, sampleHeight);
-                        
-                        // Calculate edge intensity map
-                        double[,] edgeMap = CalculateEdgeMap(sample);
-                        
-                        // Find the best crop position by sliding window
-                        double scaleX = (double)image.Width / sampleWidth;
-                        double scaleY = (double)image.Height / sampleHeight;
-                        
-                        int sampleCropWidth = (int)(cropWidth / scaleX);
-                        int sampleCropHeight = (int)(cropHeight / scaleY);
-                        
-                        var (bestX, bestY) = FindBestCropPosition(edgeMap, sampleCropWidth, sampleCropHeight);
-                        
-                        // Scale back to original image coordinates
-                        int x = (int)(bestX * scaleX);
-                        int y = (int)(bestY * scaleY);
-                        
-                        // Ensure within bounds
-                        x = Math.Max(0, Math.Min(x, image.Width - cropWidth));
-                        y = Math.Max(0, Math.Min(y, image.Height - cropHeight));
-                        
-                        return (x, y);
-                    }
+                    // Find the best crop position by sliding window
+                    double scaleX = (double)image.Width / sampleWidth;
+                    double scaleY = (double)image.Height / sampleHeight;
+                    
+                    int sampleCropWidth = (int)(cropWidth / scaleX);
+                    int sampleCropHeight = (int)(cropHeight / scaleY);
+                    
+                    var (bestX, bestY) = FindBestCropPosition(edgeMap, sampleCropWidth, sampleCropHeight);
+                    
+                    // Scale back to original image coordinates
+                    int x = (int)(bestX * scaleX);
+                    int y = (int)(bestY * scaleY);
+                    
+                    // Ensure within bounds
+                    x = Math.Max(0, Math.Min(x, image.Width - cropWidth));
+                    y = Math.Max(0, Math.Min(y, image.Height - cropHeight));
+                    
+                    return (x, y);
                 }
             }
             catch
@@ -140,44 +134,42 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Entropy crop - finds the area with the most detail/information
         /// </summary>
-        private static (int x, int y) CalculateEntropyCrop(Image image, int cropWidth, int cropHeight)
+        private static (int x, int y) CalculateEntropyCrop(Image<Rgba32> image, int cropWidth, int cropHeight)
         {
             try
             {
-                using (var bmp = new Bitmap(image))
+                // Create a low-resolution version for faster processing
+                int sampleWidth = Math.Min(image.Width, 400);
+                int sampleHeight = Math.Min(image.Height, 400);
+                
+                using (var sample = image.Clone(ctx => ctx.Resize(new ResizeOptions
                 {
-                    // Create a low-resolution version for faster processing
-                    int sampleWidth = Math.Min(image.Width, 400);
-                    int sampleHeight = Math.Min(image.Height, 400);
+                    Size = new Size(sampleWidth, sampleHeight),
+                    Mode = ResizeMode.Stretch,
+                    Sampler = KnownResamplers.Bicubic  // = HighQualityBicubic
+                })))
+                {
+                    // Calculate entropy map
+                    double[,] entropyMap = CalculateEntropyMap(sample);
                     
-                    using (var sample = new Bitmap(sampleWidth, sampleHeight))
-                    using (var g = Graphics.FromImage(sample))
-                    {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(bmp, 0, 0, sampleWidth, sampleHeight);
-                        
-                        // Calculate entropy map
-                        double[,] entropyMap = CalculateEntropyMap(sample);
-                        
-                        // Find the best crop position
-                        double scaleX = (double)image.Width / sampleWidth;
-                        double scaleY = (double)image.Height / sampleHeight;
-                        
-                        int sampleCropWidth = (int)(cropWidth / scaleX);
-                        int sampleCropHeight = (int)(cropHeight / scaleY);
-                        
-                        var (bestX, bestY) = FindBestCropPosition(entropyMap, sampleCropWidth, sampleCropHeight);
-                        
-                        // Scale back to original image coordinates
-                        int x = (int)(bestX * scaleX);
-                        int y = (int)(bestY * scaleY);
-                        
-                        // Ensure within bounds
-                        x = Math.Max(0, Math.Min(x, image.Width - cropWidth));
-                        y = Math.Max(0, Math.Min(y, image.Height - cropHeight));
-                        
-                        return (x, y);
-                    }
+                    // Find the best crop position
+                    double scaleX = (double)image.Width / sampleWidth;
+                    double scaleY = (double)image.Height / sampleHeight;
+                    
+                    int sampleCropWidth = (int)(cropWidth / scaleX);
+                    int sampleCropHeight = (int)(cropHeight / scaleY);
+                    
+                    var (bestX, bestY) = FindBestCropPosition(entropyMap, sampleCropWidth, sampleCropHeight);
+                    
+                    // Scale back to original image coordinates
+                    int x = (int)(bestX * scaleX);
+                    int y = (int)(bestY * scaleY);
+                    
+                    // Ensure within bounds
+                    x = Math.Max(0, Math.Min(x, image.Width - cropWidth));
+                    y = Math.Max(0, Math.Min(y, image.Height - cropHeight));
+                    
+                    return (x, y);
                 }
             }
             catch
@@ -190,44 +182,42 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Attention crop - focuses on bright areas and potential focal points
         /// </summary>
-        private static (int x, int y) CalculateAttentionCrop(Image image, int cropWidth, int cropHeight)
+        private static (int x, int y) CalculateAttentionCrop(Image<Rgba32> image, int cropWidth, int cropHeight)
         {
             try
             {
-                using (var bmp = new Bitmap(image))
+                // Create a low-resolution version for faster processing
+                int sampleWidth = Math.Min(image.Width, 400);
+                int sampleHeight = Math.Min(image.Height, 400);
+                
+                using (var sample = image.Clone(ctx => ctx.Resize(new ResizeOptions
                 {
-                    // Create a low-resolution version for faster processing
-                    int sampleWidth = Math.Min(image.Width, 400);
-                    int sampleHeight = Math.Min(image.Height, 400);
+                    Size = new Size(sampleWidth, sampleHeight),
+                    Mode = ResizeMode.Stretch,
+                    Sampler = KnownResamplers.Bicubic  // = HighQualityBicubic
+                })))
+                {
+                    // Calculate attention map (brightness + saturation)
+                    double[,] attentionMap = CalculateAttentionMap(sample);
                     
-                    using (var sample = new Bitmap(sampleWidth, sampleHeight))
-                    using (var g = Graphics.FromImage(sample))
-                    {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(bmp, 0, 0, sampleWidth, sampleHeight);
-                        
-                        // Calculate attention map (brightness + saturation)
-                        double[,] attentionMap = CalculateAttentionMap(sample);
-                        
-                        // Find the best crop position
-                        double scaleX = (double)image.Width / sampleWidth;
-                        double scaleY = (double)image.Height / sampleHeight;
-                        
-                        int sampleCropWidth = (int)(cropWidth / scaleX);
-                        int sampleCropHeight = (int)(cropHeight / scaleY);
-                        
-                        var (bestX, bestY) = FindBestCropPosition(attentionMap, sampleCropWidth, sampleCropHeight);
-                        
-                        // Scale back to original image coordinates
-                        int x = (int)(bestX * scaleX);
-                        int y = (int)(bestY * scaleY);
-                        
-                        // Ensure within bounds
-                        x = Math.Max(0, Math.Min(x, image.Width - cropWidth));
-                        y = Math.Max(0, Math.Min(y, image.Height - cropHeight));
-                        
-                        return (x, y);
-                    }
+                    // Find the best crop position
+                    double scaleX = (double)image.Width / sampleWidth;
+                    double scaleY = (double)image.Height / sampleHeight;
+                    
+                    int sampleCropWidth = (int)(cropWidth / scaleX);
+                    int sampleCropHeight = (int)(cropHeight / scaleY);
+                    
+                    var (bestX, bestY) = FindBestCropPosition(attentionMap, sampleCropWidth, sampleCropHeight);
+                    
+                    // Scale back to original image coordinates
+                    int x = (int)(bestX * scaleX);
+                    int y = (int)(bestY * scaleY);
+                    
+                    // Ensure within bounds
+                    x = Math.Max(0, Math.Min(x, image.Width - cropWidth));
+                    y = Math.Max(0, Math.Min(y, image.Height - cropHeight));
+                    
+                    return (x, y);
                 }
             }
             catch
@@ -240,21 +230,21 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Calculate edge detection map using Sobel operator
         /// </summary>
-        private static double[,] CalculateEdgeMap(Bitmap bitmap)
+        private static double[,] CalculateEdgeMap(Image<Rgba32> image)
         {
-            int width = bitmap.Width;
-            int height = bitmap.Height;
+            int width = image.Width;
+            int height = image.Height;
             double[,] edgeMap = new double[width, height];
             
-            BitmapData bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-            
-            unsafe
+            // Process pixels safely with ImageSharp (no unsafe code)
+            image.ProcessPixelRows(accessor =>
             {
-                byte* ptr = (byte*)bmpData.Scan0;
-                int stride = bmpData.Stride;
-                
                 for (int y = 1; y < height - 1; y++)
                 {
+                    Span<Rgba32> prevRow = accessor.GetRowSpan(y - 1);
+                    Span<Rgba32> currRow = accessor.GetRowSpan(y);
+                    Span<Rgba32> nextRow = accessor.GetRowSpan(y + 1);
+                    
                     for (int x = 1; x < width - 1; x++)
                     {
                         // Sobel operator with proper kernels
@@ -264,66 +254,53 @@ namespace FlairX_Mod_Manager.Services
                         int gx = 0, gy = 0;
                         
                         // Top row
-                        int offset = (y - 1) * stride + (x - 1) * 3;
-                        int gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        int gray = (prevRow[x - 1].R + prevRow[x - 1].G + prevRow[x - 1].B) / 3;
                         gx += -1 * gray; gy += -1 * gray;
                         
-                        offset = (y - 1) * stride + x * 3;
-                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gray = (prevRow[x].R + prevRow[x].G + prevRow[x].B) / 3;
                         gy += -2 * gray;
                         
-                        offset = (y - 1) * stride + (x + 1) * 3;
-                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gray = (prevRow[x + 1].R + prevRow[x + 1].G + prevRow[x + 1].B) / 3;
                         gx += 1 * gray; gy += -1 * gray;
                         
                         // Middle row
-                        offset = y * stride + (x - 1) * 3;
-                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gray = (currRow[x - 1].R + currRow[x - 1].G + currRow[x - 1].B) / 3;
                         gx += -2 * gray;
                         
-                        offset = y * stride + (x + 1) * 3;
-                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gray = (currRow[x + 1].R + currRow[x + 1].G + currRow[x + 1].B) / 3;
                         gx += 2 * gray;
                         
                         // Bottom row
-                        offset = (y + 1) * stride + (x - 1) * 3;
-                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gray = (nextRow[x - 1].R + nextRow[x - 1].G + nextRow[x - 1].B) / 3;
                         gx += -1 * gray; gy += 1 * gray;
                         
-                        offset = (y + 1) * stride + x * 3;
-                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gray = (nextRow[x].R + nextRow[x].G + nextRow[x].B) / 3;
                         gy += 2 * gray;
                         
-                        offset = (y + 1) * stride + (x + 1) * 3;
-                        gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                        gray = (nextRow[x + 1].R + nextRow[x + 1].G + nextRow[x + 1].B) / 3;
                         gx += 1 * gray; gy += 1 * gray;
                         
                         edgeMap[x, y] = Math.Sqrt(gx * gx + gy * gy);
                     }
                 }
-            }
+            });
             
-            bitmap.UnlockBits(bmpData);
             return edgeMap;
         }
         
         /// <summary>
         /// Calculate entropy map (local variance)
         /// </summary>
-        private static double[,] CalculateEntropyMap(Bitmap bitmap)
+        private static double[,] CalculateEntropyMap(Image<Rgba32> image)
         {
-            int width = bitmap.Width;
-            int height = bitmap.Height;
+            int width = image.Width;
+            int height = image.Height;
             double[,] entropyMap = new double[width, height];
+            int windowSize = 5;
             
-            BitmapData bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-            
-            unsafe
+            // Process pixels safely with ImageSharp
+            image.ProcessPixelRows(accessor =>
             {
-                byte* ptr = (byte*)bmpData.Scan0;
-                int stride = bmpData.Stride;
-                int windowSize = 5;
-                
                 for (int y = windowSize; y < height - windowSize; y++)
                 {
                     for (int x = windowSize; x < width - windowSize; x++)
@@ -335,10 +312,11 @@ namespace FlairX_Mod_Manager.Services
                         // Calculate variance in local window
                         for (int dy = -windowSize; dy <= windowSize; dy++)
                         {
+                            Span<Rgba32> row = accessor.GetRowSpan(y + dy);
                             for (int dx = -windowSize; dx <= windowSize; dx++)
                             {
-                                int offset = (y + dy) * stride + (x + dx) * 3;
-                                int gray = (ptr[offset] + ptr[offset + 1] + ptr[offset + 2]) / 3;
+                                ref Rgba32 pixel = ref row[x + dx];
+                                int gray = (pixel.R + pixel.G + pixel.B) / 3;
                                 
                                 sum += gray;
                                 sumSq += gray * gray;
@@ -351,36 +329,33 @@ namespace FlairX_Mod_Manager.Services
                         entropyMap[x, y] = variance;
                     }
                 }
-            }
+            });
             
-            bitmap.UnlockBits(bmpData);
             return entropyMap;
         }
         
         /// <summary>
         /// Calculate attention map based on brightness and saturation
         /// </summary>
-        private static double[,] CalculateAttentionMap(Bitmap bitmap)
+        private static double[,] CalculateAttentionMap(Image<Rgba32> image)
         {
-            int width = bitmap.Width;
-            int height = bitmap.Height;
+            int width = image.Width;
+            int height = image.Height;
             double[,] attentionMap = new double[width, height];
             
-            BitmapData bmpData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-            
-            unsafe
+            // Process pixels safely with ImageSharp
+            image.ProcessPixelRows(accessor =>
             {
-                byte* ptr = (byte*)bmpData.Scan0;
-                int stride = bmpData.Stride;
-                
                 for (int y = 0; y < height; y++)
                 {
+                    Span<Rgba32> row = accessor.GetRowSpan(y);
+                    
                     for (int x = 0; x < width; x++)
                     {
-                        int offset = y * stride + x * 3;
-                        int b = ptr[offset];
-                        int g = ptr[offset + 1];
-                        int r = ptr[offset + 2];
+                        ref Rgba32 pixel = ref row[x];
+                        int r = pixel.R;
+                        int g = pixel.G;
+                        int b = pixel.B;
                         
                         // Calculate brightness (0-255)
                         double brightness = (r + g + b) / 3.0;
@@ -402,9 +377,8 @@ namespace FlairX_Mod_Manager.Services
                         attentionMap[x, y] = (brightness * 0.7 + saturation * 255.0 * 0.3) * centerBias;
                     }
                 }
-            }
+            });
             
-            bitmap.UnlockBits(bmpData);
             return attentionMap;
         }
         

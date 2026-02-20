@@ -167,11 +167,13 @@
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
                                   Padding="8,0,8,8">
-                        <ItemsRepeater x:Name="BatchItemsRepeater">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Orientation="Vertical" Spacing="8"/>
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
+                        <ItemsControl x:Name="BatchItemsRepeater">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical" Spacing="8"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border x:Name="ItemBorder"
                                             Background="{ThemeResource SubtleFillColorSecondaryBrush}"
@@ -221,8 +223,8 @@
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </ScrollViewer>
                 </Grid>
             </Border>

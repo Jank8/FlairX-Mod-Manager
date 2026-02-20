@@ -7,9 +7,10 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Formats.Jpeg;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 using System.Runtime.InteropServices;
@@ -17,6 +18,8 @@ using System.Threading;
 using FlairX_Mod_Manager;
 using FlairX_Mod_Manager.Models;
 using FlairX_Mod_Manager.Services;
+using XamlImage = Microsoft.UI.Xaml.Controls.Image;
+using SharpImage = SixLabors.ImageSharp.Image;
 
 namespace FlairX_Mod_Manager.Pages
 {
@@ -755,7 +758,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 try
                 {
-                    using (var img = System.Drawing.Image.FromFile(catprevJpgPath))
+                    using (var img = SharpImage.Load<Rgba32>(catprevJpgPath))
                     {
                         // Consider optimized if it's 600x722
                         needsOptimization = !(img.Width == 600 && img.Height == 722);
@@ -782,58 +785,37 @@ namespace FlairX_Mod_Manager.Pages
                     tempPath = Path.Combine(categoryDir, "catprev_temp.jpg");
                 }
                 
-                using (var img = System.Drawing.Image.FromFile(previewPath))
+                using (var img = SharpImage.Load<Rgba32>(previewPath))
                 {
                     // Create catprev.jpg (722x722 for category preview)
-                    using (var thumbBmp = new System.Drawing.Bitmap(722, 722))
-                    using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
+                    // Calculate crop rectangle using selected algorithm
+                    var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
+                    var cropType = Enum.TryParse<Services.CropType>(cropTypeStr, out var parsed) ? parsed : Services.CropType.Center;
+                    var srcRect = Services.ImageCropService.CalculateCropRectangle(img, 722, 722, cropType);
+                    
+                    using (var thumbBmp = img.Clone(ctx => ctx
+                        .Crop(new SixLabors.ImageSharp.Rectangle(srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height))
+                        .Resize(722, 722, KnownResamplers.Bicubic)))
                     {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                        
-                        // Calculate crop rectangle using selected algorithm
-                        var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
-                        var cropType = Enum.TryParse<Services.CropType>(cropTypeStr, out var parsed) ? parsed : Services.CropType.Center;
-                        var srcRect = Services.ImageCropService.CalculateCropRectangle(img, 722, 722, cropType);
-                        var destRect = new System.Drawing.Rectangle(0, 0, 722, 722);
-                        g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
-                        
                         // Save as JPEG catprev
-                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
-                        {
-                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
-                            thumbBmp.Save(tempPath, jpegEncoder, jpegParams);
-                        }
+                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                        thumbBmp.SaveAsJpeg(tempPath, jpegEncoder);
                     }
                     
                     // Create catmini.jpg (600x722 for category tiles) from same source
                     var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
-                    using (var miniThumb = new System.Drawing.Bitmap(600, 722))
-                    using (var g2 = System.Drawing.Graphics.FromImage(miniThumb))
+                    
+                    // Calculate crop rectangle using selected algorithm
+                    var cropTypeStr2 = SettingsManager.Current.ImageCropType ?? "Center";
+                    var cropType2 = Enum.TryParse<Services.CropType>(cropTypeStr2, out var parsed2) ? parsed2 : Services.CropType.Center;
+                    var srcRect2 = Services.ImageCropService.CalculateCropRectangle(img, 600, 722, cropType2);
+                    
+                    using (var miniThumb = img.Clone(ctx => ctx
+                        .Crop(new SixLabors.ImageSharp.Rectangle(srcRect2.X, srcRect2.Y, srcRect2.Width, srcRect2.Height))
+                        .Resize(600, 722, KnownResamplers.Bicubic)))
                     {
-                        g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g2.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                        g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        g2.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                        
-                        // Calculate crop rectangle using selected algorithm
-                        var cropTypeStr2 = SettingsManager.Current.ImageCropType ?? "Center";
-                        var cropType2 = Enum.TryParse<Services.CropType>(cropTypeStr2, out var parsed2) ? parsed2 : Services.CropType.Center;
-                        var srcRect2 = Services.ImageCropService.CalculateCropRectangle(img, 600, 722, cropType2);
-                        var destRect2 = new System.Drawing.Rectangle(0, 0, 600, 722);
-                        g2.DrawImage(img, destRect2, srcRect2, System.Drawing.GraphicsUnit.Pixel);
-                        
-                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
-                        {
-                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
-                            miniThumb.Save(catminiPath, jpegEncoder, jpegParams);
-                        }
+                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                        miniThumb.SaveAsJpeg(catminiPath, jpegEncoder);
                     }
                 }
                 
@@ -857,74 +839,51 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogInfo($"Generating category miniatures only for: {categoryDir}");
                 
-                using (var img = System.Drawing.Image.FromFile(previewPath))
+                using (var img = SharpImage.Load<Rgba32>(previewPath))
                 {
                     // Generate catprev.jpg (722x722)
                     var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
-                    using (var thumbBmp = new System.Drawing.Bitmap(722, 722))
-                    using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
+                    
+                    // Square crop for catprev
+                    int size = Math.Min(img.Width, img.Height);
+                    int x = (img.Width - size) / 2;
+                    int y = (img.Height - size) / 2;
+                    
+                    using (var thumbBmp = img.Clone(ctx => ctx
+                        .Crop(new SixLabors.ImageSharp.Rectangle(x, y, size, size))
+                        .Resize(722, 722, KnownResamplers.Bicubic)))
                     {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                        
-                        // Square crop for catprev
-                        int size = Math.Min(img.Width, img.Height);
-                        int x = (img.Width - size) / 2;
-                        int y = (img.Height - size) / 2;
-                        
-                        var srcRect = new System.Drawing.Rectangle(x, y, size, size);
-                        var destRect = new System.Drawing.Rectangle(0, 0, 722, 722);
-                        g.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
-                        
-                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
-                        {
-                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
-                            thumbBmp.Save(catprevPath, jpegEncoder, jpegParams);
-                        }
+                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                        thumbBmp.SaveAsJpeg(catprevPath, jpegEncoder);
                     }
                     
                     // Generate catmini.jpg (600x722)
                     var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
-                    using (var miniThumb = new System.Drawing.Bitmap(600, 722))
-                    using (var g2 = System.Drawing.Graphics.FromImage(miniThumb))
+                    
+                    double targetRatio = 600.0 / 722.0;
+                    double sourceRatio = (double)img.Width / img.Height;
+                    int srcWidth, srcHeight, srcX, srcY;
+                    if (sourceRatio > targetRatio)
                     {
-                        g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g2.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                        g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        g2.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                        
-                        double targetRatio = 600.0 / 722.0;
-                        double sourceRatio = (double)img.Width / img.Height;
-                        int srcWidth, srcHeight, srcX, srcY;
-                        if (sourceRatio > targetRatio)
-                        {
-                            srcHeight = img.Height;
-                            srcWidth = (int)(srcHeight * targetRatio);
-                            srcX = (img.Width - srcWidth) / 2;
-                            srcY = 0;
-                        }
-                        else
-                        {
-                            srcWidth = img.Width;
-                            srcHeight = (int)(srcWidth / targetRatio);
-                            srcX = 0;
-                            srcY = (img.Height - srcHeight) / 2;
-                        }
-                        var srcRect = new System.Drawing.Rectangle(srcX, srcY, srcWidth, srcHeight);
-                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
-                        g2.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
-                        
-                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
-                        {
-                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
-                            miniThumb.Save(catminiPath, jpegEncoder, jpegParams);
-                        }
+                        srcHeight = img.Height;
+                        srcWidth = (int)(srcHeight * targetRatio);
+                        srcX = (img.Width - srcWidth) / 2;
+                        srcY = 0;
+                    }
+                    else
+                    {
+                        srcWidth = img.Width;
+                        srcHeight = (int)(srcWidth / targetRatio);
+                        srcX = 0;
+                        srcY = (img.Height - srcHeight) / 2;
+                    }
+                    
+                    using (var miniThumb = img.Clone(ctx => ctx
+                        .Crop(new SixLabors.ImageSharp.Rectangle(srcX, srcY, srcWidth, srcHeight))
+                        .Resize(600, 722, KnownResamplers.Bicubic)))
+                    {
+                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                        miniThumb.SaveAsJpeg(catminiPath, jpegEncoder);
                     }
                 }
                 
@@ -1205,7 +1164,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                using (var img = System.Drawing.Image.FromFile(imagePath))
+                using (var img = SharpImage.Load<Rgba32>(imagePath))
                 {
                     // Consider optimized if it's square and not larger than 1000x1000
                     return img.Width == img.Height && img.Width <= 1000;
@@ -1229,78 +1188,49 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
                 
-                using (var src = System.Drawing.Image.FromFile(sourcePath))
+                using (var src = SharpImage.Load<Rgba32>(sourcePath))
                 {
-                // Standard mode: optimize quality without cropping/resizing
-                bool shouldCropAndResize = false;
-                
-                // Crop to square (1:1 ratio) if needed (disabled in Standard mode)
-                bool needsCrop = shouldCropAndResize && (src.Width != src.Height);
-                
-                System.Drawing.Image squareImage = src;
-                if (needsCrop)
-                {
-                    // Get crop type from settings
-                    var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
-                    var cropType = Enum.TryParse<Services.CropType>(cropTypeStr, out var parsed) 
-                        ? parsed 
-                        : Services.CropType.Center;
+                    // Standard mode: optimize quality without cropping/resizing
+                    bool shouldCropAndResize = false;
                     
-                    // Calculate crop rectangle using the selected algorithm
-                    int cropSize = Math.Min(src.Width, src.Height);
-                    var cropRect = Services.ImageCropService.CalculateCropRectangle(src, cropSize, cropSize, cropType);
+                    // Crop to square (1:1 ratio) if needed (disabled in Standard mode)
+                    bool needsCrop = shouldCropAndResize && (src.Width != src.Height);
                     
-                    var cropped = new System.Drawing.Bitmap(cropRect.Width, cropRect.Height);
-                    using (var g = System.Drawing.Graphics.FromImage(cropped))
+                    if (needsCrop)
                     {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                        var destRect = new System.Drawing.Rectangle(0, 0, cropRect.Width, cropRect.Height);
-                        g.DrawImage(src, destRect, cropRect, System.Drawing.GraphicsUnit.Pixel);
+                        // Get crop type from settings
+                        var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
+                        var cropType = Enum.TryParse<Services.CropType>(cropTypeStr, out var parsed) 
+                            ? parsed 
+                            : Services.CropType.Center;
+                        
+                        // Calculate crop rectangle using the selected algorithm
+                        int cropSize = Math.Min(src.Width, src.Height);
+                        var cropRect = Services.ImageCropService.CalculateCropRectangle(src, cropSize, cropSize, cropType);
+                        
+                        // Resize if larger than 1000x1000 (disabled in Standard mode)
+                        int targetSize = shouldCropAndResize ? Math.Min(cropSize, 1000) : cropSize;
+                        
+                        using (var finalImage = src.Clone(ctx => ctx
+                            .Crop(new SixLabors.ImageSharp.Rectangle(cropRect.X, cropRect.Y, cropRect.Width, cropRect.Height))
+                            .Resize(targetSize, targetSize, KnownResamplers.Bicubic)))
+                        {
+                            Logger.LogInfo($"Saving to {targetPath}");
+                            var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                            finalImage.SaveAsJpeg(targetPath, jpegEncoder);
+                            Logger.LogInfo("Image saved successfully");
+                        }
                     }
-                    squareImage = cropped;
-                }
-
-                // Resize if larger than 1000x1000 (disabled in Standard mode)
-                int currentSize = squareImage.Width; // After cropping, image is square
-                int targetSize = shouldCropAndResize ? Math.Min(currentSize, 1000) : currentSize;
-                System.Drawing.Image finalImage = squareImage;
-                
-                if (shouldCropAndResize && currentSize > 1000)
-                {
-                    var resized = new System.Drawing.Bitmap(targetSize, targetSize);
-                    using (var g = System.Drawing.Graphics.FromImage(resized))
+                    else
                     {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                        g.DrawImage(squareImage, 0, 0, targetSize, targetSize);
+                        // No cropping needed, just save as JPEG
+                        Logger.LogInfo($"Saving to {targetPath}");
+                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                        src.SaveAsJpeg(targetPath, jpegEncoder);
+                        Logger.LogInfo("Image saved successfully");
                     }
-                    finalImage = resized;
-                    if (squareImage != src) squareImage.Dispose();
-                }
-
-                // Step 3: Save as JPEG
-                var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
-                if (jpegEncoder != null)
-                {
-                    Logger.LogInfo($"Saving to {targetPath}");
-                    var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                    jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
-                    finalImage.Save(targetPath, jpegEncoder, jpegParams);
-                    Logger.LogInfo("Image saved successfully");
-                }
-                else
-                {
-                    Logger.LogError("JPEG encoder not found");
-                }
-
-                if (finalImage != src) finalImage.Dispose();
-                
-                Logger.LogInfo("Image optimization completed successfully");
+                    
+                    Logger.LogInfo("Image optimization completed successfully");
                 }
             }
             catch (Exception ex)
@@ -1335,15 +1265,8 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                using (var src = System.Drawing.Image.FromFile(sourcePath))
-                using (var minitile = new System.Drawing.Bitmap(600, 722))
-                using (var g = System.Drawing.Graphics.FromImage(minitile))
+                using (var src = SharpImage.Load<Rgba32>(sourcePath))
                 {
-                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                    g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                    
                     // Get crop type from settings
                     var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
                     var cropType = Enum.TryParse<Services.CropType>(cropTypeStr, out var parsed) 
@@ -1352,15 +1275,13 @@ namespace FlairX_Mod_Manager.Pages
                     
                     // Calculate crop rectangle using the selected algorithm
                     var srcRect = Services.ImageCropService.CalculateCropRectangle(src, 600, 722, cropType);
-                    var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
-                    g.DrawImage(src, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
                     
-                    var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
-                    if (jpegEncoder != null)
+                    using (var minitile = src.Clone(ctx => ctx
+                        .Crop(new SixLabors.ImageSharp.Rectangle(srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height))
+                        .Resize(600, 722, KnownResamplers.Bicubic)))
                     {
-                        var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                        jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
-                        minitile.Save(minitilePath, jpegEncoder, jpegParams);
+                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                        minitile.SaveAsJpeg(minitilePath, jpegEncoder);
                     }
                 }
             }
@@ -1700,7 +1621,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                using (var img = System.Drawing.Image.FromFile(imagePath))
+                using (var img = SharpImage.Load<Rgba32>(imagePath))
                 {
                     // Consider optimized if it's square and not larger than 1000x1000
                     return img.Width == img.Height && img.Width <= 1000;
@@ -1714,7 +1635,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private void OptimizePreviewImage(string sourcePath, string targetPath)
         {
-            using (var src = System.Drawing.Image.FromFile(sourcePath))
+            using (var src = SharpImage.Load<Rgba32>(sourcePath))
             {
                 // Step 1: Crop to square (1:1 ratio) if needed
                 int originalSize = Math.Min(src.Width, src.Height);
@@ -1722,49 +1643,35 @@ namespace FlairX_Mod_Manager.Pages
                 int y = (src.Height - originalSize) / 2;
                 bool needsCrop = src.Width != src.Height;
                 
-                System.Drawing.Image squareImage = src;
-                if (needsCrop)
-                {
-                    var cropped = new System.Drawing.Bitmap(originalSize, originalSize);
-                    using (var g = System.Drawing.Graphics.FromImage(cropped))
-                    {
-                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                        g.CompositingQuality = CompositingQuality.HighQuality;
-                        g.SmoothingMode = SmoothingMode.HighQuality;
-                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                        var srcRect = new System.Drawing.Rectangle(x, y, originalSize, originalSize);
-                        var destRect = new System.Drawing.Rectangle(0, 0, originalSize, originalSize);
-                        g.DrawImage(src, destRect, srcRect, GraphicsUnit.Pixel);
-                    }
-                    squareImage = cropped;
-                }
-                
                 // Step 2: Scale down only if larger than 1000x1000 (no upscaling)
                 int finalSize = Math.Min(originalSize, 1000);
                 
-                using (var finalBmp = new System.Drawing.Bitmap(finalSize, finalSize))
-                using (var g2 = System.Drawing.Graphics.FromImage(finalBmp))
+                if (needsCrop)
                 {
-                    g2.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g2.CompositingQuality = CompositingQuality.HighQuality;
-                    g2.SmoothingMode = SmoothingMode.HighQuality;
-                    g2.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    var rect = new System.Drawing.Rectangle(0, 0, finalSize, finalSize);
-                    g2.DrawImage(squareImage, rect);
-                    
-                    var encoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                    if (encoder != null)
+                    // Crop and resize in one operation
+                    using (var finalBmp = src.Clone(ctx => ctx
+                        .Crop(new SixLabors.ImageSharp.Rectangle(x, y, originalSize, originalSize))
+                        .Resize(finalSize, finalSize, KnownResamplers.Bicubic)))
                     {
-                        var encParams = new EncoderParameters(1);
-                        encParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
-                        finalBmp.Save(targetPath, encoder, encParams);
+                        var encoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                        finalBmp.SaveAsJpeg(targetPath, encoder);
                     }
                 }
-                
-                // Dispose cropped image if we created one
-                if (needsCrop && squareImage != src)
+                else if (originalSize > 1000)
                 {
-                    squareImage.Dispose();
+                    // Only resize, no crop needed
+                    using (var finalBmp = src.Clone(ctx => ctx
+                        .Resize(finalSize, finalSize, KnownResamplers.Bicubic)))
+                    {
+                        var encoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                        finalBmp.SaveAsJpeg(targetPath, encoder);
+                    }
+                }
+                else
+                {
+                    // No processing needed, just save as JPEG
+                    var encoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                    src.SaveAsJpeg(targetPath, encoder);
                 }
             }
         }
@@ -1773,15 +1680,8 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                using (var previewImg = System.Drawing.Image.FromFile(previewPath))
-                using (var thumbBmp = new System.Drawing.Bitmap(600, 722))
-                using (var g3 = System.Drawing.Graphics.FromImage(thumbBmp))
+                using (var previewImg = SharpImage.Load<Rgba32>(previewPath))
                 {
-                    g3.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g3.CompositingQuality = CompositingQuality.HighQuality;
-                    g3.SmoothingMode = SmoothingMode.HighQuality;
-                    g3.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    
                     // Calculate crop to 600:722 ratio (center crop)
                     double targetRatio = 600.0 / 722.0;
                     double sourceRatio = (double)previewImg.Width / previewImg.Height;
@@ -1806,23 +1706,25 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     
                     // Apply smart cropping if enabled
-                    var cropRect = new System.Drawing.Rectangle(srcX, srcY, srcWidth, srcHeight);
+                    SixLabors.ImageSharp.Rectangle cropRect;
                     if (SettingsManager.Current.ImageCropType != "Center")
                     {
                         var cropType = Enum.Parse<CropType>(SettingsManager.Current.ImageCropType);
-                        cropRect = ImageCropService.CalculateCropRectangle(previewImg, 600, 722, cropType);
+                        var sdCropRect = ImageCropService.CalculateCropRectangle(previewImg, 600, 722, cropType);
+                        cropRect = new SixLabors.ImageSharp.Rectangle(sdCropRect.X, sdCropRect.Y, sdCropRect.Width, sdCropRect.Height);
+                    }
+                    else
+                    {
+                        cropRect = new SixLabors.ImageSharp.Rectangle(srcX, srcY, srcWidth, srcHeight);
                     }
                     
-                    var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
-                    g3.DrawImage(previewImg, destRect, cropRect, System.Drawing.GraphicsUnit.Pixel);
-                    
-                    // Save as JPEG minitile
-                    var jpegEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == ImageFormat.Jpeg.Guid);
-                    if (jpegEncoder != null)
+                    using (var thumbBmp = previewImg.Clone(ctx => ctx
+                        .Crop(cropRect)
+                        .Resize(600, 722, KnownResamplers.Bicubic)))
                     {
-                        var jpegParams = new EncoderParameters(1);
-                        jpegParams.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
-                        thumbBmp.Save(minitilePath, jpegEncoder, jpegParams);
+                        // Save as JPEG minitile
+                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                        thumbBmp.SaveAsJpeg(minitilePath, jpegEncoder);
                     }
                 }
             }
@@ -1933,7 +1835,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 try
                 {
-                    using (var img = System.Drawing.Image.FromFile(catprevJpgPath))
+                    using (var img = SharpImage.Load<Rgba32>(catprevJpgPath))
                     {
                         // Consider optimized if it's 600x722
                         needsOptimization = !(img.Width == 600 && img.Height == 722);
@@ -1960,90 +1862,78 @@ namespace FlairX_Mod_Manager.Pages
                     tempPath = Path.Combine(categoryDir, "catprev_temp.jpg");
                 }
                 
-                using (var img = System.Drawing.Image.FromFile(previewPath))
+                using (var img = SharpImage.Load<Rgba32>(previewPath))
                 {
                     // Create catprev.jpg (722x722 square for category preview)
-                    using (var thumbBmp = new System.Drawing.Bitmap(722, 722))
-                    using (var g = System.Drawing.Graphics.FromImage(thumbBmp))
+                    // Calculate crop to square (center crop)
+                    int size = Math.Min(img.Width, img.Height);
+                    int srcX = (img.Width - size) / 2;
+                    int srcY = (img.Height - size) / 2;
+                    
+                    // Apply smart cropping if enabled
+                    SixLabors.ImageSharp.Rectangle cropRect;
+                    if (SettingsManager.Current.ImageCropType != "Center")
                     {
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                        
-                        // Calculate crop to square (center crop)
-                        int size = Math.Min(img.Width, img.Height);
-                        int srcX = (img.Width - size) / 2;
-                        int srcY = (img.Height - size) / 2;
-                        
-                        // Apply smart cropping if enabled
-                        var cropRect = new System.Drawing.Rectangle(srcX, srcY, size, size);
-                        if (SettingsManager.Current.ImageCropType != "Center")
-                        {
-                            var cropType = Enum.Parse<CropType>(SettingsManager.Current.ImageCropType);
-                            cropRect = ImageCropService.CalculateCropRectangle(img, 722, 722, cropType);
-                        }
-                        
-                        var destRect = new System.Drawing.Rectangle(0, 0, 722, 722);
-                        g.DrawImage(img, destRect, cropRect, System.Drawing.GraphicsUnit.Pixel);
-                        
+                        var cropType = Enum.Parse<CropType>(SettingsManager.Current.ImageCropType);
+                        var sdCropRect = ImageCropService.CalculateCropRectangle(img, 722, 722, cropType);
+                        cropRect = new SixLabors.ImageSharp.Rectangle(sdCropRect.X, sdCropRect.Y, sdCropRect.Width, sdCropRect.Height);
+                    }
+                    else
+                    {
+                        cropRect = new SixLabors.ImageSharp.Rectangle(srcX, srcY, size, size);
+                    }
+                    
+                    using (var thumbBmp = img.Clone(ctx => ctx
+                        .Crop(cropRect)
+                        .Resize(722, 722, KnownResamplers.Bicubic)))
+                    {
                         // Save as JPEG catprev
-                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
-                        {
-                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
-                            thumbBmp.Save(tempPath, jpegEncoder, jpegParams);
-                        }
+                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                        thumbBmp.SaveAsJpeg(tempPath, jpegEncoder);
                     }
                     
                     // Create catmini.jpg (600x722 for category grid tiles) from same source
                     var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
-                    using (var miniThumb = new System.Drawing.Bitmap(600, 722))
-                    using (var g2 = System.Drawing.Graphics.FromImage(miniThumb))
+                    
+                    // Calculate crop for 600x722 aspect ratio
+                    double targetAspect = 600.0 / 722.0;
+                    double sourceAspect = (double)img.Width / img.Height;
+                    int cropWidth, cropHeight, x, y;
+                    
+                    if (sourceAspect > targetAspect)
                     {
-                        g2.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g2.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                        g2.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                        g2.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                        
-                        // Calculate crop for 600x722 aspect ratio
-                        double targetAspect = 600.0 / 722.0;
-                        double sourceAspect = (double)img.Width / img.Height;
-                        int cropWidth, cropHeight, x, y;
-                        
-                        if (sourceAspect > targetAspect)
-                        {
-                            cropHeight = img.Height;
-                            cropWidth = (int)(cropHeight * targetAspect);
-                            x = (img.Width - cropWidth) / 2;
-                            y = 0;
-                        }
-                        else
-                        {
-                            cropWidth = img.Width;
-                            cropHeight = (int)(cropWidth / targetAspect);
-                            x = 0;
-                            y = (img.Height - cropHeight) / 2;
-                        }
-                        
-                        // Apply smart cropping if enabled
-                        var srcRect = new System.Drawing.Rectangle(x, y, cropWidth, cropHeight);
-                        if (SettingsManager.Current.ImageCropType != "Center")
-                        {
-                            var cropType = Enum.Parse<CropType>(SettingsManager.Current.ImageCropType);
-                            srcRect = ImageCropService.CalculateCropRectangle(img, 600, 722, cropType);
-                        }
-                        var destRect = new System.Drawing.Rectangle(0, 0, 600, 722);
-                        g2.DrawImage(img, destRect, srcRect, System.Drawing.GraphicsUnit.Pixel);
-                        
-                        var jpegEncoder = System.Drawing.Imaging.ImageCodecInfo.GetImageEncoders().FirstOrDefault(c => c.FormatID == System.Drawing.Imaging.ImageFormat.Jpeg.Guid);
-                        if (jpegEncoder != null)
-                        {
-                            var jpegParams = new System.Drawing.Imaging.EncoderParameters(1);
-                            jpegParams.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, (long)SettingsManager.Current.ImageOptimizerJpegQuality);
-                            miniThumb.Save(catminiPath, jpegEncoder, jpegParams);
-                        }
+                        cropHeight = img.Height;
+                        cropWidth = (int)(cropHeight * targetAspect);
+                        x = (img.Width - cropWidth) / 2;
+                        y = 0;
+                    }
+                    else
+                    {
+                        cropWidth = img.Width;
+                        cropHeight = (int)(cropWidth / targetAspect);
+                        x = 0;
+                        y = (img.Height - cropHeight) / 2;
+                    }
+                    
+                    // Apply smart cropping if enabled
+                    SixLabors.ImageSharp.Rectangle srcRect;
+                    if (SettingsManager.Current.ImageCropType != "Center")
+                    {
+                        var cropType = Enum.Parse<CropType>(SettingsManager.Current.ImageCropType);
+                        var sdSrcRect = ImageCropService.CalculateCropRectangle(img, 600, 722, cropType);
+                        srcRect = new SixLabors.ImageSharp.Rectangle(sdSrcRect.X, sdSrcRect.Y, sdSrcRect.Width, sdSrcRect.Height);
+                    }
+                    else
+                    {
+                        srcRect = new SixLabors.ImageSharp.Rectangle(x, y, cropWidth, cropHeight);
+                    }
+                    
+                    using (var miniThumb = img.Clone(ctx => ctx
+                        .Crop(srcRect)
+                        .Resize(600, 722, KnownResamplers.Bicubic)))
+                    {
+                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
+                        miniThumb.SaveAsJpeg(catminiPath, jpegEncoder);
                     }
                 }
                 
