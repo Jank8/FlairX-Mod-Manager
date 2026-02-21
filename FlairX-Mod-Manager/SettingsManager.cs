@@ -136,8 +136,8 @@ namespace FlairX_Mod_Manager
         public int MaxDownloadConnections { get; set; } = 4;
         
         // Image Optimizer settings
-        public int ImageOptimizerJpegQuality { get; set; } = 80;
-        public int ImageOptimizerWebPQuality { get; set; } = 100;
+        public int ImageOptimizerJpegQuality { get; set; } = 85;
+        public int ImageOptimizerWebPQuality { get; set; } = 101; // 101 = lossless
         public string ImageFormat { get; set; } = "WebP"; // JPEG or WebP
         public int ImageOptimizerThreadCount { get; set; } = 0; // 0 = auto-detect based on CPU cores
         public bool ImageOptimizerCreateBackups { get; set; } = false;

@@ -121,7 +121,7 @@
                         <TextBlock Grid.Column="3" x:Name="JpegQualityValue" Text="80%" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </Grid>
                     
-                    <Slider Grid.Row="2" x:Name="JpegQualitySlider" Minimum="60" Maximum="100" Value="80" StepFrequency="5" 
+                    <Slider Grid.Row="2" x:Name="JpegQualitySlider" Minimum="60" Maximum="100" Value="80" StepFrequency="1" 
                             TickFrequency="10" TickPlacement="Outside" ValueChanged="JpegQualitySlider_ValueChanged"/>
                 </Grid>
             </Border>

@@ -1190,14 +1190,14 @@ namespace FlairX_Mod_Manager.Services
                             Logger.LogInfo($"Detected image format, Size: {image.Width}x{image.Height}");
                             
                             // Save in selected format (PNG or WebP - both support alpha)
-                            var quality = 100; // Always use max quality for icons
                             
                             if (imageExtension.Equals(".webp", StringComparison.OrdinalIgnoreCase))
                             {
+                                // Use lossless for icons to preserve alpha channel
                                 var encoder = new SixLabors.ImageSharp.Formats.Webp.WebpEncoder
                                 {
-                                    Quality = quality,
-                                    FileFormat = SixLabors.ImageSharp.Formats.Webp.WebpFileFormatType.Lossless, // Use lossless for icons to preserve alpha
+                                    Quality = 100,
+                                    FileFormat = SixLabors.ImageSharp.Formats.Webp.WebpFileFormatType.Lossless,
                                     Method = SixLabors.ImageSharp.Formats.Webp.WebpEncodingMethod.BestQuality
                                 };
                                 image.Save(finalIconPath, encoder);

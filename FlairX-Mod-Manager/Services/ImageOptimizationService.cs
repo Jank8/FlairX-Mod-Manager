@@ -684,13 +684,8 @@ namespace FlairX_Mod_Manager.Services
                 {
                     if (targetExtension == ".webp")
                     {
-                        // Save as WebP with alpha channel - use lossless for icons to preserve quality and alpha
-                        img.SaveAsWebp(targetPath, new WebpEncoder 
-                        { 
-                            Quality = 100, // Always use lossless (100) for icons to preserve alpha channel
-                            FileFormat = WebpFileFormatType.Lossless,
-                            Method = WebpEncodingMethod.BestQuality
-                        });
+                        // Save as WebP with alpha channel - use lossless mode (quality 101)
+                        SaveImage(img, targetPath, 101); // 101 = lossless
                     }
                     else
                     {
@@ -1741,16 +1736,22 @@ namespace FlairX_Mod_Manager.Services
         
         /// <summary>
         /// Save image in the configured format (JPEG or WebP) - SYNCHRONOUS version
+        /// Quality: 1-100 for lossy, 101+ for lossless
         /// </summary>
         private static void SaveImage(Image<Rgba32> image, string path, int quality)
         {
             var format = SettingsManager.Current.ImageFormat ?? "JPEG";
             if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
             {
+                // Quality 101+ = lossless, otherwise lossy
+                var fileFormat = quality >= 101 
+                    ? WebpFileFormatType.Lossless 
+                    : WebpFileFormatType.Lossy;
+                
                 image.SaveAsWebp(path, new WebpEncoder 
                 { 
-                    Quality = quality,
-                    FileFormat = WebpFileFormatType.Lossy,
+                    Quality = quality >= 101 ? 100 : quality, // Lossless ignores quality parameter
+                    FileFormat = fileFormat,
                     Method = WebpEncodingMethod.BestQuality
                 });
             }
@@ -1762,16 +1763,22 @@ namespace FlairX_Mod_Manager.Services
         
         /// <summary>
         /// Save image in the configured format (JPEG or WebP) - ASYNC version
+        /// Quality: 1-100 for lossy, 101+ for lossless
         /// </summary>
         private static async Task SaveImageAsync(Image<Rgba32> image, string path, int quality)
         {
             var format = SettingsManager.Current.ImageFormat ?? "JPEG";
             if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
             {
+                // Quality 101+ = lossless, otherwise lossy
+                var fileFormat = quality >= 101 
+                    ? WebpFileFormatType.Lossless 
+                    : WebpFileFormatType.Lossy;
+                
                 await image.SaveAsWebpAsync(path, new WebpEncoder 
                 { 
-                    Quality = quality,
-                    FileFormat = WebpFileFormatType.Lossy,
+                    Quality = quality >= 101 ? 100 : quality, // Lossless ignores quality parameter
+                    FileFormat = fileFormat,
                     Method = WebpEncodingMethod.BestQuality
                 });
             }

@@ -181,11 +181,14 @@ namespace FlairX_Mod_Manager.Pages
             string currentFormat = SettingsManager.Current.ImageFormat ?? "WebP";
             if (currentFormat.Equals("WebP", StringComparison.OrdinalIgnoreCase))
             {
+                JpegQualitySlider.Maximum = 101; // WebP supports lossless (101)
                 JpegQualitySlider.Value = _webpQuality;
-                JpegQualityValue.Text = $"{_webpQuality}%";
+                // Display "Lossless" for quality 101
+                JpegQualityValue.Text = _webpQuality >= 101 ? "Lossless" : $"{_webpQuality}%";
             }
             else
             {
+                JpegQualitySlider.Maximum = 100; // JPEG only supports up to 100
                 JpegQualitySlider.Value = _jpegQuality;
                 JpegQualityValue.Text = $"{_jpegQuality}%";
             }
@@ -236,8 +239,19 @@ namespace FlairX_Mod_Manager.Pages
             AutoDownloadHeader.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_AutoDownloadHeader");
             
             // Labels
-            JpegQualityLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_JpegQuality");
-            JpegQualityDescription.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_JpegQuality_Description");
+            var mainLang = SharedUtilities.LoadLanguageDictionary();
+            JpegQualityLabel.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_ConversionQuality");
+            
+            // Update description based on current format
+            var currentFormat = SettingsManager.Current.ImageFormat ?? "WebP";
+            if (currentFormat.Equals("WebP", StringComparison.OrdinalIgnoreCase))
+            {
+                JpegQualityDescription.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_WebP_Quality_Description");
+            }
+            else
+            {
+                JpegQualityDescription.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_Quality_Description");
+            }
             ThreadCountLabel.Text = SharedUtilities.GetTranslation(lang, "ImageOptimizer_ThreadCount");
             ThreadCountDescription.Text = string.Format(SharedUtilities.GetTranslation(lang, "ImageOptimizer_ThreadCount_Description"), Environment.ProcessorCount);
             
@@ -275,12 +289,19 @@ namespace FlairX_Mod_Manager.Pages
             if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
             {
                 _webpQuality = newValue;
-                JpegQualityValue.Text = $"{_webpQuality}%";
+                // Display "Lossless" for quality 101
+                if (JpegQualityValue != null)
+                {
+                    JpegQualityValue.Text = _webpQuality >= 101 ? "Lossless" : $"{_webpQuality}%";
+                }
             }
             else
             {
                 _jpegQuality = newValue;
-                JpegQualityValue.Text = $"{_jpegQuality}%";
+                if (JpegQualityValue != null)
+                {
+                    JpegQualityValue.Text = $"{_jpegQuality}%";
+                }
             }
             
             SaveSettings();
@@ -345,26 +366,30 @@ namespace FlairX_Mod_Manager.Pages
                     if (convertResult == ContentDialogResult.Primary)
                     {
                         // User wants to convert - use existing optimization system
-                        OptimizeButton_Click(null, null);
+                        OptimizeButton_Click(null!, null!);
                     }
                 }
                 
                 // Update quality slider state and switch between JPEG/WebP quality values
+                var mainLang = SharedUtilities.LoadLanguageDictionary();
                 if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
                 {
                     JpegQualitySlider.IsEnabled = true;
+                    JpegQualitySlider.Maximum = 101; // WebP supports lossless (101)
                     JpegQualitySlider.Value = _webpQuality;
-                    JpegQualityValue.Text = $"{_webpQuality}%";
-                    JpegQualityDescription.Text = SharedUtilities.GetTranslation(SharedUtilities.LoadLanguageDictionary(), "ImageOptimizer_WebP_Quality_Description") 
-                        ?? "WebP quality (100 = lossless, 80-99 = high quality with compression)";
+                    // Display "Lossless" for quality 101
+                    JpegQualityValue.Text = _webpQuality >= 101 ? "Lossless" : $"{_webpQuality}%";
+                    JpegQualityDescription.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_WebP_Quality_Description") 
+                        ?? "WebP quality: 1-100 = lossy (smaller files), 101 = lossless (perfect quality, larger files)";
                 }
                 else
                 {
                     JpegQualitySlider.IsEnabled = true;
+                    JpegQualitySlider.Maximum = 100; // JPEG only supports up to 100
                     JpegQualitySlider.Value = _jpegQuality;
                     JpegQualityValue.Text = $"{_jpegQuality}%";
-                    JpegQualityDescription.Text = SharedUtilities.GetTranslation(SharedUtilities.LoadLanguageDictionary(), "ImageOptimizer_Quality_Description") 
-                        ?? "Higher quality = larger file size (WebP uses max quality)";
+                    JpegQualityDescription.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_Quality_Description") 
+                        ?? "Higher quality = larger file size";
                 }
                 
                 SaveSettings();
