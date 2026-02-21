@@ -1565,19 +1565,27 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                // Only use catprev.jpg, fallback to icon if not found
-                var thumbPath = Path.Combine(categoryDir, "catprev.jpg");
+                // Check for WebP catprev first, then JPEG, fallback to icon
+                var thumbPathWebp = Path.Combine(categoryDir, "catprev.webp");
+                var thumbPathJpg = Path.Combine(categoryDir, "catprev.jpg");
                 
-                if (File.Exists(thumbPath))
+                string? thumbPath = null;
+                if (File.Exists(thumbPathWebp))
+                    thumbPath = thumbPathWebp;
+                else if (File.Exists(thumbPathJpg))
+                    thumbPath = thumbPathJpg;
+                
+                if (thumbPath != null)
                 {
                     var bitmap = new BitmapImage();
                     bitmap.DecodePixelWidth = 64;  // 2x for high DPI
                     bitmap.DecodePixelHeight = 64;
                     
-                    using (var stream = File.OpenRead(thumbPath))
-                    {
-                        await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
-                    }
+                    // Use UriSource for WebP support via Windows codecs
+                    // IMPORTANT: Must use absolute path for WebP to work
+                    var absolutePath = Path.GetFullPath(thumbPath);
+                    bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                    
                     return bitmap;
                 }
             }
@@ -1593,19 +1601,27 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                // Only use minitile.jpg like in main grid
-                var thumbPath = Path.Combine(modDir, "minitile.jpg");
+                // Check for WebP minitile first, then JPEG
+                var thumbPathWebp = Path.Combine(modDir, "minitile.webp");
+                var thumbPathJpg = Path.Combine(modDir, "minitile.jpg");
                 
-                if (File.Exists(thumbPath))
+                string? thumbPath = null;
+                if (File.Exists(thumbPathWebp))
+                    thumbPath = thumbPathWebp;
+                else if (File.Exists(thumbPathJpg))
+                    thumbPath = thumbPathJpg;
+                
+                if (thumbPath != null)
                 {
                     var bitmap = new BitmapImage();
                     bitmap.DecodePixelWidth = 208;
                     bitmap.DecodePixelHeight = 250;
                     
-                    using (var stream = File.OpenRead(thumbPath))
-                    {
-                        await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
-                    }
+                    // Use UriSource for WebP support via Windows codecs
+                    // IMPORTANT: Must use absolute path for WebP to work
+                    var absolutePath = Path.GetFullPath(thumbPath);
+                    bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                    
                     return bitmap;
                 }
             }

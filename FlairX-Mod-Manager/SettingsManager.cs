@@ -137,6 +137,8 @@ namespace FlairX_Mod_Manager
         
         // Image Optimizer settings
         public int ImageOptimizerJpegQuality { get; set; } = 80;
+        public int ImageOptimizerWebPQuality { get; set; } = 100;
+        public string ImageFormat { get; set; } = "WebP"; // JPEG or WebP
         public int ImageOptimizerThreadCount { get; set; } = 0; // 0 = auto-detect based on CPU cores
         public bool ImageOptimizerCreateBackups { get; set; } = false;
         public bool ImageOptimizerKeepOriginals { get; set; } = false;
@@ -165,6 +167,15 @@ namespace FlairX_Mod_Manager
         private static readonly string FavoritesPath = PathManager.GetSettingsPath("Favorites.json");
         public static Settings Current { get; private set; } = new Settings();
         public static FavoritesData Favorites { get; private set; } = new FavoritesData();
+
+        /// <summary>
+        /// Get file extension for current image format setting
+        /// </summary>
+        public static string GetImageExtension()
+        {
+            var format = Current.ImageFormat ?? "JPEG";
+            return format.Equals("WebP", StringComparison.OrdinalIgnoreCase) ? ".webp" : ".jpg";
+        }
 
         public static void Load()
         {

@@ -15,6 +15,7 @@ namespace FlairX_Mod_Manager.Pages
         private bool _isOptimizing = false;
         
         private int _jpegQuality = 80;
+        private int _webpQuality = 100;
         private int _threadCount = 4;
         private bool _createBackups = false;
         private bool _keepOriginals = false;
@@ -107,9 +108,37 @@ namespace FlairX_Mod_Manager.Pages
         {
             // Load from SettingsManager
             _jpegQuality = SettingsManager.Current.ImageOptimizerJpegQuality;
+            _webpQuality = SettingsManager.Current.ImageOptimizerWebPQuality;
             _threadCount = SettingsManager.Current.ImageOptimizerThreadCount;
             _createBackups = SettingsManager.Current.ImageOptimizerCreateBackups;
             _keepOriginals = SettingsManager.Current.ImageOptimizerKeepOriginals;
+            
+            // Load image format
+            string imageFormat = SettingsManager.Current.ImageFormat ?? "WebP";
+            ImageFormatComboBox.SelectionChanged -= ImageFormatComboBox_SelectionChanged;
+            foreach (ComboBoxItem item in ImageFormatComboBox.Items)
+            {
+                if ((string)item.Tag == imageFormat)
+                {
+                    ImageFormatComboBox.SelectedItem = item;
+                    break;
+                }
+            }
+            ImageFormatComboBox.SelectionChanged += ImageFormatComboBox_SelectionChanged;
+            
+            // Update quality slider state and value based on format
+            if (imageFormat.Equals("WebP", StringComparison.OrdinalIgnoreCase))
+            {
+                JpegQualitySlider.IsEnabled = true;
+                JpegQualitySlider.Value = _webpQuality;
+                JpegQualityValue.Text = $"{_webpQuality}%";
+            }
+            else
+            {
+                JpegQualitySlider.IsEnabled = true;
+                JpegQualitySlider.Value = _jpegQuality;
+                JpegQualityValue.Text = $"{_jpegQuality}%";
+            }
             
             // Load crop settings
             string cropType = SettingsManager.Current.ImageCropType ?? "Center";
@@ -143,9 +172,18 @@ namespace FlairX_Mod_Manager.Pages
 
         private void InitializeUI()
         {
-            // Set slider values
-            JpegQualitySlider.Value = _jpegQuality;
-            JpegQualityValue.Text = $"{_jpegQuality}%";
+            // Set slider values based on current format
+            string currentFormat = SettingsManager.Current.ImageFormat ?? "WebP";
+            if (currentFormat.Equals("WebP", StringComparison.OrdinalIgnoreCase))
+            {
+                JpegQualitySlider.Value = _webpQuality;
+                JpegQualityValue.Text = $"{_webpQuality}%";
+            }
+            else
+            {
+                JpegQualitySlider.Value = _jpegQuality;
+                JpegQualityValue.Text = $"{_jpegQuality}%";
+            }
             
             // Set thread count based on CPU cores
             int logicalCores = Environment.ProcessorCount;
@@ -225,9 +263,82 @@ namespace FlairX_Mod_Manager.Pages
 
         private void JpegQualitySlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
-            _jpegQuality = (int)e.NewValue;
-            JpegQualityValue.Text = $"{_jpegQuality}%";
+            int newValue = (int)e.NewValue;
+            
+            // Save to appropriate field based on current format
+            var format = SettingsManager.Current.ImageFormat ?? "WebP";
+            if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
+            {
+                _webpQuality = newValue;
+                JpegQualityValue.Text = $"{_webpQuality}%";
+            }
+            else
+            {
+                _jpegQuality = newValue;
+                JpegQualityValue.Text = $"{_jpegQuality}%";
+            }
+            
             SaveSettings();
+        }
+        
+        private async void ImageFormatComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ImageFormatComboBox.SelectedItem is ComboBoxItem item && item.Tag is string format)
+            {
+                // Check if switching to WebP and codec is not installed
+                if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase) && 
+                    !WebPCodecChecker.IsWebPCodecInstalled())
+                {
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var dialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "WebP_Codec_Required") ?? "WebP Codec Required",
+                        Content = SharedUtilities.GetTranslation(lang, "WebP_Codec_Message") ?? 
+                            "To display WebP images, you need to install the WebP Image Extensions from Microsoft Store.\n\nClick 'Install' to open Microsoft Store.",
+                        PrimaryButtonText = SharedUtilities.GetTranslation(lang, "Install") ?? "Install",
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel",
+                        XamlRoot = this.XamlRoot
+                    };
+                    
+                    var result = await dialog.ShowAsync();
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        // Open Microsoft Store to install WebP codec
+                        var storeLink = WebPCodecChecker.GetWebPCodecStoreLink();
+                        try
+                        {
+                            var uri = new Uri(storeLink);
+                            await Windows.System.Launcher.LaunchUriAsync(uri);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError("Failed to open Microsoft Store", ex);
+                        }
+                    }
+                }
+                
+                SettingsManager.Current.ImageFormat = format;
+                
+                // Update quality slider state and switch between JPEG/WebP quality values
+                if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
+                {
+                    JpegQualitySlider.IsEnabled = true;
+                    JpegQualitySlider.Value = _webpQuality;
+                    JpegQualityValue.Text = $"{_webpQuality}%";
+                    JpegQualityDescription.Text = SharedUtilities.GetTranslation(SharedUtilities.LoadLanguageDictionary(), "ImageOptimizer_WebP_Quality_Description") 
+                        ?? "WebP quality (100 = lossless, 80-99 = high quality with compression)";
+                }
+                else
+                {
+                    JpegQualitySlider.IsEnabled = true;
+                    JpegQualitySlider.Value = _jpegQuality;
+                    JpegQualityValue.Text = $"{_jpegQuality}%";
+                    JpegQualityDescription.Text = SharedUtilities.GetTranslation(SharedUtilities.LoadLanguageDictionary(), "ImageOptimizer_Quality_Description") 
+                        ?? "Higher quality = larger file size (WebP uses max quality)";
+                }
+                
+                SaveSettings();
+            }
         }
 
         private void ThreadCountSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
@@ -283,6 +394,7 @@ namespace FlairX_Mod_Manager.Pages
             
             // Save to SettingsManager
             SettingsManager.Current.ImageOptimizerJpegQuality = _jpegQuality;
+            SettingsManager.Current.ImageOptimizerWebPQuality = _webpQuality;
             SettingsManager.Current.ImageOptimizerThreadCount = _threadCount;
             SettingsManager.Current.ImageOptimizerCreateBackups = _createBackups;
             SettingsManager.Current.ImageOptimizerKeepOriginals = _keepOriginals;

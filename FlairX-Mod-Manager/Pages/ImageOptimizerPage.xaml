@@ -57,6 +57,38 @@
             <!-- Quality Section -->
             <TextBlock x:Name="QualityHeader" Text="Quality Settings" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
             
+            <!-- Image Format Card -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xEB9F;" FontSize="20" VerticalAlignment="Center"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="ImageFormatLabel" Text="Image Format" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="ImageFormatDescription" Text="WebP provides better compression with same quality" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                    
+                    <ComboBox Grid.Column="3" x:Name="ImageFormatComboBox" 
+                              MinWidth="120"
+                              VerticalAlignment="Center"
+                              SelectionChanged="ImageFormatComboBox_SelectionChanged">
+                        <ComboBoxItem Content="Classic (JPEG)" Tag="JPEG"/>
+                        <ComboBoxItem Content="WebP" Tag="WebP"/>
+                    </ComboBox>
+                </Grid>
+            </Border>
+            
             <!-- JPEG Quality Card -->
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
@@ -82,8 +114,8 @@
                         <FontIcon Grid.Column="0" Glyph="&#xE91B;" FontSize="20" VerticalAlignment="Center"/>
                         
                         <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="JpegQualityLabel" Text="JPEG Quality" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="JpegQualityDescription" Text="Higher quality = larger file size" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            <TextBlock x:Name="JpegQualityLabel" Text="Image Quality" FontWeight="SemiBold" FontSize="14"/>
+                            <TextBlock x:Name="JpegQualityDescription" Text="Higher quality = larger file size (WebP uses max quality)" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
                         </StackPanel>
                         
                         <TextBlock Grid.Column="3" x:Name="JpegQualityValue" Text="80%" FontSize="14" FontWeight="SemiBold" VerticalAlignment="Center"/>

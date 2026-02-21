@@ -466,49 +466,44 @@ namespace FlairX_Mod_Manager.Pages
             
             try
             {
-                // Read file on background thread with semaphore - don't block UI thread!
-                var imageData = await Task.Run(async () =>
-                {
-                    // Wait for semaphore slot on background thread (max 5 concurrent loads)
-                    await _imageLoadSemaphore.WaitAsync();
-                    try
-                    {
-                        if (File.Exists(imagePath))
-                        {
-                            return File.ReadAllBytes(imagePath);
-                        }
-                        return null;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
-                    finally
-                    {
-                        _imageLoadSemaphore.Release();
-                    }
-                });
+                // Check if file exists on background thread
+                var fileExists = await Task.Run(() => File.Exists(imagePath));
                 
-                // Decode on UI thread (required by WinUI 3)
-                if (imageData != null)
+                // Load on UI thread (required by WinUI 3)
+                if (fileExists)
                 {
-                    var bitmap = new BitmapImage();
-                    using (var memStream = new MemoryStream(imageData))
+                    // Ensure we're on UI thread for BitmapImage creation
+                    DispatcherQueue.TryEnqueue(async () =>
                     {
-                        await bitmap.SetSourceAsync(memStream.AsRandomAccessStream());
-                    }
-                    
-                    mod.ImageSource = bitmap;
-                    
-                    // Apply scaling only if not at 100% zoom
-                    if (Math.Abs(ZoomFactor - 1.0) > 0.001)
-                    {
-                        var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
-                        if (container?.ContentTemplateRoot is FrameworkElement root)
+                        try
                         {
-                            ApplyScalingToContainer(container, root);
+                            Logger.LogDebug($"LoadImageAsync: Loading {imagePath}");
+                            var bitmap = new BitmapImage();
+                            
+                            // Use UriSource with absolute path for WebP support via Windows codecs
+                            var absolutePath = Path.GetFullPath(imagePath);
+                            bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                            
+                            Logger.LogDebug($"LoadImageAsync: Image loaded for {imagePath}");
+                            
+                            mod.ImageSource = bitmap;
+                            Logger.LogDebug($"LoadImageAsync: ImageSource assigned for {imagePath}");
+                            
+                            // Apply scaling only if not at 100% zoom
+                            if (Math.Abs(ZoomFactor - 1.0) > 0.001)
+                            {
+                                var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
+                                if (container?.ContentTemplateRoot is FrameworkElement root)
+                                {
+                                    ApplyScalingToContainer(container, root);
+                                }
+                            }
                         }
-                    }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to load image {imagePath}", ex);
+                        }
+                    });
                 }
             }
             finally
@@ -636,11 +631,16 @@ namespace FlairX_Mod_Manager.Pages
                             // Clear image to force reload
                             tile.ImageSource = null;
                             
-                            // Update image path to new minitile if exists
-                            var minitilePath = Path.Combine(modPath, "minitile.jpg");
-                            if (File.Exists(minitilePath))
+                            // Update image path to new minitile if exists (check both formats)
+                            var minitileWebpPath = Path.Combine(modPath, "minitile.webp");
+                            var minitileJpgPath = Path.Combine(modPath, "minitile.jpg");
+                            if (File.Exists(minitileWebpPath))
                             {
-                                tile.ImagePath = minitilePath;
+                                tile.ImagePath = minitileWebpPath;
+                            }
+                            else if (File.Exists(minitileJpgPath))
+                            {
+                                tile.ImagePath = minitileJpgPath;
                             }
                             
                             Logger.LogInfo($"Refreshing tile image for: {modDirName}");
@@ -659,10 +659,15 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             tile.ImageSource = null;
                             
-                            var minitilePath = Path.Combine(modPath, "minitile.jpg");
-                            if (File.Exists(minitilePath))
+                            var minitileWebpPath = Path.Combine(modPath, "minitile.webp");
+                            var minitileJpgPath = Path.Combine(modPath, "minitile.jpg");
+                            if (File.Exists(minitileWebpPath))
                             {
-                                tile.ImagePath = minitilePath;
+                                tile.ImagePath = minitileWebpPath;
+                            }
+                            else if (File.Exists(minitileJpgPath))
+                            {
+                                tile.ImagePath = minitileJpgPath;
                             }
                         }
                     }

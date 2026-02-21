@@ -224,16 +224,18 @@ namespace FlairX_Mod_Manager.Pages
                     var categoryName = new DirectoryInfo(categoryDir).Name;
                     
                     // Check if category has any files to backup
-                    var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
-                    var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                    var catprevJpgPath = Path.Combine(categoryDir, "catprev.jpg");
+                    var catprevWebpPath = Path.Combine(categoryDir, "catprev.webp");
+                    var catminiJpgPath = Path.Combine(categoryDir, "catmini.jpg");
+                    var catminiWebpPath = Path.Combine(categoryDir, "catmini.webp");
                     
-                    bool hasCatprev = File.Exists(catprevPath);
-                    bool hasCatmini = File.Exists(catminiPath);
+                    bool hasCatprev = File.Exists(catprevJpgPath) || File.Exists(catprevWebpPath);
+                    bool hasCatmini = File.Exists(catminiJpgPath) || File.Exists(catminiWebpPath);
                     
                     // Only create backup if there are files to backup
                     if (!hasCatprev && !hasCatmini)
                     {
-                        Logger.LogInfo($"Skipping category backup for {categoryName} - no catprev.jpg or catmini.jpg found");
+                        Logger.LogInfo($"Skipping category backup for {categoryName} - no catprev or catmini found");
                         continue;
                     }
                     
@@ -250,14 +252,30 @@ namespace FlairX_Mod_Manager.Pages
                     var filesToBackup = new Dictionary<string, string>();
                     if (hasCatprev)
                     {
-                        filesToBackup["catprev.jpg"] = catprevPath;
-                        Logger.LogInfo($"Added catprev.jpg to backup for category: {categoryName}");
+                        if (File.Exists(catprevWebpPath))
+                        {
+                            filesToBackup["catprev.webp"] = catprevWebpPath;
+                            Logger.LogInfo($"Added catprev.webp to backup for category: {categoryName}");
+                        }
+                        else if (File.Exists(catprevJpgPath))
+                        {
+                            filesToBackup["catprev.jpg"] = catprevJpgPath;
+                            Logger.LogInfo($"Added catprev.jpg to backup for category: {categoryName}");
+                        }
                     }
                     
                     if (hasCatmini)
                     {
-                        filesToBackup["catmini.jpg"] = catminiPath;
-                        Logger.LogInfo($"Added catmini.jpg to backup for category: {categoryName}");
+                        if (File.Exists(catminiWebpPath))
+                        {
+                            filesToBackup["catmini.webp"] = catminiWebpPath;
+                            Logger.LogInfo($"Added catmini.webp to backup for category: {categoryName}");
+                        }
+                        else if (File.Exists(catminiJpgPath))
+                        {
+                            filesToBackup["catmini.jpg"] = catminiJpgPath;
+                            Logger.LogInfo($"Added catmini.jpg to backup for category: {categoryName}");
+                        }
                     }
                     
                     if (filesToBackup.Count > 0)
@@ -322,17 +340,23 @@ namespace FlairX_Mod_Manager.Pages
                         ["mod.json"] = modJson
                     };
                     
-                    // Add minitile.jpg
-                    var minitilePath = Path.Combine(dir, "minitile.jpg");
-                    if (File.Exists(minitilePath))
+                    // Add minitile (check both formats)
+                    var minitileWebpPath = Path.Combine(dir, "minitile.webp");
+                    var minitileJpgPath = Path.Combine(dir, "minitile.jpg");
+                    if (File.Exists(minitileWebpPath))
                     {
-                        filesToBackup["minitile.jpg"] = minitilePath;
+                        filesToBackup["minitile.webp"] = minitileWebpPath;
+                    }
+                    else if (File.Exists(minitileJpgPath))
+                    {
+                        filesToBackup["minitile.jpg"] = minitileJpgPath;
                     }
                     
-                    // Add all preview images (preview.jpg, preview-01.jpg, preview-02.jpg, etc.)
+                    // Add all preview images (preview.jpg/webp, preview-01.jpg/webp, etc.)
                     var previewFiles = Directory.GetFiles(dir, "preview*.jpg")
                         .Concat(Directory.GetFiles(dir, "preview*.jpeg"))
                         .Concat(Directory.GetFiles(dir, "preview*.png"))
+                        .Concat(Directory.GetFiles(dir, "preview*.webp"))
                         .ToList();
                     
                     Logger.LogInfo($"Found {previewFiles.Count} preview files for mod: {modName}");

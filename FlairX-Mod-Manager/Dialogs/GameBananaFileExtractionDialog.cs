@@ -59,6 +59,21 @@ namespace FlairX_Mod_Manager.Dialogs
             public string? Category { get; set; }
         }
 
+        // Helper methods for image format
+        private static bool IsImageFile(string filePath)
+        {
+            return filePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase);
+        }
+        
+        private static bool IsMinitileFile(string fileName)
+        {
+            var name = Path.GetFileName(fileName).ToLower();
+            return name == "minitile.jpg" || name == "minitile.webp";
+        }
+
         public GameBananaFileExtractionDialog(
             List<Models.GameBananaFileViewModel> selectedFiles,
             string modName,
@@ -584,6 +599,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Fire event to notify that mod was installed - only if installation was successful
                 if (!string.IsNullOrEmpty(_installedModPath) && Directory.Exists(_installedModPath))
                 {
+                    Logger.LogInfo($"[DIALOG] Firing ModInstalled event for: {_installedModPath}");
                     ModInstalled?.Invoke(this, new ModInstalledEventArgs 
                     { 
                         ModProfileUrl = _modProfileUrl,
@@ -591,6 +607,7 @@ namespace FlairX_Mod_Manager.Dialogs
                         ModPath = _installedModPath,
                         Category = _categoryTextBox.Text.Trim()
                     });
+                    Logger.LogInfo($"[DIALOG] ModInstalled event fired");
                 }
                 else
                 {
@@ -600,13 +617,17 @@ namespace FlairX_Mod_Manager.Dialogs
                     return;
                 }
 
+                Logger.LogInfo($"[DIALOG] Closing dialog with Hide()");
                 // Close dialog - optimization will run in background after dialog closes
                 Hide();
+                Logger.LogInfo($"[DIALOG] Dialog closed");
                 
-                // Run optimization in background AFTER dialog closes
+                // Run optimization AFTER dialog closes (on UI thread for crop panel support)
                 if (_downloadPreviews && !string.IsNullOrEmpty(_installedModPath))
                 {
-                    _ = Task.Run(() => OptimizeDownloadedPreviewsAsync(_installedModPath));
+                    Logger.LogInfo($"[DIALOG] Starting OptimizeDownloadedPreviewsAsync for: {_installedModPath}");
+                    // Don't use Task.Run - we need to stay on UI thread for crop panel
+                    _ = OptimizeDownloadedPreviewsAsync(_installedModPath);
                 }
             }
             catch (Exception ex)
@@ -683,11 +704,15 @@ namespace FlairX_Mod_Manager.Dialogs
                 _downloadProgressBar.Value = 100;
                 await Task.Delay(1000);
 
+                Logger.LogInfo($"[DIALOG] Closing dialog (preview-only mode) with Hide()");
                 // Close dialog
                 Hide();
+                Logger.LogInfo($"[DIALOG] Dialog closed (preview-only mode)");
 
-                // Run optimization in background AFTER dialog closes
-                _ = Task.Run(() => OptimizeDownloadedPreviewsAsync(modPath));
+                Logger.LogInfo($"[DIALOG] Starting OptimizeDownloadedPreviewsAsync (preview-only) for: {modPath}");
+                // Run optimization AFTER dialog closes (on UI thread for crop panel support)
+                // Don't use Task.Run - we need to stay on UI thread for crop panel
+                _ = OptimizeDownloadedPreviewsAsync(modPath);
             }
             catch (Exception ex)
             {
@@ -1232,10 +1257,8 @@ namespace FlairX_Mod_Manager.Dialogs
                             .Where(f => 
                             {
                                 var fileName = Path.GetFileName(f).ToLower();
-                                return (fileName.StartsWith("preview") || fileName == "minitile.jpg") && 
-                                       (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                                        f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                        f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                                return (fileName.StartsWith("preview") || IsMinitileFile(fileName)) && 
+                                       IsImageFile(f);
                             });
                         
                         foreach (var oldPreview in oldPreviews)
@@ -1264,9 +1287,7 @@ namespace FlairX_Mod_Manager.Dialogs
                         {
                             var fileName = Path.GetFileName(f).ToLower();
                             return fileName.StartsWith("preview") && 
-                                   (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                                   IsImageFile(f);
                         })
                         .Select(f => Path.GetFileName(f))
                         .ToList();
@@ -1422,10 +1443,8 @@ namespace FlairX_Mod_Manager.Dialogs
                     if (_keepPreviews)
                     {
                         var fileName = Path.GetFileName(file).ToLower();
-                        bool isPreview = (fileName.StartsWith("preview") || fileName == "minitile.jpg") && 
-                                       (file.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                                        file.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                        file.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                        bool isPreview = (fileName.StartsWith("preview") || IsMinitileFile(fileName)) && 
+                                       IsImageFile(file);
                         if (isPreview)
                             continue;
                     }
@@ -1666,10 +1685,8 @@ namespace FlairX_Mod_Manager.Dialogs
                         .Where(f =>
                         {
                             var fileName = Path.GetFileName(f).ToLower();
-                            return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
-                                   (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                            return (fileName.StartsWith("preview") || IsMinitileFile(fileName)) &&
+                                   IsImageFile(f);
                         });
                     foreach (var file in previewFilesToDelete)
                     {

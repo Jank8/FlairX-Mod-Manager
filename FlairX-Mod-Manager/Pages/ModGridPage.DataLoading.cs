@@ -106,10 +106,23 @@ namespace FlairX_Mod_Manager.Pages
             var gameModsPath = AppConstants.GameConfig.GetModsPath(gameTag);
             string categoryPath = PathManager.GetAbsolutePath(Path.Combine(gameModsPath, categoryName));
             
-            // Look for category mini tile image
-            string categoryMini = Path.Combine(categoryPath, "catmini.jpg");
-            LogToGridLog($"Looking for category mini tile: {categoryMini}");
-            return categoryMini;
+            // Look for category mini tile image (check both formats)
+            string categoryMiniWebp = Path.Combine(categoryPath, "catmini.webp");
+            string categoryMiniJpg = Path.Combine(categoryPath, "catmini.jpg");
+            
+            if (File.Exists(categoryMiniWebp))
+            {
+                LogToGridLog($"Found category mini tile: {categoryMiniWebp}");
+                return categoryMiniWebp;
+            }
+            else if (File.Exists(categoryMiniJpg))
+            {
+                LogToGridLog($"Found category mini tile: {categoryMiniJpg}");
+                return categoryMiniJpg;
+            }
+            
+            LogToGridLog($"No category mini tile found at: {categoryPath}");
+            return categoryMiniJpg; // Return default path for consistency
         }
 
         private void LoadCategoryMiniTile(ModTile categoryTile)
@@ -122,13 +135,15 @@ namespace FlairX_Mod_Manager.Pages
             if (File.Exists(miniTilePath))
             {
                 LogToGridLog($"LoadCategoryMiniTile: Found minitile for {categoryTile.Name}");
-                DispatcherQueue.TryEnqueue(async () =>
+                DispatcherQueue.TryEnqueue(() =>
                 {
                     try
                     {
                         var bitmap = new BitmapImage();
-                        using var stream = File.OpenRead(miniTilePath);
-                        await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
+                        // Convert to absolute path for UriSource
+                        var absolutePath = Path.GetFullPath(miniTilePath);
+                        // Use UriSource for WebP support via Windows codecs
+                        bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
                         categoryTile.ImageSource = bitmap;
                     }
                     catch (Exception ex)

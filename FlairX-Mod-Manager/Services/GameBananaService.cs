@@ -1150,7 +1150,10 @@ namespace FlairX_Mod_Manager.Services
                 }
 
                 var tempIconPath = Path.Combine(destinationFolder, "icon_temp");
-                var finalIconPath = Path.Combine(destinationFolder, "gbicon.png");
+                // gbicon should be PNG or WebP (with alpha channel support)
+                var imageFormat = SettingsManager.Current.ImageFormat;
+                var imageExtension = imageFormat.Equals("WebP", StringComparison.OrdinalIgnoreCase) ? ".webp" : ".png";
+                var finalIconPath = Path.Combine(destinationFolder, $"gbicon{imageExtension}");
                 
                 Logger.LogInfo($"Downloading icon from {iconUrl} to {tempIconPath}");
 
@@ -1178,7 +1181,7 @@ namespace FlairX_Mod_Manager.Services
                     
                     Logger.LogInfo($"Downloaded file size: {fileInfo.Length} bytes");
                     
-                    // Convert downloaded image (any format) to gbicon.png using ImageSharp
+                    // Convert downloaded image to selected format using ImageSharp
                     try
                     {
                         // ImageSharp can load any image format (PNG, JPEG, WebP, GIF, BMP, etc.)
@@ -1186,15 +1189,30 @@ namespace FlairX_Mod_Manager.Services
                         {
                             Logger.LogInfo($"Detected image format, Size: {image.Width}x{image.Height}");
                             
-                            // Save as PNG with high quality
-                            var encoder = new PngEncoder
-                            {
-                                CompressionLevel = PngCompressionLevel.BestCompression,
-                                ColorType = PngColorType.RgbWithAlpha
-                            };
+                            // Save in selected format (PNG or WebP - both support alpha)
+                            var quality = 100; // Always use max quality for icons
                             
-                            image.Save(finalIconPath, encoder);
-                            Logger.LogInfo($"Converted image to PNG and saved as {finalIconPath}");
+                            if (imageExtension.Equals(".webp", StringComparison.OrdinalIgnoreCase))
+                            {
+                                var encoder = new SixLabors.ImageSharp.Formats.Webp.WebpEncoder
+                                {
+                                    Quality = quality,
+                                    FileFormat = SixLabors.ImageSharp.Formats.Webp.WebpFileFormatType.Lossy,
+                                    Method = SixLabors.ImageSharp.Formats.Webp.WebpEncodingMethod.BestQuality
+                                };
+                                image.Save(finalIconPath, encoder);
+                                Logger.LogInfo($"Converted image to WebP and saved as {finalIconPath}");
+                            }
+                            else
+                            {
+                                var encoder = new PngEncoder
+                                {
+                                    CompressionLevel = PngCompressionLevel.BestCompression,
+                                    ColorType = PngColorType.RgbWithAlpha
+                                };
+                                image.Save(finalIconPath, encoder);
+                                Logger.LogInfo($"Converted image to PNG and saved as {finalIconPath}");
+                            }
                         }
                         
                         // Delete the temporary file

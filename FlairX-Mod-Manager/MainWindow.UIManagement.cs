@@ -392,18 +392,27 @@ namespace FlairX_Mod_Manager
             try
             {
                 var categoryPath = Path.Combine(modsPath, categoryName);
-                var categoryPreviewPath = Path.Combine(categoryPath, "catprev.jpg");
-                var categoryMiniPath = Path.Combine(categoryPath, "catmini.jpg");
-                var gbIconPath = Path.Combine(categoryPath, "gbicon.png");
+                var categoryPreviewWebpPath = Path.Combine(categoryPath, "catprev.webp");
+                var categoryPreviewJpgPath = Path.Combine(categoryPath, "catprev.jpg");
+                var categoryMiniWebpPath = Path.Combine(categoryPath, "catmini.webp");
+                var categoryMiniJpgPath = Path.Combine(categoryPath, "catmini.jpg");
+                var gbIconWebpPath = Path.Combine(categoryPath, "gbicon.webp");
+                var gbIconPngPath = Path.Combine(categoryPath, "gbicon.png");
                 
-                // Try catprev.jpg first, then catmini.jpg, then gbicon.png
+                // Try catprev (webp/jpg) first, then catmini (webp/jpg), then gbicon (webp/png only - needs alpha)
                 string? imagePath = null;
-                if (File.Exists(categoryPreviewPath))
-                    imagePath = categoryPreviewPath;
-                else if (File.Exists(categoryMiniPath))
-                    imagePath = categoryMiniPath;
-                else if (File.Exists(gbIconPath))
-                    imagePath = gbIconPath;
+                if (File.Exists(categoryPreviewWebpPath))
+                    imagePath = categoryPreviewWebpPath;
+                else if (File.Exists(categoryPreviewJpgPath))
+                    imagePath = categoryPreviewJpgPath;
+                else if (File.Exists(categoryMiniWebpPath))
+                    imagePath = categoryMiniWebpPath;
+                else if (File.Exists(categoryMiniJpgPath))
+                    imagePath = categoryMiniJpgPath;
+                else if (File.Exists(gbIconWebpPath))
+                    imagePath = gbIconWebpPath;
+                else if (File.Exists(gbIconPngPath))
+                    imagePath = gbIconPngPath;
                 
                 // Check if any category image exists
                 if (imagePath != null)
@@ -415,10 +424,10 @@ namespace FlairX_Mod_Manager
                     bitmap.DecodePixelWidth = 64;  // 2x for high DPI displays
                     bitmap.DecodePixelHeight = 64; // 2x for high DPI displays
                     
-                    using (var stream = File.OpenRead(imagePath))
-                    {
-                        await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
-                    }
+                    // Convert to absolute path for UriSource
+                    var absolutePath = Path.GetFullPath(imagePath);
+                    // Use UriSource for WebP support via Windows codecs
+                    bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
                     
                     // Create ImageIcon with the category image
                     // The NavigationView will handle appropriate styling
@@ -500,8 +509,17 @@ namespace FlairX_Mod_Manager
                 
                 foreach (var modDir in Directory.GetDirectories(categoryDir))
                 {
-                    var minitilePath = System.IO.Path.Combine(modDir, "minitile.jpg");
-                    if (File.Exists(minitilePath))
+                    // Check for both WebP and JPEG minitile
+                    var minitileWebpPath = System.IO.Path.Combine(modDir, "minitile.webp");
+                    var minitileJpgPath = System.IO.Path.Combine(modDir, "minitile.jpg");
+                    
+                    string? minitilePath = null;
+                    if (File.Exists(minitileWebpPath))
+                        minitilePath = minitileWebpPath;
+                    else if (File.Exists(minitileJpgPath))
+                        minitilePath = minitileJpgPath;
+                    
+                    if (minitilePath != null)
                     {
                         imagesToLoad.Add((minitilePath, System.IO.Path.GetFileName(modDir)));
                     }
@@ -787,17 +805,23 @@ namespace FlairX_Mod_Manager
                     return;
                     
                 var categoryPath = Path.Combine(modsPath, categoryName);
-                var categoryPreviewPath = Path.Combine(categoryPath, "catprev.jpg");
-                var categoryMiniPath = Path.Combine(categoryPath, "catmini.jpg");
+                var categoryPreviewWebpPath = Path.Combine(categoryPath, "catprev.webp");
+                var categoryPreviewJpgPath = Path.Combine(categoryPath, "catprev.jpg");
+                var categoryMiniWebpPath = Path.Combine(categoryPath, "catmini.webp");
+                var categoryMiniJpgPath = Path.Combine(categoryPath, "catmini.jpg");
                 var iconPath = Path.Combine(categoryPath, "icon.png");
                 
-                // Try catprev.jpg first, then catmini.jpg
+                // Try catprev (webp/jpg) first, then catmini (webp/jpg)
                 // Skip icon.png for preview popup as it's too small
                 string? previewPath = null;
-                if (File.Exists(categoryPreviewPath))
-                    previewPath = categoryPreviewPath;
-                else if (File.Exists(categoryMiniPath))
-                    previewPath = categoryMiniPath;
+                if (File.Exists(categoryPreviewWebpPath))
+                    previewPath = categoryPreviewWebpPath;
+                else if (File.Exists(categoryPreviewJpgPath))
+                    previewPath = categoryPreviewJpgPath;
+                else if (File.Exists(categoryMiniWebpPath))
+                    previewPath = categoryMiniWebpPath;
+                else if (File.Exists(categoryMiniJpgPath))
+                    previewPath = categoryMiniJpgPath;
                 
                 // Only show popup if we have catprev or catmini (not icon.png)
                 if (previewPath != null && CategoryPreviewPopup != null && CategoryPreviewImage != null)
@@ -806,10 +830,10 @@ namespace FlairX_Mod_Manager
                     {
                         // Load the category preview image
                         var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                        using (var stream = File.OpenRead(previewPath))
-                        {
-                            await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
-                        }
+                        // Use UriSource for WebP support via Windows codecs
+                        // IMPORTANT: Must use absolute path for WebP to work
+                        var absolutePath = Path.GetFullPath(previewPath);
+                        bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
                         
                         CategoryPreviewImage.Source = bitmap;
                         

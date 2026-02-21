@@ -2136,7 +2136,12 @@ namespace FlairX_Mod_Manager.Pages
                         // Create bitmap from downloaded data
                         memoryStream.Position = 0;
                         var bitmap = new BitmapImage();
-                        await bitmap.SetSourceAsync(memoryStream.AsRandomAccessStream());
+                        // Use UriSource for WebP support - save to temp file first
+                        var tempPath = Path.GetTempFileName();
+                        File.WriteAllBytes(tempPath, memoryStream.ToArray());
+                        // IMPORTANT: Must use absolute path for WebP to work
+                        var absolutePath = Path.GetFullPath(tempPath);
+                        bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
                         
                         // Cache the bitmap
                         _imageCache[imageUrl] = bitmap;

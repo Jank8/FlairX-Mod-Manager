@@ -20,6 +20,21 @@ namespace FlairX_Mod_Manager.Pages
         // Regex pattern to parse GameBanana URLs
         private static readonly Regex _urlPattern = new Regex(@"gamebanana\.com/(\w+)/(\d+)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+        // Helper methods for image format
+        private static bool IsImageFile(string filePath)
+        {
+            return filePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase);
+        }
+        
+        private static bool IsMinitileFile(string fileName)
+        {
+            var name = Path.GetFileName(fileName).ToLower();
+            return name == "minitile.jpg" || name == "minitile.webp";
+        }
+
         private void UpdateTexts()
         {
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
@@ -1971,9 +1986,7 @@ namespace FlairX_Mod_Manager.Pages
                             {
                                 var fileName = Path.GetFileName(f).ToLower();
                                 return fileName.StartsWith("preview") &&
-                                       (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                        f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                        f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                                       IsImageFile(f);
                             }).ToList();
 
                         // If not fetchAll mode, skip mods that already have previews
@@ -2000,10 +2013,8 @@ namespace FlairX_Mod_Manager.Pages
                                     .Where(f =>
                                     {
                                         var fileName = Path.GetFileName(f).ToLower();
-                                        return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
-                                               (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                                f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                                        return (fileName.StartsWith("preview") || IsMinitileFile(fileName)) &&
+                                               IsImageFile(f);
                                     });
                                 foreach (var preview in allPreviewFiles)
                                 {
@@ -2084,10 +2095,8 @@ namespace FlairX_Mod_Manager.Pages
                                             .Where(f =>
                                             {
                                                 var fileName = Path.GetFileName(f).ToLower();
-                                                return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
-                                                       (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                                        f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
-                                                        f.EndsWith(".png", StringComparison.OrdinalIgnoreCase));
+                                                return (fileName.StartsWith("preview") || IsMinitileFile(fileName)) &&
+                                                       IsImageFile(f);
                                             });
                                         foreach (var file in previewFilesToDelete)
                                         {

@@ -218,6 +218,8 @@ namespace FlairX_Mod_Manager.Controls
         /// </summary>
         public Task<List<BatchCropResult>?> ShowForBatchAsync(List<BatchCropItem> items)
         {
+            Logger.LogInfo($"[CROP_PANEL] ShowForBatchAsync called with {items.Count} items");
+            
             _isBatchMode = true;
             _batchItems = new ObservableCollection<BatchCropItem>(items);
             _currentBatchIndex = 0;
@@ -250,9 +252,6 @@ namespace FlairX_Mod_Manager.Controls
             
             // Force layout update to ensure all items are rendered
             BatchItemsRepeater.UpdateLayout();
-            
-            // Debug: Log the count
-            Logger.LogInfo($"BatchCropInspection: Created ObservableCollection with {_batchItems.Count} items");
             
             // Load first item (this will set up the image and crop rect)
             if (_batchItems.Count > 0)
@@ -385,7 +384,10 @@ namespace FlairX_Mod_Manager.Controls
 
         private void LoadImage()
         {
-            if (_sourceImage == null) return;
+            if (_sourceImage == null)
+            {
+                return;
+            }
 
             try
             {
@@ -404,7 +406,7 @@ namespace FlairX_Mod_Manager.Controls
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to load image for crop inspection", ex);
+                Logger.LogError("[CROP_PANEL] LoadImage: Failed to load image for crop inspection", ex);
             }
         }
 
@@ -815,6 +817,11 @@ namespace FlairX_Mod_Manager.Controls
 
         private async void FinalizeButton_Click(object sender, RoutedEventArgs e)
         {
+            // Disable buttons to prevent double-click
+            FinalizeButton.IsEnabled = false;
+            NextButton.IsEnabled = false;
+            StopButton.IsEnabled = false;
+            
             // Save current item's crop rect only (don't mark as edited - let the dialog decide)
             if (_isBatchMode && _currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
             {
@@ -845,7 +852,10 @@ namespace FlairX_Mod_Manager.Controls
                 
                 if (result == ContentDialogResult.None)
                 {
-                    // User cancelled - don't finalize
+                    // User cancelled - re-enable buttons
+                    FinalizeButton.IsEnabled = true;
+                    NextButton.IsEnabled = true;
+                    StopButton.IsEnabled = true;
                     return;
                 }
                 
@@ -1147,8 +1157,9 @@ namespace FlairX_Mod_Manager.Controls
                 thumbnail.Dispose();
                 return bitmapImage;
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.LogError("Failed to create thumbnail from image", ex);
                 return null;
             }
         }

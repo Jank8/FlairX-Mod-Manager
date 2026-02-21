@@ -21,6 +21,9 @@ using Microsoft.UI.Xaml.Media.Animation;
 using WinRT;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Composition.SystemBackdrops;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
 
 namespace FlairX_Mod_Manager
@@ -1211,6 +1214,7 @@ namespace FlairX_Mod_Manager
             
             Services.ImageOptimizationService.BatchCropInspectionRequested += async (items) =>
             {
+                Logger.LogInfo($"[BATCH_CROP] Handler invoked with {items.Count} items");
                 var tcs = new TaskCompletionSource<List<Services.BatchCropInspectionResult>?>();
                 
                 window.DispatcherQueue.TryEnqueue(async () =>
@@ -1219,19 +1223,22 @@ namespace FlairX_Mod_Manager
                     {
                         var cropPanel = new Controls.ImageCropInspectionPanel();
                         
-                        // Convert service items to control items
-                        var controlItems = items.Select(item => new Controls.BatchCropItem
+                        // Create thumbnails in background to avoid UI freeze
+                        var controlItems = await Task.Run(() =>
                         {
-                            FilePath = item.FilePath,
-                            DisplayName = Path.GetFileName(item.FilePath),
-                            ImageType = item.ImageType,
-                            SourceImage = item.SourceImage,
-                            InitialCropRect = item.InitialCropRect,
-                            TargetWidth = item.TargetWidth,
-                            TargetHeight = item.TargetHeight,
-                            IsProtected = item.IsProtected,
-                            Thumbnail = CreateThumbnailFromImage(item.SourceImage)
-                        }).ToList();
+                            return items.Select(item => new Controls.BatchCropItem
+                            {
+                                FilePath = item.FilePath,
+                                DisplayName = Path.GetFileName(item.FilePath),
+                                ImageType = item.ImageType,
+                                SourceImage = item.SourceImage,
+                                InitialCropRect = item.InitialCropRect,
+                                TargetWidth = item.TargetWidth,
+                                TargetHeight = item.TargetHeight,
+                                IsProtected = item.IsProtected,
+                                Thumbnail = CreateThumbnailFromImage(item.SourceImage)
+                            }).ToList();
+                        });
                         
                         var lang = SharedUtilities.LoadLanguageDictionary();
                         var title = SharedUtilities.GetTranslation(lang, "CropPanel_Title") ?? "Adjust Crop Area";
@@ -1242,6 +1249,7 @@ namespace FlairX_Mod_Manager
                         // Check if cancelled (null result)
                         if (batchResults == null)
                         {
+                            Logger.LogInfo($"[BATCH_CROP] User cancelled batch crop");
                             tcs.SetResult(null);
                             return;
                         }
@@ -1268,7 +1276,7 @@ namespace FlairX_Mod_Manager
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError("Error showing batch crop inspection panel", ex);
+                        Logger.LogError("[BATCH_CROP] Error showing batch crop inspection panel", ex);
                         tcs.SetResult(null);
                     }
                 });
@@ -1281,20 +1289,30 @@ namespace FlairX_Mod_Manager
 
         private static Microsoft.UI.Xaml.Media.Imaging.BitmapImage? CreateThumbnailFromImage(SixLabors.ImageSharp.Image<SixLabors.ImageSharp.PixelFormats.Rgba32>? sourceImage)
         {
-            if (sourceImage == null) return null;
+            if (sourceImage == null)
+            {
+                return null;
+            }
             
             try
             {
+                // Create thumbnail (64x64) using ImageSharp
+                var thumbnail = sourceImage.Clone(ctx => ctx.Resize(64, 64));
+                
+                // Convert to BitmapImage
                 using var ms = new MemoryStream();
-                sourceImage.Save(ms, new PngEncoder());
+                thumbnail.SaveAsPng(ms);
                 ms.Position = 0;
                 
                 var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
                 bitmap.SetSource(ms.AsRandomAccessStream());
+                
+                thumbnail.Dispose();
                 return bitmap;
             }
-            catch
+            catch (Exception ex)
             {
+                Logger.LogError("[THUMBNAIL] Failed to create thumbnail", ex);
                 return null;
             }
         }
@@ -1308,19 +1326,32 @@ namespace FlairX_Mod_Manager
             
             Services.ImageOptimizationService.MinitileSourceSelectionRequested += async (availableFiles, modDirectory) =>
             {
+                Logger.LogInfo($"[MINITILE_HANDLER] Event triggered with {availableFiles.Count} files for: {modDirectory}");
                 var tcs = new TaskCompletionSource<Services.MinitileSourceResult?>();
                 
-                window.DispatcherQueue.TryEnqueue(async () =>
+                Logger.LogInfo($"[MINITILE_HANDLER] Attempting to enqueue to UI thread");
+                bool enqueued = window.DispatcherQueue.TryEnqueue(async () =>
                 {
+                    Logger.LogInfo($"[MINITILE_HANDLER] Executing on UI thread");
                     try
                     {
+                        Logger.LogInfo($"[MINITILE_HANDLER] Creating MinitileSourceSelectionPanel");
                         var selectionPanel = new Controls.MinitileSourceSelectionPanel();
                         
+                        Logger.LogInfo($"[MINITILE_HANDLER] Loading language dictionary");
                         var lang = SharedUtilities.LoadLanguageDictionary();
                         var title = SharedUtilities.GetTranslation(lang, "MinitileSelection_Title") ?? "Select Minitile Source";
-                        ShowSlidingPanel(selectionPanel, title);
                         
-                        var selectionResult = await selectionPanel.ShowForSelectionAsync(availableFiles, modDirectory);
+                        Logger.LogInfo($"[MINITILE_HANDLER] Showing sliding panel with title: {title}");
+                        ShowSlidingPanel(selectionPanel, title);
+                        Logger.LogInfo($"[MINITILE_HANDLER] Sliding panel shown");
+                        
+                        Logger.LogInfo($"[MINITILE_HANDLER] Starting ShowForSelectionAsync");
+                        var selectionTask = selectionPanel.ShowForSelectionAsync(availableFiles, modDirectory);
+                        
+                        // Wait for the result - panel will close itself when button is clicked
+                        var selectionResult = await selectionTask;
+                        Logger.LogInfo($"[MINITILE_HANDLER] ShowForSelectionAsync returned");
                         
                         var result = new Services.MinitileSourceResult
                         {
@@ -1329,15 +1360,25 @@ namespace FlairX_Mod_Manager
                             Stopped = selectionResult.Stopped
                         };
                         
+                        Logger.LogInfo($"[MINITILE_HANDLER] Setting result");
                         tcs.SetResult(result);
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError("Error showing minitile source selection panel", ex);
+                        Logger.LogError("[MINITILE_HANDLER] Error showing minitile source selection panel", ex);
                         tcs.SetResult(null);
                     }
                 });
                 
+                Logger.LogInfo($"[MINITILE_HANDLER] TryEnqueue returned: {enqueued}");
+                
+                if (!enqueued)
+                {
+                    Logger.LogError("[MINITILE_HANDLER] Failed to enqueue to UI thread!");
+                    tcs.SetResult(null);
+                }
+                
+                Logger.LogInfo($"[MINITILE_HANDLER] Waiting for task completion");
                 return await tcs.Task;
             };
             

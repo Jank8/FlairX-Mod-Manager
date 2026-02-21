@@ -347,5 +347,9 @@
     "RuntimeCheck_ContinueAnyway_Button": "Continue Anyway",
     "RuntimeCheck_MaybeLater_Button": "Maybe Later",
     "RuntimeCheck_DotNet_Update_Title": ".NET Runtime Update Required",
-    "RuntimeCheck_DotNet_Update_Content": ".NET 10 Runtime needs to be updated.\n\nInstalled version: {0}\nRequired version: {1} or newer\n\nTo update, download from:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nOr use winget:\nwinget install Microsoft.DotNet.Runtime.10"
+    "RuntimeCheck_DotNet_Update_Content": ".NET 10 Runtime needs to be updated.\n\nInstalled version: {0}\nRequired version: {1} or newer\n\nTo update, download from:\nhttps://dotnet.microsoft.com/download/dotnet/10.0\n\nOr use winget:\nwinget install Microsoft.DotNet.Runtime.10",
+    "ProcessingImages": "Processing Images",
+    "ConvertingImages": "Converting images, please wait...",
+    "ImageOptimizer_Quality_Description": "Higher quality = larger file size",
+    "ImageOptimizer_WebP_Quality_Description": "WebP quality (100 = lossless, 80-99 = high quality with compression)"
 }

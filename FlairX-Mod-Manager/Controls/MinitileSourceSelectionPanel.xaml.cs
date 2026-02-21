@@ -89,15 +89,18 @@ namespace FlairX_Mod_Manager.Controls
             {
                 if (!File.Exists(filePath)) return;
 
-                var bitmap = new BitmapImage();
-                using (var stream = File.OpenRead(filePath))
+                await Task.Run(() =>
                 {
-                    using (var randomAccessStream = stream.AsRandomAccessStream())
+                    DispatcherQueue.TryEnqueue(() =>
                     {
-                        await bitmap.SetSourceAsync(randomAccessStream);
-                    }
-                }
-                imageControl.Source = bitmap;
+                        var bitmap = new BitmapImage();
+                        // Use UriSource for WebP support via Windows codecs
+                        // IMPORTANT: Must use absolute path for WebP to work
+                        var absolutePath = Path.GetFullPath(filePath);
+                        bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                        imageControl.Source = bitmap;
+                    });
+                });
             }
             catch (Exception ex)
             {
@@ -189,35 +192,41 @@ namespace FlairX_Mod_Manager.Controls
 
         private void ConfirmButton_Click(object sender, RoutedEventArgs e)
         {
+            // Close panel immediately, then set result
+            CloseRequested?.Invoke(this, EventArgs.Empty);
+            
             _completionSource?.SetResult(new MinitileSourceResult
             {
                 SelectedFilePath = _selectedFilePath,
                 Skipped = false,
                 Stopped = false
             });
-            CloseRequested?.Invoke(this, EventArgs.Empty);
         }
 
         private void SkipButton_Click(object sender, RoutedEventArgs e)
         {
+            // Close panel immediately, then set result
+            CloseRequested?.Invoke(this, EventArgs.Empty);
+            
             _completionSource?.SetResult(new MinitileSourceResult
             {
                 SelectedFilePath = null,
                 Skipped = true,
                 Stopped = false
             });
-            CloseRequested?.Invoke(this, EventArgs.Empty);
         }
 
         private void StopButton_Click(object sender, RoutedEventArgs e)
         {
+            // Close panel immediately, then set result
+            CloseRequested?.Invoke(this, EventArgs.Empty);
+            
             _completionSource?.SetResult(new MinitileSourceResult
             {
                 SelectedFilePath = null,
                 Skipped = false,
                 Stopped = true
             });
-            CloseRequested?.Invoke(this, EventArgs.Empty);
         }
     }
 }

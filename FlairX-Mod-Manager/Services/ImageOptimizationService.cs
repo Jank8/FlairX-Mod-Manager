@@ -11,9 +11,19 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Webp;
 
 namespace FlairX_Mod_Manager.Services
 {
+    /// <summary>
+    /// Image format for optimization
+    /// </summary>
+    public enum ImageFormat
+    {
+        JPEG,
+        WebP
+    }
+    
     /// <summary>
     /// Delegate for crop inspection callback
     /// </summary>
@@ -347,8 +357,8 @@ namespace FlairX_Mod_Manager.Services
         private static async Task ProcessCategoryPreviewFullAsync(string categoryDir, OptimizationContext context)
         {
             // Track which files existed before we started (for cleanup on cancel)
-            var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
-            var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+            var catprevPath = Path.Combine(categoryDir, GetCatprevFilename());
+            var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
             bool catprevExistedBefore = File.Exists(catprevPath);
             bool catminiExistedBefore = File.Exists(catminiPath);
             
@@ -357,12 +367,12 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"Processing category preview (CategoryFull) in: {categoryDir}");
                 
                 // Check if catprev exists but catmini is missing - only generate catmini
-                var existingCatprevPath = Path.Combine(categoryDir, "catprev.jpg");
-                var existingCatminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                var existingCatprevPath = Path.Combine(categoryDir, GetCatprevFilename());
+                var existingCatminiPath = Path.Combine(categoryDir, GetCatminiFilename());
                 
                 if (File.Exists(existingCatprevPath) && !File.Exists(existingCatminiPath) && !context.Reoptimize)
                 {
-                    Logger.LogInfo($"catprev.jpg exists but catmini.jpg missing - generating catmini only");
+                    Logger.LogInfo($"{GetCatprevFilename()} exists but {GetCatminiFilename()} missing - generating catmini only");
                     await GenerateCatminiFromCatprevAsync(categoryDir, context);
                     return;
                 }
@@ -384,9 +394,7 @@ namespace FlairX_Mod_Manager.Services
                         {
                             var fileName = Path.GetFileName(f).ToLower();
                             return (fileName.StartsWith("preview") || fileName.StartsWith("catprev") || fileName.StartsWith("catmini")) &&
-                                   (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                                   IsImageFile(f);
                         })
                         .ToList();
                     
@@ -402,9 +410,7 @@ namespace FlairX_Mod_Manager.Services
                     {
                         var fileName = Path.GetFileName(f).ToLower();
                         return fileName.StartsWith("catprev") &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                               IsImageFile(f);
                     })
                     .ToArray();
                 
@@ -414,9 +420,7 @@ namespace FlairX_Mod_Manager.Services
                         var fileName = Path.GetFileName(f).ToLower();
                         return (fileName.StartsWith("catpreview") || fileName.StartsWith("preview")) &&
                                !fileName.StartsWith("catprev") &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                               IsImageFile(f);
                     })
                     .ToArray();
                 
@@ -466,29 +470,29 @@ namespace FlairX_Mod_Manager.Services
                 // Check if source and target are the same file - need to use temp file
                 bool isSameFileAsCatprev = previewPath.Equals(catprevPath, StringComparison.OrdinalIgnoreCase);
                 string actualCatprevPath = isSameFileAsCatprev 
-                    ? Path.Combine(categoryDir, $"_temp_catprev_{Guid.NewGuid()}.jpg")
+                    ? Path.Combine(categoryDir, $"_temp_catprev_{Guid.NewGuid()}{GetImageExtension()}")
                     : catprevPath;
                 
                 using (var img = Image.Load<Rgba32>(previewPath))
                 {
                     // Get crop rectangle with optional inspection for catprev
                     var catprevCropRect = await GetCropRectangleWithInspectionAsync(
-                        img, 722, 722, context, "catprev.jpg");
+                        img, 722, 722, context, GetCatprevFilename());
                     
                     if (catprevCropRect == null)
                     {
-                        Logger.LogInfo($"Deleted catprev.jpg generation");
+                        Logger.LogInfo($"Deleted {GetCatprevFilename()} generation");
                         return; // User chose to delete
                     }
                     
                     // Skip not allowed for category - crop is required
                     if (catprevCropRect.Value.X == -1 && catprevCropRect.Value.Y == -1)
                     {
-                        Logger.LogInfo($"Skipping catprev.jpg generation (user chose skip)");
+                        Logger.LogInfo($"Skipping {GetCatprevFilename()} generation (user chose skip)");
                         return;
                     }
                     
-                    // Generate catprev.jpg (722x722) - crop and resize
+                    // Generate catprev (722x722) - crop and resize
                     using (var catprev = img.Clone(ctx => ctx
                         .Crop(catprevCropRect.Value)
                         .Resize(new ResizeOptions
@@ -498,28 +502,28 @@ namespace FlairX_Mod_Manager.Services
                             Sampler = KnownResamplers.Bicubic  // = HighQualityBicubic
                         })))
                     {
-                        catprev.SaveAsJpeg(actualCatprevPath, new JpegEncoder { Quality = context.JpegQuality });
-                        Logger.LogInfo($"Generated catprev.jpg");
+                        SaveImage(catprev, actualCatprevPath, context.JpegQuality);
+                        Logger.LogInfo($"Generated {GetCatprevFilename()}");
                     }
                     
                     // Get crop rectangle with optional inspection for catmini (thumbnail)
                     var catminiCropRect = await GetCropRectangleWithInspectionAsync(
-                        img, 600, 722, context, "catmini.jpg", isProtected: false, isThumbnail: true);
+                        img, 600, 722, context, GetCatminiFilename(), isProtected: false, isThumbnail: true);
                     
                     if (catminiCropRect == null)
                     {
-                        Logger.LogInfo($"Deleted catmini.jpg generation");
+                        Logger.LogInfo($"Deleted {GetCatminiFilename()} generation");
                         return; // User chose to delete
                     }
                     
                     // Skip not allowed for category - crop is required
                     if (catminiCropRect.Value.X == -1 && catminiCropRect.Value.Y == -1)
                     {
-                        Logger.LogInfo($"Skipping catmini.jpg generation (user chose skip)");
+                        Logger.LogInfo($"Skipping {GetCatminiFilename()} generation (user chose skip)");
                         return;
                     }
                     
-                    // Generate catmini.jpg (600x722) - crop and resize
+                    // Generate catmini (600x722) - crop and resize
                     using (var catmini = img.Clone(ctx => ctx
                         .Crop(catminiCropRect.Value)
                         .Resize(new ResizeOptions
@@ -529,8 +533,8 @@ namespace FlairX_Mod_Manager.Services
                             Sampler = KnownResamplers.Bicubic  // = HighQualityBicubic
                         })))
                     {
-                        catmini.SaveAsJpeg(catminiPath, new JpegEncoder { Quality = context.JpegQuality });
-                        Logger.LogInfo($"Generated catmini.jpg");
+                        SaveImage(catmini, catminiPath, context.JpegQuality);
+                        Logger.LogInfo($"Generated {GetCatminiFilename()}");
                     }
                 }
                 
@@ -620,12 +624,12 @@ namespace FlairX_Mod_Manager.Services
                     if (!catprevExistedBefore && File.Exists(catprevPath))
                     {
                         File.Delete(catprevPath);
-                        Logger.LogInfo($"Cleaned up new catprev.jpg");
+                        Logger.LogInfo($"Cleaned up new {GetCatprevFilename()}");
                     }
                     if (!catminiExistedBefore && File.Exists(catminiPath))
                     {
                         File.Delete(catminiPath);
-                        Logger.LogInfo($"Cleaned up new catmini.jpg");
+                        Logger.LogInfo($"Cleaned up new {GetCatminiFilename()}");
                     }
                     
                     // Restore _original files back to their original names
@@ -654,12 +658,12 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"Processing category preview (Standard) in: {categoryDir}");
                 
                 // Check if catprev exists but catmini is missing - only generate catmini
-                var existingCatprevPath = Path.Combine(categoryDir, "catprev.jpg");
-                var existingCatminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                var existingCatprevPath = Path.Combine(categoryDir, GetCatprevFilename());
+                var existingCatminiPath = Path.Combine(categoryDir, GetCatminiFilename());
                 
                 if (File.Exists(existingCatprevPath) && !File.Exists(existingCatminiPath) && !context.Reoptimize)
                 {
-                    Logger.LogInfo($"catprev.jpg exists but catmini.jpg missing - generating catmini only (Lite)");
+                    Logger.LogInfo($"{GetCatprevFilename()} exists but {GetCatminiFilename()} missing - generating catmini only (Lite)");
                     GenerateCatminiFromCatprevLite(categoryDir, context);
                     return;
                 }
@@ -672,9 +676,7 @@ namespace FlairX_Mod_Manager.Services
                         {
                             var fileName = Path.GetFileName(f).ToLower();
                             return (fileName.StartsWith("preview") || fileName.StartsWith("catprev")) &&
-                                   (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                                   IsImageFile(f);
                         })
                         .ToList();
                     
@@ -690,9 +692,7 @@ namespace FlairX_Mod_Manager.Services
                     {
                         var fileName = Path.GetFileName(f).ToLower();
                         return (fileName.StartsWith("catprev") || fileName.StartsWith("preview")) &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                               IsImageFile(f);
                     })
                     .ToList();
                 
@@ -735,22 +735,22 @@ namespace FlairX_Mod_Manager.Services
                 }
                 
                 var sourceFile = previewFiles[0];
-                var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
-                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                var catprevPath = Path.Combine(categoryDir, GetCatprevFilename());
+                var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
                 
                 // Check if source and target are the same file - need to use temp file
                 bool isSameFile = sourceFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase);
                 string actualCatprevPath = isSameFile 
-                    ? Path.Combine(categoryDir, $"_temp_catprev_{Guid.NewGuid()}.jpg")
+                    ? Path.Combine(categoryDir, $"_temp_catprev_{Guid.NewGuid()}{GetImageExtension()}")
                     : catprevPath;
                 
                 using (var img = Image.Load<Rgba32>(sourceFile))
                 {
-                    // Save catprev.jpg without resizing (just convert to JPEG)
-                    img.SaveAsJpeg(actualCatprevPath, new JpegEncoder { Quality = context.JpegQuality });
-                    Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> catprev.jpg");
+                    // Save catprev without resizing (just convert to target format)
+                    SaveImage(img, actualCatprevPath, context.JpegQuality);
+                    Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> {GetCatprevFilename()}");
                     
-                    // Generate catmini.jpg (600x722) - cropped thumbnail
+                    // Generate catmini (600x722) - cropped thumbnail
                     var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
                     using (var catmini = img.Clone(ctx => ctx
                         .Crop(catminiCropRect)
@@ -761,8 +761,8 @@ namespace FlairX_Mod_Manager.Services
                             Sampler = KnownResamplers.Bicubic
                         })))
                     {
-                        catmini.SaveAsJpeg(catminiPath, new JpegEncoder { Quality = context.JpegQuality });
-                        Logger.LogInfo($"Generated catmini.jpg (Standard)");
+                        SaveImage(catmini, catminiPath, context.JpegQuality);
+                        Logger.LogInfo($"Generated {GetCatminiFilename()} (Standard)");
                     }
                 }
                 
@@ -847,9 +847,7 @@ namespace FlairX_Mod_Manager.Services
                     {
                         var fileName = Path.GetFileName(f).ToLower();
                         return (fileName.StartsWith("catprev") || fileName.StartsWith("preview")) &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                               IsImageFile(f);
                     })
                     .ToList();
                 
@@ -883,31 +881,31 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
-        /// Generate catmini.jpg from existing catprev.jpg (CategoryFull mode with crop inspection)
+        /// Generate catmini from existing catprev (CategoryFull mode with crop inspection)
         /// </summary>
         private static async Task GenerateCatminiFromCatprevAsync(string categoryDir, OptimizationContext context)
         {
             try
             {
-                var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
-                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                var catprevPath = Path.Combine(categoryDir, GetCatprevFilename());
+                var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
                 
                 using (var img = Image.Load<Rgba32>(catprevPath))
                 {
                     // Get crop rectangle with optional inspection for catmini
                     var catminiCropRect = await GetCropRectangleWithInspectionAsync(
-                        img, 600, 722, context, "catmini.jpg", isProtected: false, isThumbnail: true);
+                        img, 600, 722, context, GetCatminiFilename(), isProtected: false, isThumbnail: true);
                     
                     if (catminiCropRect == null)
                     {
-                        Logger.LogInfo($"Skipped catmini.jpg generation (user chose delete)");
+                        Logger.LogInfo($"Skipped {GetCatminiFilename()} generation (user chose delete)");
                         return;
                     }
                     
                     // Skip not allowed for category - crop is required
                     if (catminiCropRect.Value.X == -1 && catminiCropRect.Value.Y == -1)
                     {
-                        Logger.LogInfo($"Skipped catmini.jpg generation (user chose skip)");
+                        Logger.LogInfo($"Skipped {GetCatminiFilename()} generation (user chose skip)");
                         return;
                     }
                     
@@ -921,8 +919,8 @@ namespace FlairX_Mod_Manager.Services
                             Sampler = KnownResamplers.Bicubic
                         })))
                     {
-                        catmini.SaveAsJpeg(catminiPath, new JpegEncoder { Quality = context.JpegQuality });
-                        Logger.LogInfo($"Generated catmini.jpg from existing catprev.jpg");
+                        SaveImage(catmini, catminiPath, context.JpegQuality);
+                        Logger.LogInfo($"Generated {GetCatminiFilename()} from existing {GetCatprevFilename()}");
                     }
                 }
             }
@@ -933,18 +931,18 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
-        /// Generate catmini.jpg from existing catprev.jpg (Standard mode with auto crop)
+        /// Generate catmini from existing catprev (Standard mode with auto crop)
         /// </summary>
         private static void GenerateCatminiFromCatprevLite(string categoryDir, OptimizationContext context)
         {
             try
             {
-                var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
-                var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                var catprevPath = Path.Combine(categoryDir, GetCatprevFilename());
+                var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
                 
                 using (var img = Image.Load<Rgba32>(catprevPath))
                 {
-                    // Generate catmini.jpg (600x722) with auto crop
+                    // Generate catmini (600x722) with auto crop
                     var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
                     using (var catmini = img.Clone(ctx => ctx
                         .Crop(catminiCropRect)
@@ -955,8 +953,8 @@ namespace FlairX_Mod_Manager.Services
                             Sampler = KnownResamplers.Bicubic
                         })))
                     {
-                        catmini.SaveAsJpeg(catminiPath, new JpegEncoder { Quality = context.JpegQuality });
-                        Logger.LogInfo($"Generated catmini.jpg from existing catprev.jpg (Standard)");
+                        SaveImage(catmini, catminiPath, context.JpegQuality);
+                        Logger.LogInfo($"Generated {GetCatminiFilename()} from existing {GetCatprevFilename()} (Standard)");
                     }
                 }
             }
@@ -1068,8 +1066,8 @@ namespace FlairX_Mod_Manager.Services
                 }
             }
             
-            // Clean up minitile.jpg if it was created during this operation
-            var minitilePath = Path.Combine(directory, "minitile.jpg");
+            // Clean up minitile if it was created during this operation
+            var minitilePath = Path.Combine(directory, GetMinitileFilename());
             try
             {
                 // Only delete minitile if we were adding new files (not reoptimizing)
@@ -1111,8 +1109,8 @@ namespace FlairX_Mod_Manager.Services
                 }
             }
             
-            // Also clean up minitile.jpg if it was created
-            var minitilePath = Path.Combine(directory, "minitile.jpg");
+            // Also clean up minitile if it was created
+            var minitilePath = Path.Combine(directory, GetMinitileFilename());
             try
             {
                 if (File.Exists(minitilePath))
@@ -1223,7 +1221,7 @@ namespace FlairX_Mod_Manager.Services
             {
                 var sourceFile = previewFiles[i];
                 int targetIndex = startIndex + i;
-                string targetFileName = targetIndex == 0 ? "preview.jpg" : $"preview-{targetIndex:D2}.jpg";
+                string targetFileName = GetPreviewFilename(targetIndex);
                 var targetPath = Path.Combine(modDir, targetFileName);
                 
                 bool savedSuccessfully = false;
@@ -1235,7 +1233,7 @@ namespace FlairX_Mod_Manager.Services
                     // Check if source and target are the same file - need to use temp file
                     bool isSameFile = sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
                     string actualTargetPath = isSameFile 
-                        ? Path.Combine(modDir, $"_temp_{Guid.NewGuid()}.jpg")
+                        ? Path.Combine(modDir, $"_temp_{Guid.NewGuid()}{GetImageExtension()}")
                         : targetPath;
                     
                     using (var img = Image.Load<Rgba32>(sourceFile))
@@ -1250,15 +1248,15 @@ namespace FlairX_Mod_Manager.Services
                             if (isMinitileSource)
                             {
                                 Logger.LogInfo($"Processing minitile source as No Crop: {Path.GetFileName(sourceFile)}");
-                                string minitileTargetPath = Path.Combine(modDir, "preview.jpg");
+                                string minitileTargetPath = Path.Combine(modDir, GetPreviewFilename(0));
                                 
                                 // Check if source and target are the same file - use temp file
                                 bool isSameFileForMinitile = sourceFile.Equals(minitileTargetPath, StringComparison.OrdinalIgnoreCase);
                                 string actualMinitileTargetPath = isSameFileForMinitile 
-                                    ? Path.Combine(modDir, $"_temp_minitile_{Guid.NewGuid()}.jpg")
+                                    ? Path.Combine(modDir, $"_temp_minitile_{Guid.NewGuid()}{GetImageExtension()}")
                                     : minitileTargetPath;
                                 
-                                if (SaveAsJpegOnly(img, actualMinitileTargetPath, context.JpegQuality))
+                                if (await SaveAsJpegOnlyAsync(img, actualMinitileTargetPath, context.JpegQuality))
                                 {
                                     processedFiles.Add(minitileTargetPath);
                                     
@@ -1282,11 +1280,11 @@ namespace FlairX_Mod_Manager.Services
                         if (isNoCrop)
                         {
                             Logger.LogInfo($"No crop for: {Path.GetFileName(sourceFile)} - saving as JPEG only");
-                            savedSuccessfully = SaveAsJpegOnly(img, actualTargetPath, context.JpegQuality);
+                            savedSuccessfully = await SaveAsJpegOnlyAsync(img, actualTargetPath, context.JpegQuality);
                         }
                         else
                         {
-                            savedSuccessfully = SaveOptimizedImage(img, actualTargetPath, squareCropRect.Value, context.JpegQuality);
+                            savedSuccessfully = await SaveOptimizedImageAsync(img, actualTargetPath, squareCropRect.Value, context.JpegQuality);
                         }
                     }
                     
@@ -1342,6 +1340,7 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         private static async Task ProcessPreviewFilesBatchAsync(string modDir, List<string> previewFiles, string? selectedMinitileSource, OptimizationContext context, List<string> processedFiles, int startIndex = 0)
         {
+            Logger.LogInfo($"[BATCH_PROCESS] Starting batch processing for {previewFiles.Count} files");
             const int targetSize = 1000;
             
             // Collect all files with their suggested crop rectangles
@@ -1354,6 +1353,7 @@ namespace FlairX_Mod_Manager.Services
                 {
                     var sourceFile = previewFiles[i];
                     int targetIndex = startIndex + i;
+                    
                     try
                     {
                         var img = Image.Load<Rgba32>(sourceFile);
@@ -1376,24 +1376,51 @@ namespace FlairX_Mod_Manager.Services
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError($"Failed to load image for batch: {sourceFile}", ex);
+                        Logger.LogError($"[BATCH_PROCESS] Failed to load image for batch: {sourceFile}", ex);
                     }
                 }
                 
                 if (batchItems.Count == 0)
                 {
-                    Logger.LogWarning("No images loaded for batch processing");
+                    Logger.LogWarning("[BATCH_PROCESS] No images loaded for batch processing");
                     return;
                 }
                 
+                Logger.LogInfo($"[BATCH_PROCESS] All {batchItems.Count} items prepared, requesting batch crop inspection");
                 // Show batch crop inspection panel
-                Logger.LogInfo($"Requesting batch crop inspection for {batchItems.Count} files");
                 var results = await BatchCropInspectionRequested!(batchItems);
                 
                 if (results == null || results.Count == 0)
                 {
-                    Logger.LogInfo("Batch crop inspection cancelled or returned no results");
+                    Logger.LogInfo("[BATCH_PROCESS] Batch crop inspection cancelled or returned no results");
                     return;
+                }
+                
+                Logger.LogInfo($"[BATCH_PROCESS] Processing {results.Count} results - showing progress dialog");
+                
+                // Show progress dialog for conversion (especially important for WebP which is slower)
+                Dialogs.ProgressDialog? progressDialog = null;
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                var progressTitle = SharedUtilities.GetTranslation(lang, "ProcessingImages") ?? "Processing Images";
+                var progressMessage = SharedUtilities.GetTranslation(lang, "ConvertingImages") ?? "Converting images, please wait...";
+                
+                Logger.LogInfo($"[BATCH_PROCESS] Checking if App.Current is available");
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                {
+                    Logger.LogInfo($"[BATCH_PROCESS] MainWindow found, creating progress dialog");
+                    progressDialog = new Dialogs.ProgressDialog(progressTitle, progressMessage);
+                    progressDialog.XamlRoot = mainWindow.Content.XamlRoot;
+                    
+                    // Show dialog asynchronously (don't await - we want to process while it's showing)
+                    _ = progressDialog.ShowAsync();
+                    
+                    // Small delay to ensure dialog is visible
+                    await Task.Delay(200);
+                    Logger.LogInfo($"[BATCH_PROCESS] Progress dialog shown, starting image processing");
+                }
+                else
+                {
+                    Logger.LogWarning($"[BATCH_PROCESS] MainWindow not available, skipping progress dialog");
                 }
                 
                 // Separate minitile source from other files
@@ -1405,36 +1432,41 @@ namespace FlairX_Mod_Manager.Services
                     !r.FilePath.Equals(selectedMinitileSource, StringComparison.OrdinalIgnoreCase)).ToList();
                 
                 int currentIndex = startIndex;
+                int processedCount = 0;
+                int totalToProcess = (minitileSourceResult != null ? 1 : 0) + otherResults.Count(r => r.Action != CropInspectionAction.Delete);
                 
                 // Process minitile source FIRST as next preview file
                 if (minitileSourceResult != null && loadedImages.TryGetValue(minitileSourceResult.FilePath, out var minitileImg))
                 {
-                    string targetFileName = currentIndex == 0 ? "preview.jpg" : $"preview-{currentIndex:D2}.jpg";
+                    processedCount++;
+                    progressDialog?.UpdateProgress(processedCount, totalToProcess, $"{Path.GetFileName(minitileSourceResult.FilePath)}");
+                    
+                    string targetFileName = GetPreviewFilename(currentIndex);
                     string targetPath = Path.Combine(modDir, targetFileName);
                     bool savedSuccessfully = false;
                     
                     // Check if source and target are the same file - need to use temp file
                     bool isSameFile = minitileSourceResult.FilePath.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
                     string actualTargetPath = isSameFile 
-                        ? Path.Combine(modDir, $"_temp_preview_{Guid.NewGuid()}.jpg")
+                        ? Path.Combine(modDir, $"_temp_preview_{Guid.NewGuid()}{GetImageExtension()}")
                         : targetPath;
                     
                     if (minitileSourceResult.Action == CropInspectionAction.Delete)
                     {
                         // Delete means No Crop for minitile source
-                        Logger.LogInfo($"Processing minitile source as No Crop: {Path.GetFileName(minitileSourceResult.FilePath)}");
-                        savedSuccessfully = SaveAsJpegOnly(minitileImg, actualTargetPath, context.JpegQuality);
+                        savedSuccessfully = await SaveAsJpegOnlyAsync(minitileImg, actualTargetPath, context.JpegQuality);
                     }
                     else if (minitileSourceResult.Action == CropInspectionAction.Skip)
                     {
-                        Logger.LogInfo($"No crop for minitile source: {Path.GetFileName(minitileSourceResult.FilePath)}");
-                        savedSuccessfully = SaveAsJpegOnly(minitileImg, actualTargetPath, context.JpegQuality);
+                        savedSuccessfully = await SaveAsJpegOnlyAsync(minitileImg, actualTargetPath, context.JpegQuality);
                     }
                     else
                     {
-                        Logger.LogInfo($"Cropping minitile source: {Path.GetFileName(minitileSourceResult.FilePath)}");
-                        savedSuccessfully = SaveOptimizedImage(minitileImg, actualTargetPath, minitileSourceResult.CropRectangle, context.JpegQuality);
+                        savedSuccessfully = await SaveOptimizedImageAsync(minitileImg, actualTargetPath, minitileSourceResult.CropRectangle, context.JpegQuality);
                     }
+                    
+                    // Yield to allow UI updates
+                    await Task.Yield();
                     
                     // If we used a temp file, move it to the actual target
                     if (savedSuccessfully && isSameFile)
@@ -1451,7 +1483,7 @@ namespace FlairX_Mod_Manager.Services
                         }
                         catch (Exception ex)
                         {
-                            Logger.LogError($"Failed to move temp preview file", ex);
+                            Logger.LogError($"[BATCH_PROCESS] Failed to move temp preview file", ex);
                             try { if (File.Exists(actualTargetPath)) File.Delete(actualTargetPath); } catch { }
                             savedSuccessfully = false;
                         }
@@ -1470,11 +1502,13 @@ namespace FlairX_Mod_Manager.Services
                 {
                     if (result.Action == CropInspectionAction.Delete)
                     {
-                        Logger.LogInfo($"Marked for deletion: {Path.GetFileName(result.FilePath)}");
                         continue;
                     }
                     
-                    string targetFileName = currentIndex == 0 ? "preview.jpg" : $"preview-{currentIndex:D2}.jpg";
+                    processedCount++;
+                    progressDialog?.UpdateProgress(processedCount, totalToProcess, $"{Path.GetFileName(result.FilePath)}");
+                    
+                    string targetFileName = GetPreviewFilename(currentIndex);
                     var targetPath = Path.Combine(modDir, targetFileName);
                     
                     if (loadedImages.TryGetValue(result.FilePath, out var img))
@@ -1482,19 +1516,21 @@ namespace FlairX_Mod_Manager.Services
                         // Check if source and target are the same file - need to use temp file
                         bool isSameFile = result.FilePath.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
                         string actualTargetPath = isSameFile 
-                            ? Path.Combine(modDir, $"_temp_{Guid.NewGuid()}.jpg")
+                            ? Path.Combine(modDir, $"_temp_{Guid.NewGuid()}{GetImageExtension()}")
                             : targetPath;
                         
                         bool savedSuccessfully;
                         if (result.Action == CropInspectionAction.Skip)
                         {
-                            Logger.LogInfo($"No crop for: {Path.GetFileName(result.FilePath)}");
-                            savedSuccessfully = SaveAsJpegOnly(img, actualTargetPath, context.JpegQuality);
+                            savedSuccessfully = await SaveAsJpegOnlyAsync(img, actualTargetPath, context.JpegQuality);
                         }
                         else
                         {
-                            savedSuccessfully = SaveOptimizedImage(img, actualTargetPath, result.CropRectangle, context.JpegQuality);
+                            savedSuccessfully = await SaveOptimizedImageAsync(img, actualTargetPath, result.CropRectangle, context.JpegQuality);
                         }
+                        
+                        // Yield to allow UI updates
+                        await Task.Yield();
                         
                         // If we used a temp file, move it to the actual target
                         if (savedSuccessfully && isSameFile)
@@ -1511,7 +1547,7 @@ namespace FlairX_Mod_Manager.Services
                             }
                             catch (Exception ex)
                             {
-                                Logger.LogError($"Failed to move temp file: {targetPath}", ex);
+                                Logger.LogError($"[BATCH_PROCESS] Failed to move temp file: {targetPath}", ex);
                                 try { if (File.Exists(actualTargetPath)) File.Delete(actualTargetPath); } catch { }
                                 savedSuccessfully = false;
                             }
@@ -1525,6 +1561,20 @@ namespace FlairX_Mod_Manager.Services
                         }
                     }
                 }
+                
+                // Close progress dialog
+                if (progressDialog != null)
+                {
+                    if (App.Current is App currentApp && currentApp.MainWindow is MainWindow currentMainWindow)
+                    {
+                        await currentMainWindow.DispatcherQueue.EnqueueAsync(() =>
+                        {
+                            progressDialog.Hide();
+                        });
+                    }
+                }
+                
+                Logger.LogInfo($"[BATCH_PROCESS] Batch processing complete");
             }
             finally
             {
@@ -1537,16 +1587,118 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
-        /// Save optimized image with crop (no resize for preview files)
+        /// Get file extension for current image format setting
         /// </summary>
-        private static bool SaveOptimizedImage(Image<Rgba32> sourceImage, string targetPath, Rectangle cropRect, int jpegQuality)
+        private static string GetImageExtension()
+        {
+            var format = SettingsManager.Current.ImageFormat ?? "JPEG";
+            return format.Equals("WebP", StringComparison.OrdinalIgnoreCase) ? ".webp" : ".jpg";
+        }
+        
+        /// <summary>
+        /// Check if file is a supported image format (jpg, jpeg, png, webp)
+        /// </summary>
+        private static bool IsImageFile(string filePath)
+        {
+            return filePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase);
+        }
+        
+        /// <summary>
+        /// Check if filename is a minitile file (minitile.jpg or minitile.webp)
+        /// </summary>
+        private static bool IsMinitileFile(string fileName)
+        {
+            var name = Path.GetFileName(fileName).ToLower();
+            return name == "minitile.jpg" || name == "minitile.webp";
+        }
+        
+        /// <summary>
+        /// Get standard filename for category preview
+        /// </summary>
+        private static string GetCatprevFilename() => $"catprev{GetImageExtension()}";
+        
+        /// <summary>
+        /// Get standard filename for category mini thumbnail
+        /// </summary>
+        private static string GetCatminiFilename() => $"catmini{GetImageExtension()}";
+        
+        /// <summary>
+        /// Get standard filename for mod preview (index 0 = preview, 1+ = preview-01, preview-02, etc.)
+        /// </summary>
+        private static string GetPreviewFilename(int index) => index == 0 ? $"preview{GetImageExtension()}" : $"preview-{index:D2}{GetImageExtension()}";
+        
+        /// <summary>
+        /// Get standard filename for mod minitile thumbnail
+        /// </summary>
+        private static string GetMinitileFilename() => $"minitile{GetImageExtension()}";
+        
+        /// <summary>
+        /// Get quality value for current format (WebP and JPEG use their respective user settings)
+        /// </summary>
+        private static int GetImageQuality()
+        {
+            var format = SettingsManager.Current.ImageFormat ?? "WebP";
+            return format.Equals("WebP", StringComparison.OrdinalIgnoreCase) 
+                ? SettingsManager.Current.ImageOptimizerWebPQuality 
+                : SettingsManager.Current.ImageOptimizerJpegQuality;
+        }
+        
+        /// <summary>
+        /// Save image in the configured format (JPEG or WebP) - SYNCHRONOUS version
+        /// </summary>
+        private static void SaveImage(Image<Rgba32> image, string path, int quality)
+        {
+            var format = SettingsManager.Current.ImageFormat ?? "JPEG";
+            if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
+            {
+                image.SaveAsWebp(path, new WebpEncoder 
+                { 
+                    Quality = quality,
+                    FileFormat = WebpFileFormatType.Lossy,
+                    Method = WebpEncodingMethod.BestQuality
+                });
+            }
+            else
+            {
+                image.SaveAsJpeg(path, new JpegEncoder { Quality = quality });
+            }
+        }
+        
+        /// <summary>
+        /// Save image in the configured format (JPEG or WebP) - ASYNC version
+        /// </summary>
+        private static async Task SaveImageAsync(Image<Rgba32> image, string path, int quality)
+        {
+            var format = SettingsManager.Current.ImageFormat ?? "JPEG";
+            if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
+            {
+                await image.SaveAsWebpAsync(path, new WebpEncoder 
+                { 
+                    Quality = quality,
+                    FileFormat = WebpFileFormatType.Lossy,
+                    Method = WebpEncodingMethod.BestQuality
+                });
+            }
+            else
+            {
+                await image.SaveAsJpegAsync(path, new JpegEncoder { Quality = quality });
+            }
+        }
+        
+        /// <summary>
+        /// Save optimized image with crop (no resize for preview files) - ASYNC version
+        /// </summary>
+        private static async Task<bool> SaveOptimizedImageAsync(Image<Rgba32> sourceImage, string targetPath, Rectangle cropRect, int quality)
         {
             try
             {
                 // Crop the image using ImageSharp
                 using (var cropped = sourceImage.Clone(ctx => ctx.Crop(cropRect)))
                 {
-                    cropped.SaveAsJpeg(targetPath, new JpegEncoder { Quality = jpegQuality });
+                    await SaveImageAsync(cropped, targetPath, quality);
                     return true;
                 }
             }
@@ -1558,13 +1710,13 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
-        /// Save image as JPEG without any cropping or resizing (No Crop mode)
+        /// Save image without any cropping or resizing (No Crop mode) - ASYNC version
         /// </summary>
-        private static bool SaveAsJpegOnly(Image<Rgba32> sourceImage, string targetPath, int jpegQuality)
+        private static async Task<bool> SaveAsJpegOnlyAsync(Image<Rgba32> sourceImage, string targetPath, int quality)
         {
             try
             {
-                sourceImage.SaveAsJpeg(targetPath, new JpegEncoder { Quality = jpegQuality });
+                await SaveImageAsync(sourceImage, targetPath, quality);
                 return true;
             }
             catch (Exception ex)
@@ -1594,9 +1746,7 @@ namespace FlairX_Mod_Manager.Services
                         {
                             var fileName = Path.GetFileName(f).ToLower();
                             return fileName.StartsWith("preview") &&
-                                   (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                                   IsImageFile(f);
                         })
                         .ToList();
                     
@@ -1719,7 +1869,7 @@ namespace FlairX_Mod_Manager.Services
                 }
                 
                 // Check if minitile already exists
-                var minitilePath = Path.Combine(modDir, "minitile.jpg");
+                var minitilePath = Path.Combine(modDir, GetMinitileFilename());
                 bool minitileExists = File.Exists(minitilePath);
                 
                 // If using new files and KeepOriginals is enabled, create _original copies first
@@ -1754,20 +1904,29 @@ namespace FlairX_Mod_Manager.Services
                 bool skipMinitileOnly = false;
                 if (newFilesToProcess.Count > 0 && context.CreateMinitile)
                 {
+                    Logger.LogInfo($"[PREVIEW_LITE] Asking user to select minitile source from {newFilesToProcess.Count} files");
                     // Ask user to select minitile source from new files
                     selectedMinitileSource = await SelectMinitileSourceAsync(newFilesToProcess, modDir, context);
+                    Logger.LogInfo($"[PREVIEW_LITE] Minitile source selection returned: {(selectedMinitileSource == null ? "NULL (skipped)" : Path.GetFileName(selectedMinitileSource))}");
+                    
                     if (selectedMinitileSource == null)
                     {
                         // User clicked Skip - skip minitile but continue processing files
-                        Logger.LogInfo($"User skipped minitile source selection, continuing with file processing");
+                        Logger.LogInfo($"[PREVIEW_LITE] User skipped minitile source selection, continuing with file processing");
                         skipMinitileOnly = true;
                     }
                 }
                 else if (!context.CreateMinitile)
                 {
-                    Logger.LogInfo("Minitile creation disabled - skipping minitile source selection");
+                    Logger.LogInfo("[PREVIEW_LITE] Minitile creation disabled - skipping minitile source selection");
                     skipMinitileOnly = true;
                 }
+                
+                Logger.LogInfo($"[PREVIEW_LITE] Determining processing mode...");
+                Logger.LogInfo($"[PREVIEW_LITE] AllowUIInteraction: {context.AllowUIInteraction}");
+                Logger.LogInfo($"[PREVIEW_LITE] InspectAndEditEnabled: {context.InspectAndEditEnabled}");
+                Logger.LogInfo($"[PREVIEW_LITE] newFilesToProcess.Count: {newFilesToProcess.Count}");
+                Logger.LogInfo($"[PREVIEW_LITE] BatchCropInspectionRequested != null: {BatchCropInspectionRequested != null}");
                 
                 // Determine if we should use batch mode (list of files on the right side)
                 bool useBatchMode = context.AllowUIInteraction && 
@@ -1775,67 +1934,121 @@ namespace FlairX_Mod_Manager.Services
                                    newFilesToProcess.Count > 1 &&
                                    BatchCropInspectionRequested != null;
                 
+                Logger.LogInfo($"[PREVIEW_LITE] Processing mode determined: {(useBatchMode ? "BATCH" : context.InspectAndEditEnabled && context.AllowUIInteraction ? "SINGLE" : "STANDARD")}");
+                
                 if (useBatchMode)
                 {
+                    Logger.LogInfo($"[PREVIEW_LITE] Starting BATCH MODE processing");
                     // BATCH MODE: Show all files in panel with list on the right
                     await ProcessPreviewFilesBatchAsync(modDir, newFilesToProcess, selectedMinitileSource, context, processedFiles, startIndex);
+                    Logger.LogInfo($"[PREVIEW_LITE] BATCH MODE processing completed");
                 }
                 else if (context.InspectAndEditEnabled && context.AllowUIInteraction)
                 {
+                    Logger.LogInfo($"[PREVIEW_LITE] Starting SINGLE MODE processing");
                     // SINGLE MODE with inspection: Process one by one with crop panel
                     await ProcessPreviewFilesSingleAsync(modDir, newFilesToProcess, selectedMinitileSource, context, processedFiles, startIndex);
+                    Logger.LogInfo($"[PREVIEW_LITE] SINGLE MODE processing completed");
                 }
                 else
                 {
-                    // Standard mode without inspection - just convert to JPEG without resizing
-                    for (int i = 0; i < newFilesToProcess.Count && (startIndex + i) < AppConstants.MAX_PREVIEW_IMAGES; i++)
+                    Logger.LogInfo($"[PREVIEW_LITE] Starting STANDARD MODE processing (no inspection)");
+                    
+                    // Show progress dialog for image conversion
+                    Dialogs.ProgressDialog? progressDialog = null;
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var progressTitle = SharedUtilities.GetTranslation(lang, "ProcessingImages") ?? "Processing Images";
+                    var progressMessage = SharedUtilities.GetTranslation(lang, "ConvertingImages") ?? "Converting images, please wait...";
+                    
+                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                     {
-                        var sourceFile = newFilesToProcess[i];
-                        int targetIndex = startIndex + i;
-                        string targetFileName = targetIndex == 0 ? "preview.jpg" : $"preview-{targetIndex:D2}.jpg";
-                        var targetPath = Path.Combine(modDir, targetFileName);
+                        Logger.LogInfo($"[PREVIEW_LITE] Creating progress dialog");
+                        progressDialog = new Dialogs.ProgressDialog(progressTitle, progressMessage);
+                        progressDialog.XamlRoot = mainWindow.Content.XamlRoot;
                         
-                        bool savedSuccessfully = false;
-                        try
+                        // Show dialog asynchronously
+                        _ = progressDialog.ShowAsync();
+                        
+                        // Small delay to ensure dialog is visible
+                        await Task.Delay(100);
+                        Logger.LogInfo($"[PREVIEW_LITE] Progress dialog shown");
+                    }
+                    
+                    try
+                    {
+                        // Process images on background thread to keep UI responsive
+                        await Task.Run(() =>
                         {
-                            // Check if source and target are the same file - need to use temp file
-                            bool isSameFile = sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
-                            string actualTargetPath = isSameFile 
-                                ? Path.Combine(modDir, $"_temp_{Guid.NewGuid()}.jpg")
-                                : targetPath;
-                            
-                            using (var img = Image.Load<Rgba32>(sourceFile))
+                            // Standard mode without inspection - just convert to JPEG without resizing
+                            for (int i = 0; i < newFilesToProcess.Count && (startIndex + i) < AppConstants.MAX_PREVIEW_IMAGES; i++)
                             {
-                                img.SaveAsJpeg(actualTargetPath, new JpegEncoder { Quality = context.JpegQuality });
-                                savedSuccessfully = true;
-                            }
-                            
-                            // If we used a temp file, move it to the actual target after closing the source
-                            if (savedSuccessfully && isSameFile)
-                            {
+                                var sourceFile = newFilesToProcess[i];
+                                int targetIndex = startIndex + i;
+                                string targetFileName = GetPreviewFilename(targetIndex);
+                                var targetPath = Path.Combine(modDir, targetFileName);
+                                
+                                // Update progress
+                                progressDialog?.UpdateProgress(i + 1, newFilesToProcess.Count, Path.GetFileName(sourceFile));
+                                
+                                bool savedSuccessfully = false;
                                 try
                                 {
-                                    if (File.Exists(targetPath))
-                                        File.Delete(targetPath);
-                                    File.Move(actualTargetPath, targetPath);
+                                    // Check if source and target are the same file - need to use temp file
+                                    bool isSameFile = sourceFile.Equals(targetPath, StringComparison.OrdinalIgnoreCase);
+                                    string actualTargetPath = isSameFile 
+                                        ? Path.Combine(modDir, $"_temp_{Guid.NewGuid()}{GetImageExtension()}")
+                                        : targetPath;
+                                    
+                                    using (var img = Image.Load<Rgba32>(sourceFile))
+                                    {
+                                        SaveImage(img, actualTargetPath, context.JpegQuality);
+                                        savedSuccessfully = true;
+                                    }
+                                    
+                                    // If we used a temp file, move it to the actual target after closing the source
+                                    if (savedSuccessfully && isSameFile)
+                                    {
+                                        try
+                                        {
+                                            if (File.Exists(targetPath))
+                                                File.Delete(targetPath);
+                                            File.Move(actualTargetPath, targetPath);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Logger.LogError($"Failed to move temp file to target: {targetPath}", ex);
+                                            try { if (File.Exists(actualTargetPath)) File.Delete(actualTargetPath); } catch { }
+                                            savedSuccessfully = false;
+                                        }
+                                    }
+                                    
+                                    if (savedSuccessfully)
+                                    {
+                                        Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> {targetFileName}");
+                                        processedFiles.Add(targetPath);
+                                    }
                                 }
                                 catch (Exception ex)
                                 {
-                                    Logger.LogError($"Failed to move temp file to target: {targetPath}", ex);
-                                    try { if (File.Exists(actualTargetPath)) File.Delete(actualTargetPath); } catch { }
-                                    savedSuccessfully = false;
+                                    Logger.LogError($"Failed to process preview file: {sourceFile}", ex);
                                 }
                             }
-                            
-                            if (savedSuccessfully)
-                            {
-                                Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> {targetFileName}");
-                                processedFiles.Add(targetPath);
-                            }
-                        }
-                        catch (Exception ex)
+                        });
+                        
+                        Logger.LogInfo($"[PREVIEW_LITE] STANDARD MODE processing completed");
+                    }
+                    finally
+                    {
+                        // Close progress dialog
+                        if (progressDialog != null)
                         {
-                            Logger.LogError($"Failed to process preview file: {sourceFile}", ex);
+                            if (App.Current is App currentApp && currentApp.MainWindow is MainWindow currentMainWindow)
+                            {
+                                await currentMainWindow.DispatcherQueue.EnqueueAsync(() =>
+                                {
+                                    progressDialog.Hide();
+                                });
+                            }
                         }
                     }
                 }
@@ -1857,7 +2070,7 @@ namespace FlairX_Mod_Manager.Services
                         {
                             // Calculate the actual target index for this file
                             int actualTargetIndex = startIndex + selectedIndex;
-                            string minitileSourceFileName = actualTargetIndex == 0 ? "preview.jpg" : $"preview-{actualTargetIndex:D2}.jpg";
+                            string minitileSourceFileName = GetPreviewFilename(actualTargetIndex);
                             string minitileSourceProcessed = Path.Combine(modDir, minitileSourceFileName);
                             if (File.Exists(minitileSourceProcessed))
                             {
@@ -1960,9 +2173,7 @@ namespace FlairX_Mod_Manager.Services
                     {
                         var fileName = Path.GetFileName(f).ToLower();
                         return fileName.StartsWith("preview") &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                               IsImageFile(f);
                     })
                     .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
                     .ToList();
@@ -2103,13 +2314,13 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"Generating minitile for: {modDir} from source: {Path.GetFileName(previewPath)}");
                 Logger.LogInfo($"Minitile generation context: InspectAndEditEnabled={context.InspectAndEditEnabled}, AllowUIInteraction={context.AllowUIInteraction}, AutoCreateModThumbnails={SettingsManager.Current.AutoCreateModThumbnails}");
                 
-                var minitilePath = Path.Combine(modDir, "minitile.jpg");
+                var minitilePath = Path.Combine(modDir, GetMinitileFilename());
                 
                 using (var img = Image.Load<Rgba32>(previewPath))
                 {
                     // Get crop rectangle with optional inspection (minitile is a thumbnail)
                     var srcRect = await GetCropRectangleWithInspectionAsync(
-                        img, 600, 722, context, "minitile.jpg", isProtected: false, isThumbnail: true);
+                        img, 600, 722, context, GetMinitileFilename(), isProtected: false, isThumbnail: true);
                     
                     if (srcRect == null)
                     {
@@ -2135,7 +2346,7 @@ namespace FlairX_Mod_Manager.Services
                             Sampler = KnownResamplers.Bicubic
                         })))
                     {
-                        minitile.SaveAsJpeg(minitilePath, new JpegEncoder { Quality = context.JpegQuality });
+                        SaveImage(minitile, minitilePath, context.JpegQuality);
                         Logger.LogInfo($"Minitile generated: {minitilePath}");
                     }
                 }
@@ -2490,7 +2701,7 @@ namespace FlairX_Mod_Manager.Services
             return new OptimizationContext
             {
                 Mode = mode,
-                JpegQuality = SettingsManager.Current.ImageOptimizerJpegQuality,
+                JpegQuality = GetImageQuality(), // Use helper that returns 100 for WebP, user setting for JPEG
                 ThreadCount = SettingsManager.Current.ImageOptimizerThreadCount,
                 CreateBackups = SettingsManager.Current.ImageOptimizerCreateBackups,
                 KeepOriginals = SettingsManager.Current.ImageOptimizerKeepOriginals,
@@ -2579,23 +2790,34 @@ namespace FlairX_Mod_Manager.Services
     public static class OptimizationHelper
     {
         /// <summary>
+        /// Check if file is a supported image format (jpg, jpeg, png, webp)
+        /// </summary>
+        private static bool IsImageFile(string filePath)
+        {
+            return filePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase);
+        }
+        
+        /// <summary>
         /// Check if a mod directory already has optimized files
         /// </summary>
         public static bool IsModAlreadyOptimized(string modDir)
         {
-            // Check if minitile.jpg exists
-            var minitilePath = Path.Combine(modDir, "minitile.jpg");
-            if (!File.Exists(minitilePath))
+            // Check if minitile exists (either .jpg or .webp)
+            var minitileJpg = Path.Combine(modDir, "minitile.jpg");
+            var minitileWebp = Path.Combine(modDir, "minitile.webp");
+            if (!File.Exists(minitileJpg) && !File.Exists(minitileWebp))
                 return false;
             
-            // Check if preview files have correct names (preview.jpg, preview-01.jpg, preview-02.jpg, etc.)
+            // Check if preview files have correct names (preview.jpg/webp, preview-01.jpg/webp, etc.)
             var previewFiles = Directory.GetFiles(modDir)
                 .Where(f =>
                 {
                     var fileName = Path.GetFileName(f).ToLower();
                     return fileName.StartsWith("preview") &&
-                           (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                            f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                           IsImageFile(f);
                 })
                 .ToList();
             
@@ -2623,17 +2845,19 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         public static bool IsCategoryAlreadyOptimized(string categoryDir)
         {
-            // Check if catprev.jpg exists (optimized format)
-            var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
-            if (!File.Exists(catprevPath))
+            // Check if catprev exists (either .jpg or .webp)
+            var catprevJpg = Path.Combine(categoryDir, "catprev.jpg");
+            var catprevWebp = Path.Combine(categoryDir, "catprev.webp");
+            if (!File.Exists(catprevJpg) && !File.Exists(catprevWebp))
                 return false;
             
-            // Check if catmini.jpg exists (required for CategoryFull optimization)
-            var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
-            if (!File.Exists(catminiPath))
+            // Check if catmini exists (either .jpg or .webp)
+            var catminiJpg = Path.Combine(categoryDir, "catmini.jpg");
+            var catminiWebp = Path.Combine(categoryDir, "catmini.webp");
+            if (!File.Exists(catminiJpg) && !File.Exists(catminiWebp))
                 return false;
             
-            // Both catprev.jpg and catmini.jpg exist - category is fully optimized
+            // Both catprev and catmini exist - category is fully optimized
             return true;
         }
 
@@ -2646,15 +2870,17 @@ namespace FlairX_Mod_Manager.Services
             {
                 if (isCategory)
                 {
-                    // For categories: rename catprev.jpg to catprev_original.jpg
-                    // catmini.jpg will be overwritten by optimizer
-                    var catprevPath = Path.Combine(directory, "catprev.jpg");
-                    var catprevOriginalPath = Path.Combine(directory, "catprev_original.jpg");
+                    // For categories: rename catprev to catprev_original (both formats)
+                    // catmini will be overwritten by optimizer
+                    var format = SettingsManager.Current.ImageFormat ?? "JPEG";
+                    var extension = format.Equals("WebP", StringComparison.OrdinalIgnoreCase) ? ".webp" : ".jpg";
+                    var catprevPath = Path.Combine(directory, $"catprev{extension}");
+                    var catprevOriginalPath = Path.Combine(directory, $"catprev_original{extension}");
                     
                     if (File.Exists(catprevPath) && !File.Exists(catprevOriginalPath))
                     {
                         File.Move(catprevPath, catprevOriginalPath);
-                        Logger.LogInfo($"Renamed catprev.jpg to catprev_original.jpg for reoptimization");
+                        Logger.LogInfo($"Renamed catprev{extension} to catprev_original{extension} for reoptimization");
                     }
                 }
                 else
@@ -2667,8 +2893,7 @@ namespace FlairX_Mod_Manager.Services
                             var fileName = Path.GetFileName(f).ToLower();
                             return fileName.StartsWith("preview") &&
                                    !fileName.Contains("_original") &&
-                                   (f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                                   IsImageFile(f);
                         })
                         .ToList();
                     

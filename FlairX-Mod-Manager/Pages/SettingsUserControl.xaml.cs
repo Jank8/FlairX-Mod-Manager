@@ -11,6 +11,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Webp;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
 using System.Runtime.InteropServices;
@@ -27,6 +28,58 @@ namespace FlairX_Mod_Manager.Pages
     {
         private readonly string LanguageFolderPath = PathManager.GetAbsolutePath("Language");
         private Microsoft.UI.Xaml.DispatcherTimer? _windowSizeUpdateTimer;
+        
+        // Helper methods for image format
+        private static string GetImageExtension()
+        {
+            var format = SettingsManager.Current.ImageFormat ?? "JPEG";
+            return format.Equals("WebP", StringComparison.OrdinalIgnoreCase) ? ".webp" : ".jpg";
+        }
+        
+        private static string GetCatprevFilename() => $"catprev{GetImageExtension()}";
+        private static string GetCatminiFilename() => $"catmini{GetImageExtension()}";
+        private static string GetPreviewFilename(int index) => index == 0 ? $"preview{GetImageExtension()}" : $"preview-{index:D2}{GetImageExtension()}";
+        private static string GetMinitileFilename() => $"minitile{GetImageExtension()}";
+        
+        private static int GetImageQuality()
+        {
+            var format = SettingsManager.Current.ImageFormat ?? "WebP";
+            return format.Equals("WebP", StringComparison.OrdinalIgnoreCase) 
+                ? SettingsManager.Current.ImageOptimizerWebPQuality 
+                : SettingsManager.Current.ImageOptimizerJpegQuality;
+        }
+        
+        private static void SaveImage(SixLabors.ImageSharp.Image<Rgba32> image, string path, int quality)
+        {
+            var format = SettingsManager.Current.ImageFormat ?? "JPEG";
+            if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
+            {
+                image.SaveAsWebp(path, new WebpEncoder 
+                { 
+                    Quality = quality,
+                    FileFormat = WebpFileFormatType.Lossy,
+                    Method = WebpEncodingMethod.BestQuality
+                });
+            }
+            else
+            {
+                image.SaveAsJpeg(path, new JpegEncoder { Quality = quality });
+            }
+        }
+        
+        private static bool IsImageFile(string filePath)
+        {
+            return filePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) ||
+                   filePath.EndsWith(".webp", StringComparison.OrdinalIgnoreCase);
+        }
+        
+        private static bool IsMinitileFile(string fileName)
+        {
+            var name = Path.GetFileName(fileName).ToLower();
+            return name == "minitile.jpg" || name == "minitile.webp";
+        }
         
         // Constants and structures for MoveToRecycleBin
         private const int FO_DELETE = 0x0003;
@@ -708,9 +761,7 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         var fileName = Path.GetFileName(f).ToLower();
                         return (fileName.StartsWith("preview") || fileName.StartsWith("catprev") || fileName.StartsWith("catmini")) &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                               IsImageFile(f);
                     })
                     .ToList();
                 
@@ -728,9 +779,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     var fileName = Path.GetFileName(f).ToLower();
                     return fileName.StartsWith("catprev") &&
-                           (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                            f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                            f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                           IsImageFile(f);
                 })
                 .ToArray();
             
@@ -741,9 +790,7 @@ namespace FlairX_Mod_Manager.Pages
                     var fileName = Path.GetFileName(f).ToLower();
                     return (fileName.StartsWith("catpreview") || fileName.StartsWith("preview")) &&
                            !fileName.StartsWith("catprev") &&
-                           (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                            f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                            f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                           IsImageFile(f);
                 })
                 .ToArray();
             
@@ -802,8 +849,8 @@ namespace FlairX_Mod_Manager.Pages
                         thumbBmp.SaveAsJpeg(tempPath, jpegEncoder);
                     }
                     
-                    // Create catmini.jpg (600x722 for category tiles) from same source
-                    var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                    // Create catmini (600x722 for category tiles) from same source
+                    var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
                     
                     // Calculate crop rectangle using selected algorithm
                     var cropTypeStr2 = SettingsManager.Current.ImageCropType ?? "Center";
@@ -841,8 +888,8 @@ namespace FlairX_Mod_Manager.Pages
                 
                 using (var img = SharpImage.Load<Rgba32>(previewPath))
                 {
-                    // Generate catprev.jpg (722x722)
-                    var catprevPath = Path.Combine(categoryDir, "catprev.jpg");
+                    // Generate catprev (722x722)
+                    var catprevPath = Path.Combine(categoryDir, GetCatprevFilename());
                     
                     // Square crop for catprev
                     int size = Math.Min(img.Width, img.Height);
@@ -853,12 +900,11 @@ namespace FlairX_Mod_Manager.Pages
                         .Crop(new SixLabors.ImageSharp.Rectangle(x, y, size, size))
                         .Resize(722, 722, KnownResamplers.Bicubic)))
                     {
-                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                        thumbBmp.SaveAsJpeg(catprevPath, jpegEncoder);
+                        SaveImage(thumbBmp, catprevPath, GetImageQuality());
                     }
                     
-                    // Generate catmini.jpg (600x722)
-                    var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                    // Generate catmini (600x722)
+                    var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
                     
                     double targetRatio = 600.0 / 722.0;
                     double sourceRatio = (double)img.Width / img.Height;
@@ -907,9 +953,7 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         var fileName = Path.GetFileName(f).ToLower();
                         return fileName.StartsWith("preview") &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                               IsImageFile(f);
                     })
                     .OrderBy(f => f)
                     .ToList();
@@ -949,9 +993,7 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         var fileName = Path.GetFileName(f).ToLower();
                         return fileName.StartsWith("preview") &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                               IsImageFile(f);
                     })
                     .OrderBy(f => f)
                     .ToList();
@@ -1047,10 +1089,8 @@ namespace FlairX_Mod_Manager.Pages
                         .Where(f => 
                         {
                             var fileName = Path.GetFileName(f).ToLower();
-                            return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
-                                   (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                                    f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                            return (fileName.StartsWith("preview") || IsMinitileFile(fileName)) &&
+                                   IsImageFile(f);
                         })
                         .ToList();
                     
@@ -1066,9 +1106,7 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         var fileName = Path.GetFileName(f).ToLower();
                         return fileName.StartsWith("preview") &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                               IsImageFile(f);
                     })
                     .OrderBy(f => f) // Sort to ensure consistent ordering
                     .ToList();
@@ -1076,13 +1114,14 @@ namespace FlairX_Mod_Manager.Pages
                 if (previewFiles.Count == 0) return;
 
                 var minitileJpgPath = Path.Combine(modDir, "minitile.jpg");
-                bool needsMinitile = !File.Exists(minitileJpgPath);
+                var minitileWebpPath = Path.Combine(modDir, "minitile.webp");
+                bool needsMinitile = !File.Exists(minitileJpgPath) && !File.Exists(minitileWebpPath);
 
                 // Process each preview file
                 for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
                 {
                     var sourceFile = previewFiles[i];
-                    string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
+                    string targetFileName = GetPreviewFilename(i);
                     var targetPath = Path.Combine(modDir, targetFileName);
 
                     // Skip if target already exists and is optimized
@@ -1216,17 +1255,15 @@ namespace FlairX_Mod_Manager.Pages
                             .Resize(targetSize, targetSize, KnownResamplers.Bicubic)))
                         {
                             Logger.LogInfo($"Saving to {targetPath}");
-                            var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                            finalImage.SaveAsJpeg(targetPath, jpegEncoder);
+                            SaveImage(finalImage, targetPath, GetImageQuality());
                             Logger.LogInfo("Image saved successfully");
                         }
                     }
                     else
                     {
-                        // No cropping needed, just save as JPEG
+                        // No cropping needed, just save
                         Logger.LogInfo($"Saving to {targetPath}");
-                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                        src.SaveAsJpeg(targetPath, jpegEncoder);
+                        SaveImage(src, targetPath, GetImageQuality());
                         Logger.LogInfo("Image saved successfully");
                     }
                     
@@ -1280,8 +1317,7 @@ namespace FlairX_Mod_Manager.Pages
                         .Crop(new SixLabors.ImageSharp.Rectangle(srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height))
                         .Resize(600, 722, KnownResamplers.Bicubic)))
                     {
-                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                        minitile.SaveAsJpeg(minitilePath, jpegEncoder);
+                        SaveImage(minitile, minitilePath, GetImageQuality());
                     }
                 }
             }
@@ -1498,10 +1534,8 @@ namespace FlairX_Mod_Manager.Pages
                         .Where(f => 
                         {
                             var fileName = Path.GetFileName(f).ToLower();
-                            return (fileName.StartsWith("preview") || fileName == "minitile.jpg") &&
-                                   (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                                    f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                                    f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                            return (fileName.StartsWith("preview") || IsMinitileFile(fileName)) &&
+                                   IsImageFile(f);
                         })
                         .ToList();
                     
@@ -1517,9 +1551,7 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         var fileName = Path.GetFileName(f).ToLower();
                         return fileName.StartsWith("preview") &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                               IsImageFile(f);
                     })
                     .OrderBy(f => f) // Sort to ensure consistent ordering
                     .ToList();
@@ -1527,13 +1559,14 @@ namespace FlairX_Mod_Manager.Pages
                 if (previewFiles.Count == 0) return;
 
                 var minitileJpgPath = Path.Combine(modDir, "minitile.jpg");
-                bool needsMinitile = !File.Exists(minitileJpgPath);
+                var minitileWebpPath = Path.Combine(modDir, "minitile.webp");
+                bool needsMinitile = !File.Exists(minitileJpgPath) && !File.Exists(minitileWebpPath);
 
                 // Process each preview file
                 for (int i = 0; i < previewFiles.Count && i < AppConstants.MAX_PREVIEW_IMAGES; i++)
                 {
                     var sourceFile = previewFiles[i];
-                    string targetFileName = i == 0 ? "preview.jpg" : $"preview-{i:D2}.jpg";
+                    string targetFileName = GetPreviewFilename(i);
                     var targetPath = Path.Combine(modDir, targetFileName);
 
                     // Skip if target already exists and is optimized
@@ -1722,9 +1755,8 @@ namespace FlairX_Mod_Manager.Pages
                         .Crop(cropRect)
                         .Resize(600, 722, KnownResamplers.Bicubic)))
                     {
-                        // Save as JPEG minitile
-                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                        thumbBmp.SaveAsJpeg(minitilePath, jpegEncoder);
+                        // Save minitile
+                        SaveImage(thumbBmp, minitilePath, GetImageQuality());
                     }
                 }
             }
@@ -1782,9 +1814,7 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         var fileName = Path.GetFileName(f).ToLower();
                         return (fileName.StartsWith("preview") || fileName.StartsWith("catprev") || fileName.StartsWith("catmini")) &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                               IsImageFile(f);
                     })
                     .ToList();
                 
@@ -1803,9 +1833,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     var fileName = Path.GetFileName(f).ToLower();
                     return fileName.StartsWith("catprev") &&
-                           (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                            f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                            f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                           IsImageFile(f);
                 })
                 .ToArray();
             
@@ -1816,9 +1844,7 @@ namespace FlairX_Mod_Manager.Pages
                     var fileName = Path.GetFileName(f).ToLower();
                     return (fileName.StartsWith("catpreview") || fileName.StartsWith("preview")) &&
                            !fileName.StartsWith("catprev") &&
-                           (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) || 
-                            f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) || 
-                            f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                           IsImageFile(f);
                 })
                 .ToArray();
             
@@ -1892,8 +1918,8 @@ namespace FlairX_Mod_Manager.Pages
                         thumbBmp.SaveAsJpeg(tempPath, jpegEncoder);
                     }
                     
-                    // Create catmini.jpg (600x722 for category grid tiles) from same source
-                    var catminiPath = Path.Combine(categoryDir, "catmini.jpg");
+                    // Create catmini (600x722 for category grid tiles) from same source
+                    var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
                     
                     // Calculate crop for 600x722 aspect ratio
                     double targetAspect = 600.0 / 722.0;
@@ -2233,7 +2259,9 @@ namespace FlairX_Mod_Manager.Pages
                     };
                     
                     var avatarBitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                    avatarBitmap.UriSource = new Uri($"file:///{avatarPath.Replace('\\', '/')}");
+                    // IMPORTANT: Must use absolute path for WebP to work
+                    var absolutePath = Path.GetFullPath(avatarPath);
+                    avatarBitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
                     avatarImage.Source = avatarBitmap;
                     
                     avatarBorder.Child = avatarImage;

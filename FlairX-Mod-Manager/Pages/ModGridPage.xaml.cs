@@ -1,4 +1,4 @@
-﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Input;
@@ -350,7 +350,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (item.ImageSource == null && !string.IsNullOrEmpty(item.ImagePath))
                 {
-                    _ = Task.Run(async () =>
+                    DispatcherQueue.TryEnqueue(() =>
                     {
                         try
                         {
@@ -358,36 +358,26 @@ namespace FlairX_Mod_Manager.Pages
                             bitmap.DecodePixelWidth = 48; // Optimize for table view size
                             bitmap.DecodePixelHeight = 48;
                             
-                            var file = await StorageFile.GetFileFromPathAsync(item.ImagePath);
-                            using var stream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read);
-                            await bitmap.SetSourceAsync(stream);
+                            // Convert to absolute path for UriSource
+                            var absolutePath = Path.GetFullPath(item.ImagePath);
+                            // Use UriSource for WebP support via Windows codecs
+                            bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
                             
-                            // Ensure UI update happens on UI thread
-                            DispatcherQueue.TryEnqueue(() => 
+                            item.ImageSource = bitmap;
+                            // Force UI refresh for this item
+                            if (ModsTableList.ItemsSource is ObservableCollection<ModTile> collection)
                             {
-                                item.ImageSource = bitmap;
-                                // Force UI refresh for this item
-                                if (ModsTableList.ItemsSource is ObservableCollection<ModTile> collection)
+                                var index = collection.IndexOf(item);
+                                if (index >= 0)
                                 {
-                                    var index = collection.IndexOf(item);
-                                    if (index >= 0)
-                                    {
-                                        collection[index] = item;
-                                    }
+                                    collection[index] = item;
                                 }
-                            });
+                            }
                         }
                         catch (Exception ex)
                         {
                             // Image loading failed - could be file not found, access denied, etc.
                             Logger.LogDebug($"Failed to load image {item.ImagePath}: {ex.Message}");
-                            
-                            // Set a default/placeholder image on UI thread
-                            DispatcherQueue.TryEnqueue(() => 
-                            {
-                                // You could set a default image here if needed
-                                // item.ImageSource = defaultImage;
-                            });
                         }
                     });
                 }
@@ -1146,17 +1136,22 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (File.Exists(imagePath))
                 {
-                    // Read file into memory steam to avoid file locking issues
-                    byte[] imageData = File.ReadAllBytes(imagePath);
-                    using (var memStream = new MemoryStream(imageData))
-                    {
-                        bitmap.SetSource(memStream.AsRandomAccessStream());
-                    }
+                    Logger.LogDebug($"CreateBitmapImage: Loading {imagePath}");
+                    // Convert to absolute path for UriSource
+                    var absolutePath = Path.GetFullPath(imagePath);
+                    Logger.LogDebug($"CreateBitmapImage: Absolute path {absolutePath}");
+                    // Use UriSource for direct file loading - this uses Windows codecs including WebP
+                    bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                    Logger.LogDebug($"CreateBitmapImage: UriSource set successfully for {absolutePath}");
+                }
+                else
+                {
+                    Logger.LogDebug($"CreateBitmapImage: File not found {imagePath}");
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogDebug($"Failed to load image {imagePath}: {ex.Message}");
+                Logger.LogError($"Failed to load image {imagePath}", ex);
             }
             return bitmap;
         }
@@ -1506,10 +1501,10 @@ namespace FlairX_Mod_Manager.Pages
                     dropIcon.Glyph = "\uE895"; // Sync icon
                 }
                 
-                // Copy image to category folder as preview.jpg (overwriting if exists)
-                string targetPath = Path.Combine(categoryFolderPath, "preview.jpg");
+                // Copy image to category folder as preview (overwriting if exists)
+                string targetPath = Path.Combine(categoryFolderPath, "preview" + SettingsManager.GetImageExtension());
                 
-                // Delete existing preview files (preview.*, catprev.jpg, catmini.jpg)
+                // Delete existing preview files (preview.*, catprev.*, catmini.*)
                 var filesToDelete = new List<string>();
                 
                 // Add preview.* files
@@ -1517,14 +1512,19 @@ namespace FlairX_Mod_Manager.Pages
                     .Where(f => 
                     {
                         var ext = Path.GetExtension(f).ToLower();
-                        return ext == ".jpg" || ext == ".jpeg" || ext == ".png";
+                        return ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".webp";
                     }));
                 
-                // Add catprev.jpg and catmini.jpg if they exist
-                var catprevPath = Path.Combine(categoryFolderPath, "catprev.jpg");
-                var catminiPath = Path.Combine(categoryFolderPath, "catmini.jpg");
-                if (File.Exists(catprevPath)) filesToDelete.Add(catprevPath);
-                if (File.Exists(catminiPath)) filesToDelete.Add(catminiPath);
+                // Add catprev and catmini if they exist (both formats)
+                var catprevJpgPath = Path.Combine(categoryFolderPath, "catprev.jpg");
+                var catprevWebpPath = Path.Combine(categoryFolderPath, "catprev.webp");
+                var catminiJpgPath = Path.Combine(categoryFolderPath, "catmini.jpg");
+                var catminiWebpPath = Path.Combine(categoryFolderPath, "catmini.webp");
+                
+                if (File.Exists(catprevJpgPath)) filesToDelete.Add(catprevJpgPath);
+                if (File.Exists(catprevWebpPath)) filesToDelete.Add(catprevWebpPath);
+                if (File.Exists(catminiJpgPath)) filesToDelete.Add(catminiJpgPath);
+                if (File.Exists(catminiWebpPath)) filesToDelete.Add(catminiWebpPath);
                 
                 foreach (var existingFile in filesToDelete)
                 {
@@ -1951,7 +1951,9 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         var files = Directory.GetFiles(modFolderPath)
                             .Select(f => Path.GetFileName(f))
-                            .Where(f => f.StartsWith("preview", StringComparison.OrdinalIgnoreCase) || f.Equals("minitile.jpg", StringComparison.OrdinalIgnoreCase))
+                            .Where(f => f.StartsWith("preview", StringComparison.OrdinalIgnoreCase) || 
+                                       f.Equals("minitile.jpg", StringComparison.OrdinalIgnoreCase) ||
+                                       f.Equals("minitile.webp", StringComparison.OrdinalIgnoreCase))
                             .ToList();
                         Logger.LogInfo($"Files after optimization: {string.Join(", ", files)}");
                     }

@@ -134,7 +134,8 @@ namespace FlairX_Mod_Manager.Services
             {
                 // Find next available number
                 int nextNumber = GetNextAvailableNumber();
-                string targetFileName = $"Preview{nextNumber:D3}.jpg"; // Preview001.jpg, Preview002.jpg, etc.
+                var extension = SettingsManager.GetImageExtension();
+                string targetFileName = $"Preview{nextNumber:D3}{extension}"; // Preview001.jpg or Preview001.webp
                 string targetPath = System.IO.Path.Combine(_modDirectory, targetFileName);
 
                 // Copy and convert to JPEG if needed
@@ -160,8 +161,8 @@ namespace FlairX_Mod_Manager.Services
             if (string.IsNullOrEmpty(_modDirectory))
                 return 1;
 
-            var existingFiles = Directory.GetFiles(_modDirectory, "Preview*.jpg")
-                .Concat(Directory.GetFiles(_modDirectory, "Preview*.png"))
+            var existingFiles = Directory.GetFiles(_modDirectory, "Preview*.*")
+                .Where(f => IsImageFile(System.IO.Path.GetExtension(f)))
                 .Select(System.IO.Path.GetFileNameWithoutExtension)
                 .Where(name => !string.IsNullOrEmpty(name) && name.StartsWith("Preview") && name.Length == 10) // Preview001 = 10 chars
                 .Select(name => name!.Substring(7)) // Remove "Preview" prefix - name is guaranteed not null by Where clause

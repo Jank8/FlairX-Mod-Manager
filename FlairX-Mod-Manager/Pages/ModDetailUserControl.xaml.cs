@@ -391,20 +391,30 @@ namespace FlairX_Mod_Manager.Pages
                 _availablePreviewImages.Clear();
                 _currentImageIndex = 0;
 
-                // Check for main preview.jpg first
-                var mainPreviewPath = Path.Combine(fullModDir, "preview.jpg");
-                if (File.Exists(mainPreviewPath))
+                // Check for main preview (both formats)
+                var mainPreviewJpg = Path.Combine(fullModDir, "preview.jpg");
+                var mainPreviewWebp = Path.Combine(fullModDir, "preview.webp");
+                if (File.Exists(mainPreviewWebp))
                 {
-                    _availablePreviewImages.Add(mainPreviewPath);
+                    _availablePreviewImages.Add(mainPreviewWebp);
+                }
+                else if (File.Exists(mainPreviewJpg))
+                {
+                    _availablePreviewImages.Add(mainPreviewJpg);
                 }
 
-                // Check for preview-01.jpg through preview-99.jpg
+                // Check for preview-01 through preview-99 (both formats)
                 for (int i = 1; i <= 99; i++)
                 {
-                    var previewPath = Path.Combine(fullModDir, $"preview-{i:D2}.jpg");
-                    if (File.Exists(previewPath))
+                    var previewJpg = Path.Combine(fullModDir, $"preview-{i:D2}.jpg");
+                    var previewWebp = Path.Combine(fullModDir, $"preview-{i:D2}.webp");
+                    if (File.Exists(previewWebp))
                     {
-                        _availablePreviewImages.Add(previewPath);
+                        _availablePreviewImages.Add(previewWebp);
+                    }
+                    else if (File.Exists(previewJpg))
+                    {
+                        _availablePreviewImages.Add(previewJpg);
                     }
                 }
 
@@ -438,11 +448,11 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     var imagePath = _availablePreviewImages[_currentImageIndex];
                     var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                    byte[] imageData = File.ReadAllBytes(imagePath);
-                    using (var memStream = new MemoryStream(imageData))
-                    {
-                        bitmap.SetSource(memStream.AsRandomAccessStream());
-                    }
+                    
+                    // Use UriSource for direct file loading - this uses Windows codecs including WebP
+                    // IMPORTANT: Must use absolute path for WebP to work
+                    var absolutePath = Path.GetFullPath(imagePath);
+                    bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
                     
                     // Change the image source first
                     ModImage.Source = bitmap;
