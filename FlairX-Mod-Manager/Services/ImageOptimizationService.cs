@@ -736,8 +736,10 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Process category preview in Standard mode - quality conversion without resizing or cropping
         /// </summary>
-        private static void ProcessCategoryPreviewLite(string categoryDir, OptimizationContext context)
+        private static async Task ProcessCategoryPreviewLiteAsync(string categoryDir, OptimizationContext context, bool showProgressDialog = true)
         {
+            Dialogs.ProgressDialog? progressDialog = null;
+            
             try
             {
                 Logger.LogInfo($"Processing category preview (Standard) in: {categoryDir}");
@@ -754,163 +756,206 @@ namespace FlairX_Mod_Manager.Services
                 }
                 
                 // Process gbicon separately (PNG/WebP only - needs alpha channel)
-                ProcessGbIcon(categoryDir, context);
-                
-                // Create backup if enabled
-                if (context.CreateBackups)
+                // When showProgressDialog=false (drag&drop), process BEFORE dialog
+                // When showProgressDialog=true (manual optimization), process INSIDE Task.Run with dialog
+                if (!showProgressDialog)
                 {
-                    var filesToBackup = Directory.GetFiles(categoryDir)
+                    ProcessGbIcon(categoryDir, context);
+                }
+                
+                // Show progress dialog for image conversion (only if requested)
+                if (showProgressDialog)
+                {
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var progressTitle = SharedUtilities.GetTranslation(lang, "ProcessingImages") ?? "Processing Images";
+                    var progressMessage = SharedUtilities.GetTranslation(lang, "ConvertingImages") ?? "Converting images, please wait...";
+                    
+                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                    {
+                        Logger.LogInfo("Creating progress dialog for category preview conversion");
+                        progressDialog = new Dialogs.ProgressDialog(progressTitle, progressMessage);
+                        progressDialog.XamlRoot = mainWindow.Content.XamlRoot;
+                        
+                        // Show dialog asynchronously
+                        _ = progressDialog.ShowAsync();
+                        
+                        // Small delay to ensure dialog is visible
+                        await Task.Delay(100);
+                        Logger.LogInfo("Progress dialog shown");
+                    }
+                }
+                
+                // Run conversion on background thread
+                await Task.Run(() =>
+                {
+                    // Process gbicon inside dialog for manual optimization
+                    if (showProgressDialog)
+                    {
+                        ProcessGbIcon(categoryDir, context);
+                    }
+                    
+                    // Create backup if enabled
+                    if (context.CreateBackups)
+                    {
+                        var filesToBackup = Directory.GetFiles(categoryDir)
+                            .Where(f =>
+                            {
+                                var fileName = Path.GetFileName(f).ToLower();
+                                return (fileName.StartsWith("preview") || fileName.StartsWith("catprev")) &&
+                                       IsImageFile(f);
+                            })
+                            .ToList();
+                        
+                        if (filesToBackup.Count > 0)
+                        {
+                            CreateBackup(categoryDir, filesToBackup);
+                        }
+                    }
+                    
+                    // Find preview files (prefer _original files if they exist)
+                    var allFiles = Directory.GetFiles(categoryDir)
                         .Where(f =>
                         {
                             var fileName = Path.GetFileName(f).ToLower();
-                            return (fileName.StartsWith("preview") || fileName.StartsWith("catprev")) &&
+                            return (fileName.StartsWith("catprev") || fileName.StartsWith("preview")) &&
                                    IsImageFile(f);
                         })
                         .ToList();
                     
-                    if (filesToBackup.Count > 0)
-                    {
-                        CreateBackup(categoryDir, filesToBackup);
-                    }
-                }
-                
-                // Find preview files (prefer _original files if they exist)
-                var allFiles = Directory.GetFiles(categoryDir)
-                    .Where(f =>
-                    {
-                        var fileName = Path.GetFileName(f).ToLower();
-                        return (fileName.StartsWith("catprev") || fileName.StartsWith("preview")) &&
-                               IsImageFile(f);
-                    })
-                    .ToList();
-                
-                // Separate original files from regular files
-                var originalFiles = allFiles.Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).ToList();
-                var regularFiles = allFiles.Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).ToList();
-                
-                // Use original file if it exists, otherwise use regular file
-                var previewFiles = originalFiles.Count > 0 ? originalFiles : regularFiles;
-                
-                if (previewFiles.Count == 0)
-                {
-                    Logger.LogInfo($"No preview files found in category: {categoryDir}");
-                    return;
-                }
-                
-                // If using regular file and KeepOriginals is enabled, create _original copy first
-                bool needsOriginalCreation = (originalFiles.Count == 0 && context.KeepOriginals && regularFiles.Count > 0);
-                if (needsOriginalCreation)
-                {
-                    Logger.LogInfo("Creating original copy before optimization");
-                    var file = regularFiles[0];
-                    try
-                    {
-                        var directory = Path.GetDirectoryName(file);
-                        var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
-                        var extension = Path.GetExtension(file);
-                        var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
-                        
-                        if (!File.Exists(originalPath))
-                        {
-                            File.Copy(file, originalPath);
-                            Logger.LogInfo($"Created original: {Path.GetFileName(originalPath)}");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Failed to create original copy: {file}", ex);
-                    }
-                }
-                
-                var sourceFile = previewFiles[0];
-                var catprevPath = Path.Combine(categoryDir, GetCatprevFilename());
-                var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
-                
-                // Check if source and target are the same file - need to use temp file
-                bool isSameFile = sourceFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase);
-                string actualCatprevPath = isSameFile 
-                    ? Path.Combine(categoryDir, $"_temp_catprev_{Guid.NewGuid()}{GetImageExtension()}")
-                    : catprevPath;
-                
-                using (var img = Image.Load<Rgba32>(sourceFile))
-                {
-                    // Save catprev without resizing (just convert to target format)
-                    SaveImage(img, actualCatprevPath, context.JpegQuality);
-                    Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> {GetCatprevFilename()}");
+                    // Separate original files from regular files
+                    var originalFiles = allFiles.Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).ToList();
+                    var regularFiles = allFiles.Where(f => !Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).ToList();
                     
-                    // Generate catmini (600x722) - cropped thumbnail
-                    var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
-                    using (var catmini = img.Clone(ctx => ctx
-                        .Crop(catminiCropRect)
-                        .Resize(new ResizeOptions
-                        {
-                            Size = new Size(600, 722),
-                            Mode = ResizeMode.Stretch,
-                            Sampler = KnownResamplers.Bicubic
-                        })))
+                    // Use original file if it exists, otherwise use regular file
+                    var previewFiles = originalFiles.Count > 0 ? originalFiles : regularFiles;
+                    
+                    if (previewFiles.Count == 0)
                     {
-                        SaveImage(catmini, catminiPath, context.JpegQuality);
-                        Logger.LogInfo($"Generated {GetCatminiFilename()} (Standard)");
+                        Logger.LogInfo($"No preview files found in category: {categoryDir}");
+                        return;
                     }
-                }
-                
-                // If we used a temp file for catprev, move it to the actual target after closing the source
-                if (isSameFile && File.Exists(actualCatprevPath))
-                {
-                    try
+                    
+                    // Update progress
+                    progressDialog?.UpdateProgress(1, 2, "Converting category preview...");
+                    
+                    // If using regular file and KeepOriginals is enabled, create _original copy first
+                    bool needsOriginalCreation = (originalFiles.Count == 0 && context.KeepOriginals && regularFiles.Count > 0);
+                    if (needsOriginalCreation)
                     {
-                        if (File.Exists(catprevPath))
-                            File.Delete(catprevPath);
-                        File.Move(actualCatprevPath, catprevPath);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Failed to move temp catprev file", ex);
-                        try { if (File.Exists(actualCatprevPath)) File.Delete(actualCatprevPath); } catch { }
-                    }
-                }
-                
-                // Handle original file based on KeepOriginals setting
-                var sourceFileNameWithoutExt = Path.GetFileNameWithoutExtension(sourceFile);
-                // Skip if already _original or is output file
-                if (!sourceFileNameWithoutExt.EndsWith("_original", StringComparison.OrdinalIgnoreCase) &&
-                    !sourceFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase))
-                {
-                    if (context.KeepOriginals)
-                    {
-                        // Rename original file with _original suffix
+                        Logger.LogInfo("Creating original copy before optimization");
+                        var file = regularFiles[0];
                         try
                         {
-                            var directory = Path.GetDirectoryName(sourceFile);
-                            var extension = Path.GetExtension(sourceFile);
-                            var originalPath = Path.Combine(directory!, $"{sourceFileNameWithoutExt}_original{extension}");
+                            var directory = Path.GetDirectoryName(file);
+                            var fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                            var extension = Path.GetExtension(file);
+                            var originalPath = Path.Combine(directory!, $"{fileNameWithoutExt}_original{extension}");
                             
-                            // If _original already exists, delete it first
-                            if (File.Exists(originalPath))
-                                File.Delete(originalPath);
-                            
-                            File.Move(sourceFile, originalPath);
-                            Logger.LogInfo($"Kept original: {Path.GetFileName(sourceFile)} -> {Path.GetFileName(originalPath)}");
+                            if (!File.Exists(originalPath))
+                            {
+                                File.Copy(file, originalPath);
+                                Logger.LogInfo($"Created original: {Path.GetFileName(originalPath)}");
+                            }
                         }
                         catch (Exception ex)
                         {
-                            Logger.LogError($"Failed to keep original file: {sourceFile}", ex);
+                            Logger.LogError($"Failed to create original copy: {file}", ex);
                         }
                     }
-                    else
+                    
+                    var sourceFile = previewFiles[0];
+                    var catprevPath = Path.Combine(categoryDir, GetCatprevFilename());
+                    var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
+                    
+                    // Check if source and target are the same file - need to use temp file
+                    bool isSameFile = sourceFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase);
+                    string actualCatprevPath = isSameFile 
+                        ? Path.Combine(categoryDir, $"_temp_catprev_{Guid.NewGuid()}{GetImageExtension()}")
+                        : catprevPath;
+                    
+                    using (var img = Image.Load<Rgba32>(sourceFile))
                     {
-                        // Delete original file
+                        // Save catprev without resizing (just convert to target format)
+                        SaveImage(img, actualCatprevPath, context.JpegQuality);
+                        Logger.LogInfo($"Converted (Lite): {Path.GetFileName(sourceFile)} -> {GetCatprevFilename()}");
+                        
+                        // Update progress
+                        progressDialog?.UpdateProgress(2, 2, "Generating thumbnail...");
+                        
+                        // Generate catmini (600x722) - cropped thumbnail
+                        var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
+                        using (var catmini = img.Clone(ctx => ctx
+                            .Crop(catminiCropRect)
+                            .Resize(new ResizeOptions
+                            {
+                                Size = new Size(600, 722),
+                                Mode = ResizeMode.Stretch,
+                                Sampler = KnownResamplers.Bicubic
+                            })))
+                        {
+                            SaveImage(catmini, catminiPath, context.JpegQuality);
+                            Logger.LogInfo($"Generated {GetCatminiFilename()} (Standard)");
+                        }
+                    }
+                    
+                    // If we used a temp file for catprev, move it to the actual target after closing the source
+                    if (isSameFile && File.Exists(actualCatprevPath))
+                    {
                         try
                         {
-                            File.Delete(sourceFile);
-                            Logger.LogInfo($"Deleted original: {Path.GetFileName(sourceFile)}");
+                            if (File.Exists(catprevPath))
+                                File.Delete(catprevPath);
+                            File.Move(actualCatprevPath, catprevPath);
                         }
                         catch (Exception ex)
                         {
-                            Logger.LogError($"Failed to delete original file: {sourceFile}", ex);
+                            Logger.LogError($"Failed to move temp catprev file", ex);
+                            try { if (File.Exists(actualCatprevPath)) File.Delete(actualCatprevPath); } catch { }
                         }
                     }
-                }
+                    
+                    // Handle original file based on KeepOriginals setting
+                    var sourceFileNameWithoutExt = Path.GetFileNameWithoutExtension(sourceFile);
+                    // Skip if already _original or is output file
+                    if (!sourceFileNameWithoutExt.EndsWith("_original", StringComparison.OrdinalIgnoreCase) &&
+                        !sourceFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (context.KeepOriginals)
+                        {
+                            // Rename original file with _original suffix
+                            try
+                            {
+                                var directory = Path.GetDirectoryName(sourceFile);
+                                var extension = Path.GetExtension(sourceFile);
+                                var originalPath = Path.Combine(directory!, $"{sourceFileNameWithoutExt}_original{extension}");
+                                
+                                // If _original already exists, delete it first
+                                if (File.Exists(originalPath))
+                                    File.Delete(originalPath);
+                                
+                                File.Move(sourceFile, originalPath);
+                                Logger.LogInfo($"Kept original: {Path.GetFileName(sourceFile)} -> {Path.GetFileName(originalPath)}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to keep original file: {sourceFile}", ex);
+                            }
+                        }
+                        else
+                        {
+                            // Delete original file
+                            try
+                            {
+                                File.Delete(sourceFile);
+                                Logger.LogInfo($"Deleted original: {Path.GetFileName(sourceFile)}");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError($"Failed to delete original file: {sourceFile}", ex);
+                            }
+                        }
+                    }
+                });
                 
                 Logger.LogInfo($"Category preview processing (Standard) completed for: {categoryDir}");
             }
@@ -918,6 +963,19 @@ namespace FlairX_Mod_Manager.Services
             {
                 Logger.LogError($"Failed to process category preview (Standard) in {categoryDir}", ex);
             }
+            finally
+            {
+                // Close progress dialog
+                progressDialog?.Hide();
+            }
+        }
+        
+        /// <summary>
+        /// Synchronous wrapper for ProcessCategoryPreviewLiteAsync
+        /// </summary>
+        private static void ProcessCategoryPreviewLite(string categoryDir, OptimizationContext context, bool showProgressDialog = true)
+        {
+            ProcessCategoryPreviewLiteAsync(categoryDir, context, showProgressDialog).GetAwaiter().GetResult();
         }
 
         /// <summary>
