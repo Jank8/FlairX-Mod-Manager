@@ -1197,11 +1197,11 @@ namespace FlairX_Mod_Manager.Services
                                 var encoder = new SixLabors.ImageSharp.Formats.Webp.WebpEncoder
                                 {
                                     Quality = quality,
-                                    FileFormat = SixLabors.ImageSharp.Formats.Webp.WebpFileFormatType.Lossy,
+                                    FileFormat = SixLabors.ImageSharp.Formats.Webp.WebpFileFormatType.Lossless, // Use lossless for icons to preserve alpha
                                     Method = SixLabors.ImageSharp.Formats.Webp.WebpEncodingMethod.BestQuality
                                 };
                                 image.Save(finalIconPath, encoder);
-                                Logger.LogInfo($"Converted image to WebP and saved as {finalIconPath}");
+                                Logger.LogInfo($"Converted image to WebP (lossless) and saved as {finalIconPath}");
                             }
                             else
                             {

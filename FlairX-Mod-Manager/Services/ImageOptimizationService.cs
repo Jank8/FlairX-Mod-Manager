@@ -12,6 +12,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Formats.Png;
 
 namespace FlairX_Mod_Manager.Services
 {
@@ -649,6 +650,95 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
+        /// Process gbicon (GameBanana icon) - convert between PNG and WebP only (needs alpha channel)
+        /// </summary>
+        private static void ProcessGbIcon(string categoryDir, OptimizationContext context)
+        {
+            try
+            {
+                var currentFormat = SettingsManager.Current.ImageFormat ?? "WebP";
+                var targetExtension = currentFormat.Equals("WebP", StringComparison.OrdinalIgnoreCase) ? ".webp" : ".png";
+                var sourceExtension = targetExtension == ".webp" ? ".png" : ".webp";
+                
+                var targetPath = Path.Combine(categoryDir, $"gbicon{targetExtension}");
+                var sourcePath = Path.Combine(categoryDir, $"gbicon{sourceExtension}");
+                
+                // If target already exists, nothing to do
+                if (File.Exists(targetPath))
+                {
+                    Logger.LogInfo($"gbicon{targetExtension} already exists, skipping conversion");
+                    return;
+                }
+                
+                // If source doesn't exist, nothing to convert
+                if (!File.Exists(sourcePath))
+                {
+                    Logger.LogInfo($"No gbicon found to convert in: {categoryDir}");
+                    return;
+                }
+                
+                Logger.LogInfo($"Converting gbicon{sourceExtension} to gbicon{targetExtension}");
+                
+                // Load and save in target format
+                using (var img = Image.Load<Rgba32>(sourcePath))
+                {
+                    if (targetExtension == ".webp")
+                    {
+                        // Save as WebP with alpha channel - use lossless for icons to preserve quality and alpha
+                        img.SaveAsWebp(targetPath, new WebpEncoder 
+                        { 
+                            Quality = 100, // Always use lossless (100) for icons to preserve alpha channel
+                            FileFormat = WebpFileFormatType.Lossless,
+                            Method = WebpEncodingMethod.BestQuality
+                        });
+                    }
+                    else
+                    {
+                        // Save as PNG (always lossless with alpha)
+                        img.SaveAsPng(targetPath);
+                    }
+                    
+                    Logger.LogInfo($"Converted gbicon{sourceExtension} -> gbicon{targetExtension}");
+                }
+                
+                // Handle original file based on KeepOriginals setting
+                if (context.KeepOriginals)
+                {
+                    // Rename to _original
+                    try
+                    {
+                        var originalPath = Path.Combine(categoryDir, $"gbicon_original{sourceExtension}");
+                        if (File.Exists(originalPath))
+                            File.Delete(originalPath);
+                        File.Move(sourcePath, originalPath);
+                        Logger.LogInfo($"Kept original: gbicon{sourceExtension} -> gbicon_original{sourceExtension}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to keep original gbicon", ex);
+                    }
+                }
+                else
+                {
+                    // Delete original
+                    try
+                    {
+                        File.Delete(sourcePath);
+                        Logger.LogInfo($"Deleted original: gbicon{sourceExtension}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to delete original gbicon", ex);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to process gbicon in {categoryDir}", ex);
+            }
+        }
+
+        /// <summary>
         /// Process category preview in Standard mode - quality conversion without resizing or cropping
         /// </summary>
         private static void ProcessCategoryPreviewLite(string categoryDir, OptimizationContext context)
@@ -667,6 +757,9 @@ namespace FlairX_Mod_Manager.Services
                     GenerateCatminiFromCatprevLite(categoryDir, context);
                     return;
                 }
+                
+                // Process gbicon separately (PNG/WebP only - needs alpha channel)
+                ProcessGbIcon(categoryDir, context);
                 
                 // Create backup if enabled
                 if (context.CreateBackups)

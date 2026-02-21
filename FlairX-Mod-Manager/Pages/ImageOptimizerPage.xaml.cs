@@ -3,9 +3,14 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FlairX_Mod_Manager.Models;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Formats.Webp;
 
 namespace FlairX_Mod_Manager.Pages
 {
@@ -285,11 +290,12 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (ImageFormatComboBox.SelectedItem is ComboBoxItem item && item.Tag is string format)
             {
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                
                 // Check if switching to WebP and codec is not installed
                 if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase) && 
                     !WebPCodecChecker.IsWebPCodecInstalled())
                 {
-                    var lang = SharedUtilities.LoadLanguageDictionary();
                     var dialog = new ContentDialog
                     {
                         Title = SharedUtilities.GetTranslation(lang, "WebP_Codec_Required") ?? "WebP Codec Required",
@@ -317,7 +323,31 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
                 
+                var oldFormat = SettingsManager.Current.ImageFormat ?? "JPEG";
                 SettingsManager.Current.ImageFormat = format;
+                
+                // Ask if user wants to convert existing images when switching formats
+                if (!format.Equals(oldFormat, StringComparison.OrdinalIgnoreCase))
+                {
+                    var convertDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "ConvertImages_Title") ?? "Convert Existing Images?",
+                        Content = SharedUtilities.GetTranslation(lang, "ConvertImages_Message") ?? 
+                            "Would you like to convert all existing images to the new format?\n\nThis will:\n• Convert preview images, thumbnails, and category images\n• Keep original files if 'Keep Originals' is enabled\n\n⚠️ WARNING: Converting back and forth between formats multiple times will degrade image quality. Only convert once from your original files.",
+                        PrimaryButtonText = SharedUtilities.GetTranslation(lang, "ConvertImages_Convert") ?? "Convert Now",
+                        SecondaryButtonText = SharedUtilities.GetTranslation(lang, "ConvertImages_Later") ?? "Maybe Later",
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel",
+                        DefaultButton = ContentDialogButton.Secondary,
+                        XamlRoot = this.XamlRoot
+                    };
+                    
+                    var convertResult = await convertDialog.ShowAsync();
+                    if (convertResult == ContentDialogResult.Primary)
+                    {
+                        // User wants to convert - use existing optimization system
+                        OptimizeButton_Click(null, null);
+                    }
+                }
                 
                 // Update quality slider state and switch between JPEG/WebP quality values
                 if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
@@ -340,6 +370,7 @@ namespace FlairX_Mod_Manager.Pages
                 SaveSettings();
             }
         }
+
 
         private void ThreadCountSlider_ValueChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
