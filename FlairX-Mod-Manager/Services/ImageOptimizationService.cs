@@ -339,7 +339,7 @@ namespace FlairX_Mod_Manager.Services
                 case OptimizationMode.Standard:
                 default:
                     // Standard: optimize quality, generate thumbnails with auto crop
-                    ProcessCategoryPreviewLite(categoryDir, context);
+                    await ProcessCategoryPreviewLiteAsync(categoryDir, context);
                     break;
             }
         }
@@ -349,7 +349,7 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         public static void ProcessCategoryPreview(string categoryDir, OptimizationContext context)
         {
-            ProcessCategoryPreviewAsync(categoryDir, context).GetAwaiter().GetResult();
+            ProcessCategoryPreviewLiteAsync(categoryDir, context, showProgressDialog: false).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -744,6 +744,62 @@ namespace FlairX_Mod_Manager.Services
             {
                 Logger.LogInfo($"Processing category preview (Standard) in: {categoryDir}");
                 
+                // FIRST: Convert existing catprev/catmini to new format if needed (format change)
+                var currentExtension = SettingsManager.GetImageExtension();
+                var oldExtension = currentExtension == ".webp" ? ".jpg" : ".webp";
+                
+                // Convert catprev if it exists in old format
+                var oldCatprevPath = Path.Combine(categoryDir, $"catprev{oldExtension}");
+                var newCatprevPath = Path.Combine(categoryDir, $"catprev{currentExtension}");
+                if (File.Exists(oldCatprevPath) && !File.Exists(newCatprevPath))
+                {
+                    Logger.LogInfo($"Converting catprev{oldExtension} to catprev{currentExtension}");
+                    using (var img = Image.Load<Rgba32>(oldCatprevPath))
+                    {
+                        SaveImage(img, newCatprevPath, context.JpegQuality);
+                    }
+                    
+                    // Handle old file based on KeepOriginals
+                    if (context.KeepOriginals)
+                    {
+                        var originalPath = Path.Combine(categoryDir, $"catprev_original{oldExtension}");
+                        if (File.Exists(originalPath)) File.Delete(originalPath);
+                        File.Move(oldCatprevPath, originalPath);
+                        Logger.LogInfo($"Kept original: catprev{oldExtension} -> catprev_original{oldExtension}");
+                    }
+                    else
+                    {
+                        File.Delete(oldCatprevPath);
+                        Logger.LogInfo($"Deleted original: catprev{oldExtension}");
+                    }
+                }
+                
+                // Convert catmini if it exists in old format
+                var oldCatminiPath = Path.Combine(categoryDir, $"catmini{oldExtension}");
+                var newCatminiPath = Path.Combine(categoryDir, $"catmini{currentExtension}");
+                if (File.Exists(oldCatminiPath) && !File.Exists(newCatminiPath))
+                {
+                    Logger.LogInfo($"Converting catmini{oldExtension} to catmini{currentExtension}");
+                    using (var img = Image.Load<Rgba32>(oldCatminiPath))
+                    {
+                        SaveImage(img, newCatminiPath, context.JpegQuality);
+                    }
+                    
+                    // Handle old file based on KeepOriginals
+                    if (context.KeepOriginals)
+                    {
+                        var originalPath = Path.Combine(categoryDir, $"catmini_original{oldExtension}");
+                        if (File.Exists(originalPath)) File.Delete(originalPath);
+                        File.Move(oldCatminiPath, originalPath);
+                        Logger.LogInfo($"Kept original: catmini{oldExtension} -> catmini_original{oldExtension}");
+                    }
+                    else
+                    {
+                        File.Delete(oldCatminiPath);
+                        Logger.LogInfo($"Deleted original: catmini{oldExtension}");
+                    }
+                }
+                
                 // Check if catprev exists but catmini is missing - only generate catmini
                 var existingCatprevPath = Path.Combine(categoryDir, GetCatprevFilename());
                 var existingCatminiPath = Path.Combine(categoryDir, GetCatminiFilename());
@@ -821,6 +877,8 @@ namespace FlairX_Mod_Manager.Services
                                    IsImageFile(f);
                         })
                         .ToList();
+                    
+                    Logger.LogInfo($"Found {allFiles.Count} preview files in {categoryDir}: {string.Join(", ", allFiles.Select(Path.GetFileName))}");
                     
                     // Separate original files from regular files
                     var originalFiles = allFiles.Where(f => Path.GetFileNameWithoutExtension(f).EndsWith("_original", StringComparison.OrdinalIgnoreCase)).ToList();
@@ -1896,6 +1954,76 @@ namespace FlairX_Mod_Manager.Services
             {
                 Logger.LogInfo($"Processing mod preview images (Standard) in: {modDir}");
                 
+                // FIRST: Convert existing files to new format if needed (format change)
+                var currentExtension = SettingsManager.GetImageExtension();
+                var oldExtension = currentExtension == ".webp" ? ".jpg" : ".webp";
+                
+                // Convert minitile if it exists in old format
+                var oldMinitilePath = Path.Combine(modDir, $"minitile{oldExtension}");
+                var newMinitilePath = Path.Combine(modDir, $"minitile{currentExtension}");
+                if (File.Exists(oldMinitilePath) && !File.Exists(newMinitilePath))
+                {
+                    Logger.LogInfo($"Converting minitile{oldExtension} to minitile{currentExtension}");
+                    using (var img = Image.Load<Rgba32>(oldMinitilePath))
+                    {
+                        SaveImage(img, newMinitilePath, context.JpegQuality);
+                    }
+                    
+                    // Handle old file based on KeepOriginals
+                    if (context.KeepOriginals)
+                    {
+                        var originalPath = Path.Combine(modDir, $"minitile_original{oldExtension}");
+                        if (File.Exists(originalPath)) File.Delete(originalPath);
+                        File.Move(oldMinitilePath, originalPath);
+                        Logger.LogInfo($"Kept original: minitile{oldExtension} -> minitile_original{oldExtension}");
+                    }
+                    else
+                    {
+                        File.Delete(oldMinitilePath);
+                        Logger.LogInfo($"Deleted original: minitile{oldExtension}");
+                    }
+                }
+                
+                // Convert preview files if they exist in old format
+                var oldPreviewFiles = Directory.GetFiles(modDir)
+                    .Where(f =>
+                    {
+                        var fileName = Path.GetFileName(f).ToLower();
+                        return fileName.StartsWith("preview") && 
+                               !fileName.Contains("_original") &&
+                               f.EndsWith(oldExtension, StringComparison.OrdinalIgnoreCase);
+                    })
+                    .ToList();
+                
+                foreach (var oldFile in oldPreviewFiles)
+                {
+                    var fileNameWithoutExt = Path.GetFileNameWithoutExtension(oldFile);
+                    var newFile = Path.Combine(modDir, $"{fileNameWithoutExt}{currentExtension}");
+                    
+                    if (!File.Exists(newFile))
+                    {
+                        Logger.LogInfo($"Converting {Path.GetFileName(oldFile)} to {Path.GetFileName(newFile)}");
+                        using (var img = Image.Load<Rgba32>(oldFile))
+                        {
+                            SaveImage(img, newFile, context.JpegQuality);
+                        }
+                        
+                        // Handle old file based on KeepOriginals
+                        if (context.KeepOriginals)
+                        {
+                            var originalPath = Path.Combine(modDir, $"{fileNameWithoutExt}_original{oldExtension}");
+                            if (File.Exists(originalPath)) File.Delete(originalPath);
+                            File.Move(oldFile, originalPath);
+                            Logger.LogInfo($"Kept original: {Path.GetFileName(oldFile)} -> {Path.GetFileName(originalPath)}");
+                        }
+                        else
+                        {
+                            File.Delete(oldFile);
+                            Logger.LogInfo($"Deleted original: {Path.GetFileName(oldFile)}");
+                        }
+                    }
+                }
+                
                 // Create backup if enabled
                 if (context.CreateBackups)
                 {
@@ -1919,10 +2047,7 @@ namespace FlairX_Mod_Manager.Services
                     .Where(f =>
                     {
                         var fileName = Path.GetFileName(f).ToLower();
-                        return fileName.StartsWith("preview") &&
-                               (f.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
-                                f.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase));
+                        return fileName.StartsWith("preview") && IsImageFile(f);
                     })
                     .ToList();
                 
@@ -2745,8 +2870,8 @@ namespace FlairX_Mod_Manager.Services
                         if (_cancellationRequested) { wasCancelled = true; break; }
                         if (!Directory.Exists(categoryDir)) continue;
                         
-                        // Process category preview
-                        await ProcessCategoryPreviewAsync(categoryDir, context);
+                        // Process category preview with dialog
+                        await ProcessCategoryPreviewLiteAsync(categoryDir, context, showProgressDialog: true);
                         IncrementProcessed();
                         
                         // Process all mods in category
@@ -2786,8 +2911,8 @@ namespace FlairX_Mod_Manager.Services
                             if (_cancellationRequested) { loopState.Break(); return; }
                             if (!Directory.Exists(categoryDir)) return;
                             
-                            // Process category preview
-                            ProcessCategoryPreview(categoryDir, context);
+                            // Process category preview - no dialog in parallel mode (background thread)
+                            ProcessCategoryPreviewLite(categoryDir, context, showProgressDialog: false);
                             IncrementProcessed();
                             
                             if (_cancellationRequested) { loopState.Break(); return; }
@@ -2959,23 +3084,25 @@ namespace FlairX_Mod_Manager.Services
         }
         
         /// <summary>
-        /// Check if a mod directory already has optimized files
+        /// Check if a mod directory already has optimized files IN CURRENT FORMAT
         /// </summary>
         public static bool IsModAlreadyOptimized(string modDir)
         {
-            // Check if minitile exists (either .jpg or .webp)
-            var minitileJpg = Path.Combine(modDir, "minitile.jpg");
-            var minitileWebp = Path.Combine(modDir, "minitile.webp");
-            if (!File.Exists(minitileJpg) && !File.Exists(minitileWebp))
+            // Get current format extension
+            var currentExtension = SettingsManager.GetImageExtension();
+            
+            // Check if minitile exists in current format
+            var minitilePath = Path.Combine(modDir, $"minitile{currentExtension}");
+            if (!File.Exists(minitilePath))
                 return false;
             
-            // Check if preview files have correct names (preview.jpg/webp, preview-01.jpg/webp, etc.)
+            // Check if preview files exist in current format
             var previewFiles = Directory.GetFiles(modDir)
                 .Where(f =>
                 {
                     var fileName = Path.GetFileName(f).ToLower();
                     return fileName.StartsWith("preview") &&
-                           IsImageFile(f);
+                           f.EndsWith(currentExtension, StringComparison.OrdinalIgnoreCase);
                 })
                 .ToList();
             
@@ -2999,23 +3126,24 @@ namespace FlairX_Mod_Manager.Services
         }
         
         /// <summary>
-        /// Check if a category directory already has optimized files
+        /// Check if a category directory already has optimized files IN CURRENT FORMAT
         /// </summary>
         public static bool IsCategoryAlreadyOptimized(string categoryDir)
         {
-            // Check if catprev exists (either .jpg or .webp)
-            var catprevJpg = Path.Combine(categoryDir, "catprev.jpg");
-            var catprevWebp = Path.Combine(categoryDir, "catprev.webp");
-            if (!File.Exists(catprevJpg) && !File.Exists(catprevWebp))
+            // Get current format extension
+            var currentExtension = SettingsManager.GetImageExtension();
+            
+            // Check if catprev exists in current format
+            var catprevPath = Path.Combine(categoryDir, $"catprev{currentExtension}");
+            if (!File.Exists(catprevPath))
                 return false;
             
-            // Check if catmini exists (either .jpg or .webp)
-            var catminiJpg = Path.Combine(categoryDir, "catmini.jpg");
-            var catminiWebp = Path.Combine(categoryDir, "catmini.webp");
-            if (!File.Exists(catminiJpg) && !File.Exists(catminiWebp))
+            // Check if catmini exists in current format
+            var catminiPath = Path.Combine(categoryDir, $"catmini{currentExtension}");
+            if (!File.Exists(catminiPath))
                 return false;
             
-            // Both catprev and catmini exist - category is fully optimized
+            // Both catprev and catmini exist in current format - category is fully optimized
             return true;
         }
 

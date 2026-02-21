@@ -366,7 +366,7 @@ namespace FlairX_Mod_Manager.Pages
                     if (convertResult == ContentDialogResult.Primary)
                     {
                         // User wants to convert - use existing optimization system
-                        OptimizeButton_Click(null!, null!);
+                        OptimizeButton_Click(this, new RoutedEventArgs());
                     }
                 }
                 
