@@ -502,6 +502,12 @@ namespace FlairX_Mod_Manager.Pages
                             XamlRoot = this.XamlRoot
                         };
                         await successDialog.ShowAsync();
+                        
+                        // Reload mods to refresh thumbnails after user closes dialog
+                        if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                        {
+                            await mainWindow.ReloadModsAsync();
+                        }
                     });
                 }
                 catch (OperationCanceledException)

@@ -2084,9 +2084,10 @@ namespace FlairX_Mod_Manager.Services
                         {
                             var fileName = Path.GetFileNameWithoutExtension(f).ToLower();
                             if (fileName.EndsWith("_original")) return false;
-                            // preview.jpg or preview-XX.jpg pattern
+                            // preview.jpg or preview-XX.jpg pattern (with dash and exactly 2 digits)
                             if (fileName == "preview") return true;
-                            if (fileName.StartsWith("preview-") && fileName.Length == 10) return true; // preview-XX
+                            if (fileName.StartsWith("preview-") && fileName.Length == 10 && 
+                                char.IsDigit(fileName[8]) && char.IsDigit(fileName[9])) return true; // preview-XX
                             return false;
                         })
                         .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
@@ -2098,7 +2099,8 @@ namespace FlairX_Mod_Manager.Services
                             var fileName = Path.GetFileNameWithoutExtension(f).ToLower();
                             if (fileName.EndsWith("_original")) return false;
                             if (fileName == "preview") return false;
-                            if (fileName.StartsWith("preview-") && fileName.Length == 10) return false; // preview-XX
+                            if (fileName.StartsWith("preview-") && fileName.Length == 10 && 
+                                char.IsDigit(fileName[8]) && char.IsDigit(fileName[9])) return false; // preview-XX
                             // Everything else is new (preview001, preview002, preview1, etc.)
                             return true;
                         })
@@ -2107,6 +2109,16 @@ namespace FlairX_Mod_Manager.Services
                 }
                 
                 Logger.LogInfo($"Already optimized: {alreadyOptimizedFiles.Count}, New to process: {newFilesToProcess.Count}");
+                
+                // Log file names for debugging
+                if (alreadyOptimizedFiles.Count > 0)
+                {
+                    Logger.LogInfo($"Already optimized files: {string.Join(", ", alreadyOptimizedFiles.Select(f => Path.GetFileName(f)))}");
+                }
+                if (newFilesToProcess.Count > 0)
+                {
+                    Logger.LogInfo($"New files to process: {string.Join(", ", newFilesToProcess.Select(f => Path.GetFileName(f)))}");
+                }
                 
                 // Track new files for cleanup on cancel
                 newFilesToCleanup.AddRange(newFilesToProcess);
@@ -2210,6 +2222,9 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"[PREVIEW_LITE] InspectAndEditEnabled: {context.InspectAndEditEnabled}");
                 Logger.LogInfo($"[PREVIEW_LITE] newFilesToProcess.Count: {newFilesToProcess.Count}");
                 Logger.LogInfo($"[PREVIEW_LITE] BatchCropInspectionRequested != null: {BatchCropInspectionRequested != null}");
+                Logger.LogInfo($"[PREVIEW_LITE] CreateMinitile: {context.CreateMinitile}");
+                Logger.LogInfo($"[PREVIEW_LITE] selectedMinitileSource: {(selectedMinitileSource == null ? "NULL" : Path.GetFileName(selectedMinitileSource))}");
+                Logger.LogInfo($"[PREVIEW_LITE] skipMinitileOnly: {skipMinitileOnly}");
                 
                 // Determine if we should use batch mode (list of files on the right side)
                 bool useBatchMode = context.AllowUIInteraction && 
@@ -2237,24 +2252,35 @@ namespace FlairX_Mod_Manager.Services
                 {
                     Logger.LogInfo($"[PREVIEW_LITE] Starting STANDARD MODE processing (no inspection)");
                     
-                    // Show progress dialog for image conversion
+                    // Show progress dialog for image conversion (only if UI interaction is allowed)
                     Dialogs.ProgressDialog? progressDialog = null;
-                    var lang = SharedUtilities.LoadLanguageDictionary();
-                    var progressTitle = SharedUtilities.GetTranslation(lang, "ProcessingImages") ?? "Processing Images";
-                    var progressMessage = SharedUtilities.GetTranslation(lang, "ConvertingImages") ?? "Converting images, please wait...";
                     
-                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                    if (context.AllowUIInteraction)
                     {
-                        Logger.LogInfo($"[PREVIEW_LITE] Creating progress dialog");
-                        progressDialog = new Dialogs.ProgressDialog(progressTitle, progressMessage);
-                        progressDialog.XamlRoot = mainWindow.Content.XamlRoot;
+                        var lang = SharedUtilities.LoadLanguageDictionary();
+                        var progressTitle = SharedUtilities.GetTranslation(lang, "ProcessingImages") ?? "Processing Images";
+                        var progressMessage = SharedUtilities.GetTranslation(lang, "ConvertingImages") ?? "Converting images, please wait...";
                         
-                        // Show dialog asynchronously
-                        _ = progressDialog.ShowAsync();
-                        
-                        // Small delay to ensure dialog is visible
-                        await Task.Delay(100);
-                        Logger.LogInfo($"[PREVIEW_LITE] Progress dialog shown");
+                        if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                        {
+                            Logger.LogInfo($"[PREVIEW_LITE] Creating progress dialog on UI thread");
+                            
+                            // Create and show dialog on UI thread
+                            await mainWindow.DispatcherQueue.EnqueueAsync(async () =>
+                            {
+                                progressDialog = new Dialogs.ProgressDialog(progressTitle, progressMessage);
+                                progressDialog.XamlRoot = mainWindow.Content.XamlRoot;
+                                _ = progressDialog.ShowAsync();
+                            });
+                            
+                            // Small delay to ensure dialog is visible
+                            await Task.Delay(100);
+                            Logger.LogInfo($"[PREVIEW_LITE] Progress dialog shown");
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogInfo($"[PREVIEW_LITE] Skipping progress dialog (AllowUIInteraction is false)");
                     }
                     
                     try
@@ -2262,7 +2288,7 @@ namespace FlairX_Mod_Manager.Services
                         // Process images on background thread to keep UI responsive
                         await Task.Run(() =>
                         {
-                            // Standard mode without inspection - just convert to JPEG without resizing
+                            // Standard mode without inspection - just convert to target format without resizing
                             for (int i = 0; i < newFilesToProcess.Count && (startIndex + i) < AppConstants.MAX_PREVIEW_IMAGES; i++)
                             {
                                 var sourceFile = newFilesToProcess[i];
@@ -2619,7 +2645,7 @@ namespace FlairX_Mod_Manager.Services
                         return;
                     }
                     
-                    // Generate minitile.jpg (600x722)
+                    // Generate minitile (600x722)
                     using (var minitile = img.Clone(ctx => ctx
                         .Crop(srcRect.Value)
                         .Resize(new ResizeOptions
@@ -2984,7 +3010,7 @@ namespace FlairX_Mod_Manager.Services
             return new OptimizationContext
             {
                 Mode = mode,
-                JpegQuality = GetImageQuality(), // Use helper that returns 100 for WebP, user setting for JPEG
+                JpegQuality = GetImageQuality(), // Returns WebP quality for WebP, JPEG quality for JPEG
                 ThreadCount = SettingsManager.Current.ImageOptimizerThreadCount,
                 CreateBackups = SettingsManager.Current.ImageOptimizerCreateBackups,
                 KeepOriginals = SettingsManager.Current.ImageOptimizerKeepOriginals,

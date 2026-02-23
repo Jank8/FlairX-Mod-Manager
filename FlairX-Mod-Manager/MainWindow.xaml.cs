@@ -1434,14 +1434,14 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                // Create optimization context for manual mode without crop and minitile
+                // Create optimization context for screenshot capture
                 var context = Services.ImageOptimizationService.GetOptimizationContext(Services.OptimizationTrigger.Manual);
                 
                 // Override settings for screenshot capture
-                context.AllowUIInteraction = false; // No UI interaction needed
-                context.InspectAndEditEnabled = false; // No crop inspection
+                context.AllowUIInteraction = true; // Allow UI interaction for minitile selection
+                context.InspectAndEditEnabled = false; // No crop inspection for preview files
                 context.Mode = FlairX_Mod_Manager.Models.OptimizationMode.Standard; // Use Standard mode (quality conversion)
-                context.CreateMinitile = false; // Don't create minitile.jpg
+                context.CreateMinitile = true; // Create minitile (will show selection dialog unless AutoCreateModThumbnails is enabled)
 
                 Logger.LogInfo($"Starting optimization of {capturedFiles.Count} captured screenshots in mod: {modDirectory}");
 

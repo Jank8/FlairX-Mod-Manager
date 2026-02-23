@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Webp;
 
 namespace FlairX_Mod_Manager.Services
 {
@@ -77,18 +78,39 @@ namespace FlairX_Mod_Manager.Services
 
         private async void OnFileCreated(object sender, FileSystemEventArgs e)
         {
-            await ProcessNewFile(e.FullPath);
+            try
+            {
+                await ProcessNewFile(e.FullPath);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Unhandled error in OnFileCreated for {e.FullPath}", ex);
+            }
         }
 
         private async void OnFileRenamed(object sender, RenamedEventArgs e)
         {
-            await ProcessNewFile(e.FullPath);
+            try
+            {
+                await ProcessNewFile(e.FullPath);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Unhandled error in OnFileRenamed for {e.FullPath}", ex);
+            }
         }
 
         private async Task ProcessNewFile(string filePath)
         {
             try
             {
+                // Check if capture is still active
+                if (!_isCapturing || string.IsNullOrEmpty(_modDirectory))
+                {
+                    Logger.LogWarning($"Capture stopped or mod directory not set, ignoring file: {filePath}");
+                    return;
+                }
+
                 // Check if it's an image file
                 var extension = Path.GetExtension(filePath).ToLowerInvariant();
                 if (!IsImageFile(extension))
@@ -128,21 +150,29 @@ namespace FlairX_Mod_Manager.Services
         private async Task CopyFileToModDirectory(string sourceFilePath)
         {
             if (string.IsNullOrEmpty(_modDirectory))
+            {
+                Logger.LogWarning("Mod directory is null or empty, cannot copy file");
                 return;
+            }
 
             try
             {
+                // Verify mod directory still exists
+                if (!Directory.Exists(_modDirectory))
+                {
+                    Logger.LogError($"Mod directory no longer exists: {_modDirectory}");
+                    return;
+                }
+
                 // Find next available number
                 int nextNumber = GetNextAvailableNumber();
-                var extension = SettingsManager.GetImageExtension();
-                string targetFileName = $"Preview{nextNumber:D3}{extension}"; // Preview001.jpg or Preview001.webp
+                var sourceExtension = Path.GetExtension(sourceFilePath); // Keep original extension (PNG, JPG, etc.)
+                string targetFileName = $"Preview{nextNumber:D3}{sourceExtension}"; // Preview001.png, Preview001.jpg, etc.
                 string targetPath = System.IO.Path.Combine(_modDirectory, targetFileName);
 
-                // Copy and convert to JPEG if needed
-                using var sourceImage = Image.Load<Rgba32>(sourceFilePath);
-                
-                // Save as JPEG with high quality
-                sourceImage.SaveAsJpeg(targetPath, new JpegEncoder { Quality = 95 });
+                // Copy file without conversion - keep original quality
+                // Conversion will happen during optimization
+                File.Copy(sourceFilePath, targetPath, overwrite: true);
 
                 _capturedFiles.Add(targetPath);
                 Logger.LogInfo($"Captured screenshot: {targetFileName}");
@@ -205,41 +235,48 @@ namespace FlairX_Mod_Manager.Services
         /// </summary>
         public async void StopCaptureAndCleanup()
         {
-            Logger.LogInfo($"StopCaptureAndCleanup called - {_capturedFiles.Count} files to clean up");
-            
-            StopCapture();
-            
-            // Delete all captured files
-            if (_capturedFiles.Count > 0)
+            try
             {
-                Logger.LogInfo($"Cleaning up {_capturedFiles.Count} captured files");
-                var deletedCount = 0;
+                Logger.LogInfo($"StopCaptureAndCleanup called - {_capturedFiles.Count} files to clean up");
                 
-                // Force garbage collection to release any image handles
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                GC.Collect();
+                StopCapture();
                 
-                foreach (var file in _capturedFiles.ToList())
+                // Delete all captured files
+                if (_capturedFiles.Count > 0)
                 {
-                    var deleted = await TryDeleteFileWithRetry(file, maxRetries: 5, delayMs: 200);
-                    if (deleted)
+                    Logger.LogInfo($"Cleaning up {_capturedFiles.Count} captured files");
+                    var deletedCount = 0;
+                    
+                    // Force garbage collection to release any image handles
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    GC.Collect();
+                    
+                    foreach (var file in _capturedFiles.ToList())
                     {
-                        deletedCount++;
-                        Logger.LogInfo($"Deleted captured file: {Path.GetFileName(file)}");
+                        var deleted = await TryDeleteFileWithRetry(file, maxRetries: 5, delayMs: 200);
+                        if (deleted)
+                        {
+                            deletedCount++;
+                            Logger.LogInfo($"Deleted captured file: {Path.GetFileName(file)}");
+                        }
+                        else
+                        {
+                            Logger.LogError($"Failed to delete captured file after retries: {file}");
+                        }
                     }
-                    else
-                    {
-                        Logger.LogError($"Failed to delete captured file after retries: {file}");
-                    }
+                    
+                    _capturedFiles.Clear();
+                    Logger.LogInfo($"Cleanup completed - deleted {deletedCount} files");
                 }
-                
-                _capturedFiles.Clear();
-                Logger.LogInfo($"Cleanup completed - deleted {deletedCount} files");
+                else
+                {
+                    Logger.LogInfo("No files to clean up");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Logger.LogInfo("No files to clean up");
+                Logger.LogError("Unhandled error in StopCaptureAndCleanup", ex);
             }
         }
         

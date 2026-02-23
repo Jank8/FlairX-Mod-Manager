@@ -36,6 +36,11 @@ namespace FlairX_Mod_Manager.Pages
             return format.Equals("WebP", StringComparison.OrdinalIgnoreCase) ? ".webp" : ".jpg";
         }
         
+        private static string GetImageFormat()
+        {
+            return SettingsManager.Current.ImageFormat ?? "JPEG";
+        }
+        
         private static string GetCatprevFilename() => $"catprev{GetImageExtension()}";
         private static string GetCatminiFilename() => $"catmini{GetImageExtension()}";
         private static string GetPreviewFilename(int index) => index == 0 ? $"preview{GetImageExtension()}" : $"preview-{index:D2}{GetImageExtension()}";
@@ -52,6 +57,23 @@ namespace FlairX_Mod_Manager.Pages
         private static void SaveImage(SixLabors.ImageSharp.Image<Rgba32> image, string path, int quality)
         {
             var format = SettingsManager.Current.ImageFormat ?? "JPEG";
+            if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
+            {
+                image.SaveAsWebp(path, new WebpEncoder 
+                { 
+                    Quality = quality,
+                    FileFormat = WebpFileFormatType.Lossy,
+                    Method = WebpEncodingMethod.BestQuality
+                });
+            }
+            else
+            {
+                image.SaveAsJpeg(path, new JpegEncoder { Quality = quality });
+            }
+        }
+        
+        private static void SaveImageInFormat(SixLabors.ImageSharp.Image<Rgba32> image, string path, string format, int quality)
+        {
             if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
             {
                 image.SaveAsWebp(path, new WebpEncoder 
@@ -750,7 +772,7 @@ namespace FlairX_Mod_Manager.Pages
         // Static versions of processing methods for hotkey use
         public static void ProcessCategoryPreviewStatic(string categoryDir, OptimizationMode mode = OptimizationMode.Standard)
         {
-            // Standard mode: optimize quality, generate catprev.jpg and catmini.jpg
+            // Standard mode: optimize quality, generate catprev and catmini
             // CategoryFull mode: same but with manual crop inspection (handled by ImageOptimizationService)
             
             // Create backup if enabled
@@ -771,9 +793,9 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            var catprevJpgPath = Path.Combine(categoryDir, "catprev.jpg");
+            var catprevPath = Path.Combine(categoryDir, GetCatprevFilename());
             
-            // Look for existing catprev files (catprev.png, catprev.jpg) and other preview files
+            // Look for existing catprev files (catprev.png, catprev.jpg, catprev.webp) and other preview files
             var catprevFiles = Directory.GetFiles(categoryDir)
                 .Where(f => 
                 {
@@ -799,13 +821,13 @@ namespace FlairX_Mod_Manager.Pages
             
             if (allPreviewFiles.Length == 0) return;
             
-            // Check if we need to optimize existing catprev.jpg
+            // Check if we need to optimize existing catprev
             bool needsOptimization = true;
-            if (File.Exists(catprevJpgPath))
+            if (File.Exists(catprevPath))
             {
                 try
                 {
-                    using (var img = SharpImage.Load<Rgba32>(catprevJpgPath))
+                    using (var img = SharpImage.Load<Rgba32>(catprevPath))
                     {
                         // Consider optimized if it's 600x722
                         needsOptimization = !(img.Width == 600 && img.Height == 722);
@@ -817,24 +839,25 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            // Skip if catprev.jpg already exists and is optimized, and no other catprev files to process
-            if (!needsOptimization && catprevFiles.Length <= 1 && catprevFiles.All(f => f.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase)))
+            // Skip if catprev already exists and is optimized, and no other catprev files to process
+            if (!needsOptimization && catprevFiles.Length <= 1 && catprevFiles.All(f => f.Equals(catprevPath, StringComparison.OrdinalIgnoreCase)))
                 return;
             
             var previewPath = allPreviewFiles[0]; // Take first preview file found
             
             try
             {
-                // Create temporary path if we're optimizing existing catprev.jpg
-                var tempPath = catprevJpgPath;
-                if (previewPath.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                // Create temporary path if we're optimizing existing catprev
+                var tempPath = catprevPath;
+                if (previewPath.Equals(catprevPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    tempPath = Path.Combine(categoryDir, "catprev_temp.jpg");
+                    var ext = GetImageExtension();
+                    tempPath = Path.Combine(categoryDir, $"catprev_temp{ext}");
                 }
                 
                 using (var img = SharpImage.Load<Rgba32>(previewPath))
                 {
-                    // Create catprev.jpg (722x722 for category preview)
+                    // Create catprev (722x722 for category preview)
                     // Calculate crop rectangle using selected algorithm
                     var cropTypeStr = SettingsManager.Current.ImageCropType ?? "Center";
                     var cropType = Enum.TryParse<Services.CropType>(cropTypeStr, out var parsed) ? parsed : Services.CropType.Center;
@@ -844,9 +867,8 @@ namespace FlairX_Mod_Manager.Pages
                         .Crop(new SixLabors.ImageSharp.Rectangle(srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height))
                         .Resize(722, 722, KnownResamplers.Bicubic)))
                     {
-                        // Save as JPEG catprev
-                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                        thumbBmp.SaveAsJpeg(tempPath, jpegEncoder);
+                        // Save catprev in target format
+                        SaveImageInFormat(thumbBmp, tempPath, GetImageFormat(), SettingsManager.Current.ImageOptimizerJpegQuality);
                     }
                     
                     // Create catmini (600x722 for category tiles) from same source
@@ -861,17 +883,16 @@ namespace FlairX_Mod_Manager.Pages
                         .Crop(new SixLabors.ImageSharp.Rectangle(srcRect2.X, srcRect2.Y, srcRect2.Width, srcRect2.Height))
                         .Resize(600, 722, KnownResamplers.Bicubic)))
                     {
-                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                        miniThumb.SaveAsJpeg(catminiPath, jpegEncoder);
+                        SaveImageInFormat(miniThumb, catminiPath, GetImageFormat(), SettingsManager.Current.ImageOptimizerJpegQuality);
                     }
                 }
                 
                 // Handle file replacement if we used temp path
-                if (!tempPath.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                if (!tempPath.Equals(catprevPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (File.Exists(catprevJpgPath))
-                        File.Delete(catprevJpgPath);
-                    File.Move(tempPath, catprevJpgPath);
+                    if (File.Exists(catprevPath))
+                        File.Delete(catprevPath);
+                    File.Move(tempPath, catprevPath);
                 }
             }
             catch (Exception ex)
@@ -928,8 +949,7 @@ namespace FlairX_Mod_Manager.Pages
                         .Crop(new SixLabors.ImageSharp.Rectangle(srcX, srcY, srcWidth, srcHeight))
                         .Resize(600, 722, KnownResamplers.Bicubic)))
                     {
-                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                        miniThumb.SaveAsJpeg(catminiPath, jpegEncoder);
+                        SaveImageInFormat(miniThumb, catminiPath, GetImageFormat(), SettingsManager.Current.ImageOptimizerJpegQuality);
                     }
                 }
                 
@@ -1686,8 +1706,7 @@ namespace FlairX_Mod_Manager.Pages
                         .Crop(new SixLabors.ImageSharp.Rectangle(x, y, originalSize, originalSize))
                         .Resize(finalSize, finalSize, KnownResamplers.Bicubic)))
                     {
-                        var encoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                        finalBmp.SaveAsJpeg(targetPath, encoder);
+                        SaveImageInFormat(finalBmp, targetPath, GetImageFormat(), SettingsManager.Current.ImageOptimizerJpegQuality);
                     }
                 }
                 else if (originalSize > 1000)
@@ -1696,15 +1715,13 @@ namespace FlairX_Mod_Manager.Pages
                     using (var finalBmp = src.Clone(ctx => ctx
                         .Resize(finalSize, finalSize, KnownResamplers.Bicubic)))
                     {
-                        var encoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                        finalBmp.SaveAsJpeg(targetPath, encoder);
+                        SaveImageInFormat(finalBmp, targetPath, GetImageFormat(), SettingsManager.Current.ImageOptimizerJpegQuality);
                     }
                 }
                 else
                 {
-                    // No processing needed, just save as JPEG
-                    var encoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                    src.SaveAsJpeg(targetPath, encoder);
+                    // No processing needed, just save in target format
+                    SaveImageInFormat(src, targetPath, GetImageFormat(), SettingsManager.Current.ImageOptimizerJpegQuality);
                 }
             }
         }
@@ -1824,8 +1841,8 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            var catprevJpgPath = Path.Combine(categoryDir, "catprev.jpg");
-            var catminiJpgPath = Path.Combine(categoryDir, "catmini.jpg");
+            var catprevPath = Path.Combine(categoryDir, GetCatprevFilename());
+            var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
             
             // Look for existing catprev files (catprev.png, catprev.jpg) and other preview files
             var catprevFiles = Directory.GetFiles(categoryDir)
@@ -1853,15 +1870,15 @@ namespace FlairX_Mod_Manager.Pages
             
             if (allPreviewFiles.Length == 0) return;
             
-            // Check if we need to optimize existing catprev.jpg and catmini.jpg
+            // Check if we need to optimize existing catprev and catmini
             bool needsOptimization = true;
-            bool needsCatmini = !File.Exists(catminiJpgPath);
+            bool needsCatmini = !File.Exists(catminiPath);
             
-            if (File.Exists(catprevJpgPath))
+            if (File.Exists(catprevPath))
             {
                 try
                 {
-                    using (var img = SharpImage.Load<Rgba32>(catprevJpgPath))
+                    using (var img = SharpImage.Load<Rgba32>(catprevPath))
                     {
                         // Consider optimized if it's 600x722
                         needsOptimization = !(img.Width == 600 && img.Height == 722);
@@ -1874,18 +1891,19 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             // Skip if both files exist and are optimized, and no other catprev files to process
-            if (!needsOptimization && !needsCatmini && catprevFiles.Length <= 1 && catprevFiles.All(f => f.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase)))
+            if (!needsOptimization && !needsCatmini && catprevFiles.Length <= 1 && catprevFiles.All(f => f.Equals(catprevPath, StringComparison.OrdinalIgnoreCase)))
                 return;
             
             var previewPath = allPreviewFiles[0]; // Take first preview file found
             
             try
             {
-                // Create temporary path if we're optimizing existing catprev.jpg
-                var tempPath = catprevJpgPath;
-                if (previewPath.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                // Create temporary path if we're optimizing existing catprev
+                var tempPath = catprevPath;
+                if (previewPath.Equals(catprevPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    tempPath = Path.Combine(categoryDir, "catprev_temp.jpg");
+                    var ext = GetImageExtension();
+                    tempPath = Path.Combine(categoryDir, $"catprev_temp{ext}");
                 }
                 
                 using (var img = SharpImage.Load<Rgba32>(previewPath))
@@ -1913,13 +1931,12 @@ namespace FlairX_Mod_Manager.Pages
                         .Crop(cropRect)
                         .Resize(722, 722, KnownResamplers.Bicubic)))
                     {
-                        // Save as JPEG catprev
-                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                        thumbBmp.SaveAsJpeg(tempPath, jpegEncoder);
+                        // Save catprev in target format
+                        SaveImageInFormat(thumbBmp, tempPath, GetImageFormat(), SettingsManager.Current.ImageOptimizerJpegQuality);
                     }
                     
                     // Create catmini (600x722 for category grid tiles) from same source
-                    var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
+                    // catminiPath already declared at method start
                     
                     // Calculate crop for 600x722 aspect ratio
                     double targetAspect = 600.0 / 722.0;
@@ -1958,17 +1975,16 @@ namespace FlairX_Mod_Manager.Pages
                         .Crop(srcRect)
                         .Resize(600, 722, KnownResamplers.Bicubic)))
                     {
-                        var jpegEncoder = new JpegEncoder { Quality = SettingsManager.Current.ImageOptimizerJpegQuality };
-                        miniThumb.SaveAsJpeg(catminiPath, jpegEncoder);
+                        SaveImageInFormat(miniThumb, catminiPath, GetImageFormat(), SettingsManager.Current.ImageOptimizerJpegQuality);
                     }
                 }
                 
                 // If we used a temporary file, replace the original
-                if (!tempPath.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                if (!tempPath.Equals(catprevPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (File.Exists(catprevJpgPath))
-                        File.Delete(catprevJpgPath);
-                    File.Move(tempPath, catprevJpgPath);
+                    if (File.Exists(catprevPath))
+                        File.Delete(catprevPath);
+                    File.Move(tempPath, catprevPath);
                 }
                 
                 // Delete all other catprev files after processing (unless KeepOriginals is enabled)
@@ -1976,7 +1992,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     foreach (var catprevFile in catprevFiles)
                     {
-                        if (!catprevFile.Equals(catprevJpgPath, StringComparison.OrdinalIgnoreCase))
+                        if (!catprevFile.Equals(catprevPath, StringComparison.OrdinalIgnoreCase))
                         {
                             try
                             {
