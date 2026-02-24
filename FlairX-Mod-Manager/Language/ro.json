@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Doriți să convertiți toate imaginile existente în noul format?\\n\\nAceasta va:\\n• Converti previzualizări, miniaturi și imagini de categorie\\n• Păstra fișierele originale dacă 'Păstrează originalele' este activat\\n\\n⚠️ AVERTISMENT: Conversia repetată între formate va degrada calitatea imaginii. Convertiți doar o dată din fișierele originale.",
     "ConvertImages_Convert": "Convertește acum",
     "ConvertImages_Later": "Poate mai târziu",
-    "ImageOptimizer_ConversionQuality": "Calitate conversie"
+    "ImageOptimizer_ConversionQuality": "Calitate conversie",
+    "SettingsPage_CategoryManagement_Header": "Gestionarea categoriilor",
+    "SettingsPage_PinnedCategories_Label": "Categorii fixate",
+    "SettingsPage_PinnedCategories_Description": "Fixați categorii în meniul de subsol pentru acces rapid",
+    "SettingsPage_PinnedCategories_Placeholder": "Selectați categoria de fixat...",
+    "SettingsPage_HiddenCategories_Label": "Categorii ascunse",
+    "SettingsPage_HiddenCategories_Description": "Ascundeți categorii din meniul de navigare",
+    "SettingsPage_HiddenCategories_Placeholder": "Selectați categoria de ascuns..."
 }

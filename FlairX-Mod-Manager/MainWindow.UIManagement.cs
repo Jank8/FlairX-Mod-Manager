@@ -265,8 +265,8 @@ namespace FlairX_Mod_Manager
                                 
                                 // Get pinned and hidden categories for filtering
                                 var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
-                                var pinnedCategories = SettingsManager.GetPinnedCategories(gameTag);
-                                var hiddenCategories = SettingsManager.GetHiddenCategories(gameTag);
+                                var pinnedCategories = gameTag != null ? SettingsManager.GetPinnedCategories(gameTag) : new List<string>();
+                                var hiddenCategories = gameTag != null ? SettingsManager.GetHiddenCategories(gameTag) : new List<string>();
                                 
                                 // Clear star buttons dictionary
                                 _categoryStarButtons.Clear();

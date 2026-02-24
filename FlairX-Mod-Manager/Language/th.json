@@ -356,5 +356,12 @@
     "ConvertImages_Message": "คุณต้องการแปลงภาพที่มีอยู่ทั้งหมดเป็นรูปแบบใหม่หรือไม่?\\n\\nสิ่งนี้จะ:\\n• แปลงภาพตัวอย่าง ภาพขนาดย่อ และภาพหมวดหมู่\\n• เก็บไฟล์ต้นฉบับไว้หาก 'เก็บต้นฉบับ' เปิดใช้งาน\\n\\n⚠️ คำเตือน: การแปลงไปมาระหว่างรูปแบบหลายครั้งจะทำให้คุณภาพภาพลดลง แปลงเพียงครั้งเดียวจากไฟล์ต้นฉบับของคุณ",
     "ConvertImages_Convert": "แปลงตอนนี้",
     "ConvertImages_Later": "ทีหลังก็ได้",
-    "ImageOptimizer_ConversionQuality": "คุณภาพการแปลง"
+    "ImageOptimizer_ConversionQuality": "คุณภาพการแปลง",
+    "SettingsPage_CategoryManagement_Header": "การจัดการหมวดหมู่",
+    "SettingsPage_PinnedCategories_Label": "หมวดหมู่ที่ปักหมุด",
+    "SettingsPage_PinnedCategories_Description": "ปักหมุดหมวดหมู่ไปยังเมนูส่วนท้ายเพื่อการเข้าถึงที่รวดเร็ว",
+    "SettingsPage_PinnedCategories_Placeholder": "เลือกหมวดหมู่เพื่อปักหมุด...",
+    "SettingsPage_HiddenCategories_Label": "หมวดหมู่ที่ซ่อน",
+    "SettingsPage_HiddenCategories_Description": "ซ่อนหมวดหมู่จากเมนูนำทาง",
+    "SettingsPage_HiddenCategories_Placeholder": "เลือกหมวดหมู่เพื่อซ่อน..."
 }

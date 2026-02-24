@@ -356,5 +356,12 @@
     "ConvertImages_Message": "すべての既存画像を新しい形式に変換しますか？\\n\\nこれにより：\\n• プレビュー、サムネイル、カテゴリ画像を変換\\n• 'オリジナルを保持'が有効な場合、元のファイルを保持\\n\\n⚠️ 警告：形式間で繰り返し変換すると画質が劣化します。元のファイルから一度だけ変換してください。",
     "ConvertImages_Convert": "今すぐ変換",
     "ConvertImages_Later": "後で",
-    "ImageOptimizer_ConversionQuality": "変換品質"
+    "ImageOptimizer_ConversionQuality": "変換品質",
+    "SettingsPage_CategoryManagement_Header": "カテゴリ管理",
+    "SettingsPage_PinnedCategories_Label": "ピン留めされたカテゴリ",
+    "SettingsPage_PinnedCategories_Description": "クイックアクセスのためにフッターメニューにカテゴリをピン留めする",
+    "SettingsPage_PinnedCategories_Placeholder": "ピン留めするカテゴリを選択...",
+    "SettingsPage_HiddenCategories_Label": "非表示のカテゴリ",
+    "SettingsPage_HiddenCategories_Description": "ナビゲーションメニューからカテゴリを非表示にする",
+    "SettingsPage_HiddenCategories_Placeholder": "非表示にするカテゴリを選択..."
 }

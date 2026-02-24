@@ -34,48 +34,6 @@ namespace FlairX_Mod_Manager.Pages
             UpdateTexts();
             LoadFunctionsList();
             PopulateFunctionButtons();
-            
-            // Add slide-in animation for content
-            this.Loaded += FunctionsUserControl_Loaded;
-        }
-        
-        private void FunctionsUserControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            // Animate content sliding in from right with fade
-            var slideTransform = new Microsoft.UI.Xaml.Media.TranslateTransform();
-            MainGrid.RenderTransform = slideTransform;
-            
-            // Start off-screen to the right and invisible
-            slideTransform.X = 300;
-            MainGrid.Opacity = 0;
-            
-            var slideAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                From = 300,
-                To = 0,
-                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
-            };
-            
-            var fadeAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
-                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
-            };
-            
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideAnimation, slideTransform);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideAnimation, "X");
-            
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeAnimation, MainGrid);
-            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeAnimation, "Opacity");
-            
-            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
-            storyboard.Children.Add(slideAnimation);
-            storyboard.Children.Add(fadeAnimation);
-            
-            storyboard.Begin();
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)

@@ -723,7 +723,6 @@
                                 </ItemsControl>
                                 
                                 <ComboBox x:Name="AddPinnedCategoryComboBox" 
-                                          PlaceholderText="Select category to pin..."
                                           SelectionChanged="AddPinnedCategoryComboBox_SelectionChanged"
                                           Margin="0,8,0,0"
                                           HorizontalAlignment="Stretch"/>
@@ -793,7 +792,6 @@
                                 </ItemsControl>
                                 
                                 <ComboBox x:Name="AddHiddenCategoryComboBox" 
-                                          PlaceholderText="Select category to hide..."
                                           SelectionChanged="AddHiddenCategoryComboBox_SelectionChanged"
                                           Margin="0,8,0,0"
                                           HorizontalAlignment="Stretch"/>

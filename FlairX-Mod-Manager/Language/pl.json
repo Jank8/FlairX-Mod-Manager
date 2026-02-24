@@ -356,5 +356,12 @@
     "ConvertImages_Title": "Przekonwertować istniejące obrazy?",
     "ConvertImages_Message": "Czy chcesz przekonwertować wszystkie istniejące obrazy na nowy format?\n\nTo spowoduje:\n• Konwersję obrazów podglądu, miniaturek i obrazów kategorii\n• Zachowanie oryginalnych plików jeśli włączona jest opcja 'Zachowaj oryginały'\n\n⚠️ UWAGA: Wielokrotna konwersja tam i z powrotem między formatami spowoduje degradację jakości obrazu. Konwertuj tylko raz z oryginalnych plików.",
     "ConvertImages_Convert": "Konwertuj teraz",
-    "ConvertImages_Later": "Może później"
+    "ConvertImages_Later": "Może później",
+    "SettingsPage_CategoryManagement_Header": "Zarządzanie kategoriami",
+    "SettingsPage_PinnedCategories_Label": "Przypięte kategorie",
+    "SettingsPage_PinnedCategories_Description": "Przypnij kategorie do menu stopki dla szybkiego dostępu",
+    "SettingsPage_PinnedCategories_Placeholder": "Wybierz kategorię do przypięcia...",
+    "SettingsPage_HiddenCategories_Label": "Ukryte kategorie",
+    "SettingsPage_HiddenCategories_Description": "Ukryj kategorie z menu nawigacji",
+    "SettingsPage_HiddenCategories_Placeholder": "Wybierz kategorię do ukrycia..."
 }

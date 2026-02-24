@@ -356,5 +356,12 @@
     "ConvertImages_Message": "您想将所有现有图像转换为新格式吗？\\n\\n这将：\\n• 转换预览图、缩略图和类别图像\\n• 如果启用'保留原件'，则保留原始文件\\n\\n⚠️ 警告：在格式之间反复转换会降低图像质量。仅从原始文件转换一次。",
     "ConvertImages_Convert": "立即转换",
     "ConvertImages_Later": "稍后再说",
-    "ImageOptimizer_ConversionQuality": "转换质量"
+    "ImageOptimizer_ConversionQuality": "转换质量",
+    "SettingsPage_CategoryManagement_Header": "类别管理",
+    "SettingsPage_PinnedCategories_Label": "固定类别",
+    "SettingsPage_PinnedCategories_Description": "将类别固定到页脚菜单以便快速访问",
+    "SettingsPage_PinnedCategories_Placeholder": "选择要固定的类别...",
+    "SettingsPage_HiddenCategories_Label": "隐藏类别",
+    "SettingsPage_HiddenCategories_Description": "从导航菜单中隐藏类别",
+    "SettingsPage_HiddenCategories_Placeholder": "选择要隐藏的类别..."
 }

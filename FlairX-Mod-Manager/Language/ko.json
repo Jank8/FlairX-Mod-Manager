@@ -356,5 +356,12 @@
     "ConvertImages_Message": "모든 기존 이미지를 새 형식으로 변환하시겠습니까?\\n\\n다음을 수행합니다:\\n• 미리보기, 썸네일 및 카테고리 이미지 변환\\n• '원본 유지'가 활성화된 경우 원본 파일 유지\\n\\n⚠️ 경고: 형식 간 반복 변환은 이미지 품질을 저하시킵니다. 원본 파일에서 한 번만 변환하세요.",
     "ConvertImages_Convert": "지금 변환",
     "ConvertImages_Later": "나중에",
-    "ImageOptimizer_ConversionQuality": "변환 품질"
+    "ImageOptimizer_ConversionQuality": "변환 품질",
+    "SettingsPage_CategoryManagement_Header": "카테고리 관리",
+    "SettingsPage_PinnedCategories_Label": "고정된 카테고리",
+    "SettingsPage_PinnedCategories_Description": "빠른 액세스를 위해 바닥글 메뉴에 카테고리 고정",
+    "SettingsPage_PinnedCategories_Placeholder": "고정할 카테고리 선택...",
+    "SettingsPage_HiddenCategories_Label": "숨겨진 카테고리",
+    "SettingsPage_HiddenCategories_Description": "탐색 메뉴에서 카테고리 숨기기",
+    "SettingsPage_HiddenCategories_Placeholder": "숨길 카테고리 선택..."
 }

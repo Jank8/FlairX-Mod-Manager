@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Θέλετε να μετατρέψετε όλες τις υπάρχουσες εικόνες στη νέα μορφή;\\n\\nΑυτό θα:\\n• Μετατρέψει προεπισκοπήσεις, μικρογραφίες και εικόνες κατηγοριών\\n• Διατηρήσει τα αρχικά αρχεία αν είναι ενεργοποιημένο το 'Διατήρηση πρωτοτύπων'\\n\\n⚠️ ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Η επαναλαμβανόμενη μετατροπή μεταξύ μορφών θα υποβαθμίσει την ποιότητα εικόνας. Μετατρέψτε μόνο μία φορά από τα αρχικά σας αρχεία.",
     "ConvertImages_Convert": "Μετατροπή τώρα",
     "ConvertImages_Later": "Ίσως αργότερα",
-    "ImageOptimizer_ConversionQuality": "Ποιότητα μετατροπής"
+    "ImageOptimizer_ConversionQuality": "Ποιότητα μετατροπής",
+    "SettingsPage_CategoryManagement_Header": "Διαχείριση κατηγοριών",
+    "SettingsPage_PinnedCategories_Label": "Καρφιτσωμένες κατηγορίες",
+    "SettingsPage_PinnedCategories_Description": "Καρφιτσώστε κατηγορίες στο μενού υποσέλιδου για γρήγορη πρόσβαση",
+    "SettingsPage_PinnedCategories_Placeholder": "Επιλέξτε κατηγορία για καρφίτσωμα...",
+    "SettingsPage_HiddenCategories_Label": "Κρυφές κατηγορίες",
+    "SettingsPage_HiddenCategories_Description": "Απόκρυψη κατηγοριών από το μενού πλοήγησης",
+    "SettingsPage_HiddenCategories_Placeholder": "Επιλέξτε κατηγορία για απόκρυψη..."
 }

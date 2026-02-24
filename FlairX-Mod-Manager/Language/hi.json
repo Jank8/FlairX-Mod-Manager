@@ -356,5 +356,12 @@
     "ConvertImages_Message": "क्या आप सभी मौजूदा छवियों को नए प्रारूप में परिवर्तित करना चाहते हैं?\\n\\nयह करेगा:\\n• पूर्वावलोकन, थंबनेल और श्रेणी छवियों को परिवर्तित करें\\n• यदि 'मूल रखें' सक्षम है तो मूल फ़ाइलें रखें\\n\\n⚠️ चेतावनी: प्रारूपों के बीच बार-बार परिवर्तन से छवि गुणवत्ता खराब होगी। केवल एक बार अपनी मूल फ़ाइलों से परिवर्तित करें।",
     "ConvertImages_Convert": "अभी परिवर्तित करें",
     "ConvertImages_Later": "शायद बाद में",
-    "ImageOptimizer_ConversionQuality": "रूपांतरण गुणवत्ता"
+    "ImageOptimizer_ConversionQuality": "रूपांतरण गुणवत्ता",
+    "SettingsPage_CategoryManagement_Header": "श्रेणी प्रबंधन",
+    "SettingsPage_PinnedCategories_Label": "पिन की गई श्रेणियाँ",
+    "SettingsPage_PinnedCategories_Description": "त्वरित पहुंच के लिए फुटर मेनू में श्रेणियां पिन करें",
+    "SettingsPage_PinnedCategories_Placeholder": "पिन करने के लिए श्रेणी चुनें...",
+    "SettingsPage_HiddenCategories_Label": "छिपी हुई श्रेणियाँ",
+    "SettingsPage_HiddenCategories_Description": "नेविगेशन मेनू से श्रेणियां छिपाएं",
+    "SettingsPage_HiddenCategories_Placeholder": "छिपाने के लिए श्रेणी चुनें..."
 }

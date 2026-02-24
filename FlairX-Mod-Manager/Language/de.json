@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Möchten Sie alle vorhandenen Bilder in das neue Format konvertieren?\\n\\nDies wird:\\n• Vorschaubilder, Miniaturansichten und Kategoriebilder konvertieren\\n• Originaldateien behalten, wenn 'Originale behalten' aktiviert ist\\n\\n⚠️ WARNUNG: Wiederholtes Hin- und Herkonvertieren zwischen Formaten verschlechtert die Bildqualität. Konvertieren Sie nur einmal von Ihren Originaldateien.",
     "ConvertImages_Convert": "Jetzt konvertieren",
     "ConvertImages_Later": "Vielleicht später",
-    "ImageOptimizer_ConversionQuality": "Konvertierungsqualität"
+    "ImageOptimizer_ConversionQuality": "Konvertierungsqualität",
+    "SettingsPage_CategoryManagement_Header": "Kategorienverwaltung",
+    "SettingsPage_PinnedCategories_Label": "Angeheftete Kategorien",
+    "SettingsPage_PinnedCategories_Description": "Kategorien im Fußzeilenmenü anheften für schnellen Zugriff",
+    "SettingsPage_PinnedCategories_Placeholder": "Kategorie zum Anheften auswählen...",
+    "SettingsPage_HiddenCategories_Label": "Versteckte Kategorien",
+    "SettingsPage_HiddenCategories_Description": "Kategorien aus dem Navigationsmenü ausblenden",
+    "SettingsPage_HiddenCategories_Placeholder": "Kategorie zum Ausblenden auswählen..."
 }

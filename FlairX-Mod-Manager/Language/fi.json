@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Haluatko muuntaa kaikki olemassa olevat kuvat uuteen muotoon?\\n\\nTämä:\\n• Muuntaa esikatselut, pikkukuvat ja luokkakuvat\\n• Säilyttää alkuperäiset tiedostot, jos 'Säilytä alkuperäiset' on käytössä\\n\\n⚠️ VAROITUS: Toistuva muuntaminen muotojen välillä heikentää kuvanlaatua. Muunna vain kerran alkuperäisistä tiedostoista.",
     "ConvertImages_Convert": "Muunna nyt",
     "ConvertImages_Later": "Ehkä myöhemmin",
-    "ImageOptimizer_ConversionQuality": "Muunnoksen laatu"
+    "ImageOptimizer_ConversionQuality": "Muunnoksen laatu",
+    "SettingsPage_CategoryManagement_Header": "Luokkien hallinta",
+    "SettingsPage_PinnedCategories_Label": "Kiinnitetyt luokat",
+    "SettingsPage_PinnedCategories_Description": "Kiinnitä luokat alatunnisteen valikkoon nopeaa käyttöä varten",
+    "SettingsPage_PinnedCategories_Placeholder": "Valitse kiinnitettävä luokka...",
+    "SettingsPage_HiddenCategories_Label": "Piilotetut luokat",
+    "SettingsPage_HiddenCategories_Description": "Piilota luokat navigointivalikosta",
+    "SettingsPage_HiddenCategories_Placeholder": "Valitse piilotettava luokka..."
 }

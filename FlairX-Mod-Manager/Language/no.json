@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Vil du konvertere alle eksisterende bilder til det nye formatet?\\n\\nDette vil:\\n• Konvertere forhåndsvisninger, miniatyrbilder og kategoribilder\\n• Beholde originale filer hvis 'Behold originaler' er aktivert\\n\\n⚠️ ADVARSEL: Gjentatt konvertering mellom formater vil forringe bildekvaliteten. Konverter bare én gang fra dine originale filer.",
     "ConvertImages_Convert": "Konverter nå",
     "ConvertImages_Later": "Kanskje senere",
-    "ImageOptimizer_ConversionQuality": "Konverteringskvalitet"
+    "ImageOptimizer_ConversionQuality": "Konverteringskvalitet",
+    "SettingsPage_CategoryManagement_Header": "Kategoristyring",
+    "SettingsPage_PinnedCategories_Label": "Festede kategorier",
+    "SettingsPage_PinnedCategories_Description": "Fest kategorier til bunntekstmeny for rask tilgang",
+    "SettingsPage_PinnedCategories_Placeholder": "Velg kategori å feste...",
+    "SettingsPage_HiddenCategories_Label": "Skjulte kategorier",
+    "SettingsPage_HiddenCategories_Description": "Skjul kategorier fra navigasjonsmeny",
+    "SettingsPage_HiddenCategories_Placeholder": "Velg kategori å skjule..."
 }

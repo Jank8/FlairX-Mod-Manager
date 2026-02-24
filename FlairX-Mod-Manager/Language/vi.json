@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Bạn có muốn chuyển đổi tất cả hình ảnh hiện có sang định dạng mới không?\\n\\nĐiều này sẽ:\\n• Chuyển đổi xem trước, hình thu nhỏ và hình ảnh danh mục\\n• Giữ các tệp gốc nếu 'Giữ bản gốc' được bật\\n\\n⚠️ CẢNH BÁO: Chuyển đổi qua lại giữa các định dạng nhiều lần sẽ làm giảm chất lượng hình ảnh. Chỉ chuyển đổi một lần từ các tệp gốc của bạn.",
     "ConvertImages_Convert": "Chuyển đổi ngay",
     "ConvertImages_Later": "Có thể sau",
-    "ImageOptimizer_ConversionQuality": "Chất lượng chuyển đổi"
+    "ImageOptimizer_ConversionQuality": "Chất lượng chuyển đổi",
+    "SettingsPage_CategoryManagement_Header": "Quản lý danh mục",
+    "SettingsPage_PinnedCategories_Label": "Danh mục đã ghim",
+    "SettingsPage_PinnedCategories_Description": "Ghim danh mục vào menu chân trang để truy cập nhanh",
+    "SettingsPage_PinnedCategories_Placeholder": "Chọn danh mục để ghim...",
+    "SettingsPage_HiddenCategories_Label": "Danh mục ẩn",
+    "SettingsPage_HiddenCategories_Description": "Ẩn danh mục khỏi menu điều hướng",
+    "SettingsPage_HiddenCategories_Placeholder": "Chọn danh mục để ẩn..."
 }

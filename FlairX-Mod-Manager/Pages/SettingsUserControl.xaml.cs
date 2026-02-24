@@ -456,6 +456,8 @@ namespace FlairX_Mod_Manager.Pages
             if (BlurNSFWDescription != null) BlurNSFWDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Description") ?? string.Empty;
             if (PinnedCategoriesDescription != null) PinnedCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PinnedCategories_Description") ?? "Pin categories to footer menu for quick access";
             if (HiddenCategoriesDescription != null) HiddenCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HiddenCategories_Description") ?? "Hide categories from the navigation menu";
+            if (AddPinnedCategoryComboBox != null) AddPinnedCategoryComboBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "SettingsPage_PinnedCategories_Placeholder") ?? string.Empty;
+            if (AddHiddenCategoryComboBox != null) AddHiddenCategoryComboBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "SettingsPage_HiddenCategories_Placeholder") ?? string.Empty;
             if (FastDownloadDescription != null) FastDownloadDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_FastDownload_Description") ?? string.Empty;
             if (MaxConnectionsDescription != null) MaxConnectionsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MaxConnections_Description") ?? string.Empty;
             
@@ -2943,6 +2945,9 @@ namespace FlairX_Mod_Manager.Pages
                     // Show general settings content
                     GeneralSettingsScrollViewer.Visibility = Visibility.Visible;
                     FunctionContentFrame.Visibility = Visibility.Collapsed;
+                    
+                    // Animate general settings content
+                    AnimateContentFadeIn(GeneralSettingsScrollViewer);
                 }
                 else
                 {
@@ -2950,27 +2955,71 @@ namespace FlairX_Mod_Manager.Pages
                     GeneralSettingsScrollViewer.Visibility = Visibility.Collapsed;
                     FunctionContentFrame.Visibility = Visibility.Visible;
                     
-                    // Navigate to the appropriate function page
+                    // Navigate to the appropriate function page without animation
+                    var navigationTransitionInfo = new Microsoft.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo();
+                    
                     switch (tag)
                     {
                         case "GBAuthorUpdate":
-                            FunctionContentFrame.Navigate(typeof(GBAuthorUpdatePage));
+                            FunctionContentFrame.Navigate(typeof(GBAuthorUpdatePage), null, navigationTransitionInfo);
                             break;
                         case "StatusKeeperPage":
-                            FunctionContentFrame.Navigate(typeof(StatusKeeperPage));
+                            FunctionContentFrame.Navigate(typeof(StatusKeeperPage), null, navigationTransitionInfo);
                             break;
                         case "ModInfoBackup":
-                            FunctionContentFrame.Navigate(typeof(ModInfoBackupPage));
+                            FunctionContentFrame.Navigate(typeof(ModInfoBackupPage), null, navigationTransitionInfo);
                             break;
                         case "ImageOptimizer":
-                            FunctionContentFrame.Navigate(typeof(ImageOptimizerPage));
+                            FunctionContentFrame.Navigate(typeof(ImageOptimizerPage), null, navigationTransitionInfo);
                             break;
                         case "GameOverlay":
-                            FunctionContentFrame.Navigate(typeof(GameOverlayPage));
+                            FunctionContentFrame.Navigate(typeof(GameOverlayPage), null, navigationTransitionInfo);
                             break;
                     }
+                    
+                    // Animate frame content
+                    AnimateContentFadeIn(FunctionContentFrame);
                 }
             }
+        }
+        
+        private void AnimateContentFadeIn(UIElement element)
+        {
+            // Create slide and fade animation
+            var slideTransform = new Microsoft.UI.Xaml.Media.TranslateTransform();
+            element.RenderTransform = slideTransform;
+            
+            // Start off-screen to the right and invisible
+            slideTransform.X = 300;
+            element.Opacity = 0;
+            
+            var slideAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 300,
+                To = 0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+            };
+            
+            var fadeAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 0,
+                To = 1,
+                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+            };
+            
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideAnimation, slideTransform);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideAnimation, "X");
+            
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeAnimation, element);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeAnimation, "Opacity");
+            
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            storyboard.Children.Add(slideAnimation);
+            storyboard.Children.Add(fadeAnimation);
+            
+            storyboard.Begin();
         }
         
         #endregion

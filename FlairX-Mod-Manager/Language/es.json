@@ -356,5 +356,12 @@
     "ConvertImages_Message": "¿Desea convertir todas las imágenes existentes al nuevo formato?\\n\\nEsto hará:\\n• Convertir vistas previas, miniaturas e imágenes de categorías\\n• Mantener archivos originales si 'Mantener originales' está habilitado\\n\\n⚠️ ADVERTENCIA: Convertir repetidamente entre formatos degradará la calidad de imagen. Convierta solo una vez desde sus archivos originales.",
     "ConvertImages_Convert": "Convertir ahora",
     "ConvertImages_Later": "Quizás más tarde",
-    "ImageOptimizer_ConversionQuality": "Calidad de conversión"
+    "ImageOptimizer_ConversionQuality": "Calidad de conversión",
+    "SettingsPage_CategoryManagement_Header": "Gestión de categorías",
+    "SettingsPage_PinnedCategories_Label": "Categorías fijadas",
+    "SettingsPage_PinnedCategories_Description": "Fijar categorías al menú inferior para acceso rápido",
+    "SettingsPage_PinnedCategories_Placeholder": "Seleccionar categoría para fijar...",
+    "SettingsPage_HiddenCategories_Label": "Categorías ocultas",
+    "SettingsPage_HiddenCategories_Description": "Ocultar categorías del menú de navegación",
+    "SettingsPage_HiddenCategories_Placeholder": "Seleccionar categoría para ocultar..."
 }

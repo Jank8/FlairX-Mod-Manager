@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Хотите конвертировать все существующие изображения в новый формат?\\n\\nЭто:\\n• Конвертирует превью, миниатюры и изображения категорий\\n• Сохранит оригинальные файлы, если включено 'Сохранять оригиналы'\\n\\n⚠️ ВНИМАНИЕ: Повторная конвертация между форматами ухудшит качество изображения. Конвертируйте только один раз из оригинальных файлов.",
     "ConvertImages_Convert": "Конвертировать сейчас",
     "ConvertImages_Later": "Может быть позже",
-    "ImageOptimizer_ConversionQuality": "Качество конвертации"
+    "ImageOptimizer_ConversionQuality": "Качество конвертации",
+    "SettingsPage_CategoryManagement_Header": "Управление категориями",
+    "SettingsPage_PinnedCategories_Label": "Закрепленные категории",
+    "SettingsPage_PinnedCategories_Description": "Закрепить категории в нижнем меню для быстрого доступа",
+    "SettingsPage_PinnedCategories_Placeholder": "Выберите категорию для закрепления...",
+    "SettingsPage_HiddenCategories_Label": "Скрытые категории",
+    "SettingsPage_HiddenCategories_Description": "Скрыть категории из меню навигации",
+    "SettingsPage_HiddenCategories_Placeholder": "Выберите категорию для скрытия..."
 }

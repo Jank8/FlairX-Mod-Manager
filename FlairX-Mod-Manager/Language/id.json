@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Apakah Anda ingin mengonversi semua gambar yang ada ke format baru?\\n\\nIni akan:\\n• Mengonversi pratinjau, thumbnail, dan gambar kategori\\n• Menyimpan file asli jika 'Simpan asli' diaktifkan\\n\\n⚠️ PERINGATAN: Mengonversi bolak-balik antar format berkali-kali akan menurunkan kualitas gambar. Konversi hanya sekali dari file asli Anda.",
     "ConvertImages_Convert": "Konversi sekarang",
     "ConvertImages_Later": "Mungkin nanti",
-    "ImageOptimizer_ConversionQuality": "Kualitas konversi"
+    "ImageOptimizer_ConversionQuality": "Kualitas konversi",
+    "SettingsPage_CategoryManagement_Header": "Manajemen Kategori",
+    "SettingsPage_PinnedCategories_Label": "Kategori Tersemat",
+    "SettingsPage_PinnedCategories_Description": "Sematkan kategori ke menu footer untuk akses cepat",
+    "SettingsPage_PinnedCategories_Placeholder": "Pilih kategori untuk disematkan...",
+    "SettingsPage_HiddenCategories_Label": "Kategori Tersembunyi",
+    "SettingsPage_HiddenCategories_Description": "Sembunyikan kategori dari menu navigasi",
+    "SettingsPage_HiddenCategories_Placeholder": "Pilih kategori untuk disembunyikan..."
 }

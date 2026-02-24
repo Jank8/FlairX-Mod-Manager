@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Бажаєте конвертувати всі існуючі зображення в новий формат?\\n\\nЦе:\\n• Конвертує попередні перегляди, мініатюри та зображення категорій\\n• Збереже оригінальні файли, якщо увімкнено 'Зберігати оригінали'\\n\\n⚠️ УВАГА: Повторна конвертація між форматами погіршить якість зображення. Конвертуйте лише один раз з оригінальних файлів.",
     "ConvertImages_Convert": "Конвертувати зараз",
     "ConvertImages_Later": "Можливо пізніше",
-    "ImageOptimizer_ConversionQuality": "Якість конвертації"
+    "ImageOptimizer_ConversionQuality": "Якість конвертації",
+    "SettingsPage_CategoryManagement_Header": "Керування категоріями",
+    "SettingsPage_PinnedCategories_Label": "Закріплені категорії",
+    "SettingsPage_PinnedCategories_Description": "Закріпити категорії в нижньому меню для швидкого доступу",
+    "SettingsPage_PinnedCategories_Placeholder": "Виберіть категорію для закріплення...",
+    "SettingsPage_HiddenCategories_Label": "Приховані категорії",
+    "SettingsPage_HiddenCategories_Description": "Приховати категорії з меню навігації",
+    "SettingsPage_HiddenCategories_Placeholder": "Виберіть категорію для приховування..."
 }

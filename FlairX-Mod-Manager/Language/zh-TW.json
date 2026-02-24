@@ -356,5 +356,12 @@
     "ConvertImages_Message": "您想將所有現有圖像轉換為新格式嗎？\\n\\n這將：\\n• 轉換預覽圖、縮圖和類別圖像\\n• 如果啟用'保留原件'，則保留原始檔案\\n\\n⚠️ 警告：在格式之間反覆轉換會降低圖像質量。僅從原始檔案轉換一次。",
     "ConvertImages_Convert": "立即轉換",
     "ConvertImages_Later": "稍後再說",
-    "ImageOptimizer_ConversionQuality": "轉換質量"
+    "ImageOptimizer_ConversionQuality": "轉換質量",
+    "SettingsPage_CategoryManagement_Header": "類別管理",
+    "SettingsPage_PinnedCategories_Label": "釘選的類別",
+    "SettingsPage_PinnedCategories_Description": "將類別釘選到頁尾選單以便快速存取",
+    "SettingsPage_PinnedCategories_Placeholder": "選擇要釘選的類別...",
+    "SettingsPage_HiddenCategories_Label": "隱藏的類別",
+    "SettingsPage_HiddenCategories_Description": "從導覽選單中隱藏類別",
+    "SettingsPage_HiddenCategories_Placeholder": "選擇要隱藏的類別..."
 }

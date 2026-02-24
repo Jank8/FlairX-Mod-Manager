@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Gusto mo bang i-convert ang lahat ng umiiral na larawan sa bagong format?\\n\\nIto ay:\\n• Mag-convert ng mga preview, thumbnail, at larawan ng kategorya\\n• Panatilihin ang mga orihinal na file kung naka-enable ang 'Panatilihin ang mga orihinal'\\n\\n⚠️ BABALA: Ang paulit-ulit na pag-convert sa pagitan ng mga format ay magpapababa ng kalidad ng larawan. Mag-convert lang ng isang beses mula sa iyong mga orihinal na file.",
     "ConvertImages_Convert": "I-convert ngayon",
     "ConvertImages_Later": "Siguro mamaya",
-    "ImageOptimizer_ConversionQuality": "Kalidad ng conversion"
+    "ImageOptimizer_ConversionQuality": "Kalidad ng conversion",
+    "SettingsPage_CategoryManagement_Header": "Pamamahala ng Kategorya",
+    "SettingsPage_PinnedCategories_Label": "Naka-pin na Kategorya",
+    "SettingsPage_PinnedCategories_Description": "I-pin ang mga kategorya sa footer menu para sa mabilis na access",
+    "SettingsPage_PinnedCategories_Placeholder": "Pumili ng kategorya na i-pin...",
+    "SettingsPage_HiddenCategories_Label": "Nakatagong Kategorya",
+    "SettingsPage_HiddenCategories_Description": "Itago ang mga kategorya mula sa navigation menu",
+    "SettingsPage_HiddenCategories_Placeholder": "Pumili ng kategorya na itago..."
 }

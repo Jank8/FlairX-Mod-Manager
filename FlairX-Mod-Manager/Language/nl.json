@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Wilt u alle bestaande afbeeldingen naar het nieuwe formaat converteren?\\n\\nDit zal:\\n• Voorbeelden, miniaturen en categorie-afbeeldingen converteren\\n• Originele bestanden behouden als 'Originelen behouden' is ingeschakeld\\n\\n⚠️ WAARSCHUWING: Herhaaldelijk converteren tussen formaten verslechtert de beeldkwaliteit. Converteer slechts één keer vanaf uw originele bestanden.",
     "ConvertImages_Convert": "Nu converteren",
     "ConvertImages_Later": "Misschien later",
-    "ImageOptimizer_ConversionQuality": "Conversiekwaliteit"
+    "ImageOptimizer_ConversionQuality": "Conversiekwaliteit",
+    "SettingsPage_CategoryManagement_Header": "Categoriebeheer",
+    "SettingsPage_PinnedCategories_Label": "Vastgezette categorieën",
+    "SettingsPage_PinnedCategories_Description": "Categorieën vastzetten aan voettekstmenu voor snelle toegang",
+    "SettingsPage_PinnedCategories_Placeholder": "Selecteer categorie om vast te zetten...",
+    "SettingsPage_HiddenCategories_Label": "Verborgen categorieën",
+    "SettingsPage_HiddenCategories_Description": "Categorieën verbergen uit navigatiemenu",
+    "SettingsPage_HiddenCategories_Placeholder": "Selecteer categorie om te verbergen..."
 }

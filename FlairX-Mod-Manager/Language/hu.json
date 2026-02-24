@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Szeretné konvertálni az összes meglévő képet az új formátumba?\\n\\nEz:\\n• Konvertálja az előnézeteket, miniatűröket és kategória képeket\\n• Megtartja az eredeti fájlokat, ha az 'Eredetiek megtartása' engedélyezve van\\n\\n⚠️ FIGYELEM: A formátumok közötti ismételt konvertálás rontja a képminőséget. Csak egyszer konvertáljon az eredeti fájlokból.",
     "ConvertImages_Convert": "Konvertálás most",
     "ConvertImages_Later": "Talán később",
-    "ImageOptimizer_ConversionQuality": "Konverziós minőség"
+    "ImageOptimizer_ConversionQuality": "Konverziós minőség",
+    "SettingsPage_CategoryManagement_Header": "Kategóriakezelés",
+    "SettingsPage_PinnedCategories_Label": "Rögzített kategóriák",
+    "SettingsPage_PinnedCategories_Description": "Kategóriák rögzítése a lábléc menübe a gyors hozzáféréshez",
+    "SettingsPage_PinnedCategories_Placeholder": "Válasszon kategóriát a rögzítéshez...",
+    "SettingsPage_HiddenCategories_Label": "Rejtett kategóriák",
+    "SettingsPage_HiddenCategories_Description": "Kategóriák elrejtése a navigációs menüből",
+    "SettingsPage_HiddenCategories_Placeholder": "Válasszon kategóriát az elrejtéshez..."
 }

@@ -356,5 +356,12 @@
     "ConvertImages_Message": "Chcete převést všechny existující obrázky do nového formátu?\\n\\nToto provede:\\n• Převod náhledů, miniatur a obrázků kategorií\\n• Zachování původních souborů, pokud je povoleno 'Zachovat originály'\\n\\n⚠️ VAROVÁNÍ: Opakovaná konverze tam a zpět mezi formáty sníží kvalitu obrazu. Převádějte pouze jednou z původních souborů.",
     "ConvertImages_Convert": "Převést nyní",
     "ConvertImages_Later": "Možná později",
-    "ImageOptimizer_ConversionQuality": "Kvalita konverze"
+    "ImageOptimizer_ConversionQuality": "Kvalita konverze",
+    "SettingsPage_CategoryManagement_Header": "Správa kategorií",
+    "SettingsPage_PinnedCategories_Label": "Připnuté kategorie",
+    "SettingsPage_PinnedCategories_Description": "Připnout kategorie do menu zápatí pro rychlý přístup",
+    "SettingsPage_PinnedCategories_Placeholder": "Vyberte kategorii k připnutí...",
+    "SettingsPage_HiddenCategories_Label": "Skryté kategorie",
+    "SettingsPage_HiddenCategories_Description": "Skrýt kategorie z navigačního menu",
+    "SettingsPage_HiddenCategories_Placeholder": "Vyberte kategorii ke skrytí..."
 }
