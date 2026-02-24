@@ -25,12 +25,6 @@ namespace FlairX_Mod_Manager
             ShowSlidingPanel(settingsControl, "Settings");
         }
 
-        private void ShowFunctionsPanel()
-        {
-            var functionsControl = new FunctionsUserControl();
-            ShowSlidingPanel(functionsControl, "Functions");
-        }
-
         private void ShowPresetsPanel()
         {
             var presetsControl = new PresetsUserControl();
@@ -313,10 +307,8 @@ namespace FlairX_Mod_Manager
                 // Function to start animation
                 Action startAnimation = () =>
                 {
-                    // Animate sliding in with a slightly longer duration for FunctionsUserControl
-                    var duration = userControl is FunctionsUserControl ? 
-                        new Duration(TimeSpan.FromMilliseconds(350)) : 
-                        new Duration(TimeSpan.FromMilliseconds(300));
+                    // Animate sliding in
+                    var duration = new Duration(TimeSpan.FromMilliseconds(300));
                     
                     var slideAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
                     {
@@ -358,10 +350,8 @@ namespace FlairX_Mod_Manager
                     // Function to close with slide-out animation
                     Func<Task> closeWithAnimationAsync = async () =>
                     {
-                        // Create slide-out animation with consistent duration
-                        var duration = userControl is FunctionsUserControl ? 
-                            new Duration(TimeSpan.FromMilliseconds(300)) : 
-                            new Duration(TimeSpan.FromMilliseconds(250));
+                        // Create slide-out animation
+                        var duration = new Duration(TimeSpan.FromMilliseconds(250));
                         
                         var slideOutAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
                         {
@@ -405,10 +395,6 @@ namespace FlairX_Mod_Manager
                     else if (userControl is PresetsUserControl presetsControl)
                     {
                         presetsControl.CloseRequested += (s, args) => closeWithAnimation();
-                    }
-                    else if (userControl is FunctionsUserControl functionsControl)
-                    {
-                        functionsControl.CloseRequested += (s, args) => closeWithAnimation();
                     }
                     else if (gameBananaBrowser != null)
                     {

@@ -531,8 +531,6 @@ namespace FlairX_Mod_Manager
         {
             if (OtherModsPageItem is NavigationViewItem otherMods)
                 otherMods.Content = SharedUtilities.GetTranslation(_lang, "Other_Mods");
-            if (FunctionsPageItem is NavigationViewItem functions)
-                functions.Content = SharedUtilities.GetTranslation(_lang, "Functions");
             if (SettingsPageItem is NavigationViewItem settings)
                 settings.Content = SharedUtilities.GetTranslation(_lang, "SettingsPage_Title");
             
@@ -750,12 +748,6 @@ namespace FlairX_Mod_Manager
             {
                 // Navigate to All Categories view
                 contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Categories", new DrillInNavigationTransitionInfo());
-            }
-            else if (lastPage == "FunctionsUserControl")
-            {
-                // Don't auto-open Functions panel on startup
-                // Instead, navigate to default page and let user open Functions manually
-                contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
             }
             else if (lastPage == "SettingsUserControl")
             {

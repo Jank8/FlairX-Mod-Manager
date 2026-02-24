@@ -70,13 +70,6 @@ namespace FlairX_Mod_Manager
                             contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Category:Other", new DrillInNavigationTransitionInfo());
                         }
                     }
-                    else if (selectedTag == "FunctionsUserControl")
-                    {
-                        // Show Functions sliding panel instead of navigating to page
-                        ShowFunctionsPanel();
-                        // Clear navigation selection to prevent highlighting
-                        nvSample.SelectedItem = null;
-                    }
                     else if (selectedTag == "SettingsUserControl")
                     {
                         // Show Settings sliding panel instead of navigating to page
@@ -227,7 +220,7 @@ namespace FlairX_Mod_Manager
                     {
                         var tag = item.Tag?.ToString();
                         // Skip footer items - they should only be in footer, not main menu
-                        if (tag == "OtherModsPage" || tag == "FunctionsUserControl" || tag == "PresetsUserControl" || tag == "SettingsUserControl")
+                        if (tag == "OtherModsPage" || tag == "PresetsUserControl" || tag == "SettingsUserControl")
                         {
                             continue;
                         }
@@ -241,7 +234,7 @@ namespace FlairX_Mod_Manager
                     foreach (var item in _allFooterItems)
                     {
                         var tag = item.Tag?.ToString();
-                        if (tag == "OtherModsPage" || tag == "FunctionsUserControl" || tag == "PresetsUserControl" || tag == "SettingsUserControl")
+                        if (tag == "OtherModsPage" || tag == "PresetsUserControl" || tag == "SettingsUserControl")
                         {
                             if (!nvSample.FooterMenuItems.Contains(item))
                                 nvSample.FooterMenuItems.Add(item);

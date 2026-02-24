@@ -249,7 +249,6 @@ namespace FlairX_Mod_Manager
                                 // Also clear and rebuild footer items to prevent duplication
                                 var existingFooterItems = nvSample.FooterMenuItems.OfType<NavigationViewItem>()
                                     .Where(item => item.Tag?.ToString() == "OtherModsPage" || 
-                                                   item.Tag?.ToString() == "FunctionsUserControl" || 
                                                    item.Tag?.ToString() == "PresetsUserControl" || 
                                                    item.Tag?.ToString() == "SettingsUserControl")
                                     .ToList();

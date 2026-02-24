@@ -29,21 +29,76 @@
             <TextBlock x:Name="SettingsTitle" Text="Settings" FontSize="24" FontWeight="Bold" Margin="16,0,16,0" VerticalAlignment="Center"/>
         </StackPanel>
         
-        <!-- Content from SettingsPage -->
-        <Grid Grid.Row="1" VerticalAlignment="Stretch">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" 
-                          VerticalAlignment="Stretch" Padding="0,0,0,12">
-                <Grid HorizontalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="8*" MaxWidth="1000"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,0,0" HorizontalAlignment="Stretch">
+        <!-- NavigationView Content -->
+        <Grid Grid.Row="1" Padding="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <NavigationView x:Name="SettingsNavigationView"
+                            IsSettingsVisible="False"
+                            IsBackButtonVisible="Collapsed"
+                            IsBackEnabled="False"
+                            SelectionChanged="SettingsNavigationView_SelectionChanged"
+                            Header=""
+                            AlwaysShowHeader="False"
+                            PaneTitle=""
+                            PaneDisplayMode="Top"
+                            ExpandedModeThresholdWidth="500"
+                            SelectionFollowsFocus="Disabled"
+                            IsTabStop="False"
+                            Background="Transparent"
+                            HorizontalAlignment="Stretch">
+                
+                <NavigationView.Resources>
+                    <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewTopPaneBackground" Color="Transparent"/>
+                    <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent"/>
+                </NavigationView.Resources>
+                <NavigationView.MenuItems>
+                    <NavigationViewItem x:Name="GeneralSettingsNavItem" Content="General Settings" Tag="GeneralSettings">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE713;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Name="GBAuthorUpdateNavItem" Content="GameBanana Update" Tag="GBAuthorUpdate">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xF49A;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Name="StatusKeeperNavItem" Content="Status Keeper" Tag="StatusKeeperPage">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE792;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Name="ModInfoBackupNavItem" Content="ModInfo Backup" Tag="ModInfoBackup">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE8C8;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Name="ImageOptimizerNavItem" Content="Image Optimizer" Tag="ImageOptimizer">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE91B;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem x:Name="GameOverlayNavItem" Content="Game Overlay" Tag="GameOverlay">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE7B3;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                </NavigationView.MenuItems>
+                
+                <!-- Frame for tab content -->
+                <Grid x:Name="SettingsContentGrid" VerticalAlignment="Stretch">
+                    
+                    <!-- General Settings Content (visible by default) -->
+                    <ScrollViewer x:Name="GeneralSettingsScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" 
+                                  VerticalAlignment="Stretch" Padding="0,0,0,8" Visibility="Visible">
+                        <Grid HorizontalAlignment="Stretch">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="8*" MaxWidth="1000"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="1" Spacing="4" Margin="0,0,0,0" HorizontalAlignment="Stretch">
                     
                     <!-- Appearance Section -->
                     <TextBlock x:Name="AppearanceHeader" Text="Appearance" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,12"/>
@@ -686,32 +741,37 @@
                     <!-- Hotkeys Panel - dynamically generated -->
                     <StackPanel x:Name="SettingsHotkeysPanel" Spacing="2"/>
                     
+                    <!-- Bottom buttons at the end of settings -->
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Margin="0,24,0,24"
+                                Spacing="12">
+                        <Button x:Name="CheckUpdatesButton"
+                                Width="200"
+                                Click="CheckUpdatesButton_Click">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xE895;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="CheckUpdatesButtonText" Text="" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="AboutButton"
+                                Width="200"
+                                Click="AboutButton_Click">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <FontIcon x:Name="AboutButtonIcon" Glyph="&#xE946;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="AboutButtonText" Text="" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
+                    
+                    </StackPanel>
+                        </Grid>
+                    </ScrollViewer>
+                    
+                    <!-- Frame for function pages -->
+                    <Frame x:Name="FunctionContentFrame" Visibility="Collapsed"/>
                 </Grid>
-            </ScrollViewer>
-            <StackPanel Grid.Row="1"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Bottom"
-                        Margin="0,16,0,0"
-                        Spacing="12">
-                <Button x:Name="CheckUpdatesButton"
-                        Width="200"
-                        Click="CheckUpdatesButton_Click">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <FontIcon Glyph="&#xE895;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="CheckUpdatesButtonText" Text="" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-                <Button x:Name="AboutButton"
-                        Width="200"
-                        Click="AboutButton_Click">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <FontIcon x:Name="AboutButtonIcon" Glyph="&#xE946;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                        <TextBlock x:Name="AboutButtonText" Text="" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+            </NavigationView>
         </Grid>
     </Grid>
 </UserControl>

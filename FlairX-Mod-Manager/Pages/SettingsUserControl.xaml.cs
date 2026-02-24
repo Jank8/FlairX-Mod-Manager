@@ -174,12 +174,54 @@ namespace FlairX_Mod_Manager.Pages
             // Subscribe to loaded/unloaded events
             this.Loaded += SettingsUserControl_Loaded;
             this.Unloaded += SettingsUserControl_Unloaded;
+            
+            // Select General Settings tab by default
+            if (SettingsNavigationView != null && GeneralSettingsNavItem != null)
+            {
+                SettingsNavigationView.SelectedItem = GeneralSettingsNavItem;
+            }
         }
         
         private void SettingsUserControl_Loaded(object sender, RoutedEventArgs e)
         {
             // Refresh settings when page is loaded to ensure SelectorBars display correctly
             LoadCurrentSettings();
+            
+            // Add slide-in animation for content
+            var slideTransform = new Microsoft.UI.Xaml.Media.TranslateTransform();
+            MainGrid.RenderTransform = slideTransform;
+            
+            // Start off-screen to the right and invisible
+            slideTransform.X = 300;
+            MainGrid.Opacity = 0;
+            
+            var slideAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 300,
+                To = 0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+            };
+            
+            var fadeAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 0,
+                To = 1,
+                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseOut }
+            };
+            
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideAnimation, slideTransform);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideAnimation, "X");
+            
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeAnimation, MainGrid);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeAnimation, "Opacity");
+            
+            var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            storyboard.Children.Add(slideAnimation);
+            storyboard.Children.Add(fadeAnimation);
+            
+            storyboard.Begin();
         }
         
         private void BackButton_Click(object sender, RoutedEventArgs e)
@@ -2750,6 +2792,49 @@ namespace FlairX_Mod_Manager.Pages
             if (sender.Value >= 1 && sender.Value <= 8)
             {
                 SettingsManager.SetMaxDownloadConnections((int)sender.Value);
+            }
+        }
+        
+        #endregion
+
+        #region Navigation
+        
+        private void SettingsNavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        {
+            if (args.SelectedItem is NavigationViewItem selectedItem && selectedItem.Tag is string tag)
+            {
+                if (tag == "GeneralSettings")
+                {
+                    // Show general settings content
+                    GeneralSettingsScrollViewer.Visibility = Visibility.Visible;
+                    FunctionContentFrame.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    // Hide general settings, show function page
+                    GeneralSettingsScrollViewer.Visibility = Visibility.Collapsed;
+                    FunctionContentFrame.Visibility = Visibility.Visible;
+                    
+                    // Navigate to the appropriate function page
+                    switch (tag)
+                    {
+                        case "GBAuthorUpdate":
+                            FunctionContentFrame.Navigate(typeof(GBAuthorUpdatePage));
+                            break;
+                        case "StatusKeeperPage":
+                            FunctionContentFrame.Navigate(typeof(StatusKeeperPage));
+                            break;
+                        case "ModInfoBackup":
+                            FunctionContentFrame.Navigate(typeof(ModInfoBackupPage));
+                            break;
+                        case "ImageOptimizer":
+                            FunctionContentFrame.Navigate(typeof(ImageOptimizerPage));
+                            break;
+                        case "GameOverlay":
+                            FunctionContentFrame.Navigate(typeof(GameOverlayPage));
+                            break;
+                    }
+                }
             }
         }
         
