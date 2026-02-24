@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -476,6 +477,17 @@ namespace FlairX_Mod_Manager
                 UpdateGameSelectionComboBoxTexts();
                 _ = GenerateModCharacterMenuAsync();
                 
+                // Refresh ModGridPage if it's currently loaded
+                if (contentFrame.Content is Pages.ModGridPage modGridPage)
+                {
+                    // If in categories view, reload categories to show new folders
+                    if (modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
+                    {
+                        Logger.LogInfo("Refreshing categories view after reload");
+                        modGridPage.LoadCategories();
+                    }
+                }
+                
                 // No symlink recreation needed - using DISABLED_ prefix system
                 Logger.LogInfo("Mod state maintained during manager reload");
                 
@@ -801,18 +813,25 @@ namespace FlairX_Mod_Manager
                 
                 if (!string.IsNullOrEmpty(exePath) && File.Exists(exePath))
                 {
+                    // Get current process ID
+                    var currentProcessId = Process.GetCurrentProcess().Id;
+                    
+                    // Use PowerShell to restart - kill immediately and start new instance
+                    var psCommand = $"Stop-Process -Id {currentProcessId} -Force; Start-Process -FilePath '{exePath}'";
+                    
                     var psi = new ProcessStartInfo
                     {
-                        FileName = exePath,
+                        FileName = "powershell.exe",
+                        Arguments = $"-NoProfile -WindowStyle Hidden -Command \"{psCommand}\"",
                         UseShellExecute = true,
-                        WorkingDirectory = Path.GetDirectoryName(exePath) ?? AppDomain.CurrentDomain.BaseDirectory
+                        CreateNoWindow = true,
+                        WindowStyle = ProcessWindowStyle.Hidden
                     };
                     
-                    Logger.LogInfo($"Restart: Starting new process...");
+                    Logger.LogInfo($"Restart: Starting restart script (PID: {currentProcessId})...");
                     Process.Start(psi);
                     
-                    Logger.LogInfo($"Restart: Exiting current process...");
-                    Application.Current.Exit();
+                    Logger.LogInfo($"Restart: PowerShell script started, restarting now...");
                 }
                 else
                 {

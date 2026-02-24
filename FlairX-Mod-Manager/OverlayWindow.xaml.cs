@@ -1565,28 +1565,88 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                // Check for WebP catprev first, then JPEG, fallback to icon
-                var thumbPathWebp = Path.Combine(categoryDir, "catprev.webp");
-                var thumbPathJpg = Path.Combine(categoryDir, "catprev.jpg");
+                // Check format based on user settings
+                var imageFormat = SettingsManager.Current.ImageFormat;
+                var preferWebP = imageFormat.Equals("WebP", StringComparison.OrdinalIgnoreCase);
+                
+                Logger.LogInfo($"LoadCategoryThumbnailAsync: categoryDir={categoryDir}, preferWebP={preferWebP}");
+                
+                // Try catprev (webp/jpg) first, then catmini (webp/jpg), then gbicon (webp/png only - needs alpha)
+                var catprevWebp = Path.Combine(categoryDir, "catprev.webp");
+                var catprevJpg = Path.Combine(categoryDir, "catprev.jpg");
+                var catminiWebp = Path.Combine(categoryDir, "catmini.webp");
+                var catminiJpg = Path.Combine(categoryDir, "catmini.jpg");
+                var gbiconWebp = Path.Combine(categoryDir, "gbicon.webp");
+                var gbiconPng = Path.Combine(categoryDir, "gbicon.png");
                 
                 string? thumbPath = null;
-                if (File.Exists(thumbPathWebp))
-                    thumbPath = thumbPathWebp;
-                else if (File.Exists(thumbPathJpg))
-                    thumbPath = thumbPathJpg;
+                
+                // Check in priority order
+                if (preferWebP)
+                {
+                    if (File.Exists(catprevWebp))
+                        thumbPath = catprevWebp;
+                    else if (File.Exists(catprevJpg))
+                        thumbPath = catprevJpg;
+                    else if (File.Exists(catminiWebp))
+                        thumbPath = catminiWebp;
+                    else if (File.Exists(catminiJpg))
+                        thumbPath = catminiJpg;
+                    else if (File.Exists(gbiconWebp))
+                        thumbPath = gbiconWebp;
+                    else if (File.Exists(gbiconPng))
+                        thumbPath = gbiconPng;
+                }
+                else
+                {
+                    if (File.Exists(catprevJpg))
+                        thumbPath = catprevJpg;
+                    else if (File.Exists(catprevWebp))
+                        thumbPath = catprevWebp;
+                    else if (File.Exists(catminiJpg))
+                        thumbPath = catminiJpg;
+                    else if (File.Exists(catminiWebp))
+                        thumbPath = catminiWebp;
+                    else if (File.Exists(gbiconPng))
+                        thumbPath = gbiconPng;
+                    else if (File.Exists(gbiconWebp))
+                        thumbPath = gbiconWebp;
+                }
+                
+                Logger.LogInfo($"LoadCategoryThumbnailAsync: Selected path={thumbPath}");
                 
                 if (thumbPath != null)
                 {
-                    var bitmap = new BitmapImage();
-                    bitmap.DecodePixelWidth = 64;  // 2x for high DPI
-                    bitmap.DecodePixelHeight = 64;
+                    var tcs = new System.Threading.Tasks.TaskCompletionSource<BitmapImage?>();
                     
-                    // Use UriSource for WebP support via Windows codecs
-                    // IMPORTANT: Must use absolute path for WebP to work
-                    var absolutePath = Path.GetFullPath(thumbPath);
-                    bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                    DispatcherQueue.TryEnqueue(() =>
+                    {
+                        try
+                        {
+                            Logger.LogInfo($"LoadCategoryThumbnailAsync: Creating BitmapImage for {thumbPath}");
+                            var bitmap = new BitmapImage();
+                            bitmap.DecodePixelWidth = 64;
+                            bitmap.DecodePixelHeight = 64;
+                            
+                            var absolutePath = Path.GetFullPath(thumbPath);
+                            Logger.LogInfo($"LoadCategoryThumbnailAsync: Absolute path={absolutePath}");
+                            bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                            
+                            Logger.LogInfo($"LoadCategoryThumbnailAsync: BitmapImage created successfully");
+                            tcs.SetResult(bitmap);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"LoadCategoryThumbnailAsync: Failed to create BitmapImage for {thumbPath}", ex);
+                            tcs.SetResult(null);
+                        }
+                    });
                     
-                    return bitmap;
+                    return await tcs.Task;
+                }
+                else
+                {
+                    Logger.LogWarning($"LoadCategoryThumbnailAsync: No thumbnail found for {categoryDir}");
                 }
             }
             catch (Exception ex)
@@ -1601,28 +1661,58 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                // Check for WebP minitile first, then JPEG
+                // Check format based on user settings
+                var imageFormat = SettingsManager.Current.ImageFormat;
+                var preferWebP = imageFormat.Equals("WebP", StringComparison.OrdinalIgnoreCase);
+                
                 var thumbPathWebp = Path.Combine(modDir, "minitile.webp");
                 var thumbPathJpg = Path.Combine(modDir, "minitile.jpg");
                 
                 string? thumbPath = null;
-                if (File.Exists(thumbPathWebp))
-                    thumbPath = thumbPathWebp;
-                else if (File.Exists(thumbPathJpg))
-                    thumbPath = thumbPathJpg;
+                
+                // Check in order based on user preference
+                if (preferWebP)
+                {
+                    if (File.Exists(thumbPathWebp))
+                        thumbPath = thumbPathWebp;
+                    else if (File.Exists(thumbPathJpg))
+                        thumbPath = thumbPathJpg;
+                }
+                else
+                {
+                    if (File.Exists(thumbPathJpg))
+                        thumbPath = thumbPathJpg;
+                    else if (File.Exists(thumbPathWebp))
+                        thumbPath = thumbPathWebp;
+                }
                 
                 if (thumbPath != null)
                 {
-                    var bitmap = new BitmapImage();
-                    bitmap.DecodePixelWidth = 208;
-                    bitmap.DecodePixelHeight = 250;
+                    var tcs = new System.Threading.Tasks.TaskCompletionSource<BitmapImage?>();
                     
-                    // Use UriSource for WebP support via Windows codecs
-                    // IMPORTANT: Must use absolute path for WebP to work
-                    var absolutePath = Path.GetFullPath(thumbPath);
-                    bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                    DispatcherQueue.TryEnqueue(() =>
+                    {
+                        try
+                        {
+                            var bitmap = new BitmapImage();
+                            bitmap.DecodePixelWidth = 208;
+                            bitmap.DecodePixelHeight = 250;
+                            
+                            // Use UriSource for WebP support via Windows codecs
+                            // IMPORTANT: Must use absolute path for WebP to work
+                            var absolutePath = Path.GetFullPath(thumbPath);
+                            bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                            
+                            tcs.SetResult(bitmap);
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to create BitmapImage for {thumbPath}", ex);
+                            tcs.SetResult(null);
+                        }
+                    });
                     
-                    return bitmap;
+                    return await tcs.Task;
                 }
             }
             catch (Exception ex)

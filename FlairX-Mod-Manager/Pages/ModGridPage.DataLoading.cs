@@ -16,7 +16,7 @@ namespace FlairX_Mod_Manager.Pages
     /// </summary>
     public sealed partial class ModGridPage : Page
     {
-        private void LoadCategories()
+        public void LoadCategories()
         {
             LogToGridLog($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
             Logger.LogDebug($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
