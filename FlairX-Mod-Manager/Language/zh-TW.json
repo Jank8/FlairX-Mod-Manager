@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "選擇要釘選的類別...",
     "SettingsPage_HiddenCategories_Label": "隱藏的類別",
     "SettingsPage_HiddenCategories_Description": "從導覽選單中隱藏類別",
-    "SettingsPage_HiddenCategories_Placeholder": "選擇要隱藏的類別..."
+    "SettingsPage_HiddenCategories_Placeholder": "選擇要隱藏的類別...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "從隨機排除的類別",
+    "SettingsPage_ShuffleExcludedCategories_Description": "從隨機和停用所有熱鍵中排除類別（保持模組不變）",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "選擇要排除的類別...",
+    "EmptyState_NoMods_Text": "這裡什麼都沒有，下載一些模組",
+    "EmptyState_Browse_Button": "瀏覽 GameBanana"
 }

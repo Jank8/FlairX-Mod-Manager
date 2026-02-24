@@ -222,6 +222,9 @@
     "SettingsPage_HiddenCategories_Label": "Hidden Categories",
     "SettingsPage_HiddenCategories_Description": "Hide categories from the navigation menu",
     "SettingsPage_HiddenCategories_Placeholder": "Select category to hide...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Shuffle Excluded Categories",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Exclude categories from shuffle and deactivate all hotkeys (keeps mods as-is)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Select category to exclude...",
     "SystemTray_Show": "Show",
     "SystemTray_Exit": "Exit",
     "SystemTray_MinimizedTitle": "FlairX Mod Manager",
@@ -363,5 +366,7 @@
     "ConvertImages_Title": "Convert Existing Images?",
     "ConvertImages_Message": "Would you like to convert all existing images to the new format?\n\nThis will:\n• Convert preview images, thumbnails, and category images\n• Keep original files if 'Keep Originals' is enabled\n\n⚠️ WARNING: Converting back and forth between formats multiple times will degrade image quality. Only convert once from your original files.",
     "ConvertImages_Convert": "Convert Now",
-    "ConvertImages_Later": "Maybe Later"
+    "ConvertImages_Later": "Maybe Later",
+    "EmptyState_NoMods_Text": "Nothing here, download some mods",
+    "EmptyState_Browse_Button": "Browse GameBanana"
 }

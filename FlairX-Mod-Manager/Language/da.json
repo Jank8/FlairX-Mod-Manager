@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Vælg kategori at fastgøre...",
     "SettingsPage_HiddenCategories_Label": "Skjulte kategorier",
     "SettingsPage_HiddenCategories_Description": "Skjul kategorier fra navigationsmenuen",
-    "SettingsPage_HiddenCategories_Placeholder": "Vælg kategori at skjule..."
+    "SettingsPage_HiddenCategories_Placeholder": "Vælg kategori at skjule...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Shuffle Ekskluderede Kategorier",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Ekskluder kategorier fra shuffle og deaktiver alle genvejstaster (holder mods som de er)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Vælg kategori at ekskludere...",
+    "EmptyState_NoMods_Text": "Intet her, download nogle mods",
+    "EmptyState_Browse_Button": "Gennemse GameBanana"
 }

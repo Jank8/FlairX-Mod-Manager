@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "选择要固定的类别...",
     "SettingsPage_HiddenCategories_Label": "隐藏类别",
     "SettingsPage_HiddenCategories_Description": "从导航菜单中隐藏类别",
-    "SettingsPage_HiddenCategories_Placeholder": "选择要隐藏的类别..."
+    "SettingsPage_HiddenCategories_Placeholder": "选择要隐藏的类别...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "从随机排除的类别",
+    "SettingsPage_ShuffleExcludedCategories_Description": "从随机和停用所有热键中排除类别（保持模组不变）",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "选择要排除的类别...",
+    "EmptyState_NoMods_Text": "这里什么都没有，下载一些模组",
+    "EmptyState_Browse_Button": "浏览 GameBanana"
 }

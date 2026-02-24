@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Wybierz kategorię do przypięcia...",
     "SettingsPage_HiddenCategories_Label": "Ukryte kategorie",
     "SettingsPage_HiddenCategories_Description": "Ukryj kategorie z menu nawigacji",
-    "SettingsPage_HiddenCategories_Placeholder": "Wybierz kategorię do ukrycia..."
+    "SettingsPage_HiddenCategories_Placeholder": "Wybierz kategorię do ukrycia...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Kategorie wyłączone z shuffle",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Wyklucz kategorie z losowania i deaktywacji wszystkich (mody pozostaną bez zmian)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Wybierz kategorię do wyłączenia...",
+    "EmptyState_NoMods_Text": "Nic tutaj nie ma, ściągnij jakieś mody",
+    "EmptyState_Browse_Button": "Przeglądaj GameBanana"
 }

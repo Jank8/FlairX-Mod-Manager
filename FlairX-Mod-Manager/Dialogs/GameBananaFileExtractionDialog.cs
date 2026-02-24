@@ -21,7 +21,7 @@ namespace FlairX_Mod_Manager.Dialogs
         private string _authorName;
         private int _modId;
         private long _dateUpdatedTimestamp;
-        private TextBox _categoryTextBox = null!;
+        private ComboBox _categoryComboBox = null!;
         private ProgressBar _progressBar = null!;
         private TextBlock _statusText = null!;
         private string? _downloadedArchivePath = null;
@@ -132,7 +132,11 @@ namespace FlairX_Mod_Manager.Dialogs
             }
 
             // Create content
-            var stackPanel = new StackPanel { Spacing = 16 };
+            var stackPanel = new StackPanel 
+            { 
+                Spacing = 16,
+                Padding = new Thickness(0, 0, 8, 0) // Add right padding
+            };
 
             if (!isPreviewOnlyMode)
             {
@@ -148,7 +152,8 @@ namespace FlairX_Mod_Manager.Dialogs
                 _modNameTextBox = new TextBox
                 {
                     Text = modName,
-                    Margin = new Thickness(0, 0, 0, 8)
+                    Margin = new Thickness(0, 0, 0, 8),
+                    HorizontalAlignment = HorizontalAlignment.Stretch
                 };
                 _modNameTextBox.BeforeTextChanging += ModNameTextBox_BeforeTextChanging;
                 _modNameTextBox.TextChanged += (s, e) => ValidateInputs();
@@ -163,21 +168,57 @@ namespace FlairX_Mod_Manager.Dialogs
                 };
                 stackPanel.Children.Add(categoryLabel);
 
-                _categoryTextBox = new TextBox
+                // Load existing categories from Mods folder
+                var existingCategories = new List<string>();
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (!string.IsNullOrEmpty(modsPath) && Directory.Exists(modsPath))
+                {
+                    existingCategories = Directory.GetDirectories(modsPath)
+                        .Select(Path.GetFileName)
+                        .Where(name => !string.IsNullOrEmpty(name))
+                        .Cast<string>() // Cast to non-nullable after filtering
+                        .OrderBy(name => name)
+                        .ToList();
+                }
+
+                var initialCategory = categoryName ?? "Characters";
+                
+                _categoryComboBox = new ComboBox
                 {
                     PlaceholderText = SharedUtilities.GetTranslation(_lang, "EnterCategoryName"),
-                    Text = categoryName ?? "Characters",
-                    Margin = new Thickness(0, 0, 0, 8)
+                    IsEditable = true,
+                    IsTextSearchEnabled = true,
+                    ItemsSource = existingCategories,
+                    Margin = new Thickness(0, 0, 0, 8),
+                    HorizontalAlignment = HorizontalAlignment.Stretch
                 };
-                _categoryTextBox.BeforeTextChanging += CategoryTextBox_BeforeTextChanging;
-                _categoryTextBox.TextChanged += (s, e) => ValidateInputs();
-                stackPanel.Children.Add(_categoryTextBox);
+                
+                // Set Text or SelectedItem after ItemsSource is set
+                if (existingCategories.Contains(initialCategory))
+                {
+                    _categoryComboBox.SelectedItem = initialCategory;
+                }
+                else
+                {
+                    _categoryComboBox.Text = initialCategory;
+                }
+                
+                _categoryComboBox.TextSubmitted += (s, e) => 
+                {
+                    // Replace forward slash with dash when text is submitted
+                    if (_categoryComboBox.Text.Contains('/'))
+                    {
+                        _categoryComboBox.Text = _categoryComboBox.Text.Replace("/", "-");
+                    }
+                    ValidateInputs();
+                };
+                stackPanel.Children.Add(_categoryComboBox);
             }
             else
             {
-                // Preview-only mode: create hidden textboxes with default values
+                // Preview-only mode: create hidden controls with default values
                 _modNameTextBox = new TextBox { Text = modName, Visibility = Visibility.Collapsed };
-                _categoryTextBox = new TextBox { Text = categoryName ?? "Characters", Visibility = Visibility.Collapsed };
+                _categoryComboBox = new ComboBox { Text = categoryName ?? "Characters", Visibility = Visibility.Collapsed };
                 
                 // Show info message for preview-only mode
                 var infoMessage = new TextBlock
@@ -316,7 +357,8 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 IsIndeterminate = false,
                 Value = 0,
-                Margin = new Thickness(0, 0, 0, 16)
+                Margin = new Thickness(0, 0, 0, 16),
+                HorizontalAlignment = HorizontalAlignment.Stretch
             };
             stackPanel.Children.Add(_downloadProgressBar);
 
@@ -335,7 +377,8 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 IsIndeterminate = false,
                 Value = 0,
-                Visibility = isPreviewOnlyMode ? Visibility.Collapsed : Visibility.Visible
+                Visibility = isPreviewOnlyMode ? Visibility.Collapsed : Visibility.Visible,
+                HorizontalAlignment = HorizontalAlignment.Stretch
             };
             stackPanel.Children.Add(_extractProgressBar);
 
@@ -347,7 +390,9 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 Content = stackPanel,
                 MaxHeight = 600,
-                Width = 500
+                Width = 500,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
             };
 
             // Check if this is an update and show appropriate checkboxes
@@ -395,7 +440,7 @@ namespace FlairX_Mod_Manager.Dialogs
                     var existingCategory = Path.GetFileName(Path.GetDirectoryName(_existingModPathForPreviewsOnly));
                     if (!string.IsNullOrEmpty(existingCategory))
                     {
-                        _categoryTextBox.Text = existingCategory;
+                        _categoryComboBox.Text = existingCategory;
                         Logger.LogInfo($"Using existing category: {existingCategory}");
                     }
                     
@@ -453,7 +498,7 @@ namespace FlairX_Mod_Manager.Dialogs
                     // Update category to where mod actually is
                     if (!string.IsNullOrEmpty(foundInCategory))
                     {
-                        _categoryTextBox.Text = foundInCategory;
+                        _categoryComboBox.Text = foundInCategory;
                         Logger.LogInfo($"Using existing category: {foundInCategory}");
                     }
                     
@@ -492,7 +537,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 IsPrimaryButtonEnabled = false;
                 IsSecondaryButtonEnabled = false;
 
-                var category = _categoryTextBox.Text.Trim();
+                var category = _categoryComboBox.Text.Trim();
                 // Validation is handled by ValidateInputs() - button should be disabled if invalid
                 if (string.IsNullOrWhiteSpace(category) || IsReservedWindowsName(category))
                 {
@@ -593,7 +638,7 @@ namespace FlairX_Mod_Manager.Dialogs
                         ModProfileUrl = _modProfileUrl,
                         ModId = _modId,
                         ModPath = _installedModPath,
-                        Category = _categoryTextBox.Text.Trim()
+                        Category = _categoryComboBox.Text.Trim()
                     });
                     Logger.LogInfo($"[DIALOG] ModInstalled event fired");
                 }
@@ -648,7 +693,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 else
                 {
                     // Create new mod folder for previews only
-                    var category = _categoryTextBox.Text.Trim();
+                    var category = _categoryComboBox.Text.Trim();
                     if (string.IsNullOrWhiteSpace(category))
                         category = "Characters";
                     
@@ -1579,34 +1624,11 @@ namespace FlairX_Mod_Manager.Dialogs
             ValidateInputs();
         }
 
-        private void CategoryTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
-        {
-            // Replace forward slash with dash
-            if (args.NewText.Contains('/'))
-            {
-                args.Cancel = true;
-                sender.Text = args.NewText.Replace("/", "-");
-                sender.SelectionStart = sender.Text.Length;
-                return;
-            }
-
-            // Block other invalid filename characters (except /)
-            var invalidChars = System.IO.Path.GetInvalidFileNameChars().Where(c => c != '/').ToArray();
-            if (args.NewText.Any(c => invalidChars.Contains(c)))
-            {
-                args.Cancel = true;
-                return;
-            }
-
-            // Validate and update button state
-            ValidateInputs();
-        }
-
         private void ValidateInputs()
         {
             // Check if mod name or category is a reserved Windows name
             var modName = _modNameTextBox.Text.Trim();
-            var category = _categoryTextBox.Text.Trim();
+            var category = _categoryComboBox.Text.Trim();
 
             bool isValid = !string.IsNullOrWhiteSpace(category) &&
                           !IsReservedWindowsName(modName) && 

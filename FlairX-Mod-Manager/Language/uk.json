@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Виберіть категорію для закріплення...",
     "SettingsPage_HiddenCategories_Label": "Приховані категорії",
     "SettingsPage_HiddenCategories_Description": "Приховати категорії з меню навігації",
-    "SettingsPage_HiddenCategories_Placeholder": "Виберіть категорію для приховування..."
+    "SettingsPage_HiddenCategories_Placeholder": "Виберіть категорію для приховування...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Категорії, виключені з перемішування",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Виключити категорії з гарячих клавіш перемішування та деактивації всіх (залишає моди без змін)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Виберіть категорію для виключення...",
+    "EmptyState_NoMods_Text": "Тут нічого немає, завантажте деякі моди",
+    "EmptyState_Browse_Button": "Переглянути GameBanana"
 }

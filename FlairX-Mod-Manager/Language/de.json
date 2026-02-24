@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Kategorie zum Anheften auswählen...",
     "SettingsPage_HiddenCategories_Label": "Versteckte Kategorien",
     "SettingsPage_HiddenCategories_Description": "Kategorien aus dem Navigationsmenü ausblenden",
-    "SettingsPage_HiddenCategories_Placeholder": "Kategorie zum Ausblenden auswählen..."
+    "SettingsPage_HiddenCategories_Placeholder": "Kategorie zum Ausblenden auswählen...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Vom Shuffle ausgeschlossene Kategorien",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Kategorien von Shuffle- und Alle-Deaktivieren-Hotkeys ausschließen (behält Mods unverändert)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Kategorie zum Ausschließen auswählen...",
+    "EmptyState_NoMods_Text": "Nichts hier, lade einige Mods herunter",
+    "EmptyState_Browse_Button": "GameBanana durchsuchen"
 }

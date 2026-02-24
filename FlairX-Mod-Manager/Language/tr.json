@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Sabitlenecek kategoriyi seçin...",
     "SettingsPage_HiddenCategories_Label": "Gizli Kategoriler",
     "SettingsPage_HiddenCategories_Description": "Kategorileri gezinme menüsünden gizle",
-    "SettingsPage_HiddenCategories_Placeholder": "Gizlenecek kategoriyi seçin..."
+    "SettingsPage_HiddenCategories_Placeholder": "Gizlenecek kategoriyi seçin...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Karıştırmadan hariç tutulan kategoriler",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Kategorileri karıştırma ve tümünü devre dışı bırakma kısayollarından hariç tut (modları değiştirmeden tutar)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Hariç tutulacak kategoriyi seçin...",
+    "EmptyState_NoMods_Text": "Burada hiçbir şey yok, bazı modlar indirin",
+    "EmptyState_Browse_Button": "GameBanana'ya Göz At"
 }

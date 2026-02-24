@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Sélectionner une catégorie à épingler...",
     "SettingsPage_HiddenCategories_Label": "Catégories masquées",
     "SettingsPage_HiddenCategories_Description": "Masquer des catégories du menu de navigation",
-    "SettingsPage_HiddenCategories_Placeholder": "Sélectionner une catégorie à masquer..."
+    "SettingsPage_HiddenCategories_Placeholder": "Sélectionner une catégorie à masquer...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Catégories exclues du shuffle",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Exclure les catégories des raccourcis shuffle et désactiver tout (garde les mods inchangés)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Sélectionner une catégorie à exclure...",
+    "EmptyState_NoMods_Text": "Rien ici, téléchargez des mods",
+    "EmptyState_Browse_Button": "Parcourir GameBanana"
 }

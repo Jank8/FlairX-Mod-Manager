@@ -83,6 +83,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Set the ItemsSource to display categories
                 ModsGrid.ItemsSource = _allMods;
+                UpdateEmptyState();
                 
                 var langDict = SharedUtilities.LoadLanguageDictionary();
                 CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "All_Categories");
@@ -363,6 +364,7 @@ namespace FlairX_Mod_Manager.Pages
                 
             LogToGridLog($"Loaded {mods.Count} mods for category: {category} (Broken filter: {hideBroken})");
             ModsGrid.ItemsSource = mods;
+            UpdateEmptyState();
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>
@@ -655,6 +657,7 @@ namespace FlairX_Mod_Manager.Pages
             
             _allMods = new ObservableCollection<ModTile>(initialMods);
             ModsGrid.ItemsSource = _allMods;
+            UpdateEmptyState();
             LogToGridLog($"Created {initialMods.Count} initial ModTiles out of {_allModData.Count} total (NSFW filter: {hideNSFW}, Broken filter: {hideBroken})");
             
             // Load visible images after setting new data source
@@ -742,6 +745,7 @@ namespace FlairX_Mod_Manager.Pages
             
             LogToGridLog($"Found {sortedActiveMods.Count} active mods (Broken filter: {hideBroken})");
             ModsGrid.ItemsSource = sortedActiveMods;
+            UpdateEmptyState();
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>
@@ -791,6 +795,7 @@ namespace FlairX_Mod_Manager.Pages
             
             LogToGridLog($"Found {sortedBrokenMods.Count} broken mods");
             ModsGrid.ItemsSource = sortedBrokenMods;
+            UpdateEmptyState();
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>
@@ -854,6 +859,7 @@ namespace FlairX_Mod_Manager.Pages
             
             LogToGridLog($"Found {sortedOutdatedMods.Count} outdated mods (Broken filter: {hideBroken})");
             ModsGrid.ItemsSource = sortedOutdatedMods;
+            UpdateEmptyState();
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>

@@ -2093,6 +2093,60 @@ namespace FlairX_Mod_Manager.Pages
             return null;
         }
 
+        private void UpdateEmptyState()
+        {
+            if (EmptyStatePanel == null || ModsGrid == null) return;
+            
+            // Update translations for empty state
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            if (EmptyStateText != null)
+            {
+                EmptyStateText.Text = SharedUtilities.GetTranslation(langDict, "EmptyState_NoMods_Text");
+            }
+            if (EmptyStateBrowseButtonText != null)
+            {
+                EmptyStateBrowseButtonText.Text = SharedUtilities.GetTranslation(langDict, "EmptyState_Browse_Button");
+            }
+            
+            // Show empty state only when:
+            // 1. We're in Mods view (not Categories or Table)
+            // 2. We have a specific category selected (not "All Mods")
+            // 3. The grid has no items
+            bool shouldShowEmptyState = CurrentViewMode == ViewMode.Mods &&
+                                       !string.IsNullOrEmpty(_currentCategory) &&
+                                       (ModsGrid.ItemsSource == null || 
+                                        (ModsGrid.ItemsSource is System.Collections.IEnumerable enumerable && 
+                                         !enumerable.Cast<object>().Any()));
+            
+            EmptyStatePanel.Visibility = shouldShowEmptyState ? Visibility.Visible : Visibility.Collapsed;
+            ModsGrid.Visibility = shouldShowEmptyState ? Visibility.Collapsed : Visibility.Visible;
+        }
+        
+        private void EmptyStateBrowseButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(_currentCategory)) return;
+            
+            // Get current game tag
+            var gameTag = SettingsManager.CurrentSelectedGame;
+            if (string.IsNullOrEmpty(gameTag)) return;
+            
+            // Open GameBanana browser with category name as search query
+            if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+            {
+                var browserControl = mainWindow.ShowGameBananaBrowserPanel(gameTag);
+                
+                // Set initial search to category name after a small delay to let the panel initialize
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(100); // Small delay for panel to load
+                    DispatcherQueue.TryEnqueue(() =>
+                    {
+                        browserControl.SetInitialSearch(_currentCategory);
+                    });
+                });
+            }
+        }
+
 
     }
 

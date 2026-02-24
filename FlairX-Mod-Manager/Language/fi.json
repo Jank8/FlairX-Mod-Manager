@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Valitse kiinnitettävä luokka...",
     "SettingsPage_HiddenCategories_Label": "Piilotetut luokat",
     "SettingsPage_HiddenCategories_Description": "Piilota luokat navigointivalikosta",
-    "SettingsPage_HiddenCategories_Placeholder": "Valitse piilotettava luokka..."
+    "SettingsPage_HiddenCategories_Placeholder": "Valitse piilotettava luokka...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Sekoituksesta poissuljetut kategoriat",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Sulje kategoriat pois sekoitus- ja poista kaikki -pikanäppäimistä (pitää modit ennallaan)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Valitse kategoria suljettavaksi pois...",
+    "EmptyState_NoMods_Text": "Ei mitään täällä, lataa modeja",
+    "EmptyState_Browse_Button": "Selaa GameBanana"
 }

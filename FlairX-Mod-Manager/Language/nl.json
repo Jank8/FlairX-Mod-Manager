@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Selecteer categorie om vast te zetten...",
     "SettingsPage_HiddenCategories_Label": "Verborgen categorieën",
     "SettingsPage_HiddenCategories_Description": "Categorieën verbergen uit navigatiemenu",
-    "SettingsPage_HiddenCategories_Placeholder": "Selecteer categorie om te verbergen..."
+    "SettingsPage_HiddenCategories_Placeholder": "Selecteer categorie om te verbergen...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Van shuffle uitgesloten categorieën",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Categorieën uitsluiten van shuffle en alles deactiveren sneltoetsen (houdt mods ongewijzigd)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Selecteer categorie om uit te sluiten...",
+    "EmptyState_NoMods_Text": "Niets hier, download wat mods",
+    "EmptyState_Browse_Button": "Blader door GameBanana"
 }

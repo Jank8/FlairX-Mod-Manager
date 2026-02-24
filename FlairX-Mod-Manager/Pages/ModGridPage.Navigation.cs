@@ -307,6 +307,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 var filtered = new ObservableCollection<ModTile>(filteredMods);
                 ModsGrid.ItemsSource = filtered;
+                UpdateEmptyState();
 
                 // Load visible images after filtering
                 _ = Task.Run(async () =>

@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Seleziona categoria da fissare...",
     "SettingsPage_HiddenCategories_Label": "Categorie nascoste",
     "SettingsPage_HiddenCategories_Description": "Nascondi le categorie dal menu di navigazione",
-    "SettingsPage_HiddenCategories_Placeholder": "Seleziona categoria da nascondere..."
+    "SettingsPage_HiddenCategories_Placeholder": "Seleziona categoria da nascondere...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Categorie escluse dallo shuffle",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Escludi categorie dalle scorciatoie shuffle e disattiva tutto (mantiene i mod invariati)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Seleziona categoria da escludere...",
+    "EmptyState_NoMods_Text": "Niente qui, scarica alcuni mod",
+    "EmptyState_Browse_Button": "Sfoglia GameBanana"
 }

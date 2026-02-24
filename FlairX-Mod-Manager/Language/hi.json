@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "पिन करने के लिए श्रेणी चुनें...",
     "SettingsPage_HiddenCategories_Label": "छिपी हुई श्रेणियाँ",
     "SettingsPage_HiddenCategories_Description": "नेविगेशन मेनू से श्रेणियां छिपाएं",
-    "SettingsPage_HiddenCategories_Placeholder": "छिपाने के लिए श्रेणी चुनें..."
+    "SettingsPage_HiddenCategories_Placeholder": "छिपाने के लिए श्रेणी चुनें...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "शफल से बाहर की गई श्रेणियां",
+    "SettingsPage_ShuffleExcludedCategories_Description": "शफल और सभी को निष्क्रिय करें हॉटकी से श्रेणियों को बाहर करें (मॉड को यथावत रखता है)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "बाहर करने के लिए श्रेणी चुनें...",
+    "EmptyState_NoMods_Text": "यहाँ कुछ नहीं है, कुछ मॉड डाउनलोड करें",
+    "EmptyState_Browse_Button": "GameBanana ब्राउज़ करें"
 }

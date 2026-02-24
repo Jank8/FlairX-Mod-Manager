@@ -154,6 +154,7 @@ namespace FlairX_Mod_Manager
         // Category management settings (per-game)
         public Dictionary<string, List<string>> PinnedCategories { get; set; } = new Dictionary<string, List<string>>(); // gameTag -> list of category names
         public Dictionary<string, List<string>> HiddenCategories { get; set; } = new Dictionary<string, List<string>>(); // gameTag -> list of category names
+        public Dictionary<string, List<string>> ShuffleExcludedCategories { get; set; } = new Dictionary<string, List<string>>(); // gameTag -> list of category names excluded from shuffle
     }
 
     public class FavoritesData
@@ -739,6 +740,51 @@ namespace FlairX_Mod_Manager
             if (hidden.Remove(categoryName))
             {
                 SetHiddenCategories(gameTag, hidden);
+            }
+        }
+        
+        public static List<string> GetShuffleExcludedCategories(string gameTag)
+        {
+            if (string.IsNullOrEmpty(gameTag))
+                return new List<string>();
+                
+            if (Current.ShuffleExcludedCategories.TryGetValue(gameTag, out var categories))
+                return categories;
+                
+            return new List<string>();
+        }
+        
+        public static void SetShuffleExcludedCategories(string gameTag, List<string> categories)
+        {
+            if (string.IsNullOrEmpty(gameTag))
+                return;
+                
+            Current.ShuffleExcludedCategories[gameTag] = categories;
+            Save();
+        }
+        
+        public static void AddShuffleExcludedCategory(string gameTag, string categoryName)
+        {
+            if (string.IsNullOrEmpty(gameTag) || string.IsNullOrEmpty(categoryName))
+                return;
+                
+            var excluded = GetShuffleExcludedCategories(gameTag);
+            if (!excluded.Contains(categoryName))
+            {
+                excluded.Add(categoryName);
+                SetShuffleExcludedCategories(gameTag, excluded);
+            }
+        }
+        
+        public static void RemoveShuffleExcludedCategory(string gameTag, string categoryName)
+        {
+            if (string.IsNullOrEmpty(gameTag) || string.IsNullOrEmpty(categoryName))
+                return;
+                
+            var excluded = GetShuffleExcludedCategories(gameTag);
+            if (excluded.Remove(categoryName))
+            {
+                SetShuffleExcludedCategories(gameTag, excluded);
             }
         }
         

@@ -488,6 +488,19 @@ namespace FlairX_Mod_Manager.Pages
             };
         }
 
+        public void SetInitialSearch(string searchQuery)
+        {
+            if (string.IsNullOrWhiteSpace(searchQuery)) return;
+            
+            // Set search box text
+            SearchBox.Text = searchQuery;
+            
+            // Trigger search
+            _currentSearch = searchQuery;
+            _currentPage = 1;
+            _ = LoadModsAsync();
+        }
+
         private async Task LoadModsAsync()
         {
             try

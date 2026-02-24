@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Välj kategori att fästa...",
     "SettingsPage_HiddenCategories_Label": "Dolda kategorier",
     "SettingsPage_HiddenCategories_Description": "Dölj kategorier från navigeringsmeny",
-    "SettingsPage_HiddenCategories_Placeholder": "Välj kategori att dölja..."
+    "SettingsPage_HiddenCategories_Placeholder": "Välj kategori att dölja...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Kategorier uteslutna från shuffle",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Uteslut kategorier från shuffle och inaktivera alla genvägar (håller mods oförändrade)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Välj kategori att utesluta...",
+    "EmptyState_NoMods_Text": "Inget här, ladda ner några mods",
+    "EmptyState_Browse_Button": "Bläddra GameBanana"
 }

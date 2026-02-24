@@ -222,7 +222,8 @@ namespace FlairX_Mod_Manager
                     foreach (var categoryDir in Directory.GetDirectories(modsPath))
                     {
                         var categoryName = Path.GetFileName(categoryDir);
-                        if (!string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
+                        if (!string.IsNullOrEmpty(categoryName) && 
+                            !string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
                         {
                             categories.Add(categoryName);
                         }
@@ -272,8 +273,14 @@ namespace FlairX_Mod_Manager
                                 _categoryStarButtons.Clear();
                                 
                                 // Add character categories (already sorted), excluding pinned and hidden
-                                foreach (var category in sortedCategories)
+                                if (sortedCategories != null)
                                 {
+                                    foreach (var category in sortedCategories)
+                                    {
+                                        // Skip null or empty categories
+                                        if (string.IsNullOrEmpty(category))
+                                            continue;
+                                        
                                     // Skip if category is pinned or hidden
                                     if (pinnedCategories.Contains(category) || hiddenCategories.Contains(category))
                                         continue;
@@ -360,6 +367,7 @@ namespace FlairX_Mod_Manager
                                         AttachIconHoverEvents(menuItem, category, modsPath);
                                         AttachStarButtonToMenuItem(menuItem, starButton);
                                     };
+                                }
                                 }
                                 
                                 // Update menu items state based on current view mode

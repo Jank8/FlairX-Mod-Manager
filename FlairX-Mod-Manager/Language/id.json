@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Pilih kategori untuk disematkan...",
     "SettingsPage_HiddenCategories_Label": "Kategori Tersembunyi",
     "SettingsPage_HiddenCategories_Description": "Sembunyikan kategori dari menu navigasi",
-    "SettingsPage_HiddenCategories_Placeholder": "Pilih kategori untuk disembunyikan..."
+    "SettingsPage_HiddenCategories_Placeholder": "Pilih kategori untuk disembunyikan...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Kategori yang Dikecualikan dari Shuffle",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Kecualikan kategori dari hotkey shuffle dan nonaktifkan semua (menjaga mod tetap sama)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Pilih kategori untuk dikecualikan...",
+    "EmptyState_NoMods_Text": "Tidak ada di sini, unduh beberapa mod",
+    "EmptyState_Browse_Button": "Jelajahi GameBanana"
 }

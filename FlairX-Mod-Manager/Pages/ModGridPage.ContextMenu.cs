@@ -391,6 +391,7 @@ namespace FlairX_Mod_Manager.Pages
                 }
 
                 ModsGrid.ItemsSource = categoryList;
+                UpdateEmptyState();
                 return;
             }
 
@@ -484,6 +485,7 @@ namespace FlairX_Mod_Manager.Pages
             }
 
             ModsGrid.ItemsSource = modTiles;
+            UpdateEmptyState();
             
             // Reload visible images after sorting
             _ = Task.Run(async () =>

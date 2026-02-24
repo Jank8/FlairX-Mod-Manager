@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Pumili ng kategorya na i-pin...",
     "SettingsPage_HiddenCategories_Label": "Nakatagong Kategorya",
     "SettingsPage_HiddenCategories_Description": "Itago ang mga kategorya mula sa navigation menu",
-    "SettingsPage_HiddenCategories_Placeholder": "Pumili ng kategorya na itago..."
+    "SettingsPage_HiddenCategories_Placeholder": "Pumili ng kategorya na itago...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Mga kategoryang hindi kasama sa shuffle",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Ibukod ang mga kategorya mula sa shuffle at i-deactivate lahat na hotkey (pinapanatili ang mga mod)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Pumili ng kategorya na ibubukod...",
+    "EmptyState_NoMods_Text": "Walang nandito, mag-download ng mga mod",
+    "EmptyState_Browse_Button": "I-browse ang GameBanana"
 }

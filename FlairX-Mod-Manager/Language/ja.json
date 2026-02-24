@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "ピン留めするカテゴリを選択...",
     "SettingsPage_HiddenCategories_Label": "非表示のカテゴリ",
     "SettingsPage_HiddenCategories_Description": "ナビゲーションメニューからカテゴリを非表示にする",
-    "SettingsPage_HiddenCategories_Placeholder": "非表示にするカテゴリを選択..."
+    "SettingsPage_HiddenCategories_Placeholder": "非表示にするカテゴリを選択...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "シャッフルから除外されたカテゴリ",
+    "SettingsPage_ShuffleExcludedCategories_Description": "シャッフルとすべて無効化ホットキーからカテゴリを除外（MODをそのまま保持）",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "除外するカテゴリを選択...",
+    "EmptyState_NoMods_Text": "ここには何もありません、MODをダウンロードしてください",
+    "EmptyState_Browse_Button": "GameBananaを閲覧"
 }

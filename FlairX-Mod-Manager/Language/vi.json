@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Chọn danh mục để ghim...",
     "SettingsPage_HiddenCategories_Label": "Danh mục ẩn",
     "SettingsPage_HiddenCategories_Description": "Ẩn danh mục khỏi menu điều hướng",
-    "SettingsPage_HiddenCategories_Placeholder": "Chọn danh mục để ẩn..."
+    "SettingsPage_HiddenCategories_Placeholder": "Chọn danh mục để ẩn...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Danh mục loại trừ khỏi shuffle",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Loại trừ danh mục khỏi các phím tắt shuffle và vô hiệu hóa tất cả (giữ nguyên các mod)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Chọn danh mục để loại trừ...",
+    "EmptyState_NoMods_Text": "Không có gì ở đây, tải xuống một số mod",
+    "EmptyState_Browse_Button": "Duyệt GameBanana"
 }

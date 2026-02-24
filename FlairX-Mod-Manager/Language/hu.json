@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Válasszon kategóriát a rögzítéshez...",
     "SettingsPage_HiddenCategories_Label": "Rejtett kategóriák",
     "SettingsPage_HiddenCategories_Description": "Kategóriák elrejtése a navigációs menüből",
-    "SettingsPage_HiddenCategories_Placeholder": "Válasszon kategóriát az elrejtéshez..."
+    "SettingsPage_HiddenCategories_Placeholder": "Válasszon kategóriát az elrejtéshez...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Keverésből kizárt kategóriák",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Kategóriák kizárása a keverés és összes kikapcsolása gyorsbillentyűkből (változatlanul hagyja a modokat)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Válasszon kategóriát a kizáráshoz...",
+    "EmptyState_NoMods_Text": "Nincs itt semmi, tölts le néhány modot",
+    "EmptyState_Browse_Button": "GameBanana böngészése"
 }

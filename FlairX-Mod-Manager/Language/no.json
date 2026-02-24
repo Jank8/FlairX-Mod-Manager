@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Velg kategori å feste...",
     "SettingsPage_HiddenCategories_Label": "Skjulte kategorier",
     "SettingsPage_HiddenCategories_Description": "Skjul kategorier fra navigasjonsmeny",
-    "SettingsPage_HiddenCategories_Placeholder": "Velg kategori å skjule..."
+    "SettingsPage_HiddenCategories_Placeholder": "Velg kategori å skjule...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Kategorier ekskludert fra shuffle",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Ekskluder kategorier fra shuffle og deaktiver alle hurtigtaster (holder mods uendret)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Velg kategori å ekskludere...",
+    "EmptyState_NoMods_Text": "Ingenting her, last ned noen mods",
+    "EmptyState_Browse_Button": "Bla gjennom GameBanana"
 }

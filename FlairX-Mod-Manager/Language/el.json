@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Επιλέξτε κατηγορία για καρφίτσωμα...",
     "SettingsPage_HiddenCategories_Label": "Κρυφές κατηγορίες",
     "SettingsPage_HiddenCategories_Description": "Απόκρυψη κατηγοριών από το μενού πλοήγησης",
-    "SettingsPage_HiddenCategories_Placeholder": "Επιλέξτε κατηγορία για απόκρυψη..."
+    "SettingsPage_HiddenCategories_Placeholder": "Επιλέξτε κατηγορία για απόκρυψη...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Κατηγορίες εξαιρούμενες από ανακάτεμα",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Εξαίρεση κατηγοριών από τα πλήκτρα ανακατέματος και απενεργοποίησης όλων (διατηρεί τα mods ως έχουν)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Επιλέξτε κατηγορία για εξαίρεση...",
+    "EmptyState_NoMods_Text": "Τίποτα εδώ, κατεβάστε μερικά mods",
+    "EmptyState_Browse_Button": "Περιήγηση GameBanana"
 }

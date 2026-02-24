@@ -45,7 +45,7 @@ namespace FlairX_Mod_Manager
             ShowModDetailPanel(modDirectory);
         }
 
-        public void ShowGameBananaBrowserPanel(string gameTag, string? modUrl = null, string? sourceModPath = null)
+        public GameBananaBrowserUserControl ShowGameBananaBrowserPanel(string gameTag, string? modUrl = null, string? sourceModPath = null)
         {
             var browserControl = new GameBananaBrowserUserControl(gameTag, modUrl, sourceModPath);
             var lang = SharedUtilities.LoadLanguageDictionary("GameBananaBrowser");
@@ -61,6 +61,7 @@ namespace FlairX_Mod_Manager
             };
             var title = string.Format(SharedUtilities.GetTranslation(lang, "BrowseTitle"), gameName);
             ShowSlidingPanel(browserControl, title);
+            return browserControl;
         }
         
         public void ShowImagePreviewPanel(System.Collections.Generic.List<string> imagePaths, int startIndex = 0, string title = "Preview")

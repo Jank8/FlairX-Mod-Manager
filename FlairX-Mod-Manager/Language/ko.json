@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "고정할 카테고리 선택...",
     "SettingsPage_HiddenCategories_Label": "숨겨진 카테고리",
     "SettingsPage_HiddenCategories_Description": "탐색 메뉴에서 카테고리 숨기기",
-    "SettingsPage_HiddenCategories_Placeholder": "숨길 카테고리 선택..."
+    "SettingsPage_HiddenCategories_Placeholder": "숨길 카테고리 선택...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "셔플에서 제외된 카테고리",
+    "SettingsPage_ShuffleExcludedCategories_Description": "셔플 및 모두 비활성화 단축키에서 카테고리 제외 (모드를 그대로 유지)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "제외할 카테고리 선택...",
+    "EmptyState_NoMods_Text": "여기에 아무것도 없습니다, 모드를 다운로드하세요",
+    "EmptyState_Browse_Button": "GameBanana 탐색"
 }

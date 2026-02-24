@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Selectați categoria de fixat...",
     "SettingsPage_HiddenCategories_Label": "Categorii ascunse",
     "SettingsPage_HiddenCategories_Description": "Ascundeți categorii din meniul de navigare",
-    "SettingsPage_HiddenCategories_Placeholder": "Selectați categoria de ascuns..."
+    "SettingsPage_HiddenCategories_Placeholder": "Selectați categoria de ascuns...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Categorii excluse din shuffle",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Excludeți categorii din tastele rapide shuffle și dezactivare toate (păstrează modurile neschimbate)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Selectați categoria de exclus...",
+    "EmptyState_NoMods_Text": "Nimic aici, descarcă niște moduri",
+    "EmptyState_Browse_Button": "Răsfoiește GameBanana"
 }

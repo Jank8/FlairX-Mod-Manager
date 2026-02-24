@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "Vyberte kategorii k připnutí...",
     "SettingsPage_HiddenCategories_Label": "Skryté kategorie",
     "SettingsPage_HiddenCategories_Description": "Skrýt kategorie z navigačního menu",
-    "SettingsPage_HiddenCategories_Placeholder": "Vyberte kategorii ke skrytí..."
+    "SettingsPage_HiddenCategories_Placeholder": "Vyberte kategorii ke skrytí...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "Vyloučené kategorie z míchání",
+    "SettingsPage_ShuffleExcludedCategories_Description": "Vyloučit kategorie z klávesových zkratek míchání a deaktivace všech (ponechá mody beze změny)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "Vyberte kategorii k vyloučení...",
+    "EmptyState_NoMods_Text": "Nic tu není, stáhněte si nějaké módy",
+    "EmptyState_Browse_Button": "Procházet GameBanana"
 }

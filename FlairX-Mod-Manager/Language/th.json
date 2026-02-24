@@ -363,5 +363,10 @@
     "SettingsPage_PinnedCategories_Placeholder": "เลือกหมวดหมู่เพื่อปักหมุด...",
     "SettingsPage_HiddenCategories_Label": "หมวดหมู่ที่ซ่อน",
     "SettingsPage_HiddenCategories_Description": "ซ่อนหมวดหมู่จากเมนูนำทาง",
-    "SettingsPage_HiddenCategories_Placeholder": "เลือกหมวดหมู่เพื่อซ่อน..."
+    "SettingsPage_HiddenCategories_Placeholder": "เลือกหมวดหมู่เพื่อซ่อน...",
+    "SettingsPage_ShuffleExcludedCategories_Label": "หมวดหมู่ที่ยกเว้นจากการสับเปลี่ยน",
+    "SettingsPage_ShuffleExcludedCategories_Description": "ยกเว้นหมวดหมู่จากปุ่มลัดสับเปลี่ยนและปิดการใช้งานทั้งหมด (เก็บม็อดไว้เหมือนเดิม)",
+    "SettingsPage_ShuffleExcludedCategories_Placeholder": "เลือกหมวดหมู่เพื่อยกเว้น...",
+    "EmptyState_NoMods_Text": "ไม่มีอะไรที่นี่ ดาวน์โหลดม็อดบางตัว",
+    "EmptyState_Browse_Button": "เรียกดู GameBanana"
 }

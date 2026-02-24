@@ -199,24 +199,32 @@ namespace FlairX_Mod_Manager
                     return;
                 }
                 
+                // Get shuffle excluded categories
+                var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                var excludedCategories = !string.IsNullOrEmpty(gameTag) 
+                    ? SettingsManager.GetShuffleExcludedCategories(gameTag) 
+                    : new List<string>();
+                
                 var random = new Random();
                 var newActiveMods = new Dictionary<string, bool>();
                 var selectedMods = new List<string>();
                 
-                // Step 1: Deactivate ALL mods (except Other category) - like Python script
+                // Step 1: Deactivate ALL mods (except excluded categories) - like Python script
                 foreach (var categoryDir in Directory.GetDirectories(modsPath))
                 {
                     if (!Directory.Exists(categoryDir)) continue;
                     
                     var categoryName = Path.GetFileName(categoryDir);
+                    if (string.IsNullOrEmpty(categoryName)) continue;
                     
-                    // Skip "Other" category
-                    if (string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
+                    // Skip excluded categories
+                    if (excludedCategories.Contains(categoryName, StringComparer.OrdinalIgnoreCase))
                     {
-                        // Keep Other category mods as they are
+                        // Keep excluded category mods as they are
                         foreach (var modDir in Directory.GetDirectories(categoryDir))
                         {
                             var modFolderName = Path.GetFileName(modDir);
+                            if (string.IsNullOrEmpty(modFolderName)) continue;
                             var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
                             bool isActive = !modFolderName.StartsWith("DISABLED_");
                             newActiveMods[cleanName] = isActive;
@@ -253,15 +261,16 @@ namespace FlairX_Mod_Manager
                     }
                 }
                 
-                // Step 2: Activate 1 random mod from each category (except Other)
+                // Step 2: Activate 1 random mod from each category (except excluded)
                 foreach (var categoryDir in Directory.GetDirectories(modsPath))
                 {
                     if (!Directory.Exists(categoryDir)) continue;
                     
                     var categoryName = Path.GetFileName(categoryDir);
+                    if (string.IsNullOrEmpty(categoryName)) continue;
                     
-                    // Skip "Other" category
-                    if (string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
+                    // Skip excluded categories
+                    if (excludedCategories.Contains(categoryName, StringComparer.OrdinalIgnoreCase))
                         continue;
                     
                     // Get all disabled mods in this category
@@ -350,6 +359,12 @@ namespace FlairX_Mod_Manager
                     return;
                 }
                 
+                // Get shuffle excluded categories (these will be excluded from deactivation too)
+                var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                var excludedCategories = !string.IsNullOrEmpty(gameTag) 
+                    ? SettingsManager.GetShuffleExcludedCategories(gameTag) 
+                    : new List<string>();
+                
                 int deactivatedCount = 0;
                 int duplicatesHandled = 0;
                 var newActiveMods = new Dictionary<string, bool>();
@@ -364,6 +379,7 @@ namespace FlairX_Mod_Manager
                     foreach (var modDir in Directory.GetDirectories(categoryDir))
                     {
                         var modFolderName = Path.GetFileName(modDir);
+                        if (string.IsNullOrEmpty(modFolderName)) continue;
                         var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
                         bool isActive = !modFolderName.StartsWith("DISABLED_");
                         
@@ -375,20 +391,22 @@ namespace FlairX_Mod_Manager
                     }
                 }
                 
-                // Iterate through all category directories (like Python script)
+                // Iterate through all category directories
                 foreach (var categoryDir in Directory.GetDirectories(modsPath))
                 {
                     if (!Directory.Exists(categoryDir)) continue;
                     
                     var categoryName = Path.GetFileName(categoryDir);
+                    if (string.IsNullOrEmpty(categoryName)) continue;
                     
-                    // Skip "Other" category
-                    if (string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
+                    // Skip excluded categories (same as shuffle exclusion)
+                    if (excludedCategories.Contains(categoryName, StringComparer.OrdinalIgnoreCase))
                     {
-                        // Keep Other category mods as they are - just record their current state
+                        // Keep excluded category mods as they are - just record their current state
                         foreach (var modDir in Directory.GetDirectories(categoryDir))
                         {
                             var modFolderName = Path.GetFileName(modDir);
+                            if (string.IsNullOrEmpty(modFolderName)) continue;
                             var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
                             bool isActive = !modFolderName.StartsWith("DISABLED_");
                             newActiveMods[cleanName] = isActive;
@@ -463,7 +481,7 @@ namespace FlairX_Mod_Manager
                     var json = JsonSerializer.Serialize(newActiveMods, new JsonSerializerOptions { WriteIndented = true });
                     Services.FileAccessQueue.WriteAllText(activeModsPath, json);
                     
-                    Logger.LogInfo($"Deactivate all completed - deactivated {deactivatedCount} mods (excluding Other category), handled {duplicatesHandled} duplicates");
+                    Logger.LogInfo($"Deactivate all completed - deactivated {deactivatedCount} mods (excluding {excludedCategories.Count} categories), handled {duplicatesHandled} duplicates");
                     
                     // Reload manager to refresh the view
                     DispatcherQueue.TryEnqueue(async () =>
