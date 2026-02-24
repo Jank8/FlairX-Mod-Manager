@@ -87,11 +87,6 @@
             </NavigationView.MenuItems>
 
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem Content="Other Mods" Tag="OtherModsPage" x:Name="OtherModsPageItem">
-                    <NavigationViewItem.Icon>
-                        <SymbolIcon Symbol="Download" />
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
                 <NavigationViewItem Content="Settings" Tag="SettingsUserControl" x:Name="SettingsPageItem">
                     <NavigationViewItem.Icon>
                         <AnimatedIcon>

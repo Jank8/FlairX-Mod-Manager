@@ -390,7 +390,17 @@ namespace FlairX_Mod_Manager
                     // Handle CloseRequested event from UserControl
                     if (userControl is SettingsUserControl settingsControl)
                     {
-                        settingsControl.CloseRequested += (s, args) => closeWithAnimation();
+                        settingsControl.CloseRequested += async (s, args) => 
+                        {
+                            await closeWithAnimationAsync();
+                            
+                            // Regenerate menu if category management changed
+                            if (args.CategoryManagementChanged)
+                            {
+                                await GenerateModCharacterMenuAsync();
+                                Logger.LogInfo("Regenerated menu after category management changes");
+                            }
+                        };
                     }
                     else if (userControl is PresetsUserControl presetsControl)
                     {

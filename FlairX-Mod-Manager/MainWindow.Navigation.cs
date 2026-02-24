@@ -20,9 +20,11 @@ namespace FlairX_Mod_Manager
                 string? selectedTag = selectedItem.Tag as string;
                 if (!string.IsNullOrEmpty(selectedTag))
                 {
-                    if (selectedTag.StartsWith("Category_"))
+                    if (selectedTag.StartsWith("Category_") || selectedTag.StartsWith("Category:"))
                     {
-                        var category = selectedTag.Substring("Category_".Length);
+                        var category = selectedTag.StartsWith("Category_") 
+                            ? selectedTag.Substring("Category_".Length)
+                            : selectedTag.Substring("Category:".Length);
                         
                         // Save position for reload
                         var currentViewMode = GetCurrentViewModeString();
@@ -44,30 +46,6 @@ namespace FlairX_Mod_Manager
                         else
                         {
                             contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), $"Category:{category}", new DrillInNavigationTransitionInfo());
-                        }
-                    }
-                    else if (selectedTag == "OtherModsPage")
-                    {
-                        // Save position for reload
-                        var currentViewMode = GetCurrentViewModeString();
-                        SettingsManager.SaveLastPosition("Other", "ModGridPage", currentViewMode);
-                        
-                        // Load "Other" category instead of old character-based filtering
-                        if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
-                        {
-                            // SEPARATE NAVIGATION BASED ON CURRENT VIEW MODE
-                            if (modGridPage.CurrentViewMode == FlairX_Mod_Manager.Pages.ModGridPage.ViewMode.Categories)
-                            {
-                                modGridPage.LoadCategoryInCategoryMode("Other");
-                            }
-                            else
-                            {
-                                modGridPage.LoadCategoryInDefaultMode("Other");
-                            }
-                        }
-                        else
-                        {
-                            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Category:Other", new DrillInNavigationTransitionInfo());
                         }
                     }
                     else if (selectedTag == "SettingsUserControl")
@@ -220,7 +198,7 @@ namespace FlairX_Mod_Manager
                     {
                         var tag = item.Tag?.ToString();
                         // Skip footer items - they should only be in footer, not main menu
-                        if (tag == "OtherModsPage" || tag == "PresetsUserControl" || tag == "SettingsUserControl")
+                        if (tag == "PresetsUserControl" || tag == "SettingsUserControl")
                         {
                             continue;
                         }
@@ -234,7 +212,7 @@ namespace FlairX_Mod_Manager
                     foreach (var item in _allFooterItems)
                     {
                         var tag = item.Tag?.ToString();
-                        if (tag == "OtherModsPage" || tag == "PresetsUserControl" || tag == "SettingsUserControl")
+                        if (tag == "PresetsUserControl" || tag == "SettingsUserControl")
                         {
                             if (!nvSample.FooterMenuItems.Contains(item))
                                 nvSample.FooterMenuItems.Add(item);

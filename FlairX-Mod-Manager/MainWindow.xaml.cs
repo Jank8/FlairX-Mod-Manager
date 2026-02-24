@@ -529,8 +529,6 @@ namespace FlairX_Mod_Manager
 
         private void SetFooterMenuTranslations()
         {
-            if (OtherModsPageItem is NavigationViewItem otherMods)
-                otherMods.Content = SharedUtilities.GetTranslation(_lang, "Other_Mods");
             if (SettingsPageItem is NavigationViewItem settings)
                 settings.Content = SharedUtilities.GetTranslation(_lang, "SettingsPage_Title");
             
@@ -715,13 +713,8 @@ namespace FlairX_Mod_Manager
                         }
                         else if (lastCategory == "Other")
                         {
-                            // Select Other Mods footer item
-                            var otherMenuItem = nvSample.FooterMenuItems.OfType<NavigationViewItem>()
-                                .FirstOrDefault(item => item.Tag?.ToString() == "OtherModsPage");
-                            if (otherMenuItem != null)
-                            {
-                                nvSample.SelectedItem = otherMenuItem;
-                            }
+                            // Category "Other" doesn't exist - navigate to All Mods
+                            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
                         }
                     }
                     else

@@ -150,6 +150,10 @@ namespace FlairX_Mod_Manager
         
         // Starter Pack settings (per-game, stored as comma-separated game tags that dismissed the dialog)
         public string StarterPackDismissedGames { get; set; } = ""; // e.g. "ZZMI,GIMI" - games where user clicked "No thanks" or checkbox
+        
+        // Category management settings (per-game)
+        public Dictionary<string, List<string>> PinnedCategories { get; set; } = new Dictionary<string, List<string>>(); // gameTag -> list of category names
+        public Dictionary<string, List<string>> HiddenCategories { get; set; } = new Dictionary<string, List<string>>(); // gameTag -> list of category names
     }
 
     public class FavoritesData
@@ -645,5 +649,99 @@ namespace FlairX_Mod_Manager
                 Logger.LogError("Failed to migrate favorites from Settings.json", ex);
             }
         }
+        
+        #region Category Management
+        
+        public static List<string> GetPinnedCategories(string gameTag)
+        {
+            if (string.IsNullOrEmpty(gameTag))
+                return new List<string>();
+                
+            if (Current.PinnedCategories.TryGetValue(gameTag, out var categories))
+                return categories;
+                
+            return new List<string>();
+        }
+        
+        public static void SetPinnedCategories(string gameTag, List<string> categories)
+        {
+            if (string.IsNullOrEmpty(gameTag))
+                return;
+                
+            Current.PinnedCategories[gameTag] = categories;
+            Save();
+        }
+        
+        public static void AddPinnedCategory(string gameTag, string categoryName)
+        {
+            if (string.IsNullOrEmpty(gameTag) || string.IsNullOrEmpty(categoryName))
+                return;
+                
+            var pinned = GetPinnedCategories(gameTag);
+            if (!pinned.Contains(categoryName))
+            {
+                pinned.Add(categoryName);
+                SetPinnedCategories(gameTag, pinned);
+            }
+        }
+        
+        public static void RemovePinnedCategory(string gameTag, string categoryName)
+        {
+            if (string.IsNullOrEmpty(gameTag) || string.IsNullOrEmpty(categoryName))
+                return;
+                
+            var pinned = GetPinnedCategories(gameTag);
+            if (pinned.Remove(categoryName))
+            {
+                SetPinnedCategories(gameTag, pinned);
+            }
+        }
+        
+        public static List<string> GetHiddenCategories(string gameTag)
+        {
+            if (string.IsNullOrEmpty(gameTag))
+                return new List<string>();
+                
+            if (Current.HiddenCategories.TryGetValue(gameTag, out var categories))
+                return categories;
+                
+            return new List<string>();
+        }
+        
+        public static void SetHiddenCategories(string gameTag, List<string> categories)
+        {
+            if (string.IsNullOrEmpty(gameTag))
+                return;
+                
+            Current.HiddenCategories[gameTag] = categories;
+            Save();
+        }
+        
+        public static void AddHiddenCategory(string gameTag, string categoryName)
+        {
+            if (string.IsNullOrEmpty(gameTag) || string.IsNullOrEmpty(categoryName))
+                return;
+                
+            var hidden = GetHiddenCategories(gameTag);
+            if (!hidden.Contains(categoryName))
+            {
+                hidden.Add(categoryName);
+                SetHiddenCategories(gameTag, hidden);
+            }
+        }
+        
+        public static void RemoveHiddenCategory(string gameTag, string categoryName)
+        {
+            if (string.IsNullOrEmpty(gameTag) || string.IsNullOrEmpty(categoryName))
+                return;
+                
+            var hidden = GetHiddenCategories(gameTag);
+            if (hidden.Remove(categoryName))
+            {
+                SetHiddenCategories(gameTag, hidden);
+            }
+        }
+        
+        #endregion
     }
 }

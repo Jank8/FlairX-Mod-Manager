@@ -248,8 +248,7 @@ namespace FlairX_Mod_Manager
                                 
                                 // Also clear and rebuild footer items to prevent duplication
                                 var existingFooterItems = nvSample.FooterMenuItems.OfType<NavigationViewItem>()
-                                    .Where(item => item.Tag?.ToString() == "OtherModsPage" || 
-                                                   item.Tag?.ToString() == "PresetsUserControl" || 
+                                    .Where(item => item.Tag?.ToString() == "PresetsUserControl" || 
                                                    item.Tag?.ToString() == "SettingsUserControl")
                                     .ToList();
                                 
@@ -261,14 +260,26 @@ namespace FlairX_Mod_Manager
                                     nvSample.FooterMenuItems.Add(item);
                                 }
                                 
+                                // Generate pinned categories in footer menu
+                                await GeneratePinnedCategoriesAsync();
+                                
+                                // Get pinned and hidden categories for filtering
+                                var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                                var pinnedCategories = SettingsManager.GetPinnedCategories(gameTag);
+                                var hiddenCategories = SettingsManager.GetHiddenCategories(gameTag);
+                                
                                 // Clear star buttons dictionary
                                 _categoryStarButtons.Clear();
                                 
-                                // Add character categories (already sorted)
+                                // Add character categories (already sorted), excluding pinned and hidden
                                 foreach (var category in sortedCategories)
                                 {
-                                    var gameTag = SettingsManager.CurrentSelectedGame ?? "";
-                                    bool isFavorite = SettingsManager.IsCategoryFavorite(gameTag, category);
+                                    // Skip if category is pinned or hidden
+                                    if (pinnedCategories.Contains(category) || hiddenCategories.Contains(category))
+                                        continue;
+                                        
+                                    var currentGameTag = SettingsManager.CurrentSelectedGame ?? "";
+                                    bool isFavorite = SettingsManager.IsCategoryFavorite(currentGameTag, category);
                                     
                                     // Create star icon
                                     var starIcon = new FontIcon
@@ -461,15 +472,15 @@ namespace FlairX_Mod_Manager
                     Icon = new FontIcon { Glyph = "\uE728" } // Presets icon
                 };
                 
-                // Find OtherModsPageItem and insert after it, or add to end
+                // Add to footer menu (before Settings)
                 if (nvSample?.FooterMenuItems != null)
                 {
-                    var otherModsItem = nvSample.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x?.Tag?.ToString() == "OtherModsPage");
-                    if (otherModsItem != null)
+                    var settingsItem = nvSample.FooterMenuItems.OfType<NavigationViewItem>().FirstOrDefault(x => x?.Tag?.ToString() == "SettingsUserControl");
+                    if (settingsItem != null)
                     {
-                        int otherModsIndex = nvSample.FooterMenuItems.IndexOf(otherModsItem);
-                        if (otherModsIndex >= 0)
-                            nvSample.FooterMenuItems.Insert(otherModsIndex + 1, presets);
+                        int settingsIndex = nvSample.FooterMenuItems.IndexOf(settingsItem);
+                        if (settingsIndex >= 0)
+                            nvSample.FooterMenuItems.Insert(settingsIndex, presets);
                         else
                             nvSample.FooterMenuItems.Add(presets);
                     }
@@ -1122,6 +1133,54 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError($"Error updating menu star for category with animation: {categoryName}", ex);
+            }
+        }
+        
+        private async Task GeneratePinnedCategoriesAsync()
+        {
+            try
+            {
+                var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                if (string.IsNullOrEmpty(gameTag))
+                    return;
+                    
+                var pinnedCategories = SettingsManager.GetPinnedCategories(gameTag);
+                if (pinnedCategories == null || pinnedCategories.Count == 0)
+                    return;
+                    
+                var modsPath = PathManager.GetModsPath();
+                if (!Directory.Exists(modsPath))
+                    return;
+                    
+                // Get all available categories
+                var categories = Directory.GetDirectories(modsPath)
+                    .Select(Path.GetFileName)
+                    .Where(name => !string.IsNullOrEmpty(name))
+                    .ToList();
+                
+                // Add pinned categories at the beginning of footer (before Presets and Settings)
+                int insertIndex = 0;
+                
+                // Add pinned categories
+                foreach (var categoryName in pinnedCategories)
+                {
+                    if (!categories.Contains(categoryName))
+                        continue; // Category doesn't exist
+                        
+                    var menuItem = new NavigationViewItem
+                    {
+                        Content = categoryName,
+                        Tag = $"Category:{categoryName}",
+                        Icon = new FontIcon { Glyph = "\uE8B7" } // Folder icon
+                    };
+                    
+                    nvSample.FooterMenuItems.Insert(insertIndex, menuItem);
+                    insertIndex++; // Increment for next item
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error generating pinned categories", ex);
             }
         }
     }

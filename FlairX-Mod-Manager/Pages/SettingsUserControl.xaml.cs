@@ -28,6 +28,7 @@ namespace FlairX_Mod_Manager.Pages
     {
         private readonly string LanguageFolderPath = PathManager.GetAbsolutePath("Language");
         private Microsoft.UI.Xaml.DispatcherTimer? _windowSizeUpdateTimer;
+        private bool _categoryManagementChanged = false;
         
         // Helper methods for image format
         private static string GetImageExtension()
@@ -129,7 +130,12 @@ namespace FlairX_Mod_Manager.Pages
         private Dictionary<string, string> _languages = new(); // displayName, filePath
         private Dictionary<string, string> _fileNameByDisplayName = new();
 
-        public event EventHandler? CloseRequested; // Event to notify parent to close
+        public class SettingsClosedEventArgs : EventArgs
+        {
+            public bool CategoryManagementChanged { get; set; }
+        }
+
+        public event EventHandler<SettingsClosedEventArgs>? CloseRequested; // Event to notify parent to close
         
         // Hotkey management fields
         private TextBox? _activeHotkeyEditBox;
@@ -162,6 +168,7 @@ namespace FlairX_Mod_Manager.Pages
             LoadLanguages();
             InitializeUIState();
             LoadSettingsHotkeys();
+            LoadCategoryManagement();
             
             // Initialize timer for delayed window size updates
             _windowSizeUpdateTimer = new Microsoft.UI.Xaml.DispatcherTimer();
@@ -226,8 +233,11 @@ namespace FlairX_Mod_Manager.Pages
         
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            // Notify parent to close the panel
-            CloseRequested?.Invoke(this, EventArgs.Empty);
+            // Notify parent to close the panel with category management change info
+            CloseRequested?.Invoke(this, new SettingsClosedEventArgs 
+            { 
+                CategoryManagementChanged = _categoryManagementChanged 
+            });
         }
 
         private void UpdateToggleLabels()
@@ -412,6 +422,9 @@ namespace FlairX_Mod_Manager.Pages
             if (ErrorOnlyLoggingLabel != null) ErrorOnlyLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Label");
             if (MinimizeToTrayLabel != null) MinimizeToTrayLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Label");
             if (BlurNSFWLabel != null) BlurNSFWLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Label");
+            if (CategoryManagementHeader != null) CategoryManagementHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CategoryManagement_Header") ?? "Category Management";
+            if (PinnedCategoriesLabel != null) PinnedCategoriesLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PinnedCategories_Label") ?? "Pinned Categories";
+            if (HiddenCategoriesLabel != null) HiddenCategoriesLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HiddenCategories_Label") ?? "Hidden Categories";
             if (FastDownloadLabel != null) FastDownloadLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_FastDownload_Label");
             if (MaxConnectionsLabel != null) MaxConnectionsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MaxConnections_Label");
             if (HotkeysHeader != null) HotkeysHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Hotkeys_Header");
@@ -441,6 +454,8 @@ namespace FlairX_Mod_Manager.Pages
             if (ErrorOnlyLoggingDescription != null) ErrorOnlyLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Description") ?? string.Empty;
             if (MinimizeToTrayDescription != null) MinimizeToTrayDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Description") ?? string.Empty;
             if (BlurNSFWDescription != null) BlurNSFWDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Description") ?? string.Empty;
+            if (PinnedCategoriesDescription != null) PinnedCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PinnedCategories_Description") ?? "Pin categories to footer menu for quick access";
+            if (HiddenCategoriesDescription != null) HiddenCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HiddenCategories_Description") ?? "Hide categories from the navigation menu";
             if (FastDownloadDescription != null) FastDownloadDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_FastDownload_Description") ?? string.Empty;
             if (MaxConnectionsDescription != null) MaxConnectionsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MaxConnections_Description") ?? string.Empty;
             
@@ -2792,6 +2807,126 @@ namespace FlairX_Mod_Manager.Pages
             if (sender.Value >= 1 && sender.Value <= 8)
             {
                 SettingsManager.SetMaxDownloadConnections((int)sender.Value);
+            }
+        }
+        
+        #endregion
+        
+        #region Category Management
+        
+        private void LoadCategoryManagement()
+        {
+            var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+            if (string.IsNullOrEmpty(gameTag))
+                return;
+                
+            // Load pinned categories
+            var pinnedCategories = SettingsManager.GetPinnedCategories(gameTag);
+            PinnedCategoriesItemsControl.ItemsSource = new System.Collections.ObjectModel.ObservableCollection<string>(pinnedCategories);
+            
+            // Load hidden categories
+            var hiddenCategories = SettingsManager.GetHiddenCategories(gameTag);
+            HiddenCategoriesItemsControl.ItemsSource = new System.Collections.ObjectModel.ObservableCollection<string>(hiddenCategories);
+            
+            // Load available categories for ComboBoxes
+            RefreshAvailableCategories();
+        }
+        
+        private void RefreshAvailableCategories()
+        {
+            var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+            if (string.IsNullOrEmpty(gameTag))
+                return;
+                
+            var modsPath = PathManager.GetModsPath();
+            if (!Directory.Exists(modsPath))
+                return;
+                
+            var allCategories = Directory.GetDirectories(modsPath)
+                .Select(Path.GetFileName)
+                .Where(name => !string.IsNullOrEmpty(name))
+                .OrderBy(name => name)
+                .ToList();
+                
+            var pinnedCategories = SettingsManager.GetPinnedCategories(gameTag);
+            var hiddenCategories = SettingsManager.GetHiddenCategories(gameTag);
+            
+            // Available categories for pinning (exclude already pinned and hidden)
+            var availableForPinning = allCategories
+                .Where(c => !string.IsNullOrEmpty(c) && !pinnedCategories.Contains(c) && !hiddenCategories.Contains(c))
+                .ToList();
+            AddPinnedCategoryComboBox.ItemsSource = availableForPinning;
+            
+            // Available categories for hiding (exclude already hidden and pinned)
+            var availableForHiding = allCategories
+                .Where(c => !string.IsNullOrEmpty(c) && !hiddenCategories.Contains(c) && !pinnedCategories.Contains(c))
+                .ToList();
+            AddHiddenCategoryComboBox.ItemsSource = availableForHiding;
+        }
+        
+        private void AddPinnedCategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (AddPinnedCategoryComboBox.SelectedItem is string categoryName)
+            {
+                var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                SettingsManager.AddPinnedCategory(gameTag, categoryName);
+                
+                // Mark that category management changed
+                _categoryManagementChanged = true;
+                
+                // Clear selection first
+                AddPinnedCategoryComboBox.SelectedItem = null;
+                
+                // Refresh UI - this will update both lists and ComboBoxes
+                LoadCategoryManagement();
+            }
+        }
+        
+        private void RemovePinnedCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string categoryName)
+            {
+                var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                SettingsManager.RemovePinnedCategory(gameTag, categoryName);
+                
+                // Mark that category management changed
+                _categoryManagementChanged = true;
+                
+                // Refresh UI - this will update both lists and ComboBoxes
+                LoadCategoryManagement();
+            }
+        }
+        
+        private void AddHiddenCategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (AddHiddenCategoryComboBox.SelectedItem is string categoryName)
+            {
+                var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                SettingsManager.AddHiddenCategory(gameTag, categoryName);
+                
+                // Mark that category management changed
+                _categoryManagementChanged = true;
+                
+                // Clear selection first
+                AddHiddenCategoryComboBox.SelectedItem = null;
+                
+                // Refresh UI - this will update both lists and ComboBoxes
+                LoadCategoryManagement();
+            }
+        }
+        
+        private void RemoveHiddenCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string categoryName)
+            {
+                var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                SettingsManager.RemoveHiddenCategory(gameTag, categoryName);
+                
+                // Mark that category management changed
+                _categoryManagementChanged = true;
+                
+                // Refresh UI - this will update both lists and ComboBoxes
+                LoadCategoryManagement();
             }
         }
         

@@ -353,11 +353,6 @@ namespace FlairX_Mod_Manager.Dialogs
             // Check if this is an update and show appropriate checkboxes
             // Normalize category name for folder lookup
             var normalizedCategory = (categoryName ?? "Characters").Replace("/", "-");
-            if (normalizedCategory.Equals("Other", StringComparison.OrdinalIgnoreCase) || 
-                normalizedCategory.Equals("Other-Misc", StringComparison.OrdinalIgnoreCase))
-            {
-                normalizedCategory = "Other";
-            }
             CheckIfUpdateAndShowOptions(normalizedCategory);
 
             // Handle primary button click
@@ -516,13 +511,6 @@ namespace FlairX_Mod_Manager.Dialogs
 
                 // Determine folder name: replace "/" with "-" to prevent subfolder creation
                 string categoryFolderName = category.Replace("/", "-");
-                
-                // Special case: "Other" and "Other-Misc" both go to "Other" folder
-                if (categoryFolderName.Equals("Other", StringComparison.OrdinalIgnoreCase) || 
-                    categoryFolderName.Equals("Other-Misc", StringComparison.OrdinalIgnoreCase))
-                {
-                    categoryFolderName = "Other";
-                }
 
                 // Download files
                 var tempDir = Path.Combine(Path.GetTempPath(), "FlairX_Downloads", Guid.NewGuid().ToString());
@@ -666,11 +654,6 @@ namespace FlairX_Mod_Manager.Dialogs
                     
                     // Normalize category name
                     string categoryFolderName = category.Replace("/", "-");
-                    if (categoryFolderName.Equals("Other", StringComparison.OrdinalIgnoreCase) || 
-                        categoryFolderName.Equals("Other-Misc", StringComparison.OrdinalIgnoreCase))
-                    {
-                        categoryFolderName = "Other";
-                    }
                     
                     var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
                     var categoryPath = Path.Combine(modsPath, categoryFolderName);
