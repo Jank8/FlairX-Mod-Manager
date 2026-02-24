@@ -475,7 +475,12 @@ namespace FlairX_Mod_Manager
                 SetSearchBoxPlaceholder();
                 SetFooterMenuTranslations();
                 UpdateGameSelectionComboBoxTexts();
+                
+                // Force menu regeneration even if suppressed (for reload after category creation)
+                var wasSuppressed = _suppressMenuRegeneration;
+                _suppressMenuRegeneration = false;
                 _ = GenerateModCharacterMenuAsync();
+                _suppressMenuRegeneration = wasSuppressed;
                 
                 // Refresh ModGridPage if it's currently loaded
                 if (contentFrame.Content is Pages.ModGridPage modGridPage)
