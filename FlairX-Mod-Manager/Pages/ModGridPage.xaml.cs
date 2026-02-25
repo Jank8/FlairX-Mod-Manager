@@ -174,6 +174,7 @@ namespace FlairX_Mod_Manager.Pages
         
         // Virtualized loading - store all mod data but only create visible ModTiles
         private List<ModData> _allModData = new();
+        private int _lastLoadedModDataIndex = 0; // Track last processed index in _allModData for incremental loading
         
         // Thread-safe JSON Caching System
         private static readonly Dictionary<string, ModData> _modJsonCache = new();

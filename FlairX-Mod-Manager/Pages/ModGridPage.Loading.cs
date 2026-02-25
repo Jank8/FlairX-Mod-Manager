@@ -317,7 +317,7 @@ namespace FlairX_Mod_Manager.Pages
         private void LoadMoreModTilesIfNeeded()
         {
             if (ModsScrollViewer == null || _allModData.Count == 0) return;
-            if (_allMods.Count >= _allModData.Count) return; // All loaded
+            if (_lastLoadedModDataIndex >= _allModData.Count) return; // All data processed
             
             // Incremental loading: load when within 3 viewport heights of bottom
             var scrollableHeight = ModsScrollViewer.ScrollableHeight;
@@ -334,14 +334,33 @@ namespace FlairX_Mod_Manager.Pages
 
         private void LoadMoreModTilesIncremental()
         {
-            var currentCount = _allMods.Count;
             const int batchSize = 20; // Fixed batch size for incremental loading
-            var endIndex = Math.Min(currentCount + batchSize, _allModData.Count);
             
-            // Simple loop - no background thread needed
-            for (int i = currentCount; i < endIndex; i++)
+            bool hideNSFW = SettingsManager.Current.BlurNSFWThumbnails;
+            bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            
+            int added = 0;
+            int startIndex = _lastLoadedModDataIndex;
+            
+            // Process items from _allModData starting from last processed index
+            for (int i = startIndex; i < _allModData.Count && added < batchSize; i++)
             {
                 var modData = _allModData[i];
+                
+                // Filter NSFW mods if setting is enabled
+                if (modData.IsNSFW && hideNSFW)
+                {
+                    _lastLoadedModDataIndex = i + 1;
+                    continue;
+                }
+                
+                // Filter broken mods if setting is enabled
+                if (modData.IsBroken && hideBroken)
+                {
+                    _lastLoadedModDataIndex = i + 1;
+                    continue;
+                }
+                
                 var modTile = new ModTile 
                 { 
                     Name = modData.Name, 
@@ -356,18 +375,22 @@ namespace FlairX_Mod_Manager.Pages
                     HasUpdate = CheckForUpdateLive(modData.Directory),
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
-                        IsNSFW = modData.IsNSFW,
+                    IsNSFW = modData.IsNSFW,
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
                     ImageSource = null // Lazy load via LoadVisibleImages
                 };
                 _allMods.Add(modTile);
+                added++;
+                _lastLoadedModDataIndex = i + 1;
             }
             
             // Apply zoom scaling to newly added containers after they're realized
-            if (Math.Abs(_zoomFactor - 1.0) > 0.001)
+            if (added > 0 && Math.Abs(_zoomFactor - 1.0) > 0.001)
             {
+                var currentCount = _allMods.Count - added;
                 DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
                 {
-                    ApplyZoomToNewContainers(currentCount, endIndex);
+                    ApplyZoomToNewContainers(currentCount, _allMods.Count);
                 });
             }
         }

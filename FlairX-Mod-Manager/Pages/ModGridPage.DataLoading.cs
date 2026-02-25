@@ -26,6 +26,7 @@ namespace FlairX_Mod_Manager.Pages
             
             // --- FIX: Always clear mod data to avoid leaking mod tiles into category view ---
             _allModData.Clear();
+            _lastLoadedModDataIndex = 0;
 
             var gameTag = SettingsManager.CurrentSelectedGame;
             if (string.IsNullOrEmpty(gameTag)) 
@@ -181,6 +182,7 @@ namespace FlairX_Mod_Manager.Pages
             if (!Directory.Exists(modsPath)) return;
             
             _allModData.Clear();
+            _lastLoadedModDataIndex = 0;
             var categoryPath = Path.Combine(modsPath, category);
             
             if (Directory.Exists(categoryPath))
@@ -398,6 +400,7 @@ namespace FlairX_Mod_Manager.Pages
             if (!Directory.Exists(modsPath)) return;
             
             _allModData.Clear();
+            _lastLoadedModDataIndex = 0;
             
             // Process category directories (1st level) and mod directories (2nd level)
             foreach (var categoryDir in Directory.GetDirectories(modsPath))
@@ -652,6 +655,10 @@ namespace FlairX_Mod_Manager.Pages
             _allMods = new ObservableCollection<ModTile>(initialMods);
             ModsGrid.ItemsSource = _allMods;
             UpdateEmptyState();
+            
+            // Track how many items from _allModData we've processed
+            _lastLoadedModDataIndex = loaded < initialLoadCount ? _allModData.Count : loaded;
+            
             LogToGridLog($"Created {initialMods.Count} initial ModTiles out of {_allModData.Count} total (NSFW filter: {hideNSFW}, Broken filter: {hideBroken})");
             
             // Load visible images after setting new data source
@@ -873,6 +880,7 @@ namespace FlairX_Mod_Manager.Pages
             if (!Directory.Exists(modsPath)) return;
             
             _allModData.Clear();
+            _lastLoadedModDataIndex = 0;
             var cacheHits = 0;
             var cacheMisses = 0;
             
