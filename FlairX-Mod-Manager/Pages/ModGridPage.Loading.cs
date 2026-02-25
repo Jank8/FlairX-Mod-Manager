@@ -356,6 +356,7 @@ namespace FlairX_Mod_Manager.Pages
                     HasUpdate = CheckForUpdateLive(modData.Directory),
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
+                        IsNSFW = modData.IsNSFW,
                     ImageSource = null // Lazy load via LoadVisibleImages
                 };
                 _allMods.Add(modTile);

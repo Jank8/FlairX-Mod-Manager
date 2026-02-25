@@ -301,6 +301,7 @@ namespace FlairX_Mod_Manager.Pages
                         HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
                         IsBroken = modData.IsBroken,
+                        IsNSFW = modData.IsNSFW,
                         ImageSource = null // Will be loaded immediately below
                     };
                     
@@ -1321,6 +1322,7 @@ namespace FlairX_Mod_Manager.Pages
                             HasUpdate = modData.HasUpdate,
                             IsVisible = true,
                             IsBroken = modData.IsBroken,
+                            IsNSFW = modData.IsNSFW,
                             ImageSource = null
                         };
                         modsToAdd.Add(modTile);

@@ -355,6 +355,7 @@ namespace FlairX_Mod_Manager.Pages
                     HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
+                    IsNSFW = modData.IsNSFW,
                     IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name), // Load favorite status
                     ImageSource = null // Start with no image - lazy load when visible
                 };
@@ -641,6 +642,7 @@ namespace FlairX_Mod_Manager.Pages
                     HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
+                    IsNSFW = modData.IsNSFW,
                     IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name), // Load favorite status
                     ImageSource = null // Start with no image - lazy load when visible
                 };
@@ -732,6 +734,7 @@ namespace FlairX_Mod_Manager.Pages
                         HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
                         IsBroken = modData.IsBroken,
+                        IsNSFW = modData.IsNSFW,
                         ImageSource = null // Start with no image - lazy load when visible
                     };
                     activeModTiles.Add(modTile);
@@ -782,6 +785,7 @@ namespace FlairX_Mod_Manager.Pages
                         HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
                         IsBroken = modData.IsBroken,
+                        IsNSFW = modData.IsNSFW,
                         ImageSource = null // Start with no image - lazy load when visible
                     };
                     brokenModTiles.Add(modTile);
@@ -846,6 +850,7 @@ namespace FlairX_Mod_Manager.Pages
                         HasUpdate = hasUpdate,
                         IsVisible = true,
                         IsBroken = modData.IsBroken,
+                        IsNSFW = modData.IsNSFW,
                         ImageSource = null // Start with no image - lazy load when visible
                     };
                     outdatedModTiles.Add(modTile);
