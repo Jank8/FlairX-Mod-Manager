@@ -323,118 +323,24 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async void SendF10OnOverlayCloseToggle_Toggled(object sender, RoutedEventArgs e)
+        private void SendF10OnOverlayCloseToggle_Toggled(object sender, RoutedEventArgs e)
         {
             if (_isInitializing) return;
             
-            // If enabling and not already running as admin, show admin requirement dialog
-            if (SendF10OnOverlayCloseToggle.IsOn && !IsRunningAsAdmin())
-            {
-                var lang = SharedUtilities.LoadLanguageDictionary("Overlay");
-                
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "AutoReload_AdminRequired_Title"),
-                    Content = SharedUtilities.GetTranslation(lang, "AutoReload_AdminRequired_Content"),
-                    PrimaryButtonText = SharedUtilities.GetTranslation(lang, "AutoReload_AdminRequired_Yes"),
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "AutoReload_AdminRequired_Cancel"),
-                    XamlRoot = this.XamlRoot
-                };
-                
-                var result = await dialog.ShowAsync();
-                
-                if (result == ContentDialogResult.Primary)
-                {
-                    // Save settings before restart - enable both auto-reload and run as admin
-                    SettingsManager.Current.SendF10OnOverlayClose = true;
-                    SettingsManager.Current.RunAsAdminEnabled = true;
-                    SettingsManager.Save();
-                    
-                    // Create background_keypress.ini
-                    EnsureBackgroundKeypressIni(true);
-                    
-                    Logger.LogInfo("Auto-reload enabled, RunAsAdminEnabled set to true, restarting as admin...");
-                    
-                    // Restart application as administrator
-                    RestartAsAdmin();
-                }
-                else
-                {
-                    // User cancelled - revert toggle
-                    _isInitializing = true;
-                    SendF10OnOverlayCloseToggle.IsOn = false;
-                    _isInitializing = false;
-                    return;
-                }
-            }
-            else
-            {
-                SettingsManager.Current.SendF10OnOverlayClose = SendF10OnOverlayCloseToggle.IsOn;
-                
-                // If disabling auto-reload, also disable run as admin
-                if (!SendF10OnOverlayCloseToggle.IsOn)
-                {
-                    SettingsManager.Current.RunAsAdminEnabled = false;
-                }
-                
-                SettingsManager.Save();
-                
-                // Create or remove background_keypress.ini file
-                EnsureBackgroundKeypressIni(SendF10OnOverlayCloseToggle.IsOn);
-                
-                Logger.LogInfo($"Auto-reload mods: {SendF10OnOverlayCloseToggle.IsOn}, RunAsAdminEnabled: {SettingsManager.Current.RunAsAdminEnabled}");
-            }
+            // Simply enable/disable the feature without requiring admin
+            // check_foreground_window = 0 in d3dx.ini allows this to work without admin
+            SettingsManager.Current.SendF10OnOverlayClose = SendF10OnOverlayCloseToggle.IsOn;
+            SettingsManager.Save();
+            
+            // Modify d3dx.ini to enable/disable background keypresses
+            EnsureBackgroundKeypressIni(SendF10OnOverlayCloseToggle.IsOn);
+            
+            Logger.LogInfo($"Auto-reload mods: {SendF10OnOverlayCloseToggle.IsOn}");
         }
         
         /// <summary>
-        /// Check if the application is running with administrator privileges
-        /// </summary>
-        private static bool IsRunningAsAdmin()
-        {
-            try
-            {
-                using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
-                var principal = new System.Security.Principal.WindowsPrincipal(identity);
-                return principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
-            }
-            catch
-            {
-                return false;
-            }
-        }
-        
-        /// <summary>
-        /// Restart the application with administrator privileges
-        /// </summary>
-        private static void RestartAsAdmin()
-        {
-            try
-            {
-                var exePath = System.Environment.ProcessPath;
-                if (string.IsNullOrEmpty(exePath)) return;
-                
-                var startInfo = new System.Diagnostics.ProcessStartInfo
-                {
-                    FileName = exePath,
-                    UseShellExecute = true,
-                    Verb = "runas",
-                    WorkingDirectory = System.IO.Path.GetDirectoryName(exePath)
-                };
-                
-                System.Diagnostics.Process.Start(startInfo);
-                
-                // Close current application
-                System.Environment.Exit(0);
-            }
-            catch (System.Exception ex)
-            {
-                Logger.LogError("Failed to restart as admin", ex);
-            }
-        }
-        
-        /// <summary>
-        /// Creates or removes background_keypress.ini file in Mods folder.
-        /// This file tells 3DMigoto to accept keypresses even when game is not in foreground.
+        /// Modifies d3dx.ini to enable/disable background keypresses.
+        /// This tells 3DMigoto to accept keypresses even when game is not in foreground.
         /// </summary>
         private void EnsureBackgroundKeypressIni(bool enabled)
         {
@@ -443,32 +349,92 @@ namespace FlairX_Mod_Manager.Pages
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modsPath) || !System.IO.Directory.Exists(modsPath))
                 {
-                    Logger.LogWarning("Cannot create background_keypress.ini - Mods directory not found");
+                    Logger.LogWarning("Cannot modify d3dx.ini - Mods directory not found");
                     return;
                 }
                 
-                var iniPath = System.IO.Path.Combine(modsPath, "background_keypress.ini");
+                // d3dx.ini is in the parent directory of Mods folder
+                var basePath = System.IO.Path.GetDirectoryName(modsPath);
+                if (string.IsNullOrEmpty(basePath))
+                {
+                    Logger.LogWarning("Cannot determine base path for d3dx.ini");
+                    return;
+                }
+                
+                var d3dxIniPath = System.IO.Path.Combine(basePath, "d3dx.ini");
+                
+                if (!System.IO.File.Exists(d3dxIniPath))
+                {
+                    Logger.LogWarning($"d3dx.ini not found at: {d3dxIniPath}");
+                    return;
+                }
+                
+                // Read existing content
+                var lines = System.IO.File.ReadAllLines(d3dxIniPath).ToList();
+                
+                // Find or create [System] section
+                int systemSectionIndex = -1;
+                int checkForegroundIndex = -1;
+                
+                for (int i = 0; i < lines.Count; i++)
+                {
+                    var trimmed = lines[i].Trim();
+                    if (trimmed.Equals("[System]", StringComparison.OrdinalIgnoreCase))
+                    {
+                        systemSectionIndex = i;
+                    }
+                    else if (systemSectionIndex != -1 && trimmed.StartsWith("check_foreground_window", StringComparison.OrdinalIgnoreCase))
+                    {
+                        checkForegroundIndex = i;
+                        break;
+                    }
+                    else if (systemSectionIndex != -1 && trimmed.StartsWith("[") && trimmed.EndsWith("]"))
+                    {
+                        // Reached next section without finding check_foreground_window
+                        break;
+                    }
+                }
                 
                 if (enabled)
                 {
-                    // Create the ini file with setting to accept background keypresses
-                    var content = "[System]\ncheck_foreground_window = 0\n";
-                    Services.FileAccessQueue.WriteAllText(iniPath, content);
-                    Logger.LogInfo($"Created background_keypress.ini at: {iniPath}");
+                    if (checkForegroundIndex != -1)
+                    {
+                        // Update existing line
+                        lines[checkForegroundIndex] = "check_foreground_window = 0";
+                        Logger.LogInfo("Updated check_foreground_window = 0 in d3dx.ini");
+                    }
+                    else if (systemSectionIndex != -1)
+                    {
+                        // Add to existing [System] section
+                        lines.Insert(systemSectionIndex + 1, "check_foreground_window = 0");
+                        Logger.LogInfo("Added check_foreground_window = 0 to existing [System] section in d3dx.ini");
+                    }
+                    else
+                    {
+                        // Create [System] section at the beginning
+                        lines.Insert(0, "");
+                        lines.Insert(0, "check_foreground_window = 0");
+                        lines.Insert(0, "[System]");
+                        Logger.LogInfo("Created [System] section with check_foreground_window = 0 in d3dx.ini");
+                    }
                 }
                 else
                 {
-                    // Remove the ini file if it exists
-                    if (System.IO.File.Exists(iniPath))
+                    if (checkForegroundIndex != -1)
                     {
-                        System.IO.File.Delete(iniPath);
-                        Logger.LogInfo($"Removed background_keypress.ini from: {iniPath}");
+                        // Remove or comment out the line
+                        lines[checkForegroundIndex] = "; check_foreground_window = 0  ; Disabled by FlairX";
+                        Logger.LogInfo("Disabled check_foreground_window in d3dx.ini");
                     }
                 }
+                
+                // Write back to file
+                System.IO.File.WriteAllLines(d3dxIniPath, lines);
+                Logger.LogInfo($"Successfully modified d3dx.ini at: {d3dxIniPath}");
             }
             catch (System.Exception ex)
             {
-                Logger.LogError("Failed to manage background_keypress.ini", ex);
+                Logger.LogError("Failed to modify d3dx.ini", ex);
             }
         }
 

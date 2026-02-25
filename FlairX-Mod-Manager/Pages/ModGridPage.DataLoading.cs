@@ -48,10 +48,6 @@ namespace FlairX_Mod_Manager.Pages
                 var categoryName = Path.GetFileName(categoryDir);
                 if (string.IsNullOrEmpty(categoryName)) continue;
                 
-                // Skip "Other" category in category view - it has its own menu item
-                if (categoryName.Equals("Other", StringComparison.OrdinalIgnoreCase))
-                    continue;
-                
                 // Add all categories, even empty ones
                 var categoryTile = new ModTile
                 {
@@ -409,10 +405,6 @@ namespace FlairX_Mod_Manager.Pages
                 if (!Directory.Exists(categoryDir)) continue;
                 
                 var categoryName = Path.GetFileName(categoryDir);
-                
-                // Skip "Other" category in All Mods view - it has its own menu item
-                if (categoryName.Equals("Other", StringComparison.OrdinalIgnoreCase))
-                    continue;
                 
                 foreach (var modDir in Directory.GetDirectories(categoryDir))
                 {
@@ -884,16 +876,12 @@ namespace FlairX_Mod_Manager.Pages
             var cacheHits = 0;
             var cacheMisses = 0;
             
-            // Process category directories excluding "Other" for active mods view (same as All Mods)
+            // Process category directories for active mods view (same as All Mods)
             foreach (var categoryDir in Directory.GetDirectories(modsPath))
             {
                 if (!Directory.Exists(categoryDir)) continue;
                 
                 var categoryName = Path.GetFileName(categoryDir);
-                
-                // Skip "Other" category in Active Mods view - it has its own menu item
-                if (categoryName.Equals("Other", StringComparison.OrdinalIgnoreCase))
-                    continue;
                 
                 foreach (var modDir in Directory.GetDirectories(categoryDir))
                 {

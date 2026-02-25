@@ -39,8 +39,6 @@
     "StatusKeeper_OpenLog_Button": "Günlüğü aç",
     "StatusKeeper_ClearLog_Button": "Günlüğü temizle",
     "StatusKeeper_LogNotFound_Message": "Günlük dosyası henüz mevcut değil. Günlüklemeyi etkinleştirin ve günlükler oluşturmak için bazı işlemler gerçekleştirin.",
-    "StatusKeeper_Log_Empty": "Günlük boş.",
-    "StatusKeeper_Log_NotFound": "Günlük dosyası bulunamadı.",
     "StatusKeeper_LogCleared_Success": "Günlük başarıyla temizlendi.",
     "StatusKeeper_Success": "Başarı",
     "StatusKeeper_Info": "Bilgi",
@@ -56,8 +54,6 @@
     "StatusKeeper_DeleteBackups_Dialog_Title": "Silme tamamlandı",
     "StatusKeeper_DeleteBackups_Dialog_Message": "{0} yedek dosyası silindi.",
     "StatusKeeper_Checking": "Kontrol ediliyor...",
-    "StatusKeeper_Tooltip_D3dxFilePath": "d3dx_user.ini dosyası olan dizini seç",
-    "StatusKeeper_Tooltip_RestoreDefault": "Varsayılan yolu geri yükle",
     "StatusKeeper_Tooltip_DynamicSync": "d3dx_user.ini dosyasını değişiklikler için izler ve mod dosyalarındaki değerleri günceller",
     "StatusKeeper_Tooltip_ManualSync": "Senkronizasyonu manuel olarak başlat",
     "StatusKeeper_ConfirmRestore_Title": "Geri yüklemeyi onayla",
@@ -66,8 +62,5 @@
     "StatusKeeper_ConfirmDelete_Message": "Bu, tüm yedek dosyalarını silecektir. Devam edilsin mi?",
     "Error_Generic": "Hata",
     "OK": "Tamam",
-    "PickFolderDialog_Title": "Klasör seç",
-    "StatusKeeper_BackupConfirmationToggleLabel": "KAPALI/AÇIK",
-    "StatusKeeper_DynamicSyncToggleLabel": "KAPALI/AÇIK",
-    "StatusKeeper_LoggingToggleLabel": "KAPALI/AÇIK"
+    "PickFolderDialog_Title": "Klasör seç"
 }

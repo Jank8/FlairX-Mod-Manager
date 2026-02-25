@@ -39,8 +39,6 @@
     "StatusKeeper_OpenLog_Button": "開啟日誌",
     "StatusKeeper_ClearLog_Button": "清除日誌",
     "StatusKeeper_LogNotFound_Message": "日誌檔案尚不存在。啟用日誌記錄並執行一些操作以產生日誌。",
-    "StatusKeeper_Log_Empty": "日誌為空。",
-    "StatusKeeper_Log_NotFound": "未找到日誌檔案。",
     "StatusKeeper_LogCleared_Success": "日誌已成功清除。",
     "StatusKeeper_Success": "成功",
     "StatusKeeper_Info": "資訊",
@@ -56,8 +54,6 @@
     "StatusKeeper_DeleteBackups_Dialog_Title": "刪除完成",
     "StatusKeeper_DeleteBackups_Dialog_Message": "刪除了{0}個備份檔案。",
     "StatusKeeper_Checking": "檢查中...",
-    "StatusKeeper_Tooltip_D3dxFilePath": "選擇包含d3dx_user.ini檔案的目錄",
-    "StatusKeeper_Tooltip_RestoreDefault": "恢復預設路徑",
     "StatusKeeper_Tooltip_DynamicSync": "監控d3dx_user.ini檔案的更改並更新模組檔案中的值",
     "StatusKeeper_Tooltip_ManualSync": "手動開始同步",
     "StatusKeeper_ConfirmRestore_Title": "確認恢復",
@@ -66,8 +62,5 @@
     "StatusKeeper_ConfirmDelete_Message": "這將刪除所有備份檔案。繼續？",
     "Error_Generic": "錯誤",
     "OK": "確定",
-    "PickFolderDialog_Title": "選擇資料夾",
-    "StatusKeeper_BackupConfirmationToggleLabel": "關/開",
-    "StatusKeeper_DynamicSyncToggleLabel": "關/開",
-    "StatusKeeper_LoggingToggleLabel": "關/開"
+    "PickFolderDialog_Title": "選擇資料夾"
 }

@@ -141,7 +141,7 @@ namespace FlairX_Mod_Manager.Dialogs
         }
 
         /// <summary>
-        /// Check if mods folder has no mods (ignoring "Other" category)
+        /// Check if mods folder has no mods
         /// </summary>
         public static bool IsModsFolderEmpty(string gameTag)
         {
@@ -153,15 +153,11 @@ namespace FlairX_Mod_Manager.Dialogs
                 if (!Directory.Exists(fullPath))
                     return true;
                 
-                // Check all category directories (except "Other")
+                // Check all category directories
                 var categoryDirs = Directory.GetDirectories(fullPath);
                 foreach (var categoryDir in categoryDirs)
                 {
                     var categoryName = Path.GetFileName(categoryDir);
-                    
-                    // Skip "Other" category
-                    if (string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
-                        continue;
                     
                     // Check if this category has any mod subdirectories
                     var modDirs = Directory.GetDirectories(categoryDir);
@@ -169,7 +165,7 @@ namespace FlairX_Mod_Manager.Dialogs
                         return false; // Found mods
                 }
                 
-                return true; // No mods found (excluding Other)
+                return true; // No mods found
             }
             catch
             {

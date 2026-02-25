@@ -666,8 +666,8 @@ namespace FlairX_Mod_Manager
                 var prevCatBtn = settings.GamepadPrevCategoryButton ?? "LB";
                 var nextCatBtn = settings.GamepadNextCategoryButton ?? "RB";
                 var backBtn = settings.GamepadBackButton ?? "B";
-                var categoryFavBtn = "X"; // Xbox X for category favorites
-                var modFavBtn = "Y"; // Xbox Y for mod favorites
+                var categoryFavBtn = settings.GamepadCategoryFavoriteButton ?? "XB X";
+                var modFavBtn = settings.GamepadModFavoriteButton ?? "XB Y";
                 
                 var gamepadHintTemplate = SharedUtilities.GetTranslation(lang, "GamepadHintWithFavorites");
                 
@@ -810,14 +810,16 @@ namespace FlairX_Mod_Manager
                     {
                         ToggleSelectedMod();
                     }
-                    // Toggle category favorite (Xbox X)
-                    else if (IsButtonMatch(buttonName, "X"))
+                    // Toggle category favorite
+                    else if (IsButtonMatch(buttonName, settings.GamepadCategoryFavoriteButton))
                     {
+                        Logger.LogInfo($"Overlay Gamepad: {buttonName} button pressed - toggling category favorite");
                         ToggleCategoryFavorite();
                     }
-                    // Toggle mod favorite (Xbox Y)
-                    else if (IsButtonMatch(buttonName, "Y"))
+                    // Toggle mod favorite
+                    else if (IsButtonMatch(buttonName, settings.GamepadModFavoriteButton))
                     {
+                        Logger.LogInfo($"Overlay Gamepad: {buttonName} button pressed - toggling mod favorite");
                         ToggleModFavorite();
                     }
                     // Next category
@@ -1303,19 +1305,11 @@ namespace FlairX_Mod_Manager
                     categoryItems.Add(item);
                 }
                 
-                // Sort categories: favorites first (excluding "Other"), then alphabetically, then "Other" at the end
+                // Sort categories: favorites first, then alphabetically
                 var sortedCategories = categoryItems
-                    .Where(c => !c.Name.Equals("Other", StringComparison.OrdinalIgnoreCase))
                     .OrderByDescending(c => !string.IsNullOrEmpty(gameTag) && SettingsManager.IsCategoryFavorite(gameTag, c.Name))
                     .ThenBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
-                
-                // Add "Other" category at the end if it exists
-                var otherCategory = categoryItems.FirstOrDefault(c => c.Name.Equals("Other", StringComparison.OrdinalIgnoreCase));
-                if (otherCategory != null)
-                {
-                    sortedCategories.Add(otherCategory);
-                }
                 
                 // Add sorted categories to collection
                 foreach (var category in sortedCategories)
@@ -1492,8 +1486,6 @@ namespace FlairX_Mod_Manager
                 foreach (var categoryDir in System.IO.Directory.GetDirectories(modsPath))
                 {
                     var categoryName = Path.GetFileName(categoryDir);
-                    if (categoryName.Equals("Other", StringComparison.OrdinalIgnoreCase))
-                        continue; // Skip Other category
                     
                     // Get all mods in this category
                     foreach (var modDir in System.IO.Directory.GetDirectories(categoryDir))

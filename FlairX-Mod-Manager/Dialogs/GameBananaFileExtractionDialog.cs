@@ -203,6 +203,18 @@ namespace FlairX_Mod_Manager.Dialogs
                     _categoryComboBox.Text = initialCategory;
                 }
                 
+                // Force visual update by triggering Loaded event
+                _categoryComboBox.Loaded += (s, e) =>
+                {
+                    // Ensure text is visible after control is loaded
+                    if (!string.IsNullOrEmpty(_categoryComboBox.Text))
+                    {
+                        var text = _categoryComboBox.Text;
+                        _categoryComboBox.Text = "";
+                        _categoryComboBox.Text = text;
+                    }
+                };
+                
                 _categoryComboBox.TextSubmitted += (s, e) => 
                 {
                     // Replace forward slash with dash when text is submitted
@@ -399,6 +411,9 @@ namespace FlairX_Mod_Manager.Dialogs
             // Normalize category name for folder lookup
             var normalizedCategory = (categoryName ?? "Characters").Replace("/", "-");
             CheckIfUpdateAndShowOptions(normalizedCategory);
+
+            // Validate inputs on initialization
+            ValidateInputs();
 
             // Handle primary button click
             PrimaryButtonClick += OnPrimaryButtonClick;
@@ -1630,7 +1645,8 @@ namespace FlairX_Mod_Manager.Dialogs
             var modName = _modNameTextBox.Text.Trim();
             var category = _categoryComboBox.Text.Trim();
 
-            bool isValid = !string.IsNullOrWhiteSpace(category) &&
+            bool isValid = !string.IsNullOrWhiteSpace(modName) &&
+                          !string.IsNullOrWhiteSpace(category) &&
                           !IsReservedWindowsName(modName) && 
                           !IsReservedWindowsName(category);
             IsPrimaryButtonEnabled = isValid;

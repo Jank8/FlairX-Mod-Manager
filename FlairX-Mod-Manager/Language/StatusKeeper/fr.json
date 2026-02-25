@@ -39,8 +39,6 @@
     "StatusKeeper_OpenLog_Button": "Ouvrir le journal",
     "StatusKeeper_ClearLog_Button": "Effacer le journal",
     "StatusKeeper_LogNotFound_Message": "Le fichier journal n'existe pas encore. Activez la journalisation et effectuez quelques opérations pour générer des journaux.",
-    "StatusKeeper_Log_Empty": "Le journal est vide.",
-    "StatusKeeper_Log_NotFound": "Fichier journal introuvable.",
     "StatusKeeper_LogCleared_Success": "Le journal a été effacé avec succès.",
     "StatusKeeper_Success": "Succès",
     "StatusKeeper_Info": "Info",
@@ -56,8 +54,6 @@
     "StatusKeeper_DeleteBackups_Dialog_Title": "Suppression terminée",
     "StatusKeeper_DeleteBackups_Dialog_Message": "Supprimé {0} fichiers de sauvegarde.",
     "StatusKeeper_Checking": "Vérification...",
-    "StatusKeeper_Tooltip_D3dxFilePath": "Sélectionner le répertoire avec le fichier d3dx_user.ini",
-    "StatusKeeper_Tooltip_RestoreDefault": "Restaurer le chemin par défaut",
     "StatusKeeper_Tooltip_DynamicSync": "Surveille le fichier d3dx_user.ini pour les changements et met à jour les valeurs dans les fichiers de mods",
     "StatusKeeper_Tooltip_ManualSync": "Démarrer la synchronisation manuellement",
     "StatusKeeper_ConfirmRestore_Title": "Confirmer la restauration",
@@ -66,8 +62,5 @@
     "StatusKeeper_ConfirmDelete_Message": "Cela supprimera tous les fichiers de sauvegarde. Continuer ?",
     "Error_Generic": "Erreur",
     "OK": "OK",
-    "PickFolderDialog_Title": "Sélectionner un dossier",
-    "StatusKeeper_BackupConfirmationToggleLabel": "ARRÊT/MARCHE",
-    "StatusKeeper_DynamicSyncToggleLabel": "ARRÊT/MARCHE",
-    "StatusKeeper_LoggingToggleLabel": "ARRÊT/MARCHE"
+    "PickFolderDialog_Title": "Sélectionner un dossier"
 }

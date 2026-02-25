@@ -111,13 +111,6 @@ namespace FlairX_Mod_Manager
                 // Migrate favorites from old Settings.json format if needed
                 SettingsManager.MigrateFavoritesFromSettings();
                 
-                // Check if we need to restart as admin (for auto-reload feature)
-                if (SettingsManager.Current.RunAsAdminEnabled && !IsRunningAsAdmin())
-                {
-                    Logger.LogInfo("RunAsAdminEnabled is true but not running as admin - restarting with elevation...");
-                    RestartAsAdmin();
-                    return; // Exit current instance
-                }
                 // AUTOMATIC LANGUAGE DETECTION on first start
                 var langFile = SettingsManager.Current.LanguageFile;
                 Logger.LogInfo($"Current language file: {langFile ?? "null"}");
@@ -738,53 +731,5 @@ namespace FlairX_Mod_Manager
         {
             // Delegate to centralized Logger
             Logger.LogGrid(message);
-        }
-
-        /// <summary>
-        /// Check if the application is running with administrator privileges
-        /// </summary>
-        private static bool IsRunningAsAdmin()
-        {
-            try
-            {
-                using var identity = WindowsIdentity.GetCurrent();
-                var principal = new WindowsPrincipal(identity);
-                return principal.IsInRole(WindowsBuiltInRole.Administrator);
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Restart the application with administrator privileges
-        /// </summary>
-        private static void RestartAsAdmin()
-        {
-            try
-            {
-                var exePath = System.Environment.ProcessPath;
-                if (string.IsNullOrEmpty(exePath)) return;
-
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = exePath,
-                    UseShellExecute = true,
-                    Verb = "runas",
-                    WorkingDirectory = System.IO.Path.GetDirectoryName(exePath)
-                };
-
-                Process.Start(startInfo);
-
-                // Close current application
-                System.Environment.Exit(0);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to restart as admin", ex);
-            }
-        }
-
-    }
+        }    }
 }

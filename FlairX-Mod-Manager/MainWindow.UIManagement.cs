@@ -218,12 +218,11 @@ namespace FlairX_Mod_Manager
 
                     var categories = new List<string>();
                     
-                    // Get all category directories, excluding "Other"
+                    // Get all category directories
                     foreach (var categoryDir in Directory.GetDirectories(modsPath))
                     {
                         var categoryName = Path.GetFileName(categoryDir);
-                        if (!string.IsNullOrEmpty(categoryName) && 
-                            !string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
+                        if (!string.IsNullOrEmpty(categoryName))
                         {
                             categories.Add(categoryName);
                         }

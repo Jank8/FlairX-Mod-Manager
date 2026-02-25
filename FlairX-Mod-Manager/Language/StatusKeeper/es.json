@@ -39,8 +39,6 @@
     "StatusKeeper_OpenLog_Button": "Abrir registro",
     "StatusKeeper_ClearLog_Button": "Limpiar registro",
     "StatusKeeper_LogNotFound_Message": "El archivo de registro aún no existe. Habilita el registro y realiza algunas operaciones para generar registros.",
-    "StatusKeeper_Log_Empty": "El registro está vacío.",
-    "StatusKeeper_Log_NotFound": "Archivo de registro no encontrado.",
     "StatusKeeper_LogCleared_Success": "El registro se ha limpiado exitosamente.",
     "StatusKeeper_Success": "Éxito",
     "StatusKeeper_Info": "Información",
@@ -56,8 +54,6 @@
     "StatusKeeper_DeleteBackups_Dialog_Title": "Eliminación completada",
     "StatusKeeper_DeleteBackups_Dialog_Message": "Eliminados {0} archivos de copia de seguridad.",
     "StatusKeeper_Checking": "Verificando...",
-    "StatusKeeper_Tooltip_D3dxFilePath": "Seleccionar directorio con archivo d3dx_user.ini",
-    "StatusKeeper_Tooltip_RestoreDefault": "Restaurar ruta predeterminada",
     "StatusKeeper_Tooltip_DynamicSync": "Monitorea el archivo d3dx_user.ini en busca de cambios y actualiza valores en archivos de mods",
     "StatusKeeper_Tooltip_ManualSync": "Iniciar sincronización manualmente",
     "StatusKeeper_ConfirmRestore_Title": "Confirmar restauración",
@@ -66,8 +62,5 @@
     "StatusKeeper_ConfirmDelete_Message": "Esto eliminará todos los archivos de copia de seguridad. ¿Continuar?",
     "Error_Generic": "Error",
     "OK": "Aceptar",
-    "PickFolderDialog_Title": "Seleccionar carpeta",
-    "StatusKeeper_BackupConfirmationToggleLabel": "APAGADO/ENCENDIDO",
-    "StatusKeeper_DynamicSyncToggleLabel": "APAGADO/ENCENDIDO",
-    "StatusKeeper_LoggingToggleLabel": "APAGADO/ENCENDIDO"
+    "PickFolderDialog_Title": "Seleccionar carpeta"
 }

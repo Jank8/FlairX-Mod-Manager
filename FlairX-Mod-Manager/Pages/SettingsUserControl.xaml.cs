@@ -503,6 +503,8 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (Directory.Exists(LanguageFolderPath))
                 {
+                    var languageList = new List<(string displayName, string filePath)>();
+                    
                     var files = Directory.GetFiles(LanguageFolderPath, "*.json");
                     foreach (var file in files)
                     {
@@ -523,9 +525,28 @@ namespace FlairX_Mod_Manager.Pages
                             // Continue with filename as display name
                         }
                         
+                        languageList.Add((displayName, file));
+                    }
+                    
+                    // Get current language file to prioritize it
+                    string? currentLanguageFile = SettingsManager.Current.LanguageFile;
+                    
+                    // Sort: current language first, then alphabetically
+                    var sortedLanguages = languageList.OrderBy(lang =>
+                    {
+                        var fileName = Path.GetFileName(lang.filePath);
+                        // Current language gets priority 0, others get priority 1
+                        return fileName == currentLanguageFile ? 0 : 1;
+                    })
+                    .ThenBy(lang => lang.displayName)
+                    .ToList();
+                    
+                    // Add sorted languages to ComboBox
+                    foreach (var (displayName, filePath) in sortedLanguages)
+                    {
                         LanguageComboBox.Items.Add(displayName);
-                        _languages[displayName] = file;
-                        _fileNameByDisplayName[displayName] = file;
+                        _languages[displayName] = filePath;
+                        _fileNameByDisplayName[displayName] = filePath;
                     }
                 }
             }

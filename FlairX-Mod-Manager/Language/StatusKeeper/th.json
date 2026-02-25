@@ -39,8 +39,6 @@
     "StatusKeeper_OpenLog_Button": "เปิดบันทึก",
     "StatusKeeper_ClearLog_Button": "ล้างบันทึก",
     "StatusKeeper_LogNotFound_Message": "ไฟล์บันทึกยังไม่มี เปิดใช้งานการบันทึกและทำการดำเนินการบางอย่างเพื่อสร้างบันทึก",
-    "StatusKeeper_Log_Empty": "บันทึกว่างเปล่า",
-    "StatusKeeper_Log_NotFound": "ไม่พบไฟล์บันทึก",
     "StatusKeeper_LogCleared_Success": "ล้างบันทึกเรียบร้อยแล้ว",
     "StatusKeeper_Success": "สำเร็จ",
     "StatusKeeper_Info": "ข้อมูล",
@@ -56,8 +54,6 @@
     "StatusKeeper_DeleteBackups_Dialog_Title": "การลบเสร็จสิ้น",
     "StatusKeeper_DeleteBackups_Dialog_Message": "ลบไฟล์ข้อมูลสำรอง {0} ไฟล์",
     "StatusKeeper_Checking": "กำลังตรวจสอบ...",
-    "StatusKeeper_Tooltip_D3dxFilePath": "เลือกไดเรกทอรีที่มีไฟล์ d3dx_user.ini",
-    "StatusKeeper_Tooltip_RestoreDefault": "คืนค่าเส้นทางเริ่มต้น",
     "StatusKeeper_Tooltip_DynamicSync": "ตรวจสอบไฟล์ d3dx_user.ini เพื่อหาการเปลี่ยนแปลงและอัปเดตค่าในไฟล์ mod",
     "StatusKeeper_Tooltip_ManualSync": "เริ่มการซิงค์แบบแมนนวล",
     "StatusKeeper_ConfirmRestore_Title": "ยืนยันการคืนค่า",
@@ -66,8 +62,5 @@
     "StatusKeeper_ConfirmDelete_Message": "การดำเนินการนี้จะลบไฟล์ข้อมูลสำรองทั้งหมด ดำเนินการต่อหรือไม่?",
     "Error_Generic": "ข้อผิดพลาด",
     "OK": "ตกลง",
-    "PickFolderDialog_Title": "เลือกโฟลเดอร์",
-    "StatusKeeper_BackupConfirmationToggleLabel": "ปิด/เปิด",
-    "StatusKeeper_DynamicSyncToggleLabel": "ปิด/เปิด",
-    "StatusKeeper_LoggingToggleLabel": "ปิด/เปิด"
+    "PickFolderDialog_Title": "เลือกโฟลเดอร์"
 }

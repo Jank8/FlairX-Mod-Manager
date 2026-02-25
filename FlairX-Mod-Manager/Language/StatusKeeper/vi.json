@@ -39,8 +39,6 @@
     "StatusKeeper_OpenLog_Button": "Mở nhật ký",
     "StatusKeeper_ClearLog_Button": "Xóa nhật ký",
     "StatusKeeper_LogNotFound_Message": "Tệp nhật ký chưa tồn tại. Bật ghi nhật ký và thực hiện một số thao tác để tạo nhật ký.",
-    "StatusKeeper_Log_Empty": "Nhật ký trống.",
-    "StatusKeeper_Log_NotFound": "Không tìm thấy tệp nhật ký.",
     "StatusKeeper_LogCleared_Success": "Nhật ký đã được xóa thành công.",
     "StatusKeeper_Success": "Thành công",
     "StatusKeeper_Info": "Thông tin",
@@ -56,8 +54,6 @@
     "StatusKeeper_DeleteBackups_Dialog_Title": "Xóa hoàn tất",
     "StatusKeeper_DeleteBackups_Dialog_Message": "Đã xóa {0} tệp sao lưu.",
     "StatusKeeper_Checking": "Đang kiểm tra...",
-    "StatusKeeper_Tooltip_D3dxFilePath": "Chọn thư mục chứa tệp d3dx_user.ini",
-    "StatusKeeper_Tooltip_RestoreDefault": "Khôi phục đường dẫn mặc định",
     "StatusKeeper_Tooltip_DynamicSync": "Giám sát tệp d3dx_user.ini để phát hiện thay đổi và cập nhật giá trị trong tệp mod",
     "StatusKeeper_Tooltip_ManualSync": "Bắt đầu đồng bộ thủ công",
     "StatusKeeper_ConfirmRestore_Title": "Xác nhận Khôi phục",
@@ -66,8 +62,5 @@
     "StatusKeeper_ConfirmDelete_Message": "Điều này sẽ xóa tất cả các tệp sao lưu. Tiếp tục?",
     "Error_Generic": "Lỗi",
     "OK": "OK",
-    "PickFolderDialog_Title": "Chọn thư mục",
-    "StatusKeeper_DynamicSyncToggleLabel": "TẮT/BẬT",
-    "StatusKeeper_BackupConfirmationToggleLabel": "TẮT/BẬT",
-    "StatusKeeper_LoggingToggleLabel": "TẮT/BẬT"
+    "PickFolderDialog_Title": "Chọn thư mục"
 }
