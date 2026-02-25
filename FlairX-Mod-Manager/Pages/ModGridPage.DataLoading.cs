@@ -221,13 +221,6 @@ namespace FlairX_Mod_Manager.Pages
                             modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
                             isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
                             isBroken = root.TryGetProperty("modBroken", out var brokenProp) && brokenProp.ValueKind == JsonValueKind.True;
-                            
-                            // Debug logging for broken mods
-                            if (isBroken)
-                            {
-                                Logger.LogInfo($"LoadCategoryModData: FOUND BROKEN MOD in JSON: {name} (Directory: {dirName}) - Category: {category}");
-                            }
-                            
                             if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && dateCheckedProp.ValueKind == JsonValueKind.String)
                             {
                                 DateTime.TryParse(dateCheckedProp.GetString(), out lastChecked);
@@ -377,7 +370,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog($"LoadAllMods() called - CurrentViewMode: {CurrentViewMode}");
             Logger.LogDebug($"LoadAllMods() called - CurrentViewMode: {CurrentViewMode}");
-            Logger.LogDebug($"LoadAllMods() stack trace: {Environment.StackTrace}");
             
             // Exit table view if active and clear sorting when loading all mods
             if (CurrentViewMode == ViewMode.Table)
@@ -441,15 +433,22 @@ namespace FlairX_Mod_Manager.Pages
                             DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
                         }
                         
+                        // Calculate HasUpdate here (we already have the data from mod.json)
+                        bool hasUpdate = false;
+                        if (root.TryGetProperty("gbChangeDate", out var gbChangeProp) && gbChangeProp.ValueKind == JsonValueKind.String)
+                        {
+                            var gbChangeDateStr = gbChangeProp.GetString();
+                            if (!string.IsNullOrEmpty(gbChangeDateStr) && lastUpdated != DateTime.MinValue)
+                            {
+                                if (DateTime.TryParse(gbChangeDateStr, out var gbDate))
+                                {
+                                    hasUpdate = gbDate > lastUpdated;
+                                }
+                            }
+                        }
+                        
                         var cleanName = GetCleanModName(dirName);
                         var isActive = IsModActive(dirName);
-                        // categoryName is already declared in outer scope
-                        
-                        // Debug logging for broken mods
-                        if (isBroken)
-                        {
-                            Logger.LogInfo($"LoadAllModData: FOUND BROKEN MOD in JSON: {cleanName} (Directory: {dirName}) - Category: {categoryName}");
-                        }
                         
                         var modData = new ModData
                         {
@@ -464,10 +463,9 @@ namespace FlairX_Mod_Manager.Pages
                             LastChecked = lastChecked,
                             LastUpdated = lastUpdated,
                             IsNSFW = isNSFW,
-                            IsBroken = isBroken
+                            IsBroken = isBroken,
+                            HasUpdate = hasUpdate
                         };
-                        
-                        Logger.LogInfo($"Loaded mod: {cleanName} - IsBroken: {isBroken}, Category: {categoryName}");
                         
                         // Add mod to all mods data (Other category is already filtered out above)
                         _allModData.Add(modData);
@@ -479,21 +477,30 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
+            // Cache favorites list once before sorting to avoid repeated calls
+            var gameTag = SettingsManager.CurrentSelectedGame ?? "";
+            var favoritesList = new HashSet<string>();
+            foreach (var mod in _allModData)
+            {
+                if (SettingsManager.IsModFavorite(gameTag, mod.Name))
+                {
+                    favoritesList.Add(mod.Name);
+                }
+            }
+            
             // Sort the lightweight data: favorites first, then active first (if enabled), then alphabetically
             if (SettingsManager.Current.ActiveModsToTopEnabled)
             {
-                var gameTag = SettingsManager.CurrentSelectedGame ?? "";
                 _allModData = _allModData
-                    .OrderByDescending(m => SettingsManager.IsModFavorite(gameTag, m.Name))
+                    .OrderByDescending(m => favoritesList.Contains(m.Name))
                     .ThenByDescending(m => m.IsActive)
                     .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
             }
             else
             {
-                var gameTag = SettingsManager.CurrentSelectedGame ?? "";
                 _allModData = _allModData
-                    .OrderByDescending(m => SettingsManager.IsModFavorite(gameTag, m.Name))
+                    .OrderByDescending(m => favoritesList.Contains(m.Name))
                     .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
             }
@@ -519,17 +526,6 @@ namespace FlairX_Mod_Manager.Pages
                 var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
                 var isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
                 var isBroken = root.TryGetProperty("modBroken", out var brokenProp) && brokenProp.ValueKind == JsonValueKind.True;
-                
-                // Debug logging for broken mods
-                if (isBroken)
-                {
-                    Logger.LogInfo($"GetCachedModData: Found BROKEN mod in JSON: {cleanName} (Directory: {dirName}) - IsBroken will be set to TRUE");
-                }
-                else
-                {
-                    Logger.LogInfo($"GetCachedModData: Mod {cleanName} (Directory: {dirName}) - IsBroken will be set to FALSE");
-                }
-                
                 // Parse dates for sorting
                 var lastChecked = DateTime.MinValue;
                 var lastUpdated = DateTime.MinValue;
@@ -604,11 +600,24 @@ namespace FlairX_Mod_Manager.Pages
             
             var initialMods = new List<ModTile>();
             int loaded = 0;
+            int lastProcessedIndex = 0;
             bool hideNSFW = SettingsManager.Current.BlurNSFWThumbnails;
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
             
+            // Cache favorites list once to avoid repeated calls
+            var gameTag = SettingsManager.CurrentSelectedGame ?? "";
+            var favoritesList = new HashSet<string>();
+            foreach (var mod in _allModData)
+            {
+                if (SettingsManager.IsModFavorite(gameTag, mod.Name))
+                {
+                    favoritesList.Add(mod.Name);
+                }
+            }
+            
             for (int i = 0; i < _allModData.Count && loaded < initialLoadCount; i++)
             {
+                lastProcessedIndex = i + 1; // Track actual index in _allModData
                 var modData = _allModData[i];
                 
                 // Filter NSFW mods if setting is enabled
@@ -634,20 +643,13 @@ namespace FlairX_Mod_Manager.Pages
                     Url = modData.Url,
                     LastChecked = modData.LastChecked,
                     LastUpdated = modData.LastUpdated,
-                    HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
+                    HasUpdate = modData.HasUpdate, // Use cached value from ModData
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
                     IsNSFW = modData.IsNSFW,
-                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name), // Load favorite status
+                    IsFavorite = favoritesList.Contains(modData.Name), // Use cached favorites list
                     ImageSource = null // Start with no image - lazy load when visible
                 };
-                
-                // Debug logging for broken mods
-                if (modData.IsBroken)
-                {
-                    Logger.LogInfo($"LoadVirtualizedModTiles: Creating ModTile for BROKEN mod: {modData.Name} (Directory: {modData.Directory}) - IsBroken: {modTile.IsBroken}");
-                }
-                
                 initialMods.Add(modTile);
                 loaded++;
             }
@@ -656,10 +658,10 @@ namespace FlairX_Mod_Manager.Pages
             ModsGrid.ItemsSource = _allMods;
             UpdateEmptyState();
             
-            // Track how many items from _allModData we've processed
-            _lastLoadedModDataIndex = loaded < initialLoadCount ? _allModData.Count : loaded;
+            // Track how many items from _allModData we've processed (actual index, not count of loaded items)
+            _lastLoadedModDataIndex = lastProcessedIndex;
             
-            LogToGridLog($"Created {initialMods.Count} initial ModTiles out of {_allModData.Count} total (NSFW filter: {hideNSFW}, Broken filter: {hideBroken})");
+            LogToGridLog($"Created {initialMods.Count} initial ModTiles out of {_allModData.Count} total (NSFW filter: {hideNSFW}, Broken filter: {hideBroken}, Last index: {_lastLoadedModDataIndex})");
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>
@@ -682,16 +684,15 @@ namespace FlairX_Mod_Manager.Pages
         
         private string GetOptimalImagePath(string modDirectory)
         {
-            // Check files in order of preference - cache path strings to avoid repeated string operations
+            // Check files in order of preference - optimized to minimize File.Exists calls
             var webpPath = Path.Combine(modDirectory, "minitile.webp");
+            var jpegPath = Path.Combine(modDirectory, "minitile.jpg");
+            
+            // Check webp first, if exists return immediately
             if (File.Exists(webpPath))
                 return webpPath;
             
-            var jpegPath = Path.Combine(modDirectory, "minitile.jpg");
-            if (File.Exists(jpegPath))
-                return jpegPath;
-            
-            // Return jpeg path as default (may not exist)
+            // Return jpeg path (may or may not exist, but we return it as default)
             return jpegPath;
         }
 

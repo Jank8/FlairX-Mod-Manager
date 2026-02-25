@@ -362,6 +362,30 @@
                                     </interactivity:Interaction.Behaviors>
                                 </Image>
                                 
+                                <!-- NSFW Blur Overlay -->
+                                <Border x:Name="NSFWOverlay"
+                                        Background="#99000000"
+                                        CornerRadius="8"
+                                        Visibility="{Binding IsNSFW, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Border.Effect>
+                                        <media:BackdropBlurEffect Amount="20"/>
+                                    </Border.Effect>
+                                    <StackPanel HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center"
+                                                Spacing="8">
+                                        <FontIcon Glyph="&#xE7BA;" 
+                                                  FontSize="32"
+                                                  Foreground="White"
+                                                  Opacity="0.8"/>
+                                        <TextBlock Text="NSFW"
+                                                   FontSize="16"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="White"
+                                                   Opacity="0.8"
+                                                   HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                
                                 <!-- Update Available Indicator -->
                                 <Ellipse Width="16" Height="16"
                                          Fill="{ThemeResource SystemAccentColor}"

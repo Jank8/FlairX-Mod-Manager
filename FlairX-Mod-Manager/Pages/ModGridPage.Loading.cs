@@ -339,6 +339,17 @@ namespace FlairX_Mod_Manager.Pages
             bool hideNSFW = SettingsManager.Current.BlurNSFWThumbnails;
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
             
+            // Cache favorites list once to avoid repeated calls
+            var gameTag = SettingsManager.CurrentSelectedGame ?? "";
+            var favoritesList = new HashSet<string>();
+            foreach (var mod in _allModData)
+            {
+                if (SettingsManager.IsModFavorite(gameTag, mod.Name))
+                {
+                    favoritesList.Add(mod.Name);
+                }
+            }
+            
             int added = 0;
             int startIndex = _lastLoadedModDataIndex;
             
@@ -372,11 +383,11 @@ namespace FlairX_Mod_Manager.Pages
                     Url = modData.Url,
                     LastChecked = modData.LastChecked,
                     LastUpdated = modData.LastUpdated,
-                    HasUpdate = CheckForUpdateLive(modData.Directory),
+                    HasUpdate = modData.HasUpdate, // Use cached value from ModData
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
                     IsNSFW = modData.IsNSFW,
-                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    IsFavorite = favoritesList.Contains(modData.Name), // Use cached favorites list
                     ImageSource = null // Lazy load via LoadVisibleImages
                 };
                 _allMods.Add(modTile);

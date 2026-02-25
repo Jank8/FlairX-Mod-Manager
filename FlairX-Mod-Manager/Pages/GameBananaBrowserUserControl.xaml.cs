@@ -208,6 +208,7 @@ namespace FlairX_Mod_Manager.Pages
             StarterPackButtonText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_Button") ?? "Starter Pack";
             ToolTipService.SetToolTip(StarterPackButton, SharedUtilities.GetTranslation(_lang, "StarterPack_Button_Tooltip") ?? "Download Starter Pack for this game");
             LoadMoreButtonText.Text = SharedUtilities.GetTranslation(_lang, "LoadMore");
+            LoadMoreMainButtonText.Text = SharedUtilities.GetTranslation(_lang, "LoadMore");
             
             // Hide Starter Pack button if not available for this game
             StarterPackButton.Visibility = Dialogs.StarterPackDialog.IsStarterPackAvailable(_gameTag) 
@@ -636,6 +637,9 @@ namespace FlairX_Mod_Manager.Pages
 
                 LoadingPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Visible;
+                
+                // Show Load More button if there are more pages
+                LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
             }
             catch (Exception ex)
             {
@@ -644,6 +648,7 @@ namespace FlairX_Mod_Manager.Pages
                 ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
                 ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
                 ConnectionErrorBar.IsOpen = true;
+                LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
             }
         }
         
@@ -1022,6 +1027,9 @@ namespace FlairX_Mod_Manager.Pages
                 // Load images for new mods
                 _ = LoadImagesAsync();
                 
+                // Update Load More button visibility
+                LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
+                
                 // Check if we still need more content after loading
                 await Task.Delay(200); // Wait for layout to update
                 CheckIfNeedMoreContent();
@@ -1030,6 +1038,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogError("Failed to load more mods from GameBanana", ex);
                 _hasMorePages = false;
+                LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
             }
             finally
             {
@@ -1357,6 +1366,19 @@ namespace FlairX_Mod_Manager.Pages
             // Hide progress bar and show button again
             LoadMoreProgressBar.Visibility = Visibility.Collapsed;
             LoadMoreAuthorModsButton.Visibility = Visibility.Visible;
+        }
+        
+        private async void LoadMoreMainModsButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Show progress bar and hide button while loading
+            LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
+            LoadMoreProgressBar.Visibility = Visibility.Visible;
+            
+            await LoadMoreModsAsync();
+            
+            // Hide progress bar and show button again
+            LoadMoreProgressBar.Visibility = Visibility.Collapsed;
+            LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void ModsGridView_ItemClick(object sender, ItemClickEventArgs e)
@@ -1734,6 +1756,9 @@ namespace FlairX_Mod_Manager.Pages
                 // Bind author mods to the grid
                 ModsGridView.ItemsSource = _authorMods;
                 
+                // Hide main view button, show author button
+                LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
+                
                 // Load author mods
                 await LoadAuthorModsAsync();
             }
@@ -1795,9 +1820,10 @@ namespace FlairX_Mod_Manager.Pages
             // Restore original mods collection to grid
             ModsGridView.ItemsSource = _mods;
             
-            // Hide load more button and reset state
+            // Hide load more buttons and reset state
             LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
             LoadMoreAuthorModsButton.IsEnabled = true;
+            LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
             LoadMoreProgressBar.Visibility = Visibility.Collapsed;
             
             // Clear author mods data
@@ -1834,9 +1860,10 @@ namespace FlairX_Mod_Manager.Pages
             // Restore original mods collection to grid
             ModsGridView.ItemsSource = _mods;
             
-            // Hide load more button and reset state
+            // Hide load more buttons and reset state
             LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
             LoadMoreAuthorModsButton.IsEnabled = true;
+            LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
             LoadMoreProgressBar.Visibility = Visibility.Collapsed;
             
             // Clear author mods data

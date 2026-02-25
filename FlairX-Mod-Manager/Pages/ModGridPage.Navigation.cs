@@ -282,10 +282,36 @@ namespace FlairX_Mod_Manager.Pages
                     modData.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                     modData.Author.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                     (!string.IsNullOrEmpty(modData.Url) && modData.Url.Contains(query, StringComparison.OrdinalIgnoreCase))).ToList();
+                
                 var filteredMods = new List<ModTile>();
+                bool hideNSFW = SettingsManager.Current.BlurNSFWThumbnails;
+                bool hideBroken = SettingsManager.Current.HideBrokenMods;
+                
+                // Cache favorites list once
+                var gameTag = SettingsManager.CurrentSelectedGame ?? "";
+                var favoritesList = new HashSet<string>();
+                foreach (var mod in filteredData)
+                {
+                    if (SettingsManager.IsModFavorite(gameTag, mod.Name))
+                    {
+                        favoritesList.Add(mod.Name);
+                    }
+                }
                 
                 foreach (var modData in filteredData)
                 {
+                    // Filter NSFW mods if setting is enabled
+                    if (modData.IsNSFW && hideNSFW)
+                    {
+                        continue;
+                    }
+                    
+                    // Filter broken mods if setting is enabled
+                    if (modData.IsBroken && hideBroken)
+                    {
+                        continue;
+                    }
+                    
                     var modTile = new ModTile 
                     { 
                         Name = modData.Name, 
@@ -297,10 +323,11 @@ namespace FlairX_Mod_Manager.Pages
                         Url = modData.Url,
                         LastChecked = modData.LastChecked,
                         LastUpdated = modData.LastUpdated,
-                        HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
+                        HasUpdate = modData.HasUpdate, // Use cached value from ModData
                         IsVisible = true,
                         IsBroken = modData.IsBroken,
                         IsNSFW = modData.IsNSFW,
+                        IsFavorite = favoritesList.Contains(modData.Name), // Use cached favorites list
                         ImageSource = null // Start with no image - lazy load when visible
                     };
                     filteredMods.Add(modTile);
