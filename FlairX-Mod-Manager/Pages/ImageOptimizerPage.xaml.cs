@@ -367,8 +367,8 @@ namespace FlairX_Mod_Manager.Pages
                     var convertResult = await convertDialog.ShowAsync();
                     if (convertResult == ContentDialogResult.Primary)
                     {
-                        // User wants to convert - use existing optimization system
-                        OptimizeButton_Click(this, new RoutedEventArgs());
+                        // User wants to convert - use existing optimization system but skip confirmation
+                        await StartOptimizationWithoutConfirmation();
                     }
                 }
                 
@@ -486,6 +486,13 @@ namespace FlairX_Mod_Manager.Pages
             if (result != ContentDialogResult.Primary)
                 return;
 
+            await StartOptimizationWithoutConfirmation();
+        }
+
+        private async Task StartOptimizationWithoutConfirmation()
+        {
+            var lang = SharedUtilities.LoadLanguageDictionary("ImageOptimizer");
+            
             // Run optimization on background thread to prevent UI freezing
             _ = Task.Run(async () =>
             {
