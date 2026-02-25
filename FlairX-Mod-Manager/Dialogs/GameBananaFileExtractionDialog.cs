@@ -400,6 +400,9 @@ namespace FlairX_Mod_Manager.Dialogs
             var normalizedCategory = (categoryName ?? "Characters").Replace("/", "-");
             CheckIfUpdateAndShowOptions(normalizedCategory);
 
+            // Validate inputs on initialization
+            ValidateInputs();
+
             // Handle primary button click
             PrimaryButtonClick += OnPrimaryButtonClick;
             
@@ -1630,7 +1633,8 @@ namespace FlairX_Mod_Manager.Dialogs
             var modName = _modNameTextBox.Text.Trim();
             var category = _categoryComboBox.Text.Trim();
 
-            bool isValid = !string.IsNullOrWhiteSpace(category) &&
+            bool isValid = !string.IsNullOrWhiteSpace(modName) &&
+                          !string.IsNullOrWhiteSpace(category) &&
                           !IsReservedWindowsName(modName) && 
                           !IsReservedWindowsName(category);
             IsPrimaryButtonEnabled = isValid;
