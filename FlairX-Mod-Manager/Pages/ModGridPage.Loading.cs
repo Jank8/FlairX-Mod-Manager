@@ -336,7 +336,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             const int batchSize = 20; // Fixed batch size for incremental loading
             
-            bool hideNSFW = SettingsManager.Current.BlurNSFWThumbnails;
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
             
             // Cache favorites list once to avoid repeated calls
@@ -357,13 +356,6 @@ namespace FlairX_Mod_Manager.Pages
             for (int i = startIndex; i < _allModData.Count && added < batchSize; i++)
             {
                 var modData = _allModData[i];
-                
-                // Filter NSFW mods if setting is enabled
-                if (modData.IsNSFW && hideNSFW)
-                {
-                    _lastLoadedModDataIndex = i + 1;
-                    continue;
-                }
                 
                 // Filter broken mods if setting is enabled
                 if (modData.IsBroken && hideBroken)

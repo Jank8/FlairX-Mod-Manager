@@ -127,7 +127,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (args.InRecycleQueue) return;
             
-            // Apply scaling immediately when container content changes
+            // Apply scaling when container content changes
             if (args.ItemContainer is GridViewItem container)
             {
                 // Try to apply scaling immediately if content is ready

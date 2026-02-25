@@ -284,7 +284,6 @@ namespace FlairX_Mod_Manager.Pages
                     (!string.IsNullOrEmpty(modData.Url) && modData.Url.Contains(query, StringComparison.OrdinalIgnoreCase))).ToList();
                 
                 var filteredMods = new List<ModTile>();
-                bool hideNSFW = SettingsManager.Current.BlurNSFWThumbnails;
                 bool hideBroken = SettingsManager.Current.HideBrokenMods;
                 
                 // Cache favorites list once
@@ -300,12 +299,6 @@ namespace FlairX_Mod_Manager.Pages
                 
                 foreach (var modData in filteredData)
                 {
-                    // Filter NSFW mods if setting is enabled
-                    if (modData.IsNSFW && hideNSFW)
-                    {
-                        continue;
-                    }
-                    
                     // Filter broken mods if setting is enabled
                     if (modData.IsBroken && hideBroken)
                     {

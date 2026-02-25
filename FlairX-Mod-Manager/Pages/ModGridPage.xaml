@@ -16,6 +16,7 @@
         <local:BoolToStarGlyphConverter x:Key="BoolToStarGlyphConverter" />
         <local:BoolToStarColorConverter x:Key="BoolToStarColorConverter" />
         <local:BoolToFavoriteTooltipConverter x:Key="BoolToFavoriteTooltipConverter" />
+        <local:NSFWOverlayVisibilityConverter x:Key="NSFWOverlayVisibilityConverter" />
         <Style x:Key="TransparentButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
@@ -362,26 +363,27 @@
                                     </interactivity:Interaction.Behaviors>
                                 </Image>
                                 
-                                <!-- NSFW Blur Overlay -->
+                                <!-- NSFW Blur Overlay (automatically shown when mod is NSFW and setting is enabled) -->
                                 <Border x:Name="NSFWOverlay"
-                                        Background="#99000000"
                                         CornerRadius="8"
-                                        Visibility="{Binding IsNSFW, Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <Border.Effect>
-                                        <media:BackdropBlurEffect Amount="20"/>
-                                    </Border.Effect>
+                                        Visibility="{Binding IsNSFW, Converter={StaticResource NSFWOverlayVisibilityConverter}}">
+                                    <Border.Background>
+                                        <AcrylicBrush TintColor="Black" 
+                                                      TintOpacity="0.8" 
+                                                      FallbackColor="Black"/>
+                                    </Border.Background>
                                     <StackPanel HorizontalAlignment="Center" 
                                                 VerticalAlignment="Center"
                                                 Spacing="8">
                                         <FontIcon Glyph="&#xE7BA;" 
                                                   FontSize="32"
                                                   Foreground="White"
-                                                  Opacity="0.8"/>
+                                                  Opacity="0.9"/>
                                         <TextBlock Text="NSFW"
                                                    FontSize="16"
                                                    FontWeight="SemiBold"
                                                    Foreground="White"
-                                                   Opacity="0.8"
+                                                   Opacity="0.9"
                                                    HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>

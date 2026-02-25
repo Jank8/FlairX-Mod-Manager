@@ -601,7 +601,6 @@ namespace FlairX_Mod_Manager.Pages
             var initialMods = new List<ModTile>();
             int loaded = 0;
             int lastProcessedIndex = 0;
-            bool hideNSFW = SettingsManager.Current.BlurNSFWThumbnails;
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
             
             // Cache favorites list once to avoid repeated calls
@@ -619,12 +618,6 @@ namespace FlairX_Mod_Manager.Pages
             {
                 lastProcessedIndex = i + 1; // Track actual index in _allModData
                 var modData = _allModData[i];
-                
-                // Filter NSFW mods if setting is enabled
-                if (modData.IsNSFW && hideNSFW)
-                {
-                    continue;
-                }
                 
                 // Filter broken mods if setting is enabled
                 if (modData.IsBroken && hideBroken)
@@ -661,7 +654,7 @@ namespace FlairX_Mod_Manager.Pages
             // Track how many items from _allModData we've processed (actual index, not count of loaded items)
             _lastLoadedModDataIndex = lastProcessedIndex;
             
-            LogToGridLog($"Created {initialMods.Count} initial ModTiles out of {_allModData.Count} total (NSFW filter: {hideNSFW}, Broken filter: {hideBroken}, Last index: {_lastLoadedModDataIndex})");
+            LogToGridLog($"Created {initialMods.Count} initial ModTiles out of {_allModData.Count} total (Broken filter: {hideBroken}, Last index: {_lastLoadedModDataIndex})");
             
             // Load visible images after setting new data source
             _ = Task.Run(async () =>
