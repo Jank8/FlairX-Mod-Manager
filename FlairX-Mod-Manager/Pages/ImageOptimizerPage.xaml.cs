@@ -240,6 +240,8 @@ namespace FlairX_Mod_Manager.Pages
             
             // Labels
             var mainLang = SharedUtilities.LoadLanguageDictionary();
+            ImageFormatLabel.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_ImageFormat_Label");
+            ImageFormatDescription.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_ImageFormat_Description");
             JpegQualityLabel.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_ConversionQuality");
             
             // Update description based on current format

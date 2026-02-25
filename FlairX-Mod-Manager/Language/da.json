@@ -337,5 +337,7 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "Ekskluder kategorier fra shuffle og deaktiver alle genvejstaster (holder mods som de er)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "Vælg kategori at ekskludere...",
     "EmptyState_NoMods_Text": "Intet her, download nogle mods",
-    "EmptyState_Browse_Button": "Gennemse GameBanana"
+    "EmptyState_Browse_Button": "Gennemse GameBanana",
+    "ImageOptimizer_ImageFormat_Label": "Billedformat",
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) har bedre ydeevne, WebP bevarer bedre kvalitet ved mindre størrelse, men på bekostning af ydeevne"
 }

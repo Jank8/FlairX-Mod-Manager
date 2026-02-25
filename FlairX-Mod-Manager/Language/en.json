@@ -332,6 +332,8 @@
     "ImageOptimizer_Quality_Description": "Higher quality = larger file size",
     "ImageOptimizer_WebP_Quality_Description": "WebP quality: 1-100 = lossy (smaller files), 101 = lossless (perfect quality, larger files)",
     "ImageOptimizer_ConversionQuality": "Conversion Quality",
+    "ImageOptimizer_ImageFormat_Label": "Image Format",
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) has better performance, WebP preserves better quality at smaller size but at the cost of performance",
     "ConvertImages_Title": "Convert Existing Images?",
     "ConvertImages_Message": "Would you like to convert all existing images to the new format?\n\nThis will:\n• Convert preview images, thumbnails, and category images\n• Keep original files if 'Keep Originals' is enabled\n\n⚠️ WARNING: Converting back and forth between formats multiple times will degrade image quality. Only convert once from your original files.",
     "ConvertImages_Convert": "Convert Now",

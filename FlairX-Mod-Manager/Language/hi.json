@@ -337,5 +337,7 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "शफल और सभी को निष्क्रिय करें हॉटकी से श्रेणियों को बाहर करें (मॉड को यथावत रखता है)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "बाहर करने के लिए श्रेणी चुनें...",
     "EmptyState_NoMods_Text": "यहाँ कुछ नहीं है, कुछ मॉड डाउनलोड करें",
-    "EmptyState_Browse_Button": "GameBanana ब्राउज़ करें"
+    "EmptyState_Browse_Button": "GameBanana ब्राउज़ करें",
+    "ImageOptimizer_ImageFormat_Label": "छवि प्रारूप",
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) में बेहतर प्रदर्शन है, WebP छोटे आकार में बेहतर गुणवत्ता बनाए रखता है लेकिन प्रदर्शन की कीमत पर"
 }

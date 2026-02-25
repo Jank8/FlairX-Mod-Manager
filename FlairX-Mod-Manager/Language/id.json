@@ -337,5 +337,7 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "Kecualikan kategori dari hotkey shuffle dan nonaktifkan semua (menjaga mod tetap sama)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "Pilih kategori untuk dikecualikan...",
     "EmptyState_NoMods_Text": "Tidak ada di sini, unduh beberapa mod",
-    "EmptyState_Browse_Button": "Jelajahi GameBanana"
+    "EmptyState_Browse_Button": "Jelajahi GameBanana",
+    "ImageOptimizer_ImageFormat_Label": "Format Gambar",
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) memiliki kinerja lebih baik, WebP mempertahankan kualitas lebih baik dengan ukuran lebih kecil tetapi dengan biaya kinerja"
 }

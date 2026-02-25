@@ -337,5 +337,7 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "Kategóriák kizárása a keverés és összes kikapcsolása gyorsbillentyűkből (változatlanul hagyja a modokat)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "Válasszon kategóriát a kizáráshoz...",
     "EmptyState_NoMods_Text": "Nincs itt semmi, tölts le néhány modot",
-    "EmptyState_Browse_Button": "GameBanana böngészése"
+    "EmptyState_Browse_Button": "GameBanana böngészése",
+    "ImageOptimizer_ImageFormat_Label": "Képformátum",
+    "ImageOptimizer_ImageFormat_Description": "A Classic (JPEG) jobb teljesítményt nyújt, a WebP jobb minőséget őriz meg kisebb méretben, de a teljesítmény rovására"
 }

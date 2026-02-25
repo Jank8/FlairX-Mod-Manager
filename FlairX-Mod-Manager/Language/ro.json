@@ -337,5 +337,7 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "Excludeți categorii din tastele rapide shuffle și dezactivare toate (păstrează modurile neschimbate)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "Selectați categoria de exclus...",
     "EmptyState_NoMods_Text": "Nimic aici, descarcă niște moduri",
-    "EmptyState_Browse_Button": "Răsfoiește GameBanana"
+    "EmptyState_Browse_Button": "Răsfoiește GameBanana",
+    "ImageOptimizer_ImageFormat_Label": "Format imagine",
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) are performanță mai bună, WebP păstrează calitate mai bună la dimensiune mai mică dar în detrimentul performanței"
 }

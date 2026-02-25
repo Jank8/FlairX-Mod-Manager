@@ -337,5 +337,7 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "Excluir categorías de los atajos shuffle y desactivar todos (mantiene los mods sin cambios)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "Seleccionar categoría para excluir...",
     "EmptyState_NoMods_Text": "Nada aquí, descarga algunos mods",
-    "EmptyState_Browse_Button": "Explorar GameBanana"
+    "EmptyState_Browse_Button": "Explorar GameBanana",
+    "ImageOptimizer_ImageFormat_Label": "Formato de imagen",
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) tiene mejor rendimiento, WebP preserva mejor calidad en menor tamaño pero a costa del rendimiento"
 }

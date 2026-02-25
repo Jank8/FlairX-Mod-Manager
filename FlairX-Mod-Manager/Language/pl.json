@@ -322,6 +322,8 @@
     "ImageOptimizer_Quality_Description": "Wyższa jakość = większy rozmiar pliku",
     "ImageOptimizer_WebP_Quality_Description": "Jakość WebP: 1-100 = stratna (mniejsze pliki), 101 = bezstratna (idealna jakość, większe pliki)",
     "ImageOptimizer_ConversionQuality": "Jakość konwersji",
+    "ImageOptimizer_ImageFormat_Label": "Format obrazów",
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) ma lepszą wydajność, WebP zachowuje lepszą jakość przy mniejszym rozmiarze ale kosztem wydajności",
     "ConvertImages_Title": "Przekonwertować istniejące obrazy?",
     "ConvertImages_Message": "Czy chcesz przekonwertować wszystkie istniejące obrazy na nowy format?\n\nTo spowoduje:\n• Konwersję obrazów podglądu, miniaturek i obrazów kategorii\n• Zachowanie oryginalnych plików jeśli włączona jest opcja 'Zachowaj oryginały'\n\n⚠️ UWAGA: Wielokrotna konwersja tam i z powrotem między formatami spowoduje degradację jakości obrazu. Konwertuj tylko raz z oryginalnych plików.",
     "ConvertImages_Convert": "Konwertuj teraz",

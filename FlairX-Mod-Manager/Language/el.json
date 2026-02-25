@@ -337,5 +337,7 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "Εξαίρεση κατηγοριών από τα πλήκτρα ανακατέματος και απενεργοποίησης όλων (διατηρεί τα mods ως έχουν)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "Επιλέξτε κατηγορία για εξαίρεση...",
     "EmptyState_NoMods_Text": "Τίποτα εδώ, κατεβάστε μερικά mods",
-    "EmptyState_Browse_Button": "Περιήγηση GameBanana"
+    "EmptyState_Browse_Button": "Περιήγηση GameBanana",
+    "ImageOptimizer_ImageFormat_Label": "Μορφή εικόνας",
+    "ImageOptimizer_ImageFormat_Description": "Το Classic (JPEG) έχει καλύτερη απόδοση, το WebP διατηρεί καλύτερη ποιότητα σε μικρότερο μέγεθος αλλά με κόστος απόδοσης"
 }

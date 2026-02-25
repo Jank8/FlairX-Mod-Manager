@@ -337,5 +337,7 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "Uteslut kategorier från shuffle och inaktivera alla genvägar (håller mods oförändrade)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "Välj kategori att utesluta...",
     "EmptyState_NoMods_Text": "Inget här, ladda ner några mods",
-    "EmptyState_Browse_Button": "Bläddra GameBanana"
+    "EmptyState_Browse_Button": "Bläddra GameBanana",
+    "ImageOptimizer_ImageFormat_Label": "Bildformat",
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) har bättre prestanda, WebP bevarar bättre kvalitet vid mindre storlek men på bekostnad av prestanda"
 }

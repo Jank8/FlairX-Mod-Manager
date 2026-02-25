@@ -337,5 +337,7 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "Ibukod ang mga kategorya mula sa shuffle at i-deactivate lahat na hotkey (pinapanatili ang mga mod)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "Pumili ng kategorya na ibubukod...",
     "EmptyState_NoMods_Text": "Walang nandito, mag-download ng mga mod",
-    "EmptyState_Browse_Button": "I-browse ang GameBanana"
+    "EmptyState_Browse_Button": "I-browse ang GameBanana",
+    "ImageOptimizer_ImageFormat_Label": "Format ng Larawan",
+    "ImageOptimizer_ImageFormat_Description": "Ang Classic (JPEG) ay may mas magandang performance, ang WebP ay nakakapanatili ng mas magandang kalidad sa mas maliit na laki ngunit sa gastos ng performance"
 }

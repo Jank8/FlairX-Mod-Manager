@@ -252,12 +252,24 @@ namespace FlairX_Mod_Manager
                                                    item.Tag?.ToString() == "SettingsUserControl")
                                     .ToList();
                                 
-                                nvSample.FooterMenuItems.Clear();
-                                
-                                // Re-add the footer items
-                                foreach (var item in existingFooterItems)
+                                // Only clear if we successfully captured the items
+                                if (existingFooterItems.Count > 0)
                                 {
-                                    nvSample.FooterMenuItems.Add(item);
+                                    nvSample.FooterMenuItems.Clear();
+                                    
+                                    // Re-add the footer items
+                                    foreach (var item in existingFooterItems)
+                                    {
+                                        nvSample.FooterMenuItems.Add(item);
+                                    }
+                                    
+                                    // Update cache after restoring
+                                    _allFooterItems = nvSample.FooterMenuItems.OfType<NavigationViewItem>().ToList();
+                                }
+                                else
+                                {
+                                    // If no items were found, ensure they exist
+                                    EnsurePresetsMenuItemExists();
                                 }
                                 
                                 // Generate pinned categories in footer menu
@@ -379,9 +391,29 @@ namespace FlairX_Mod_Manager
                         catch (Exception ex)
                         {
                             Logger.LogError("Error updating menu UI", ex);
+                            
+                            // Ensure footer items exist even if there was an error
+                            try
+                            {
+                                EnsurePresetsMenuItemExists();
+                            }
+                            catch (Exception innerEx)
+                            {
+                                Logger.LogError("Error ensuring presets menu item exists", innerEx);
+                            }
                         }
                         finally
                         {
+                            // Ensure footer items exist before completing
+                            try
+                            {
+                                EnsurePresetsMenuItemExists();
+                            }
+                            catch (Exception innerEx)
+                            {
+                                Logger.LogError("Error ensuring presets menu item exists in finally", innerEx);
+                            }
+                            
                             // Signal completion so callers can rely on menu being populated
                             tcs.TrySetResult(true);
                         }
@@ -497,6 +529,9 @@ namespace FlairX_Mod_Manager
                     {
                         nvSample.FooterMenuItems.Add(presets);
                     }
+                    
+                    // Update cache after adding
+                    _allFooterItems = nvSample.FooterMenuItems.OfType<NavigationViewItem>().ToList();
                 }
             }
         }

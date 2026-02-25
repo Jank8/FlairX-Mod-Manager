@@ -337,5 +337,7 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "ยกเว้นหมวดหมู่จากปุ่มลัดสับเปลี่ยนและปิดการใช้งานทั้งหมด (เก็บม็อดไว้เหมือนเดิม)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "เลือกหมวดหมู่เพื่อยกเว้น...",
     "EmptyState_NoMods_Text": "ไม่มีอะไรที่นี่ ดาวน์โหลดม็อดบางตัว",
-    "EmptyState_Browse_Button": "เรียกดู GameBanana"
+    "EmptyState_Browse_Button": "เรียกดู GameBanana",
+    "ImageOptimizer_ImageFormat_Label": "รูปแบบภาพ",
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) มีประสิทธิภาพที่ดีกว่า WebP รักษาคุณภาพที่ดีกว่าในขนาดที่เล็กกว่าแต่แลกมาด้วยประสิทธิภาพ"
 }

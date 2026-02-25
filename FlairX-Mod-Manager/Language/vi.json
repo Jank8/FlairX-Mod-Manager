@@ -337,5 +337,7 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "Loại trừ danh mục khỏi các phím tắt shuffle và vô hiệu hóa tất cả (giữ nguyên các mod)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "Chọn danh mục để loại trừ...",
     "EmptyState_NoMods_Text": "Không có gì ở đây, tải xuống một số mod",
-    "EmptyState_Browse_Button": "Duyệt GameBanana"
+    "EmptyState_Browse_Button": "Duyệt GameBanana",
+    "ImageOptimizer_ImageFormat_Label": "Định dạng hình ảnh",
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) có hiệu suất tốt hơn, WebP giữ chất lượng tốt hơn ở kích thước nhỏ hơn nhưng với chi phí hiệu suất"
 }
