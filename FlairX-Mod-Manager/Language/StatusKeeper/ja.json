@@ -39,8 +39,6 @@
     "StatusKeeper_OpenLog_Button": "ログを開く",
     "StatusKeeper_ClearLog_Button": "ログを消去",
     "StatusKeeper_LogNotFound_Message": "ログファイルはまたありません。ログの取得を有効化し、ログを生成するための操作をいくつか実行してください。",
-    "StatusKeeper_Log_Empty": "ログは空です。",
-    "StatusKeeper_Log_NotFound": "ログファイルがありません。",
     "StatusKeeper_LogCleared_Success": "ログは正常に消去されました。",
     "StatusKeeper_Success": "成功",
     "StatusKeeper_Info": "情報",
@@ -56,8 +54,6 @@
     "StatusKeeper_DeleteBackups_Dialog_Title": "削除完了",
     "StatusKeeper_DeleteBackups_Dialog_Message": "{0} バックアップファイルを削除しました。",
     "StatusKeeper_Checking": "確認中...",
-    "StatusKeeper_Tooltip_D3dxFilePath": "d3dx_user.ini ファイルのあるディレクトリを選択",
-    "StatusKeeper_Tooltip_RestoreDefault": "既定のパスに復元",
     "StatusKeeper_Tooltip_DynamicSync": "d3dx_user.ini ファイルの変更を監視し、Mod ファイルの値を更新します",
     "StatusKeeper_Tooltip_ManualSync": "手動で同期を開始",
     "StatusKeeper_ConfirmRestore_Title": "復元の確認",
@@ -66,8 +62,5 @@
     "StatusKeeper_ConfirmDelete_Message": "これにより、すべてのバックアップファイルが削除されます。続行しますか？",
     "Error_Generic": "エラー",
     "OK": "OK",
-    "PickFolderDialog_Title": "フォルダーを選択",
-    "StatusKeeper_DynamicSyncToggleLabel": "オフ/オン",
-    "StatusKeeper_BackupConfirmationToggleLabel": "オフ/オン",
-    "StatusKeeper_LoggingToggleLabel": "オフ/オン"
+    "PickFolderDialog_Title": "フォルダーを選択"
 }

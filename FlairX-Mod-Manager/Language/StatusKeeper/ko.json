@@ -39,8 +39,6 @@
     "StatusKeeper_OpenLog_Button": "로그 열기",
     "StatusKeeper_ClearLog_Button": "로그 지우기",
     "StatusKeeper_LogNotFound_Message": "로그 파일이 아직 존재하지 않습니다. 로깅을 활성화하고 일부 작업을 수행하여 로그를 생성하세요.",
-    "StatusKeeper_Log_Empty": "로그가 비어있습니다.",
-    "StatusKeeper_Log_NotFound": "로그 파일을 찾을 수 없습니다.",
     "StatusKeeper_LogCleared_Success": "로그가 성공적으로 지워졌습니다.",
     "StatusKeeper_Success": "성공",
     "StatusKeeper_Info": "정보",
@@ -56,8 +54,6 @@
     "StatusKeeper_DeleteBackups_Dialog_Title": "삭제 완료",
     "StatusKeeper_DeleteBackups_Dialog_Message": "{0}개 백업 파일을 삭제했습니다.",
     "StatusKeeper_Checking": "확인 중...",
-    "StatusKeeper_Tooltip_D3dxFilePath": "d3dx_user.ini 파일이 있는 디렉토리 선택",
-    "StatusKeeper_Tooltip_RestoreDefault": "기본 경로 복원",
     "StatusKeeper_Tooltip_DynamicSync": "d3dx_user.ini 파일의 변경사항을 모니터링하고 모드 파일의 값을 업데이트",
     "StatusKeeper_Tooltip_ManualSync": "수동으로 동기화 시작",
     "StatusKeeper_ConfirmRestore_Title": "복원 확인",
@@ -66,8 +62,5 @@
     "StatusKeeper_ConfirmDelete_Message": "모든 백업 파일을 삭제합니다. 계속하시겠습니까?",
     "Error_Generic": "오류",
     "OK": "확인",
-    "PickFolderDialog_Title": "폴더 선택",
-    "StatusKeeper_BackupConfirmationToggleLabel": "끄기/켜기",
-    "StatusKeeper_DynamicSyncToggleLabel": "끄기/켜기",
-    "StatusKeeper_LoggingToggleLabel": "끄기/켜기"
+    "PickFolderDialog_Title": "폴더 선택"
 }

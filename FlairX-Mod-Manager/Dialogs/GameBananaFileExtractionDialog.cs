@@ -203,6 +203,18 @@ namespace FlairX_Mod_Manager.Dialogs
                     _categoryComboBox.Text = initialCategory;
                 }
                 
+                // Force visual update by triggering Loaded event
+                _categoryComboBox.Loaded += (s, e) =>
+                {
+                    // Ensure text is visible after control is loaded
+                    if (!string.IsNullOrEmpty(_categoryComboBox.Text))
+                    {
+                        var text = _categoryComboBox.Text;
+                        _categoryComboBox.Text = "";
+                        _categoryComboBox.Text = text;
+                    }
+                };
+                
                 _categoryComboBox.TextSubmitted += (s, e) => 
                 {
                     // Replace forward slash with dash when text is submitted

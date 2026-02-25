@@ -39,8 +39,6 @@
     "StatusKeeper_OpenLog_Button": "Abrir log",
     "StatusKeeper_ClearLog_Button": "Limpar log",
     "StatusKeeper_LogNotFound_Message": "O arquivo de log ainda não existe. Habilite o logging e execute algumas operações para gerar logs.",
-    "StatusKeeper_Log_Empty": "O log está vazio.",
-    "StatusKeeper_Log_NotFound": "Arquivo de log não encontrado.",
     "StatusKeeper_LogCleared_Success": "O log foi limpo com sucesso.",
     "StatusKeeper_Success": "Sucesso",
     "StatusKeeper_Info": "Info",
@@ -56,8 +54,6 @@
     "StatusKeeper_DeleteBackups_Dialog_Title": "Exclusão concluída",
     "StatusKeeper_DeleteBackups_Dialog_Message": "Excluídos {0} arquivos de backup.",
     "StatusKeeper_Checking": "Verificando...",
-    "StatusKeeper_Tooltip_D3dxFilePath": "Selecionar diretório com arquivo d3dx_user.ini",
-    "StatusKeeper_Tooltip_RestoreDefault": "Restaurar caminho padrão",
     "StatusKeeper_Tooltip_DynamicSync": "Monitora o arquivo d3dx_user.ini para mudanças e atualiza valores nos arquivos de mod",
     "StatusKeeper_Tooltip_ManualSync": "Iniciar sincronização manualmente",
     "StatusKeeper_ConfirmRestore_Title": "Confirmar restauração",
@@ -66,8 +62,5 @@
     "StatusKeeper_ConfirmDelete_Message": "Isso excluirá todos os arquivos de backup. Continuar?",
     "Error_Generic": "Erro",
     "OK": "OK",
-    "PickFolderDialog_Title": "Selecionar pasta",
-    "StatusKeeper_DynamicSyncToggleLabel": "DESLIGADO/LIGADO",
-    "StatusKeeper_BackupConfirmationToggleLabel": "DESLIGADO/LIGADO",
-    "StatusKeeper_LoggingToggleLabel": "DESLIGADO/LIGADO"
+    "PickFolderDialog_Title": "Selecionar pasta"
 }

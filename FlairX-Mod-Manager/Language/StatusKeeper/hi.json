@@ -39,8 +39,6 @@
     "StatusKeeper_OpenLog_Button": "लॉग खोलें",
     "StatusKeeper_ClearLog_Button": "लॉग साफ़ करें",
     "StatusKeeper_LogNotFound_Message": "लॉग फ़ाइल अभी तक मौजूद नहीं है। लॉगिंग सक्षम करें और लॉग जेनरेट करने के लिए कुछ ऑपरेशन करें।",
-    "StatusKeeper_Log_Empty": "लॉग खाली है।",
-    "StatusKeeper_Log_NotFound": "लॉग फ़ाइल नहीं मिली।",
     "StatusKeeper_LogCleared_Success": "लॉग सफलतापूर्वक साफ़ किया गया।",
     "StatusKeeper_Success": "सफलता",
     "StatusKeeper_Info": "जानकारी",
@@ -56,8 +54,6 @@
     "StatusKeeper_DeleteBackups_Dialog_Title": "हटाना पूर्ण",
     "StatusKeeper_DeleteBackups_Dialog_Message": "{0} बैकअप फ़ाइलें हटाई गईं।",
     "StatusKeeper_Checking": "जांच रहे हैं...",
-    "StatusKeeper_Tooltip_D3dxFilePath": "d3dx_user.ini फ़ाइल के साथ डायरेक्टरी चुनें",
-    "StatusKeeper_Tooltip_RestoreDefault": "डिफ़ॉल्ट पथ पुनर्स्थापित करें",
     "StatusKeeper_Tooltip_DynamicSync": "d3dx_user.ini फ़ाइल में परिवर्तनों की निगरानी करता है और मॉड फ़ाइलों में मान अपडेट करता है",
     "StatusKeeper_Tooltip_ManualSync": "मैन्युअल रूप से सिंक्रोनाइज़ेशन शुरू करें",
     "StatusKeeper_ConfirmRestore_Title": "पुनर्स्थापना की पुष्टि करें",
@@ -66,8 +62,5 @@
     "StatusKeeper_ConfirmDelete_Message": "यह सभी बैकअप फ़ाइलों को हटा देगा। जारी रखें?",
     "Error_Generic": "त्रुटि",
     "OK": "ठीक है",
-    "PickFolderDialog_Title": "फ़ोल्डर चुनें",
-    "StatusKeeper_BackupConfirmationToggleLabel": "बंद/चालू",
-    "StatusKeeper_DynamicSyncToggleLabel": "बंद/चालू",
-    "StatusKeeper_LoggingToggleLabel": "बंद/चालू"
+    "PickFolderDialog_Title": "फ़ोल्डर चुनें"
 }

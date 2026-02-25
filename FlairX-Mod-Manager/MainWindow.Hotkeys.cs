@@ -741,7 +741,8 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
-        /// Send F10 key press to reload mods in game (using SendInput like No-Reload-Mod-Manager)
+        /// Send F10 key press to reload mods in game.
+        /// With check_foreground_window = 0 in d3dx.ini, this works without admin privileges.
         /// </summary>
         private async void SendF10KeyPress()
         {
@@ -769,10 +770,8 @@ namespace FlairX_Mod_Manager
                 };
                 
                 var sizeOfInput = Marshal.SizeOf<INPUT>();
-                Logger.LogInfo($"SendF10KeyPress: INPUT struct size = {sizeOfInput}, VK=0x{VK_F10:X2}, Scan=0x{SCAN_F10:X2}");
-                
                 var resultDown = SendInput(1, new[] { inputDown }, sizeOfInput);
-                Logger.LogInfo($"SendF10KeyPress: SendInput key down result: {resultDown}");
+                Logger.LogInfo($"SendInput F10 key down result: {resultDown}");
                 
                 await Task.Delay(50);
                 
@@ -794,7 +793,7 @@ namespace FlairX_Mod_Manager
                 };
                 
                 var resultUp = SendInput(1, new[] { inputUp }, sizeOfInput);
-                Logger.LogInfo($"SendF10KeyPress: SendInput key up result: {resultUp}");
+                Logger.LogInfo($"SendInput F10 key up result: {resultUp}");
                 
                 Logger.LogInfo("F10 key press sent via SendInput");
             }
