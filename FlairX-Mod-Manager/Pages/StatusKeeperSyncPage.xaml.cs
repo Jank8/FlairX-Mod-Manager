@@ -655,13 +655,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     if (!Directory.Exists(categoryDir)) continue;
                     
-                    // Skip "Other" category
                     var categoryName = Path.GetFileName(categoryDir);
-                    if (string.Equals(categoryName, "Other", StringComparison.OrdinalIgnoreCase))
-                    {
-                        scanLog.AppendLine($"[SKIP] Category: Other");
-                        continue;
-                    }
                     
                     bool categoryLogged = false;
                     

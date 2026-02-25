@@ -713,8 +713,8 @@ namespace FlairX_Mod_Manager
                         }
                         else if (lastCategory == "Other")
                         {
-                            // Category "Other" doesn't exist - navigate to All Mods
-                            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), null, new DrillInNavigationTransitionInfo());
+                            // Navigate to Other category
+                            contentFrame.Navigate(typeof(FlairX_Mod_Manager.Pages.ModGridPage), "Other", new DrillInNavigationTransitionInfo());
                         }
                     }
                     else

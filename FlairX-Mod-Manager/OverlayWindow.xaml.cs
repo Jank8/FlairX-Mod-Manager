@@ -1303,19 +1303,11 @@ namespace FlairX_Mod_Manager
                     categoryItems.Add(item);
                 }
                 
-                // Sort categories: favorites first (excluding "Other"), then alphabetically, then "Other" at the end
+                // Sort categories: favorites first, then alphabetically
                 var sortedCategories = categoryItems
-                    .Where(c => !c.Name.Equals("Other", StringComparison.OrdinalIgnoreCase))
                     .OrderByDescending(c => !string.IsNullOrEmpty(gameTag) && SettingsManager.IsCategoryFavorite(gameTag, c.Name))
                     .ThenBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
-                
-                // Add "Other" category at the end if it exists
-                var otherCategory = categoryItems.FirstOrDefault(c => c.Name.Equals("Other", StringComparison.OrdinalIgnoreCase));
-                if (otherCategory != null)
-                {
-                    sortedCategories.Add(otherCategory);
-                }
                 
                 // Add sorted categories to collection
                 foreach (var category in sortedCategories)
@@ -1492,8 +1484,6 @@ namespace FlairX_Mod_Manager
                 foreach (var categoryDir in System.IO.Directory.GetDirectories(modsPath))
                 {
                     var categoryName = Path.GetFileName(categoryDir);
-                    if (categoryName.Equals("Other", StringComparison.OrdinalIgnoreCase))
-                        continue; // Skip Other category
                     
                     // Get all mods in this category
                     foreach (var modDir in System.IO.Directory.GetDirectories(categoryDir))
