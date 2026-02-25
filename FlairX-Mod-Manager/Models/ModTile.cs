@@ -124,6 +124,13 @@ namespace FlairX_Mod_Manager.Pages
             set { if (_isBroken != value) { _isBroken = value; OnPropertyChanged(nameof(IsBroken)); } }
         }
         
+        private bool _isNSFW = false;
+        public bool IsNSFW
+        {
+            get => _isNSFW;
+            set { if (_isNSFW != value) { _isNSFW = value; OnPropertyChanged(nameof(IsNSFW)); } }
+        }
+        
         private bool _isFavorite = false;
         public bool IsFavorite
         {
