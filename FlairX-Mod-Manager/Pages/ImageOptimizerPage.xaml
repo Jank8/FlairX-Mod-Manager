@@ -83,7 +83,7 @@
                               MinWidth="120"
                               VerticalAlignment="Center"
                               SelectionChanged="ImageFormatComboBox_SelectionChanged">
-                        <ComboBoxItem Content="Classic (JPEG)" Tag="JPEG"/>
+                        <ComboBoxItem Content="Classic (JPEG)" Tag="Classic"/>
                         <ComboBoxItem Content="WebP" Tag="WebP"/>
                     </ComboBox>
                 </Grid>
