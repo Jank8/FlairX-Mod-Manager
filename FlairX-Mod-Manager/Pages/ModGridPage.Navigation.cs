@@ -278,13 +278,13 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 
                 // Search through the lightweight ModData and create ModTiles for matches
-                var filteredData = _allModData.Where(modData => 
+                // GetFilteredModData() already applies broken and NSFW filters
+                var filteredData = GetFilteredModData().Where(modData => 
                     modData.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                     modData.Author.Contains(query, StringComparison.OrdinalIgnoreCase) ||
                     (!string.IsNullOrEmpty(modData.Url) && modData.Url.Contains(query, StringComparison.OrdinalIgnoreCase))).ToList();
                 
                 var filteredMods = new List<ModTile>();
-                bool hideBroken = SettingsManager.Current.HideBrokenMods;
                 
                 // Cache favorites list once
                 var gameTag = SettingsManager.CurrentSelectedGame ?? "";
@@ -299,12 +299,6 @@ namespace FlairX_Mod_Manager.Pages
                 
                 foreach (var modData in filteredData)
                 {
-                    // Filter broken mods if setting is enabled
-                    if (modData.IsBroken && hideBroken)
-                    {
-                        continue;
-                    }
-                    
                     var modTile = new ModTile 
                     { 
                         Name = modData.Name, 

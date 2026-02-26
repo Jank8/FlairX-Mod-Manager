@@ -16,6 +16,33 @@ namespace FlairX_Mod_Manager.Pages
     /// </summary>
     public sealed partial class ModGridPage : Page
     {
+        /// <summary>
+        /// Get filtered mod data based on current settings (hide broken, hide NSFW)
+        /// Uses persistent lists for fast filtering
+        /// </summary>
+        private IEnumerable<ModData> GetFilteredModData()
+        {
+            bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            bool hideNSFW = SettingsManager.Current.HideNSFWMods;
+            
+            // Load persistent lists once for fast lookup
+            HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();
+            HashSet<string> brokenMods = hideBroken ? ModListManager.LoadBrokenModsList() : new HashSet<string>();
+            
+            return _allModData.Where(modData => 
+            {
+                // Filter broken mods if setting is enabled (fast HashSet lookup)
+                if (hideBroken && brokenMods.Contains(modData.Name))
+                    return false;
+                
+                // Filter NSFW mods if setting is enabled (fast HashSet lookup)
+                if (hideNSFW && nsfwMods.Contains(modData.Name))
+                    return false;
+                
+                return true;
+            });
+        }
+        
         public void LoadCategories()
         {
             LogToGridLog($"LoadCategories() called - CurrentViewMode: {CurrentViewMode}");
@@ -315,23 +342,11 @@ namespace FlairX_Mod_Manager.Pages
             LoadCategoryModData(category);
             
             // Then create ModTiles directly (not virtualized like LoadModsByCategory)
+            // GetFilteredModData() already applies broken and NSFW filters
             var mods = new List<ModTile>();
-            bool hideBroken = SettingsManager.Current.HideBrokenMods;
             
-            foreach (var modData in _allModData)
+            foreach (var modData in GetFilteredModData())
             {
-                // Filter NSFW mods if setting is enabled
-                if (modData.IsNSFW && SettingsManager.Current.BlurNSFWThumbnails)
-                {
-                    continue;
-                }
-                
-                // Filter broken mods if setting is enabled
-                if (modData.IsBroken && hideBroken)
-                {
-                    continue;
-                }
-                
                 var modTile = new ModTile 
                 { 
                     Name = modData.Name, 
@@ -354,7 +369,7 @@ namespace FlairX_Mod_Manager.Pages
                 mods.Add(modTile);
             }
                 
-            LogToGridLog($"Loaded {mods.Count} mods for category: {category} (Broken filter: {hideBroken})");
+            LogToGridLog($"Loaded {mods.Count} mods for category: {category}");
             ModsGrid.ItemsSource = mods;
             UpdateEmptyState();
             
@@ -393,6 +408,11 @@ namespace FlairX_Mod_Manager.Pages
             
             _allModData.Clear();
             _lastLoadedModDataIndex = 0;
+            
+            // Lists for rebuilding persistent JSON files
+            var nsfwMods = new List<string>();
+            var brokenMods = new List<string>();
+            var outdatedMods = new List<string>();
             
             // Process category directories (1st level) and mod directories (2nd level)
             foreach (var categoryDir in Directory.GetDirectories(modsPath))
@@ -450,6 +470,11 @@ namespace FlairX_Mod_Manager.Pages
                         var cleanName = GetCleanModName(dirName);
                         var isActive = IsModActive(dirName);
                         
+                        // Build persistent lists
+                        if (isNSFW) nsfwMods.Add(cleanName);
+                        if (isBroken) brokenMods.Add(cleanName);
+                        if (hasUpdate) outdatedMods.Add(cleanName);
+                        
                         var modData = new ModData
                         {
                             Name = cleanName,
@@ -476,6 +501,11 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
             }
+            
+            // Save persistent lists to JSON files
+            ModListManager.SaveNSFWModsList(nsfwMods);
+            ModListManager.SaveBrokenModsList(brokenMods);
+            ModListManager.SaveOutdatedModsList(outdatedMods);
             
             // Cache favorites list once before sorting to avoid repeated calls
             var gameTag = SettingsManager.CurrentSelectedGame ?? "";
@@ -505,93 +535,9 @@ namespace FlairX_Mod_Manager.Pages
                     .ToList();
             }
                 
-            LogToGridLog($"Loaded {_allModData.Count} mod data entries");
+            LogToGridLog($"Loaded {_allModData.Count} mod data entries (NSFW: {nsfwMods.Count}, Broken: {brokenMods.Count}, Outdated: {outdatedMods.Count})");
         }
 
-        private ModData? GetCachedModData(string dir, string modJsonPath)
-        {
-            var dirName = Path.GetFileName(dir);
-            var cleanName = GetCleanModName(dirName);
-            
-            Logger.LogInfo($"GetCachedModData called for: {cleanName} (Directory: {dirName})");
-            
-            // Always read from file - no cache for modBroken
-            try
-            {
-                var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
-                using var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-                var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
-                var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
-                var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
-                var isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
-                var isBroken = root.TryGetProperty("modBroken", out var brokenProp) && brokenProp.ValueKind == JsonValueKind.True;
-                // Parse dates for sorting
-                var lastChecked = DateTime.MinValue;
-                var lastUpdated = DateTime.MinValue;
-                
-                if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && dateCheckedProp.ValueKind == JsonValueKind.String)
-                {
-                    DateTime.TryParse(dateCheckedProp.GetString(), out lastChecked);
-                }
-                
-                if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && dateUpdatedProp.ValueKind == JsonValueKind.String)
-                {
-                    DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
-                }
-                
-                // Use file system dates as fallback
-                if (lastChecked == DateTime.MinValue)
-                {
-                    lastChecked = File.GetLastAccessTime(dir);
-                }
-                
-                if (lastUpdated == DateTime.MinValue)
-                {
-                    lastUpdated = File.GetLastWriteTime(dir);
-                }
-                
-                string previewPath = GetOptimalImagePath(dir);
-                var isActive = IsModActive(dirName);
-                
-                // Determine category from directory structure
-                var categoryName = "Unknown";
-                try
-                {
-                    var parentDir = Directory.GetParent(dir);
-                    if (parentDir != null)
-                    {
-                        categoryName = parentDir.Name;
-                    }
-                }
-                catch
-                {
-                    // Use default if unable to determine category
-                }
-                
-                var modData = new ModData
-                { 
-                    Name = cleanName,  // Display name without DISABLED_ prefix
-                    ImagePath = previewPath, 
-                    Directory = dirName,  // Use actual folder name for file operations
-                    IsActive = isActive,
-                    Character = modCharacter,
-                    Author = modAuthor,
-                    Url = modUrl,
-                    Category = categoryName,
-                    LastChecked = lastChecked,
-                    LastUpdated = lastUpdated,
-                    IsNSFW = isNSFW,
-                    IsBroken = isBroken
-                };
-                
-                return modData;
-            }
-            catch
-            {
-                return null;
-            }
-        }
 
         private void LoadVirtualizedModTiles()
         {
@@ -601,7 +547,12 @@ namespace FlairX_Mod_Manager.Pages
             var initialMods = new List<ModTile>();
             int loaded = 0;
             int lastProcessedIndex = 0;
+            
+            // Load persistent lists once for fast filtering
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            bool hideNSFW = SettingsManager.Current.HideNSFWMods;
+            HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();
+            HashSet<string> brokenMods = hideBroken ? ModListManager.LoadBrokenModsList() : new HashSet<string>();
             
             // Cache favorites list once to avoid repeated calls
             var gameTag = SettingsManager.CurrentSelectedGame ?? "";
@@ -619,8 +570,14 @@ namespace FlairX_Mod_Manager.Pages
                 lastProcessedIndex = i + 1; // Track actual index in _allModData
                 var modData = _allModData[i];
                 
-                // Filter broken mods if setting is enabled
-                if (modData.IsBroken && hideBroken)
+                // Filter broken mods if setting is enabled (fast HashSet lookup)
+                if (hideBroken && brokenMods.Contains(modData.Name))
+                {
+                    continue;
+                }
+                
+                // Filter NSFW mods if setting is enabled (fast HashSet lookup)
+                if (hideNSFW && nsfwMods.Contains(modData.Name))
                 {
                     continue;
                 }
@@ -693,12 +650,17 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog("LoadActiveModsOnly() called");
             
-            // For active mods, we need to load from ALL categories including "Other"
-            LoadActiveModData();
+            // Load all mod data first
+            LoadAllModData();
             
             // Filter to show only active mods from _allModData
             var activeModTiles = new List<ModTile>();
+            
+            // Load persistent lists once for fast filtering
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            bool hideNSFW = SettingsManager.Current.HideNSFWMods;
+            HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();
+            HashSet<string> brokenMods = hideBroken ? ModListManager.LoadBrokenModsList() : new HashSet<string>();
             
             foreach (var modData in _allModData)
             {
@@ -707,8 +669,14 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (modData.IsActive)
                 {
-                    // Filter broken mods if setting is enabled
-                    if (modData.IsBroken && hideBroken)
+                    // Filter broken mods if setting is enabled (fast HashSet lookup)
+                    if (hideBroken && brokenMods.Contains(modData.Name))
+                    {
+                        continue;
+                    }
+                    
+                    // Filter NSFW mods if setting is enabled (fast HashSet lookup)
+                    if (hideNSFW && nsfwMods.Contains(modData.Name))
                     {
                         continue;
                     }
@@ -755,8 +723,8 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog("LoadBrokenModsOnly() called");
             
-            // For broken mods, we need to load from ALL categories including "Other"
-            LoadActiveModData(); // This now loads all categories including "Other"
+            // Load all mod data first
+            LoadAllModData();
             
             // Filter to show only broken mods from _allModData
             var brokenModTiles = new List<ModTile>();
@@ -806,12 +774,17 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog("LoadOutdatedModsOnly() called");
             
-            // Load from ALL categories
-            LoadActiveModData();
+            // Load all mod data first
+            LoadAllModData();
             
             // Filter to show only outdated mods from _allModData
             var outdatedModTiles = new List<ModTile>();
+            
+            // Load persistent lists once for fast filtering
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            bool hideNSFW = SettingsManager.Current.HideNSFWMods;
+            HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();
+            HashSet<string> brokenMods = hideBroken ? ModListManager.LoadBrokenModsList() : new HashSet<string>();
             
             foreach (var modData in _allModData)
             {
@@ -823,8 +796,14 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (hasUpdate)
                 {
-                    // Filter broken mods if setting is enabled
-                    if (modData.IsBroken && hideBroken)
+                    // Filter broken mods if setting is enabled (fast HashSet lookup)
+                    if (hideBroken && brokenMods.Contains(modData.Name))
+                    {
+                        continue;
+                    }
+                    
+                    // Filter NSFW mods if setting is enabled (fast HashSet lookup)
+                    if (hideNSFW && nsfwMods.Contains(modData.Name))
                     {
                         continue;
                     }
@@ -867,67 +846,6 @@ namespace FlairX_Mod_Manager.Pages
             });
         }
 
-        private void LoadActiveModData()
-        {
-            var modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
-            
-            if (!Directory.Exists(modsPath)) return;
-            
-            _allModData.Clear();
-            _lastLoadedModDataIndex = 0;
-            var cacheHits = 0;
-            var cacheMisses = 0;
-            
-            // Process category directories for active mods view (same as All Mods)
-            foreach (var categoryDir in Directory.GetDirectories(modsPath))
-            {
-                if (!Directory.Exists(categoryDir)) continue;
-                
-                var categoryName = Path.GetFileName(categoryDir);
-                
-                foreach (var modDir in Directory.GetDirectories(categoryDir))
-                {
-                    var modJsonPath = Path.Combine(modDir, "mod.json");
-                    if (!File.Exists(modJsonPath)) continue;
-                    
-                    var dirName = Path.GetFileName(modDir);
-                    var modData = GetCachedModData(modDir, modJsonPath);
-                    
-                    if (modData != null)
-                    {
-                        // Update active state (this can change without file modification)
-                        modData.IsActive = IsModActive(dirName);
-                        
-                        // Add category information from folder structure
-                        modData.Category = Path.GetFileName(categoryDir);
-                        
-                        // Add mod to active mods data (Other category is already filtered out above)
-                        _allModData.Add(modData);
-                        cacheHits++;
-                    }
-                    else
-                    {
-                        cacheMisses++;
-                    }
-                }
-            }
-            
-            // Sort the lightweight data: active first (if enabled), then alphabetically
-            if (SettingsManager.Current.ActiveModsToTopEnabled)
-            {
-                _allModData = _allModData
-                    .OrderByDescending(m => m.IsActive)
-                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-            }
-            else
-            {
-                _allModData = _allModData
-                    .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-            }
-                
-            LogToGridLog($"Loaded {_allModData.Count} mod data entries for active mods view (Cache hits: {cacheHits}, Cache misses: {cacheMisses})");
-        }
+        // No cache system - direct file reading only
     }
 }

@@ -193,11 +193,6 @@ namespace FlairX_Mod_Manager.Pages
         private List<ModData> _allModData = new();
         private int _lastLoadedModDataIndex = 0; // Track last processed index in _allModData for incremental loading
         
-        // Thread-safe JSON Caching System
-        private static readonly Dictionary<string, ModData> _modJsonCache = new();
-        private static readonly Dictionary<string, DateTime> _modFileTimestamps = new();
-        private static readonly object _cacheLock = new object();
-        
 
 
         private void OnViewModeChanged()
@@ -1289,24 +1284,33 @@ namespace FlairX_Mod_Manager.Pages
         // Dynamic NSFW filtering
         public void FilterNSFWMods(bool hideNSFW)
         {
-            // NSFW overlay visibility is now controlled by binding with NSFWOverlayVisibilityConverter
-            // Force refresh of all visible containers to update the binding
+            Logger.LogGrid($"FilterNSFWMods called: hideNSFW={hideNSFW} (reloading view)");
             
-            Logger.LogGrid($"FilterNSFWMods called: hideNSFW={hideNSFW} (forcing binding refresh)");
-            
-            if (ModsGrid?.ItemsSource is not ObservableCollection<ModTile> mods) return;
-            
-            // Force UI update by triggering property change notification
-            // This will cause the converter to re-evaluate for all items
-            _ = Task.Run(async () =>
+            // Simply reload the current view to apply the new NSFW filter setting
+            DispatcherQueue.TryEnqueue(() =>
             {
-                await Task.Delay(50);
-                
-                DispatcherQueue.TryEnqueue(() =>
+                if (_currentCategory == null)
                 {
-                    // Trigger layout update to refresh bindings
-                    ModsGrid.UpdateLayout();
-                });
+                    // Reload all mods
+                    LoadAllMods();
+                }
+                else if (_currentCategory == "Active")
+                {
+                    LoadActiveModsOnly();
+                }
+                else if (_currentCategory == "Broken")
+                {
+                    LoadBrokenModsOnly();
+                }
+                else if (_currentCategory == "Outdated")
+                {
+                    LoadOutdatedModsOnly();
+                }
+                else
+                {
+                    // Reload specific category
+                    LoadModsByCategory(_currentCategory);
+                }
             });
         }
         

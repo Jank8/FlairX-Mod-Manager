@@ -17,7 +17,7 @@ namespace FlairX_Mod_Manager.Pages
     /// </summary>
     public sealed partial class ModGridPage : Page
     {
-        // Thread-safe Background Loading
+        // Thread-safe Background Loading (without cache)
         private static volatile bool _isBackgroundLoading = false;
         private static Task? _backgroundLoadTask = null;
         private static readonly object _backgroundLoadLock = new object();
@@ -52,7 +52,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                LogToGridLog("BACKGROUND: Starting background mod data loading");
+                LogToGridLog("BACKGROUND: Starting background mod data pre-loading");
                 
                 var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                 
@@ -71,127 +71,41 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
                 
+                // Pre-load mod.json files in background to warm up file system cache
                 foreach (var categoryDir in categoryDirs)
                 {
                     if (!Directory.Exists(categoryDir)) continue;
-                    
-                    var categoryName = Path.GetFileName(categoryDir);
                     
                     foreach (var modDir in Directory.GetDirectories(categoryDir))
                     {
                         var modJsonPath = Path.Combine(modDir, "mod.json");
                         if (!File.Exists(modJsonPath)) continue;
                         
-                        var dirName = Path.GetFileName(modDir);
-                    
-                    // Check if we need to load/update this mod's data
-                    lock (_cacheLock)
-                    {
-                        var lastWriteTime = File.GetLastWriteTime(modJsonPath);
-                        
-                        if (_modJsonCache.TryGetValue(dirName, out var cachedData) &&
-                            _modFileTimestamps.TryGetValue(dirName, out var cachedTime) &&
-                            cachedTime >= lastWriteTime)
-                        {
-                            // Already cached and up to date
-                            continue;
-                        }
-                        
-                        // Load and cache the data
                         try
                         {
-                            var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
-                            using var doc = JsonDocument.Parse(json);
-                            var root = doc.RootElement;
-                            var modCharacter = root.TryGetProperty("character", out var charProp) ? charProp.GetString() ?? "other" : "other";
-                            var modAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? "" : "";
-                            var modUrl = root.TryGetProperty("url", out var urlProp) ? urlProp.GetString() ?? "" : "";
-                            var isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == JsonValueKind.True;
-                            var isBroken = root.TryGetProperty("modBroken", out var brokenProp) && brokenProp.ValueKind == JsonValueKind.True;
-                            
-                            // Parse dates for sorting
-                            var lastChecked = DateTime.MinValue;
-                            var lastUpdated = DateTime.MinValue;
-                            
-                            if (root.TryGetProperty("dateChecked", out var dateCheckedProp) && dateCheckedProp.ValueKind == JsonValueKind.String)
-                            {
-                                DateTime.TryParse(dateCheckedProp.GetString(), out lastChecked);
-                            }
-                            
-                            if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && dateUpdatedProp.ValueKind == JsonValueKind.String)
-                            {
-                                DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
-                            }
-                            
-                            // Check for available updates
-                            bool hasUpdate = false;
-                            if (root.TryGetProperty("gbChangeDate", out var gbChangeProp) && gbChangeProp.ValueKind == JsonValueKind.String &&
-                                root.TryGetProperty("dateUpdated", out var dateUpdProp) && dateUpdProp.ValueKind == JsonValueKind.String)
-                            {
-                                if (DateTime.TryParse(gbChangeProp.GetString(), out var gbDate) && 
-                                    DateTime.TryParse(dateUpdProp.GetString(), out var updatedDate))
-                                {
-                                    hasUpdate = gbDate > updatedDate;
-                                }
-                            }
-                            
-                            // If dates are not in JSON, use file system dates as fallback
-                            if (lastChecked == DateTime.MinValue)
-                            {
-                                lastChecked = File.GetLastAccessTime(modDir);
-                            }
-                            
-                            if (lastUpdated == DateTime.MinValue)
-                            {
-                                lastUpdated = File.GetLastWriteTime(modDir);
-                            }
-                            
-                            var name = Path.GetFileName(modDir);
-                            var cleanName = GetCleanModName(name);
-                            string previewPath = GetOptimalImagePathStatic(modDir);
-                            
-                            var modData = new ModData
-                            { 
-                                Name = cleanName, 
-                                ImagePath = previewPath, 
-                                Directory = dirName, 
-                                IsActive = false, // Will be updated when actually used
-                                Character = modCharacter,
-                                Author = modAuthor,
-                                Url = modUrl,
-                                Category = categoryName,
-                                LastChecked = lastChecked,
-                                LastUpdated = lastUpdated,
-                                HasUpdate = hasUpdate,
-                                IsNSFW = isNSFW,
-                                IsBroken = isBroken
-                            };
-                            
-                            // Cache the data
-                            _modJsonCache[dirName] = modData;
-                            _modFileTimestamps[dirName] = lastWriteTime;
+                            // Just read the file to warm up OS file cache
+                            _ = Services.FileAccessQueue.ReadAllText(modJsonPath);
                         }
                         catch
                         {
                             // Skip problematic files
                         }
-                    }
-                    
+                        
                         processed++;
                         
                         // Small delay to prevent overwhelming the system
-                        if (processed % 10 == 0)
+                        if (processed % 20 == 0)
                         {
                             await Task.Delay(1);
                         }
                     }
                 }
                 
-                LogToGridLog($"BACKGROUND: Completed background loading - processed {processed}/{totalDirs} directories");
+                LogToGridLog($"BACKGROUND: Completed pre-loading - processed {processed}/{totalDirs} mod.json files");
             }
             catch (Exception ex)
             {
-                LogToGridLog($"BACKGROUND: Error during background loading: {ex.Message}");
+                LogToGridLog($"BACKGROUND: Error during pre-loading: {ex.Message}");
             }
         }
 
@@ -336,7 +250,11 @@ namespace FlairX_Mod_Manager.Pages
         {
             const int batchSize = 20; // Fixed batch size for incremental loading
             
+            // Load persistent lists once for fast filtering
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            bool hideNSFW = SettingsManager.Current.HideNSFWMods;
+            HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();
+            HashSet<string> brokenMods = hideBroken ? ModListManager.LoadBrokenModsList() : new HashSet<string>();
             
             // Cache favorites list once to avoid repeated calls
             var gameTag = SettingsManager.CurrentSelectedGame ?? "";
@@ -357,8 +275,15 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var modData = _allModData[i];
                 
-                // Filter broken mods if setting is enabled
-                if (modData.IsBroken && hideBroken)
+                // Filter broken mods if setting is enabled (fast HashSet lookup)
+                if (hideBroken && brokenMods.Contains(modData.Name))
+                {
+                    _lastLoadedModDataIndex = i + 1;
+                    continue;
+                }
+                
+                // Filter NSFW mods if setting is enabled (fast HashSet lookup)
+                if (hideNSFW && nsfwMods.Contains(modData.Name))
                 {
                     _lastLoadedModDataIndex = i + 1;
                     continue;

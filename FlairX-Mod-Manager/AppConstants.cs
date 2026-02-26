@@ -83,6 +83,40 @@ namespace FlairX_Mod_Manager
                 
                 return $"{subDir}-ActiveMods.json";
             }
+            
+            public static string GetNSFWModsFilename(string gameTag)
+            {
+                string subDir = GetGameSubDir(gameTag);
+                return $"{subDir}-NSFWMods.json";
+            }
+            
+            public static string GetBrokenModsFilename(string gameTag)
+            {
+                string subDir = GetGameSubDir(gameTag);
+                return $"{subDir}-BrokenMods.json";
+            }
+            
+            public static string GetOutdatedModsFilename(string gameTag)
+            {
+                string subDir = GetGameSubDir(gameTag);
+                return $"{subDir}-OutdatedMods.json";
+            }
+            
+            private static string GetGameSubDir(string gameTag)
+            {
+                if (string.IsNullOrEmpty(gameTag)) return "ZZ";
+                
+                return gameTag switch
+                {
+                    "ZZMI" => "ZZ",
+                    "WWMI" => "WW",
+                    "SRMI" => "SR",
+                    "GIMI" => "GI",
+                    "HIMI" => "HI",
+                    "EFMI" => "EF",
+                    _ => "ZZ"
+                };
+            }
         }
         
         // UI Constants

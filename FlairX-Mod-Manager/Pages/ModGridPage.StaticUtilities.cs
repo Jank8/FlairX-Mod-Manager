@@ -387,37 +387,7 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogError("Failed to apply preset", ex);
             }
         }
-
-        // Cache management methods
-        public static void ClearJsonCache()
-        {
-            lock (_cacheLock)
-            {
-                _modJsonCache.Clear();
-                _modFileTimestamps.Clear();
-                LogToGridLog("CACHE: JSON cache cleared");
-            }
-        }
-
-        public static void InvalidateModCache(string modDirectory)
-        {
-            lock (_cacheLock)
-            {
-                var dirName = Path.GetFileName(modDirectory);
-                var cleanName = GetCleanModName(dirName);
-                
-                if (_modJsonCache.Remove(dirName))
-                {
-                    _modFileTimestamps.Remove(dirName);
-                    LogToGridLog($"CACHE: Invalidated cache for {dirName}");
-                }
-                if (_modJsonCache.Remove(cleanName))
-                {
-                    _modFileTimestamps.Remove(cleanName);
-                    LogToGridLog($"CACHE: Invalidated cache for {cleanName}");
-                }
-            }
-        }
+        // No cache system - direct file reading for reliability
 
         private static string CleanPath(string path)
         {
@@ -497,11 +467,8 @@ namespace FlairX_Mod_Manager.Pages
             if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))
                 return;
             
-            var changedMods = new List<string>();
-            var newMods = new List<string>();
-            var removedMods = new List<string>();
-            
-            var existingModDirs = new HashSet<string>();
+            // Count current mods on disk
+            var currentModCount = 0;
             foreach (var categoryDir in Directory.GetDirectories(modsPath))
             {
                 if (!Directory.Exists(categoryDir)) continue;
@@ -509,51 +476,21 @@ namespace FlairX_Mod_Manager.Pages
                 foreach (var modDir in Directory.GetDirectories(categoryDir))
                 {
                     var modJsonPath = Path.Combine(modDir, "mod.json");
-                    if (!File.Exists(modJsonPath)) continue;
-                    
-                    var dirName = GetCleanModName(Path.GetFileName(modDir));
-                    existingModDirs.Add(dirName);
-                    var lastWriteTime = File.GetLastWriteTime(modJsonPath);
-                    
-                    lock (_cacheLock)
+                    if (File.Exists(modJsonPath))
                     {
-                        if (_modFileTimestamps.TryGetValue(dirName, out var cachedTime))
-                        {
-                            if (lastWriteTime > cachedTime)
-                            {
-                                changedMods.Add(dirName);
-                            }
-                        }
-                        else
-                        {
-                            newMods.Add(dirName);
-                        }
+                        currentModCount++;
                     }
                 }
             }
             
-            lock (_cacheLock)
+            // If mod count changed, reload and rebuild persistent lists
+            if (currentModCount != _allModData.Count)
             {
-                removedMods = _modJsonCache.Keys.Where(cached => !existingModDirs.Contains(cached)).ToList();
-            }
-            
-            if (changedMods.Count > 0 || newMods.Count > 0 || removedMods.Count > 0)
-            {
-                LogToGridLog($"INCREMENTAL: Found {changedMods.Count} changed, {newMods.Count} new, {removedMods.Count} removed mods");
+                LogToGridLog($"INCREMENTAL: Mod count changed ({_allModData.Count} -> {currentModCount}), reloading and rebuilding lists");
                 
-                foreach (var removed in removedMods)
-                {
-                    InvalidateModCache(removed);
-                }
-                
-                foreach (var changed in changedMods)
-                {
-                    InvalidateModCache(changed);
-                }
-                 
                 if (_currentCategory == null && _allModData.Count > 0)
                 {
-                    LoadAllMods();
+                    LoadAllMods(); // This will call LoadAllModData which rebuilds the lists
                 }
             }
             else

@@ -438,13 +438,6 @@ namespace FlairX_Mod_Manager
                     loadingWindow.UpdateStatus("Refreshing manager...");
                     await Task.Delay(100);
                     
-                    // Clear JSON cache first to ensure fresh data loading
-                    loadingWindow.UpdateStatus("Clearing JSON cache...");
-                    LogToGridLog("REFRESH: Clearing JSON cache");
-                    FlairX_Mod_Manager.Pages.ModGridPage.ClearJsonCache();
-                    LogToGridLog("REFRESH: JSON cache cleared");
-                    await Task.Delay(100);
-                    
                     // Update mod.json files with namespace info (for new/updated mods)
                     loadingWindow.UpdateStatus("Scanning mod configurations...");
                     LogToGridLog("REFRESH: Updating mod.json files with namespace info");

@@ -384,41 +384,50 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void LoadPreviewImages(string fullModDir)
+        private async void LoadPreviewImages(string fullModDir)
         {
             try
             {
                 _availablePreviewImages.Clear();
                 _currentImageIndex = 0;
 
-                // Check for main preview (both formats)
-                var mainPreviewJpg = Path.Combine(fullModDir, "preview.jpg");
-                var mainPreviewWebp = Path.Combine(fullModDir, "preview.webp");
-                if (File.Exists(mainPreviewWebp))
+                // Load preview images on background thread to avoid blocking UI
+                var previewImages = await Task.Run(() =>
                 {
-                    _availablePreviewImages.Add(mainPreviewWebp);
-                }
-                else if (File.Exists(mainPreviewJpg))
-                {
-                    _availablePreviewImages.Add(mainPreviewJpg);
-                }
-
-                // Check for preview-01 through preview-99 (both formats)
-                for (int i = 1; i <= 99; i++)
-                {
-                    var previewJpg = Path.Combine(fullModDir, $"preview-{i:D2}.jpg");
-                    var previewWebp = Path.Combine(fullModDir, $"preview-{i:D2}.webp");
-                    if (File.Exists(previewWebp))
+                    var images = new List<string>();
+                    
+                    // Check for main preview (both formats)
+                    var mainPreviewJpg = Path.Combine(fullModDir, "preview.jpg");
+                    var mainPreviewWebp = Path.Combine(fullModDir, "preview.webp");
+                    if (File.Exists(mainPreviewWebp))
                     {
-                        _availablePreviewImages.Add(previewWebp);
+                        images.Add(mainPreviewWebp);
                     }
-                    else if (File.Exists(previewJpg))
+                    else if (File.Exists(mainPreviewJpg))
                     {
-                        _availablePreviewImages.Add(previewJpg);
+                        images.Add(mainPreviewJpg);
                     }
-                }
 
-                // Update UI based on available images
+                    // Check for preview-01 through preview-99 (both formats)
+                    for (int i = 1; i <= 99; i++)
+                    {
+                        var previewJpg = Path.Combine(fullModDir, $"preview-{i:D2}.jpg");
+                        var previewWebp = Path.Combine(fullModDir, $"preview-{i:D2}.webp");
+                        if (File.Exists(previewWebp))
+                        {
+                            images.Add(previewWebp);
+                        }
+                        else if (File.Exists(previewJpg))
+                        {
+                            images.Add(previewJpg);
+                        }
+                    }
+                    
+                    return images;
+                });
+                
+                // Update UI on UI thread
+                _availablePreviewImages = previewImages;
                 UpdateImageNavigation();
                 LoadCurrentImage();
                 
@@ -2534,6 +2543,44 @@ namespace FlairX_Mod_Manager.Pages
                     var newJson = JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true });
                     await File.WriteAllTextAsync(_modJsonPath, newJson);
                 });
+                
+                // Update persistent lists when NSFW or Broken status changes
+                if (field == "isNSFW" || field == "modBroken")
+                {
+                    try
+                    {
+                        var modDirName = Path.GetFileName(Path.GetDirectoryName(_modJsonPath));
+                        if (!string.IsNullOrEmpty(modDirName))
+                        {
+                            var cleanName = modDirName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase) 
+                                ? modDirName.Substring(9) 
+                                : modDirName;
+                            
+                            if (field == "isNSFW")
+                            {
+                                if (value)
+                                    ModListManager.AddToNSFWList(cleanName);
+                                else
+                                    ModListManager.RemoveFromNSFWList(cleanName);
+                                    
+                                Logger.LogInfo($"Updated NSFW list for mod: {cleanName} (isNSFW: {value})");
+                            }
+                            else if (field == "modBroken")
+                            {
+                                if (value)
+                                    ModListManager.AddToBrokenList(cleanName);
+                                else
+                                    ModListManager.RemoveFromBrokenList(cleanName);
+                                    
+                                Logger.LogInfo($"Updated Broken list for mod: {cleanName} (modBroken: {value})");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to update persistent lists for field: {field}", ex);
+                    }
+                }
                 
                 // Trigger NSFW filtering if enabled
                 if (field == "isNSFW")

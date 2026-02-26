@@ -1347,6 +1347,12 @@ namespace FlairX_Mod_Manager
 
                 var modDirs = System.IO.Directory.GetDirectories(categoryPath);
                 
+                // Check if NSFW filtering is enabled
+                bool hideNSFW = SettingsManager.Current.BlurNSFWThumbnails;
+                
+                // Load NSFW list once for fast lookup (if filtering is enabled)
+                HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();
+                
                 // Build list of mods with their active status and favorite status
                 var modItems = new List<(string dir, string name, bool isActive, bool isFavorite)>();
                 var gameTag = SettingsManager.CurrentSelectedGame;
@@ -1360,8 +1366,13 @@ namespace FlairX_Mod_Manager
                     if (activeOnly && !isActive)
                         continue;
                     
-                    // Get clean name for favorite check
+                    // Get clean name for checks
                     var cleanName = isActive ? modName : modName.Substring(8).TrimStart('_', '-', ' ');
+                    
+                    // Skip NSFW mods if filtering is enabled (fast HashSet lookup)
+                    if (hideNSFW && nsfwMods.Contains(cleanName))
+                        continue;
+                    
                     var isFavorite = !string.IsNullOrEmpty(gameTag) && SettingsManager.IsModFavorite(gameTag, cleanName);
                     
                     modItems.Add((modDir, modName, isActive, isFavorite));

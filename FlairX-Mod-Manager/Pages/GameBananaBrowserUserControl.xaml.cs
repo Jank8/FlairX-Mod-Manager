@@ -2020,6 +2020,50 @@ namespace FlairX_Mod_Manager.Pages
                     Logger.LogInfo($"Updated IsInstalled for mod: {mod.Name}");
                 }
             });
+            
+            // Update persistent mod lists based on mod.json properties
+            if (!string.IsNullOrEmpty(e.ModPath) && Directory.Exists(e.ModPath))
+            {
+                try
+                {
+                    var modJsonPath = Path.Combine(e.ModPath, "mod.json");
+                    if (File.Exists(modJsonPath))
+                    {
+                        var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
+                        using var doc = System.Text.Json.JsonDocument.Parse(json);
+                        var root = doc.RootElement;
+                        
+                        var isNSFW = root.TryGetProperty("isNSFW", out var nsfwProp) && nsfwProp.ValueKind == System.Text.Json.JsonValueKind.True;
+                        var isBroken = root.TryGetProperty("modBroken", out var brokenProp) && brokenProp.ValueKind == System.Text.Json.JsonValueKind.True;
+                        
+                        // Check for updates
+                        bool hasUpdate = false;
+                        if (root.TryGetProperty("gbChangeDate", out var gbChangeProp) && gbChangeProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                        {
+                            var gbChangeDateStr = gbChangeProp.GetString();
+                            if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && dateUpdatedProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                            {
+                                if (DateTime.TryParse(gbChangeDateStr, out var gbDate) && DateTime.TryParse(dateUpdatedProp.GetString(), out var lastUpdated))
+                                {
+                                    hasUpdate = gbDate > lastUpdated;
+                                }
+                            }
+                        }
+                        
+                        var modDirName = Path.GetFileName(e.ModPath);
+                        var cleanName = modDirName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase) 
+                            ? modDirName.Substring(9) 
+                            : modDirName;
+                        
+                        ModListManager.UpdateModInLists(cleanName, isNSFW, isBroken, hasUpdate);
+                        Logger.LogInfo($"Updated persistent lists for installed mod: {cleanName} (NSFW: {isNSFW}, Broken: {isBroken}, HasUpdate: {hasUpdate})");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to update persistent lists for installed mod: {e.ModPath}", ex);
+                }
+            }
         }
 
         private async void DetailOpenBrowserButton_Click(object sender, RoutedEventArgs e)

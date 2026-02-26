@@ -1221,12 +1221,10 @@ namespace FlairX_Mod_Manager.Pages
                     SaveActiveMods();
                 }
 
-                // Remove from cache
-                lock (_cacheLock)
-                {
-                    _modJsonCache.Remove(mod.Directory);
-                    _modFileTimestamps.Remove(mod.Directory);
-                }
+                // Remove from persistent lists
+                ModListManager.RemoveFromAllLists(cleanName);
+
+                // No cache to remove - direct file reading
 
                 // Remove the tile from both grid and table collections
                 if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> gridCollection)
