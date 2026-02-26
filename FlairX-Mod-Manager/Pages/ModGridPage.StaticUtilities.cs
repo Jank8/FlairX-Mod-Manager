@@ -488,6 +488,11 @@ namespace FlairX_Mod_Manager.Pages
             {
                 LogToGridLog($"INCREMENTAL: Mod count changed ({_allModData.Count} -> {currentModCount}), reloading and rebuilding lists");
                 
+                // Clear cached lists so they get rebuilt
+                _cachedNSFWMods = null;
+                _cachedBrokenMods = null;
+                _cachedOutdatedMods = null;
+                
                 if (_currentCategory == null && _allModData.Count > 0)
                 {
                     LoadAllMods(); // This will call LoadAllModData which rebuilds the lists

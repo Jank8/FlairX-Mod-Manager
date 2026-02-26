@@ -18,25 +18,26 @@ namespace FlairX_Mod_Manager.Pages
     {
         /// <summary>
         /// Get filtered mod data based on current settings (hide broken, hide NSFW)
-        /// Uses persistent lists for fast filtering
+        /// Uses cached persistent lists for fast filtering
         /// </summary>
         private IEnumerable<ModData> GetFilteredModData()
         {
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
             bool hideNSFW = SettingsManager.Current.HideNSFWMods;
             
-            // Load persistent lists once for fast lookup
-            HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();
-            HashSet<string> brokenMods = hideBroken ? ModListManager.LoadBrokenModsList() : new HashSet<string>();
+            // Use cached lists if available
+            // If cache is null, don't filter (lists haven't been built yet)
+            HashSet<string>? nsfwMods = hideNSFW ? _cachedNSFWMods : null;
+            HashSet<string>? brokenMods = hideBroken ? _cachedBrokenMods : null;
             
             return _allModData.Where(modData => 
             {
-                // Filter broken mods if setting is enabled (fast HashSet lookup)
-                if (hideBroken && brokenMods.Contains(modData.Name))
+                // Filter broken mods if setting is enabled AND cache exists
+                if (hideBroken && brokenMods != null && brokenMods.Contains(modData.Name))
                     return false;
                 
-                // Filter NSFW mods if setting is enabled (fast HashSet lookup)
-                if (hideNSFW && nsfwMods.Contains(modData.Name))
+                // Filter NSFW mods if setting is enabled AND cache exists
+                if (hideNSFW && nsfwMods != null && nsfwMods.Contains(modData.Name))
                     return false;
                 
                 return true;
@@ -506,6 +507,11 @@ namespace FlairX_Mod_Manager.Pages
             ModListManager.SaveNSFWModsList(nsfwMods);
             ModListManager.SaveBrokenModsList(brokenMods);
             ModListManager.SaveOutdatedModsList(outdatedMods);
+            
+            // Cache the lists in memory for fast access
+            _cachedNSFWMods = new HashSet<string>(nsfwMods);
+            _cachedBrokenMods = new HashSet<string>(brokenMods);
+            _cachedOutdatedMods = new HashSet<string>(outdatedMods);
             
             // Cache favorites list once before sorting to avoid repeated calls
             var gameTag = SettingsManager.CurrentSelectedGame ?? "";

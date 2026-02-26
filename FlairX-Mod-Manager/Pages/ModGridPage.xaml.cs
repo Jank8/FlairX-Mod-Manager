@@ -193,6 +193,11 @@ namespace FlairX_Mod_Manager.Pages
         private List<ModData> _allModData = new();
         private int _lastLoadedModDataIndex = 0; // Track last processed index in _allModData for incremental loading
         
+        // Cached persistent lists for fast filtering (loaded once per session)
+        private HashSet<string>? _cachedNSFWMods = null;
+        private HashSet<string>? _cachedBrokenMods = null;
+        private HashSet<string>? _cachedOutdatedMods = null;
+        
 
 
         private void OnViewModeChanged()
@@ -1002,8 +1007,8 @@ namespace FlairX_Mod_Manager.Pages
             public bool IsBroken { get; set; } = false;
         }
 
-        // Check for updates using persistent list (fast HashSet lookup)
-        private static bool CheckForUpdateLive(string modDirectory)
+        // Check for updates using cached persistent list (fast HashSet lookup)
+        private bool CheckForUpdateLive(string modDirectory)
         {
             try
             {
@@ -1015,9 +1020,11 @@ namespace FlairX_Mod_Manager.Pages
                 if (string.IsNullOrEmpty(cleanName))
                     return false;
                 
-                // Use persistent list for fast lookup instead of reading mod.json
-                var outdatedMods = ModListManager.LoadOutdatedModsList();
-                return outdatedMods.Contains(cleanName);
+                // Use cached list if available, otherwise return false (lists not built yet)
+                if (_cachedOutdatedMods == null)
+                    return false;
+                
+                return _cachedOutdatedMods.Contains(cleanName);
             }
             catch (Exception ex)
             {
