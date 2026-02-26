@@ -1598,7 +1598,9 @@ namespace FlairX_Mod_Manager.Pages
 
         private void BlurNSFWToggle_Toggled(object sender, RoutedEventArgs e)
         {
+            // Synchronize both NSFW settings (for mod grid and GameBanana browser)
             SettingsManager.Current.HideNSFWMods = BlurNSFWToggle.IsOn;
+            SettingsManager.Current.BlurNSFWThumbnails = BlurNSFWToggle.IsOn;
             SettingsManager.Save();
             UpdateToggleLabels();
             

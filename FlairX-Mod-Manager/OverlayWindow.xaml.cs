@@ -1348,7 +1348,7 @@ namespace FlairX_Mod_Manager
                 var modDirs = System.IO.Directory.GetDirectories(categoryPath);
                 
                 // Check if NSFW filtering is enabled
-                bool hideNSFW = SettingsManager.Current.BlurNSFWThumbnails;
+                bool hideNSFW = SettingsManager.Current.HideNSFWMods;
                 
                 // Load NSFW list once for fast lookup (if filtering is enabled)
                 HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();

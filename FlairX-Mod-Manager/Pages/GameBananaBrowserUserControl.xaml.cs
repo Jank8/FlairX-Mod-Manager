@@ -584,7 +584,7 @@ namespace FlairX_Mod_Manager.Pages
                 foreach (var record in response.Records)
                 {
                     // Skip NSFW content if setting is enabled
-                    if (record.HasContentRatings && SettingsManager.Current.BlurNSFWThumbnails)
+                    if (record.HasContentRatings && SettingsManager.Current.HideNSFWMods)
                     {
                         continue;
                     }
@@ -993,7 +993,7 @@ namespace FlairX_Mod_Manager.Pages
                 foreach (var record in response.Records)
                 {
                     // Skip NSFW content if setting is enabled
-                    if (record.HasContentRatings && SettingsManager.Current.BlurNSFWThumbnails)
+                    if (record.HasContentRatings && SettingsManager.Current.HideNSFWMods)
                     {
                         continue;
                     }
@@ -3047,3 +3047,4 @@ namespace FlairX_Mod_Manager.Pages
         }
     }
 }
+

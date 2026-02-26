@@ -407,6 +407,13 @@ namespace FlairX_Mod_Manager.Dialogs
                 HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
             };
 
+            // Force TextBox to update its display
+            if (_modNameTextBox != null && !string.IsNullOrEmpty(modName))
+            {
+                _modNameTextBox.Text = modName;
+                _modNameTextBox.UpdateLayout();
+            }
+
             // Check if this is an update and show appropriate checkboxes
             // Normalize category name for folder lookup
             var normalizedCategory = (categoryName ?? "Characters").Replace("/", "-");
