@@ -494,8 +494,22 @@ namespace FlairX_Mod_Manager.Pages
                     var varName = oldMatch.Groups[2].Value.Trim();
                     var value = oldMatch.Groups[3].Value.Trim();
 
-                    // Extract mod folder name from path (first part before any slash)
-                    var modFolderName = fullIniPath.Split('\\', '/')[0];
+                    // Extract mod folder name from path
+                    // Path format: category\modname\file.ini
+                    // We need the modname (second part)
+                    var pathParts = fullIniPath.Split('\\', '/');
+                    string modFolderName;
+                    
+                    if (pathParts.Length >= 2)
+                    {
+                        // Get the mod folder name (second part of path)
+                        modFolderName = pathParts[1];
+                    }
+                    else
+                    {
+                        // Fallback to first part if path is malformed
+                        modFolderName = pathParts[0];
+                    }
                     
                     // Check if this mod has StatusKeeper sync enabled
                     if (!IsModSyncEnabled(modFolderName))
@@ -584,8 +598,33 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                // Use ModListManager for fast lookup (no file I/O)
-                return ModListManager.IsModStatusKeeperSync(modFolderName);
+                // Read directly from mod.json (StatusKeeper only processes active mods from d3dx_user.ini)
+                var modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))
+                {
+                    return true; // Default to enabled if path not found
+                }
+
+                // Search for mod in all categories
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
+                {
+                    var modPath = Path.Combine(categoryDir, modFolderName);
+                    var modJsonPath = Path.Combine(modPath, "mod.json");
+                    
+                    if (File.Exists(modJsonPath))
+                    {
+                        var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
+                        using var doc = System.Text.Json.JsonDocument.Parse(json);
+                        var root = doc.RootElement;
+                        
+                        // statusKeeperSync defaults to true if not present or not explicitly false
+                        var statusKeeperSync = root.TryGetProperty("statusKeeperSync", out var syncProp) && syncProp.ValueKind != System.Text.Json.JsonValueKind.False;
+                        return statusKeeperSync;
+                    }
+                }
+                
+                // Mod not found, default to enabled
+                return true;
             }
             catch (Exception ex)
             {
