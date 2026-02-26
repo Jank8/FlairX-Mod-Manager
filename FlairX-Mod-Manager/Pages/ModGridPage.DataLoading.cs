@@ -106,8 +106,7 @@ namespace FlairX_Mod_Manager.Pages
                     _allMods.Add(category);
                 }
                 
-                // Set the ItemsSource to display categories
-                ModsGrid.ItemsSource = _allMods;
+                // ItemsSource is already set in constructor, no need to set again
                 UpdateEmptyState();
                 
                 var langDict = SharedUtilities.LoadLanguageDictionary();
@@ -196,11 +195,83 @@ namespace FlairX_Mod_Manager.Pages
                 CurrentViewMode = ViewMode.Mods;
             }
             
-            // First, load all mod data for this category (lightweight)
-            LoadCategoryModData(category);
+            // Get mods for this category from ModListManager (fast - no file I/O)
+            var categoryMods = ModListManager.GetModsByCategory(category);
             
-            // Then create only the initial visible ModTiles (same as LoadAllMods)
-            LoadVirtualizedModTiles();
+            Logger.LogInfo($"LoadModsByCategory: Got {categoryMods.Count} mods for category '{category}'");
+            
+            // Apply filters based on settings
+            bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            bool hideNSFW = SettingsManager.Current.HideNSFWMods;
+            
+            Logger.LogInfo($"LoadModsByCategory: Filters - HideBroken: {hideBroken}, HideNSFW: {hideNSFW}");
+            
+            var filteredMods = categoryMods.Where(mod =>
+            {
+                if (hideBroken && mod.IsBroken) return false;
+                if (hideNSFW && mod.IsNSFW) return false;
+                return true;
+            }).ToList();
+            
+            Logger.LogInfo($"LoadModsByCategory: After filtering: {filteredMods.Count} mods");
+            
+            // Sort: favorites first, then active first (if enabled), then alphabetically
+            if (SettingsManager.Current.ActiveModsToTopEnabled)
+            {
+                filteredMods = filteredMods
+                    .OrderByDescending(m => m.IsFavorite)
+                    .ThenByDescending(m => m.IsActive)
+                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+            else
+            {
+                filteredMods = filteredMods
+                    .OrderByDescending(m => m.IsFavorite)
+                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+            
+            // Convert to ModTiles
+            var modTiles = filteredMods.Select(modInfo => new ModTile
+            {
+                Name = modInfo.Name,
+                Directory = modInfo.Directory,
+                ImagePath = modInfo.ImagePath,
+                IsActive = modInfo.IsActive,
+                Category = modInfo.Category,
+                Author = modInfo.Author,
+                Url = modInfo.Url,
+                LastChecked = modInfo.LastChecked,
+                LastUpdated = modInfo.LastUpdated,
+                HasUpdate = modInfo.HasUpdate,
+                IsVisible = true,
+                IsBroken = modInfo.IsBroken,
+                IsNSFW = modInfo.IsNSFW,
+                IsFavorite = modInfo.IsFavorite,
+                ImageSource = null // Lazy load when visible
+            }).ToList();
+            
+            // Update UI
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _allMods.Clear();
+                foreach (var mod in modTiles)
+                {
+                    _allMods.Add(mod);
+                }
+                
+                UpdateEmptyState();
+            });
+            
+            LogToGridLog($"Loaded {modTiles.Count} mods for category '{category}' from ModListManager");
+            
+            // Load visible images
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100);
+                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+            });
         }
 
         private void LoadCategoryModData(string category)
@@ -371,14 +442,30 @@ namespace FlairX_Mod_Manager.Pages
             }
                 
             LogToGridLog($"Loaded {mods.Count} mods for category: {category}");
-            ModsGrid.ItemsSource = mods;
-            UpdateEmptyState();
             
-            // Load visible images after setting new data source
-            _ = Task.Run(async () =>
+            // Update _allMods collection instead of creating new list
+            DispatcherQueue.TryEnqueue(() =>
             {
-                await Task.Delay(100); // Small delay to let the grid update
-                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+                _allMods.Clear();
+                foreach (var mod in mods)
+                {
+                    _allMods.Add(mod);
+                }
+                
+                // Ensure ItemsSource is set
+                if (ModsGrid.ItemsSource != _allMods)
+                {
+                    ModsGrid.ItemsSource = _allMods;
+                }
+                
+                UpdateEmptyState();
+                
+                // Load visible images after setting new data source
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(100); // Small delay to let the grid update
+                    DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+                });
             });
         }
 
@@ -394,11 +481,130 @@ namespace FlairX_Mod_Manager.Pages
                 CurrentViewMode = ViewMode.Mods;
             }
             
-            // First, load all mod data (lightweight)
-            LoadAllModData();
+            // Check filters and use appropriate list from ModListManager
+            bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            bool hideNSFW = SettingsManager.Current.HideNSFWMods;
             
-            // Then create only the initial visible ModTiles
-            LoadVirtualizedModTiles();
+            Logger.LogInfo($"LoadAllMods: Filters - HideBroken: {hideBroken}, HideNSFW: {hideNSFW}");
+            
+            List<ModListManager.ModInfo> filteredMods;
+            
+            // Use pre-filtered lists when possible for better performance
+            if (hideBroken && hideNSFW)
+            {
+                // Need to filter both - get all and filter manually
+                var allMods = ModListManager.GetAllMods();
+                filteredMods = allMods.Where(m => !m.IsBroken && !m.IsNSFW).ToList();
+            }
+            else if (hideBroken)
+            {
+                // Filter only broken - get all and filter
+                var allMods = ModListManager.GetAllMods();
+                filteredMods = allMods.Where(m => !m.IsBroken).ToList();
+            }
+            else if (hideNSFW)
+            {
+                // Filter only NSFW - get all and filter
+                var allMods = ModListManager.GetAllMods();
+                filteredMods = allMods.Where(m => !m.IsNSFW).ToList();
+            }
+            else
+            {
+                // No filters - use all mods
+                filteredMods = ModListManager.GetAllMods();
+            }
+            
+            Logger.LogInfo($"LoadAllMods: Got {filteredMods.Count} mods after filtering");
+            
+            // Sort: favorites first, then active first (if enabled), then alphabetically
+            if (SettingsManager.Current.ActiveModsToTopEnabled)
+            {
+                filteredMods = filteredMods
+                    .OrderByDescending(m => m.IsFavorite)
+                    .ThenByDescending(m => m.IsActive)
+                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+            else
+            {
+                filteredMods = filteredMods
+                    .OrderByDescending(m => m.IsFavorite)
+                    .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+            }
+            
+            // Convert to lightweight ModData for lazy loading
+            _allModData.Clear();
+            _lastLoadedModDataIndex = 0;
+            
+            foreach (var modInfo in filteredMods)
+            {
+                _allModData.Add(new ModData
+                {
+                    Name = modInfo.Name,
+                    Directory = modInfo.Directory,
+                    ImagePath = modInfo.ImagePath,
+                    IsActive = modInfo.IsActive,
+                    Category = modInfo.Category,
+                    Author = modInfo.Author,
+                    Url = modInfo.Url,
+                    LastChecked = modInfo.LastChecked,
+                    LastUpdated = modInfo.LastUpdated,
+                    HasUpdate = modInfo.HasUpdate,
+                    IsNSFW = modInfo.IsNSFW,
+                    IsBroken = modInfo.IsBroken,
+                    Character = modInfo.Character
+                });
+            }
+            
+            // Load only first batch of tiles (lazy loading)
+            const int initialLoadCount = 50;
+            var initialTiles = new List<ModTile>();
+            
+            for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
+            {
+                var modData = _allModData[i];
+                initialTiles.Add(new ModTile
+                {
+                    Name = modData.Name,
+                    Directory = modData.Directory,
+                    ImagePath = modData.ImagePath,
+                    IsActive = modData.IsActive,
+                    Category = modData.Category,
+                    Author = modData.Author,
+                    Url = modData.Url,
+                    LastChecked = modData.LastChecked,
+                    LastUpdated = modData.LastUpdated,
+                    HasUpdate = modData.HasUpdate,
+                    IsVisible = true,
+                    IsBroken = modData.IsBroken,
+                    IsNSFW = modData.IsNSFW,
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    ImageSource = null // Lazy load when visible
+                });
+                _lastLoadedModDataIndex = i + 1;
+            }
+            
+            // Update UI
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _allMods.Clear();
+                foreach (var mod in initialTiles)
+                {
+                    _allMods.Add(mod);
+                }
+                
+                UpdateEmptyState();
+            });
+            
+            LogToGridLog($"Loaded {initialTiles.Count} initial tiles from {_allModData.Count} total mods");
+            
+            // Load visible images
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100);
+                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+            });
         }
 
         private void LoadAllModData()
@@ -610,9 +816,17 @@ namespace FlairX_Mod_Manager.Pages
                 loaded++;
             }
             
-            _allMods = new ObservableCollection<ModTile>(initialMods);
-            ModsGrid.ItemsSource = _allMods;
-            UpdateEmptyState();
+            // Clear and repopulate existing collection instead of creating new instance
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _allMods.Clear();
+                foreach (var mod in initialMods)
+                {
+                    _allMods.Add(mod);
+                }
+                
+                UpdateEmptyState();
+            });
             
             // Track how many items from _allModData we've processed (actual index, not count of loaded items)
             _lastLoadedModDataIndex = lastProcessedIndex;
@@ -656,71 +870,90 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog("LoadActiveModsOnly() called");
             
-            // Load all mod data first
-            LoadAllModData();
+            // Get active mods from ModListManager (fast - no file I/O)
+            var activeMods = ModListManager.GetActiveMods();
             
-            // Filter to show only active mods from _allModData
-            var activeModTiles = new List<ModTile>();
-            
-            // Load persistent lists once for fast filtering
+            // Apply filters based on settings
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
             bool hideNSFW = SettingsManager.Current.HideNSFWMods;
-            HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();
-            HashSet<string> brokenMods = hideBroken ? ModListManager.LoadBrokenModsList() : new HashSet<string>();
             
-            foreach (var modData in _allModData)
+            var filteredMods = activeMods.Where(mod =>
             {
-                // Update active state first
-                modData.IsActive = _activeMods.TryGetValue(GetCleanModName(modData.Directory), out var active) && active;
-                
-                if (modData.IsActive)
+                if (hideBroken && mod.IsBroken) return false;
+                if (hideNSFW && mod.IsNSFW) return false;
+                return true;
+            }).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+            
+            // Convert to lightweight ModData for lazy loading
+            _allModData.Clear();
+            _lastLoadedModDataIndex = 0;
+            
+            foreach (var modInfo in filteredMods)
+            {
+                _allModData.Add(new ModData
                 {
-                    // Filter broken mods if setting is enabled (fast HashSet lookup)
-                    if (hideBroken && brokenMods.Contains(modData.Name))
-                    {
-                        continue;
-                    }
-                    
-                    // Filter NSFW mods if setting is enabled (fast HashSet lookup)
-                    if (hideNSFW && nsfwMods.Contains(modData.Name))
-                    {
-                        continue;
-                    }
-                    
-                    var modTile = new ModTile 
-                    { 
-                        Name = modData.Name, 
-                        ImagePath = modData.ImagePath, 
-                        Directory = modData.Directory, 
-                        IsActive = modData.IsActive,
-                        Category = modData.Category,
-                        Author = modData.Author,
-                        Url = modData.Url,
-                        LastChecked = modData.LastChecked,
-                        LastUpdated = modData.LastUpdated,
-                        HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
-                        IsVisible = true,
-                        IsBroken = modData.IsBroken,
-                        IsNSFW = modData.IsNSFW,
-                        ImageSource = null // Start with no image - lazy load when visible
-                    };
-                    activeModTiles.Add(modTile);
-                }
+                    Name = modInfo.Name,
+                    Directory = modInfo.Directory,
+                    ImagePath = modInfo.ImagePath,
+                    IsActive = modInfo.IsActive,
+                    Category = modInfo.Category,
+                    Author = modInfo.Author,
+                    Url = modInfo.Url,
+                    LastChecked = modInfo.LastChecked,
+                    LastUpdated = modInfo.LastUpdated,
+                    HasUpdate = modInfo.HasUpdate,
+                    IsNSFW = modInfo.IsNSFW,
+                    IsBroken = modInfo.IsBroken,
+                    Character = modInfo.Character
+                });
             }
             
-            // Sort active mods alphabetically
-            var sortedActiveMods = activeModTiles
-                .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            // Load only first batch of tiles (lazy loading)
+            const int initialLoadCount = 50;
+            var initialTiles = new List<ModTile>();
             
-            LogToGridLog($"Found {sortedActiveMods.Count} active mods (Broken filter: {hideBroken})");
-            ModsGrid.ItemsSource = sortedActiveMods;
-            UpdateEmptyState();
+            for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
+            {
+                var modData = _allModData[i];
+                initialTiles.Add(new ModTile
+                {
+                    Name = modData.Name,
+                    Directory = modData.Directory,
+                    ImagePath = modData.ImagePath,
+                    IsActive = modData.IsActive,
+                    Category = modData.Category,
+                    Author = modData.Author,
+                    Url = modData.Url,
+                    LastChecked = modData.LastChecked,
+                    LastUpdated = modData.LastUpdated,
+                    HasUpdate = modData.HasUpdate,
+                    IsVisible = true,
+                    IsBroken = modData.IsBroken,
+                    IsNSFW = modData.IsNSFW,
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    ImageSource = null
+                });
+                _lastLoadedModDataIndex = i + 1;
+            }
             
-            // Load visible images after setting new data source
+            LogToGridLog($"Loaded {initialTiles.Count} initial tiles from {_allModData.Count} active mods");
+            
+            // Update UI
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _allMods.Clear();
+                foreach (var mod in initialTiles)
+                {
+                    _allMods.Add(mod);
+                }
+                
+                UpdateEmptyState();
+            });
+            
+            // Load visible images
             _ = Task.Run(async () =>
             {
-                await Task.Delay(100); // Small delay to let the grid update
+                await Task.Delay(100);
                 DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
             });
         }
@@ -729,53 +962,82 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog("LoadBrokenModsOnly() called");
             
-            // Load all mod data first
-            LoadAllModData();
+            // Get broken mods from ModListManager (fast - no file I/O)
+            var brokenMods = ModListManager.GetBrokenMods();
             
-            // Load broken mods list for fast filtering
-            var brokenModsList = ModListManager.LoadBrokenModsList();
+            // Sort alphabetically
+            var sortedMods = brokenMods.OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
             
-            // Filter to show only broken mods using the persistent list
-            var brokenModTiles = new List<ModTile>();
-            foreach (var modData in _allModData)
+            // Convert to lightweight ModData for lazy loading
+            _allModData.Clear();
+            _lastLoadedModDataIndex = 0;
+            
+            foreach (var modInfo in sortedMods)
             {
-                // Fast HashSet lookup instead of checking IsBroken flag
-                if (brokenModsList.Contains(modData.Name))
+                _allModData.Add(new ModData
                 {
-                    var modTile = new ModTile 
-                    { 
-                        Name = modData.Name, 
-                        ImagePath = modData.ImagePath, 
-                        Directory = modData.Directory, 
-                        IsActive = _activeMods.TryGetValue(GetCleanModName(modData.Directory), out var active) && active,
-                        Category = modData.Category,
-                        Author = modData.Author,
-                        Url = modData.Url,
-                        LastChecked = modData.LastChecked,
-                        LastUpdated = modData.LastUpdated,
-                        HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
-                        IsVisible = true,
-                        IsBroken = true, // We know it's broken from the list
-                        IsNSFW = modData.IsNSFW,
-                        ImageSource = null // Start with no image - lazy load when visible
-                    };
-                    brokenModTiles.Add(modTile);
-                }
+                    Name = modInfo.Name,
+                    Directory = modInfo.Directory,
+                    ImagePath = modInfo.ImagePath,
+                    IsActive = modInfo.IsActive,
+                    Category = modInfo.Category,
+                    Author = modInfo.Author,
+                    Url = modInfo.Url,
+                    LastChecked = modInfo.LastChecked,
+                    LastUpdated = modInfo.LastUpdated,
+                    HasUpdate = modInfo.HasUpdate,
+                    IsNSFW = modInfo.IsNSFW,
+                    IsBroken = true,
+                    Character = modInfo.Character
+                });
             }
             
-            // Sort broken mods alphabetically
-            var sortedBrokenMods = brokenModTiles
-                .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            // Load only first batch of tiles (lazy loading)
+            const int initialLoadCount = 50;
+            var initialTiles = new List<ModTile>();
             
-            LogToGridLog($"Found {sortedBrokenMods.Count} broken mods");
-            ModsGrid.ItemsSource = sortedBrokenMods;
-            UpdateEmptyState();
+            for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
+            {
+                var modData = _allModData[i];
+                initialTiles.Add(new ModTile
+                {
+                    Name = modData.Name,
+                    Directory = modData.Directory,
+                    ImagePath = modData.ImagePath,
+                    IsActive = modData.IsActive,
+                    Category = modData.Category,
+                    Author = modData.Author,
+                    Url = modData.Url,
+                    LastChecked = modData.LastChecked,
+                    LastUpdated = modData.LastUpdated,
+                    HasUpdate = modData.HasUpdate,
+                    IsVisible = true,
+                    IsBroken = true,
+                    IsNSFW = modData.IsNSFW,
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    ImageSource = null
+                });
+                _lastLoadedModDataIndex = i + 1;
+            }
             
-            // Load visible images after setting new data source
+            LogToGridLog($"Loaded {initialTiles.Count} initial tiles from {_allModData.Count} broken mods");
+            
+            // Update UI
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _allMods.Clear();
+                foreach (var mod in initialTiles)
+                {
+                    _allMods.Add(mod);
+                }
+                
+                UpdateEmptyState();
+            });
+            
+            // Load visible images
             _ = Task.Run(async () =>
             {
-                await Task.Delay(100); // Small delay to let the grid update
+                await Task.Delay(100);
                 DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
             });
         }
@@ -784,74 +1046,90 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog("LoadOutdatedModsOnly() called");
             
-            // Load all mod data first
-            LoadAllModData();
+            // Get outdated mods from ModListManager (fast - no file I/O)
+            var outdatedMods = ModListManager.GetOutdatedMods();
             
-            // Filter to show only outdated mods from _allModData
-            var outdatedModTiles = new List<ModTile>();
-            
-            // Load persistent lists once for fast filtering
+            // Apply filters based on settings
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
             bool hideNSFW = SettingsManager.Current.HideNSFWMods;
-            HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();
-            HashSet<string> brokenMods = hideBroken ? ModListManager.LoadBrokenModsList() : new HashSet<string>();
             
-            foreach (var modData in _allModData)
+            var filteredMods = outdatedMods.Where(mod =>
             {
-                // Update active state
-                modData.IsActive = _activeMods.TryGetValue(GetCleanModName(modData.Directory), out var active) && active;
-                
-                // Check if mod has update (live check)
-                bool hasUpdate = CheckForUpdateLive(modData.Directory);
-                
-                if (hasUpdate)
+                if (hideBroken && mod.IsBroken) return false;
+                if (hideNSFW && mod.IsNSFW) return false;
+                return true;
+            }).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+            
+            // Convert to lightweight ModData for lazy loading
+            _allModData.Clear();
+            _lastLoadedModDataIndex = 0;
+            
+            foreach (var modInfo in filteredMods)
+            {
+                _allModData.Add(new ModData
                 {
-                    // Filter broken mods if setting is enabled (fast HashSet lookup)
-                    if (hideBroken && brokenMods.Contains(modData.Name))
-                    {
-                        continue;
-                    }
-                    
-                    // Filter NSFW mods if setting is enabled (fast HashSet lookup)
-                    if (hideNSFW && nsfwMods.Contains(modData.Name))
-                    {
-                        continue;
-                    }
-                    
-                    var modTile = new ModTile 
-                    { 
-                        Name = modData.Name, 
-                        ImagePath = modData.ImagePath, 
-                        Directory = modData.Directory, 
-                        IsActive = modData.IsActive,
-                        Category = modData.Category,
-                        Author = modData.Author,
-                        Url = modData.Url,
-                        LastChecked = modData.LastChecked,
-                        LastUpdated = modData.LastUpdated,
-                        HasUpdate = hasUpdate,
-                        IsVisible = true,
-                        IsBroken = modData.IsBroken,
-                        IsNSFW = modData.IsNSFW,
-                        ImageSource = null // Start with no image - lazy load when visible
-                    };
-                    outdatedModTiles.Add(modTile);
-                }
+                    Name = modInfo.Name,
+                    Directory = modInfo.Directory,
+                    ImagePath = modInfo.ImagePath,
+                    IsActive = modInfo.IsActive,
+                    Category = modInfo.Category,
+                    Author = modInfo.Author,
+                    Url = modInfo.Url,
+                    LastChecked = modInfo.LastChecked,
+                    LastUpdated = modInfo.LastUpdated,
+                    HasUpdate = modInfo.HasUpdate,
+                    IsNSFW = modInfo.IsNSFW,
+                    IsBroken = modInfo.IsBroken,
+                    Character = modInfo.Character
+                });
             }
             
-            // Sort outdated mods alphabetically
-            var sortedOutdatedMods = outdatedModTiles
-                .OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+            // Load only first batch of tiles (lazy loading)
+            const int initialLoadCount = 50;
+            var initialTiles = new List<ModTile>();
             
-            LogToGridLog($"Found {sortedOutdatedMods.Count} outdated mods (Broken filter: {hideBroken})");
-            ModsGrid.ItemsSource = sortedOutdatedMods;
-            UpdateEmptyState();
+            for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
+            {
+                var modData = _allModData[i];
+                initialTiles.Add(new ModTile
+                {
+                    Name = modData.Name,
+                    Directory = modData.Directory,
+                    ImagePath = modData.ImagePath,
+                    IsActive = modData.IsActive,
+                    Category = modData.Category,
+                    Author = modData.Author,
+                    Url = modData.Url,
+                    LastChecked = modData.LastChecked,
+                    LastUpdated = modData.LastUpdated,
+                    HasUpdate = modData.HasUpdate,
+                    IsVisible = true,
+                    IsBroken = modData.IsBroken,
+                    IsNSFW = modData.IsNSFW,
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    ImageSource = null
+                });
+                _lastLoadedModDataIndex = i + 1;
+            }
             
-            // Load visible images after setting new data source
+            LogToGridLog($"Loaded {initialTiles.Count} initial tiles from {_allModData.Count} outdated mods");
+            
+            // Update UI
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _allMods.Clear();
+                foreach (var tile in initialTiles)
+                {
+                    _allMods.Add(tile);
+                }
+                
+                UpdateEmptyState();
+            });
+            
+            // Load visible images
             _ = Task.Run(async () =>
             {
-                await Task.Delay(100); // Small delay to let the grid update
+                await Task.Delay(100);
                 DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
             });
         }

@@ -26,6 +26,7 @@ namespace FlairX_Mod_Manager.Pages
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             Logger.LogMethodEntry($"Navigation parameter: {e.Parameter?.ToString() ?? "null"}");
+            Logger.LogInfo($"OnNavigatedTo: Parameter = {e.Parameter?.ToString() ?? "null"}");
             base.OnNavigatedTo(e);
             
             Logger.LogInfo("Setting up translations for ModGridPage");
@@ -320,9 +321,17 @@ namespace FlairX_Mod_Manager.Pages
                     filteredMods.Add(modTile);
                 }
                 
-                var filtered = new ObservableCollection<ModTile>(filteredMods);
-                ModsGrid.ItemsSource = filtered;
-                UpdateEmptyState();
+                // Use _allMods collection for consistency
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    _allMods.Clear();
+                    foreach (var mod in filteredMods)
+                    {
+                        _allMods.Add(mod);
+                    }
+                    
+                    UpdateEmptyState();
+                });
 
                 // Load visible images after filtering
                 _ = Task.Run(async () =>
@@ -332,7 +341,7 @@ namespace FlairX_Mod_Manager.Pages
                 });
 
                 // Scroll horizontally to first visible mod (with animation)
-                if (filtered.Count > 0 && ModsGrid.ContainerFromIndex(0) is GridViewItem firstItem)
+                if (filteredMods.Count > 0 && ModsGrid.ContainerFromIndex(0) is GridViewItem firstItem)
                 {
                     firstItem.UpdateLayout();
                     var transform = firstItem.TransformToVisual(ModsScrollViewer);

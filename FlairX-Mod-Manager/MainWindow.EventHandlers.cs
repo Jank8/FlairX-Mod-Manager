@@ -438,6 +438,13 @@ namespace FlairX_Mod_Manager
                     loadingWindow.UpdateStatus("Refreshing manager...");
                     await Task.Delay(100);
                     
+                    // CRITICAL: Rebuild mod lists first to pick up new/changed mods
+                    loadingWindow.UpdateStatus("Rebuilding mod lists...");
+                    LogToGridLog("REFRESH: Rebuilding mod lists");
+                    ModListManager.RebuildAllLists();
+                    LogToGridLog("REFRESH: Mod lists rebuilt");
+                    await Task.Delay(100);
+                    
                     // Update mod.json files with namespace info (for new/updated mods)
                     loadingWindow.UpdateStatus("Scanning mod configurations...");
                     LogToGridLog("REFRESH: Updating mod.json files with namespace info");
@@ -478,11 +485,16 @@ namespace FlairX_Mod_Manager
                 // Refresh ModGridPage if it's currently loaded
                 if (contentFrame.Content is Pages.ModGridPage modGridPage)
                 {
-                    // If in categories view, reload categories to show new folders
+                    // Reload current view to show updated mods
                     if (modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
                     {
                         Logger.LogInfo("Refreshing categories view after reload");
                         modGridPage.LoadCategories();
+                    }
+                    else
+                    {
+                        Logger.LogInfo("Refreshing mods view after reload");
+                        modGridPage.LoadAllMods();
                     }
                 }
                 

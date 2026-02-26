@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "這裡什麼都沒有，下載一些模組",
     "EmptyState_Browse_Button": "瀏覽 GameBanana",
     "ImageOptimizer_ImageFormat_Label": "圖像格式",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) 效能更好，WebP 在更小的尺寸下保持更好的品質，但以效能為代價"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) 效能更好，WebP 在更小的尺寸下保持更好的品質，但以效能為代價",
+    "EmptyState_NoResults_Text": "沒有結果可顯示"
 }

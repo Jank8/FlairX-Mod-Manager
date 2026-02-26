@@ -584,38 +584,8 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                var modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
-                
-                if (!Directory.Exists(modLibraryPath))
-                {
-                    return true; // Default to enabled if we can't check
-                }
-
-                // Search through category directories for the mod
-                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
-                {
-                    var modDir = Path.Combine(categoryDir, modFolderName);
-                    if (Directory.Exists(modDir))
-                    {
-                        var modJsonPath = Path.Combine(modDir, "mod.json");
-                        if (File.Exists(modJsonPath))
-                        {
-                            var jsonContent = Services.FileAccessQueue.ReadAllText(modJsonPath);
-                            using var doc = JsonDocument.Parse(jsonContent);
-                            var root = doc.RootElement;
-                            
-                            // Check if StatusKeeper sync is disabled
-                            if (root.TryGetProperty("statusKeeperSync", out var syncProp) && 
-                                syncProp.ValueKind == JsonValueKind.False)
-                            {
-                                return false;
-                            }
-                        }
-                        return true; // Found mod, sync enabled (or not specified = default true)
-                    }
-                }
-                
-                return true; // Mod not found, default to enabled
+                // Use ModListManager for fast lookup (no file I/O)
+                return ModListManager.IsModStatusKeeperSync(modFolderName);
             }
             catch (Exception ex)
             {
@@ -650,103 +620,65 @@ namespace FlairX_Mod_Manager.Pages
                 int activeModCount = 0;
                 var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-                // Process only active mods (without DISABLED_ prefix)
-                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                // Get mods with StatusKeeper sync enabled from ModListManager (fast - no file I/O)
+                var syncMods = ModListManager.GetStatusKeeperSyncMods();
+                
+                // Group by category for organized logging
+                var modsByCategory = syncMods.GroupBy(m => m.Category).OrderBy(g => g.Key);
+
+                foreach (var categoryGroup in modsByCategory)
                 {
-                    if (!Directory.Exists(categoryDir)) continue;
+                    var categoryName = categoryGroup.Key;
+                    scanLog.AppendLine($"[{categoryName}]");
                     
-                    var categoryName = Path.GetFileName(categoryDir);
-                    
-                    bool categoryLogged = false;
-                    
-                    foreach (var modDir in Directory.GetDirectories(categoryDir))
+                    foreach (var modInfo in categoryGroup.OrderBy(m => m.Name))
                     {
-                        var modDirName = Path.GetFileName(modDir);
-                        
-                        // Skip DISABLED_ directories (inactive mods)
-                        if (modDirName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
+                        // Skip inactive mods
+                        if (!modInfo.IsActive)
                         {
                             continue;
                         }
                         
                         try
                         {
-                            var modJsonPath = Path.Combine(modDir, "mod.json");
-                            if (!File.Exists(modJsonPath))
-                            {
-                                continue;
-                            }
-
-                            // Log category only when first active mod is found
-                            if (!categoryLogged)
-                            {
-                                scanLog.AppendLine($"[{categoryName}]");
-                                categoryLogged = true;
-                            }
-
                             var modStopwatch = System.Diagnostics.Stopwatch.StartNew();
                             activeModCount++;
-                            var jsonContent = Services.FileAccessQueue.ReadAllText(modJsonPath);
-                            using var doc = JsonDocument.Parse(jsonContent);
-                            var root = doc.RootElement;
+                            
+                            string syncMethod = string.IsNullOrEmpty(modInfo.SyncMethod) ? "classic" : modInfo.SyncMethod;
                         
-                            // Check if StatusKeeper sync is enabled for this mod
-                            if (root.TryGetProperty("statusKeeperSync", out var syncProp) && 
-                                syncProp.ValueKind == JsonValueKind.False)
+                            // Process namespace sync method
+                            if (syncMethod == "namespace" && modInfo.Namespaces != null && modInfo.Namespaces.Count > 0)
                             {
-                                modStopwatch.Stop();
-                                scanLog.AppendLine($"  SKIP (sync disabled): {modDirName} [{modStopwatch.ElapsedMilliseconds}ms]");
-                                continue;
-                            }
-
-                            var modFolderName = Path.GetFileName(modDir);
-                            string syncMethod = "classic";
-                        
-                            // Check if this mod uses namespace sync method
-                            if (root.TryGetProperty("syncMethod", out var syncMethodProp) && 
-                                syncMethodProp.GetString() == "namespace")
-                            {
-                                syncMethod = "namespace";
-                                if (root.TryGetProperty("namespaces", out var namespacesProp) && 
-                                    namespacesProp.ValueKind == JsonValueKind.Array)
+                                foreach (var namespaceInfo in modInfo.Namespaces)
                                 {
-                                    foreach (var namespaceItem in namespacesProp.EnumerateArray())
+                                    var namespacePath = namespaceInfo.Namespace;
+                                    if (string.IsNullOrEmpty(namespacePath)) continue;
+
+                                    var iniFiles = new List<string>();
+                                    foreach (var iniFile in namespaceInfo.IniFiles)
                                     {
-                                        if (namespaceItem.TryGetProperty("namespace", out var namespaceProp) &&
-                                            namespaceItem.TryGetProperty("iniFiles", out var iniFilesProp) &&
-                                            iniFilesProp.ValueKind == JsonValueKind.Array)
+                                        if (!string.IsNullOrEmpty(iniFile))
                                         {
-                                            var namespacePath = namespaceProp.GetString();
-                                            if (string.IsNullOrEmpty(namespacePath)) continue;
-
-                                            var iniFiles = new List<string>();
-                                            foreach (var iniFileElement in iniFilesProp.EnumerateArray())
-                                            {
-                                                var iniFile = iniFileElement.GetString();
-                                                if (!string.IsNullOrEmpty(iniFile))
-                                                {
-                                                    // Include category in path: Category/ModName/file.ini
-                                                    var fullIniPath = Path.Combine(categoryName, modFolderName, iniFile).Replace('\\', '/');
-                                                    iniFiles.Add(fullIniPath);
-                                                }
-                                            }
-
-                                            if (iniFiles.Count > 0)
-                                            {
-                                                namespaceToFiles[namespacePath] = iniFiles;
-                                            }
+                                            // Include category in path: Category/ModName/file.ini
+                                            var fullIniPath = Path.Combine(categoryName, modInfo.Directory, iniFile).Replace('\\', '/');
+                                            iniFiles.Add(fullIniPath);
                                         }
+                                    }
+
+                                    if (iniFiles.Count > 0)
+                                    {
+                                        namespaceToFiles[namespacePath] = iniFiles;
                                     }
                                 }
                             }
                             
                             modStopwatch.Stop();
-                            scanLog.AppendLine($"  OK [{modStopwatch.ElapsedMilliseconds}ms] ({syncMethod}): {modDirName}");
+                            scanLog.AppendLine($"  OK [{modStopwatch.ElapsedMilliseconds}ms] ({syncMethod}): {modInfo.Directory}");
                         }
                         catch (Exception ex)
                         {
-                            scanLog.AppendLine($"  ERROR: {modDirName} - {ex.Message}");
-                            LogStatic($"Error reading mod.json in {Path.GetFileName(modDir)}: {ex.Message}", "WARN");
+                            scanLog.AppendLine($"  ERROR: {modInfo.Directory} - {ex.Message}");
+                            LogStatic($"Error processing mod {modInfo.Name}: {ex.Message}", "WARN");
                         }
                     }
                 }

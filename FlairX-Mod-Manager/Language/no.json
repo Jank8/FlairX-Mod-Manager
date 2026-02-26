@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "Ingenting her, last ned noen mods",
     "EmptyState_Browse_Button": "Bla gjennom GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Bildeformat",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) har bedre ytelse, WebP bevarer bedre kvalitet ved mindre størrelse, men på bekostning av ytelse"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) har bedre ytelse, WebP bevarer bedre kvalitet ved mindre størrelse, men på bekostning av ytelse",
+    "EmptyState_NoResults_Text": "Ingen resultater å vise"
 }

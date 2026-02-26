@@ -16,7 +16,8 @@
         <local:BoolToStarGlyphConverter x:Key="BoolToStarGlyphConverter" />
         <local:BoolToStarColorConverter x:Key="BoolToStarColorConverter" />
         <local:BoolToFavoriteTooltipConverter x:Key="BoolToFavoriteTooltipConverter" />
-        <local:NSFWOverlayVisibilityConverter x:Key="NSFWOverlayVisibilityConverter" />
+        <!-- DISABLED: Blur mechanism not used - mods are hidden instead -->
+        <!-- <local:NSFWOverlayVisibilityConverter x:Key="NSFWOverlayVisibilityConverter" /> -->
         <Style x:Key="TransparentButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
@@ -363,7 +364,8 @@
                                     </interactivity:Interaction.Behaviors>
                                 </Image>
                                 
-                                <!-- NSFW Blur Overlay (automatically shown when mod is NSFW and setting is enabled) -->
+                                <!-- DISABLED: NSFW Blur Overlay - mods are now hidden instead of blurred -->
+                                <!--
                                 <Border x:Name="NSFWOverlay"
                                         CornerRadius="8"
                                         Visibility="{Binding IsNSFW, Converter={StaticResource NSFWOverlayVisibilityConverter}}">
@@ -387,6 +389,7 @@
                                                    HorizontalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
+                                -->
                                 
                                 <!-- Update Available Indicator -->
                                 <Ellipse Width="16" Height="16"

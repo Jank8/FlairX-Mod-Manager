@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "Rien ici, téléchargez des mods",
     "EmptyState_Browse_Button": "Parcourir GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Format d'image",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) a de meilleures performances, WebP préserve une meilleure qualité avec une taille plus petite mais au détriment des performances"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) a de meilleures performances, WebP préserve une meilleure qualité avec une taille plus petite mais au détriment des performances",
+    "EmptyState_NoResults_Text": "Aucun résultat à afficher"
 }

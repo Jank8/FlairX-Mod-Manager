@@ -371,11 +371,11 @@ namespace FlairX_Mod_Manager.Pages
             // Check if we're currently showing categories
             if (CurrentViewMode == ViewMode.Categories && string.IsNullOrEmpty(_currentCategory))
             {
-                // We're showing category tiles - sort them directly
-                if (ModsGrid.ItemsSource is not IEnumerable<ModTile> currentCategories)
+                // We're showing category tiles - sort them directly using _allMods
+                if (_allMods == null || _allMods.Count == 0)
                     return;
 
-                var categoryList = currentCategories.ToList();
+                var categoryList = _allMods.ToList();
                 
                 switch (_currentSortMode)
                 {
@@ -390,7 +390,13 @@ namespace FlairX_Mod_Manager.Pages
                         break;
                 }
 
-                ModsGrid.ItemsSource = categoryList;
+                // Update _allMods with sorted categories
+                _allMods.Clear();
+                foreach (var category in categoryList)
+                {
+                    _allMods.Add(category);
+                }
+                
                 UpdateEmptyState();
                 return;
             }
@@ -489,8 +495,17 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
 
-            ModsGrid.ItemsSource = modTiles;
-            UpdateEmptyState();
+            // Use _allMods collection for consistency
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _allMods.Clear();
+                foreach (var mod in modTiles)
+                {
+                    _allMods.Add(mod);
+                }
+                
+                UpdateEmptyState();
+            });
             
             // Reload visible images after sorting
             _ = Task.Run(async () =>

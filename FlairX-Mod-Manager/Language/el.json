@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "Τίποτα εδώ, κατεβάστε μερικά mods",
     "EmptyState_Browse_Button": "Περιήγηση GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Μορφή εικόνας",
-    "ImageOptimizer_ImageFormat_Description": "Το Classic (JPEG) έχει καλύτερη απόδοση, το WebP διατηρεί καλύτερη ποιότητα σε μικρότερο μέγεθος αλλά με κόστος απόδοσης"
+    "ImageOptimizer_ImageFormat_Description": "Το Classic (JPEG) έχει καλύτερη απόδοση, το WebP διατηρεί καλύτερη ποιότητα σε μικρότερο μέγεθος αλλά με κόστος απόδοσης",
+    "EmptyState_NoResults_Text": "Δεν υπάρχουν αποτελέσματα προς εμφάνιση"
 }

@@ -46,6 +46,11 @@ namespace FlairX_Mod_Manager.Pages
                 var newPath = Path.Combine(parentDir, newName);
 
                 Directory.Move(modPath, newPath);
+                
+                // Update ModListManager with new directory name
+                var cleanName = GetCleanModName(newName);
+                ModListManager.UpdateModActivation(cleanName, newName, true);
+                
                 Logger.LogInfo($"Activated mod: {modDirectory}");
                 return true;
             }
@@ -110,6 +115,10 @@ namespace FlairX_Mod_Manager.Pages
                 var newPath = Path.Combine(parentDir, finalName);
 
                 Directory.Move(modPath, newPath);
+                
+                // Update ModListManager with new directory name
+                ModListManager.UpdateModActivation(cleanName, finalName, false);
+                
                 Logger.LogInfo($"Deactivated mod: {modDirectory} -> {finalName}");
                 return true;
             }

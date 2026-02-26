@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "Niets hier, download wat mods",
     "EmptyState_Browse_Button": "Blader door GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Afbeeldingsformaat",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) heeft betere prestaties, WebP behoudt betere kwaliteit bij kleinere grootte maar ten koste van prestaties"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) heeft betere prestaties, WebP behoudt betere kwaliteit bij kleinere grootte maar ten koste van prestaties",
+    "EmptyState_NoResults_Text": "Geen resultaten om weer te geven"
 }

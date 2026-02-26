@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "Ei mitään täällä, lataa modeja",
     "EmptyState_Browse_Button": "Selaa GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Kuvamuoto",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG):llä on parempi suorituskyky, WebP säilyttää paremman laadun pienemmässä koossa mutta suorituskyvyn kustannuksella"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG):llä on parempi suorituskyky, WebP säilyttää paremman laadun pienemmässä koossa mutta suorituskyvyn kustannuksella",
+    "EmptyState_NoResults_Text": "Ei tuloksia näytettäväksi"
 }

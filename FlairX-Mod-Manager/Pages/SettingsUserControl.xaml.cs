@@ -644,7 +644,7 @@ namespace FlairX_Mod_Manager.Pages
             GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
             ErrorOnlyLoggingToggle.IsOn = SettingsManager.Current.ErrorOnlyLogging;
             MinimizeToTrayToggle.IsOn = SettingsManager.Current.MinimizeToTrayEnabled;
-            BlurNSFWToggle.IsOn = SettingsManager.Current.BlurNSFWThumbnails;
+            BlurNSFWToggle.IsOn = SettingsManager.Current.HideNSFWMods;
             HotkeysEnabledToggle.IsOn = SettingsManager.Current.HotkeysEnabled;
             
             // Set download settings
@@ -1598,7 +1598,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private void BlurNSFWToggle_Toggled(object sender, RoutedEventArgs e)
         {
-            SettingsManager.Current.BlurNSFWThumbnails = BlurNSFWToggle.IsOn;
+            SettingsManager.Current.HideNSFWMods = BlurNSFWToggle.IsOn;
             SettingsManager.Save();
             UpdateToggleLabels();
             
@@ -1606,7 +1606,7 @@ namespace FlairX_Mod_Manager.Pages
             var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
             if (mainWindow?.CurrentModGridPage != null)
             {
-                mainWindow.CurrentModGridPage.FilterNSFWMods(BlurNSFWToggle.IsOn);
+                mainWindow.CurrentModGridPage.FilterNSFWMods(SettingsManager.Current.HideNSFWMods);
             }
         }
 

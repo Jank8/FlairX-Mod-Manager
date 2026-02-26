@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "Burada hiçbir şey yok, bazı modlar indirin",
     "EmptyState_Browse_Button": "GameBanana'ya Göz At",
     "ImageOptimizer_ImageFormat_Label": "Görüntü Formatı",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) daha iyi performansa sahip, WebP daha küçük boyutta daha iyi kaliteyi korur ancak performans pahasına"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) daha iyi performansa sahip, WebP daha küçük boyutta daha iyi kaliteyi korur ancak performans pahasına",
+    "EmptyState_NoResults_Text": "Görüntülenecek sonuç yok"
 }

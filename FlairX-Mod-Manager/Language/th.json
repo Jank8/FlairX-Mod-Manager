@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "ไม่มีอะไรที่นี่ ดาวน์โหลดม็อดบางตัว",
     "EmptyState_Browse_Button": "เรียกดู GameBanana",
     "ImageOptimizer_ImageFormat_Label": "รูปแบบภาพ",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) มีประสิทธิภาพที่ดีกว่า WebP รักษาคุณภาพที่ดีกว่าในขนาดที่เล็กกว่าแต่แลกมาด้วยประสิทธิภาพ"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) มีประสิทธิภาพที่ดีกว่า WebP รักษาคุณภาพที่ดีกว่าในขนาดที่เล็กกว่าแต่แลกมาด้วยประสิทธิภาพ",
+    "EmptyState_NoResults_Text": "ไม่มีผลลัพธ์ที่จะแสดง"
 }

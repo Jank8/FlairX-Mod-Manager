@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "Nic tu není, stáhněte si nějaké módy",
     "EmptyState_Browse_Button": "Procházet GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Formát obrázků",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) má lepší výkon, WebP zachovává lepší kvalitu při menší velikosti, ale za cenu výkonu"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) má lepší výkon, WebP zachovává lepší kvalitu při menší velikosti, ale za cenu výkonu",
+    "EmptyState_NoResults_Text": "Žádné výsledky k zobrazení"
 }

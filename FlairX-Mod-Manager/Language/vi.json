@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "Không có gì ở đây, tải xuống một số mod",
     "EmptyState_Browse_Button": "Duyệt GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Định dạng hình ảnh",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) có hiệu suất tốt hơn, WebP giữ chất lượng tốt hơn ở kích thước nhỏ hơn nhưng với chi phí hiệu suất"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) có hiệu suất tốt hơn, WebP giữ chất lượng tốt hơn ở kích thước nhỏ hơn nhưng với chi phí hiệu suất",
+    "EmptyState_NoResults_Text": "Không có kết quả để hiển thị"
 }

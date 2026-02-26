@@ -339,5 +339,6 @@
     "SettingsPage_ShuffleExcludedCategories_Description": "Wyklucz kategorie z losowania i deaktywacji wszystkich (mody pozostaną bez zmian)",
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "Wybierz kategorię do wyłączenia...",
     "EmptyState_NoMods_Text": "Nic tutaj nie ma, ściągnij jakieś mody",
-    "EmptyState_Browse_Button": "Przeglądaj GameBanana"
+    "EmptyState_Browse_Button": "Przeglądaj GameBanana",
+    "EmptyState_NoResults_Text": "Brak wyników do wyświetlenia"
 }

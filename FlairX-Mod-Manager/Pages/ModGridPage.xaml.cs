@@ -98,6 +98,8 @@ namespace FlairX_Mod_Manager.Pages
     }
     
     // Converter for NSFW overlay visibility
+    // DISABLED: Blur mechanism not used - mods are hidden instead
+    /*
     public class NSFWOverlayVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
@@ -113,6 +115,7 @@ namespace FlairX_Mod_Manager.Pages
             throw new NotImplementedException();
         }
     }
+    */
 
 
 
@@ -949,6 +952,9 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogInfo("Initializing ModGridPage components");
                 this.InitializeComponent();
                 
+                // Initialize ItemsSource with empty collection
+                ModsGrid.ItemsSource = _allMods;
+                
                 Logger.LogInfo("Loading active mods state");
                 LoadActiveMods();
                 
@@ -1280,11 +1286,14 @@ namespace FlairX_Mod_Manager.Pages
             });
         }
         
+        // DISABLED: Blur mechanism not used - mods are hidden instead
+        /*
         private void UpdateAllNSFWOverlays()
         {
             // NSFW overlay is now controlled by binding, no manual update needed
             // This method is kept for compatibility but does nothing
         }
+        */
 
         // Refresh specific mod tile when modBroken status changes
         public void RefreshModTile(string modDirectoryName, bool isBroken)
@@ -2013,26 +2022,48 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (EmptyStatePanel == null || ModsGrid == null) return;
             
-            // Update translations for empty state
             var langDict = SharedUtilities.LoadLanguageDictionary();
-            if (EmptyStateText != null)
-            {
-                EmptyStateText.Text = SharedUtilities.GetTranslation(langDict, "EmptyState_NoMods_Text");
-            }
-            if (EmptyStateBrowseButtonText != null)
-            {
-                EmptyStateBrowseButtonText.Text = SharedUtilities.GetTranslation(langDict, "EmptyState_Browse_Button");
-            }
+            bool isFilterView = _currentCategory == "Active" || _currentCategory == "Broken" || _currentCategory == "Outdated";
+            bool isAllModsView = string.IsNullOrEmpty(_currentCategory);
+            bool hasNoItems = ModsGrid.ItemsSource == null || 
+                             (ModsGrid.ItemsSource is System.Collections.IEnumerable enumerable && 
+                              !enumerable.Cast<object>().Any());
             
-            // Show empty state only when:
-            // 1. We're in Mods view (not Categories or Table)
-            // 2. We have a specific category selected (not "All Mods")
-            // 3. The grid has no items
-            bool shouldShowEmptyState = CurrentViewMode == ViewMode.Mods &&
-                                       !string.IsNullOrEmpty(_currentCategory) &&
-                                       (ModsGrid.ItemsSource == null || 
-                                        (ModsGrid.ItemsSource is System.Collections.IEnumerable enumerable && 
-                                         !enumerable.Cast<object>().Any()));
+            // Determine if we should show empty state
+            bool shouldShowEmptyState = CurrentViewMode == ViewMode.Mods && hasNoItems;
+            
+            if (shouldShowEmptyState)
+            {
+                // Different messages for filter views vs category views
+                if (isFilterView || isAllModsView)
+                {
+                    // Filter views (Active, Broken, Outdated, All Mods) - show "No results" without button
+                    if (EmptyStateText != null)
+                    {
+                        EmptyStateText.Text = SharedUtilities.GetTranslation(langDict, "EmptyState_NoResults_Text");
+                    }
+                    if (EmptyStateBrowseButton != null)
+                    {
+                        EmptyStateBrowseButton.Visibility = Visibility.Collapsed;
+                    }
+                }
+                else
+                {
+                    // Category views - show "Nothing here, download mods" with GameBanana button
+                    if (EmptyStateText != null)
+                    {
+                        EmptyStateText.Text = SharedUtilities.GetTranslation(langDict, "EmptyState_NoMods_Text");
+                    }
+                    if (EmptyStateBrowseButton != null)
+                    {
+                        EmptyStateBrowseButton.Visibility = Visibility.Visible;
+                    }
+                    if (EmptyStateBrowseButtonText != null)
+                    {
+                        EmptyStateBrowseButtonText.Text = SharedUtilities.GetTranslation(langDict, "EmptyState_Browse_Button");
+                    }
+                }
+            }
             
             EmptyStatePanel.Visibility = shouldShowEmptyState ? Visibility.Visible : Visibility.Collapsed;
             ModsGrid.Visibility = shouldShowEmptyState ? Visibility.Collapsed : Visibility.Visible;

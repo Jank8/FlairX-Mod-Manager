@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "Tidak ada di sini, unduh beberapa mod",
     "EmptyState_Browse_Button": "Jelajahi GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Format Gambar",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) memiliki kinerja lebih baik, WebP mempertahankan kualitas lebih baik dengan ukuran lebih kecil tetapi dengan biaya kinerja"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) memiliki kinerja lebih baik, WebP mempertahankan kualitas lebih baik dengan ukuran lebih kecil tetapi dengan biaya kinerja",
+    "EmptyState_NoResults_Text": "Tidak ada hasil untuk ditampilkan"
 }

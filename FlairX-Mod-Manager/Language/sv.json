@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "Inget här, ladda ner några mods",
     "EmptyState_Browse_Button": "Bläddra GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Bildformat",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) har bättre prestanda, WebP bevarar bättre kvalitet vid mindre storlek men på bekostnad av prestanda"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) har bättre prestanda, WebP bevarar bättre kvalitet vid mindre storlek men på bekostnad av prestanda",
+    "EmptyState_NoResults_Text": "Inga resultat att visa"
 }

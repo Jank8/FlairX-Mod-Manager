@@ -339,5 +339,6 @@
     "ConvertImages_Convert": "Convert Now",
     "ConvertImages_Later": "Maybe Later",
     "EmptyState_NoMods_Text": "Nothing here, download some mods",
-    "EmptyState_Browse_Button": "Browse GameBanana"
+    "EmptyState_Browse_Button": "Browse GameBanana",
+    "EmptyState_NoResults_Text": "No results to display"
 }

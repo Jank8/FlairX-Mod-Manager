@@ -2588,7 +2588,7 @@ namespace FlairX_Mod_Manager.Pages
                     var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
                     if (mainWindow?.CurrentModGridPage != null)
                     {
-                        mainWindow.CurrentModGridPage.FilterNSFWMods(SettingsManager.Current.BlurNSFWThumbnails);
+                        mainWindow.CurrentModGridPage.FilterNSFWMods(SettingsManager.Current.HideNSFWMods);
                     }
                 }
                 

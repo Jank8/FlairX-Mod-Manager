@@ -131,13 +131,57 @@ namespace FlairX_Mod_Manager.Pages
 
         private void ModGridPage_Loaded(object sender, RoutedEventArgs e)
         {
+            Logger.LogInfo("ModGridPage_Loaded: Starting");
+            
+            // Rebuild mod lists on first load and then load mods into grid
+            Task.Run(async () =>
+            {
+                try
+                {
+                    ModListManager.RebuildAllLists();
+                    
+                    // After lists are built, load mods into grid on UI thread
+                    await DispatcherQueue.EnqueueAsync(() =>
+                    {
+                        try
+                        {
+                            Logger.LogInfo($"ModGridPage_Loaded: CurrentViewMode = {CurrentViewMode}, _currentCategory = {_currentCategory}");
+                            
+                            // Don't load anything if OnNavigatedTo already loaded a specific category
+                            if (!string.IsNullOrEmpty(_currentCategory))
+                            {
+                                Logger.LogInfo($"ModGridPage_Loaded: Skipping load because category '{_currentCategory}' is already loaded");
+                                return;
+                            }
+                            
+                            // Check current view mode and load appropriate view
+                            if (CurrentViewMode == ViewMode.Categories)
+                            {
+                                LoadCategories();
+                            }
+                            else
+                            {
+                                LoadAllMods();
+                            }
+                            // LoadVisibleImages() is called by LoadAllMods/LoadCategories
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError("Failed to load mods after rebuild", ex);
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to rebuild mod lists", ex);
+                }
+            });
+            
             // Monitor scroll changes to trigger lazy loading
             if (ModsScrollViewer != null)
             {
                 ModsScrollViewer.ViewChanged += ModsScrollViewer_ViewChanged;
                 // Remove ScrollViewer wheel handler - use page level instead
-                // Initial load of visible images
-                LoadVisibleImages();
             }
             // Monitor window size changes to reload visible images
             this.SizeChanged += ModGridPage_SizeChanged;

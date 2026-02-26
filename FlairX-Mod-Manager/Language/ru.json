@@ -339,5 +339,6 @@
     "EmptyState_NoMods_Text": "Здесь ничего нет, скачайте моды",
     "EmptyState_Browse_Button": "Просмотр GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Формат изображения",
-    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) имеет лучшую производительность, WebP сохраняет лучшее качество при меньшем размере, но за счет производительности"
+    "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) имеет лучшую производительность, WebP сохраняет лучшее качество при меньшем размере, но за счет производительности",
+    "EmptyState_NoResults_Text": "Нет результатов для отображения"
 }

@@ -527,6 +527,15 @@ namespace FlairX_Mod_Manager.Pages
                     XamlRoot = this.XamlRoot
                 };
                 await dialog.ShowAsync();
+                
+                // Reload mods to update ModListManager lists
+                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                if (mainWindow != null)
+                {
+                    Logger.LogInfo("Reloading mods after author update");
+                    await mainWindow.ReloadModsAsync();
+                    Logger.LogInfo("Mods reloaded successfully");
+                }
             }
             catch (OperationCanceledException)
             {
@@ -1315,6 +1324,15 @@ namespace FlairX_Mod_Manager.Pages
                     XamlRoot = this.XamlRoot
                 };
                 await dialog.ShowAsync();
+                
+                // Reload mods to update ModListManager lists
+                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                if (mainWindow != null)
+                {
+                    Logger.LogInfo("Reloading mods after dates update");
+                    await mainWindow.ReloadModsAsync();
+                    Logger.LogInfo("Mods reloaded successfully");
+                }
             }
             catch (OperationCanceledException)
             {
@@ -1670,6 +1688,15 @@ namespace FlairX_Mod_Manager.Pages
                     XamlRoot = this.XamlRoot
                 };
                 await dialog.ShowAsync();
+                
+                // Reload mods to update ModListManager lists
+                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                if (mainWindow != null)
+                {
+                    Logger.LogInfo("Reloading mods after versions update");
+                    await mainWindow.ReloadModsAsync();
+                    Logger.LogInfo("Mods reloaded successfully");
+                }
             }
             catch (OperationCanceledException)
             {
@@ -2224,6 +2251,15 @@ namespace FlairX_Mod_Manager.Pages
                     XamlRoot = this.XamlRoot
                 };
                 await dialog.ShowAsync();
+                
+                // Reload mods to update ModListManager lists and refresh thumbnails
+                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
+                if (mainWindow != null)
+                {
+                    Logger.LogInfo("Reloading mods after previews download");
+                    await mainWindow.ReloadModsAsync();
+                    Logger.LogInfo("Mods reloaded successfully");
+                }
             }
             catch (OperationCanceledException)
             {
