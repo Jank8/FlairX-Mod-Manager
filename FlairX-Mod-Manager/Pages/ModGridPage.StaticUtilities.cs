@@ -24,6 +24,8 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                Logger.LogInfo($"ActivateModByRename called for: {modDirectory}");
+                
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
                 if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))
                     return false;

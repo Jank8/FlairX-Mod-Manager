@@ -140,6 +140,12 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     ModListManager.RebuildAllLists();
                     
+                    // Sync _activeMods with actual folder state after rebuild
+                    await DispatcherQueue.EnqueueAsync(() =>
+                    {
+                        SyncActiveModsWithFolders();
+                    });
+                    
                     // After lists are built, load mods into grid on UI thread
                     await DispatcherQueue.EnqueueAsync(() =>
                     {

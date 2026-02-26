@@ -430,6 +430,44 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        /// <summary>
+        /// Sync _activeMods dictionary with actual folder state (DISABLED_ prefix)
+        /// Call this after RebuildAllLists to ensure in-memory state matches disk
+        /// </summary>
+        private void SyncActiveModsWithFolders()
+        {
+            try
+            {
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (!Directory.Exists(modsPath)) return;
+
+                var actualState = new Dictionary<string, bool>();
+
+                // Scan all mods and check their actual state
+                foreach (var categoryDir in Directory.GetDirectories(modsPath))
+                {
+                    foreach (var modDir in Directory.GetDirectories(categoryDir))
+                    {
+                        var dirName = Path.GetFileName(modDir);
+                        var cleanName = GetCleanModName(dirName);
+                        var isActive = IsModActive(dirName);
+                        
+                        actualState[cleanName] = isActive;
+                    }
+                }
+
+                // Update _activeMods with actual state
+                _activeMods = actualState;
+                SaveActiveMods();
+                
+                Logger.LogInfo($"Synced active mods state: {actualState.Count} mods");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to sync active mods with folders", ex);
+            }
+        }
+
 
 
         private void UpdateTranslations()
