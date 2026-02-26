@@ -283,6 +283,11 @@ namespace FlairX_Mod_Manager.Pages
             if (ModsScrollViewer == null || _allModData.Count == 0) return;
             if (_lastLoadedModDataIndex >= _allModData.Count) return; // All data processed
             
+            // Don't use incremental loading if we have active filter/search/category
+            // In those cases, all filtered mods are already loaded
+            if (!string.IsNullOrEmpty(_currentCategory) || _isSearchActive)
+                return;
+            
             // Incremental loading: load when within 3 viewport heights of bottom
             var scrollableHeight = ModsScrollViewer.ScrollableHeight;
             var currentVerticalOffset = ModsScrollViewer.VerticalOffset;
