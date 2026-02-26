@@ -283,6 +283,10 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             var tableItems = new List<ModTile>();
+            
+            // Load broken mods list once if we're in Broken view
+            HashSet<string>? brokenModsList = _currentCategory == "Broken" ? ModListManager.LoadBrokenModsList() : null;
+            
             foreach (var modData in _allModData ?? new List<ModData>())
             {
                 // Apply current filter if any
@@ -291,7 +295,8 @@ namespace FlairX_Mod_Manager.Pages
                 if (_currentCategory == "Active" && !modData.IsActive)
                     shouldInclude = false;
                 
-                if (_currentCategory == "Broken" && !modData.IsBroken)
+                // Use persistent list for broken mods check (fast HashSet lookup)
+                if (_currentCategory == "Broken" && brokenModsList != null && !brokenModsList.Contains(modData.Name))
                     shouldInclude = false;
                 
                 if (!string.IsNullOrEmpty(_currentCategory) && _currentCategory != "Active" && _currentCategory != "Broken" && 
@@ -997,68 +1002,22 @@ namespace FlairX_Mod_Manager.Pages
             public bool IsBroken { get; set; } = false;
         }
 
-        // Check for updates without cache - always reads fresh from mod.json
+        // Check for updates using persistent list (fast HashSet lookup)
         private static bool CheckForUpdateLive(string modDirectory)
         {
             try
             {
-                var modsPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
+                // Get clean mod name from directory
+                var cleanName = modDirectory?.StartsWith("DISABLED", StringComparison.OrdinalIgnoreCase) == true
+                    ? modDirectory.Substring(8).TrimStart('_', '-', ' ')
+                    : modDirectory ?? "";
                 
-                // Find the mod.json file
-                string? modJsonPath = null;
-                foreach (var categoryDir in Directory.GetDirectories(modsPath))
-                {
-                    var potentialPath = Path.Combine(categoryDir, modDirectory, "mod.json");
-                    if (File.Exists(potentialPath))
-                    {
-                        modJsonPath = potentialPath;
-                        break;
-                    }
-                }
-
-                if (string.IsNullOrEmpty(modJsonPath) || !File.Exists(modJsonPath))
-                {
+                if (string.IsNullOrEmpty(cleanName))
                     return false;
-                }
-
-                // Read fresh data from mod.json (no cache)
-                var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
-                using var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-
-                // Check if gbChangeDate > dateUpdated
-                string? gbChangeDateStr = null;
-                string? dateUpdatedStr = null;
                 
-                if (root.TryGetProperty("gbChangeDate", out var gbChangeProp) && gbChangeProp.ValueKind == JsonValueKind.String)
-                {
-                    gbChangeDateStr = gbChangeProp.GetString();
-                }
-                
-                if (root.TryGetProperty("dateUpdated", out var dateUpdProp) && dateUpdProp.ValueKind == JsonValueKind.String)
-                {
-                    dateUpdatedStr = dateUpdProp.GetString();
-                }
-                
-                if (!string.IsNullOrEmpty(gbChangeDateStr) && !string.IsNullOrEmpty(dateUpdatedStr))
-                {
-                    if (DateTime.TryParse(gbChangeDateStr, out var gbDate) &&
-                        DateTime.TryParse(dateUpdatedStr, out var updatedDate))
-                    {
-                        var hasUpdate = gbDate > updatedDate;
-                        if (hasUpdate)
-                        {
-                            Logger.LogInfo($"CheckForUpdateLive: {modDirectory} has update - gbChangeDate={gbChangeDateStr}, dateUpdated={dateUpdatedStr}");
-                        }
-                        return hasUpdate;
-                    }
-                    else
-                    {
-                        Logger.LogWarning($"CheckForUpdateLive: Failed to parse dates for {modDirectory} - gbChangeDate={gbChangeDateStr}, dateUpdated={dateUpdatedStr}");
-                    }
-                }
-
-                return false;
+                // Use persistent list for fast lookup instead of reading mod.json
+                var outdatedMods = ModListManager.LoadOutdatedModsList();
+                return outdatedMods.Contains(cleanName);
             }
             catch (Exception ex)
             {

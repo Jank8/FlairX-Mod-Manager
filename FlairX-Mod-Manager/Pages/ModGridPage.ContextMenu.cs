@@ -444,6 +444,10 @@ namespace FlairX_Mod_Manager.Pages
 
             // Create ModTiles from sorted data and apply current filter (if any)
             var modTiles = new List<ModTile>();
+            
+            // Load broken mods list once if we're in Broken view
+            HashSet<string>? brokenModsList = _currentCategory == "Broken" ? ModListManager.LoadBrokenModsList() : null;
+            
             foreach (var modData in _allModData)
             {
                 // Apply current view filter (active mods, category, etc.)
@@ -453,8 +457,8 @@ namespace FlairX_Mod_Manager.Pages
                 if (_currentCategory == "Active" && !modData.IsActive)
                     shouldInclude = false;
                 
-                // Check if we're in broken mods view
-                if (_currentCategory == "Broken" && !modData.IsBroken)
+                // Check if we're in broken mods view (use persistent list for fast lookup)
+                if (_currentCategory == "Broken" && brokenModsList != null && !brokenModsList.Contains(modData.Name))
                     shouldInclude = false;
                 
                 // Check if we're in specific category view

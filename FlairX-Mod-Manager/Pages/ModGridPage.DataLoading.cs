@@ -726,11 +726,15 @@ namespace FlairX_Mod_Manager.Pages
             // Load all mod data first
             LoadAllModData();
             
-            // Filter to show only broken mods from _allModData
+            // Load broken mods list for fast filtering
+            var brokenModsList = ModListManager.LoadBrokenModsList();
+            
+            // Filter to show only broken mods using the persistent list
             var brokenModTiles = new List<ModTile>();
             foreach (var modData in _allModData)
             {
-                if (modData.IsBroken)
+                // Fast HashSet lookup instead of checking IsBroken flag
+                if (brokenModsList.Contains(modData.Name))
                 {
                     var modTile = new ModTile 
                     { 
@@ -745,7 +749,7 @@ namespace FlairX_Mod_Manager.Pages
                         LastUpdated = modData.LastUpdated,
                         HasUpdate = CheckForUpdateLive(modData.Directory), // Live check without cache
                         IsVisible = true,
-                        IsBroken = modData.IsBroken,
+                        IsBroken = true, // We know it's broken from the list
                         IsNSFW = modData.IsNSFW,
                         ImageSource = null // Start with no image - lazy load when visible
                     };
