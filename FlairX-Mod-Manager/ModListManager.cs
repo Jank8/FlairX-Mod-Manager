@@ -152,20 +152,8 @@ namespace FlairX_Mod_Manager
                         var cleanName = GetCleanModName(dirName);
                         var isActive = !dirName.StartsWith("DISABLED", StringComparison.OrdinalIgnoreCase);
 
-                        // Debug logging for specific mod
-                        if (cleanName.Contains("Bottom Heavy", StringComparison.OrdinalIgnoreCase))
-                        {
-                            Logger.LogInfo($"ModListManager: Processing 'Bottom Heavy' - DirName: {dirName}, CleanName: {cleanName}, IsActive: {isActive}");
-                        }
-
                         // Parse mod.json
                         var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
-                        
-                        // Debug logging for specific mod
-                        if (cleanName.Contains("Bottom Heavy", StringComparison.OrdinalIgnoreCase))
-                        {
-                            Logger.LogInfo($"ModListManager: 'Bottom Heavy' mod.json read successfully, length: {json.Length}");
-                        }
                         
                         using var doc = JsonDocument.Parse(json);
                         var root = doc.RootElement;
@@ -267,12 +255,6 @@ namespace FlairX_Mod_Manager
 
                         masterList.Add(modInfo);
                         processedMods++;
-                        
-                        // Debug logging for specific mod
-                        if (cleanName.Contains("Bottom Heavy", StringComparison.OrdinalIgnoreCase))
-                        {
-                            Logger.LogInfo($"ModListManager: Found 'Bottom Heavy' - Name: {cleanName}, Category: {categoryName}, IsNSFW: {isNSFW}, IsActive: {isActive}");
-                        }
 
                         // Build filter lists
                         if (isActive) activeList.Add(cleanName);
