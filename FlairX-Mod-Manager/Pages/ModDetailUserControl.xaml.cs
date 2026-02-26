@@ -430,14 +430,6 @@ namespace FlairX_Mod_Manager.Pages
                 _availablePreviewImages = previewImages;
                 UpdateImageNavigation();
                 LoadCurrentImage();
-                
-                // Ensure preview effects are applied after image is loaded
-                // Use a small delay to ensure the image is fully loaded
-                _ = Task.Run(async () =>
-                {
-                    await Task.Delay(100);
-                    DispatcherQueue.TryEnqueue(() => UpdatePreviewEffects(ModImage.Source));
-                });
             }
             catch (Exception ex)
             {
@@ -449,7 +441,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void LoadCurrentImage()
+        private async void LoadCurrentImage()
         {
             try
             {
@@ -463,14 +455,49 @@ namespace FlairX_Mod_Manager.Pages
                     var absolutePath = Path.GetFullPath(imagePath);
                     bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
                     
-                    // Change the image source first
-                    ModImage.Source = bitmap;
+                    // Fade out animation
+                    var fadeOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        From = 1.0,
+                        To = 0.0,
+                        Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseInOut }
+                    };
                     
-                    // Update preview effects
-                    UpdatePreviewEffects(bitmap);
+                    var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    storyboard.Children.Add(fadeOut);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeOut, ModImage);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeOut, "Opacity");
                     
-                    // Apply elastic animation to the appropriate element
-                    PreviewEffectHelper.ApplyElasticAnimation(ModImageBorder, bitmap);
+                    storyboard.Completed += (s, e) =>
+                    {
+                        // Change image source after fade out
+                        ModImage.Source = bitmap;
+                        
+                        // Fade in animation
+                        var fadeIn = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                        {
+                            From = 0.0,
+                            To = 1.0,
+                            Duration = new Duration(TimeSpan.FromMilliseconds(150)),
+                            EasingFunction = new Microsoft.UI.Xaml.Media.Animation.QuadraticEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseInOut }
+                        };
+                        
+                        var fadeInStoryboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                        fadeInStoryboard.Children.Add(fadeIn);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeIn, ModImage);
+                        Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeIn, "Opacity");
+                        fadeInStoryboard.Begin();
+                        
+                        // Apply effects after fade in completes
+                        fadeInStoryboard.Completed += (s2, e2) =>
+                        {
+                            UpdatePreviewEffects(bitmap);
+                            PreviewEffectHelper.ApplyElasticAnimation(ModImageBorder, bitmap);
+                        };
+                    };
+                    
+                    storyboard.Begin();
                 }
                 else
                 {

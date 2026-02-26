@@ -101,8 +101,8 @@
                     
                     <!-- Image section with delete button -->
                     <Grid Margin="0,0,0,24">
-                        <!-- Image container with max height constraint -->
-                        <Grid MaxHeight="600" MaxWidth="1000" HorizontalAlignment="Center">
+                        <!-- Image container with min/max height to prevent jumping while allowing flexibility -->
+                        <Grid MinHeight="400" MaxHeight="600" MaxWidth="1000" HorizontalAlignment="Center">
                         <!-- Coordinate field for tilt calculation -->
                         <Grid x:Name="ModImageCoordinateField" 
                               Background="Transparent"

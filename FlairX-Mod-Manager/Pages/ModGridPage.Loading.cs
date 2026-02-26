@@ -458,6 +458,10 @@ namespace FlairX_Mod_Manager.Pages
         {
             var imagePath = mod.ImagePath;
             
+            // Skip if ImagePath is empty or null
+            if (string.IsNullOrEmpty(imagePath))
+                return;
+            
             // Skip if already loading this image (thread-safe check and add)
             lock (_loadingLock)
             {

@@ -84,6 +84,12 @@ namespace FlairX_Mod_Manager
                 return $"{subDir}-ActiveMods.json";
             }
             
+            public static string GetMasterModsFilename(string gameTag)
+            {
+                string subDir = GetGameSubDir(gameTag);
+                return $"{subDir}-MasterMods.json";
+            }
+            
             public static string GetNSFWModsFilename(string gameTag)
             {
                 string subDir = GetGameSubDir(gameTag);

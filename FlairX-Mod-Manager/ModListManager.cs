@@ -67,7 +67,6 @@ namespace FlairX_Mod_Manager
         private static HashSet<string>? _cachedNSFWList = null;
         private static HashSet<string>? _cachedBrokenList = null;
         private static HashSet<string>? _cachedOutdatedList = null;
-        private static HashSet<string>? _cachedStatusKeeperSyncList = null;
         private static DateTime _lastCacheUpdate = DateTime.MinValue;
 
         /// <summary>
@@ -90,7 +89,6 @@ namespace FlairX_Mod_Manager
             var nsfwList = new List<string>();
             var brokenList = new List<string>();
             var outdatedList = new List<string>();
-            var statusKeeperSyncList = new List<string>();
             
             var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
             
@@ -261,7 +259,6 @@ namespace FlairX_Mod_Manager
                         if (isNSFW) nsfwList.Add(cleanName);
                         if (isBroken) brokenList.Add(cleanName);
                         if (hasUpdate) outdatedList.Add(cleanName);
-                        if (statusKeeperSync) statusKeeperSyncList.Add(cleanName);
                     }
                     catch (Exception ex)
                     {
@@ -285,7 +282,6 @@ namespace FlairX_Mod_Manager
             SaveNSFWModsList(nsfwList);
             SaveBrokenModsList(brokenList);
             SaveOutdatedModsList(outdatedList);
-            SaveStatusKeeperSyncList(statusKeeperSyncList);
 
             // Update cache
             lock (_listLock)
@@ -295,12 +291,11 @@ namespace FlairX_Mod_Manager
                 _cachedNSFWList = new HashSet<string>(nsfwList);
                 _cachedBrokenList = new HashSet<string>(brokenList);
                 _cachedOutdatedList = new HashSet<string>(outdatedList);
-                _cachedStatusKeeperSyncList = new HashSet<string>(statusKeeperSyncList);
                 _lastCacheUpdate = DateTime.UtcNow;
             }
 
             Logger.LogInfo($"ModListManager: Rebuilt lists - Total dirs: {totalModDirs}, Processed: {processedMods}, Skipped: {skippedMods}");
-            Logger.LogInfo($"ModListManager: Lists - Master: {masterList.Count}, Active: {activeList.Count}, NSFW: {nsfwList.Count}, Broken: {brokenList.Count}, Outdated: {outdatedList.Count}, StatusKeeperSync: {statusKeeperSyncList.Count}");
+            Logger.LogInfo($"ModListManager: Lists - Master: {masterList.Count}, Active: {activeList.Count}, NSFW: {nsfwList.Count}, Broken: {brokenList.Count}, Outdated: {outdatedList.Count}");
         }
 
         /// <summary>
@@ -433,21 +428,6 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
-        /// Check if mod has StatusKeeper sync enabled (fast HashSet lookup)
-        /// </summary>
-        public static bool IsModStatusKeeperSync(string modName)
-        {
-            lock (_listLock)
-            {
-                if (_cachedStatusKeeperSyncList == null)
-                {
-                    _cachedStatusKeeperSyncList = LoadStatusKeeperSyncList();
-                }
-                return _cachedStatusKeeperSyncList.Contains(modName);
-            }
-        }
-
-        /// <summary>
         /// Invalidate cache - forces reload on next access
         /// </summary>
         public static void InvalidateCache()
@@ -459,7 +439,6 @@ namespace FlairX_Mod_Manager
                 _cachedNSFWList = null;
                 _cachedBrokenList = null;
                 _cachedOutdatedList = null;
-                _cachedStatusKeeperSyncList = null;
                 _lastCacheUpdate = DateTime.MinValue;
             }
             Logger.LogDebug("ModListManager: Cache invalidated");
@@ -482,7 +461,11 @@ namespace FlairX_Mod_Manager
             if (File.Exists(webpPath))
                 return webpPath;
             
-            return jpegPath;
+            if (File.Exists(jpegPath))
+                return jpegPath;
+            
+            // Return empty string if no minitile exists
+            return string.Empty;
         }
 
         private static void SaveMasterList(List<ModInfo> mods)
@@ -492,7 +475,7 @@ namespace FlairX_Mod_Manager
                 try
                 {
                     var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
-                    var filename = $"mods_master_{gameTag}.json";
+                    var filename = AppConstants.GameConfig.GetMasterModsFilename(gameTag);
                     var settingsPath = PathManager.GetSettingsPath(filename);
                     
                     var data = new MasterModListData
@@ -520,7 +503,7 @@ namespace FlairX_Mod_Manager
                 try
                 {
                     var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
-                    var filename = $"mods_master_{gameTag}.json";
+                    var filename = AppConstants.GameConfig.GetMasterModsFilename(gameTag);
                     var settingsPath = PathManager.GetSettingsPath(filename);
                     
                     if (!File.Exists(settingsPath))
@@ -550,34 +533,14 @@ namespace FlairX_Mod_Manager
         private static void SaveActiveModsList(List<string> modNames)
         {
             var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
-            var filename = $"mods_active_{gameTag}.json";
+            var filename = AppConstants.GameConfig.GetActiveModsFilename(gameTag);
             SaveModList(filename, modNames);
         }
 
         private static HashSet<string> LoadActiveModsList()
         {
             var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
-            var filename = $"mods_active_{gameTag}.json";
-            return LoadModList(filename);
-        }
-
-        /// <summary>
-        /// Save StatusKeeper sync mods list for current game
-        /// </summary>
-        public static void SaveStatusKeeperSyncList(List<string> modNames)
-        {
-            var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
-            var filename = $"mods_statuskeeper_{gameTag}.json";
-            SaveModList(filename, modNames);
-        }
-
-        /// <summary>
-        /// Load StatusKeeper sync mods list for current game
-        /// </summary>
-        public static HashSet<string> LoadStatusKeeperSyncList()
-        {
-            var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
-            var filename = $"mods_statuskeeper_{gameTag}.json";
+            var filename = AppConstants.GameConfig.GetActiveModsFilename(gameTag);
             return LoadModList(filename);
         }
 
