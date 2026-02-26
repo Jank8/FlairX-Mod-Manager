@@ -558,7 +558,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             // Load only first batch of tiles (lazy loading)
-            const int initialLoadCount = 50;
+            const int initialLoadCount = 30;
             var initialTiles = new List<ModTile>();
             
             for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
@@ -909,7 +909,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             // Load only first batch of tiles (lazy loading)
-            const int initialLoadCount = 50;
+            const int initialLoadCount = 30;
             var initialTiles = new List<ModTile>();
             
             for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
@@ -993,7 +993,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             // Load only first batch of tiles (lazy loading)
-            const int initialLoadCount = 50;
+            const int initialLoadCount = 30;
             var initialTiles = new List<ModTile>();
             
             for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
@@ -1085,7 +1085,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             // Load only first batch of tiles (lazy loading)
-            const int initialLoadCount = 50;
+            const int initialLoadCount = 30;
             var initialTiles = new List<ModTile>();
             
             for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
