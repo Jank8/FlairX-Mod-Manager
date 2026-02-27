@@ -8,6 +8,9 @@
     Title="FlairX Overlay">
 
     <Grid x:Name="MainRoot" Background="Transparent">
+        <Grid.OpacityTransition>
+            <ScalarTransition Duration="0:0:0.3"/>
+        </Grid.OpacityTransition>
         <Grid.RowDefinitions>
             <RowDefinition Height="32"/>
             <RowDefinition Height="*"/>

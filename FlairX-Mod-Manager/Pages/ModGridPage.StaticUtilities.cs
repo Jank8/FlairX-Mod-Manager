@@ -47,7 +47,7 @@ namespace FlairX_Mod_Manager.Pages
                 var newName = modName.Substring(DISABLED_PREFIX.Length);
                 var newPath = Path.Combine(parentDir, newName);
 
-                Directory.Move(modPath, newPath);
+                Services.FileAccessQueue.MoveDirectory(modPath, newPath);
                 
                 // Update ModListManager with new directory name
                 var cleanName = GetCleanModName(newName);
@@ -116,7 +116,7 @@ namespace FlairX_Mod_Manager.Pages
 
                 var newPath = Path.Combine(parentDir, finalName);
 
-                Directory.Move(modPath, newPath);
+                Services.FileAccessQueue.MoveDirectory(modPath, newPath);
                 
                 // Update ModListManager with new directory name
                 ModListManager.UpdateModActivation(cleanName, finalName, false);

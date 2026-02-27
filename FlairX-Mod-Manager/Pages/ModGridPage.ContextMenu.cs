@@ -937,7 +937,7 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 
                 // Perform the rename
-                Directory.Move(currentPath, newPath);
+                Services.FileAccessQueue.MoveDirectory(currentPath, newPath);
                 Logger.LogInfo($"Successfully renamed directory");
                 
                 // Update the ModTile object

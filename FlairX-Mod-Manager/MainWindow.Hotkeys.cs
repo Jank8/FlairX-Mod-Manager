@@ -251,7 +251,7 @@ namespace FlairX_Mod_Manager
                         
                         try
                         {
-                            Directory.Move(modDir, newPath);
+                            Services.FileAccessQueue.MoveDirectory(modDir, newPath);
                             newActiveMods[modFolderName] = false;
                         }
                         catch (Exception ex)
@@ -291,7 +291,7 @@ namespace FlairX_Mod_Manager
                         
                         try
                         {
-                            Directory.Move(randomModDir, newPath);
+                            Services.FileAccessQueue.MoveDirectory(randomModDir, newPath);
                             newActiveMods[cleanName] = true;
                             selectedMods.Add($"{categoryName}: {cleanName}");
                             Logger.LogInfo($"Activated random mod: {cleanName}");
@@ -461,7 +461,7 @@ namespace FlairX_Mod_Manager
                         
                         try
                         {
-                            Directory.Move(modDir, newPath);
+                            Services.FileAccessQueue.MoveDirectory(modDir, newPath);
                             newActiveMods[cleanName] = false;
                             deactivatedCount++;
                             Logger.LogInfo($"Deactivated: {modFolderName} -> {newName}");
@@ -700,27 +700,19 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
-        /// Handle overlay window closed event
+        /// Handle overlay window closed event - window handles this internally now
         /// </summary>
         private void OnOverlayWindowClosed(object? sender, EventArgs e)
         {
             try
             {
-                Logger.LogInfo("Overlay window was closed by user");
-                
-                // Clean up reference so a new window can be created
-                if (_overlayWindow != null)
-                {
-                    _overlayWindow.ModToggleRequested -= OnOverlayModToggleRequested;
-                    _overlayWindow.WindowClosed -= OnOverlayWindowClosed;
-                    _overlayWindow.WindowHidden -= OnOverlayWindowHidden;
-                    _overlayWindow = null;
-                }
+                Logger.LogInfo("Overlay window close event received (window hides itself)");
+                // Window now handles close by hiding itself in OverlayWindow_Closed
+                // No action needed here
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error handling overlay window closed", ex);
-                _overlayWindow = null;
             }
         }
 
@@ -817,10 +809,10 @@ namespace FlairX_Mod_Manager
                     _overlayWindow.WindowClosed -= OnOverlayWindowClosed;
                     _overlayWindow.WindowHidden -= OnOverlayWindowHidden;
                     
-                    // Try to close the window safely
+                    // Force close the window (not just hide)
                     try
                     {
-                        _overlayWindow.Close();
+                        _overlayWindow.ForceClose();
                     }
                     catch
                     {
@@ -828,7 +820,7 @@ namespace FlairX_Mod_Manager
                     }
                     
                     _overlayWindow = null;
-                    Logger.LogInfo("Overlay window closed");
+                    Logger.LogInfo("Overlay window force closed");
                 }
             }
             catch (Exception ex)

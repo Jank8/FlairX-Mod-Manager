@@ -243,6 +243,7 @@ namespace FlairX_Mod_Manager
         
         // State restoration flag
         private bool _isRestoringState = false;
+        private bool _isFirstShow = true;
 
         public OverlayWindow(MainWindow mainWindow)
         {
@@ -279,6 +280,12 @@ namespace FlairX_Mod_Manager
                 UpdateHotkeyHint();
                 Logger.LogInfo("OverlayWindow: UpdateHotkeyHint done");
                 
+                // Start with opacity 0 to prevent black flash
+                if (MainRoot != null)
+                {
+                    MainRoot.Opacity = 0.0;
+                }
+                
                 // Subscribe to settings changes
                 WindowStyleHelper.SettingsChanged += OnSettingsChanged;
                 
@@ -299,64 +306,11 @@ namespace FlairX_Mod_Manager
 
         private void OverlayWindow_Closed(object sender, WindowEventArgs args)
         {
-            // Save state before closing
-            SaveOverlayState();
+            // Cancel the close and hide instead (keep overlay in memory)
+            args.Handled = true;
+            Hide();
             
-            // Unsubscribe from events
-            WindowStyleHelper.SettingsChanged -= OnSettingsChanged;
-            
-            // Unsubscribe from theme changes
-            if (_themeChangedHandler != null && Content is FrameworkElement rootElement)
-            {
-                rootElement.ActualThemeChanged -= _themeChangedHandler;
-                _themeChangedHandler = null;
-            }
-            
-            // Unsubscribe from window changes
-            if (_appWindow != null)
-            {
-                _appWindow.Changed -= OnAppWindowChanged;
-            }
-            
-            // Save final window state
-            SaveWindowState();
-            
-            // Clean up animation timers
-            _hideTimer?.Stop();
-            _hideTimer = null;
-            _isAnimatingIn = false;
-            _isAnimatingOut = false;
-            _previousSelectedMod = null;
-            _previousSelectedIndex = -1;
-            
-            // Clean up gamepad
-            if (_gamepadManager != null)
-            {
-                _gamepadManager.ButtonPressed -= OnGamepadButtonPressed;
-                _gamepadManager.ButtonReleased -= OnGamepadButtonReleased;
-                _gamepadManager.LeftThumbstickMoved -= OnLeftThumbstickMoved;
-                _gamepadManager.StickMoved -= OnGamepadStickMoved;
-                _gamepadManager.RawAxisMoved -= OnGamepadRawAxisMoved;
-                _gamepadManager.Dispose();
-                _gamepadManager = null;
-            }
-            
-            // Clean up backdrop controllers
-            try
-            {
-                _acrylicController?.Dispose();
-                _acrylicController = null;
-                _micaController?.Dispose();
-                _micaController = null;
-                _configurationSource = null;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error cleaning up overlay window resources", ex);
-            }
-            
-            // Notify that window was closed
-            WindowClosed?.Invoke(this, EventArgs.Empty);
+            Logger.LogInfo("OverlayWindow: Close cancelled, window hidden instead");
         }
 
         private void SetupWindow()
@@ -1816,7 +1770,7 @@ namespace FlairX_Mod_Manager
                 
                 if (dir != newPath && !System.IO.Directory.Exists(newPath))
                 {
-                    System.IO.Directory.Move(dir, newPath);
+                    Services.FileAccessQueue.MoveDirectory(dir, newPath);
                     item.Directory = newPath;
                     item.IsActive = newState;
                     
@@ -1838,18 +1792,42 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        public void Show(bool vibrate = false)
+        public async void Show(bool vibrate = false)
         {
             try
             {
                 Logger.LogInfo("OverlayWindow.Show: Starting");
+                
+                // Set opacity to 0 BEFORE showing window (prevents black flash on first show)
+                if (MainRoot != null)
+                {
+                    MainRoot.Opacity = 0.0;
+                }
+                
                 _appWindow?.Show();
                 Logger.LogInfo("OverlayWindow.Show: Window shown");
                 
-                // Always restore state when showing overlay
-                RestoreOverlayState();
+                // Small delay to let backdrop render before fading in
+                await Task.Delay(50);
                 
-                Logger.LogInfo("OverlayWindow.Show: State restored");
+                // Fade in the content
+                if (MainRoot != null)
+                {
+                    MainRoot.Opacity = 1.0;
+                }
+                
+                // Only restore state after first show (data already loaded in constructor)
+                if (!_isFirstShow)
+                {
+                    RestoreOverlayState();
+                    Logger.LogInfo("OverlayWindow.Show: State restored");
+                }
+                else
+                {
+                    _isFirstShow = false;
+                    Logger.LogInfo("OverlayWindow.Show: First show - skipping state restore (already loaded in constructor)");
+                }
+                
                 UpdateHotkeyHint();
                 Logger.LogInfo("OverlayWindow.Show: Hotkey hint updated");
                 
@@ -1868,6 +1846,12 @@ namespace FlairX_Mod_Manager
 
         public void Hide()
         {
+            // Fade out the content
+            if (MainRoot != null)
+            {
+                MainRoot.Opacity = 0.0;
+            }
+            
             // Save state before hiding
             SaveOverlayState();
             
@@ -1884,6 +1868,84 @@ namespace FlairX_Mod_Manager
                 Hide();
             else
                 Show(vibrate);
+        }
+
+        /// <summary>
+        /// Force close the overlay window (used when main window closes)
+        /// </summary>
+        public void ForceClose()
+        {
+            try
+            {
+                Logger.LogInfo("OverlayWindow: Force closing");
+                
+                // Save state before closing
+                SaveOverlayState();
+                
+                // Unsubscribe from events
+                WindowStyleHelper.SettingsChanged -= OnSettingsChanged;
+                
+                // Unsubscribe from theme changes
+                if (_themeChangedHandler != null && Content is FrameworkElement rootElement)
+                {
+                    rootElement.ActualThemeChanged -= _themeChangedHandler;
+                    _themeChangedHandler = null;
+                }
+                
+                // Unsubscribe from window changes
+                if (_appWindow != null)
+                {
+                    _appWindow.Changed -= OnAppWindowChanged;
+                }
+                
+                // Save final window state
+                SaveWindowState();
+                
+                // Clean up animation timers
+                _hideTimer?.Stop();
+                _hideTimer = null;
+                
+                // Clean up gamepad
+                if (_gamepadManager != null)
+                {
+                    _gamepadManager.ButtonPressed -= OnGamepadButtonPressed;
+                    _gamepadManager.ButtonReleased -= OnGamepadButtonReleased;
+                    _gamepadManager.LeftThumbstickMoved -= OnLeftThumbstickMoved;
+                    _gamepadManager.StickMoved -= OnGamepadStickMoved;
+                    _gamepadManager.RawAxisMoved -= OnGamepadRawAxisMoved;
+                    _gamepadManager.Dispose();
+                    _gamepadManager = null;
+                }
+                
+                // Clean up backdrop controllers
+                if (_acrylicController != null)
+                {
+                    _acrylicController.Dispose();
+                    _acrylicController = null;
+                }
+                if (_micaController != null)
+                {
+                    _micaController.Dispose();
+                    _micaController = null;
+                }
+                _configurationSource = null;
+                
+                // Notify that window is being closed
+                WindowClosed?.Invoke(this, EventArgs.Empty);
+                
+                // Destroy the AppWindow to ensure process can exit
+                if (_appWindow != null)
+                {
+                    _appWindow.Destroy();
+                    _appWindow = null;
+                }
+                
+                Logger.LogInfo("OverlayWindow: Force closed successfully");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("OverlayWindow: Force close failed", ex);
+            }
         }
 
         /// <summary>
@@ -2630,23 +2692,19 @@ namespace FlairX_Mod_Manager
                 var lastShowActiveOnly = SettingsManager.Current.OverlayLastShowActiveOnly;
                 var lastScrollPosition = SettingsManager.Current.OverlayLastScrollPosition;
                 
-                Logger.LogInfo($"Restoring overlay state: Category={lastCategoryPath}, ModIndex={lastModIndex}, ShowActiveOnly={lastShowActiveOnly}");
+                Logger.LogInfo($"Restoring overlay state: Category={lastCategoryPath}, ModIndex={lastModIndex}, ModDir={lastModDirectory}, ShowActiveOnly={lastShowActiveOnly}");
                 
-                // First, load categories to ensure we have fresh data
-                LoadCurrentCategoryMods();
-                await Task.Delay(50);
-                
-                // Restore active-only filter
+                // Restore active-only filter BEFORE loading categories
                 if (lastShowActiveOnly != _showActiveOnly)
                 {
                     _showActiveOnly = lastShowActiveOnly;
-                    if (_showActiveOnly)
-                    {
-                        LoadAllActiveMods();
-                    }
                 }
                 
-                // Restore category selection
+                // Load categories
+                await LoadCategoriesAsync();
+                await Task.Delay(50);
+                
+                // Restore category and mod selection
                 if (!string.IsNullOrEmpty(lastCategoryPath) && Directory.Exists(lastCategoryPath))
                 {
                     // Find and select the category
@@ -2656,9 +2714,9 @@ namespace FlairX_Mod_Manager
                         SelectCategory(category);
                         
                         // Wait for mods to load
-                        await Task.Delay(100);
+                        await Task.Delay(150);
                         
-                        // Restore mod selection
+                        // NOW restore mod selection after mods are loaded
                         if (!string.IsNullOrEmpty(lastModDirectory))
                         {
                             // Try to find mod by directory first (more reliable)
@@ -2666,12 +2724,17 @@ namespace FlairX_Mod_Manager
                             if (mod != null)
                             {
                                 _selectedModIndex = OverlayMods.IndexOf(mod);
+                                _selectedMod = mod;
                                 UpdateSelectedMod(mod);
                                 
                                 // Wait for UI to update and scroll to selected mod
-                                await Task.Delay(200);
+                                await Task.Delay(100);
                                 await ScrollModIntoView(_selectedModIndex);
                                 Logger.LogInfo($"Restored mod selection: {mod.Name} at index {_selectedModIndex}");
+                            }
+                            else
+                            {
+                                Logger.LogWarning($"Could not find mod with directory: {lastModDirectory}");
                             }
                         }
                         else if (lastModIndex >= 0 && lastModIndex < OverlayMods.Count)
@@ -2679,10 +2742,11 @@ namespace FlairX_Mod_Manager
                             // Fallback to index-based selection
                             var mod = OverlayMods[lastModIndex];
                             _selectedModIndex = lastModIndex;
+                            _selectedMod = mod;
                             UpdateSelectedMod(mod);
                             
                             // Wait for UI to update and scroll to selected mod
-                            await Task.Delay(200);
+                            await Task.Delay(100);
                             await ScrollModIntoView(_selectedModIndex);
                             Logger.LogInfo($"Restored mod selection by index: {mod.Name} at index {_selectedModIndex}");
                         }
@@ -2694,6 +2758,16 @@ namespace FlairX_Mod_Manager
                             ModsScrollViewer.ChangeView(null, lastScrollPosition, null, true);
                         }
                     }
+                }
+                else if (_showActiveOnly)
+                {
+                    // If no category was saved but active-only filter is on, load all active mods
+                    LoadAllActiveMods();
+                }
+                else if (OverlayCategories.Count > 0)
+                {
+                    // Default to first category
+                    SelectCategory(OverlayCategories[0]);
                 }
                 
                 _isRestoringState = false;

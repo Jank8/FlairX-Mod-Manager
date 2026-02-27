@@ -640,6 +640,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Show Load More button if there are more pages
                 LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
+                LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
@@ -649,6 +650,7 @@ namespace FlairX_Mod_Manager.Pages
                 ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
                 ConnectionErrorBar.IsOpen = true;
                 LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
+                LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
             }
         }
         
@@ -850,6 +852,7 @@ namespace FlairX_Mod_Manager.Pages
                     // Always show load more button
                     Logger.LogInfo($"Setting LoadMoreButton visibility to: Visible (first load with {_authorMods.Count} mods)");
                     LoadMoreAuthorModsButton.Visibility = Visibility.Visible;
+                    LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
                     
                     // Check if we need to load more content to fill the screen
                     _ = CheckIfNeedMoreAuthorContent();
@@ -876,6 +879,7 @@ namespace FlairX_Mod_Manager.Pages
                     // Always keep button visible
                     Logger.LogInfo($"Keeping LoadMoreButton visible (loaded {modsLoadedThisPage} mods this page)");
                     LoadMoreAuthorModsButton.Visibility = Visibility.Visible;
+                    LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
                     
                     // Check if we need to load more content to fill the screen
                     _ = CheckIfNeedMoreAuthorContent();
@@ -1029,6 +1033,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Update Load More button visibility
                 LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
+                LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
                 
                 // Check if we still need more content after loading
                 await Task.Delay(200); // Wait for layout to update
@@ -1039,6 +1044,7 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogError("Failed to load more mods from GameBanana", ex);
                 _hasMorePages = false;
                 LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
+                LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
             }
             finally
             {

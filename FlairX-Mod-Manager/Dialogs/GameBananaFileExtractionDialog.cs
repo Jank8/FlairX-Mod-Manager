@@ -203,6 +203,9 @@ namespace FlairX_Mod_Manager.Dialogs
                     _categoryComboBox.Text = initialCategory;
                 }
                 
+                // Validate after setting category
+                _categoryComboBox.SelectionChanged += (s, e) => ValidateInputs();
+                
                 // Force visual update by triggering Loaded event
                 _categoryComboBox.Loaded += (s, e) =>
                 {
@@ -213,6 +216,7 @@ namespace FlairX_Mod_Manager.Dialogs
                         _categoryComboBox.Text = "";
                         _categoryComboBox.Text = text;
                     }
+                    ValidateInputs(); // Validate after control is loaded
                 };
                 
                 _categoryComboBox.TextSubmitted += (s, e) => 
@@ -412,6 +416,7 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 _modNameTextBox.Text = modName;
                 _modNameTextBox.UpdateLayout();
+                ValidateInputs(); // Enable Start button after setting text
             }
 
             // Check if this is an update and show appropriate checkboxes
@@ -456,6 +461,7 @@ namespace FlairX_Mod_Manager.Dialogs
                         existingFolderName = existingFolderName.Substring(9);
                     }
                     _modNameTextBox.Text = existingFolderName;
+                    ValidateInputs(); // Enable Start button
                     Logger.LogInfo($"Using existing folder name: {existingFolderName}");
                     
                     // Update category to where mod actually is
@@ -515,6 +521,7 @@ namespace FlairX_Mod_Manager.Dialogs
                         existingFolderName = existingFolderName.Substring(9);
                     }
                     _modNameTextBox.Text = existingFolderName;
+                    ValidateInputs(); // Enable Start button
                     Logger.LogInfo($"Using existing folder name: {existingFolderName}");
                     
                     // Update category to where mod actually is
@@ -831,7 +838,7 @@ namespace FlairX_Mod_Manager.Dialogs
                                         }
                                         
                                         // Temporarily deactivate mod for update
-                                        Directory.Move(modPath, tempDisabledPath);
+                                        Services.FileAccessQueue.MoveDirectory(modPath, tempDisabledPath);
                                         modPath = tempDisabledPath;
                                         Logger.LogInfo($"Temporarily deactivated mod for update: {modPath}");
                                     }
@@ -965,7 +972,7 @@ namespace FlairX_Mod_Manager.Dialogs
                         }
                         else
                         {
-                            Directory.Move(modPath, finalActivePath);
+                            Services.FileAccessQueue.MoveDirectory(modPath, finalActivePath);
                             modPath = finalActivePath;
                             Logger.LogInfo($"Reactivated mod after update: {modPath}");
                         }

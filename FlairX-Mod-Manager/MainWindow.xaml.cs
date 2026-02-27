@@ -401,6 +401,21 @@ namespace FlairX_Mod_Manager
                     // Dispose icon
                     _trayIcon?.Dispose();
                     _trayIcon = null;
+                    
+                    // Force kill process after cleanup to ensure no lingering windows
+                    Task.Run(async () =>
+                    {
+                        await Task.Delay(500); // Give time for cleanup
+                        try
+                        {
+                            var currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+                            currentProcess.Kill();
+                        }
+                        catch
+                        {
+                            // Process already exited
+                        }
+                    });
                 }
             };
 

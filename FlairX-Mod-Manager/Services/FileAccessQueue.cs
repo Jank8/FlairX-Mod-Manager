@@ -191,5 +191,41 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"[FileQueue] Cleanup: removed {removed} unused locks");
             }
         }
+
+        /// <summary>
+        /// Move directory with queued access (for both source and destination)
+        /// </summary>
+        public static void MoveDirectory(string sourcePath, string destPath)
+        {
+            var sourceLock = GetLock(sourcePath);
+            var destLock = GetLock(destPath);
+            
+            // Acquire locks in consistent order to prevent deadlocks
+            var locks = string.Compare(sourcePath, destPath, StringComparison.OrdinalIgnoreCase) < 0
+                ? new[] { sourceLock, destLock }
+                : new[] { destLock, sourceLock };
+            
+            LogWaitStart(sourcePath, "move");
+            var sw = Stopwatch.StartNew();
+            
+            locks[0].Wait();
+            try
+            {
+                locks[1].Wait();
+                try
+                {
+                    LogWaitEnd(sourcePath, "move", sw.ElapsedMilliseconds);
+                    Directory.Move(sourcePath, destPath);
+                }
+                finally
+                {
+                    locks[1].Release();
+                }
+            }
+            finally
+            {
+                locks[0].Release();
+            }
+        }
     }
 }
