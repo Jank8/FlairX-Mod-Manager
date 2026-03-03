@@ -493,7 +493,7 @@ namespace FlairX_Mod_Manager.Pages
                         fadeInStoryboard.Completed += (s2, e2) =>
                         {
                             UpdatePreviewEffects(bitmap);
-                            PreviewEffectHelper.ApplyElasticAnimation(ModImageBorder, bitmap);
+                            // Elastic animation disabled for smoother preview transitions
                         };
                     };
                     
