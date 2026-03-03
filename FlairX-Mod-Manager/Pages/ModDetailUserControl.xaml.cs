@@ -2887,6 +2887,9 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     Logger.LogInfo($"Screenshot capture completed with {capturedFiles.Count} files");
                     
+                    // Small delay to ensure all files are written and ready
+                    await Task.Delay(200);
+                    
                     // Refresh the preview images to show new captures
                     LoadPreviewImages(_currentModDirectory);
                     

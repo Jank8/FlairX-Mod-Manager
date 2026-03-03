@@ -1706,6 +1706,19 @@ namespace FlairX_Mod_Manager.Services
                 {
                     if (result.Action == CropInspectionAction.Delete)
                     {
+                        // Delete the file
+                        try
+                        {
+                            if (File.Exists(result.FilePath))
+                            {
+                                File.Delete(result.FilePath);
+                                Logger.LogInfo($"Deleted file marked for deletion: {Path.GetFileName(result.FilePath)}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to delete file: {result.FilePath}", ex);
+                        }
                         continue;
                     }
                     

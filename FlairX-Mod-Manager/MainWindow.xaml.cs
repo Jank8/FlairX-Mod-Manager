@@ -1416,6 +1416,9 @@ namespace FlairX_Mod_Manager
                 {
                     Logger.LogInfo($"Running optimization for {results.Count} captured screenshots");
                     await OptimizeCapturedScreenshots(modDirectory, results);
+                    
+                    // Small delay to ensure files are written to disk
+                    await Task.Delay(100);
                 }
                 
                 return results;
