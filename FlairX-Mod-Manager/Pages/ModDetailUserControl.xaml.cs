@@ -2887,12 +2887,6 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     Logger.LogInfo($"Screenshot capture completed with {capturedFiles.Count} files");
                     
-                    // Small delay to ensure all files are written and ready
-                    await Task.Delay(200);
-                    
-                    // Refresh the preview images to show new captures
-                    LoadPreviewImages(_currentModDirectory);
-                    
                     // Show success message
                     var lang = SharedUtilities.LoadLanguageDictionary();
                     var successDialog = new ContentDialog
@@ -2903,6 +2897,12 @@ namespace FlairX_Mod_Manager.Pages
                         XamlRoot = this.XamlRoot
                     };
                     await successDialog.ShowAsync();
+                    
+                    // Reload mods to refresh thumbnails after user closes dialog (same as manual optimization)
+                    if (App.Current is App app && app.MainWindow is MainWindow mw)
+                    {
+                        await mw.ReloadModsAsync();
+                    }
                 }
                 else
                 {
