@@ -780,15 +780,64 @@ namespace FlairX_Mod_Manager.Controls
         {
             if (_isBatchMode)
             {
-                // Mark current item as delete and move to next
+                // Delete file immediately and remove from list
                 if (_currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
                 {
                     var item = _batchItems[_currentBatchIndex];
-                    item.Action = CropAction.Delete;
-                    item.CropRect = _cropRect;
-                    item.IsEdited = true;
+                    
+                    // Delete the file immediately
+                    try
+                    {
+                        if (File.Exists(item.FilePath))
+                        {
+                            // Dispose the image first to release file handle
+                            item.SourceImage?.Dispose();
+                            item.Thumbnail = null;
+                            
+                            File.Delete(item.FilePath);
+                            Logger.LogInfo($"Deleted file: {Path.GetFileName(item.FilePath)}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Failed to delete file: {item.FilePath}", ex);
+                    }
+                    
+                    // Remove from list
+                    int indexToRemove = _currentBatchIndex;
+                    _batchItems.RemoveAt(indexToRemove);
+                    
+                    // Update counter
+                    if (_batchItems.Count > 0)
+                    {
+                        BatchCounterText.Text = $"{_batchItems.Count} file(s)";
+                        
+                        // Adjust current index after removal
+                        if (indexToRemove >= _batchItems.Count)
+                        {
+                            _currentBatchIndex = _batchItems.Count - 1;
+                        }
+                        else
+                        {
+                            _currentBatchIndex = indexToRemove;
+                        }
+                        
+                        // Load the item at current index
+                        if (_currentBatchIndex >= 0)
+                        {
+                            LoadBatchItem(_currentBatchIndex);
+                        }
+                    }
+                    else
+                    {
+                        // No more items - clear UI but don't close (for screenshot capture mode)
+                        _currentBatchIndex = -1;
+                        ImageContainer.Visibility = Visibility.Collapsed;
+                        CropInfoText.Text = "All files processed. Waiting for more screenshots...";
+                        BatchCounterText.Visibility = Visibility.Collapsed;
+                        NextButton.IsEnabled = false;
+                    }
                 }
-                MoveToNextBatchItem();
             }
             else
             {
