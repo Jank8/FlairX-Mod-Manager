@@ -53,6 +53,30 @@ namespace FlairX_Mod_Manager
         }
         
         /// <summary>
+        /// Extract password-protected archive with progress reporting
+        /// </summary>
+        public static void ExtractToDirectory(string archivePath, string destinationPath, string password, IProgress<int>? progress)
+        {
+            
+            try
+            {
+                using var extractor = new SharpSevenZipExtractor(archivePath, password);
+                
+                if (progress != null)
+                {
+                    extractor.Extracting += (sender, e) => progress.Report(e.PercentDone);
+                }
+                
+                extractor.ExtractArchive(destinationPath);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to extract password-protected archive with SharpSevenZip: {ex.Message}", ex);
+                throw;
+            }
+        }
+        
+        /// <summary>
         /// Create archive from directory
         /// </summary>
         public static void CreateFromDirectory(string sourceDirectory, string archivePath)

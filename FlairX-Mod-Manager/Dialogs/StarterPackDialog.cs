@@ -22,6 +22,30 @@ namespace FlairX_Mod_Manager.Dialogs
             { "HIMI", 20491 }, // Honkai Impact 3rd
         };
 
+        // Archive extraction keys (Base64 encoded)
+        private static readonly Dictionary<string, string> _archiveKeys = new()
+        {
+            // Add Base64-encoded keys here if needed, e.g.:
+            // { "ZZMI", "cGFzc3dvcmQxMjM=" }, // password123
+        };
+
+        private static string? GetArchiveKey(string gameTag)
+        {
+            if (_archiveKeys.TryGetValue(gameTag, out var encodedKey))
+            {
+                try
+                {
+                    var bytes = Convert.FromBase64String(encodedKey);
+                    return System.Text.Encoding.UTF8.GetString(bytes);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            return null;
+        }
+
         private ProgressBar _progressBar;
         private TextBlock _statusText;
         private CheckBox _dontShowAgainCheckBox;
@@ -312,7 +336,16 @@ namespace FlairX_Mod_Manager.Dialogs
                         });
                     });
 
-                    await Task.Run(() => ArchiveHelper.ExtractToDirectory(tempPath, fullModsPath, extractProgress));
+                    // Check if archive key is needed for this game
+                    var archiveKey = GetArchiveKey(_gameTag);
+                    if (!string.IsNullOrEmpty(archiveKey))
+                    {
+                        await Task.Run(() => ArchiveHelper.ExtractToDirectory(tempPath, fullModsPath, archiveKey, extractProgress));
+                    }
+                    else
+                    {
+                        await Task.Run(() => ArchiveHelper.ExtractToDirectory(tempPath, fullModsPath, extractProgress));
+                    }
 
                     // Clean up temp file
                     try { File.Delete(tempPath); } catch { }
