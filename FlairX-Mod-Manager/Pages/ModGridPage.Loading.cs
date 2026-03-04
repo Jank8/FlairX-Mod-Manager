@@ -477,6 +477,18 @@ namespace FlairX_Mod_Manager.Pages
             
             try
             {
+                // Check cache first
+                var cachedImage = ImageCacheManager.GetCachedImage(imagePath);
+                if (cachedImage != null)
+                {
+                    DispatcherQueue.TryEnqueue(() =>
+                    {
+                        mod.ImageSource = cachedImage;
+                        Logger.LogDebug($"LoadImageAsync: Loaded from cache {imagePath}");
+                    });
+                    return;
+                }
+                
                 // Check if file exists on background thread
                 var fileExists = await Task.Run(() => File.Exists(imagePath));
                 
@@ -496,6 +508,9 @@ namespace FlairX_Mod_Manager.Pages
                             bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
                             
                             Logger.LogDebug($"LoadImageAsync: Image loaded for {imagePath}");
+                            
+                            // Cache the image
+                            ImageCacheManager.CacheImage(imagePath, bitmap);
                             
                             mod.ImageSource = bitmap;
                             Logger.LogDebug($"LoadImageAsync: ImageSource assigned for {imagePath}");
