@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "Procházet GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Formát obrázků",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) má lepší výkon, WebP zachovává lepší kvalitu při menší velikosti, ale za cenu výkonu",
-    "EmptyState_NoResults_Text": "Žádné výsledky k zobrazení"
+    "EmptyState_NoResults_Text": "Žádné výsledky k zobrazení",
+    "MoveDialog_Title": "Přesunout mod",
+    "MoveDialog_SelectCategory": "Vyberte cílovou kategorii pro '{0}':",
+    "MoveDialog_SourceNotFound": "Zdrojový adresář modu nebyl nalezen.",
+    "MoveDialog_TargetNotFound": "Cílová kategorie nebyla nalezena.",
+    "MoveDialog_FolderLocked_Title": "Složka uzamčena",
+    "MoveDialog_FolderLocked_Content": "Složka '{0}' je uzamčena jiným procesem (pravděpodobně Průzkumníkem Windows).\n\nZavřete všechna okna prohlížející tuto složku a zkuste to znovu.",
+    "MoveDialog_Retry": "Opakovat",
+    "MoveDialog_Failed": "Nepodařilo se přesunout mod: {0}",
+    "MoveDialog_Moving": "Přesouvání modu...",
+    "MoveDialog_Success": "Mod byl úspěšně přesunut!",
+    "ContextMenu_Move": "Přesunout"
 }

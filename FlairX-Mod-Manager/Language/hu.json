@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "GameBanana böngészése",
     "ImageOptimizer_ImageFormat_Label": "Képformátum",
     "ImageOptimizer_ImageFormat_Description": "A Classic (JPEG) jobb teljesítményt nyújt, a WebP jobb minőséget őriz meg kisebb méretben, de a teljesítmény rovására",
-    "EmptyState_NoResults_Text": "Nincs megjeleníthető eredmény"
+    "EmptyState_NoResults_Text": "Nincs megjeleníthető eredmény",
+    "MoveDialog_Title": "Mod áthelyezése",
+    "MoveDialog_SelectCategory": "Válassza ki a célkategóriát a(z) '{0}' számára:",
+    "MoveDialog_SourceNotFound": "A mod forráskönyvtára nem található.",
+    "MoveDialog_TargetNotFound": "A célkategória nem található.",
+    "MoveDialog_FolderLocked_Title": "Mappa zárolva",
+    "MoveDialog_FolderLocked_Content": "A(z) '{0}' mappa egy másik folyamat által zárolva van (valószínűleg a Windows Intéző).\n\nZárjon be minden ablakot, amely ezt a mappát megjeleníti, és próbálja újra.",
+    "MoveDialog_Retry": "Újra",
+    "MoveDialog_Failed": "Nem sikerült áthelyezni a modot: {0}",
+    "MoveDialog_Moving": "Mod áthelyezése...",
+    "MoveDialog_Success": "A mod sikeresen áthelyezve!",
+    "ContextMenu_Move": "Áthelyezés"
 }

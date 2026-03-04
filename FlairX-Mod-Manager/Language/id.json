@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "Jelajahi GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Format Gambar",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) memiliki kinerja lebih baik, WebP mempertahankan kualitas lebih baik dengan ukuran lebih kecil tetapi dengan biaya kinerja",
-    "EmptyState_NoResults_Text": "Tidak ada hasil untuk ditampilkan"
+    "EmptyState_NoResults_Text": "Tidak ada hasil untuk ditampilkan",
+    "MoveDialog_Title": "Pindahkan mod",
+    "MoveDialog_SelectCategory": "Pilih kategori tujuan untuk '{0}':",
+    "MoveDialog_SourceNotFound": "Direktori sumber mod tidak ditemukan.",
+    "MoveDialog_TargetNotFound": "Kategori tujuan tidak ditemukan.",
+    "MoveDialog_FolderLocked_Title": "Folder terkunci",
+    "MoveDialog_FolderLocked_Content": "Folder '{0}' dikunci oleh proses lain (kemungkinan Windows Explorer).\n\nTutup semua jendela yang menampilkan folder ini dan coba lagi.",
+    "MoveDialog_Retry": "Coba lagi",
+    "MoveDialog_Failed": "Gagal memindahkan mod: {0}",
+    "MoveDialog_Moving": "Memindahkan mod...",
+    "MoveDialog_Success": "Mod berhasil dipindahkan!",
+    "ContextMenu_Move": "Pindahkan"
 }

@@ -161,6 +161,7 @@
     "ContextMenu_OpenURL": "Open URL",
     "ContextMenu_CopyName": "Copy Name",
     "ContextMenu_Rename": "Rename",
+    "ContextMenu_Move": "Move",
     "ContextMenu_Delete": "Delete",
     "RenameDialog_Category_Title": "Rename Category",
     "RenameDialog_Mod_Title": "Rename Mod",
@@ -340,5 +341,15 @@
     "ConvertImages_Later": "Maybe Later",
     "EmptyState_NoMods_Text": "Nothing here, download some mods",
     "EmptyState_Browse_Button": "Browse GameBanana",
-    "EmptyState_NoResults_Text": "No results to display"
+    "EmptyState_NoResults_Text": "No results to display",
+    "MoveDialog_Title": "Move Mod",
+    "MoveDialog_SelectCategory": "Select target category for '{0}':",
+    "MoveDialog_SourceNotFound": "Source mod directory not found.",
+    "MoveDialog_TargetNotFound": "Target category not found.",
+    "MoveDialog_FolderLocked_Title": "Folder Locked",
+    "MoveDialog_FolderLocked_Content": "The folder '{0}' is locked by another process (possibly Windows Explorer).\n\nClose any windows viewing this folder and try again.",
+    "MoveDialog_Retry": "Retry",
+    "MoveDialog_Failed": "Failed to move mod: {0}",
+    "MoveDialog_Moving": "Moving mod...",
+    "MoveDialog_Success": "Mod moved successfully!"
 }

@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "GameBanana 탐색",
     "ImageOptimizer_ImageFormat_Label": "이미지 형식",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG)은 성능이 더 좋고, WebP는 더 작은 크기에서 더 나은 품질을 유지하지만 성능을 희생합니다",
-    "EmptyState_NoResults_Text": "표시할 결과가 없습니다"
+    "EmptyState_NoResults_Text": "표시할 결과가 없습니다",
+    "MoveDialog_Title": "모드 이동",
+    "MoveDialog_SelectCategory": "'{0}'의 대상 카테고리 선택:",
+    "MoveDialog_SourceNotFound": "모드 소스 디렉토리를 찾을 수 없습니다.",
+    "MoveDialog_TargetNotFound": "대상 카테고리를 찾을 수 없습니다.",
+    "MoveDialog_FolderLocked_Title": "폴더 잠김",
+    "MoveDialog_FolderLocked_Content": "폴더 '{0}'이(가) 다른 프로세스(Windows 탐색기일 가능성)에 의해 잠겨 있습니다.\n\n이 폴더를 보고 있는 모든 창을 닫고 다시 시도하세요.",
+    "MoveDialog_Retry": "다시 시도",
+    "MoveDialog_Failed": "모드 이동 실패: {0}",
+    "MoveDialog_Moving": "모드 이동 중...",
+    "MoveDialog_Success": "모드가 성공적으로 이동되었습니다!",
+    "ContextMenu_Move": "이동"
 }

@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "Explorar GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Formato de imagen",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) tiene mejor rendimiento, WebP preserva mejor calidad en menor tamaño pero a costa del rendimiento",
-    "EmptyState_NoResults_Text": "No hay resultados para mostrar"
+    "EmptyState_NoResults_Text": "No hay resultados para mostrar",
+    "MoveDialog_Title": "Mover mod",
+    "MoveDialog_SelectCategory": "Seleccione la categoría de destino para '{0}':",
+    "MoveDialog_SourceNotFound": "No se encontró el directorio de origen del mod.",
+    "MoveDialog_TargetNotFound": "No se encontró la categoría de destino.",
+    "MoveDialog_FolderLocked_Title": "Carpeta bloqueada",
+    "MoveDialog_FolderLocked_Content": "La carpeta '{0}' está bloqueada por otro proceso (posiblemente el Explorador de Windows).\n\nCierre todas las ventanas que muestren esta carpeta e inténtelo de nuevo.",
+    "MoveDialog_Retry": "Reintentar",
+    "MoveDialog_Failed": "No se pudo mover el mod: {0}",
+    "MoveDialog_Moving": "Moviendo mod...",
+    "MoveDialog_Success": "¡Mod movido con éxito!",
+    "ContextMenu_Move": "Mover"
 }

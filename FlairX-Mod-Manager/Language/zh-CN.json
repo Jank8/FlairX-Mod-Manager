@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "浏览 GameBanana",
     "ImageOptimizer_ImageFormat_Label": "图像格式",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) 性能更好，WebP 在更小的尺寸下保持更好的质量，但以性能为代价",
-    "EmptyState_NoResults_Text": "没有结果可显示"
+    "EmptyState_NoResults_Text": "没有结果可显示",
+    "MoveDialog_Title": "移动模组",
+    "MoveDialog_SelectCategory": "选择'{0}'的目标类别:",
+    "MoveDialog_SourceNotFound": "未找到模组源目录。",
+    "MoveDialog_TargetNotFound": "未找到目标类别。",
+    "MoveDialog_FolderLocked_Title": "文件夹已锁定",
+    "MoveDialog_FolderLocked_Content": "文件夹'{0}'被另一个进程锁定（可能是Windows资源管理器）。\n\n关闭所有查看此文件夹的窗口，然后重试。",
+    "MoveDialog_Retry": "重试",
+    "MoveDialog_Failed": "移动模组失败: {0}",
+    "MoveDialog_Moving": "正在移动模组...",
+    "MoveDialog_Success": "模组移动成功！",
+    "ContextMenu_Move": "移动"
 }

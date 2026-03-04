@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "GameBanana'ya Göz At",
     "ImageOptimizer_ImageFormat_Label": "Görüntü Formatı",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) daha iyi performansa sahip, WebP daha küçük boyutta daha iyi kaliteyi korur ancak performans pahasına",
-    "EmptyState_NoResults_Text": "Görüntülenecek sonuç yok"
+    "EmptyState_NoResults_Text": "Görüntülenecek sonuç yok",
+    "MoveDialog_Title": "Modu taşı",
+    "MoveDialog_SelectCategory": "'{0}' için hedef kategoriyi seçin:",
+    "MoveDialog_SourceNotFound": "Mod kaynak dizini bulunamadı.",
+    "MoveDialog_TargetNotFound": "Hedef kategori bulunamadı.",
+    "MoveDialog_FolderLocked_Title": "Klasör kilitli",
+    "MoveDialog_FolderLocked_Content": "'{0}' klasörü başka bir işlem tarafından kilitlenmiş (muhtemelen Windows Gezgini).\n\nBu klasörü görüntüleyen tüm pencereleri kapatın ve tekrar deneyin.",
+    "MoveDialog_Retry": "Tekrar dene",
+    "MoveDialog_Failed": "Mod taşınamadı: {0}",
+    "MoveDialog_Moving": "Mod taşınıyor...",
+    "MoveDialog_Success": "Mod başarıyla taşındı!",
+    "ContextMenu_Move": "Taşı"
 }

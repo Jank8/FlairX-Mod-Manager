@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "Sfoglia GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Formato immagine",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) ha prestazioni migliori, WebP preserva una migliore qualità con dimensioni ridotte ma a scapito delle prestazioni",
-    "EmptyState_NoResults_Text": "Nessun risultato da visualizzare"
+    "EmptyState_NoResults_Text": "Nessun risultato da visualizzare",
+    "MoveDialog_Title": "Sposta mod",
+    "MoveDialog_SelectCategory": "Seleziona la categoria di destinazione per '{0}':",
+    "MoveDialog_SourceNotFound": "Directory di origine del mod non trovata.",
+    "MoveDialog_TargetNotFound": "Categoria di destinazione non trovata.",
+    "MoveDialog_FolderLocked_Title": "Cartella bloccata",
+    "MoveDialog_FolderLocked_Content": "La cartella '{0}' è bloccata da un altro processo (probabilmente Esplora file di Windows).\n\nChiudi tutte le finestre che visualizzano questa cartella e riprova.",
+    "MoveDialog_Retry": "Riprova",
+    "MoveDialog_Failed": "Impossibile spostare il mod: {0}",
+    "MoveDialog_Moving": "Spostamento mod...",
+    "MoveDialog_Success": "Mod spostato con successo!",
+    "ContextMenu_Move": "Sposta"
 }

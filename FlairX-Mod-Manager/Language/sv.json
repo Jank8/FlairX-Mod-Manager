@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "Bläddra GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Bildformat",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) har bättre prestanda, WebP bevarar bättre kvalitet vid mindre storlek men på bekostnad av prestanda",
-    "EmptyState_NoResults_Text": "Inga resultat att visa"
+    "EmptyState_NoResults_Text": "Inga resultat att visa",
+    "MoveDialog_Title": "Flytta mod",
+    "MoveDialog_SelectCategory": "Välj målkategori för '{0}':",
+    "MoveDialog_SourceNotFound": "Källkatalog för mod hittades inte.",
+    "MoveDialog_TargetNotFound": "Målkategori hittades inte.",
+    "MoveDialog_FolderLocked_Title": "Mapp låst",
+    "MoveDialog_FolderLocked_Content": "Mappen '{0}' är låst av en annan process (troligen Windows Utforskaren).\n\nStäng alla fönster som visar denna mapp och försök igen.",
+    "MoveDialog_Retry": "Försök igen",
+    "MoveDialog_Failed": "Misslyckades flytta mod: {0}",
+    "MoveDialog_Moving": "Flyttar mod...",
+    "MoveDialog_Success": "Mod flyttad framgångsrikt!",
+    "ContextMenu_Move": "Flytta"
 }

@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "GameBanana ब्राउज़ करें",
     "ImageOptimizer_ImageFormat_Label": "छवि प्रारूप",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) में बेहतर प्रदर्शन है, WebP छोटे आकार में बेहतर गुणवत्ता बनाए रखता है लेकिन प्रदर्शन की कीमत पर",
-    "EmptyState_NoResults_Text": "प्रदर्शित करने के लिए कोई परिणाम नहीं"
+    "EmptyState_NoResults_Text": "प्रदर्शित करने के लिए कोई परिणाम नहीं",
+    "MoveDialog_Title": "मॉड स्थानांतरित करें",
+    "MoveDialog_SelectCategory": "'{0}' के लिए लक्ष्य श्रेणी चुनें:",
+    "MoveDialog_SourceNotFound": "मॉड स्रोत निर्देशिका नहीं मिली।",
+    "MoveDialog_TargetNotFound": "लक्ष्य श्रेणी नहीं मिली।",
+    "MoveDialog_FolderLocked_Title": "फ़ोल्डर लॉक है",
+    "MoveDialog_FolderLocked_Content": "फ़ोल्डर '{0}' किसी अन्य प्रक्रिया (संभवतः Windows Explorer) द्वारा लॉक है।\n\nइस फ़ोल्डर को देखने वाली सभी विंडो बंद करें और पुनः प्रयास करें।",
+    "MoveDialog_Retry": "पुनः प्रयास करें",
+    "MoveDialog_Failed": "मॉड स्थानांतरित करने में विफल: {0}",
+    "MoveDialog_Moving": "मॉड स्थानांतरित किया जा रहा है...",
+    "MoveDialog_Success": "मॉड सफलतापूर्वक स्थानांतरित किया गया!",
+    "ContextMenu_Move": "स्थानांतरित करें"
 }

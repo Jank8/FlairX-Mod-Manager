@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "Parcourir GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Format d'image",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) a de meilleures performances, WebP préserve une meilleure qualité avec une taille plus petite mais au détriment des performances",
-    "EmptyState_NoResults_Text": "Aucun résultat à afficher"
+    "EmptyState_NoResults_Text": "Aucun résultat à afficher",
+    "MoveDialog_Title": "Déplacer le mod",
+    "MoveDialog_SelectCategory": "Sélectionnez la catégorie cible pour '{0}':",
+    "MoveDialog_SourceNotFound": "Répertoire source du mod introuvable.",
+    "MoveDialog_TargetNotFound": "Catégorie cible introuvable.",
+    "MoveDialog_FolderLocked_Title": "Dossier verrouillé",
+    "MoveDialog_FolderLocked_Content": "Le dossier '{0}' est verrouillé par un autre processus (probablement l'Explorateur Windows).\n\nFermez toutes les fenêtres affichant ce dossier et réessayez.",
+    "MoveDialog_Retry": "Réessayer",
+    "MoveDialog_Failed": "Échec du déplacement du mod: {0}",
+    "MoveDialog_Moving": "Déplacement du mod...",
+    "MoveDialog_Success": "Mod déplacé avec succès!",
+    "ContextMenu_Move": "Déplacer"
 }

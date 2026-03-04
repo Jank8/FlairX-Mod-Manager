@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "Bla gjennom GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Bildeformat",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) har bedre ytelse, WebP bevarer bedre kvalitet ved mindre størrelse, men på bekostning av ytelse",
-    "EmptyState_NoResults_Text": "Ingen resultater å vise"
+    "EmptyState_NoResults_Text": "Ingen resultater å vise",
+    "MoveDialog_Title": "Flytt mod",
+    "MoveDialog_SelectCategory": "Velg målkategori for '{0}':",
+    "MoveDialog_SourceNotFound": "Kilde mod-katalog ble ikke funnet.",
+    "MoveDialog_TargetNotFound": "Målkategori ble ikke funnet.",
+    "MoveDialog_FolderLocked_Title": "Mappe låst",
+    "MoveDialog_FolderLocked_Content": "Mappen '{0}' er låst av en annen prosess (sannsynligvis Windows Utforsker).\n\nLukk alle vinduer som viser denne mappen og prøv igjen.",
+    "MoveDialog_Retry": "Prøv igjen",
+    "MoveDialog_Failed": "Kunne ikke flytte mod: {0}",
+    "MoveDialog_Moving": "Flytter mod...",
+    "MoveDialog_Success": "Mod flyttet vellykket!",
+    "ContextMenu_Move": "Flytt"
 }

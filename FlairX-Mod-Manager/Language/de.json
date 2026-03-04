@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "GameBanana durchsuchen",
     "ImageOptimizer_ImageFormat_Label": "Bildformat",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) hat bessere Leistung, WebP bewahrt bessere Qualität bei kleinerer Größe, aber auf Kosten der Leistung",
-    "EmptyState_NoResults_Text": "Keine Ergebnisse zum Anzeigen"
+    "EmptyState_NoResults_Text": "Keine Ergebnisse zum Anzeigen",
+    "MoveDialog_Title": "Mod verschieben",
+    "MoveDialog_SelectCategory": "Zielkategorie für '{0}' auswählen:",
+    "MoveDialog_SourceNotFound": "Quellverzeichnis des Mods nicht gefunden.",
+    "MoveDialog_TargetNotFound": "Zielkategorie nicht gefunden.",
+    "MoveDialog_FolderLocked_Title": "Ordner gesperrt",
+    "MoveDialog_FolderLocked_Content": "Der Ordner '{0}' ist durch einen anderen Prozess gesperrt (möglicherweise Windows Explorer).\n\nSchließen Sie alle Fenster, die diesen Ordner anzeigen, und versuchen Sie es erneut.",
+    "MoveDialog_Retry": "Wiederholen",
+    "MoveDialog_Failed": "Mod konnte nicht verschoben werden: {0}",
+    "MoveDialog_Moving": "Mod wird verschoben...",
+    "MoveDialog_Success": "Mod erfolgreich verschoben!",
+    "ContextMenu_Move": "Verschieben"
 }

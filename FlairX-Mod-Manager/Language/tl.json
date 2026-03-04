@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "I-browse ang GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Format ng Larawan",
     "ImageOptimizer_ImageFormat_Description": "Ang Classic (JPEG) ay may mas magandang performance, ang WebP ay nakakapanatili ng mas magandang kalidad sa mas maliit na laki ngunit sa gastos ng performance",
-    "EmptyState_NoResults_Text": "Walang resulta na ipapakita"
+    "EmptyState_NoResults_Text": "Walang resulta na ipapakita",
+    "MoveDialog_Title": "Ilipat ang mod",
+    "MoveDialog_SelectCategory": "Pumili ng target na kategorya para sa '{0}':",
+    "MoveDialog_SourceNotFound": "Hindi nahanap ang source directory ng mod.",
+    "MoveDialog_TargetNotFound": "Hindi nahanap ang target na kategorya.",
+    "MoveDialog_FolderLocked_Title": "Naka-lock ang folder",
+    "MoveDialog_FolderLocked_Content": "Ang folder na '{0}' ay naka-lock ng ibang proseso (malamang na Windows Explorer).\n\nIsara ang lahat ng window na nagpapakita ng folder na ito at subukan muli.",
+    "MoveDialog_Retry": "Subukan muli",
+    "MoveDialog_Failed": "Nabigong ilipat ang mod: {0}",
+    "MoveDialog_Moving": "Inililipat ang mod...",
+    "MoveDialog_Success": "Matagumpay na nailipat ang mod!",
+    "ContextMenu_Move": "Ilipat"
 }

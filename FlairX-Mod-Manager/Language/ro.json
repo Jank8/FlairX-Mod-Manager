@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "Răsfoiește GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Format imagine",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) are performanță mai bună, WebP păstrează calitate mai bună la dimensiune mai mică dar în detrimentul performanței",
-    "EmptyState_NoResults_Text": "Niciun rezultat de afișat"
+    "EmptyState_NoResults_Text": "Niciun rezultat de afișat",
+    "MoveDialog_Title": "Mută mod",
+    "MoveDialog_SelectCategory": "Selectați categoria țintă pentru '{0}':",
+    "MoveDialog_SourceNotFound": "Directorul sursă al modului nu a fost găsit.",
+    "MoveDialog_TargetNotFound": "Categoria țintă nu a fost găsită.",
+    "MoveDialog_FolderLocked_Title": "Dosar blocat",
+    "MoveDialog_FolderLocked_Content": "Dosarul '{0}' este blocat de un alt proces (probabil Windows Explorer).\n\nÎnchideți toate ferestrele care afișează acest dosar și încercați din nou.",
+    "MoveDialog_Retry": "Reîncercare",
+    "MoveDialog_Failed": "Mutarea modului a eșuat: {0}",
+    "MoveDialog_Moving": "Mutare mod...",
+    "MoveDialog_Success": "Mod mutat cu succes!",
+    "ContextMenu_Move": "Mută"
 }

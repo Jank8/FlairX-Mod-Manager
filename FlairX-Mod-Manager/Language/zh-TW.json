@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "瀏覽 GameBanana",
     "ImageOptimizer_ImageFormat_Label": "圖像格式",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) 效能更好，WebP 在更小的尺寸下保持更好的品質，但以效能為代價",
-    "EmptyState_NoResults_Text": "沒有結果可顯示"
+    "EmptyState_NoResults_Text": "沒有結果可顯示",
+    "MoveDialog_Title": "移動模組",
+    "MoveDialog_SelectCategory": "選擇'{0}'的目標類別:",
+    "MoveDialog_SourceNotFound": "未找到模組來源目錄。",
+    "MoveDialog_TargetNotFound": "未找到目標類別。",
+    "MoveDialog_FolderLocked_Title": "資料夾已鎖定",
+    "MoveDialog_FolderLocked_Content": "資料夾'{0}'被另一個處理程序鎖定（可能是Windows檔案總管）。\n\n關閉所有查看此資料夾的視窗，然後重試。",
+    "MoveDialog_Retry": "重試",
+    "MoveDialog_Failed": "移動模組失敗: {0}",
+    "MoveDialog_Moving": "正在移動模組...",
+    "MoveDialog_Success": "模組移動成功！",
+    "ContextMenu_Move": "移動"
 }

@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "Περιήγηση GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Μορφή εικόνας",
     "ImageOptimizer_ImageFormat_Description": "Το Classic (JPEG) έχει καλύτερη απόδοση, το WebP διατηρεί καλύτερη ποιότητα σε μικρότερο μέγεθος αλλά με κόστος απόδοσης",
-    "EmptyState_NoResults_Text": "Δεν υπάρχουν αποτελέσματα προς εμφάνιση"
+    "EmptyState_NoResults_Text": "Δεν υπάρχουν αποτελέσματα προς εμφάνιση",
+    "MoveDialog_Title": "Μετακίνηση mod",
+    "MoveDialog_SelectCategory": "Επιλέξτε κατηγορία προορισμού για '{0}':",
+    "MoveDialog_SourceNotFound": "Ο κατάλογος προέλευσης του mod δεν βρέθηκε.",
+    "MoveDialog_TargetNotFound": "Η κατηγορία προορισμού δεν βρέθηκε.",
+    "MoveDialog_FolderLocked_Title": "Φάκελος κλειδωμένος",
+    "MoveDialog_FolderLocked_Content": "Ο φάκελος '{0}' είναι κλειδωμένος από άλλη διαδικασία (πιθανώς την Εξερεύνηση των Windows).\n\nΚλείστε όλα τα παράθυρα που προβάλλουν αυτόν τον φάκελο και δοκιμάστε ξανά.",
+    "MoveDialog_Retry": "Επανάληψη",
+    "MoveDialog_Failed": "Αποτυχία μετακίνησης mod: {0}",
+    "MoveDialog_Moving": "Μετακίνηση mod...",
+    "MoveDialog_Success": "Το mod μετακινήθηκε επιτυχώς!",
+    "ContextMenu_Move": "Μετακίνηση"
 }

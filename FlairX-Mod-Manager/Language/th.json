@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "เรียกดู GameBanana",
     "ImageOptimizer_ImageFormat_Label": "รูปแบบภาพ",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) มีประสิทธิภาพที่ดีกว่า WebP รักษาคุณภาพที่ดีกว่าในขนาดที่เล็กกว่าแต่แลกมาด้วยประสิทธิภาพ",
-    "EmptyState_NoResults_Text": "ไม่มีผลลัพธ์ที่จะแสดง"
+    "EmptyState_NoResults_Text": "ไม่มีผลลัพธ์ที่จะแสดง",
+    "MoveDialog_Title": "ย้ายม็อด",
+    "MoveDialog_SelectCategory": "เลือกหมวดหมู่เป้าหมายสำหรับ '{0}':",
+    "MoveDialog_SourceNotFound": "ไม่พบไดเรกทอรีต้นทางของม็อด",
+    "MoveDialog_TargetNotFound": "ไม่พบหมวดหมู่เป้าหมาย",
+    "MoveDialog_FolderLocked_Title": "โฟลเดอร์ถูกล็อก",
+    "MoveDialog_FolderLocked_Content": "โฟลเดอร์ '{0}' ถูกล็อกโดยกระบวนการอื่น (อาจเป็น Windows Explorer)\n\nปิดหน้าต่างทั้งหมดที่แสดงโฟลเดอร์นี้และลองอีกครั้ง",
+    "MoveDialog_Retry": "ลองอีกครั้ง",
+    "MoveDialog_Failed": "ไม่สามารถย้ายม็อด: {0}",
+    "MoveDialog_Moving": "กำลังย้ายม็อด...",
+    "MoveDialog_Success": "ย้ายม็อดสำเร็จ!",
+    "ContextMenu_Move": "ย้าย"
 }

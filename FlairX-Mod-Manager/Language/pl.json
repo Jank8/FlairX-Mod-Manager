@@ -160,6 +160,7 @@
     "ContextMenu_OpenURL": "Otwórz URL",
     "ContextMenu_CopyName": "Kopiuj nazwę",
     "ContextMenu_Rename": "Zmień nazwę",
+    "ContextMenu_Move": "Przenieś",
     "ContextMenu_Delete": "Usuń",
     "RenameDialog_Category_Title": "Zmień nazwę kategorii",
     "RenameDialog_Mod_Title": "Zmień nazwę moda",
@@ -340,5 +341,15 @@
     "SettingsPage_ShuffleExcludedCategories_Placeholder": "Wybierz kategorię do wyłączenia...",
     "EmptyState_NoMods_Text": "Nic tutaj nie ma, ściągnij jakieś mody",
     "EmptyState_Browse_Button": "Przeglądaj GameBanana",
-    "EmptyState_NoResults_Text": "Brak wyników do wyświetlenia"
+    "EmptyState_NoResults_Text": "Brak wyników do wyświetlenia",
+    "MoveDialog_Title": "Przenieś Mod",
+    "MoveDialog_SelectCategory": "Wybierz kategorię docelową dla '{0}':",
+    "MoveDialog_SourceNotFound": "Nie znaleziono katalogu źródłowego moda.",
+    "MoveDialog_TargetNotFound": "Nie znaleziono kategorii docelowej.",
+    "MoveDialog_FolderLocked_Title": "Folder Zablokowany",
+    "MoveDialog_FolderLocked_Content": "Folder '{0}' jest zablokowany przez inny proces (prawdopodobnie Eksplorator Windows).\n\nZamknij wszystkie okna przeglądające ten folder i spróbuj ponownie.",
+    "MoveDialog_Retry": "Ponów",
+    "MoveDialog_Failed": "Nie udało się przenieść moda: {0}",
+    "MoveDialog_Moving": "Przenoszenie moda...",
+    "MoveDialog_Success": "Mod przeniesiony pomyślnie!"
 }

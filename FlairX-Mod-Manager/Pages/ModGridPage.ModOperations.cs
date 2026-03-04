@@ -150,44 +150,91 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     
                     // Proceed with activation
-                    if (ActivateModByRename(mod.Directory))
+                    bool success = false;
+                    while (!success)
                     {
-                        var cleanName = GetCleanModName(mod.Directory);
-                        _activeMods[cleanName] = true;
-                        mod.IsActive = true;
-                        Logger.LogInfo($"Mod activated successfully: {mod.Directory}");
-                    }
-                    else
-                    {
-                        Logger.LogError($"Failed to activate mod: {mod.Directory}");
-                        return;
+                        if (ActivateModByRename(mod.Directory))
+                        {
+                            var cleanName = GetCleanModName(mod.Directory);
+                            _activeMods[cleanName] = true;
+                            mod.IsActive = true;
+                            Logger.LogInfo($"Mod activated successfully: {mod.Directory}");
+                            success = true;
+                        }
+                        else
+                        {
+                            Logger.LogError($"Failed to activate mod: {mod.Directory}");
+                            
+                            // Show retry dialog
+                            var dialog = new ContentDialog
+                            {
+                                XamlRoot = this.XamlRoot,
+                                Title = "Folder Locked",
+                                Content = $"The folder '{mod.Name}' is locked by another process (possibly Windows Explorer).\n\nClose any windows viewing this folder and try again.",
+                                PrimaryButtonText = "Retry",
+                                CloseButtonText = "Cancel",
+                                DefaultButton = ContentDialogButton.Primary
+                            };
+                            
+                            var result = await dialog.ShowAsync();
+                            if (result != ContentDialogResult.Primary)
+                            {
+                                // User cancelled
+                                return;
+                            }
+                            // Loop will retry
+                        }
                     }
                 }
                 else
                 {
                     // Deactivate mod - add DISABLED_ prefix
                     Logger.LogInfo($"Deactivating mod: {mod.Directory}");
-                    if (DeactivateModByRename(mod.Directory, out string newModName))
+                    
+                    bool success = false;
+                    while (!success)
                     {
-                        var cleanName = GetCleanModName(mod.Directory);
-                        _activeMods[cleanName] = false;
-                        mod.IsActive = false;
-                        
-                        // Update the mod directory name if it changed (due to duplicate handling)
-                        if (newModName != mod.Directory)
+                        if (DeactivateModByRename(mod.Directory, out string newModName))
                         {
-                            // Update the tile's directory and name
-                            mod.Directory = newModName;
-                            mod.Name = GetCleanModName(newModName); // Keep clean name for display
-                            Logger.LogInfo($"Updated mod tile name to: {newModName}");
+                            var cleanName = GetCleanModName(mod.Directory);
+                            _activeMods[cleanName] = false;
+                            mod.IsActive = false;
+                            
+                            // Update the mod directory name if it changed (due to duplicate handling)
+                            if (newModName != mod.Directory)
+                            {
+                                // Update the tile's directory and name
+                                mod.Directory = newModName;
+                                mod.Name = GetCleanModName(newModName); // Keep clean name for display
+                                Logger.LogInfo($"Updated mod tile name to: {newModName}");
+                            }
+                            
+                            Logger.LogInfo($"Mod deactivated successfully: {mod.Directory}");
+                            success = true;
                         }
-                        
-                        Logger.LogInfo($"Mod deactivated successfully: {mod.Directory}");
-                    }
-                    else
-                    {
-                        Logger.LogError($"Failed to deactivate mod: {mod.Directory}");
-                        return;
+                        else
+                        {
+                            Logger.LogError($"Failed to deactivate mod: {mod.Directory}");
+                            
+                            // Show retry dialog
+                            var dialog = new ContentDialog
+                            {
+                                XamlRoot = this.XamlRoot,
+                                Title = "Folder Locked",
+                                Content = $"The folder '{mod.Name}' is locked by another process (possibly Windows Explorer).\n\nClose any windows viewing this folder and try again.",
+                                PrimaryButtonText = "Retry",
+                                CloseButtonText = "Cancel",
+                                DefaultButton = ContentDialogButton.Primary
+                            };
+                            
+                            var result = await dialog.ShowAsync();
+                            if (result != ContentDialogResult.Primary)
+                            {
+                                // User cancelled
+                                return;
+                            }
+                            // Loop will retry
+                        }
                     }
                 }
                 

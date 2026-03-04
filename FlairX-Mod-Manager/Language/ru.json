@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "Просмотр GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Формат изображения",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) имеет лучшую производительность, WebP сохраняет лучшее качество при меньшем размере, но за счет производительности",
-    "EmptyState_NoResults_Text": "Нет результатов для отображения"
+    "EmptyState_NoResults_Text": "Нет результатов для отображения",
+    "MoveDialog_Title": "Переместить мод",
+    "MoveDialog_SelectCategory": "Выберите целевую категорию для '{0}':",
+    "MoveDialog_SourceNotFound": "Исходный каталог мода не найден.",
+    "MoveDialog_TargetNotFound": "Целевая категория не найдена.",
+    "MoveDialog_FolderLocked_Title": "Папка заблокирована",
+    "MoveDialog_FolderLocked_Content": "Папка '{0}' заблокирована другим процессом (вероятно, Проводником Windows).\n\nЗакройте все окна, просматривающие эту папку, и повторите попытку.",
+    "MoveDialog_Retry": "Повторить",
+    "MoveDialog_Failed": "Не удалось переместить мод: {0}",
+    "MoveDialog_Moving": "Перемещение мода...",
+    "MoveDialog_Success": "Мод успешно перемещён!",
+    "ContextMenu_Move": "Переместить"
 }

@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "GameBananaを閲覧",
     "ImageOptimizer_ImageFormat_Label": "画像形式",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) はパフォーマンスが優れており、WebP はより小さいサイズでより良い品質を保持しますが、パフォーマンスを犠牲にします",
-    "EmptyState_NoResults_Text": "表示する結果がありません"
+    "EmptyState_NoResults_Text": "表示する結果がありません",
+    "MoveDialog_Title": "Modを移動",
+    "MoveDialog_SelectCategory": "'{0}'のターゲットカテゴリを選択:",
+    "MoveDialog_SourceNotFound": "Modのソースディレクトリが見つかりません。",
+    "MoveDialog_TargetNotFound": "ターゲットカテゴリが見つかりません。",
+    "MoveDialog_FolderLocked_Title": "フォルダがロックされています",
+    "MoveDialog_FolderLocked_Content": "フォルダ'{0}'は別のプロセス（おそらくWindowsエクスプローラー）によってロックされています。\n\nこのフォルダを表示しているすべてのウィンドウを閉じて、もう一度お試しください。",
+    "MoveDialog_Retry": "再試行",
+    "MoveDialog_Failed": "Modの移動に失敗しました: {0}",
+    "MoveDialog_Moving": "Modを移動中...",
+    "MoveDialog_Success": "Modが正常に移動されました！",
+    "ContextMenu_Move": "移動"
 }

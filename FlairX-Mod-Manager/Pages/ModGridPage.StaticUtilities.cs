@@ -56,6 +56,11 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogInfo($"Activated mod: {modDirectory}");
                 return true;
             }
+            catch (IOException ex)
+            {
+                Logger.LogError($"Failed to activate mod: {modDirectory} - Exception: {ex}");
+                return false;
+            }
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to activate mod: {modDirectory}", ex);

@@ -340,5 +340,16 @@
     "EmptyState_Browse_Button": "Duyệt GameBanana",
     "ImageOptimizer_ImageFormat_Label": "Định dạng hình ảnh",
     "ImageOptimizer_ImageFormat_Description": "Classic (JPEG) có hiệu suất tốt hơn, WebP giữ chất lượng tốt hơn ở kích thước nhỏ hơn nhưng với chi phí hiệu suất",
-    "EmptyState_NoResults_Text": "Không có kết quả để hiển thị"
+    "EmptyState_NoResults_Text": "Không có kết quả để hiển thị",
+    "MoveDialog_Title": "Di chuyển mod",
+    "MoveDialog_SelectCategory": "Chọn danh mục đích cho '{0}':",
+    "MoveDialog_SourceNotFound": "Không tìm thấy thư mục nguồn của mod.",
+    "MoveDialog_TargetNotFound": "Không tìm thấy danh mục đích.",
+    "MoveDialog_FolderLocked_Title": "Thư mục bị khóa",
+    "MoveDialog_FolderLocked_Content": "Thư mục '{0}' bị khóa bởi một tiến trình khác (có thể là Windows Explorer).\n\nĐóng tất cả các cửa sổ đang xem thư mục này và thử lại.",
+    "MoveDialog_Retry": "Thử lại",
+    "MoveDialog_Failed": "Không thể di chuyển mod: {0}",
+    "MoveDialog_Moving": "Đang di chuyển mod...",
+    "MoveDialog_Success": "Đã di chuyển mod thành công!",
+    "ContextMenu_Move": "Di chuyển"
 }
