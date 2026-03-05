@@ -2207,26 +2207,42 @@ namespace FlairX_Mod_Manager.Services
                 }
                 
                 // Select minitile source BEFORE processing (so user sees original images)
-                // Always show selection - user can decide to create new minitile even if one exists
+                // Show selection if: 1) there are new files to process, OR 2) minitile is missing
                 string? selectedMinitileSource = null;
                 bool skipMinitileOnly = false;
-                if (newFilesToProcess.Count > 0 && context.CreateMinitile)
+                
+                var minitilePath = Path.Combine(modDir, GetMinitileFilename());
+                var minitileExists = File.Exists(minitilePath);
+                
+                if (context.CreateMinitile && (!minitileExists || newFilesToProcess.Count > 0))
                 {
-                    Logger.LogInfo($"[PREVIEW_LITE] Asking user to select minitile source from {newFilesToProcess.Count} files");
-                    // Ask user to select minitile source from new files
-                    selectedMinitileSource = await SelectMinitileSourceAsync(newFilesToProcess, modDir, context);
-                    Logger.LogInfo($"[PREVIEW_LITE] Minitile source selection returned: {(selectedMinitileSource == null ? "NULL (skipped)" : Path.GetFileName(selectedMinitileSource))}");
+                    // Get list of files to choose from - prefer new files, fallback to already optimized
+                    var filesToChooseFrom = newFilesToProcess.Count > 0 
+                        ? newFilesToProcess 
+                        : alreadyOptimizedFiles;
                     
-                    if (selectedMinitileSource == null)
+                    if (filesToChooseFrom.Count > 0)
                     {
-                        // User clicked Skip - skip minitile but continue processing files
-                        Logger.LogInfo($"[PREVIEW_LITE] User skipped minitile source selection, continuing with file processing");
-                        skipMinitileOnly = true;
+                        Logger.LogInfo($"[PREVIEW_LITE] Asking user to select minitile source from {filesToChooseFrom.Count} files (minitileExists: {minitileExists})");
+                        selectedMinitileSource = await SelectMinitileSourceAsync(filesToChooseFrom, modDir, context);
+                        Logger.LogInfo($"[PREVIEW_LITE] Minitile source selection returned: {(selectedMinitileSource == null ? "NULL (skipped)" : Path.GetFileName(selectedMinitileSource))}");
+                        
+                        if (selectedMinitileSource == null)
+                        {
+                            // User clicked Skip - skip minitile but continue processing files
+                            Logger.LogInfo($"[PREVIEW_LITE] User skipped minitile source selection, continuing with file processing");
+                            skipMinitileOnly = true;
+                        }
                     }
                 }
                 else if (!context.CreateMinitile)
                 {
                     Logger.LogInfo("[PREVIEW_LITE] Minitile creation disabled - skipping minitile source selection");
+                    skipMinitileOnly = true;
+                }
+                else if (minitileExists)
+                {
+                    Logger.LogInfo("[PREVIEW_LITE] Minitile already exists and no new files - skipping minitile source selection");
                     skipMinitileOnly = true;
                 }
                 
