@@ -25,8 +25,7 @@ namespace FlairX_Mod_Manager.Dialogs
         // Archive extraction keys (Base64 encoded)
         private static readonly Dictionary<string, string> _archiveKeys = new()
         {
-            // Add Base64-encoded keys here if needed, e.g.:
-            // { "ZZMI", "cGFzc3dvcmQxMjM=" }, // password123
+            { "ZZMI", "Kko0bUI3NXQzMEBqSEk2QkRAWGchSDJTVCFNQmJP" },
         };
 
         private static string? GetArchiveKey(string gameTag)
