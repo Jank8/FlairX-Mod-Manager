@@ -165,6 +165,9 @@ namespace FlairX_Mod_Manager.Services
         private static double _progressValue = 0;
         private static string _currentProcessingMod = "";
         
+        // Semaphore to ensure only one UI dialog at a time (for minitile selection)
+        private static readonly SemaphoreSlim _uiSemaphore = new SemaphoreSlim(1, 1);
+        
         /// <summary>
         /// Event raised when optimization progress changes
         /// </summary>
@@ -2136,8 +2139,13 @@ namespace FlairX_Mod_Manager.Services
                 // Track new files for cleanup on cancel
                 newFilesToCleanup.AddRange(newFilesToProcess);
                 
-                // If no new files to process, nothing to do
-                if (newFilesToProcess.Count == 0)
+                // Check if we need to handle minitile even when no new files
+                var minitileFilePath = Path.Combine(modDir, GetMinitileFilename());
+                var minitileFileExists = File.Exists(minitileFilePath);
+                bool hasPreviewFiles = alreadyOptimizedFiles.Count > 0 || newFilesToProcess.Count > 0;
+                
+                // If no new files to process AND minitile exists (or no preview files for minitile), nothing to do
+                if (newFilesToProcess.Count == 0 && (minitileFileExists || !hasPreviewFiles))
                 {
                     Logger.LogInfo($"No new preview files to process in: {modDir}");
                     return;
@@ -2177,9 +2185,6 @@ namespace FlairX_Mod_Manager.Services
                 }
                 
                 // Check if minitile already exists
-                var minitilePath = Path.Combine(modDir, GetMinitileFilename());
-                bool minitileExists = File.Exists(minitilePath);
-                
                 // If using new files and KeepOriginals is enabled, create _original copies first
                 if (context.KeepOriginals && newFilesToProcess.Count > 0)
                 {
@@ -2211,19 +2216,26 @@ namespace FlairX_Mod_Manager.Services
                 string? selectedMinitileSource = null;
                 bool skipMinitileOnly = false;
                 
-                var minitilePath = Path.Combine(modDir, GetMinitileFilename());
-                var minitileExists = File.Exists(minitilePath);
+                Logger.LogInfo($"[PREVIEW_LITE] Minitile check - Path: {minitileFilePath}, Exists: {minitileFileExists}");
+                Logger.LogInfo($"[PREVIEW_LITE] Files count - newFilesToProcess: {newFilesToProcess.Count}, alreadyOptimizedFiles: {alreadyOptimizedFiles.Count}");
+                Logger.LogInfo($"[PREVIEW_LITE] Context - CreateMinitile: {context.CreateMinitile}, AllowUIInteraction: {context.AllowUIInteraction}");
                 
-                if (context.CreateMinitile && (!minitileExists || newFilesToProcess.Count > 0))
+                if (context.CreateMinitile && (!minitileFileExists || newFilesToProcess.Count > 0))
                 {
                     // Get list of files to choose from - prefer new files, fallback to already optimized
                     var filesToChooseFrom = newFilesToProcess.Count > 0 
                         ? newFilesToProcess 
                         : alreadyOptimizedFiles;
                     
+                    Logger.LogInfo($"[PREVIEW_LITE] Files to choose from: {filesToChooseFrom.Count}");
                     if (filesToChooseFrom.Count > 0)
                     {
-                        Logger.LogInfo($"[PREVIEW_LITE] Asking user to select minitile source from {filesToChooseFrom.Count} files (minitileExists: {minitileExists})");
+                        Logger.LogInfo($"[PREVIEW_LITE] Files list: {string.Join(", ", filesToChooseFrom.Select(f => Path.GetFileName(f)))}");
+                    }
+                    
+                    if (filesToChooseFrom.Count > 0)
+                    {
+                        Logger.LogInfo($"[PREVIEW_LITE] Asking user to select minitile source from {filesToChooseFrom.Count} files (minitileExists: {minitileFileExists})");
                         selectedMinitileSource = await SelectMinitileSourceAsync(filesToChooseFrom, modDir, context);
                         Logger.LogInfo($"[PREVIEW_LITE] Minitile source selection returned: {(selectedMinitileSource == null ? "NULL (skipped)" : Path.GetFileName(selectedMinitileSource))}");
                         
@@ -2234,13 +2246,18 @@ namespace FlairX_Mod_Manager.Services
                             skipMinitileOnly = true;
                         }
                     }
+                    else
+                    {
+                        Logger.LogInfo($"[PREVIEW_LITE] No files to choose from - skipping minitile selection");
+                        skipMinitileOnly = true;
+                    }
                 }
                 else if (!context.CreateMinitile)
                 {
                     Logger.LogInfo("[PREVIEW_LITE] Minitile creation disabled - skipping minitile source selection");
                     skipMinitileOnly = true;
                 }
-                else if (minitileExists)
+                else if (minitileFileExists)
                 {
                     Logger.LogInfo("[PREVIEW_LITE] Minitile already exists and no new files - skipping minitile source selection");
                     skipMinitileOnly = true;
@@ -2599,7 +2616,7 @@ namespace FlairX_Mod_Manager.Services
                 return availableFiles.FirstOrDefault();
             }
             
-            // Multiple files - ask user to select
+            // Multiple files - ask user to select (with semaphore to ensure sequential UI)
             if (MinitileSourceSelectionRequested != null)
             {
                 // Check if cancellation was requested before showing UI
@@ -2608,8 +2625,16 @@ namespace FlairX_Mod_Manager.Services
                     throw new OperationCanceledException("Optimization cancelled by user");
                 }
                 
+                // Wait for semaphore to ensure only one UI dialog at a time
+                await _uiSemaphore.WaitAsync();
                 try
                 {
+                    // Check cancellation again after acquiring semaphore
+                    if (_cancellationRequested)
+                    {
+                        throw new OperationCanceledException("Optimization cancelled by user");
+                    }
+                    
                     Logger.LogInfo($"Requesting minitile source selection for: {modDir}");
                     var result = await MinitileSourceSelectionRequested(availableFiles, modDir);
                     
@@ -2647,6 +2672,11 @@ namespace FlairX_Mod_Manager.Services
                 catch (Exception ex)
                 {
                     Logger.LogError($"Minitile source selection failed", ex);
+                }
+                finally
+                {
+                    // Always release semaphore
+                    _uiSemaphore.Release();
                 }
             }
             

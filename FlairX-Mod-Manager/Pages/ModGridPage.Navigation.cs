@@ -364,7 +364,29 @@ namespace FlairX_Mod_Manager.Pages
                 try
                 {
                     var json = Services.FileAccessQueue.ReadAllText(ActiveModsStatePath);
-                    _activeMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
+                    
+                    // Try to deserialize as Dictionary<string, bool> first
+                    try
+                    {
+                        _activeMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
+                    }
+                    catch (JsonException)
+                    {
+                        // If that fails, it might be an old format with LastUpdated field
+                        // Try to parse as JsonDocument and extract just the mod states
+                        using var doc = JsonDocument.Parse(json);
+                        _activeMods = new Dictionary<string, bool>();
+                        
+                        foreach (var property in doc.RootElement.EnumerateObject())
+                        {
+                            // Skip non-boolean properties like LastUpdated
+                            if (property.Value.ValueKind == JsonValueKind.True || 
+                                property.Value.ValueKind == JsonValueKind.False)
+                            {
+                                _activeMods[property.Name] = property.Value.GetBoolean();
+                            }
+                        }
+                    }
                     
                     // Migrate old format (with DISABLED_ prefixes) to new format (clean names only)
                     MigrateActiveModsFormat();
