@@ -22,7 +22,6 @@ namespace FlairX_Mod_Manager.Dialogs
             { "HIMI", 20491 },
         };
 
-        // Archive extraction keys (Base64 encoded)
         private static readonly Dictionary<string, string> _archiveKeys = new()
         {
             { "ZZMI", "Kko0bUI3NXQzMEBqSEk2QkRAWGchSDJTVCFNQmJP" },
