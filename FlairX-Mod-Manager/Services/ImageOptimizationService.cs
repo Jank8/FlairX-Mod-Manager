@@ -2506,12 +2506,24 @@ namespace FlairX_Mod_Manager.Services
                     return;
                 }
                 
+                // Check if minitile exists
+                var minitilePath = Path.Combine(modDir, GetMinitileFilename());
+                var minitileExists = File.Exists(minitilePath);
+                
                 // FIRST: Generate minitile.jpg from selected preview (BEFORE renaming)
-                var minitileSource = await SelectMinitileSourceAsync(previewFiles, modDir, context);
-                if (!string.IsNullOrEmpty(minitileSource))
+                // Generate if minitile doesn't exist
+                if (!minitileExists)
                 {
-                    Logger.LogInfo($"Generating minitile from: {Path.GetFileName(minitileSource)}");
-                    await GenerateMinitileAsync(modDir, minitileSource, context);
+                    var minitileSource = await SelectMinitileSourceAsync(previewFiles, modDir, context);
+                    if (!string.IsNullOrEmpty(minitileSource))
+                    {
+                        Logger.LogInfo($"Generating minitile from: {Path.GetFileName(minitileSource)}");
+                        await GenerateMinitileAsync(modDir, minitileSource, context);
+                    }
+                }
+                else
+                {
+                    Logger.LogInfo($"Minitile already exists, skipping generation: {minitilePath}");
                 }
                 
                 // SECOND: Rename files to standard names
