@@ -16,10 +16,10 @@ namespace FlairX_Mod_Manager.Dialogs
         private static readonly Dictionary<string, int> StarterPackToolIds = new()
         {
             { "ZZMI", 20322 },
-            { "WWMI", 20485 }, // Wuthering Waves
-            { "SRMI", 20487 }, // Honkai: Star Rail
-            { "GIMI", 20486 }, // Genshin Impact
-            { "HIMI", 20491 }, // Honkai Impact 3rd
+            { "WWMI", 20485 },
+            { "SRMI", 20487 },
+            { "GIMI", 20486 },
+            { "HIMI", 20491 },
         };
 
         // Archive extraction keys (Base64 encoded)
