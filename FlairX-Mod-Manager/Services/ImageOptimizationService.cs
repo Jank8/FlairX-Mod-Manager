@@ -2311,17 +2311,38 @@ namespace FlairX_Mod_Manager.Services
                         {
                             Logger.LogInfo($"[PREVIEW_LITE] Creating progress dialog on UI thread");
                             
-                            // Create and show dialog on UI thread
-                            await mainWindow.DispatcherQueue.EnqueueAsync(async () =>
+                            try
                             {
-                                progressDialog = new Dialogs.ProgressDialog(progressTitle, progressMessage);
-                                progressDialog.XamlRoot = mainWindow.Content.XamlRoot;
-                                _ = progressDialog.ShowAsync();
-                            });
-                            
-                            // Small delay to ensure dialog is visible
-                            await Task.Delay(100);
-                            Logger.LogInfo($"[PREVIEW_LITE] Progress dialog shown");
+                                // Create and show dialog on UI thread
+                                await mainWindow.DispatcherQueue.EnqueueAsync(() =>
+                                {
+                                    try
+                                    {
+                                        if (mainWindow.Content?.XamlRoot == null)
+                                        {
+                                            Logger.LogWarning("[PREVIEW_LITE] XamlRoot is null, cannot show progress dialog");
+                                            return;
+                                        }
+                                        
+                                        progressDialog = new Dialogs.ProgressDialog(progressTitle, progressMessage);
+                                        progressDialog.XamlRoot = mainWindow.Content.XamlRoot;
+                                        _ = progressDialog.ShowAsync();
+                                        Logger.LogInfo($"[PREVIEW_LITE] Progress dialog created and shown");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Logger.LogError("[PREVIEW_LITE] Failed to create progress dialog", ex);
+                                    }
+                                });
+                                
+                                // Small delay to ensure dialog is visible
+                                await Task.Delay(100);
+                                Logger.LogInfo($"[PREVIEW_LITE] Progress dialog initialization complete");
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError("[PREVIEW_LITE] Failed to initialize progress dialog", ex);
+                            }
                         }
                     }
                     else
@@ -2728,6 +2749,9 @@ namespace FlairX_Mod_Manager.Services
                     {
                         SaveImage(minitile, minitilePath, context.JpegQuality);
                         Logger.LogInfo($"Minitile generated: {minitilePath}");
+                        
+                        // Invalidate cache so the new minitile is loaded
+                        ImageCacheManager.InvalidateImage(minitilePath);
                     }
                 }
             }

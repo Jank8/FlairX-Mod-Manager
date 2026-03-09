@@ -1411,16 +1411,8 @@ namespace FlairX_Mod_Manager
                 // Stop capture service
                 captureService.StopCapture();
                 
-                // If we have captured files, run optimization
-                if (results != null && results.Count > 0)
-                {
-                    Logger.LogInfo($"Running optimization for {results.Count} captured screenshots");
-                    await OptimizeCapturedScreenshots(modDirectory, results);
-                    
-                    // Small delay to ensure files are written to disk
-                    await Task.Delay(100);
-                }
-                
+                // Return results WITHOUT running optimization here
+                // Optimization will be done by the caller after all dialogs are closed
                 return results;
             }
             catch (Exception ex)

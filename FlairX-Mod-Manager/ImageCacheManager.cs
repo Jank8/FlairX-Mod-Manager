@@ -205,6 +205,48 @@ namespace FlairX_Mod_Manager
             }
         }
 
+        public static void InvalidateImage(string key)
+        {
+            try
+            {
+                bool removedFromImageCache = false;
+                bool removedFromRamCache = false;
+                
+                if (_imageCache.TryRemove(key, out var imageEntry))
+                {
+                    System.Threading.Interlocked.Add(ref _currentCacheSizeBytes, -imageEntry.SizeBytes);
+                    removedFromImageCache = true;
+                    
+                    try
+                    {
+                        imageEntry.Image?.ClearValue(BitmapImage.UriSourceProperty);
+                    }
+                    catch { }
+                }
+                
+                if (_ramImageCache.TryRemove(key, out var ramEntry))
+                {
+                    System.Threading.Interlocked.Add(ref _currentRamCacheSizeBytes, -ramEntry.SizeBytes);
+                    removedFromRamCache = true;
+                    
+                    try
+                    {
+                        ramEntry.Image?.ClearValue(BitmapImage.UriSourceProperty);
+                    }
+                    catch { }
+                }
+                
+                if (removedFromImageCache || removedFromRamCache)
+                {
+                    Logger.LogDebug($"Invalidated image cache for: {key} (ImageCache: {removedFromImageCache}, RamCache: {removedFromRamCache})");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to invalidate image cache for: {key}", ex);
+            }
+        }
+
         public static (int ImageCache, int RamCache, long ImageCacheMB, long RamCacheMB) GetCacheSizes()
         {
             return (_imageCache.Count, _ramImageCache.Count, _currentCacheSizeBytes / (1024 * 1024), _currentRamCacheSizeBytes / (1024 * 1024));

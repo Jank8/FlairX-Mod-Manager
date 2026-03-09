@@ -31,7 +31,10 @@
         </StackPanel>
 
         <!-- Image Grid -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollBarVisibility="Auto" 
+                      HorizontalScrollBarVisibility="Disabled"
+                      MaxHeight="600">
             <GridView x:Name="ImageGridView" 
                       SelectionMode="Single"
                       SelectionChanged="ImageGridView_SelectionChanged"

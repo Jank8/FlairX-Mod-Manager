@@ -2865,18 +2865,23 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     Logger.LogInfo($"Screenshot capture completed with {capturedFiles.Count} files");
                     
-                    // Show success message
-                    var lang = SharedUtilities.LoadLanguageDictionary();
-                    var successDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "Success_Title"),
-                        Content = string.Format(SharedUtilities.GetTranslation(lang, "ScreenshotCapture_Success") ?? "Captured {0} screenshot(s) successfully.", capturedFiles.Count),
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await successDialog.ShowAsync();
+                    // Add small delay to ensure crop panel dialogs are fully closed
+                    await Task.Delay(300);
                     
-                    // Reload mods to refresh thumbnails after user closes dialog (same as manual optimization)
+                    // Run optimization after all dialogs are closed
+                    Logger.LogInfo($"Running optimization for {capturedFiles.Count} captured screenshots");
+                    
+                    // Create optimization context for screenshot capture
+                    var context = Services.ImageOptimizationService.GetOptimizationContext(Services.OptimizationTrigger.Manual);
+                    context.AllowUIInteraction = true; // Allow UI interaction for minitile selection
+                    context.InspectAndEditEnabled = false; // No crop inspection for preview files
+                    context.Mode = FlairX_Mod_Manager.Models.OptimizationMode.Standard;
+                    context.CreateMinitile = true; // Create minitile (will show selection dialog unless AutoCreateModThumbnails is enabled)
+                    
+                    await Services.ImageOptimizationService.ProcessModPreviewImagesAsync(_currentModDirectory, context);
+                    Logger.LogInfo("Screenshot optimization completed successfully");
+                    
+                    // Reload mods to refresh thumbnails
                     if (App.Current is App app && app.MainWindow is MainWindow mw)
                     {
                         await mw.ReloadModsAsync();

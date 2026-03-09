@@ -188,8 +188,15 @@ namespace FlairX_Mod_Manager.Controls
             // Crop is required for categories, and Delete = Stop (cleanup happens anyway)
             bool isCategoryImage = imageType.StartsWith("catprev", StringComparison.OrdinalIgnoreCase) || 
                                    imageType.StartsWith("catmini", StringComparison.OrdinalIgnoreCase);
+            
+            // For minitile, hide Delete but keep Skip (user can skip minitile generation)
+            bool isMinitile = imageType.StartsWith("minitile", StringComparison.OrdinalIgnoreCase);
+            
             SkipButton.Visibility = isCategoryImage ? Visibility.Collapsed : Visibility.Visible;
-            DeleteButton.Visibility = isCategoryImage ? Visibility.Collapsed : Visibility.Visible;
+            DeleteButton.Visibility = (isCategoryImage || isMinitile) ? Visibility.Collapsed : Visibility.Visible;
+            
+            // Hide Stop button for minitile (use Skip instead)
+            StopButton.Visibility = isMinitile ? Visibility.Collapsed : Visibility.Visible;
             
             // Disable Delete button if this file is protected (only relevant when visible)
             DeleteButton.IsEnabled = !isProtected;
@@ -871,58 +878,18 @@ namespace FlairX_Mod_Manager.Controls
             NextButton.IsEnabled = false;
             StopButton.IsEnabled = false;
             
-            // Save current item's crop rect only (don't mark as edited - let the dialog decide)
+            // Save current item's crop rect and mark all pending items as "no crop"
             if (_isBatchMode && _currentBatchIndex >= 0 && _currentBatchIndex < _batchItems.Count)
             {
                 _batchItems[_currentBatchIndex].CropRect = _cropRect;
             }
             
-            // Check for pending items (including current item if not edited)
+            // Mark all pending items as "no crop" (user can delete them later if needed)
             var pendingItems = _batchItems.Where(item => !item.IsEdited).ToList();
-            
-            if (pendingItems.Count > 0)
+            foreach (var item in pendingItems)
             {
-                // Show dialog asking what to do with pending items
-                var lang = SharedUtilities.LoadLanguageDictionary();
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CropPanel_PendingDialog_Title") ?? "Pending Files",
-                    Content = string.Format(
-                        SharedUtilities.GetTranslation(lang, "CropPanel_PendingDialog_Content") ?? "{0} file(s) have not been edited. What would you like to do with them?",
-                        pendingItems.Count),
-                    PrimaryButtonText = SharedUtilities.GetTranslation(lang, "CropPanel_PendingDialog_NoCrop") ?? "No Crop",
-                    SecondaryButtonText = SharedUtilities.GetTranslation(lang, "CropPanel_PendingDialog_Delete") ?? "Delete",
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel",
-                    XamlRoot = this.XamlRoot,
-                    DefaultButton = ContentDialogButton.Primary
-                };
-                
-                var result = await dialog.ShowAsync();
-                
-                if (result == ContentDialogResult.None)
-                {
-                    // User cancelled - re-enable buttons
-                    FinalizeButton.IsEnabled = true;
-                    NextButton.IsEnabled = true;
-                    StopButton.IsEnabled = true;
-                    return;
-                }
-                
-                // Apply action to pending items
-                foreach (var item in pendingItems)
-                {
-                    if (result == ContentDialogResult.Primary)
-                    {
-                        // No Crop
-                        item.Action = CropAction.Skip;
-                    }
-                    else if (result == ContentDialogResult.Secondary)
-                    {
-                        // Delete - but protected items (minitile source) get No Crop instead
-                        item.Action = item.IsProtected ? CropAction.Skip : CropAction.Delete;
-                    }
-                    item.IsEdited = true;
-                }
+                item.Action = CropAction.Skip; // No crop
+                item.IsEdited = true;
             }
             
             // Build results
@@ -1039,6 +1006,14 @@ namespace FlairX_Mod_Manager.Controls
                 {
                     try
                     {
+                        // Mark all pending items as "no crop" (user can delete them later if needed)
+                        var pendingItems = _batchItems.Where(item => !item.IsEdited).ToList();
+                        foreach (var item in pendingItems)
+                        {
+                            item.Action = CropAction.Skip; // No crop
+                            item.IsEdited = true;
+                        }
+                        
                         // Unsubscribe from capture service
                         captureService.FileCaptured -= OnFileCaptured;
                         
