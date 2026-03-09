@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Gagal memindahkan mod: {0}",
     "MoveDialog_Moving": "Memindahkan mod...",
     "MoveDialog_Success": "Mod berhasil dipindahkan!",
-    "ContextMenu_Move": "Pindahkan"
+    "ContextMenu_Move": "Pindahkan",
+    "SettingsPage_ConflictExcludedCategories_Label": "Kategori Dikecualikan dari Konflik",
+    "SettingsPage_ConflictExcludedCategories_Description": "Kecualikan kategori dari deteksi konflik (semua mod tetap aktif)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Pilih kategori untuk dikecualikan..."
 }

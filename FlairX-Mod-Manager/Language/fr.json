@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Échec du déplacement du mod: {0}",
     "MoveDialog_Moving": "Déplacement du mod...",
     "MoveDialog_Success": "Mod déplacé avec succès!",
-    "ContextMenu_Move": "Déplacer"
+    "ContextMenu_Move": "Déplacer",
+    "SettingsPage_ConflictExcludedCategories_Label": "Catégories exclues des conflits",
+    "SettingsPage_ConflictExcludedCategories_Description": "Exclure les catégories de la détection des conflits (tous les mods restent actifs)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Sélectionner une catégorie à exclure..."
 }

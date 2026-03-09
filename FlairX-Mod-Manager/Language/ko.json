@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "모드 이동 실패: {0}",
     "MoveDialog_Moving": "모드 이동 중...",
     "MoveDialog_Success": "모드가 성공적으로 이동되었습니다!",
-    "ContextMenu_Move": "이동"
+    "ContextMenu_Move": "이동",
+    "SettingsPage_ConflictExcludedCategories_Label": "충돌 제외 카테고리",
+    "SettingsPage_ConflictExcludedCategories_Description": "충돌 감지에서 카테고리 제외 (모든 모드가 활성 상태 유지)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "제외할 카테고리 선택..."
 }

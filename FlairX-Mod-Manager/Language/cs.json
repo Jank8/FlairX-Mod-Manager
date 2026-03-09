@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Nepodařilo se přesunout mod: {0}",
     "MoveDialog_Moving": "Přesouvání modu...",
     "MoveDialog_Success": "Mod byl úspěšně přesunut!",
-    "ContextMenu_Move": "Přesunout"
+    "ContextMenu_Move": "Přesunout",
+    "SettingsPage_ConflictExcludedCategories_Label": "Kategorie vyloučené z konfliktů",
+    "SettingsPage_ConflictExcludedCategories_Description": "Vyloučit kategorie z detekce konfliktů (všechny mody zůstanou aktivní)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Vyberte kategorii k vyloučení..."
 }

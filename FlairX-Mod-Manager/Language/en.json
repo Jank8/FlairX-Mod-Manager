@@ -343,5 +343,8 @@
     "MoveDialog_Retry": "Retry",
     "MoveDialog_Failed": "Failed to move mod: {0}",
     "MoveDialog_Moving": "Moving mod...",
-    "MoveDialog_Success": "Mod moved successfully!"
+    "MoveDialog_Success": "Mod moved successfully!",
+    "SettingsPage_ConflictExcludedCategories_Label": "Conflict Excluded Categories",
+    "SettingsPage_ConflictExcludedCategories_Description": "Exclude categories from conflict detection (all mods remain active)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Select category to exclude..."
 }

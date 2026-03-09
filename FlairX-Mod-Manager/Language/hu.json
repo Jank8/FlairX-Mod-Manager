@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Nem sikerült áthelyezni a modot: {0}",
     "MoveDialog_Moving": "Mod áthelyezése...",
     "MoveDialog_Success": "A mod sikeresen áthelyezve!",
-    "ContextMenu_Move": "Áthelyezés"
+    "ContextMenu_Move": "Áthelyezés",
+    "SettingsPage_ConflictExcludedCategories_Label": "Konfliktusból kizárt kategóriák",
+    "SettingsPage_ConflictExcludedCategories_Description": "Kategóriák kizárása a konfliktusészlelésből (minden mod aktív marad)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Válasszon kizárandó kategóriát..."
 }

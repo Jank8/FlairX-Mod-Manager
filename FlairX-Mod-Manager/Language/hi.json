@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "मॉड स्थानांतरित करने में विफल: {0}",
     "MoveDialog_Moving": "मॉड स्थानांतरित किया जा रहा है...",
     "MoveDialog_Success": "मॉड सफलतापूर्वक स्थानांतरित किया गया!",
-    "ContextMenu_Move": "स्थानांतरित करें"
+    "ContextMenu_Move": "स्थानांतरित करें",
+    "SettingsPage_ConflictExcludedCategories_Label": "संघर्ष से बाहर की गई श्रेणियाँ",
+    "SettingsPage_ConflictExcludedCategories_Description": "संघर्ष पहचान से श्रेणियों को बाहर करें (सभी मॉड सक्रिय रहते हैं)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "बाहर करने के लिए श्रेणी चुनें..."
 }

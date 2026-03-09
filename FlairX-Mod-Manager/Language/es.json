@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "No se pudo mover el mod: {0}",
     "MoveDialog_Moving": "Moviendo mod...",
     "MoveDialog_Success": "¡Mod movido con éxito!",
-    "ContextMenu_Move": "Mover"
+    "ContextMenu_Move": "Mover",
+    "SettingsPage_ConflictExcludedCategories_Label": "Categorías excluidas de conflictos",
+    "SettingsPage_ConflictExcludedCategories_Description": "Excluir categorías de la detección de conflictos (todos los mods permanecen activos)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Seleccionar categoría para excluir..."
 }

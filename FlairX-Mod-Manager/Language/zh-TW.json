@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "移動模組失敗: {0}",
     "MoveDialog_Moving": "正在移動模組...",
     "MoveDialog_Success": "模組移動成功！",
-    "ContextMenu_Move": "移動"
+    "ContextMenu_Move": "移動",
+    "SettingsPage_ConflictExcludedCategories_Label": "衝突排除類別",
+    "SettingsPage_ConflictExcludedCategories_Description": "從衝突檢測中排除類別（所有模組保持活動狀態）",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "選擇要排除的類別..."
 }

@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Modin siirtäminen epäonnistui: {0}",
     "MoveDialog_Moving": "Siirretään modia...",
     "MoveDialog_Success": "Modi siirretty onnistuneesti!",
-    "ContextMenu_Move": "Siirrä"
+    "ContextMenu_Move": "Siirrä",
+    "SettingsPage_ConflictExcludedCategories_Label": "Konfliktista poissuljetut kategoriat",
+    "SettingsPage_ConflictExcludedCategories_Description": "Sulje kategoriat pois konfliktien havaitsemisesta (kaikki modit pysyvät aktiivisina)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Valitse poissulkeminen kategoria..."
 }

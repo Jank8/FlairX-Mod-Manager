@@ -155,6 +155,7 @@ namespace FlairX_Mod_Manager
         public Dictionary<string, List<string>> PinnedCategories { get; set; } = new Dictionary<string, List<string>>(); // gameTag -> list of category names
         public Dictionary<string, List<string>> HiddenCategories { get; set; } = new Dictionary<string, List<string>>(); // gameTag -> list of category names
         public Dictionary<string, List<string>> ShuffleExcludedCategories { get; set; } = new Dictionary<string, List<string>>(); // gameTag -> list of category names excluded from shuffle
+        public Dictionary<string, List<string>> ConflictExcludedCategories { get; set; } = new Dictionary<string, List<string>>(); // gameTag -> list of category names excluded from conflict detection
     }
 
     public class FavoritesData
@@ -785,6 +786,51 @@ namespace FlairX_Mod_Manager
             if (excluded.Remove(categoryName))
             {
                 SetShuffleExcludedCategories(gameTag, excluded);
+            }
+        }
+        
+        public static List<string> GetConflictExcludedCategories(string gameTag)
+        {
+            if (string.IsNullOrEmpty(gameTag))
+                return new List<string>();
+                
+            if (Current.ConflictExcludedCategories.TryGetValue(gameTag, out var categories))
+                return categories;
+                
+            return new List<string>();
+        }
+        
+        public static void SetConflictExcludedCategories(string gameTag, List<string> categories)
+        {
+            if (string.IsNullOrEmpty(gameTag))
+                return;
+                
+            Current.ConflictExcludedCategories[gameTag] = categories;
+            Save();
+        }
+        
+        public static void AddConflictExcludedCategory(string gameTag, string categoryName)
+        {
+            if (string.IsNullOrEmpty(gameTag) || string.IsNullOrEmpty(categoryName))
+                return;
+                
+            var excluded = GetConflictExcludedCategories(gameTag);
+            if (!excluded.Contains(categoryName))
+            {
+                excluded.Add(categoryName);
+                SetConflictExcludedCategories(gameTag, excluded);
+            }
+        }
+        
+        public static void RemoveConflictExcludedCategory(string gameTag, string categoryName)
+        {
+            if (string.IsNullOrEmpty(gameTag) || string.IsNullOrEmpty(categoryName))
+                return;
+                
+            var excluded = GetConflictExcludedCategories(gameTag);
+            if (excluded.Remove(categoryName))
+            {
+                SetConflictExcludedCategories(gameTag, excluded);
             }
         }
         

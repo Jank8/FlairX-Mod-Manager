@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Impossibile spostare il mod: {0}",
     "MoveDialog_Moving": "Spostamento mod...",
     "MoveDialog_Success": "Mod spostato con successo!",
-    "ContextMenu_Move": "Sposta"
+    "ContextMenu_Move": "Sposta",
+    "SettingsPage_ConflictExcludedCategories_Label": "Categorie escluse dai conflitti",
+    "SettingsPage_ConflictExcludedCategories_Description": "Escludi categorie dal rilevamento conflitti (tutte le mod rimangono attive)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Seleziona categoria da escludere..."
 }

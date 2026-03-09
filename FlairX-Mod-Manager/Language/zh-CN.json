@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "移动模组失败: {0}",
     "MoveDialog_Moving": "正在移动模组...",
     "MoveDialog_Success": "模组移动成功！",
-    "ContextMenu_Move": "移动"
+    "ContextMenu_Move": "移动",
+    "SettingsPage_ConflictExcludedCategories_Label": "冲突排除类别",
+    "SettingsPage_ConflictExcludedCategories_Description": "从冲突检测中排除类别（所有模组保持活动状态）",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "选择要排除的类别..."
 }

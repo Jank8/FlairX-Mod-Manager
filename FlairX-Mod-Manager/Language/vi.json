@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Không thể di chuyển mod: {0}",
     "MoveDialog_Moving": "Đang di chuyển mod...",
     "MoveDialog_Success": "Đã di chuyển mod thành công!",
-    "ContextMenu_Move": "Di chuyển"
+    "ContextMenu_Move": "Di chuyển",
+    "SettingsPage_ConflictExcludedCategories_Label": "Danh mục loại trừ khỏi xung đột",
+    "SettingsPage_ConflictExcludedCategories_Description": "Loại trừ danh mục khỏi phát hiện xung đột (tất cả mod vẫn hoạt động)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Chọn danh mục để loại trừ..."
 }

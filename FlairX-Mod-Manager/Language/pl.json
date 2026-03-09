@@ -343,5 +343,8 @@
     "MoveDialog_Retry": "Ponów",
     "MoveDialog_Failed": "Nie udało się przenieść moda: {0}",
     "MoveDialog_Moving": "Przenoszenie moda...",
-    "MoveDialog_Success": "Mod przeniesiony pomyślnie!"
+    "MoveDialog_Success": "Mod przeniesiony pomyślnie!",
+    "SettingsPage_ConflictExcludedCategories_Label": "Kategorie wyłączone z konfliktów",
+    "SettingsPage_ConflictExcludedCategories_Description": "Wyklucz kategorie z wykrywania konfliktów (wszystkie mody pozostają aktywne)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Wybierz kategorię do wyłączenia..."
 }

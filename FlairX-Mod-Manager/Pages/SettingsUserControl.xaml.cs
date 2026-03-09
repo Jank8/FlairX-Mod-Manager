@@ -426,6 +426,7 @@ namespace FlairX_Mod_Manager.Pages
             if (PinnedCategoriesLabel != null) PinnedCategoriesLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PinnedCategories_Label") ?? "Pinned Categories";
             if (HiddenCategoriesLabel != null) HiddenCategoriesLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HiddenCategories_Label") ?? "Hidden Categories";
             if (ShuffleExcludedCategoriesLabel != null) ShuffleExcludedCategoriesLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShuffleExcludedCategories_Label") ?? "Shuffle Excluded Categories";
+            if (ConflictExcludedCategoriesLabel != null) ConflictExcludedCategoriesLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ConflictExcludedCategories_Label") ?? "Conflict Excluded Categories";
             if (FastDownloadLabel != null) FastDownloadLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_FastDownload_Label");
             if (MaxConnectionsLabel != null) MaxConnectionsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MaxConnections_Label");
             if (HotkeysHeader != null) HotkeysHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Hotkeys_Header");
@@ -458,9 +459,11 @@ namespace FlairX_Mod_Manager.Pages
             if (PinnedCategoriesDescription != null) PinnedCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PinnedCategories_Description") ?? "Pin categories to footer menu for quick access";
             if (HiddenCategoriesDescription != null) HiddenCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HiddenCategories_Description") ?? "Hide categories from the navigation menu";
             if (ShuffleExcludedCategoriesDescription != null) ShuffleExcludedCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShuffleExcludedCategories_Description") ?? "Exclude categories from shuffle hotkey (keeps mods as-is)";
+            if (ConflictExcludedCategoriesDescription != null) ConflictExcludedCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ConflictExcludedCategories_Description") ?? "Exclude categories from conflict detection (all mods remain active)";
             if (AddPinnedCategoryComboBox != null) AddPinnedCategoryComboBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "SettingsPage_PinnedCategories_Placeholder") ?? string.Empty;
             if (AddHiddenCategoryComboBox != null) AddHiddenCategoryComboBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "SettingsPage_HiddenCategories_Placeholder") ?? string.Empty;
             if (AddShuffleExcludedCategoryComboBox != null) AddShuffleExcludedCategoryComboBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "SettingsPage_ShuffleExcludedCategories_Placeholder") ?? string.Empty;
+            if (AddConflictExcludedCategoryComboBox != null) AddConflictExcludedCategoryComboBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "SettingsPage_ConflictExcludedCategories_Placeholder") ?? string.Empty;
             if (FastDownloadDescription != null) FastDownloadDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_FastDownload_Description") ?? string.Empty;
             if (MaxConnectionsDescription != null) MaxConnectionsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MaxConnections_Description") ?? string.Empty;
             
@@ -2860,6 +2863,10 @@ namespace FlairX_Mod_Manager.Pages
             var shuffleExcludedCategories = SettingsManager.GetShuffleExcludedCategories(gameTag);
             ShuffleExcludedCategoriesItemsControl.ItemsSource = new System.Collections.ObjectModel.ObservableCollection<string>(shuffleExcludedCategories);
             
+            // Load conflict excluded categories
+            var conflictExcludedCategories = SettingsManager.GetConflictExcludedCategories(gameTag);
+            ConflictExcludedCategoriesItemsControl.ItemsSource = new System.Collections.ObjectModel.ObservableCollection<string>(conflictExcludedCategories);
+            
             // Load available categories for ComboBoxes
             RefreshAvailableCategories();
         }
@@ -2883,6 +2890,7 @@ namespace FlairX_Mod_Manager.Pages
             var pinnedCategories = SettingsManager.GetPinnedCategories(gameTag);
             var hiddenCategories = SettingsManager.GetHiddenCategories(gameTag);
             var shuffleExcludedCategories = SettingsManager.GetShuffleExcludedCategories(gameTag);
+            var conflictExcludedCategories = SettingsManager.GetConflictExcludedCategories(gameTag);
             
             // Available categories for pinning (exclude already pinned and hidden)
             var availableForPinning = allCategories
@@ -2901,6 +2909,12 @@ namespace FlairX_Mod_Manager.Pages
                 .Where(c => !string.IsNullOrEmpty(c) && !shuffleExcludedCategories.Contains(c))
                 .ToList();
             AddShuffleExcludedCategoryComboBox.ItemsSource = availableForShuffleExclusion;
+            
+            // Available categories for conflict exclusion (exclude already excluded)
+            var availableForConflictExclusion = allCategories
+                .Where(c => !string.IsNullOrEmpty(c) && !conflictExcludedCategories.Contains(c))
+                .ToList();
+            AddConflictExcludedCategoryComboBox.ItemsSource = availableForConflictExclusion;
         }
         
         private void AddPinnedCategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -2990,6 +3004,33 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
                 SettingsManager.RemoveShuffleExcludedCategory(gameTag, categoryName);
+                
+                // Refresh UI - this will update both lists and ComboBoxes
+                LoadCategoryManagement();
+            }
+        }
+        
+        private void AddConflictExcludedCategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (AddConflictExcludedCategoryComboBox.SelectedItem is string categoryName)
+            {
+                var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                SettingsManager.AddConflictExcludedCategory(gameTag, categoryName);
+                
+                // Clear selection first
+                AddConflictExcludedCategoryComboBox.SelectedItem = null;
+                
+                // Refresh UI - this will update both lists and ComboBoxes
+                LoadCategoryManagement();
+            }
+        }
+        
+        private void RemoveConflictExcludedCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string categoryName)
+            {
+                var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                SettingsManager.RemoveConflictExcludedCategory(gameTag, categoryName);
                 
                 // Refresh UI - this will update both lists and ComboBoxes
                 LoadCategoryManagement();

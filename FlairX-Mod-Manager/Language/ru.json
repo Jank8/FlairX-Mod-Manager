@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Не удалось переместить мод: {0}",
     "MoveDialog_Moving": "Перемещение мода...",
     "MoveDialog_Success": "Мод успешно перемещён!",
-    "ContextMenu_Move": "Переместить"
+    "ContextMenu_Move": "Переместить",
+    "SettingsPage_ConflictExcludedCategories_Label": "Категории исключенные из конфликтов",
+    "SettingsPage_ConflictExcludedCategories_Description": "Исключить категории из обнаружения конфликтов (все моды остаются активными)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Выберите категорию для исключения..."
 }

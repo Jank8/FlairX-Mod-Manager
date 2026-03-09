@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Mod verplaatsen mislukt: {0}",
     "MoveDialog_Moving": "Mod verplaatsen...",
     "MoveDialog_Success": "Mod succesvol verplaatst!",
-    "ContextMenu_Move": "Verplaatsen"
+    "ContextMenu_Move": "Verplaatsen",
+    "SettingsPage_ConflictExcludedCategories_Label": "Conflict-uitgesloten categorieën",
+    "SettingsPage_ConflictExcludedCategories_Description": "Sluit categorieën uit van conflictdetectie (alle mods blijven actief)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Selecteer categorie om uit te sluiten..."
 }

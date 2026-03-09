@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Mod taşınamadı: {0}",
     "MoveDialog_Moving": "Mod taşınıyor...",
     "MoveDialog_Success": "Mod başarıyla taşındı!",
-    "ContextMenu_Move": "Taşı"
+    "ContextMenu_Move": "Taşı",
+    "SettingsPage_ConflictExcludedCategories_Label": "Çakışmadan hariç tutulan kategoriler",
+    "SettingsPage_ConflictExcludedCategories_Description": "Kategorileri çakışma algılamasından hariç tut (tüm modlar aktif kalır)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Hariç tutulacak kategoriyi seçin..."
 }

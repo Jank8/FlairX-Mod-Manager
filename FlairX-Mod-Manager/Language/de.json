@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Mod konnte nicht verschoben werden: {0}",
     "MoveDialog_Moving": "Mod wird verschoben...",
     "MoveDialog_Success": "Mod erfolgreich verschoben!",
-    "ContextMenu_Move": "Verschieben"
+    "ContextMenu_Move": "Verschieben",
+    "SettingsPage_ConflictExcludedCategories_Label": "Konflikt-ausgeschlossene Kategorien",
+    "SettingsPage_ConflictExcludedCategories_Description": "Kategorien von Konflikterkennung ausschließen (alle Mods bleiben aktiv)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Kategorie zum Ausschließen wählen..."
 }

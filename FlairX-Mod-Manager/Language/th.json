@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "ไม่สามารถย้ายม็อด: {0}",
     "MoveDialog_Moving": "กำลังย้ายม็อด...",
     "MoveDialog_Success": "ย้ายม็อดสำเร็จ!",
-    "ContextMenu_Move": "ย้าย"
+    "ContextMenu_Move": "ย้าย",
+    "SettingsPage_ConflictExcludedCategories_Label": "หมวดหมู่ที่ยกเว้นจากความขัดแย้ง",
+    "SettingsPage_ConflictExcludedCategories_Description": "ยกเว้นหมวดหมู่จากการตรวจจับความขัดแย้ง (ม็อดทั้งหมดยังคงใช้งานอยู่)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "เลือกหมวดหมู่ที่จะยกเว้น..."
 }

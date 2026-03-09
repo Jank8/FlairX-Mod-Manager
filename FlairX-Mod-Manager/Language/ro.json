@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Mutarea modului a eșuat: {0}",
     "MoveDialog_Moving": "Mutare mod...",
     "MoveDialog_Success": "Mod mutat cu succes!",
-    "ContextMenu_Move": "Mută"
+    "ContextMenu_Move": "Mută",
+    "SettingsPage_ConflictExcludedCategories_Label": "Categorii excluse din conflicte",
+    "SettingsPage_ConflictExcludedCategories_Description": "Exclude categorii din detectarea conflictelor (toate modurile rămân active)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Selectați categoria de exclus..."
 }

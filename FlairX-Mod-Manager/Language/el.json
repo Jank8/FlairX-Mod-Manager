@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Αποτυχία μετακίνησης mod: {0}",
     "MoveDialog_Moving": "Μετακίνηση mod...",
     "MoveDialog_Success": "Το mod μετακινήθηκε επιτυχώς!",
-    "ContextMenu_Move": "Μετακίνηση"
+    "ContextMenu_Move": "Μετακίνηση",
+    "SettingsPage_ConflictExcludedCategories_Label": "Κατηγορίες εξαιρούμενες από συγκρούσεις",
+    "SettingsPage_ConflictExcludedCategories_Description": "Εξαίρεση κατηγοριών από ανίχνευση συγκρούσεων (όλα τα mods παραμένουν ενεργά)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Επιλέξτε κατηγορία για εξαίρεση..."
 }

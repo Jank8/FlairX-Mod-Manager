@@ -60,15 +60,21 @@ namespace FlairX_Mod_Manager.Pages
                     // Activate mod - check for category conflicts first
                     Logger.LogInfo($"ENTERING ACTIVATION BRANCH - Activating mod: {mod.Directory}");
                     
-                    // Check if there are already active mods in the same category
-                    var activeModsInCategory = GetActiveModsInCategory(mod.Directory);
+                    // Get category name and check if it's excluded from conflict detection
+                    var categoryName = GetModCategory(mod.Directory);
+                    var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                    var conflictExcludedCategories = SettingsManager.GetConflictExcludedCategories(gameTag);
+                    bool isCategoryExcludedFromConflicts = conflictExcludedCategories.Contains(categoryName);
+                    
+                    // Check if there are already active mods in the same category (skip if category is excluded)
+                    var activeModsInCategory = !isCategoryExcludedFromConflicts ? GetActiveModsInCategory(mod.Directory) : new List<string>();
+                    
                     if (activeModsInCategory.Count > 0)
                     {
                         // Check if auto-deactivation is enabled
                         if (SettingsManager.Current.AutoDeactivateConflictingMods)
                         {
                             // Auto-deactivate conflicting mods
-                            var categoryName = GetModCategory(mod.Directory);
                             Logger.LogInfo($"Auto-deactivating {activeModsInCategory.Count} conflicting mods in category '{categoryName}'");
                             
                             await DeactivateModsInCategory(categoryName, mod.Directory);
@@ -117,7 +123,6 @@ namespace FlairX_Mod_Manager.Pages
                             if (!SettingsManager.Current.DontAskCategoryConflictAgain)
                             {
                                 // Show category conflict dialog
-                                var categoryName = GetModCategory(mod.Directory);
                                 var dialog = new FlairX_Mod_Manager.Dialogs.CategoryConflictDialog(
                                     categoryName, 
                                     mod.Name, 
@@ -147,6 +152,10 @@ namespace FlairX_Mod_Manager.Pages
                                 Logger.LogInfo($"Skipping category conflict dialog (user chose 'don't ask again'): {mod.Directory}");
                             }
                         }
+                    }
+                    else if (isCategoryExcludedFromConflicts)
+                    {
+                        Logger.LogInfo($"Category '{categoryName}' is excluded from conflict detection - allowing multiple active mods");
                     }
                     
                     // Proceed with activation

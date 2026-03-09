@@ -343,5 +343,8 @@
     "MoveDialog_Failed": "Kunne ikke flytte mod: {0}",
     "MoveDialog_Moving": "Flytter mod...",
     "MoveDialog_Success": "Mod flyttet med succes!",
-    "ContextMenu_Move": "Flyt"
+    "ContextMenu_Move": "Flyt",
+    "SettingsPage_ConflictExcludedCategories_Label": "Konflikt-ekskluderede kategorier",
+    "SettingsPage_ConflictExcludedCategories_Description": "Udeluk kategorier fra konfliktdetektering (alle mods forbliver aktive)",
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Vælg kategori at udelukke..."
 }
