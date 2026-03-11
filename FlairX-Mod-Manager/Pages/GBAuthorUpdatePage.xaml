@@ -160,11 +160,26 @@
                         
                         <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
                             <TextBox x:Name="AutoUpdateIntervalTextBox" 
-                                     MinWidth="80"
-                                     MaxWidth="80"
                                      Text="7"
+                                     PlaceholderText="1-365"
+                                     Width="80"
+                                     Height="32"
+                                     Padding="8,6"
+                                     BorderThickness="1"
+                                     VerticalAlignment="Center"
+                                     IsSpellCheckEnabled="False"
                                      TextChanged="AutoUpdateIntervalTextBox_TextChanged"
-                                     PlaceholderText="1-365"/>
+                                     TextAlignment="Right"/>
+                            <Button x:Name="AutoUpdateIntervalConfirmButton" 
+                                    Click="AutoUpdateIntervalConfirmButton_Click"
+                                    Width="32" 
+                                    Height="32" 
+                                    Padding="0"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="✓" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -204,43 +219,6 @@
                                     Click="UpdateButton_Click"
                                     Style="{StaticResource AccentButtonStyle}">
                                 <TextBlock x:Name="UpdateButtonText"/>
-                            </Button>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-                
-                <!-- Fetch Versions & Dates Card -->
-                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                        BorderThickness="1" 
-                        CornerRadius="8" 
-                        Padding="16" 
-                        Margin="0,0,0,2">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <FontIcon Grid.Column="0" Glyph="&#xE895;" FontSize="20" VerticalAlignment="Center"/>
-                        
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                            <TextBlock x:Name="FetchVersionsTitle" FontWeight="SemiBold" FontSize="14"/>
-                            <TextBlock x:Name="FetchVersionsDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                        </StackPanel>
-                        
-                        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                            <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
-                                <ProgressBar x:Name="FetchVersionsProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
-                                <TextBlock x:Name="FetchVersionsStatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,2,0,0"/>
-                            </StackPanel>
-                            <Button x:Name="FetchVersionsButton" 
-                                    MinWidth="80"
-                                    Click="FetchVersionsButton_Click"
-                                    Style="{StaticResource AccentButtonStyle}">
-                                <TextBlock x:Name="FetchVersionsButtonText"/>
                             </Button>
                         </StackPanel>
                     </Grid>

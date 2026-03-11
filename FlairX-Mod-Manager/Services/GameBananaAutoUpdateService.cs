@@ -51,7 +51,7 @@ namespace FlairX_Mod_Manager.Services
                     _failedMods.Clear();
                 }
 
-                await FetchVersionsAndDatesAsync(CancellationToken.None, silent: true);
+                await FetchAllDataAsync(CancellationToken.None, silent: true, smartUpdate: false);
                 
                 // Update last run time
                 SettingsManager.Current.GameBananaLastAutoUpdate = DateTime.Now;

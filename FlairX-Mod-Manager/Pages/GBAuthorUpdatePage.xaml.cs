@@ -50,8 +50,8 @@ namespace FlairX_Mod_Manager.Pages
             ActionsHeader.Text = SharedUtilities.GetTranslation(lang, "ActionsHeader");
             
             // Fetch all data card (formerly authors)
-            FetchAuthorsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchAllDataButton");
-            FetchAuthorsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchAllDataDescription");
+            FetchAuthorsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchAuthorsButton");
+            FetchAuthorsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchAuthorsDescription");
             // Button text is now handled by UpdateButtonStates()
             
 
@@ -62,11 +62,6 @@ namespace FlairX_Mod_Manager.Pages
             AutoUpdateEnabledDescription.Text = SharedUtilities.GetTranslation(lang, "AutoUpdateEnabledDescription") ?? "Automatically fetch versions and dates on startup";
             AutoUpdateIntervalLabel.Text = SharedUtilities.GetTranslation(lang, "AutoUpdateIntervalLabel") ?? "Update Interval";
             AutoUpdateIntervalDescription.Text = SharedUtilities.GetTranslation(lang, "AutoUpdateIntervalDescription") ?? "How often to check for updates";
-            
-            // Fetch versions card
-            FetchVersionsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsAndDatesButton");
-            FetchVersionsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsAndDatesButton_Tooltip");
-            // Button text is now handled by UpdateButtonStates()
             
             // Fetch all previews card
             FetchAllPreviewsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchAllPreviewsButton");
@@ -191,11 +186,6 @@ namespace FlairX_Mod_Manager.Pages
                 _currentProcessingMod = modName;
             }
         }
-        private CancellationTokenSource? _cts;
-
-        
-
-
 
         /// <summary>
         /// Mark a mod's URL as invalid in mod.json
@@ -269,21 +259,6 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     UpdateButton.IsEnabled = !anyOperationRunning; // Disable if any other operation is running
                     UpdateButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
-                }
-            }
-            
-            // Fetch Versions button
-            if (FetchVersionsButton != null && FetchVersionsButtonText != null)
-            {
-                if (_isFetchingVersions)
-                {
-                    FetchVersionsButton.IsEnabled = true; // Keep enabled so user can cancel
-                    FetchVersionsButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
-                }
-                else
-                {
-                    FetchVersionsButton.IsEnabled = !anyOperationRunning; // Disable if any other operation is running
-                    FetchVersionsButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
                 }
             }
             
@@ -370,42 +345,6 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         UpdateProgressStatusText.Visibility = Visibility.Collapsed;
                         UpdateProgressStatusText.Text = "";
-                    }
-                }
-            }
-            
-            if (FetchVersionsProgressBar != null)
-            {
-                if (_isFetchingVersions)
-                {
-                    FetchVersionsProgressBar.Visibility = Visibility.Visible;
-                    FetchVersionsProgressBar.IsIndeterminate = false;
-                    FetchVersionsProgressBar.Value = _progressValue * 100;
-                    
-                    // Update status text
-                    if (FetchVersionsStatusText != null)
-                    {
-                        FetchVersionsStatusText.Visibility = Visibility.Visible;
-                        if (!string.IsNullOrEmpty(_currentProcessingMod))
-                        {
-                            FetchVersionsStatusText.Text = _currentProcessingMod;
-                        }
-                        else
-                        {
-                            FetchVersionsStatusText.Text = "";
-                        }
-                    }
-                }
-                else
-                {
-                    FetchVersionsProgressBar.Value = 0;
-                    FetchVersionsProgressBar.IsIndeterminate = false;
-                    FetchVersionsProgressBar.Visibility = Visibility.Collapsed;
-                    
-                    if (FetchVersionsStatusText != null)
-                    {
-                        FetchVersionsStatusText.Visibility = Visibility.Collapsed;
-                        FetchVersionsStatusText.Text = "";
                     }
                 }
             }
@@ -624,7 +563,7 @@ namespace FlairX_Mod_Manager.Pages
             // Add confirmation dialog
             var confirmDialog = new ContentDialog
             {
-                Title = SharedUtilities.GetTranslation(lang, "FetchAllDataButton"),
+                Title = SharedUtilities.GetTranslation(lang, "FetchAuthorsButton"),
                 Content = SharedUtilities.GetTranslation(lang, "ConfirmFetchAllData"),
                 PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
                 CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
@@ -703,11 +642,11 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     // Smart update: only show skipped items that are NOT "already has author"
                     string alreadyHasAuthorText = SharedUtilities.GetTranslation(lang, "AlreadyHasAuthor");
-                    foreach (var skipped in _skippedMods)
+                    foreach (var skippedMod in _skippedMods)
                     {
-                        if (!skipped.Contains(alreadyHasAuthorText))
+                        if (!skippedMod.Contains(alreadyHasAuthorText))
                         {
-                            skippedToShow.Add(skipped);
+                            skippedToShow.Add(skippedMod);
                         }
                     }
                 }
@@ -799,227 +738,14 @@ namespace FlairX_Mod_Manager.Pages
 
 
 
-        // Fetch Versions functionality
-        private CancellationTokenSource? _ctsVersions;
+        // Fetch Versions functionality (kept for compatibility)
+        // This now just calls the main FetchAllData functionality
 
 
-        private async void FetchVersionsButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await FetchVersionsButtonClickAsync();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in FetchVersionsButton_Click", ex);
-                ResetVersionsButtonToFetchState();
-            }
-        }
 
-        private async Task FetchVersionsButtonClickAsync()
-        {
-            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-            var mainLang = SharedUtilities.LoadLanguageDictionary();
 
-            if (_isFetchingVersions)
-            {
-                _ctsVersions?.Cancel();
-                _isFetchingVersions = false;
-                ResetVersionsButtonToFetchState();
-                var cancelDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await cancelDialog.ShowAsync();
-                return;
-            }
-            
-            // Add confirmation dialog
-            var confirmDialog = new ContentDialog
-            {
-                Title = SharedUtilities.GetTranslation(lang, "FetchVersionsAndDatesButton"),
-                Content = SharedUtilities.GetTranslation(lang, "ConfirmFetchVersionsAndDates"),
-                PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
-                CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
-                XamlRoot = this.XamlRoot
-            };
-            var result = await confirmDialog.ShowAsync();
-            if (result != ContentDialogResult.Primary)
-            {
-                return;
-            }
 
-            _ctsVersions = new CancellationTokenSource();
-            _isFetchingVersions = true;
-            lock (_lockObject)
-            {
-                _success = 0; _fail = 0; _skip = 0;
-                _skippedMods.Clear();
-                _failedMods.Clear();
-                _progressValue = 0;
-                _totalMods = 0;
-            }
-            NotifyProgressChanged(); // This will update button states via UpdateButtonStates()
-            await FetchVersionsAndDatesAsync(_ctsVersions.Token);
-            ResetVersionsButtonToFetchState();
-        }
 
-        private void ResetVersionsButtonToFetchState()
-        {
-            _isFetchingVersions = false;
-            NotifyProgressChanged(); // This will call UpdateButtonStates() via UpdateProgressBarUI()
-        }
-
-        private async Task FetchVersionsAndDatesAsync(CancellationToken token)
-        {
-            try
-            {
-                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                
-                var (success, failed, skipped, failedMods, skippedMods) = 
-                    await Services.GameBananaAutoUpdateService.FetchVersionsAndDatesAsync(token, silent: false);
-
-                lock (_lockObject)
-                {
-                    _success = success;
-                    _fail = failed;
-                    _skip = skipped;
-                    _failedMods.Clear();
-                    _failedMods.AddRange(failedMods);
-                    _skippedMods.Clear();
-                    _skippedMods.AddRange(skippedMods);
-                }
-
-                if (token.IsCancellationRequested)
-                {
-                    ResetVersionsButtonToFetchState();
-                    var cancelDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                        Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await cancelDialog.ShowAsync();
-                    return;
-                }
-
-                ResetVersionsButtonToFetchState();
-                string summary = string.Format(SharedUtilities.GetTranslation(lang, "TotalChecked"), _success + _fail + _skip) + "\n" +
-                                string.Format(SharedUtilities.GetTranslation(lang, "SuccessCount"), _success) + "\n" +
-                                string.Format(SharedUtilities.GetTranslation(lang, "SkippedCount"), _skip);
-
-                if (_failedMods.Count > 0 || _skippedMods.Count > 0)
-                {
-                    var allIssues = new List<string>();
-                    allIssues.AddRange(_skippedMods);
-                    allIssues.AddRange(_failedMods);
-                    summary += "\n\n" + SharedUtilities.GetTranslation(lang, "ModsWithIssues") + "\n" + string.Join("\n", allIssues);
-                }
-
-                var textBlock = new TextBlock
-                {
-                    Text = summary,
-                    TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap,
-                    IsTextSelectionEnabled = true,
-                    Width = 500
-                };
-
-                var scrollViewer = new ScrollViewer
-                {
-                    Content = textBlock,
-                    VerticalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Auto,
-                    HorizontalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Disabled,
-                    MaxHeight = 400,
-                    Padding = new Microsoft.UI.Xaml.Thickness(10)
-                };
-
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "VersionAndDatesSummaryTitle"),
-                    Content = scrollViewer,
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
-                
-                // Reload mods to update ModListManager lists
-                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
-                if (mainWindow != null)
-                {
-                    Logger.LogInfo("Reloading mods after versions and dates update");
-                    await mainWindow.ReloadModsAsync();
-                    Logger.LogInfo("Mods reloaded successfully");
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                ResetVersionsButtonToFetchState();
-                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
-            }
-            catch (Exception ex)
-            {
-                ResetVersionsButtonToFetchState();
-                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
-                    Content = ex.Message,
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
-            }
-        }
-
-        private async Task<string?> FetchVersionFromApi(string url, CancellationToken token)
-        {
-            try
-            {
-                var match = _urlPattern.Match(url);
-                if (!match.Success)
-                {
-                    Logger.LogError($"Failed to parse GameBanana URL: {url}");
-                    return null;
-                }
-
-                string itemType = match.Groups[1].Value;
-                string itemId = match.Groups[2].Value;
-                itemType = char.ToUpper(itemType[0]) + itemType.Substring(1).TrimEnd('s');
-
-                string apiUrl = $"https://gamebanana.com/apiv11/{itemType}/{itemId}?_csvProperties=_sVersion";
-
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-
-                var response = await _httpClient.GetStringAsync(apiUrl, token);
-                using var doc = JsonDocument.Parse(response);
-                var root = doc.RootElement;
-
-                if (root.TryGetProperty("_sVersion", out var version))
-                {
-                    return version.GetString();
-                }
-
-                return null;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Failed to fetch version from API for URL: {url}", ex);
-                return null;
-            }
-        }
 
         // Fetch All Previews functionality
         private CancellationTokenSource? _ctsAllPreviews;
@@ -1953,20 +1679,51 @@ namespace FlairX_Mod_Manager.Pages
 
         private void AutoUpdateIntervalTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            // Only validate, don't save automatically
+            if (int.TryParse(AutoUpdateIntervalTextBox.Text, out int days) && days >= 1 && days <= 365)
+            {
+                // Remove any error styling
+                AutoUpdateIntervalTextBox.BorderBrush = null;
+                AutoUpdateIntervalConfirmButton.IsEnabled = true;
+            }
+            else if (!string.IsNullOrEmpty(AutoUpdateIntervalTextBox.Text))
+            {
+                // Show error styling for invalid values
+                AutoUpdateIntervalTextBox.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red);
+                AutoUpdateIntervalConfirmButton.IsEnabled = false;
+            }
+            else
+            {
+                // Empty text - disable confirm button
+                AutoUpdateIntervalTextBox.BorderBrush = null;
+                AutoUpdateIntervalConfirmButton.IsEnabled = false;
+            }
+        }
+
+        private void AutoUpdateIntervalConfirmButton_Click(object sender, RoutedEventArgs e)
+        {
             if (int.TryParse(AutoUpdateIntervalTextBox.Text, out int days) && days >= 1 && days <= 365)
             {
                 SettingsManager.Current.GameBananaAutoUpdateIntervalDays = days;
                 SettingsManager.Save();
                 
-                // Remove any error styling
-                AutoUpdateIntervalTextBox.BorderBrush = null;
-            }
-            else if (!string.IsNullOrEmpty(AutoUpdateIntervalTextBox.Text))
-            {
-                // Add error styling for invalid input
-                AutoUpdateIntervalTextBox.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red);
+                // Visual feedback - briefly change button appearance
+                var button = sender as Button;
+                if (button?.Content is TextBlock textBlock)
+                {
+                    var originalText = textBlock.Text;
+                    textBlock.Text = "✓"; // Keep checkmark
+                    
+                    // Reset after short delay
+                    var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1000) };
+                    timer.Tick += (s, args) =>
+                    {
+                        textBlock.Text = originalText;
+                        timer.Stop();
+                    };
+                    timer.Start();
+                }
             }
         }
-
     }
 }
