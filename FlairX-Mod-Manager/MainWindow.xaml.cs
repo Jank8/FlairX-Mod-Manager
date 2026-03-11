@@ -62,6 +62,9 @@ namespace FlairX_Mod_Manager
 
         private List<NavigationViewItem> _allMenuItems = new();
         private List<NavigationViewItem> _allFooterItems = new();
+        
+        // Sliding panels management
+        private List<Grid> _openPanelOverlays = new();
 
 
         private bool _isInitializationComplete = false;
@@ -504,6 +507,16 @@ namespace FlairX_Mod_Manager
             if (this.Content is FrameworkElement contentElement)
             {
                 contentElement.KeyDown += MainWindow_KeyDown;
+                
+                // Add global keyboard handler for sliding panels
+                contentElement.KeyDown += async (s, args) =>
+                {
+                    if (args.Key == Windows.System.VirtualKey.Escape && _openPanelOverlays.Count > 0)
+                    {
+                        await CloseAllPanelsAsync();
+                        args.Handled = true;
+                    }
+                };
             }
 
             // Initialize global hotkey manager for system-wide hotkeys

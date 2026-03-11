@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FlairX_Mod_Manager.Pages;
@@ -220,6 +221,17 @@ namespace FlairX_Mod_Manager
         {
             try
             {
+                // Check if panel of this type is already open
+                var existingPanel = _openPanelOverlays
+                    .SelectMany(o => FindUserControlsInOverlay<UserControl>(o))
+                    .FirstOrDefault(uc => uc.GetType() == userControl.GetType());
+                
+                if (existingPanel != null)
+                {
+                    Logger.LogInfo($"Panel of type {userControl.GetType().Name} is already open, skipping");
+                    return;
+                }
+
                 // Get current app theme and create appropriate background
                 string appTheme = FlairX_Mod_Manager.SettingsManager.Current.Theme ?? "Auto";
                 bool isDarkTheme = false;
@@ -231,12 +243,13 @@ namespace FlairX_Mod_Manager
                 else if (this.Content is FrameworkElement rootElement)
                     isDarkTheme = rootElement.ActualTheme == ElementTheme.Dark;
 
-                // Create transparent overlay
+                // Create transparent overlay - only for panel area, not covering menu
                 var overlay = new Grid
                 {
                     Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
                     HorizontalAlignment = HorizontalAlignment.Stretch,
-                    VerticalAlignment = VerticalAlignment.Stretch
+                    VerticalAlignment = VerticalAlignment.Stretch,
+                    Margin = new Thickness(320, 0, 0, 0) // Start after menu (320px menu width)
                 };
 
                 // No size restrictions - UserControls will auto-size
@@ -266,14 +279,14 @@ namespace FlairX_Mod_Manager
                     borderBrush = new SolidColorBrush(Microsoft.UI.ColorHelper.FromArgb(80, 0, 0, 0));
                 }
 
-                // Create panel sliding from right - full height, width to menu edge
+                // Create panel sliding from right - full height, width to fill remaining space
                 var dialogContainer = new Border
                 {
                     Background = dialogAcrylicBrush,
                     CornerRadius = new CornerRadius(12, 0, 0, 0), // Rounded only on top-left
                     HorizontalAlignment = HorizontalAlignment.Stretch, // All panels stretch to full width
                     VerticalAlignment = VerticalAlignment.Stretch,
-                    Margin = new Thickness(320, 0, 0, 0), // Start after menu (320px menu width)
+                    Margin = new Thickness(0, 0, 0, 0), // No margin needed since overlay already starts after menu
                     BorderBrush = borderBrush,
                     BorderThickness = new Thickness(1, 0, 0, 0) // Only left border
                 };
@@ -343,6 +356,9 @@ namespace FlairX_Mod_Manager
 
                 if (parentGrid != null)
                 {
+                    // Add overlay to tracking list
+                    _openPanelOverlays.Add(overlay);
+                    
                     parentGrid.Children.Add(overlay);
 
                     // Track GameBanana browser for reload on close
@@ -351,6 +367,9 @@ namespace FlairX_Mod_Manager
                     // Function to close with slide-out animation
                     Func<Task> closeWithAnimationAsync = async () =>
                     {
+                        // Remove from tracking list
+                        _openPanelOverlays.Remove(overlay);
+                        
                         // Create slide-out animation
                         var duration = new Duration(TimeSpan.FromMilliseconds(250));
                         
@@ -438,41 +457,31 @@ namespace FlairX_Mod_Manager
                         imagePreviewControl.CloseRequested += (s, args) => closeWithAnimation();
                     }
                     
-                    // Click outside to close
-                    overlay.Tapped += async (s, args) =>
-                    {
-                        if (ReferenceEquals(args.OriginalSource, overlay))
-                        {
-                            await closeWithAnimationAsync();
-                            
-                            // Reload mods if GameBanana browser and mod was installed
-                            if (gameBananaBrowser != null && gameBananaBrowser._modWasInstalled)
-                            {
-                                await ReloadModsAsync();
-                                Logger.LogInfo("Refreshed mod grid after closing GameBanana browser via tap outside (mod was installed)");
-                            }
-                        }
-                    };
-
-                    // Escape key handler
+                    // Escape key handler - close ALL panels
                     overlay.KeyDown += async (s, args) =>
                     {
                         if (args.Key == Windows.System.VirtualKey.Escape)
                         {
-                            await closeWithAnimationAsync();
+                            // Close all panels instead of just this one
+                            await CloseAllPanelsAsync();
                             args.Handled = true;
                             
-                            // Reload mods if GameBanana browser and mod was installed
-                            if (gameBananaBrowser != null && gameBananaBrowser._modWasInstalled)
+                            // Reload mods if any GameBanana browser was open and mod was installed
+                            var gameBananaBrowsers = _openPanelOverlays
+                                .SelectMany(o => FindUserControlsInOverlay<Pages.GameBananaBrowserUserControl>(o))
+                                .Where(gb => gb._modWasInstalled);
+                            
+                            if (gameBananaBrowsers.Any())
                             {
                                 await ReloadModsAsync();
-                                Logger.LogInfo("Refreshed mod grid after closing GameBanana browser via Escape (mod was installed)");
+                                Logger.LogInfo("Refreshed mod grid after closing all panels via Escape (GameBanana mod was installed)");
                             }
                         }
                     };
 
                     // Make overlay focusable to receive key events
                     overlay.IsTabStop = true;
+                    overlay.AllowFocusOnInteraction = true;
                     overlay.Focus(FocusState.Programmatic);
                 }
             }
@@ -480,6 +489,152 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogError($"Failed to show sliding panel for {title}", ex);
             }
+        }
+
+        /// <summary>
+        /// Close all open sliding panels
+        /// </summary>
+        private async Task CloseAllPanelsAsync()
+        {
+            try
+            {
+                // Get parent grid
+                Grid? parentGrid = null;
+                var current = this.Content as FrameworkElement;
+                while (current != null && !(current is Grid))
+                {
+                    current = current.Parent as FrameworkElement;
+                }
+                parentGrid = current as Grid;
+
+                if (parentGrid != null && _openPanelOverlays.Count > 0)
+                {
+                    // Create list of overlays to close (copy to avoid modification during iteration)
+                    var overlaysToClose = _openPanelOverlays.ToList();
+                    
+                    // Clear the tracking list
+                    _openPanelOverlays.Clear();
+                    
+                    // Close all panels with animation
+                    var closeTasks = new List<Task>();
+                    
+                    foreach (var overlay in overlaysToClose)
+                    {
+                        if (parentGrid.Children.Contains(overlay))
+                        {
+                            closeTasks.Add(CloseOverlayWithAnimationAsync(overlay, parentGrid));
+                        }
+                    }
+                    
+                    // Wait for all animations to complete
+                    await Task.WhenAll(closeTasks);
+                    
+                    Logger.LogInfo($"Closed {overlaysToClose.Count} sliding panels");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to close all panels", ex);
+            }
+        }
+
+        /// <summary>
+        /// Close a specific overlay with slide-out animation
+        /// </summary>
+        private async Task CloseOverlayWithAnimationAsync(Grid overlay, Grid parentGrid)
+        {
+            try
+            {
+                // Find the dialog container (Border) in the overlay
+                var dialogContainer = overlay.Children.OfType<Border>().FirstOrDefault();
+                if (dialogContainer?.RenderTransform is Microsoft.UI.Xaml.Media.TranslateTransform slideTransform)
+                {
+                    // Create slide-out animation
+                    var duration = new Duration(TimeSpan.FromMilliseconds(250));
+                    
+                    var slideOutAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                    {
+                        From = 0,
+                        To = dialogContainer.ActualWidth > 0 ? dialogContainer.ActualWidth : 800,
+                        Duration = duration,
+                        EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+                    };
+                    
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideOutAnimation, slideTransform);
+                    Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideOutAnimation, "X");
+                    
+                    var slideOutStoryboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                    slideOutStoryboard.Children.Add(slideOutAnimation);
+                    
+                    // Remove overlay when animation completes
+                    slideOutStoryboard.Completed += (s, e) => 
+                    {
+                        if (parentGrid.Children.Contains(overlay))
+                        {
+                            parentGrid.Children.Remove(overlay);
+                        }
+                    };
+                    
+                    slideOutStoryboard.Begin();
+                    
+                    // Wait for animation to complete
+                    await Task.Delay((int)duration.TimeSpan.TotalMilliseconds + 50);
+                }
+                else
+                {
+                    // Fallback: remove immediately if no animation transform found
+                    if (parentGrid.Children.Contains(overlay))
+                    {
+                        parentGrid.Children.Remove(overlay);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to close overlay with animation", ex);
+                // Fallback: remove immediately
+                if (parentGrid.Children.Contains(overlay))
+                {
+                    parentGrid.Children.Remove(overlay);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Find UserControls of specific type in an overlay
+        /// </summary>
+        private IEnumerable<T> FindUserControlsInOverlay<T>(Grid overlay) where T : UserControl
+        {
+            var results = new List<T>();
+            
+            try
+            {
+                // Search through the overlay's children
+                foreach (var child in overlay.Children)
+                {
+                    if (child is T directMatch)
+                    {
+                        results.Add(directMatch);
+                    }
+                    else if (child is Border border && border.Child is Grid grid)
+                    {
+                        // Look in the main grid of the dialog container
+                        foreach (var gridChild in grid.Children)
+                        {
+                            if (gridChild is T match)
+                            {
+                                results.Add(match);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to find UserControls of type {typeof(T).Name} in overlay", ex);
+            }
+            
+            return results;
         }
     }
 }
