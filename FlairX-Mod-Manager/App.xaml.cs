@@ -677,6 +677,23 @@ namespace FlairX_Mod_Manager
                         });
                     }
                 }
+                
+                // Check for GameBanana auto-update
+                if (Services.GameBananaAutoUpdateService.ShouldRunAutoUpdate())
+                {
+                    Logger.LogInfo("Starting GameBanana auto-update...");
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await Services.GameBananaAutoUpdateService.RunAutoUpdateAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError("GameBanana auto-update failed", ex);
+                        }
+                    });
+                }
             }
             catch (Exception ex)
             {

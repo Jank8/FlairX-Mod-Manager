@@ -127,6 +127,12 @@ namespace FlairX_Mod_Manager
         // GameBanana settings
         public bool BlurNSFWThumbnails { get; set; } = true;
         
+        // GameBanana Auto-Update settings
+        public bool GameBananaAutoUpdateEnabled { get; set; } = false;
+        public int GameBananaAutoUpdateIntervalDays { get; set; } = 7; // Check every 7 days
+        public DateTime GameBananaLastAutoUpdate { get; set; } = DateTime.MinValue;
+        public bool GameBananaSkipInvalidUrls { get; set; } = true;
+        
         // Mod filtering settings
         public bool HideBrokenMods { get; set; } = false;
         public bool HideNSFWMods { get; set; } = true; // Hide NSFW mods by default

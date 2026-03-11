@@ -49,19 +49,23 @@ namespace FlairX_Mod_Manager.Pages
             // Actions header
             ActionsHeader.Text = SharedUtilities.GetTranslation(lang, "ActionsHeader");
             
-            // Fetch authors card
-            FetchAuthorsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchAuthorsButton");
-            FetchAuthorsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchAuthorsDescription");
+            // Fetch all data card (formerly authors)
+            FetchAuthorsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchAllDataButton");
+            FetchAuthorsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchAllDataDescription");
             // Button text is now handled by UpdateButtonStates()
             
-            // Fetch dates card
-            FetchDatesTitle.Text = SharedUtilities.GetTranslation(lang, "FetchDatesButton");
-            FetchDatesDescription.Text = SharedUtilities.GetTranslation(lang, "FetchDatesButton_Tooltip");
-            // Button text is now handled by UpdateButtonStates()
+
+            
+            // Auto-Update settings card
+            AutoUpdateSettingsHeader.Text = SharedUtilities.GetTranslation(lang, "AutoUpdateSettingsHeader") ?? "Auto-Update Settings";
+            AutoUpdateEnabledLabel.Text = SharedUtilities.GetTranslation(lang, "AutoUpdateEnabledLabel") ?? "Enable Auto-Update";
+            AutoUpdateEnabledDescription.Text = SharedUtilities.GetTranslation(lang, "AutoUpdateEnabledDescription") ?? "Automatically fetch versions and dates on startup";
+            AutoUpdateIntervalLabel.Text = SharedUtilities.GetTranslation(lang, "AutoUpdateIntervalLabel") ?? "Update Interval";
+            AutoUpdateIntervalDescription.Text = SharedUtilities.GetTranslation(lang, "AutoUpdateIntervalDescription") ?? "How often to check for updates";
             
             // Fetch versions card
-            FetchVersionsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton");
-            FetchVersionsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsButton_Tooltip");
+            FetchVersionsTitle.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsAndDatesButton");
+            FetchVersionsDescription.Text = SharedUtilities.GetTranslation(lang, "FetchVersionsAndDatesButton_Tooltip");
             // Button text is now handled by UpdateButtonStates()
             
             // Fetch all previews card
@@ -115,6 +119,7 @@ namespace FlairX_Mod_Manager.Pages
             this.InitializeComponent();
             UpdateTexts();
             UpdateToggleLabels();
+            LoadSettings(); // Load auto-update settings
             ProgressChanged += OnProgressChanged;
             UpdateAuthorsSwitch.Toggled += UpdateAuthorsSwitch_Toggled;
             SmartUpdateSwitch.Toggled += SmartUpdateSwitch_Toggled;
@@ -132,8 +137,6 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         // Thread-safe static fields with proper locking
-        private static volatile bool _isUpdatingAuthors = false;
-        private static volatile bool _isFetchingDates = false;
         private static volatile bool _isFetchingVersions = false;
         private static volatile bool _isFetchingAllPreviews = false;
         private static volatile bool _isFetchingMissingPreviews = false;
@@ -146,8 +149,8 @@ namespace FlairX_Mod_Manager.Pages
         
         public static bool IsUpdatingAuthors 
         { 
-            get { lock (_lockObject) { return _isUpdatingAuthors; } }
-            private set { lock (_lockObject) { _isUpdatingAuthors = value; } }
+            get { lock (_lockObject) { return _isFetchingVersions; } }
+            private set { lock (_lockObject) { _isFetchingVersions = value; } }
         }
         
         public static double ProgressValue 
@@ -190,380 +193,9 @@ namespace FlairX_Mod_Manager.Pages
         }
         private CancellationTokenSource? _cts;
 
-        private async void UpdateButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                await UpdateButtonClickAsync();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Error in UpdateButton_Click", ex);
-                // Ensure proper cleanup on error
-                ResetButtonToUpdateState();
-            }
-        }
         
-        private async Task UpdateButtonClickAsync()
-        {
-            var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-            var mainLang = SharedUtilities.LoadLanguageDictionary();
-            
-            if (_isUpdatingAuthors)
-            {
-                _cts?.Cancel();
-                _isUpdatingAuthors = false;
-                NotifyProgressChanged();
-                ResetButtonToUpdateState();
-                // Add immediate dialog after clicking Cancel
-                var cancelDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await cancelDialog.ShowAsync();
-                return;
-            }
-            
-            // Add confirmation dialog
-            var confirmDialog = new ContentDialog
-            {
-                Title = SharedUtilities.GetTranslation(lang, "FetchAuthorsButton"),
-                Content = SharedUtilities.GetTranslation(lang, "ConfirmFetchAuthors"),
-                PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
-                CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
-                XamlRoot = this.XamlRoot
-            };
-            var result = await confirmDialog.ShowAsync();
-            if (result != ContentDialogResult.Primary)
-            {
-                return;
-            }
-            _cts = new CancellationTokenSource();
-            _isUpdatingAuthors = true;
-            lock (_lockObject)
-            {
-                _success = 0; _fail = 0; _skip = 0;
-                _skippedMods.Clear();
-                _failedMods.Clear();
-                _progressValue = 0;
-                _totalMods = 0;
-            }
-            NotifyProgressChanged(); // This will update button states via UpdateButtonStates()
-            await UpdateAuthorsAsync(_cts.Token);
-            // Final cleanup - ensure button is reset to update state
-            ResetButtonToUpdateState();
-        }
 
-        private void ResetButtonToUpdateState()
-        {
-            _isUpdatingAuthors = false;
-            NotifyProgressChanged(); // This will call UpdateButtonStates() via UpdateProgressBarUI()
-        }
 
-        private async Task UpdateAuthorsAsync(CancellationToken token)
-        {
-            try
-            {
-                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                string modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
-                
-                // Get all mod directories from all categories
-                var allModDirs = new List<string>();
-                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
-                {
-                    if (Directory.Exists(categoryDir))
-                    {
-                        allModDirs.AddRange(Directory.GetDirectories(categoryDir));
-                    }
-                }
-                
-                _totalMods = allModDirs.Count;
-                int processed = 0;
-                
-                // Process in parallel with max 5 concurrent requests
-                var semaphore = new SemaphoreSlim(5);
-                var isSmartUpdate = IsSmartUpdate;
-                var isFullUpdate = IsFullUpdate;
-                
-                var tasks = allModDirs.Select(async dir =>
-                {
-                    await semaphore.WaitAsync(token);
-                    try
-                    {
-                        if (token.IsCancellationRequested) return;
-                        
-                        var modJsonPath = Path.Combine(dir, "mod.json");
-                        var modFolderName = Path.GetFileName(dir);
-                        
-                        // Skip directories without mod.json
-                        if (!File.Exists(modJsonPath)) 
-                        { 
-                            Interlocked.Increment(ref processed);
-                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; } 
-                            NotifyProgressChanged(); 
-                            return; 
-                        }
-                        
-                        // Read mod.json through queue
-                        var json = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
-                        string? url = null;
-                        string modName = modFolderName;
-                        string currentAuthor = string.Empty;
-                        bool shouldUpdate = false;
-                        string displayName = modFolderName; // Initialize displayName outside using block
-                        
-                        using (var doc = JsonDocument.Parse(json))
-                        {
-                            var root = doc.RootElement;
-                            
-                            // Get mod name from mod.json, fallback to folder name
-                            modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString()) 
-                                ? nameProp.GetString()! 
-                                : modFolderName;
-                            
-                            // Remove DISABLED_ prefix from folder name for display
-                            var displayFolderName = modFolderName.StartsWith("DISABLED_") 
-                                ? modFolderName.Substring("DISABLED_".Length) 
-                                : modFolderName;
-                            
-                            // Use clean name for display
-                            displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
-                                ? displayNameProp.GetString()! 
-                                : displayFolderName;
-                            
-                            // Update current processing mod status
-                            SafeSetCurrentProcessingMod(displayName);
-                            NotifyProgressChanged();
-                            
-                            // Check if URL is marked as invalid and skip if option is enabled
-                            if (SkipInvalidUrlsSwitch.IsOn && root.TryGetProperty("urlInvalid", out var urlInvalidProp) && 
-                                urlInvalidProp.ValueKind == JsonValueKind.True)
-                            {
-                                SafeIncrementSkip();
-                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
-                                Interlocked.Increment(ref processed);
-                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                NotifyProgressChanged();
-                                return;
-                            }
-                            
-                            if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String || 
-                                string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com")) 
-                            { 
-                                SafeIncrementSkip(); 
-                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}"); 
-                                Interlocked.Increment(ref processed);
-                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; } 
-                                NotifyProgressChanged(); 
-                                return; 
-                            }
-                            
-                            currentAuthor = root.TryGetProperty("author", out var authorProp) ? authorProp.GetString() ?? string.Empty : string.Empty;
-                            shouldUpdate = string.IsNullOrWhiteSpace(currentAuthor) || currentAuthor.Equals("unknown", StringComparison.OrdinalIgnoreCase);
-                            url = urlProp.GetString()!;
-                        }
-                        
-                        // For smart update, skip mods that already have known authors
-                        if (isSmartUpdate && !shouldUpdate)
-                        {
-                            SafeIncrementSkip();
-                            SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "AlreadyHasAuthor")} ({currentAuthor})");
-                            Interlocked.Increment(ref processed);
-                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                            NotifyProgressChanged();
-                            return;
-                        }
-                        
-                        try
-                        {
-                            var author = await FetchAuthorFromApi(url, token);
-                            if (!string.IsNullOrWhiteSpace(author))
-                            {
-                                // Clear any previous invalid URL flag since we successfully fetched data
-                                await ClearUrlInvalidFlagAsync(modJsonPath, token);
-                                
-                                bool needsUpdate = false;
-                                if (isFullUpdate && !author.Equals(currentAuthor, StringComparison.Ordinal))
-                                {
-                                    needsUpdate = true;
-                                }
-                                else if (isSmartUpdate && shouldUpdate && !string.IsNullOrWhiteSpace(author) && !author.Equals(currentAuthor, StringComparison.Ordinal))
-                                {
-                                    needsUpdate = true;
-                                }
-                                
-                                if (needsUpdate)
-                                {
-                                    if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
-                                    {
-                                        SafeIncrementSkip();
-                                        SafeAddSkippedMod($"{displayName}: Invalid directory name");
-                                        Interlocked.Increment(ref processed);
-                                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                        NotifyProgressChanged();
-                                        return;
-                                    }
-                                    
-                                    // Atomic read-modify-write operation
-                                    await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
-                                    {
-                                        var currentJson = await File.ReadAllTextAsync(modJsonPath, token);
-                                        var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(currentJson) ?? new();
-                                        dict["author"] = author;
-                                        await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
-                                    }, token);
-                                    lock (_lockObject) { _success++; }
-                                }
-                            }
-                            else
-                            {
-                                // Mark URL as invalid when we can't fetch author data
-                                await MarkUrlAsInvalidAsync(modJsonPath, token);
-                                SafeIncrementSkip();
-                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
-                            }
-                        }
-                        catch (OperationCanceledException) { }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"Failed to fetch author for {displayName}", ex);
-                            // Mark URL as invalid on any fetch error
-                            await MarkUrlAsInvalidAsync(modJsonPath, token);
-                            SafeIncrementFail();
-                            SafeAddFailedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "AuthorFetchError")}");
-                        }
-                        
-                        Interlocked.Increment(ref processed);
-                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                        NotifyProgressChanged();
-                    }
-                    finally
-                    {
-                        SafeSetCurrentProcessingMod("");
-                        semaphore.Release();
-                    }
-                }).ToList();
-                
-                await Task.WhenAll(tasks);
-                
-                if (token.IsCancellationRequested)
-                {
-                    ResetButtonToUpdateState();
-                    var cancelDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                        Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await cancelDialog.ShowAsync();
-                    return;
-                }
-                
-                // Successful completion - reset button state and show summary
-                ResetButtonToUpdateState();
-                string summary = string.Format(SharedUtilities.GetTranslation(lang, "TotalChecked"), _totalMods) + "\n" +
-                                string.Format(SharedUtilities.GetTranslation(lang, "SuccessCount"), _success) + "\n" +
-                                string.Format(SharedUtilities.GetTranslation(lang, "SkippedCount"), _skip);
-                
-                // For smart update, only show skipped items with errors/issues (not "already has author")
-                // For full update, show all skipped items
-                List<string> skippedToShow = new List<string>();
-                if (IsSmartUpdate)
-                {
-                    // Smart update: only show skipped items that are NOT "already has author"
-                    string alreadyHasAuthorText = SharedUtilities.GetTranslation(lang, "AlreadyHasAuthor");
-                    foreach (var skipped in _skippedMods)
-                    {
-                        if (!skipped.Contains(alreadyHasAuthorText))
-                        {
-                            skippedToShow.Add(skipped);
-                        }
-                    }
-                }
-                else
-                {
-                    // Full update: show all skipped items
-                    skippedToShow = _skippedMods;
-                }
-                
-                // Add failed mods to skipped list for display
-                skippedToShow.AddRange(_failedMods);
-                
-                // Show skipped items if there are any to show
-                if (skippedToShow.Count > 0)
-                {
-                    string skippedHeader = IsSmartUpdate ? 
-                        SharedUtilities.GetTranslation(lang, "SkippedModsWithIssues") : 
-                        SharedUtilities.GetTranslation(lang, "SkippedMods");
-                    summary += "\n\n" + skippedHeader + "\n" + string.Join("\n", skippedToShow);
-                }
-                // Create scrollable content
-                var textBlock = new Microsoft.UI.Xaml.Controls.TextBlock
-                {
-                    Text = summary,
-                    TextWrapping = Microsoft.UI.Xaml.TextWrapping.Wrap,
-                    IsTextSelectionEnabled = true,
-                    Width = 500
-                };
-
-                var scrollViewer = new Microsoft.UI.Xaml.Controls.ScrollViewer
-                {
-                    Content = textBlock,
-                    VerticalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Auto,
-                    HorizontalScrollBarVisibility = Microsoft.UI.Xaml.Controls.ScrollBarVisibility.Disabled,
-                    MaxHeight = 400,
-                    Padding = new Microsoft.UI.Xaml.Thickness(10)
-                };
-
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "SummaryTitle"),
-                    Content = scrollViewer,
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
-                
-                // Reload mods to update ModListManager lists
-                var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
-                if (mainWindow != null)
-                {
-                    Logger.LogInfo("Reloading mods after author update");
-                    await mainWindow.ReloadModsAsync();
-                    Logger.LogInfo("Mods reloaded successfully");
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                ResetButtonToUpdateState();
-                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
-            }
-            catch (Exception ex)
-            {
-                ResetButtonToUpdateState();
-                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
-                    Content = ex.Message,
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
-            }
-        }
 
         /// <summary>
         /// Mark a mod's URL as invalid in mod.json
@@ -612,50 +244,6 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async Task<string?> FetchAuthorFromApi(string url, CancellationToken token)
-        {
-            try
-            {
-                // Parse GameBanana URL to extract item type and ID
-                var match = _urlPattern.Match(url);
-                if (!match.Success)
-                {
-                    Logger.LogError($"Failed to parse GameBanana URL: {url}");
-                    return null;
-                }
-
-                string itemType = match.Groups[1].Value; // e.g., "mods", "tools"
-                string itemId = match.Groups[2].Value;   // e.g., "574763"
-
-                // Capitalize first letter for API (Mod, Tool, etc.)
-                itemType = char.ToUpper(itemType[0]) + itemType.Substring(1).TrimEnd('s');
-
-                // Build API URL
-                string apiUrl = $"https://gamebanana.com/apiv11/{itemType}/{itemId}?_csvProperties=_aSubmitter";
-
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-
-                var response = await _httpClient.GetStringAsync(apiUrl, token);
-                using var doc = JsonDocument.Parse(response);
-                var root = doc.RootElement;
-
-                // Extract author name from _aSubmitter._sName
-                if (root.TryGetProperty("_aSubmitter", out var submitter) &&
-                    submitter.TryGetProperty("_sName", out var authorName))
-                {
-                    return authorName.GetString();
-                }
-
-                return null;
-            }
-            catch (Exception ex)
-            {
-                // Log as info since most failures are due to private/deleted mods or invalid URLs
-                Logger.LogInfo($"Could not fetch author from API for URL: {url} - {ex.Message}");
-                return null;
-            }
-        }
         
         /// <summary>
         /// Update button states - disable all buttons when any operation is running
@@ -666,13 +254,13 @@ namespace FlairX_Mod_Manager.Pages
             var mainLang = SharedUtilities.LoadLanguageDictionary();
             
             // Check if any operation is currently running
-            bool anyOperationRunning = _isUpdatingAuthors || _isFetchingDates || _isFetchingVersions || 
+            bool anyOperationRunning = _isFetchingVersions || 
                                      _isFetchingAllPreviews || _isFetchingMissingPreviews || _isCreatingCategoryFolders;
             
-            // Update Authors button
+            // Update All Data button (formerly Update Authors)
             if (UpdateButton != null && UpdateButtonText != null)
             {
-                if (_isUpdatingAuthors)
+                if (_isFetchingVersions)
                 {
                     UpdateButton.IsEnabled = true; // Keep enabled so user can cancel
                     UpdateButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
@@ -681,21 +269,6 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     UpdateButton.IsEnabled = !anyOperationRunning; // Disable if any other operation is running
                     UpdateButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
-                }
-            }
-            
-            // Fetch Dates button
-            if (FetchDatesButton != null && FetchDatesButtonText != null)
-            {
-                if (_isFetchingDates)
-                {
-                    FetchDatesButton.IsEnabled = true; // Keep enabled so user can cancel
-                    FetchDatesButtonText.Text = SharedUtilities.GetTranslation(mainLang, "Cancel");
-                }
-                else
-                {
-                    FetchDatesButton.IsEnabled = !anyOperationRunning; // Disable if any other operation is running
-                    FetchDatesButtonText.Text = SharedUtilities.GetTranslation(lang, "Start");
                 }
             }
             
@@ -767,7 +340,7 @@ namespace FlairX_Mod_Manager.Pages
             
             if (UpdateProgressBar != null)
             {
-                if (_isUpdatingAuthors)
+                if (_isFetchingVersions)
                 {
                     UpdateProgressBar.Visibility = Visibility.Visible;
                     UpdateProgressBar.IsIndeterminate = false;
@@ -797,42 +370,6 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         UpdateProgressStatusText.Visibility = Visibility.Collapsed;
                         UpdateProgressStatusText.Text = "";
-                    }
-                }
-            }
-            
-            if (FetchDatesProgressBar != null)
-            {
-                if (_isFetchingDates)
-                {
-                    FetchDatesProgressBar.Visibility = Visibility.Visible;
-                    FetchDatesProgressBar.IsIndeterminate = false;
-                    FetchDatesProgressBar.Value = _progressValue * 100;
-                    
-                    // Update status text
-                    if (FetchDatesStatusText != null)
-                    {
-                        FetchDatesStatusText.Visibility = Visibility.Visible;
-                        if (!string.IsNullOrEmpty(_currentProcessingMod))
-                        {
-                            FetchDatesStatusText.Text = _currentProcessingMod;
-                        }
-                        else
-                        {
-                            FetchDatesStatusText.Text = "";
-                        }
-                    }
-                }
-                else
-                {
-                    FetchDatesProgressBar.Value = 0;
-                    FetchDatesProgressBar.IsIndeterminate = false;
-                    FetchDatesProgressBar.Visibility = Visibility.Collapsed;
-                    
-                    if (FetchDatesStatusText != null)
-                    {
-                        FetchDatesStatusText.Visibility = Visibility.Collapsed;
-                        FetchDatesStatusText.Text = "";
                     }
                 }
             }
@@ -1047,32 +584,32 @@ namespace FlairX_Mod_Manager.Pages
         public bool IsSmartUpdate => CurrentUpdateMode == UpdateMode.Smart;
         public bool IsFullUpdate => CurrentUpdateMode == UpdateMode.Full;
 
-        // Fetch Dates functionality
-        private CancellationTokenSource? _ctsDates;
+        // Update All Data functionality (Authors + Versions + Dates)
+        private CancellationTokenSource? _ctsUpdate;
 
-        private async void FetchDatesButton_Click(object sender, RoutedEventArgs e)
+        private async void UpdateButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                await FetchDatesButtonClickAsync();
+                await UpdateButtonClickAsync();
             }
             catch (Exception ex)
             {
-                Logger.LogError("Error in FetchDatesButton_Click", ex);
-                ResetDatesButtonToFetchState();
+                Logger.LogError("Error in UpdateButton_Click", ex);
+                ResetUpdateButtonToFetchState();
             }
         }
 
-        private async Task FetchDatesButtonClickAsync()
+        private async Task UpdateButtonClickAsync()
         {
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
             var mainLang = SharedUtilities.LoadLanguageDictionary();
 
-            if (_isFetchingDates)
+            if (_isFetchingVersions)
             {
-                _ctsDates?.Cancel();
-                _isFetchingDates = false;
-                ResetDatesButtonToFetchState();
+                _ctsUpdate?.Cancel();
+                _isFetchingVersions = false;
+                ResetUpdateButtonToFetchState();
                 var cancelDialog = new ContentDialog
                 {
                     Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
@@ -1083,12 +620,12 @@ namespace FlairX_Mod_Manager.Pages
                 await cancelDialog.ShowAsync();
                 return;
             }
-            
+
             // Add confirmation dialog
             var confirmDialog = new ContentDialog
             {
-                Title = SharedUtilities.GetTranslation(lang, "FetchDatesButton"),
-                Content = SharedUtilities.GetTranslation(lang, "ConfirmFetchDates"),
+                Title = SharedUtilities.GetTranslation(lang, "FetchAllDataButton"),
+                Content = SharedUtilities.GetTranslation(lang, "ConfirmFetchAllData"),
                 PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
                 CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
                 XamlRoot = this.XamlRoot
@@ -1099,8 +636,8 @@ namespace FlairX_Mod_Manager.Pages
                 return;
             }
 
-            _ctsDates = new CancellationTokenSource();
-            _isFetchingDates = true;
+            _ctsUpdate = new CancellationTokenSource();
+            _isFetchingVersions = true;
             lock (_lockObject)
             {
                 _success = 0; _fail = 0; _skip = 0;
@@ -1109,172 +646,40 @@ namespace FlairX_Mod_Manager.Pages
                 _progressValue = 0;
                 _totalMods = 0;
             }
-            NotifyProgressChanged(); // This will update button states via UpdateButtonStates()
-            await FetchDatesAsync(_ctsDates.Token);
-            ResetDatesButtonToFetchState();
+            NotifyProgressChanged();
+            await UpdateAllDataAsync(_ctsUpdate.Token);
+            ResetUpdateButtonToFetchState();
         }
 
-        private void ResetDatesButtonToFetchState()
+        private void ResetUpdateButtonToFetchState()
         {
-            _isFetchingDates = false;
-            NotifyProgressChanged(); // This will call UpdateButtonStates() via UpdateProgressBarUI()
+            _isFetchingVersions = false;
+            NotifyProgressChanged();
         }
 
-        private async Task FetchDatesAsync(CancellationToken token)
+        private async Task UpdateAllDataAsync(CancellationToken token)
         {
             try
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                string modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
+                
+                var (success, failed, skipped, failedMods, skippedMods) = 
+                    await Services.GameBananaAutoUpdateService.FetchAllDataAsync(token, silent: false, smartUpdate: IsSmartUpdate);
 
-                var allModDirs = new List<string>();
-                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                lock (_lockObject)
                 {
-                    if (Directory.Exists(categoryDir))
-                    {
-                        allModDirs.AddRange(Directory.GetDirectories(categoryDir));
-                    }
+                    _success = success;
+                    _fail = failed;
+                    _skip = skipped;
+                    _failedMods.Clear();
+                    _failedMods.AddRange(failedMods);
+                    _skippedMods.Clear();
+                    _skippedMods.AddRange(skippedMods);
                 }
-
-                _totalMods = allModDirs.Count;
-                int processed = 0;
-
-                // Process in parallel with max 5 concurrent requests
-                var semaphore = new SemaphoreSlim(5);
-                var tasks = allModDirs.Select(async dir =>
-                {
-                    await semaphore.WaitAsync(token);
-                    try
-                    {
-                        if (token.IsCancellationRequested) return;
-
-                        var modJsonPath = Path.Combine(dir, "mod.json");
-                        var modFolderName = Path.GetFileName(dir);
-
-                        if (!File.Exists(modJsonPath))
-                        {
-                            Interlocked.Increment(ref processed);
-                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                            NotifyProgressChanged();
-                            return;
-                        }
-
-                        // Read mod.json to get URL (quick read, no queue needed for read-only)
-                        var json = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
-                        string? url = null;
-                        string modName = modFolderName;
-                        string displayName = modFolderName; // Initialize displayName outside using block
-                        
-                        using (var doc = JsonDocument.Parse(json))
-                        {
-                            var root = doc.RootElement;
-
-                            modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
-                                ? nameProp.GetString()!
-                                : modFolderName;
-
-                            // Remove DISABLED_ prefix from folder name for display
-                            var displayFolderName = modFolderName.StartsWith("DISABLED_") 
-                                ? modFolderName.Substring("DISABLED_".Length) 
-                                : modFolderName;
-                            
-                            // Use clean name for display
-                            displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
-                                ? displayNameProp.GetString()! 
-                                : displayFolderName;
-                            
-                            // Update current processing mod status
-                            SafeSetCurrentProcessingMod(displayName);
-                            NotifyProgressChanged();
-
-                            // Check if URL is marked as invalid and skip if option is enabled
-                            if (SkipInvalidUrlsSwitch.IsOn && root.TryGetProperty("urlInvalid", out var urlInvalidProp) && 
-                                urlInvalidProp.ValueKind == JsonValueKind.True)
-                            {
-                                SafeIncrementSkip();
-                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
-                                Interlocked.Increment(ref processed);
-                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                NotifyProgressChanged();
-                                return;
-                            }
-
-                            if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
-                                string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
-                            {
-                                SafeIncrementSkip();
-                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
-                                Interlocked.Increment(ref processed);
-                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                NotifyProgressChanged();
-                                return;
-                            }
-
-                            url = urlProp.GetString()!;
-                        }
-
-                        try
-                        {
-                            var dateUpdated = await FetchDateFromApi(url, token);
-                            if (!string.IsNullOrWhiteSpace(dateUpdated))
-                            {
-                                // Clear any previous invalid URL flag since we successfully fetched data
-                                await ClearUrlInvalidFlagAsync(modJsonPath, token);
-                                
-                                if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
-                                {
-                                    SafeIncrementSkip();
-                                    SafeAddSkippedMod($"{displayName}: Invalid directory name");
-                                    Interlocked.Increment(ref processed);
-                                    lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                    NotifyProgressChanged();
-                                    return;
-                                }
-
-                                // Atomic read-modify-write operation
-                                await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
-                                {
-                                    var currentJson = await File.ReadAllTextAsync(modJsonPath, token);
-                                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(currentJson) ?? new();
-                                    dict["gbChangeDate"] = dateUpdated;
-                                    await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
-                                }, token);
-                                SafeIncrementSuccess();
-                            }
-                            else
-                            {
-                                // Mark URL as invalid when we can't fetch date data
-                                await MarkUrlAsInvalidAsync(modJsonPath, token);
-                                SafeIncrementSkip();
-                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
-                            }
-                        }
-                        catch (OperationCanceledException) { }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"Failed to fetch date for {displayName}", ex);
-                            // Mark URL as invalid on any fetch error
-                            await MarkUrlAsInvalidAsync(modJsonPath, token);
-                            SafeIncrementFail();
-                            SafeAddFailedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "AuthorFetchError")}");
-                        }
-
-                        Interlocked.Increment(ref processed);
-                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                        NotifyProgressChanged();
-                    }
-                    finally
-                    {
-                        SafeSetCurrentProcessingMod("");
-                        semaphore.Release();
-                    }
-                }).ToList();
-
-                await Task.WhenAll(tasks);
 
                 if (token.IsCancellationRequested)
                 {
-                    ResetDatesButtonToFetchState();
+                    ResetUpdateButtonToFetchState();
                     var cancelDialog = new ContentDialog
                     {
                         Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
@@ -1286,17 +691,42 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
 
-                ResetDatesButtonToFetchState();
-                string summary = $"Łącznie sprawdzono: {_totalMods}\n" +
-                                $"Pomyślnie zaktualizowano: {_success}\n" +
-                                $"Pominięto: {_skip}";
+                ResetUpdateButtonToFetchState();
+                string summary = string.Format(SharedUtilities.GetTranslation(lang, "TotalChecked"), _success + _fail + _skip) + "\n" +
+                                string.Format(SharedUtilities.GetTranslation(lang, "SuccessCount"), _success) + "\n" +
+                                string.Format(SharedUtilities.GetTranslation(lang, "SkippedCount"), _skip);
 
-                if (_failedMods.Count > 0 || _skippedMods.Count > 0)
+                // For smart update, only show skipped items with errors/issues (not "already has author")
+                // For full update, show all skipped items
+                List<string> skippedToShow = new List<string>();
+                if (IsSmartUpdate)
                 {
-                    var allIssues = new List<string>();
-                    allIssues.AddRange(_skippedMods);
-                    allIssues.AddRange(_failedMods);
-                    summary += "\n\nMody z problemami:\n" + string.Join("\n", allIssues);
+                    // Smart update: only show skipped items that are NOT "already has author"
+                    string alreadyHasAuthorText = SharedUtilities.GetTranslation(lang, "AlreadyHasAuthor");
+                    foreach (var skipped in _skippedMods)
+                    {
+                        if (!skipped.Contains(alreadyHasAuthorText))
+                        {
+                            skippedToShow.Add(skipped);
+                        }
+                    }
+                }
+                else
+                {
+                    // Full update: show all skipped items
+                    skippedToShow = _skippedMods;
+                }
+
+                // Add failed mods to skipped list for display
+                skippedToShow.AddRange(_failedMods);
+
+                // Show skipped items if there are any to show
+                if (skippedToShow.Count > 0)
+                {
+                    string skippedHeader = IsSmartUpdate ? 
+                        SharedUtilities.GetTranslation(lang, "SkippedModsWithIssues") : 
+                        SharedUtilities.GetTranslation(lang, "SkippedMods");
+                    summary += "\n\n" + skippedHeader + "\n" + string.Join("\n", skippedToShow);
                 }
 
                 var textBlock = new TextBlock
@@ -1318,7 +748,7 @@ namespace FlairX_Mod_Manager.Pages
 
                 var dialog = new ContentDialog
                 {
-                    Title = "Podsumowanie pobierania dat",
+                    Title = SharedUtilities.GetTranslation(lang, "AllDataSummaryTitle"),
                     Content = scrollViewer,
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
@@ -1329,14 +759,14 @@ namespace FlairX_Mod_Manager.Pages
                 var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
                 if (mainWindow != null)
                 {
-                    Logger.LogInfo("Reloading mods after dates update");
+                    Logger.LogInfo("Reloading mods after all data update");
                     await mainWindow.ReloadModsAsync();
                     Logger.LogInfo("Mods reloaded successfully");
                 }
             }
             catch (OperationCanceledException)
             {
-                ResetDatesButtonToFetchState();
+                ResetUpdateButtonToFetchState();
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
                 var dialog = new ContentDialog
                 {
@@ -1349,10 +779,11 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                ResetDatesButtonToFetchState();
+                ResetUpdateButtonToFetchState();
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
                 var dialog = new ContentDialog
                 {
-                    Title = "Błąd",
+                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
                     Content = ex.Message,
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
@@ -1361,60 +792,12 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async Task<string?> FetchDateFromApi(string url, CancellationToken token)
-        {
-            try
-            {
-                var match = _urlPattern.Match(url);
-                if (!match.Success)
-                {
-                    Logger.LogError($"Failed to parse GameBanana URL: {url}");
-                    return null;
-                }
+        // Fetch Versions functionality
 
-                string itemType = match.Groups[1].Value;
-                string itemId = match.Groups[2].Value;
-                itemType = char.ToUpper(itemType[0]) + itemType.Substring(1).TrimEnd('s');
 
-                string apiUrl = $"https://gamebanana.com/apiv11/{itemType}/{itemId}?_csvProperties=_tsDateUpdated,_tsDateAdded";
 
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
 
-                var response = await _httpClient.GetStringAsync(apiUrl, token);
-                using var doc = JsonDocument.Parse(response);
-                var root = doc.RootElement;
 
-                // Try _tsDateUpdated first, fallback to _tsDateAdded
-                long timestamp = 0;
-                if (root.TryGetProperty("_tsDateUpdated", out var dateUpdated) && dateUpdated.ValueKind == JsonValueKind.Number)
-                {
-                    timestamp = dateUpdated.GetInt64();
-                }
-                
-                // Fallback to _tsDateAdded if _tsDateUpdated is 0 or missing
-                if (timestamp == 0 && root.TryGetProperty("_tsDateAdded", out var dateAdded) && dateAdded.ValueKind == JsonValueKind.Number)
-                {
-                    timestamp = dateAdded.GetInt64();
-                }
-
-                if (timestamp > 0)
-                {
-                    var date = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime;
-                    var result = date.ToString("yyyy-MM-dd");
-                    Logger.LogInfo($"FetchDateFromApi: URL={url}, timestamp={timestamp}, date={result}");
-                    return result;
-                }
-
-                Logger.LogWarning($"FetchDateFromApi: No valid timestamp found for URL={url}");
-                return null;
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Failed to fetch date from API for URL: {url}", ex);
-                return null;
-            }
-        }
 
         // Fetch Versions functionality
         private CancellationTokenSource? _ctsVersions;
@@ -1457,8 +840,8 @@ namespace FlairX_Mod_Manager.Pages
             // Add confirmation dialog
             var confirmDialog = new ContentDialog
             {
-                Title = SharedUtilities.GetTranslation(lang, "FetchVersionsButton"),
-                Content = SharedUtilities.GetTranslation(lang, "ConfirmFetchVersions"),
+                Title = SharedUtilities.GetTranslation(lang, "FetchVersionsAndDatesButton"),
+                Content = SharedUtilities.GetTranslation(lang, "ConfirmFetchVersionsAndDates"),
                 PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
                 CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
                 XamlRoot = this.XamlRoot
@@ -1480,7 +863,7 @@ namespace FlairX_Mod_Manager.Pages
                 _totalMods = 0;
             }
             NotifyProgressChanged(); // This will update button states via UpdateButtonStates()
-            await FetchVersionsAsync(_ctsVersions.Token);
+            await FetchVersionsAndDatesAsync(_ctsVersions.Token);
             ResetVersionsButtonToFetchState();
         }
 
@@ -1490,151 +873,25 @@ namespace FlairX_Mod_Manager.Pages
             NotifyProgressChanged(); // This will call UpdateButtonStates() via UpdateProgressBarUI()
         }
 
-        private async Task FetchVersionsAsync(CancellationToken token)
+        private async Task FetchVersionsAndDatesAsync(CancellationToken token)
         {
             try
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                string modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
+                
+                var (success, failed, skipped, failedMods, skippedMods) = 
+                    await Services.GameBananaAutoUpdateService.FetchVersionsAndDatesAsync(token, silent: false);
 
-                var allModDirs = new List<string>();
-                foreach (var categoryDir in Directory.GetDirectories(modLibraryPath))
+                lock (_lockObject)
                 {
-                    if (Directory.Exists(categoryDir))
-                    {
-                        allModDirs.AddRange(Directory.GetDirectories(categoryDir));
-                    }
+                    _success = success;
+                    _fail = failed;
+                    _skip = skipped;
+                    _failedMods.Clear();
+                    _failedMods.AddRange(failedMods);
+                    _skippedMods.Clear();
+                    _skippedMods.AddRange(skippedMods);
                 }
-
-                _totalMods = allModDirs.Count;
-                int processed = 0;
-
-                // Process in parallel with max 5 concurrent requests
-                var semaphore = new SemaphoreSlim(5);
-                var tasks = allModDirs.Select(async dir =>
-                {
-                    await semaphore.WaitAsync(token);
-                    try
-                    {
-                        if (token.IsCancellationRequested) return;
-
-                        var modJsonPath = Path.Combine(dir, "mod.json");
-                        var modFolderName = Path.GetFileName(dir);
-
-                        if (!File.Exists(modJsonPath))
-                        {
-                            Interlocked.Increment(ref processed);
-                            lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                            NotifyProgressChanged();
-                            return;
-                        }
-
-                        // Read mod.json through queue
-                        var json = await Services.FileAccessQueue.ReadAllTextAsync(modJsonPath, token);
-                        string? url = null;
-                        string modName = modFolderName;
-                        string displayName = modFolderName; // Initialize displayName outside using block
-                        
-                        using (var doc = JsonDocument.Parse(json))
-                        {
-                            var root = doc.RootElement;
-
-                            modName = root.TryGetProperty("name", out var nameProp) && !string.IsNullOrWhiteSpace(nameProp.GetString())
-                                ? nameProp.GetString()!
-                                : modFolderName;
-
-                            // Remove DISABLED_ prefix from folder name for display
-                            var displayFolderName = modFolderName.StartsWith("DISABLED_") 
-                                ? modFolderName.Substring("DISABLED_".Length) 
-                                : modFolderName;
-                            
-                            // Use clean name for display
-                            displayName = root.TryGetProperty("name", out var displayNameProp) && !string.IsNullOrWhiteSpace(displayNameProp.GetString()) 
-                                ? displayNameProp.GetString()! 
-                                : displayFolderName;
-                            
-                            // Update current processing mod status
-                            SafeSetCurrentProcessingMod(displayName);
-                            NotifyProgressChanged();
-
-                            // Check if URL is marked as invalid and skip if option is enabled
-                            if (SkipInvalidUrlsSwitch.IsOn && root.TryGetProperty("urlInvalid", out var urlInvalidProp) && 
-                                urlInvalidProp.ValueKind == JsonValueKind.True)
-                            {
-                                SafeIncrementSkip();
-                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
-                                Interlocked.Increment(ref processed);
-                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                SafeSetCurrentProcessingMod("");
-                                NotifyProgressChanged();
-                                return;
-                            }
-
-                            if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
-                                string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
-                            {
-                                SafeIncrementSkip();
-                                SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "InvalidUrl")}");
-                                Interlocked.Increment(ref processed);
-                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                SafeSetCurrentProcessingMod("");
-                                NotifyProgressChanged();
-                                return;
-                            }
-
-                            url = urlProp.GetString()!;
-                        }
-
-                        try
-                        {
-                            var version = await FetchVersionFromApi(url, token);
-                            
-                            // Clear any previous invalid URL flag since we successfully fetched data (even if version is empty)
-                            await ClearUrlInvalidFlagAsync(modJsonPath, token);
-                            
-                            if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
-                            {
-                                SafeIncrementSkip();
-                                SafeAddSkippedMod($"{displayName}: Invalid directory name");
-                                Interlocked.Increment(ref processed);
-                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                NotifyProgressChanged();
-                                return;
-                            }
-
-                            // Atomic read-modify-write operation
-                            await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
-                            {
-                                var currentJson = await File.ReadAllTextAsync(modJsonPath, token);
-                                var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(currentJson) ?? new();
-                                // Use space if version is null/empty, otherwise use the fetched version
-                                dict["version"] = string.IsNullOrWhiteSpace(version) ? " " : version;
-                                await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
-                            }, token);
-                            SafeIncrementSuccess();
-                        }
-                        catch (OperationCanceledException) { }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"Failed to fetch version for {displayName}", ex);
-                            // Mark URL as invalid on any fetch error
-                            await MarkUrlAsInvalidAsync(modJsonPath, token);
-                            SafeIncrementFail();
-                            SafeAddFailedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "VersionFetchError")}");
-                        }
-
-                        Interlocked.Increment(ref processed);
-                        lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                        NotifyProgressChanged();
-                    }
-                    finally
-                    {
-                        SafeSetCurrentProcessingMod("");
-                        semaphore.Release();
-                    }
-                }).ToList();
-
-                await Task.WhenAll(tasks);
 
                 if (token.IsCancellationRequested)
                 {
@@ -1651,7 +908,7 @@ namespace FlairX_Mod_Manager.Pages
                 }
 
                 ResetVersionsButtonToFetchState();
-                string summary = string.Format(SharedUtilities.GetTranslation(lang, "TotalChecked"), _totalMods) + "\n" +
+                string summary = string.Format(SharedUtilities.GetTranslation(lang, "TotalChecked"), _success + _fail + _skip) + "\n" +
                                 string.Format(SharedUtilities.GetTranslation(lang, "SuccessCount"), _success) + "\n" +
                                 string.Format(SharedUtilities.GetTranslation(lang, "SkippedCount"), _skip);
 
@@ -1682,7 +939,7 @@ namespace FlairX_Mod_Manager.Pages
 
                 var dialog = new ContentDialog
                 {
-                    Title = SharedUtilities.GetTranslation(lang, "VersionSummaryTitle"),
+                    Title = SharedUtilities.GetTranslation(lang, "VersionAndDatesSummaryTitle"),
                     Content = scrollViewer,
                     CloseButtonText = "OK",
                     XamlRoot = this.XamlRoot
@@ -1693,7 +950,7 @@ namespace FlairX_Mod_Manager.Pages
                 var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
                 if (mainWindow != null)
                 {
-                    Logger.LogInfo("Reloading mods after versions update");
+                    Logger.LogInfo("Reloading mods after versions and dates update");
                     await mainWindow.ReloadModsAsync();
                     Logger.LogInfo("Mods reloaded successfully");
                 }
@@ -2674,6 +1931,40 @@ namespace FlairX_Mod_Manager.Pages
                     XamlRoot = this.XamlRoot
                 };
                 await dialog.ShowAsync();
+            }
+        }
+
+        private void LoadSettings()
+        {
+            AutoUpdateEnabledSwitch.IsOn = SettingsManager.Current.GameBananaAutoUpdateEnabled;
+            
+            // Set interval TextBox
+            var intervalDays = SettingsManager.Current.GameBananaAutoUpdateIntervalDays;
+            AutoUpdateIntervalTextBox.Text = intervalDays.ToString();
+            
+            SkipInvalidUrlsSwitch.IsOn = SettingsManager.Current.GameBananaSkipInvalidUrls;
+        }
+
+        private void AutoUpdateEnabledSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.GameBananaAutoUpdateEnabled = AutoUpdateEnabledSwitch.IsOn;
+            SettingsManager.Save();
+        }
+
+        private void AutoUpdateIntervalTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (int.TryParse(AutoUpdateIntervalTextBox.Text, out int days) && days >= 1 && days <= 365)
+            {
+                SettingsManager.Current.GameBananaAutoUpdateIntervalDays = days;
+                SettingsManager.Save();
+                
+                // Remove any error styling
+                AutoUpdateIntervalTextBox.BorderBrush = null;
+            }
+            else if (!string.IsNullOrEmpty(AutoUpdateIntervalTextBox.Text))
+            {
+                // Add error styling for invalid input
+                AutoUpdateIntervalTextBox.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red);
             }
         }
 
