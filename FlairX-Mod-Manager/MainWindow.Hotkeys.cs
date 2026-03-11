@@ -205,7 +205,6 @@ namespace FlairX_Mod_Manager
                     ? SettingsManager.GetShuffleExcludedCategories(gameTag) 
                     : new List<string>();
                 
-                var random = new Random();
                 var newActiveMods = new Dictionary<string, bool>();
                 var selectedMods = new List<string>();
                 
@@ -282,7 +281,7 @@ namespace FlairX_Mod_Manager
                     if (disabledMods.Count > 0)
                     {
                         // Select random mod
-                        var randomModDir = disabledMods[random.Next(disabledMods.Count)];
+                        var randomModDir = disabledMods[Random.Shared.Next(disabledMods.Count)];
                         var modFolderName = Path.GetFileName(randomModDir);
                         var cleanName = modFolderName.Substring("DISABLED_".Length);
                         
