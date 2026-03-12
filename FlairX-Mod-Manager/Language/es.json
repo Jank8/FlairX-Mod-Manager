@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Mover",
     "SettingsPage_ConflictExcludedCategories_Label": "Categorías excluidas de conflictos",
     "SettingsPage_ConflictExcludedCategories_Description": "Excluir categorías de la detección de conflictos (todos los mods permanecen activos)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Seleccionar categoría para excluir..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Seleccionar categoría para excluir...",
+    "ContextMenu_DeleteCategory": "Eliminar",
+    "CategoryDelete_Title": "Eliminar categoría",
+    "CategoryDelete_Warning": "¿Está seguro de que desea eliminar la categoría '{0}'?\n\nEsto eliminará permanentemente la carpeta de la categoría y todos los {1} mod(s) que contiene.\n\nEsta acción no se puede deshacer.",
+    "CategoryDelete_Confirm": "Sí, estoy seguro",
+    "CategoryDelete_Delete": "Eliminar",
+    "CategoryDelete_Cancel": "Cancelar"
 }

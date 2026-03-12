@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Mută",
     "SettingsPage_ConflictExcludedCategories_Label": "Categorii excluse din conflicte",
     "SettingsPage_ConflictExcludedCategories_Description": "Exclude categorii din detectarea conflictelor (toate modurile rămân active)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Selectați categoria de exclus..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Selectați categoria de exclus...",
+    "ContextMenu_DeleteCategory": "Șterge",
+    "CategoryDelete_Title": "Șterge categoria",
+    "CategoryDelete_Warning": "Sigur doriți să ștergeți categoria '{0}'?\n\nAceasta va șterge permanent folderul categoriei și toate cele {1} mod(uri) din el.\n\nAceastă acțiune nu poate fi anulată.",
+    "CategoryDelete_Confirm": "Da, sunt sigur",
+    "CategoryDelete_Delete": "Șterge",
+    "CategoryDelete_Cancel": "Anulează"
 }

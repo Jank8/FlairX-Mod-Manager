@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Pindahkan",
     "SettingsPage_ConflictExcludedCategories_Label": "Kategori Dikecualikan dari Konflik",
     "SettingsPage_ConflictExcludedCategories_Description": "Kecualikan kategori dari deteksi konflik (semua mod tetap aktif)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Pilih kategori untuk dikecualikan..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Pilih kategori untuk dikecualikan...",
+    "ContextMenu_DeleteCategory": "Hapus",
+    "CategoryDelete_Title": "Hapus Kategori",
+    "CategoryDelete_Warning": "Apakah Anda yakin ingin menghapus kategori '{0}'?\n\nIni akan menghapus folder kategori secara permanen dan semua {1} mod di dalamnya.\n\nTindakan ini tidak dapat dibatalkan.",
+    "CategoryDelete_Confirm": "Ya, saya yakin",
+    "CategoryDelete_Delete": "Hapus",
+    "CategoryDelete_Cancel": "Batal"
 }

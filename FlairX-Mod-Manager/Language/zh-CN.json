@@ -346,5 +346,11 @@
     "ContextMenu_Move": "移动",
     "SettingsPage_ConflictExcludedCategories_Label": "冲突排除类别",
     "SettingsPage_ConflictExcludedCategories_Description": "从冲突检测中排除类别（所有模组保持活动状态）",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "选择要排除的类别..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "选择要排除的类别...",
+    "ContextMenu_DeleteCategory": "删除",
+    "CategoryDelete_Title": "删除类别",
+    "CategoryDelete_Warning": "您确定要删除类别'{0}'吗？\n\n这将永久删除类别文件夹及其中的所有{1}个模组。\n\n此操作无法撤消。",
+    "CategoryDelete_Confirm": "是的，我确定",
+    "CategoryDelete_Delete": "删除",
+    "CategoryDelete_Cancel": "取消"
 }

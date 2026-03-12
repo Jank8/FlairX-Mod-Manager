@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Ilipat",
     "SettingsPage_ConflictExcludedCategories_Label": "Mga kategoryang hindi kasama sa conflict",
     "SettingsPage_ConflictExcludedCategories_Description": "Ibukod ang mga kategorya mula sa conflict detection (lahat ng mods ay nananatiling aktibo)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Pumili ng kategorya na ibubukod..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Pumili ng kategorya na ibubukod...",
+    "ContextMenu_DeleteCategory": "Tanggalin",
+    "CategoryDelete_Title": "Tanggalin ang kategorya",
+    "CategoryDelete_Warning": "Sigurado ka bang gusto mong tanggalin ang kategorya '{0}'?\n\nPermanenteng tatanggalin nito ang folder ng kategorya at lahat ng {1} mod(s) dito.\n\nHindi na maaaring bawiin ang aksyong ito.",
+    "CategoryDelete_Confirm": "Oo, sigurado ako",
+    "CategoryDelete_Delete": "Tanggalin",
+    "CategoryDelete_Cancel": "Kanselahin"
 }

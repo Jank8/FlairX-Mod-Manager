@@ -346,5 +346,11 @@
     "ContextMenu_Move": "移動",
     "SettingsPage_ConflictExcludedCategories_Label": "競合除外カテゴリ",
     "SettingsPage_ConflictExcludedCategories_Description": "競合検出からカテゴリを除外（すべてのModがアクティブのまま）",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "除外するカテゴリを選択..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "除外するカテゴリを選択...",
+    "ContextMenu_DeleteCategory": "削除",
+    "CategoryDelete_Title": "カテゴリを削除",
+    "CategoryDelete_Warning": "カテゴリ'{0}'を削除してもよろしいですか？\n\nこれにより、カテゴリフォルダとその中のすべての{1}個のModが完全に削除されます。\n\nこの操作は元に戻せません。",
+    "CategoryDelete_Confirm": "はい、確かです",
+    "CategoryDelete_Delete": "削除",
+    "CategoryDelete_Cancel": "キャンセル"
 }

@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Přesunout",
     "SettingsPage_ConflictExcludedCategories_Label": "Kategorie vyloučené z konfliktů",
     "SettingsPage_ConflictExcludedCategories_Description": "Vyloučit kategorie z detekce konfliktů (všechny mody zůstanou aktivní)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Vyberte kategorii k vyloučení..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Vyberte kategorii k vyloučení...",
+    "ContextMenu_DeleteCategory": "Smazat",
+    "CategoryDelete_Title": "Smazat kategorii",
+    "CategoryDelete_Warning": "Opravdu chcete smazat kategorii '{0}'?\n\nTímto trvale smažete složku kategorie a všechny {1} mod(y) v ní.\n\nTuto akci nelze vrátit zpět.",
+    "CategoryDelete_Confirm": "Ano, jsem si jistý",
+    "CategoryDelete_Delete": "Smazat",
+    "CategoryDelete_Cancel": "Zrušit"
 }

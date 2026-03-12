@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Перемістити",
     "SettingsPage_ConflictExcludedCategories_Label": "Категорії виключені з конфліктів",
     "SettingsPage_ConflictExcludedCategories_Description": "Виключити категорії з виявлення конфліктів (всі моди залишаються активними)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Виберіть категорію для виключення..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Виберіть категорію для виключення...",
+    "ContextMenu_DeleteCategory": "Видалити",
+    "CategoryDelete_Title": "Видалити категорію",
+    "CategoryDelete_Warning": "Ви впевнені, що хочете видалити категорію '{0}'?\n\nЦе назавжди видалить папку категорії та всі {1} мод(ів) у ній.\n\nЦю дію не можна скасувати.",
+    "CategoryDelete_Confirm": "Так, я впевнений",
+    "CategoryDelete_Delete": "Видалити",
+    "CategoryDelete_Cancel": "Скасувати"
 }

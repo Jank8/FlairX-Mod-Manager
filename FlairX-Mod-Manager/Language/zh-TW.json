@@ -346,5 +346,11 @@
     "ContextMenu_Move": "移動",
     "SettingsPage_ConflictExcludedCategories_Label": "衝突排除類別",
     "SettingsPage_ConflictExcludedCategories_Description": "從衝突檢測中排除類別（所有模組保持活動狀態）",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "選擇要排除的類別..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "選擇要排除的類別...",
+    "ContextMenu_DeleteCategory": "刪除",
+    "CategoryDelete_Title": "刪除類別",
+    "CategoryDelete_Warning": "您確定要刪除類別'{0}'嗎？\n\n這將永久刪除類別資料夾及其中的所有{1}個模組。\n\n此操作無法復原。",
+    "CategoryDelete_Confirm": "是的，我確定",
+    "CategoryDelete_Delete": "刪除",
+    "CategoryDelete_Cancel": "取消"
 }

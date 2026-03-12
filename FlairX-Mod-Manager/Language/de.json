@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Verschieben",
     "SettingsPage_ConflictExcludedCategories_Label": "Konflikt-ausgeschlossene Kategorien",
     "SettingsPage_ConflictExcludedCategories_Description": "Kategorien von Konflikterkennung ausschließen (alle Mods bleiben aktiv)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Kategorie zum Ausschließen wählen..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Kategorie zum Ausschließen wählen...",
+    "ContextMenu_DeleteCategory": "Löschen",
+    "CategoryDelete_Title": "Kategorie löschen",
+    "CategoryDelete_Warning": "Möchten Sie die Kategorie '{0}' wirklich löschen?\n\nDadurch wird der Kategorieordner und alle {1} Mod(s) darin dauerhaft gelöscht.\n\nDieser Vorgang kann nicht rückgängig gemacht werden.",
+    "CategoryDelete_Confirm": "Ja, ich bin sicher",
+    "CategoryDelete_Delete": "Löschen",
+    "CategoryDelete_Cancel": "Abbrechen"
 }

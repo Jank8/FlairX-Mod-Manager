@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Verplaatsen",
     "SettingsPage_ConflictExcludedCategories_Label": "Conflict-uitgesloten categorieën",
     "SettingsPage_ConflictExcludedCategories_Description": "Sluit categorieën uit van conflictdetectie (alle mods blijven actief)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Selecteer categorie om uit te sluiten..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Selecteer categorie om uit te sluiten...",
+    "ContextMenu_DeleteCategory": "Verwijderen",
+    "CategoryDelete_Title": "Categorie verwijderen",
+    "CategoryDelete_Warning": "Weet u zeker dat u de categorie '{0}' wilt verwijderen?\n\nDit zal de categoriemap en alle {1} mod(s) erin permanent verwijderen.\n\nDeze actie kan niet ongedaan worden gemaakt.",
+    "CategoryDelete_Confirm": "Ja, ik weet het zeker",
+    "CategoryDelete_Delete": "Verwijderen",
+    "CategoryDelete_Cancel": "Annuleren"
 }

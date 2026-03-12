@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Áthelyezés",
     "SettingsPage_ConflictExcludedCategories_Label": "Konfliktusból kizárt kategóriák",
     "SettingsPage_ConflictExcludedCategories_Description": "Kategóriák kizárása a konfliktusészlelésből (minden mod aktív marad)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Válasszon kizárandó kategóriát..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Válasszon kizárandó kategóriát...",
+    "ContextMenu_DeleteCategory": "Törlés",
+    "CategoryDelete_Title": "Kategória törlése",
+    "CategoryDelete_Warning": "Biztosan törölni szeretné a(z) '{0}' kategóriát?\n\nEz véglegesen törli a kategória mappát és az összes {1} modot benne.\n\nEz a művelet nem vonható vissza.",
+    "CategoryDelete_Confirm": "Igen, biztos vagyok benne",
+    "CategoryDelete_Delete": "Törlés",
+    "CategoryDelete_Cancel": "Mégse"
 }

@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Di chuyển",
     "SettingsPage_ConflictExcludedCategories_Label": "Danh mục loại trừ khỏi xung đột",
     "SettingsPage_ConflictExcludedCategories_Description": "Loại trừ danh mục khỏi phát hiện xung đột (tất cả mod vẫn hoạt động)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Chọn danh mục để loại trừ..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Chọn danh mục để loại trừ...",
+    "ContextMenu_DeleteCategory": "Xóa",
+    "CategoryDelete_Title": "Xóa danh mục",
+    "CategoryDelete_Warning": "Bạn có chắc chắn muốn xóa danh mục '{0}' không?\n\nĐiều này sẽ xóa vĩnh viễn thư mục danh mục và tất cả {1} mod trong đó.\n\nHành động này không thể hoàn tác.",
+    "CategoryDelete_Confirm": "Có, tôi chắc chắn",
+    "CategoryDelete_Delete": "Xóa",
+    "CategoryDelete_Cancel": "Hủy"
 }

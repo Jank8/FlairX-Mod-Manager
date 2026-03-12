@@ -346,5 +346,11 @@
     "ContextMenu_Move": "स्थानांतरित करें",
     "SettingsPage_ConflictExcludedCategories_Label": "संघर्ष से बाहर की गई श्रेणियाँ",
     "SettingsPage_ConflictExcludedCategories_Description": "संघर्ष पहचान से श्रेणियों को बाहर करें (सभी मॉड सक्रिय रहते हैं)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "बाहर करने के लिए श्रेणी चुनें..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "बाहर करने के लिए श्रेणी चुनें...",
+    "ContextMenu_DeleteCategory": "हटाएं",
+    "CategoryDelete_Title": "श्रेणी हटाएं",
+    "CategoryDelete_Warning": "क्या आप वाकई श्रेणी '{0}' को हटाना चाहते हैं?\n\nयह श्रेणी फ़ोल्डर और उसमें मौजूद सभी {1} मॉड को स्थायी रूप से हटा देगा।\n\nइस क्रिया को पूर्ववत नहीं किया जा सकता।",
+    "CategoryDelete_Confirm": "हां, मुझे यकीन है",
+    "CategoryDelete_Delete": "हटाएं",
+    "CategoryDelete_Cancel": "रद्द करें"
 }

@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Μετακίνηση",
     "SettingsPage_ConflictExcludedCategories_Label": "Κατηγορίες εξαιρούμενες από συγκρούσεις",
     "SettingsPage_ConflictExcludedCategories_Description": "Εξαίρεση κατηγοριών από ανίχνευση συγκρούσεων (όλα τα mods παραμένουν ενεργά)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Επιλέξτε κατηγορία για εξαίρεση..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Επιλέξτε κατηγορία για εξαίρεση...",
+    "ContextMenu_DeleteCategory": "Διαγραφή",
+    "CategoryDelete_Title": "Διαγραφή κατηγορίας",
+    "CategoryDelete_Warning": "Είστε βέβαιοι ότι θέλετε να διαγράψετε την κατηγορία '{0}';\n\nΑυτό θα διαγράψει μόνιμα τον φάκελο της κατηγορίας και όλα τα {1} mod(s) μέσα σε αυτόν.\n\nΑυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
+    "CategoryDelete_Confirm": "Ναι, είμαι βέβαιος",
+    "CategoryDelete_Delete": "Διαγραφή",
+    "CategoryDelete_Cancel": "Ακύρωση"
 }

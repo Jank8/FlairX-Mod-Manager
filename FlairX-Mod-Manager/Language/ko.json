@@ -346,5 +346,11 @@
     "ContextMenu_Move": "이동",
     "SettingsPage_ConflictExcludedCategories_Label": "충돌 제외 카테고리",
     "SettingsPage_ConflictExcludedCategories_Description": "충돌 감지에서 카테고리 제외 (모든 모드가 활성 상태 유지)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "제외할 카테고리 선택..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "제외할 카테고리 선택...",
+    "ContextMenu_DeleteCategory": "삭제",
+    "CategoryDelete_Title": "카테고리 삭제",
+    "CategoryDelete_Warning": "카테고리 '{0}'을(를) 삭제하시겠습니까?\n\n카테고리 폴더와 그 안의 모든 {1}개 모드가 영구적으로 삭제됩니다.\n\n이 작업은 취소할 수 없습니다.",
+    "CategoryDelete_Confirm": "예, 확실합니다",
+    "CategoryDelete_Delete": "삭제",
+    "CategoryDelete_Cancel": "취소"
 }

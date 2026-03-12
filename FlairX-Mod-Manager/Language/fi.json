@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Siirrä",
     "SettingsPage_ConflictExcludedCategories_Label": "Konfliktista poissuljetut kategoriat",
     "SettingsPage_ConflictExcludedCategories_Description": "Sulje kategoriat pois konfliktien havaitsemisesta (kaikki modit pysyvät aktiivisina)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Valitse poissulkeminen kategoria..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Valitse poissulkeminen kategoria...",
+    "ContextMenu_DeleteCategory": "Poista",
+    "CategoryDelete_Title": "Poista kategoria",
+    "CategoryDelete_Warning": "Haluatko varmasti poistaa kategorian '{0}'?\n\nTämä poistaa pysyvästi kategoriakansion ja kaikki {1} modia siinä.\n\nTätä toimintoa ei voi peruuttaa.",
+    "CategoryDelete_Confirm": "Kyllä, olen varma",
+    "CategoryDelete_Delete": "Poista",
+    "CategoryDelete_Cancel": "Peruuta"
 }

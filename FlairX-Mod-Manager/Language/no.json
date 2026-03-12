@@ -346,5 +346,11 @@
     "ContextMenu_Move": "Flytt",
     "SettingsPage_ConflictExcludedCategories_Label": "Konflikt-ekskluderte kategorier",
     "SettingsPage_ConflictExcludedCategories_Description": "Ekskluder kategorier fra konfliktdeteksjon (alle modder forblir aktive)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Velg kategori å ekskludere..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Velg kategori å ekskludere...",
+    "ContextMenu_DeleteCategory": "Slett",
+    "CategoryDelete_Title": "Slett kategori",
+    "CategoryDelete_Warning": "Er du sikker på at du vil slette kategorien '{0}'?\n\nDette vil permanent slette kategorimappen og alle {1} mod(er) i den.\n\nDenne handlingen kan ikke angres.",
+    "CategoryDelete_Confirm": "Ja, jeg er sikker",
+    "CategoryDelete_Delete": "Slett",
+    "CategoryDelete_Cancel": "Avbryt"
 }
