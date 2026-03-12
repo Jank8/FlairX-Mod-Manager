@@ -8,13 +8,11 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 
 ✨ **Key Features:**
 - Supports 1100+ mods with optimized performance
-- GameBanana integration with author search and Cloudflare support
-- Screenshot capture with cropping and preview management
-- Advanced image optimization with AI-powered cropping
+- GameBanana integration with auto-update, author search, and Cloudflare support
+- Screenshot capture with AI-powered cropping and preview management
 - Game overlay with full controller support
 - 29 languages with specialized font support
 - One-click updates and automatic XXMI framework installation
-- Runtime version checking (.NET and Windows App SDK)
 
 ## 🎮 Supported Games
 
@@ -29,25 +27,18 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 
 ## 💻 System Requirements
 
-- **Windows 11** (recommended) or Windows 10 22H2
-- **.NET 10 Runtime** (version 10.0.2 or newer)
-- **Windows App SDK** (version 1.8.4 or newer)
+- **Windows 11** (recommended) or **Windows 10 22H2**
+- **.NET 10 Runtime** - automatically installed if missing
 - 4GB RAM (8GB recommended)
 - 1280×720 display resolution
 - 500MB free disk space
 
-**Automatic Setup:**
-- FlairX checks for required runtime versions on startup
-- Missing or outdated runtimes trigger automatic download prompts
-- XXMI frameworks install automatically when needed
-- No administrator rights required
-
 ## 📥 Installation
 
-1. Download the latest release (v3.8.0)
+1. Download the latest release (v3.9.4)
 2. Extract files to your desired location
 3. Run `FlairX Mod Manager Launcher.exe`
-4. FlairX will check runtime versions and prompt for updates if needed
+4. If .NET 10 is missing, FlairX will prompt you to install it
 5. Select your game and start managing mods
 
 ## 🚀 Quick Start
@@ -123,6 +114,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Installation Status**: Visual indicators for downloaded mods
 - **Download Previews**: Fetch preview images for mods in browser or library
 - **NSFW Control**: Filtering with blur options
+- **Auto-Update**: Automatically fetch versions, dates, and authors on startup (configurable interval: 1-365 days)
 
 **Download System:**
 - **Flexible Options**: Full install or previews-only
@@ -132,10 +124,10 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Progress Tracking**: Real-time download and extraction progress
 
 **Batch Operations:**
-- **Fetch Authors**: Update author information
-- **Fetch Dates**: Update publication/update dates
-- **Fetch Versions**: Get latest version info
+- **Fetch All Data**: Update authors, versions, and dates in one operation
 - **Fetch Previews**: Download all or missing preview images
+- **Smart Update**: Skip mods with valid data
+- **Skip Invalid URLs**: Ignore mods without GameBanana links
 
 ### 🎨 **Image System**
 - **Screenshot Capture**: Built-in capture with cropping
@@ -166,6 +158,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Alt+W**: Toggle game overlay
 - **Alt+A**: Filter active mods
 - **Ctrl + Mouse Wheel**: Zoom (100%-250%)
+- **Escape**: Close all sliding panels
 
 *All hotkeys customizable in Settings*
 
@@ -173,8 +166,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Preset System**: Save and load mod configurations per game
 - **StatusKeeper Integration**: Sync with XXMI launcher via d3dx_user.ini
 - **ModInfo Backup**: Up to 3 backup versions with one-click restore
-- **File Access Queue**: Prevents conflicts during operations
-- **Intelligent Caching**: Fast loading with timestamp validation
+- **Sliding Panels**: Non-blocking UI panels that don't cover the menu
 
 ## 🌍 Multi-Language Support
 
@@ -206,13 +198,18 @@ FlairX supports **29 languages** with automatic detection:
 - Minimize to Tray
 - Hide NSFW Content
 
+### **GameBanana Auto-Update**
+- Enable/disable automatic updates
+- Configurable interval (1-365 days)
+- Fetches versions, dates, and authors on startup
+- Skip mods with invalid URLs
+
 ### **Hotkeys**
 - Enable/disable global hotkeys
 - Customize all shortcuts with edit and reset options
 
 ### **Updates**
 - Automatic update check on startup
-- Runtime version checking (.NET 10 and Windows App SDK)
 
 ## 📁 Folder Structure
 
