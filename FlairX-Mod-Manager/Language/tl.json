@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Sigurado ka bang gusto mong tanggalin ang kategorya '{0}'?\n\nPermanenteng tatanggalin nito ang folder ng kategorya at lahat ng {1} mod(s) dito.\n\nHindi na maaaring bawiin ang aksyong ito.",
     "CategoryDelete_Confirm": "Oo, sigurado ako",
     "CategoryDelete_Delete": "Tanggalin",
-    "CategoryDelete_Cancel": "Kanselahin"
+    "CategoryDelete_Cancel": "Kanselahin",
+    "ContextMenu_PinCategory": "I-pin sa footer",
+    "ContextMenu_UnpinCategory": "Alisin ang pin sa footer"
 }

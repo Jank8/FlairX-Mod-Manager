@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Haluatko varmasti poistaa kategorian '{0}'?\n\nTämä poistaa pysyvästi kategoriakansion ja kaikki {1} modia siinä.\n\nTätä toimintoa ei voi peruuttaa.",
     "CategoryDelete_Confirm": "Kyllä, olen varma",
     "CategoryDelete_Delete": "Poista",
-    "CategoryDelete_Cancel": "Peruuta"
+    "CategoryDelete_Cancel": "Peruuta",
+    "ContextMenu_PinCategory": "Kiinnit? alatunnisteeseen",
+    "ContextMenu_UnpinCategory": "Irrota alatunnisteesta"
 }

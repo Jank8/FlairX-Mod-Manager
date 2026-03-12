@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Är du säker på att du vill ta bort kategorin '{0}'?\n\nDetta kommer permanent ta bort kategorimappen och alla {1} mod(s) i den.\n\nDenna åtgärd kan inte ångras.",
     "CategoryDelete_Confirm": "Ja, jag är säker",
     "CategoryDelete_Delete": "Ta bort",
-    "CategoryDelete_Cancel": "Avbryt"
+    "CategoryDelete_Cancel": "Avbryt",
+    "ContextMenu_PinCategory": "F?st i sidfot",
+    "ContextMenu_UnpinCategory": "Lossa fr?n sidfot"
 }

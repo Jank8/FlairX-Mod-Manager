@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Είστε βέβαιοι ότι θέλετε να διαγράψετε την κατηγορία '{0}';\n\nΑυτό θα διαγράψει μόνιμα τον φάκελο της κατηγορίας και όλα τα {1} mod(s) μέσα σε αυτόν.\n\nΑυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
     "CategoryDelete_Confirm": "Ναι, είμαι βέβαιος",
     "CategoryDelete_Delete": "Διαγραφή",
-    "CategoryDelete_Cancel": "Ακύρωση"
+    "CategoryDelete_Cancel": "Ακύρωση",
+    "ContextMenu_PinCategory": "?????????? ??? ?????????",
+    "ContextMenu_UnpinCategory": "???????????? ??? ?????????"
 }

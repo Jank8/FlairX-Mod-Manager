@@ -1038,6 +1038,8 @@ namespace FlairX_Mod_Manager
                 renameItem.Click += CategoryContextMenu_Rename_Click;
                 menuFlyout.Items.Add(renameItem);
                 
+                menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                
                 // Check if category is pinned
                 var gameTag = SettingsManager.CurrentSelectedGame;
                 var pinnedCategories = !string.IsNullOrEmpty(gameTag) 
@@ -1046,21 +1048,30 @@ namespace FlairX_Mod_Manager
                 
                 bool isPinned = pinnedCategories.Contains(categoryName);
                 
-                // Only show delete option for non-pinned categories
-                if (!isPinned)
+                // Pin/Unpin option
+                var pinItem = new MenuFlyoutItem
                 {
-                    menuFlyout.Items.Add(new MenuFlyoutSeparator());
-                    
-                    var deleteItem = new MenuFlyoutItem
-                    {
-                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_DeleteCategory"),
-                        Icon = new SymbolIcon(Symbol.Delete),
-                        Tag = categoryName
-                    };
-                    deleteItem.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red);
-                    deleteItem.Click += CategoryContextMenu_Delete_Click;
-                    menuFlyout.Items.Add(deleteItem);
-                }
+                    Text = isPinned 
+                        ? SharedUtilities.GetTranslation(lang, "ContextMenu_UnpinCategory") 
+                        : SharedUtilities.GetTranslation(lang, "ContextMenu_PinCategory"),
+                    Icon = new FontIcon { Glyph = isPinned ? "\uE77A" : "\uE718" }, // Unpin : Pin
+                    Tag = categoryName
+                };
+                pinItem.Click += CategoryContextMenu_PinUnpin_Click;
+                menuFlyout.Items.Add(pinItem);
+                
+                // Delete option (always show, will auto-unpin if needed)
+                menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                
+                var deleteItem = new MenuFlyoutItem
+                {
+                    Text = SharedUtilities.GetTranslation(lang, "ContextMenu_DeleteCategory"),
+                    Icon = new SymbolIcon(Symbol.Delete),
+                    Tag = categoryName
+                };
+                deleteItem.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red);
+                deleteItem.Click += CategoryContextMenu_Delete_Click;
+                menuFlyout.Items.Add(deleteItem);
                 
                 menuItem.ContextFlyout = menuFlyout;
             }
@@ -1211,12 +1222,27 @@ namespace FlairX_Mod_Manager
                         return;
                     }
                     
+                    // Check if category is pinned and unpin it first
+                    var gameTag = SettingsManager.CurrentSelectedGame;
+                    if (!string.IsNullOrEmpty(gameTag))
+                    {
+                        var pinnedCategories = SettingsManager.GetPinnedCategories(gameTag);
+                        if (pinnedCategories.Contains(categoryName))
+                        {
+                            SettingsManager.RemovePinnedCategory(gameTag, categoryName);
+                            Logger.LogInfo($"Automatically unpinned category before deletion: {categoryName}");
+                        }
+                    }
+                    
                     // Delete the category directory
                     Directory.Delete(categoryPath, true);
                     Logger.LogInfo($"Deleted category: {categoryName} with {modCount} mods");
                     
-                    // Regenerate menu
+                    // Force menu regeneration even if suppressed (e.g., when settings panel is open)
+                    var wasSuppressed = _suppressMenuRegeneration;
+                    _suppressMenuRegeneration = false;
                     await GenerateModCharacterMenuAsync();
+                    _suppressMenuRegeneration = wasSuppressed;
                     
                     // Refresh ModGridPage if needed
                     if (contentFrame.Content is Pages.ModGridPage modGridPage)
@@ -1251,6 +1277,57 @@ namespace FlairX_Mod_Manager
                         XamlRoot = this.Content.XamlRoot
                     };
                     await errorDialog.ShowAsync();
+                }
+            }
+        }
+        
+        private async void CategoryContextMenu_PinUnpin_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is string categoryName)
+            {
+                try
+                {
+                    var gameTag = SettingsManager.CurrentSelectedGame;
+                    if (string.IsNullOrEmpty(gameTag))
+                    {
+                        Logger.LogWarning("No game selected, cannot pin/unpin category");
+                        return;
+                    }
+
+                    var pinnedCategories = SettingsManager.GetPinnedCategories(gameTag);
+                    bool isPinned = pinnedCategories.Contains(categoryName);
+
+                    if (isPinned)
+                    {
+                        // Unpin category
+                        SettingsManager.RemovePinnedCategory(gameTag, categoryName);
+                        Logger.LogInfo($"Unpinned category: {categoryName}");
+                    }
+                    else
+                    {
+                        // Pin category
+                        SettingsManager.AddPinnedCategory(gameTag, categoryName);
+                        Logger.LogInfo($"Pinned category: {categoryName}");
+                    }
+
+                    // Force menu regeneration even if suppressed (e.g., when settings panel is open)
+                    var wasSuppressed = _suppressMenuRegeneration;
+                    _suppressMenuRegeneration = false;
+                    await GenerateModCharacterMenuAsync();
+                    _suppressMenuRegeneration = wasSuppressed;
+
+                    // Refresh ModGridPage if showing categories
+                    if (contentFrame.Content is Pages.ModGridPage modGridPage)
+                    {
+                        if (modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
+                        {
+                            modGridPage.LoadCategories();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to pin/unpin category: {categoryName}", ex);
                 }
             }
         }
@@ -1449,15 +1526,23 @@ namespace FlairX_Mod_Manager
                 if (pinnedCategories == null || pinnedCategories.Count == 0)
                     return;
                     
-                var modsPath = PathManager.GetModsPath();
+                // Use the same path as delete operation
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath))
+                {
+                    modsPath = PathManager.GetModsPath();
+                }
+                
                 if (!Directory.Exists(modsPath))
                     return;
                     
-                // Get all available categories
+                // Get all available categories from filesystem
                 var categories = Directory.GetDirectories(modsPath)
                     .Select(Path.GetFileName)
                     .Where(name => !string.IsNullOrEmpty(name))
                     .ToList();
+                
+                Logger.LogInfo($"GeneratePinnedCategoriesAsync: Found {categories.Count} categories in filesystem, {pinnedCategories.Count} pinned");
                 
                 // Add pinned categories at the beginning of footer (before Presets and Settings)
                 int insertIndex = 0;
@@ -1466,7 +1551,10 @@ namespace FlairX_Mod_Manager
                 foreach (var categoryName in pinnedCategories)
                 {
                     if (!categories.Contains(categoryName))
+                    {
+                        Logger.LogInfo($"GeneratePinnedCategoriesAsync: Skipping pinned category '{categoryName}' - not found in filesystem");
                         continue; // Category doesn't exist
+                    }
                         
                     var menuItem = new NavigationViewItem
                     {
@@ -1475,8 +1563,15 @@ namespace FlairX_Mod_Manager
                         Icon = new FontIcon { Glyph = "\uE8B7" } // Folder icon
                     };
                     
+                    // Attach context menu to pinned category
+                    menuItem.Loaded += (s, e) =>
+                    {
+                        AttachContextMenuToMenuItem(menuItem, categoryName);
+                    };
+                    
                     nvSample.FooterMenuItems.Insert(insertIndex, menuItem);
                     insertIndex++; // Increment for next item
+                    Logger.LogInfo($"GeneratePinnedCategoriesAsync: Added pinned category '{categoryName}' at index {insertIndex - 1}");
                 }
             }
             catch (Exception ex)

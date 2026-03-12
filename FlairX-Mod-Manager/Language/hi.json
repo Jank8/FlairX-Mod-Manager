@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "क्या आप वाकई श्रेणी '{0}' को हटाना चाहते हैं?\n\nयह श्रेणी फ़ोल्डर और उसमें मौजूद सभी {1} मॉड को स्थायी रूप से हटा देगा।\n\nइस क्रिया को पूर्ववत नहीं किया जा सकता।",
     "CategoryDelete_Confirm": "हां, मुझे यकीन है",
     "CategoryDelete_Delete": "हटाएं",
-    "CategoryDelete_Cancel": "रद्द करें"
+    "CategoryDelete_Cancel": "रद्द करें",
+    "ContextMenu_PinCategory": "????? ??? ??? ????",
+    "ContextMenu_UnpinCategory": "????? ?? ????? ????"
 }

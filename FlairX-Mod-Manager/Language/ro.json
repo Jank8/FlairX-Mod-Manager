@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Sigur doriți să ștergeți categoria '{0}'?\n\nAceasta va șterge permanent folderul categoriei și toate cele {1} mod(uri) din el.\n\nAceastă acțiune nu poate fi anulată.",
     "CategoryDelete_Confirm": "Da, sunt sigur",
     "CategoryDelete_Delete": "Șterge",
-    "CategoryDelete_Cancel": "Anulează"
+    "CategoryDelete_Cancel": "Anulează",
+    "ContextMenu_PinCategory": "Fixeaz? ?n subsol",
+    "ContextMenu_UnpinCategory": "Elibereaz? din subsol"
 }

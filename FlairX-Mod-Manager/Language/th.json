@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "คุณแน่ใจหรือไม่ว่าต้องการลบหมวดหมู่ '{0}'?\n\nการดำเนินการนี้จะลบโฟลเดอร์หมวดหมู่และม็อดทั้งหมด {1} รายการในนั้นอย่างถาวร\n\nไม่สามารถยกเลิกการดำเนินการนี้ได้",
     "CategoryDelete_Confirm": "ใช่ ฉันแน่ใจ",
     "CategoryDelete_Delete": "ลบ",
-    "CategoryDelete_Cancel": "ยกเลิก"
+    "CategoryDelete_Cancel": "ยกเลิก",
+    "ContextMenu_PinCategory": "?????????????????????",
+    "ContextMenu_UnpinCategory": "???????????????????????????"
 }

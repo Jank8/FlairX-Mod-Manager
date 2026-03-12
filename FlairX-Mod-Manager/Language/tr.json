@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "'{0}' kategorisini silmek istediğinizden emin misiniz?\n\nBu, kategori klasörünü ve içindeki tüm {1} mod(ları) kalıcı olarak silecektir.\n\nBu işlem geri alınamaz.",
     "CategoryDelete_Confirm": "Evet, eminim",
     "CategoryDelete_Delete": "Sil",
-    "CategoryDelete_Cancel": "İptal"
+    "CategoryDelete_Cancel": "İptal",
+    "ContextMenu_PinCategory": "Alt bilgiye sabitle",
+    "ContextMenu_UnpinCategory": "Alt bilgiden kald?r"
 }

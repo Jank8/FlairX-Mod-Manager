@@ -783,7 +783,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (modTile.IsCategory)
                 {
-                    // Category context menu: Open Folder, Copy Name, Rename, Delete (if not pinned)
+                    // Category context menu: Open Folder, Copy Name, Rename, Pin/Unpin, Delete
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
                         Text = SharedUtilities.GetTranslation(lang, "ContextMenu_OpenFolder"),
@@ -810,6 +810,8 @@ namespace FlairX_Mod_Manager.Pages
                     });
                     ((MenuFlyoutItem)menuFlyout.Items[3]).Click += ContextMenu_Rename_Click;
                     
+                    menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                    
                     // Check if category is pinned
                     var gameTag = SettingsManager.CurrentSelectedGame;
                     var pinnedCategories = !string.IsNullOrEmpty(gameTag) 
@@ -818,21 +820,30 @@ namespace FlairX_Mod_Manager.Pages
                     
                     bool isPinned = pinnedCategories.Contains(modTile.Name);
                     
-                    // Only show delete option for non-pinned categories
-                    if (!isPinned)
+                    // Pin/Unpin option
+                    var pinItem = new MenuFlyoutItem
                     {
-                        menuFlyout.Items.Add(new MenuFlyoutSeparator());
-                        
-                        var deleteCategoryItem = new MenuFlyoutItem
-                        {
-                            Text = SharedUtilities.GetTranslation(lang, "ContextMenu_DeleteCategory"),
-                            Icon = new SymbolIcon(Symbol.Delete),
-                            Tag = modTile
-                        };
-                        deleteCategoryItem.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red);
-                        deleteCategoryItem.Click += ContextMenu_DeleteCategory_Click;
-                        menuFlyout.Items.Add(deleteCategoryItem);
-                    }
+                        Text = isPinned 
+                            ? SharedUtilities.GetTranslation(lang, "ContextMenu_UnpinCategory") 
+                            : SharedUtilities.GetTranslation(lang, "ContextMenu_PinCategory"),
+                        Icon = new FontIcon { Glyph = isPinned ? "\uE77A" : "\uE718" }, // Unpin : Pin
+                        Tag = modTile
+                    };
+                    pinItem.Click += ContextMenu_PinUnpinCategory_Click;
+                    menuFlyout.Items.Add(pinItem);
+                    
+                    // Delete option (always show, will auto-unpin if needed)
+                    menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                    
+                    var deleteCategoryItem = new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_DeleteCategory"),
+                        Icon = new SymbolIcon(Symbol.Delete),
+                        Tag = modTile
+                    };
+                    deleteCategoryItem.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red);
+                    deleteCategoryItem.Click += ContextMenu_DeleteCategory_Click;
+                    menuFlyout.Items.Add(deleteCategoryItem);
                 }
                 else
                 {

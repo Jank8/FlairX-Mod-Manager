@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Êtes-vous sûr de vouloir supprimer la catégorie '{0}'?\n\nCela supprimera définitivement le dossier de la catégorie et tous les {1} mod(s) qu'il contient.\n\nCette action ne peut pas être annulée.",
     "CategoryDelete_Confirm": "Oui, je suis sûr",
     "CategoryDelete_Delete": "Supprimer",
-    "CategoryDelete_Cancel": "Annuler"
+    "CategoryDelete_Cancel": "Annuler",
+    "ContextMenu_PinCategory": "?pingler au pied de page",
+    "ContextMenu_UnpinCategory": "D?tacher du pied de page"
 }

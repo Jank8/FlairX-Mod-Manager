@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Weet u zeker dat u de categorie '{0}' wilt verwijderen?\n\nDit zal de categoriemap en alle {1} mod(s) erin permanent verwijderen.\n\nDeze actie kan niet ongedaan worden gemaakt.",
     "CategoryDelete_Confirm": "Ja, ik weet het zeker",
     "CategoryDelete_Delete": "Verwijderen",
-    "CategoryDelete_Cancel": "Annuleren"
+    "CategoryDelete_Cancel": "Annuleren",
+    "ContextMenu_PinCategory": "Vastzetten aan voettekst",
+    "ContextMenu_UnpinCategory": "Losmaken van voettekst"
 }

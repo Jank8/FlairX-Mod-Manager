@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Are you sure you want to delete the category '{0}'?\n\nThis will permanently delete the category folder and all {1} mod(s) inside it.\n\nThis action cannot be undone.",
     "CategoryDelete_Confirm": "Yes, I am sure",
     "CategoryDelete_Delete": "Delete",
-    "CategoryDelete_Cancel": "Cancel"
+    "CategoryDelete_Cancel": "Cancel",
+    "ContextMenu_PinCategory": "Pin to Footer",
+    "ContextMenu_UnpinCategory": "Unpin from Footer"
 }

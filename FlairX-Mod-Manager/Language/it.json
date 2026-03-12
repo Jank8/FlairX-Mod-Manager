@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Sei sicuro di voler eliminare la categoria '{0}'?\n\nQuesto eliminerà permanentemente la cartella della categoria e tutte le {1} mod al suo interno.\n\nQuesta azione non può essere annullata.",
     "CategoryDelete_Confirm": "Sì, sono sicuro",
     "CategoryDelete_Delete": "Elimina",
-    "CategoryDelete_Cancel": "Annulla"
+    "CategoryDelete_Cancel": "Annulla",
+    "ContextMenu_PinCategory": "Fissa al pi? di pagina",
+    "ContextMenu_UnpinCategory": "Rimuovi dal pi? di pagina"
 }

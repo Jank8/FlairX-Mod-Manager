@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Bạn có chắc chắn muốn xóa danh mục '{0}' không?\n\nĐiều này sẽ xóa vĩnh viễn thư mục danh mục và tất cả {1} mod trong đó.\n\nHành động này không thể hoàn tác.",
     "CategoryDelete_Confirm": "Có, tôi chắc chắn",
     "CategoryDelete_Delete": "Xóa",
-    "CategoryDelete_Cancel": "Hủy"
+    "CategoryDelete_Cancel": "Hủy",
+    "ContextMenu_PinCategory": "Ghim v?o ch?n trang",
+    "ContextMenu_UnpinCategory": "B? ghim kh?i ch?n trang"
 }

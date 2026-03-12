@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Apakah Anda yakin ingin menghapus kategori '{0}'?\n\nIni akan menghapus folder kategori secara permanen dan semua {1} mod di dalamnya.\n\nTindakan ini tidak dapat dibatalkan.",
     "CategoryDelete_Confirm": "Ya, saya yakin",
     "CategoryDelete_Delete": "Hapus",
-    "CategoryDelete_Cancel": "Batal"
+    "CategoryDelete_Cancel": "Batal",
+    "ContextMenu_PinCategory": "Sematkan ke footer",
+    "ContextMenu_UnpinCategory": "Lepas dari footer"
 }

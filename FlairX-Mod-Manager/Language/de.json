@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Möchten Sie die Kategorie '{0}' wirklich löschen?\n\nDadurch wird der Kategorieordner und alle {1} Mod(s) darin dauerhaft gelöscht.\n\nDieser Vorgang kann nicht rückgängig gemacht werden.",
     "CategoryDelete_Confirm": "Ja, ich bin sicher",
     "CategoryDelete_Delete": "Löschen",
-    "CategoryDelete_Cancel": "Abbrechen"
+    "CategoryDelete_Cancel": "Abbrechen",
+    "ContextMenu_PinCategory": "An Fu?zeile anheften",
+    "ContextMenu_UnpinCategory": "Von Fu?zeile l?sen"
 }

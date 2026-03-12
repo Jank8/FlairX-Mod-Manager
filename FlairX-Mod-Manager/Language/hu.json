@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Biztosan törölni szeretné a(z) '{0}' kategóriát?\n\nEz véglegesen törli a kategória mappát és az összes {1} modot benne.\n\nEz a művelet nem vonható vissza.",
     "CategoryDelete_Confirm": "Igen, biztos vagyok benne",
     "CategoryDelete_Delete": "Törlés",
-    "CategoryDelete_Cancel": "Mégse"
+    "CategoryDelete_Cancel": "Mégse",
+    "ContextMenu_PinCategory": "R?gz?t?s a l?bl?cre",
+    "ContextMenu_UnpinCategory": "Lev?laszt?s a l?bl?cr?l"
 }

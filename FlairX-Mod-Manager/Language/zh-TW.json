@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "您確定要刪除類別'{0}'嗎？\n\n這將永久刪除類別資料夾及其中的所有{1}個模組。\n\n此操作無法復原。",
     "CategoryDelete_Confirm": "是的，我確定",
     "CategoryDelete_Delete": "刪除",
-    "CategoryDelete_Cancel": "取消"
+    "CategoryDelete_Cancel": "取消",
+    "ContextMenu_PinCategory": "?????",
+    "ContextMenu_UnpinCategory": "???????"
 }

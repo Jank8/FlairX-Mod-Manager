@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "カテゴリ'{0}'を削除してもよろしいですか？\n\nこれにより、カテゴリフォルダとその中のすべての{1}個のModが完全に削除されます。\n\nこの操作は元に戻せません。",
     "CategoryDelete_Confirm": "はい、確かです",
     "CategoryDelete_Delete": "削除",
-    "CategoryDelete_Cancel": "キャンセル"
+    "CategoryDelete_Cancel": "キャンセル",
+    "ContextMenu_PinCategory": "???????",
+    "ContextMenu_UnpinCategory": "??????????"
 }

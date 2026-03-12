@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "¿Está seguro de que desea eliminar la categoría '{0}'?\n\nEsto eliminará permanentemente la carpeta de la categoría y todos los {1} mod(s) que contiene.\n\nEsta acción no se puede deshacer.",
     "CategoryDelete_Confirm": "Sí, estoy seguro",
     "CategoryDelete_Delete": "Eliminar",
-    "CategoryDelete_Cancel": "Cancelar"
+    "CategoryDelete_Cancel": "Cancelar",
+    "ContextMenu_PinCategory": "Anclar al pie",
+    "ContextMenu_UnpinCategory": "Desanclar del pie"
 }

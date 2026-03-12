@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Czy na pewno chcesz usunąć kategorię '{0}'?\n\nSpowoduje to trwałe usunięcie folderu kategorii oraz wszystkich {1} modów w nim zawartych.\n\nTej operacji nie można cofnąć.",
     "CategoryDelete_Confirm": "Tak, jestem pewien",
     "CategoryDelete_Delete": "Usuń",
-    "CategoryDelete_Cancel": "Anuluj"
+    "CategoryDelete_Cancel": "Anuluj",
+    "ContextMenu_PinCategory": "Przypnij do stopki",
+    "ContextMenu_UnpinCategory": "Odepnij od stopki"
 }

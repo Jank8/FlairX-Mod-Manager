@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Tem certeza de que deseja excluir a categoria '{0}'?\n\nIsso excluirá permanentemente a pasta da categoria e todos os {1} mod(s) nela contidos.\n\nEsta ação não pode ser desfeita.",
     "CategoryDelete_Confirm": "Sim, tenho certeza",
     "CategoryDelete_Delete": "Excluir",
-    "CategoryDelete_Cancel": "Cancelar"
+    "CategoryDelete_Cancel": "Cancelar",
+    "ContextMenu_PinCategory": "Fixar no rodap?",
+    "ContextMenu_UnpinCategory": "Desafixar do rodap?"
 }

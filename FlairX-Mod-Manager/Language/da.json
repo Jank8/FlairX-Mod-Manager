@@ -352,5 +352,7 @@
     "CategoryDelete_Warning": "Er du sikker på, at du vil slette kategorien '{0}'?\n\nDette vil permanent slette kategorimappen og alle {1} mod(s) i den.\n\nDenne handling kan ikke fortrydes.",
     "CategoryDelete_Confirm": "Ja, jeg er sikker",
     "CategoryDelete_Delete": "Slet",
-    "CategoryDelete_Cancel": "Annuller"
+    "CategoryDelete_Cancel": "Annuller",
+    "ContextMenu_PinCategory": "Fastg?r til sidefod",
+    "ContextMenu_UnpinCategory": "Frig?r fra sidefod"
 }
