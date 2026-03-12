@@ -575,7 +575,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (modTile.IsCategory)
                 {
-                    // Category context menu: Open Folder, Copy Name, Rename
+                    // Category context menu: Open Folder, Copy Name, Rename, Delete (if not pinned)
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
                         Text = SharedUtilities.GetTranslation(lang, "ContextMenu_OpenFolder"),
@@ -601,6 +601,30 @@ namespace FlairX_Mod_Manager.Pages
                         Tag = modTile
                     });
                     ((MenuFlyoutItem)menuFlyout.Items[3]).Click += ContextMenu_Rename_Click;
+                    
+                    // Check if category is pinned
+                    var gameTag = SettingsManager.CurrentSelectedGame;
+                    var pinnedCategories = !string.IsNullOrEmpty(gameTag) 
+                        ? SettingsManager.GetPinnedCategories(gameTag) 
+                        : new System.Collections.Generic.List<string>();
+                    
+                    bool isPinned = pinnedCategories.Contains(modTile.Name);
+                    
+                    // Only show delete option for non-pinned categories
+                    if (!isPinned)
+                    {
+                        menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                        
+                        var deleteCategoryItem = new MenuFlyoutItem
+                        {
+                            Text = SharedUtilities.GetTranslation(lang, "ContextMenu_DeleteCategory"),
+                            Icon = new SymbolIcon(Symbol.Delete),
+                            Tag = modTile
+                        };
+                        deleteCategoryItem.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red);
+                        deleteCategoryItem.Click += ContextMenu_DeleteCategory_Click;
+                        menuFlyout.Items.Add(deleteCategoryItem);
+                    }
                 }
                 else
                 {
@@ -1472,6 +1496,71 @@ namespace FlairX_Mod_Manager.Pages
                 // Create a fake button with the ModTile as Tag to reuse existing logic
                 var fakeButton = new Button { Tag = modTile };
                 DeleteModButton_Click(fakeButton, e);
+            }
+        }
+
+        private async void ContextMenu_DeleteCategory_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile && modTile.IsCategory)
+            {
+                try
+                {
+                    var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                    if (string.IsNullOrEmpty(modsPath))
+                    {
+                        modsPath = PathManager.GetModsPath();
+                    }
+
+                    var categoryPath = System.IO.Path.Combine(modsPath, modTile.Name);
+                    
+                    if (!Directory.Exists(categoryPath))
+                    {
+                        Logger.LogWarning($"Category directory not found: {categoryPath}");
+                        return;
+                    }
+
+                    // Count mods in category
+                    int modCount = Directory.GetDirectories(categoryPath).Length;
+
+                    // Show confirmation dialog
+                    bool confirmed = await Dialogs.CategoryDeleteDialog.ShowAsync(modTile.Name, modCount, this.XamlRoot);
+                    
+                    if (!confirmed)
+                    {
+                        return;
+                    }
+
+                    // Delete the category directory
+                    Directory.Delete(categoryPath, true);
+                    Logger.LogInfo($"Deleted category: {modTile.Name} with {modCount} mods");
+
+                    // Refresh the UI
+                    var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
+                    if (mainWindow != null)
+                    {
+                        // Regenerate menu
+                        await mainWindow.GenerateModCharacterMenuAsync();
+                        
+                        // Reload current view
+                        if (CurrentViewMode == ViewMode.Categories)
+                        {
+                            LoadCategories();
+                        }
+                        else
+                        {
+                            // If we're viewing the deleted category, go back to all mods
+                            if (_currentCategory == modTile.Name)
+                            {
+                                LoadAllModsPublic();
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to delete category: {modTile.Name}", ex);
+                    await ShowErrorDialog($"Failed to delete category: {ex.Message}");
+                }
             }
         }
 

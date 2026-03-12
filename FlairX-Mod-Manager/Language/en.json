@@ -346,5 +346,11 @@
     "MoveDialog_Success": "Mod moved successfully!",
     "SettingsPage_ConflictExcludedCategories_Label": "Conflict Excluded Categories",
     "SettingsPage_ConflictExcludedCategories_Description": "Exclude categories from conflict detection (all mods remain active)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Select category to exclude..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Select category to exclude...",
+    "ContextMenu_DeleteCategory": "Delete",
+    "CategoryDelete_Title": "Delete Category",
+    "CategoryDelete_Warning": "Are you sure you want to delete the category '{0}'?\n\nThis will permanently delete the category folder and all {1} mod(s) inside it.\n\nThis action cannot be undone.",
+    "CategoryDelete_Confirm": "Yes, I am sure",
+    "CategoryDelete_Delete": "Delete",
+    "CategoryDelete_Cancel": "Cancel"
 }

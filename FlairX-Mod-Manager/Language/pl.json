@@ -346,5 +346,11 @@
     "MoveDialog_Success": "Mod przeniesiony pomyślnie!",
     "SettingsPage_ConflictExcludedCategories_Label": "Kategorie wyłączone z konfliktów",
     "SettingsPage_ConflictExcludedCategories_Description": "Wyklucz kategorie z wykrywania konfliktów (wszystkie mody pozostają aktywne)",
-    "SettingsPage_ConflictExcludedCategories_Placeholder": "Wybierz kategorię do wyłączenia..."
+    "SettingsPage_ConflictExcludedCategories_Placeholder": "Wybierz kategorię do wyłączenia...",
+    "ContextMenu_DeleteCategory": "Usuń",
+    "CategoryDelete_Title": "Usuń kategorię",
+    "CategoryDelete_Warning": "Czy na pewno chcesz usunąć kategorię '{0}'?\n\nSpowoduje to trwałe usunięcie folderu kategorii oraz wszystkich {1} modów w nim zawartych.\n\nTej operacji nie można cofnąć.",
+    "CategoryDelete_Confirm": "Tak, jestem pewien",
+    "CategoryDelete_Delete": "Usuń",
+    "CategoryDelete_Cancel": "Anuluj"
 }

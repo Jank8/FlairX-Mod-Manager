@@ -373,12 +373,13 @@ namespace FlairX_Mod_Manager
                                         // Add the menu item
                                         nvSample.MenuItems.Add(menuItem);
                                         
-                                        // Wait for the template to be applied, then attach star button and hover events
+                                        // Wait for the template to be applied, then attach star button, hover events, and context menu
                                         menuItem.Loaded += async (s, e) => 
                                         {
                                             await Task.Delay(50);
                                             AttachIconHoverEvents(menuItem, category, modsPath);
                                             AttachStarButtonToMenuItem(menuItem, starButton);
+                                            AttachContextMenuToMenuItem(menuItem, category);
                                         };
                                     }
                                 }
@@ -995,6 +996,262 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError($"Error attaching star button to menu item", ex);
+            }
+        }
+        
+        private void AttachContextMenuToMenuItem(NavigationViewItem menuItem, string categoryName)
+        {
+            try
+            {
+                var menuFlyout = new MenuFlyout();
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                
+                // Open Folder
+                var openFolderItem = new MenuFlyoutItem
+                {
+                    Text = SharedUtilities.GetTranslation(lang, "ContextMenu_OpenFolder"),
+                    Icon = new SymbolIcon(Symbol.Folder),
+                    Tag = categoryName
+                };
+                openFolderItem.Click += CategoryContextMenu_OpenFolder_Click;
+                menuFlyout.Items.Add(openFolderItem);
+                
+                menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                
+                // Copy Name
+                var copyNameItem = new MenuFlyoutItem
+                {
+                    Text = SharedUtilities.GetTranslation(lang, "ContextMenu_CopyName"),
+                    Icon = new SymbolIcon(Symbol.Copy),
+                    Tag = categoryName
+                };
+                copyNameItem.Click += CategoryContextMenu_CopyName_Click;
+                menuFlyout.Items.Add(copyNameItem);
+                
+                // Rename
+                var renameItem = new MenuFlyoutItem
+                {
+                    Text = SharedUtilities.GetTranslation(lang, "ContextMenu_Rename"),
+                    Icon = new SymbolIcon(Symbol.Rename),
+                    Tag = categoryName
+                };
+                renameItem.Click += CategoryContextMenu_Rename_Click;
+                menuFlyout.Items.Add(renameItem);
+                
+                // Check if category is pinned
+                var gameTag = SettingsManager.CurrentSelectedGame;
+                var pinnedCategories = !string.IsNullOrEmpty(gameTag) 
+                    ? SettingsManager.GetPinnedCategories(gameTag) 
+                    : new List<string>();
+                
+                bool isPinned = pinnedCategories.Contains(categoryName);
+                
+                // Only show delete option for non-pinned categories
+                if (!isPinned)
+                {
+                    menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                    
+                    var deleteItem = new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_DeleteCategory"),
+                        Icon = new SymbolIcon(Symbol.Delete),
+                        Tag = categoryName
+                    };
+                    deleteItem.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red);
+                    deleteItem.Click += CategoryContextMenu_Delete_Click;
+                    menuFlyout.Items.Add(deleteItem);
+                }
+                
+                menuItem.ContextFlyout = menuFlyout;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error attaching context menu to menu item", ex);
+            }
+        }
+        
+        private void CategoryContextMenu_OpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is string categoryName)
+            {
+                try
+                {
+                    var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                    if (string.IsNullOrEmpty(modsPath))
+                    {
+                        modsPath = PathManager.GetModsPath();
+                    }
+                    
+                    var categoryPath = System.IO.Path.Combine(modsPath, categoryName);
+                    if (Directory.Exists(categoryPath))
+                    {
+                        System.Diagnostics.Process.Start("explorer.exe", categoryPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to open category folder: {categoryName}", ex);
+                }
+            }
+        }
+        
+        private void CategoryContextMenu_CopyName_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is string categoryName)
+            {
+                try
+                {
+                    var dataPackage = new Windows.ApplicationModel.DataTransfer.DataPackage();
+                    dataPackage.SetText(categoryName);
+                    Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(dataPackage);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to copy category name: {categoryName}", ex);
+                }
+            }
+        }
+        
+        private async void CategoryContextMenu_Rename_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is string oldCategoryName)
+            {
+                try
+                {
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var dialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "RenameDialog_Category_Title"),
+                        PrimaryButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel"),
+                        DefaultButton = ContentDialogButton.Primary,
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    
+                    var textBox = new TextBox
+                    {
+                        Text = oldCategoryName,
+                        SelectionStart = 0,
+                        SelectionLength = oldCategoryName.Length
+                    };
+                    dialog.Content = textBox;
+                    
+                    var result = await dialog.ShowAsync();
+                    if (result == ContentDialogResult.Primary)
+                    {
+                        var newCategoryName = textBox.Text.Trim();
+                        if (string.IsNullOrEmpty(newCategoryName))
+                        {
+                            return;
+                        }
+                        
+                        var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                        if (string.IsNullOrEmpty(modsPath))
+                        {
+                            modsPath = PathManager.GetModsPath();
+                        }
+                        
+                        var oldPath = System.IO.Path.Combine(modsPath, oldCategoryName);
+                        var newPath = System.IO.Path.Combine(modsPath, newCategoryName);
+                        
+                        if (Directory.Exists(oldPath) && !Directory.Exists(newPath))
+                        {
+                            Directory.Move(oldPath, newPath);
+                            Logger.LogInfo($"Renamed category: {oldCategoryName} -> {newCategoryName}");
+                            
+                            // Regenerate menu
+                            await GenerateModCharacterMenuAsync();
+                            
+                            // Refresh ModGridPage if showing categories
+                            if (contentFrame.Content is Pages.ModGridPage modGridPage)
+                            {
+                                if (modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
+                                {
+                                    modGridPage.LoadCategories();
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to rename category: {oldCategoryName}", ex);
+                }
+            }
+        }
+        
+        private async void CategoryContextMenu_Delete_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is string categoryName)
+            {
+                try
+                {
+                    var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                    if (string.IsNullOrEmpty(modsPath))
+                    {
+                        modsPath = PathManager.GetModsPath();
+                    }
+                    
+                    var categoryPath = System.IO.Path.Combine(modsPath, categoryName);
+                    
+                    if (!Directory.Exists(categoryPath))
+                    {
+                        Logger.LogWarning($"Category directory not found: {categoryPath}");
+                        return;
+                    }
+                    
+                    // Count mods in category
+                    int modCount = Directory.GetDirectories(categoryPath).Length;
+                    
+                    // Show confirmation dialog
+                    bool confirmed = await Dialogs.CategoryDeleteDialog.ShowAsync(categoryName, modCount, this.Content.XamlRoot);
+                    
+                    if (!confirmed)
+                    {
+                        return;
+                    }
+                    
+                    // Delete the category directory
+                    Directory.Delete(categoryPath, true);
+                    Logger.LogInfo($"Deleted category: {categoryName} with {modCount} mods");
+                    
+                    // Regenerate menu
+                    await GenerateModCharacterMenuAsync();
+                    
+                    // Refresh ModGridPage if needed
+                    if (contentFrame.Content is Pages.ModGridPage modGridPage)
+                    {
+                        if (modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
+                        {
+                            modGridPage.LoadCategories();
+                        }
+                        else
+                        {
+                            // If we're viewing the deleted category, go back to all mods
+                            var currentCategory = modGridPage.GetType().GetField("_currentCategory", 
+                                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(modGridPage) as string;
+                            
+                            if (currentCategory == categoryName)
+                            {
+                                modGridPage.LoadAllModsPublic();
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to delete category: {categoryName}", ex);
+                    
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
+                        Content = $"Failed to delete category: {ex.Message}",
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
+                        XamlRoot = this.Content.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                }
             }
         }
         

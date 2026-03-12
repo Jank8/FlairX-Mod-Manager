@@ -783,7 +783,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (modTile.IsCategory)
                 {
-                    // Category context menu: Open Folder, Copy Name, Rename
+                    // Category context menu: Open Folder, Copy Name, Rename, Delete (if not pinned)
                     menuFlyout.Items.Add(new MenuFlyoutItem
                     {
                         Text = SharedUtilities.GetTranslation(lang, "ContextMenu_OpenFolder"),
@@ -809,6 +809,30 @@ namespace FlairX_Mod_Manager.Pages
                         Tag = modTile
                     });
                     ((MenuFlyoutItem)menuFlyout.Items[3]).Click += ContextMenu_Rename_Click;
+                    
+                    // Check if category is pinned
+                    var gameTag = SettingsManager.CurrentSelectedGame;
+                    var pinnedCategories = !string.IsNullOrEmpty(gameTag) 
+                        ? SettingsManager.GetPinnedCategories(gameTag) 
+                        : new System.Collections.Generic.List<string>();
+                    
+                    bool isPinned = pinnedCategories.Contains(modTile.Name);
+                    
+                    // Only show delete option for non-pinned categories
+                    if (!isPinned)
+                    {
+                        menuFlyout.Items.Add(new MenuFlyoutSeparator());
+                        
+                        var deleteCategoryItem = new MenuFlyoutItem
+                        {
+                            Text = SharedUtilities.GetTranslation(lang, "ContextMenu_DeleteCategory"),
+                            Icon = new SymbolIcon(Symbol.Delete),
+                            Tag = modTile
+                        };
+                        deleteCategoryItem.Foreground = new SolidColorBrush(Microsoft.UI.Colors.Red);
+                        deleteCategoryItem.Click += ContextMenu_DeleteCategory_Click;
+                        menuFlyout.Items.Add(deleteCategoryItem);
+                    }
                 }
                 else
                 {
