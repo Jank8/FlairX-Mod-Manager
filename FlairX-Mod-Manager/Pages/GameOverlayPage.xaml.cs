@@ -109,6 +109,10 @@ namespace FlairX_Mod_Manager.Pages
             if (GamepadStatusLabel != null) GamepadStatusLabel.Text = SharedUtilities.GetTranslation(lang, "ControllerStatus_Label");
             if (TestButtonText != null) TestButtonText.Text = SharedUtilities.GetTranslation(lang, "ControllerStatus_Test");
             
+            // Steam Warning
+            if (SteamWarningLabel != null) SteamWarningLabel.Text = SharedUtilities.GetTranslation(lang, "SteamWarning_Label");
+            if (SteamWarningDescription != null) SteamWarningDescription.Text = SharedUtilities.GetTranslation(lang, "SteamWarning_Description");
+            
             // Select Button
             if (SelectButtonLabel != null) SelectButtonLabel.Text = SharedUtilities.GetTranslation(lang, "SelectButton_Label");
             

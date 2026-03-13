@@ -64,5 +64,7 @@
     "Hotkeys": "Taste rapide",
     "CategoryFavorite_Label": "Categorie favorită",
     "Favorites_Section": "Favorite",
-    "ModFavorite_Label": "Mod favorit"
+    "ModFavorite_Label": "Mod favorit",
+    "SteamWarning_Label": "Notă",
+    "SteamWarning_Description": "Programe precum Steam pot cauza funcționalitate incorectă sau lipsa funcționalității controlerului"
 }

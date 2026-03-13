@@ -64,5 +64,7 @@
     "Hotkeys": "Pikanäppäimet",
     "CategoryFavorite_Label": "Suosikkikategoria",
     "Favorites_Section": "Suosikit",
-    "ModFavorite_Label": "Suosikkimodi"
+    "ModFavorite_Label": "Suosikkimodi",
+    "SteamWarning_Label": "Huomautus",
+    "SteamWarning_Description": "Ohjelmat kuten Steam voivat aiheuttaa virheellistä tai ei lainkaan ohjaimen toiminnallisuutta"
 }

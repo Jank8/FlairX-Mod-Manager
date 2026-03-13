@@ -64,5 +64,7 @@
     "WindowTitle": "FlairX Overlay",
     "CategoryFavorite_Label": "Paboritong kategorya",
     "Favorites_Section": "Mga Paborito",
-    "ModFavorite_Label": "Paboritong mod"
+    "ModFavorite_Label": "Paboritong mod",
+    "SteamWarning_Label": "Paalala",
+    "SteamWarning_Description": "Ang mga programa tulad ng Steam ay maaaring magdulot ng maling o walang functionality ng controller"
 }

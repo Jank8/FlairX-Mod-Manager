@@ -64,5 +64,7 @@
     "Hotkeys": "Sneltoetsen",
     "CategoryFavorite_Label": "Favoriete categorie",
     "Favorites_Section": "Favorieten",
-    "ModFavorite_Label": "Favoriete mod"
+    "ModFavorite_Label": "Favoriete mod",
+    "SteamWarning_Label": "Opmerking",
+    "SteamWarning_Description": "Programma's zoals Steam kunnen onjuiste of geen controller-functionaliteit veroorzaken"
 }

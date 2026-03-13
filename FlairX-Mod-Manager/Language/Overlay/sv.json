@@ -64,5 +64,7 @@
     "Hotkeys": "Snabbtangenter",
     "CategoryFavorite_Label": "Favoritkategori",
     "Favorites_Section": "Favoriter",
-    "ModFavorite_Label": "Favoritmod"
+    "ModFavorite_Label": "Favoritmod",
+    "SteamWarning_Label": "Observera",
+    "SteamWarning_Description": "Program som Steam kan orsaka felaktig eller ingen kontroller-funktionalitet"
 }

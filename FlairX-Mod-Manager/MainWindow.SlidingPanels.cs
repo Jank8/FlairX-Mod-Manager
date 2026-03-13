@@ -636,5 +636,31 @@ namespace FlairX_Mod_Manager
             
             return results;
         }
+        
+        /// <summary>
+        /// Refreshes installation status in all open GameBanana browser instances
+        /// </summary>
+        public void RefreshGameBananaBrowserInstallationStatus()
+        {
+            try
+            {
+                var gameBananaBrowsers = _openPanelOverlays
+                    .SelectMany(o => FindUserControlsInOverlay<Pages.GameBananaBrowserUserControl>(o))
+                    .ToList();
+                
+                if (gameBananaBrowsers.Any())
+                {
+                    foreach (var browser in gameBananaBrowsers)
+                    {
+                        browser.RefreshModInstallationStatus();
+                    }
+                    Logger.LogInfo($"Refreshed installation status for {gameBananaBrowsers.Count} GameBanana browser(s)");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to refresh GameBanana browser installation status", ex);
+            }
+        }
     }
 }

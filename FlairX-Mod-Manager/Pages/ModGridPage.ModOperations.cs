@@ -169,6 +169,9 @@ namespace FlairX_Mod_Manager.Pages
                             mod.IsActive = true;
                             Logger.LogInfo($"Mod activated successfully: {mod.Directory}");
                             success = true;
+                            
+                            // Refresh GameBanana browser installation status
+                            RefreshGameBananaBrowserStatus();
                         }
                         else
                         {
@@ -220,6 +223,9 @@ namespace FlairX_Mod_Manager.Pages
                             
                             Logger.LogInfo($"Mod deactivated successfully: {mod.Directory}");
                             success = true;
+                            
+                            // Refresh GameBanana browser installation status
+                            RefreshGameBananaBrowserStatus();
                         }
                         else
                         {
@@ -1382,6 +1388,24 @@ namespace FlairX_Mod_Manager.Pages
             if (result != 0)
             {
                 throw new Exception($"Failed to move folder to recycle bin. Error code: {result}");
+            }
+        }
+
+        /// <summary>
+        /// Refreshes installation status in all open GameBanana browser instances
+        /// </summary>
+        private void RefreshGameBananaBrowserStatus()
+        {
+            try
+            {
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                {
+                    mainWindow.RefreshGameBananaBrowserInstallationStatus();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to refresh GameBanana browser installation status", ex);
             }
         }
 

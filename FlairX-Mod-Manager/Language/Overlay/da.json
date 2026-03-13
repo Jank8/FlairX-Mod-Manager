@@ -64,5 +64,7 @@
     "Hotkeys": "Genveje",
     "CategoryFavorite_Label": "Favoritkategori",
     "Favorites_Section": "Favoritter",
-    "ModFavorite_Label": "Favoritmod"
+    "ModFavorite_Label": "Favoritmod",
+    "SteamWarning_Label": "Bemærk",
+    "SteamWarning_Description": "Programmer som Steam kan forårsage forkert eller ingen controller-funktionalitet"
 }

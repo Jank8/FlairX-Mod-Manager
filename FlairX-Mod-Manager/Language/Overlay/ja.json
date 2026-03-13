@@ -64,5 +64,7 @@
     "WindowTitle": "FlairX オーバーレイ",
     "CategoryFavorite_Label": "お気に入りカテゴリ",
     "Favorites_Section": "お気に入り",
-    "ModFavorite_Label": "お気に入りMod"
+    "ModFavorite_Label": "お気に入りMod",
+    "SteamWarning_Label": "注意",
+    "SteamWarning_Description": "Steamなどのプログラムは、コントローラーの機能が正しく動作しないか、まったく動作しない原因となる可能性があります"
 }

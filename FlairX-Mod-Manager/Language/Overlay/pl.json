@@ -64,5 +64,7 @@
     "RightStickDown_Label": "Prawy drążek Dół",
     "ToggleSwitch_On": "Włączone",
     "ToggleSwitch_Off": "Wyłączone",
-    "Hotkeys": "Skróty klawiszowe"
+    "Hotkeys": "Skróty klawiszowe",
+    "SteamWarning_Label": "Uwaga",
+    "SteamWarning_Description": "Programy typu Steam mogą powodować niepoprawne działanie lub brak działania kontrolera"
 }

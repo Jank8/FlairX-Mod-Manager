@@ -333,7 +333,7 @@
             <!-- Details panel (full view) - vertical layout like ModDetailUserControl -->
             <Grid x:Name="DetailsPanel" 
                   Visibility="Collapsed">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,0,12">
+                <ScrollViewer x:Name="DetailsScrollViewer" VerticalScrollBarVisibility="Auto" Padding="0,0,0,12">
                     <Grid HorizontalAlignment="Stretch">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>

@@ -64,5 +64,7 @@
     "Hotkeys": "Klávesové zkratky",
     "CategoryFavorite_Label": "Oblíbená kategorie",
     "Favorites_Section": "Oblíbené",
-    "ModFavorite_Label": "Oblíbený mod"
+    "ModFavorite_Label": "Oblíbený mod",
+    "SteamWarning_Label": "Poznámka",
+    "SteamWarning_Description": "Programy jako Steam mohou způsobit nesprávnou nebo žádnou funkčnost ovladače"
 }

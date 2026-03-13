@@ -64,5 +64,7 @@
     "Hotkeys": "Tombol Pintas",
     "CategoryFavorite_Label": "Kategori favorit",
     "Favorites_Section": "Favorit",
-    "ModFavorite_Label": "Mod favorit"
+    "ModFavorite_Label": "Mod favorit",
+    "SteamWarning_Label": "Pemberitahuan",
+    "SteamWarning_Description": "Program seperti Steam dapat menyebabkan fungsi controller yang salah atau tidak ada"
 }

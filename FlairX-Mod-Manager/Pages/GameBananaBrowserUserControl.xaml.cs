@@ -3051,6 +3051,52 @@ namespace FlairX_Mod_Manager.Pages
                 PreviewEffectHelper.ResetGlassmorphismEffect(glassmorphismContainer);
             }
         }
+        
+        /// <summary>
+        /// Refreshes the installation status of all mods in the browser
+        /// </summary>
+        public void RefreshModInstallationStatus()
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                // Update main mods collection
+                foreach (var mod in _mods)
+                {
+                    var wasInstalled = mod.IsInstalled;
+                    var isNowInstalled = IsModInstalled(mod.ProfileUrl);
+                    if (wasInstalled != isNowInstalled)
+                    {
+                        mod.IsInstalled = isNowInstalled;
+                        Logger.LogInfo($"Updated installation status for mod: {mod.Name} - Installed: {isNowInstalled}");
+                    }
+                }
+                
+                // Update author mods collection
+                foreach (var mod in _authorMods)
+                {
+                    var wasInstalled = mod.IsInstalled;
+                    var isNowInstalled = IsModInstalled(mod.ProfileUrl);
+                    if (wasInstalled != isNowInstalled)
+                    {
+                        mod.IsInstalled = isNowInstalled;
+                        Logger.LogInfo($"Updated installation status for author mod: {mod.Name} - Installed: {isNowInstalled}");
+                    }
+                }
+                
+                // Update details panel if currently showing a mod
+                if (_currentModDetails != null && !string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
+                {
+                    var isInstalled = IsModInstalled(_currentModDetails.ProfileUrl);
+                    DetailInstalledBadge.Visibility = isInstalled ? Visibility.Visible : Visibility.Collapsed;
+                    
+                    // Update download button text
+                    var lang = SharedUtilities.LoadLanguageDictionary("GameBananaBrowser");
+                    DetailDownloadButtonText.Text = isInstalled 
+                        ? SharedUtilities.GetTranslation(lang, "DownloadAndUpdate")
+                        : SharedUtilities.GetTranslation(lang, "DownloadAndInstall");
+                }
+            });
+        }
     }
 }
 

@@ -414,6 +414,29 @@
                 </Grid>
             </Border>
             
+            <!-- Steam Warning -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="16" 
+                    Margin="0,0,0,24">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <FontIcon Grid.Column="0" Glyph="&#xE7BA;" FontSize="20" VerticalAlignment="Center" Foreground="Orange"/>
+                    
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="SteamWarningLabel" Text="Steam Warning" FontWeight="SemiBold" FontSize="14"/>
+                        <TextBlock x:Name="SteamWarningDescription" Text="Programs like Steam may cause incorrect or no controller functionality" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            
             <!-- Gamepad Hotkeys Section -->
             <TextBlock x:Name="GamepadHotkeysSectionHeader" Text="Gamepad Hotkeys" FontSize="20" FontWeight="SemiBold" Margin="0,22,0,12"/>
             

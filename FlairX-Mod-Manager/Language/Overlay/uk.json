@@ -64,5 +64,7 @@
     "Hotkeys": "Гарячі клавіші",
     "CategoryFavorite_Label": "Улюблена категорія",
     "Favorites_Section": "Улюблені",
-    "ModFavorite_Label": "Улюблений мод"
+    "ModFavorite_Label": "Улюблений мод",
+    "SteamWarning_Label": "Примітка",
+    "SteamWarning_Description": "Програми на кшталт Steam можуть спричинити неправильну роботу або відсутність функціональності контролера"
 }

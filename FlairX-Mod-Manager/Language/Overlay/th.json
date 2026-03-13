@@ -64,5 +64,7 @@
     "WindowTitle": "FlairX โอเวอร์เลย์",
     "CategoryFavorite_Label": "หมวดหมู่โปรด",
     "Favorites_Section": "รายการโปรด",
-    "ModFavorite_Label": "ม็อดโปรด"
+    "ModFavorite_Label": "ม็อดโปรด",
+    "SteamWarning_Label": "หมายเหตุ",
+    "SteamWarning_Description": "โปรแกรมเช่น Steam อาจทำให้ตัวควบคุมทำงานไม่ถูกต้องหรือไม่ทำงานเลย"
 }

@@ -64,5 +64,7 @@
     "WindowTitle": "FlairX 覆盖层",
     "CategoryFavorite_Label": "收藏类别",
     "Favorites_Section": "收藏",
-    "ModFavorite_Label": "收藏模组"
+    "ModFavorite_Label": "收藏模组",
+    "SteamWarning_Label": "注意",
+    "SteamWarning_Description": "像Steam这样的程序可能会导致控制器功能不正确或无功能"
 }

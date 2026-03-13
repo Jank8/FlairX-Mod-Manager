@@ -64,5 +64,7 @@
     "WindowTitle": "FlairX Overlay",
     "CategoryFavorite_Label": "Избранная категория",
     "Favorites_Section": "Избранное",
-    "ModFavorite_Label": "Избранный мод"
+    "ModFavorite_Label": "Избранный мод",
+    "SteamWarning_Label": "Примечание",
+    "SteamWarning_Description": "Программы вроде Steam могут вызвать неправильную работу или отсутствие функциональности контроллера"
 }

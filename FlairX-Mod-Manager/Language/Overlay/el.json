@@ -64,5 +64,7 @@
     "Hotkeys": "Συντομεύσεις",
     "CategoryFavorite_Label": "Αγαπημένη κατηγορία",
     "Favorites_Section": "Αγαπημένα",
-    "ModFavorite_Label": "Αγαπημένο mod"
+    "ModFavorite_Label": "Αγαπημένο mod",
+    "SteamWarning_Label": "Σημείωση",
+    "SteamWarning_Description": "Προγράμματα όπως το Steam μπορεί να προκαλέσουν εσφαλμένη ή καμία λειτουργικότητα χειριστηρίου"
 }

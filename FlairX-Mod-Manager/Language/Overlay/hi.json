@@ -64,5 +64,7 @@
     "WindowTitle": "FlairX ओवरले",
     "CategoryFavorite_Label": "पसंदीदा श्रेणी",
     "Favorites_Section": "पसंदीदा",
-    "ModFavorite_Label": "पसंदीदा मॉड"
+    "ModFavorite_Label": "पसंदीदा मॉड",
+    "SteamWarning_Label": "सूचना",
+    "SteamWarning_Description": "Steam जैसे प्रोग्राम गलत या कोई नियंत्रक कार्यक्षमता का कारण बन सकते हैं"
 }

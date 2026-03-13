@@ -64,5 +64,7 @@
     "UseRightStickForHotkeys_Label": "Utiliser Stick Droit pour Raccourcis",
     "VibrateOnNav_Description": "Retour haptique lors du déplacement dans les mods",
     "VibrateOnNav_Label": "Vibrer lors de la navigation",
-    "WindowTitle": "FlairX Overlay"
+    "WindowTitle": "FlairX Overlay",
+    "SteamWarning_Label": "Remarque",
+    "SteamWarning_Description": "Les programmes comme Steam peuvent causer un dysfonctionnement ou une absence de fonctionnalité de la manette"
 }

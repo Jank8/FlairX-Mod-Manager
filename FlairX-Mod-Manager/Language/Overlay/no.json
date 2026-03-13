@@ -64,5 +64,7 @@
     "Hotkeys": "Hurtigtaster",
     "CategoryFavorite_Label": "Favorittkategori",
     "Favorites_Section": "Favoritter",
-    "ModFavorite_Label": "Favorittmod"
+    "ModFavorite_Label": "Favorittmod",
+    "SteamWarning_Label": "Merknad",
+    "SteamWarning_Description": "Programmer som Steam kan forårsake feil eller ingen kontroller-funksjonalitet"
 }

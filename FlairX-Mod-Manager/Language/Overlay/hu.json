@@ -64,5 +64,7 @@
     "Hotkeys": "Gyorsbillentyűk",
     "CategoryFavorite_Label": "Kedvenc kategória",
     "Favorites_Section": "Kedvencek",
-    "ModFavorite_Label": "Kedvenc mod"
+    "ModFavorite_Label": "Kedvenc mod",
+    "SteamWarning_Label": "Megjegyzés",
+    "SteamWarning_Description": "Az olyan programok, mint a Steam, helytelen vagy semmilyen vezérlő funkcionalitást okozhatnak"
 }

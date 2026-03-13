@@ -64,5 +64,7 @@
     "WindowTitle": "FlairX Overlay",
     "CategoryFavorite_Label": "Favori kategori",
     "Favorites_Section": "Favoriler",
-    "ModFavorite_Label": "Favori mod"
+    "ModFavorite_Label": "Favori mod",
+    "SteamWarning_Label": "Not",
+    "SteamWarning_Description": "Steam gibi programlar yanlış veya hiç kontrolcü işlevselliğine neden olabilir"
 }

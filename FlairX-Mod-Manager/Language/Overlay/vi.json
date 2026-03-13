@@ -64,5 +64,7 @@
     "WindowTitle": "FlairX Overlay",
     "CategoryFavorite_Label": "Danh mục yêu thích",
     "Favorites_Section": "Yêu thích",
-    "ModFavorite_Label": "Mod yêu thích"
+    "ModFavorite_Label": "Mod yêu thích",
+    "SteamWarning_Label": "Lưu ý",
+    "SteamWarning_Description": "Các chương trình như Steam có thể gây ra chức năng điều khiển không chính xác hoặc không có"
 }

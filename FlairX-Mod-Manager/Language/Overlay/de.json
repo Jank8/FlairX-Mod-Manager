@@ -64,5 +64,7 @@
     "RightStickDown_Label": "Rechter Stick unten",
     "ToggleSwitch_On": "An",
     "ToggleSwitch_Off": "Aus",
-    "Hotkeys": "Tastenkombinationen"
+    "Hotkeys": "Tastenkombinationen",
+    "SteamWarning_Label": "Hinweis",
+    "SteamWarning_Description": "Programme wie Steam können zu fehlerhafter oder fehlender Controller-Funktionalität führen"
 }

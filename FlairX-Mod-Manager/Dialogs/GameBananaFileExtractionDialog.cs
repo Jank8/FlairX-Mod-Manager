@@ -233,7 +233,8 @@ namespace FlairX_Mod_Manager.Dialogs
             else
             {
                 // Preview-only mode: create hidden controls with default values
-                _modNameTextBox = new TextBox { Text = modName, Visibility = Visibility.Collapsed };
+                var sanitizedModName = SanitizeFileName(modName);
+                _modNameTextBox = new TextBox { Text = sanitizedModName, Visibility = Visibility.Collapsed };
                 _categoryComboBox = new ComboBox { Text = categoryName ?? "Characters", Visibility = Visibility.Collapsed };
                 
                 // Show info message for preview-only mode
@@ -414,7 +415,9 @@ namespace FlairX_Mod_Manager.Dialogs
             // Force TextBox to update its display
             if (_modNameTextBox != null && !string.IsNullOrEmpty(modName))
             {
-                _modNameTextBox.Text = modName;
+                // Sanitize the mod name to ensure it's valid for folder names
+                var sanitizedModName = SanitizeFileName(modName);
+                _modNameTextBox.Text = sanitizedModName;
                 _modNameTextBox.UpdateLayout();
                 ValidateInputs(); // Enable Start button after setting text
             }
@@ -460,9 +463,11 @@ namespace FlairX_Mod_Manager.Dialogs
                     {
                         existingFolderName = existingFolderName.Substring(9);
                     }
-                    _modNameTextBox.Text = existingFolderName;
+                    // Sanitize folder name to ensure it's valid
+                    var sanitizedFolderName = SanitizeFileName(existingFolderName);
+                    _modNameTextBox.Text = sanitizedFolderName;
                     ValidateInputs(); // Enable Start button
-                    Logger.LogInfo($"Using existing folder name: {existingFolderName}");
+                    Logger.LogInfo($"Using existing folder name: {sanitizedFolderName}");
                     
                     // Update category to where mod actually is
                     var existingCategory = Path.GetFileName(Path.GetDirectoryName(_existingModPathForPreviewsOnly));
@@ -520,9 +525,11 @@ namespace FlairX_Mod_Manager.Dialogs
                     {
                         existingFolderName = existingFolderName.Substring(9);
                     }
-                    _modNameTextBox.Text = existingFolderName;
+                    // Sanitize folder name to ensure it's valid
+                    var sanitizedFolderName = SanitizeFileName(existingFolderName);
+                    _modNameTextBox.Text = sanitizedFolderName;
                     ValidateInputs(); // Enable Start button
-                    Logger.LogInfo($"Using existing folder name: {existingFolderName}");
+                    Logger.LogInfo($"Using existing folder name: {sanitizedFolderName}");
                     
                     // Update category to where mod actually is
                     if (!string.IsNullOrEmpty(foundInCategory))
@@ -1279,7 +1286,7 @@ namespace FlairX_Mod_Manager.Dialogs
         private string SanitizeFileName(string fileName)
         {
             var invalid = Path.GetInvalidFileNameChars();
-            return string.Join("_", fileName.Split(invalid, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
+            return string.Join("-", fileName.Split(invalid, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
         }
 
         private async Task ShowError(string message)
@@ -1632,24 +1639,25 @@ namespace FlairX_Mod_Manager.Dialogs
 
         private void ModNameTextBox_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
         {
-            // Replace forward slash with dash
-            if (args.NewText.Contains('/'))
-            {
-                args.Cancel = true;
-                sender.Text = args.NewText.Replace("/", "-");
-                sender.SelectionStart = sender.Text.Length;
-                return;
-            }
-
-            // Block other invalid filename characters (except /)
-            var invalidChars = System.IO.Path.GetInvalidFileNameChars().Where(c => c != '/').ToArray();
+            // Check if the new text contains any invalid characters
+            var invalidChars = System.IO.Path.GetInvalidFileNameChars();
             if (args.NewText.Any(c => invalidChars.Contains(c)))
             {
                 args.Cancel = true;
+                
+                // Sanitize the text by replacing invalid characters with dashes
+                var sanitizedText = SanitizeFileName(args.NewText);
+                
+                // Set the sanitized text
+                sender.Text = sanitizedText;
+                sender.SelectionStart = sender.Text.Length;
+                
+                // Validate after sanitization
+                ValidateInputs();
                 return;
             }
 
-            // Validate and update button state
+            // Validate and update button state for valid input
             ValidateInputs();
         }
 

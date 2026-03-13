@@ -64,5 +64,7 @@
     "Hotkeys": "Tasti rapidi",
     "CategoryFavorite_Label": "Categoria preferita",
     "Favorites_Section": "Preferiti",
-    "ModFavorite_Label": "Mod preferita"
+    "ModFavorite_Label": "Mod preferita",
+    "SteamWarning_Label": "Avviso",
+    "SteamWarning_Description": "Programmi come Steam possono causare funzionalità del controller errate o assenti"
 }
