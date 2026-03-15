@@ -62,10 +62,20 @@ namespace FlairX_Mod_Manager.Pages
             ModDetails,
             AuthorMods
         }
-        
+
+        // Navigation history stack (browser-like)
+        private record NavigationEntry(
+            NavigationState State,
+            int? ModId = null,
+            string? Search = null,
+            int Page = 1,
+            int? AuthorId = null,
+            string? AuthorName = null,
+            double ScrollOffset = 0
+        );
+
+        private readonly Stack<NavigationEntry> _navigationStack = new();
         private NavigationState _currentState = NavigationState.ModsList;
-        private bool _openedDirectlyToModDetails = false;
-        private int? _returnToModId = null; // Remember mod ID when navigating to category search
 
         public class ModViewModel : INotifyPropertyChanged
         {
@@ -225,7 +235,6 @@ namespace FlairX_Mod_Manager.Pages
             // If modUrl is provided, load mod details directly
             if (!string.IsNullOrEmpty(modUrl))
             {
-                _openedDirectlyToModDetails = true;
                 _ = LoadModDetailsFromUrlAsync(modUrl);
             }
             else
@@ -1334,12 +1343,20 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 
                 Logger.LogInfo($"Opening GameBanana URL: {modUrl}");
+                // Push current state before navigating via URL
+                if (_currentState == NavigationState.ModsList)
+                {
+                    _navigationStack.Push(new NavigationEntry(
+                        NavigationState.ModsList,
+                        Search: _currentSearch,
+                        Page: _currentPage,
+                        ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
+                }
                 await LoadModDetailsFromUrlAsync(modUrl);
             }
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to open GameBanana URL: {input}", ex);
-                // Show error and fallback to normal search
                 ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
                 ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
                 ConnectionErrorBar.IsOpen = true;
@@ -1409,46 +1426,169 @@ namespace FlairX_Mod_Manager.Pages
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            // Handle back navigation based on current state
-            if (_currentState == NavigationState.ModDetails)
+            if (_navigationStack.Count > 0)
             {
-                // If opened directly to mod details, close the entire panel
-                if (_openedDirectlyToModDetails)
-                {
-                    CloseRequested?.Invoke(this, new BrowserClosedEventArgs { ModWasInstalled = _modWasInstalled });
-                }
-                else
-                {
-                    // Go back to mods list
-                    CloseDetailsPanel();
-                }
-            }
-            else if (_currentState == NavigationState.AuthorMods)
-            {
-                // Check if opened from search or mod details
-                if (_authorModsOpenedFromSearch)
-                {
-                    // Go back to main mods list
-                    CloseAuthorModsToMainPanel();
-                }
-                else
-                {
-                    // Go back to mod details
-                    CloseAuthorModsPanel();
-                }
-            }
-            else if (_returnToModId.HasValue)
-            {
-                // Return to mod details after category search
-                var modId = _returnToModId.Value;
-                _returnToModId = null;
-                _ = ShowModDetailsAsync(modId);
+                var previous = _navigationStack.Pop();
+                _ = RestoreNavigationEntryAsync(previous);
             }
             else
             {
-                // Close the entire panel
+                // Nothing in history - close the panel
                 CloseRequested?.Invoke(this, new BrowserClosedEventArgs { ModWasInstalled = _modWasInstalled });
             }
+        }
+
+        private async Task RestoreNavigationEntryAsync(NavigationEntry entry)
+        {
+            switch (entry.State)
+            {
+                case NavigationState.ModsList:
+                    // Restore mods list - need to close whatever is currently open
+                    if (_currentState == NavigationState.AuthorMods)
+                    {
+                        // Author mods uses ModsListGrid, just reset state
+                        _authorMods.Clear();
+                        _currentAuthorId = null;
+                        _currentAuthorName = null;
+                        _authorModsOpenedFromSearch = false;
+                        _authorCurrentPage = 1;
+                        _authorHasMorePages = true;
+                        _authorIsLoadingMore = false;
+                        LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
+                        LoadMoreAuthorModsButton.IsEnabled = true;
+                        LoadMoreProgressBar.Visibility = Visibility.Collapsed;
+                        ModsGridView.ItemsSource = _mods;
+                        LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
+                    }
+                    else if (_currentState == NavigationState.ModDetails)
+                    {
+                        CloseDetailsPanelNoHistory();
+                    }
+                    // Reload if search/page changed
+                    if (entry.Search != _currentSearch || entry.Page != _currentPage)
+                    {
+                        _currentSearch = entry.Search;
+                        _currentPage = entry.Page;
+                        SearchBox.Text = entry.Search ?? "";
+                        await LoadModsAsync();
+                    }
+                    _currentState = NavigationState.ModsList;
+                    var gameName2 = GetGameName(_gameTag);
+                    var titleFormat2 = SharedUtilities.GetTranslation(_lang, "BrowseTitle");
+                    TitleText.Text = string.Format(titleFormat2, gameName2);
+                    // Restore scroll position after layout
+                    if (entry.ScrollOffset > 0 && _modsScrollViewer != null)
+                    {
+                        await Task.Delay(50);
+                        _modsScrollViewer.ScrollToVerticalOffset(entry.ScrollOffset);
+                    }
+                    break;
+
+                case NavigationState.ModDetails:
+                    if (entry.ModId.HasValue)
+                    {
+                        if (_currentState == NavigationState.AuthorMods)
+                        {
+                            // Going back from author mods to mod details
+                            CloseAuthorModsPanelNoHistory();
+                        }
+                        else if (_currentState == NavigationState.ModsList)
+                        {
+                            // Going forward to details (shouldn't normally happen in back nav, but handle it)
+                            AnimateContentSwitch(ModsListGrid, DetailsPanel);
+                            _currentState = NavigationState.ModDetails;
+                        }
+                        // Reload mod details only if different mod
+                        if (_currentModDetails?.Id != entry.ModId.Value)
+                        {
+                            await ShowModDetailsAsyncNoHistory(entry.ModId.Value);
+                        }
+                        DetailsScrollViewer.ScrollToVerticalOffset(0);
+                    }
+                    break;
+
+                case NavigationState.AuthorMods:
+                    if (entry.AuthorId.HasValue)
+                    {
+                        _currentAuthorId = entry.AuthorId;
+                        _currentAuthorName = entry.AuthorName;
+                        await ShowAuthorModsAsyncNoHistory();
+                    }
+                    break;
+            }
+
+            UpdateBackButtonIcon();
+        }
+
+        private void UpdateBackButtonIcon()
+        {
+            BackIcon.Glyph = _navigationStack.Count > 0 ? "\uE72B" : "\uE711"; // Left arrow : Close (X)
+        }
+
+        private void CloseDetailsPanelNoHistory()
+        {
+            DetailInstalledBadge.Visibility = Visibility.Collapsed;
+            DetailVersionBadge.Visibility = Visibility.Collapsed;
+            AnimateContentSwitch(DetailsPanel, ModsListGrid);
+            _currentModDetails = null;
+            _detailFiles.Clear();
+            _currentState = NavigationState.ModsList;
+            _imageCache.Clear();
+            var gameName = GetGameName(_gameTag);
+            var titleFormat = SharedUtilities.GetTranslation(_lang, "BrowseTitle");
+            TitleText.Text = string.Format(titleFormat, gameName);
+            if (_isAttachedToSizeChanged)
+            {
+                DetailDescriptionScrollViewer.SizeChanged -= DetailDescriptionScrollViewer_SizeChanged;
+                _isAttachedToSizeChanged = false;
+            }
+            DetailDescriptionMarkdown.LayoutUpdated -= DetailDescriptionMarkdown_LayoutUpdated;
+        }
+
+        private void CloseAuthorModsPanelNoHistory()
+        {
+            AnimateContentSwitch(ModsListGrid, DetailsPanel);
+            _currentState = NavigationState.ModDetails;
+            ModsGridView.ItemsSource = _mods;
+            LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
+            LoadMoreAuthorModsButton.IsEnabled = true;
+            LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
+            LoadMoreProgressBar.Visibility = Visibility.Collapsed;
+            _authorMods.Clear();
+            _currentAuthorId = null;
+            _currentAuthorName = null;
+            _authorModsOpenedFromSearch = false;
+            _authorCurrentPage = 1;
+            _authorHasMorePages = true;
+            _authorIsLoadingMore = false;
+            if (_currentModDetails != null)
+                TitleText.Text = _currentModDetails.Name;
+        }
+
+        private async Task ShowModDetailsAsyncNoHistory(int modId)
+        {
+            // Temporarily set state to ModDetails so ShowModDetailsAsync won't push to stack
+            // (push only happens when coming from ModsList or ModDetails with a different mod)
+            var savedState = _currentState;
+            var savedModDetails = _currentModDetails;
+            // Set current mod details to the target so the "different mod" check passes but state won't push
+            _currentState = NavigationState.ModDetails;
+            _currentModDetails = null; // will be reloaded
+            await ShowModDetailsAsync(modId);
+            // Pop the entry that ShowModDetailsAsync just pushed (we don't want it)
+            if (_navigationStack.Count > 0)
+                _navigationStack.Pop();
+        }
+
+        private async Task ShowAuthorModsAsyncNoHistory()
+        {
+            // Temporarily set state so ShowAuthorModsAsync won't push to stack
+            var savedState = _currentState;
+            _currentState = NavigationState.AuthorMods; // won't match push conditions
+            await ShowAuthorModsAsync();
+            // Pop the entry that ShowAuthorModsAsync just pushed (we don't want it)
+            if (_navigationStack.Count > 0)
+                _navigationStack.Pop();
         }
 
         private void BackButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -1503,6 +1643,29 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                // Push current state to navigation stack before navigating
+                if (_currentState == NavigationState.ModsList)
+                {
+                    _navigationStack.Push(new NavigationEntry(
+                        NavigationState.ModsList,
+                        Search: _currentSearch,
+                        Page: _currentPage,
+                        ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
+                }
+                else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
+                {
+                    _navigationStack.Push(new NavigationEntry(
+                        NavigationState.ModDetails,
+                        ModId: _currentModDetails.Id));
+                }
+                else if (_currentState == NavigationState.AuthorMods && _currentAuthorId.HasValue)
+                {
+                    _navigationStack.Push(new NavigationEntry(
+                        NavigationState.AuthorMods,
+                        AuthorId: _currentAuthorId,
+                        AuthorName: _currentAuthorName));
+                }
+
                 // Clear source mod path when navigating to different mod
                 // This prevents dialog from thinking we're updating the original mod
                 if (_currentModDetails == null || _currentModDetails.Id != modId)
@@ -1526,15 +1689,11 @@ namespace FlairX_Mod_Manager.Pages
                 AnimateContentSwitch(ModsListGrid, DetailsPanel);
                 _currentState = NavigationState.ModDetails;
                 
-                // Change back button icon - close (X) if opened directly, left arrow if navigated from list
-                if (_openedDirectlyToModDetails)
-                {
-                    BackIcon.Glyph = "\uE711"; // Close (X)
-                }
-                else
-                {
-                    BackIcon.Glyph = "\uE72B"; // Left arrow
-                }
+                // Scroll details to top
+                DetailsScrollViewer.ScrollToVerticalOffset(0);
+                
+                // Update back button icon
+                UpdateBackButtonIcon();
 
                 // Load mod details
                 _currentModDetails = await GameBananaService.GetModDetailsAsync(modId);
@@ -1746,14 +1905,30 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                // Push current state to navigation stack before navigating
+                if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
+                {
+                    _navigationStack.Push(new NavigationEntry(
+                        NavigationState.ModDetails,
+                        ModId: _currentModDetails.Id));
+                }
+                else if (_currentState == NavigationState.ModsList)
+                {
+                    _navigationStack.Push(new NavigationEntry(
+                        NavigationState.ModsList,
+                        Search: _currentSearch,
+                        Page: _currentPage,
+                        ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
+                }
+
                 // Update title to show author name
                 var authorModsTitle = SharedUtilities.GetTranslation(_lang, "AuthorModsTitle");
                 var newTitle = $"{_currentAuthorName} - {authorModsTitle}";
                 Logger.LogInfo($"Setting author mods title to: {newTitle}");
                 TitleText.Text = newTitle;
                 
-                // Change back button to left arrow
-                BackIcon.Glyph = "\uE72B"; // Left arrow
+                // Update back button icon
+                UpdateBackButtonIcon();
                 
                 // Switch to author mods view
                 AnimateContentSwitch(DetailsPanel, ModsListGrid);
@@ -1785,94 +1960,28 @@ namespace FlairX_Mod_Manager.Pages
 
         private void CloseDetailsPanel()
         {
-            // Hide installed badge and version badge when leaving details
-            DetailInstalledBadge.Visibility = Visibility.Collapsed;
-            DetailVersionBadge.Visibility = Visibility.Collapsed;
-            
-            // Animate transition back to list
-            AnimateContentSwitch(DetailsPanel, ModsListGrid);
-            _currentModDetails = null;
-            _detailFiles.Clear();
-            _currentState = NavigationState.ModsList;
-            
-            // Clear image cache to free memory
-            _imageCache.Clear();
-            
-            // Change back button icon to X (close)
-            BackIcon.Glyph = "\uE711"; // Cancel/Close icon
-            
-            // Restore title
-            var gameName = GetGameName(_gameTag);
-            var titleFormat = SharedUtilities.GetTranslation(_lang, "BrowseTitle");
-            TitleText.Text = string.Format(titleFormat, gameName);
-            
-            // Clean up event handlers to prevent memory leaks
-            if (_isAttachedToSizeChanged)
-            {
-                DetailDescriptionScrollViewer.SizeChanged -= DetailDescriptionScrollViewer_SizeChanged;
-                _isAttachedToSizeChanged = false;
-            }
-            
-            // Clean up markdown layout updated event handler
-            DetailDescriptionMarkdown.LayoutUpdated -= DetailDescriptionMarkdown_LayoutUpdated;
+            _navigationStack.Clear();
+            CloseDetailsPanelNoHistory();
+            UpdateBackButtonIcon();
         }
 
         private void CloseAuthorModsPanel()
         {
-            // Animate transition back to details
-            AnimateContentSwitch(ModsListGrid, DetailsPanel);
-            _currentState = NavigationState.ModDetails;
-            
-            // Restore original mods collection to grid
-            ModsGridView.ItemsSource = _mods;
-            
-            // Hide load more buttons and reset state
-            LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
-            LoadMoreAuthorModsButton.IsEnabled = true;
-            LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
-            LoadMoreProgressBar.Visibility = Visibility.Collapsed;
-            
-            // Clear author mods data
-            _authorMods.Clear();
-            _currentAuthorId = null;
-            _currentAuthorName = null;
-            _authorModsOpenedFromSearch = false;
-            _authorCurrentPage = 1;
-            _authorHasMorePages = true;
-            _authorIsLoadingMore = false;
-            
-            // Restore title to mod details
-            if (_currentModDetails != null)
-            {
-                TitleText.Text = _currentModDetails.Name;
-            }
-            
-            // Change back button icon based on how we got to details
-            if (_openedDirectlyToModDetails)
-            {
-                BackIcon.Glyph = "\uE711"; // Close (X)
-            }
-            else
-            {
-                BackIcon.Glyph = "\uE72B"; // Left arrow
-            }
+            _navigationStack.Clear();
+            CloseAuthorModsPanelNoHistory();
+            UpdateBackButtonIcon();
         }
 
         private void CloseAuthorModsToMainPanel()
         {
+            _navigationStack.Clear();
             // No animation needed since we're already in ModsListGrid view, just update state
             _currentState = NavigationState.ModsList;
-            
-            // Restore original mods collection to grid
             ModsGridView.ItemsSource = _mods;
-            
-            // Hide load more buttons and reset state
             LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
             LoadMoreAuthorModsButton.IsEnabled = true;
             LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
             LoadMoreProgressBar.Visibility = Visibility.Collapsed;
-            
-            // Clear author mods data
             _authorMods.Clear();
             _currentAuthorId = null;
             _currentAuthorName = null;
@@ -1880,14 +1989,10 @@ namespace FlairX_Mod_Manager.Pages
             _authorCurrentPage = 1;
             _authorHasMorePages = true;
             _authorIsLoadingMore = false;
-            
-            // Restore title to main browser
             var gameName = GetGameName(_gameTag);
             var titleFormat = SharedUtilities.GetTranslation(_lang, "BrowseTitle");
             TitleText.Text = string.Format(titleFormat, gameName);
-            
-            // Change back button icon to close
-            BackIcon.Glyph = "\uE711"; // Close (X)
+            UpdateBackButtonIcon();
         }
 
         private void AnimateContentSwitch(UIElement hideElement, UIElement showElement)
@@ -2731,27 +2836,25 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                // Parse GameBanana URL to extract mod ID
-                // Example: https://gamebanana.com/mods/574763
                 var urlPattern = new System.Text.RegularExpressions.Regex(@"gamebanana\.com/mods/(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 var match = urlPattern.Match(modUrl);
                 
                 if (match.Success && int.TryParse(match.Groups[1].Value, out int modId))
                 {
                     Logger.LogInfo($"Loading mod details from URL: {modUrl}, ID: {modId}");
-                    await ShowModDetailsAsync(modId);
+                    // Use NoHistory variant - stack stays empty so back button closes the panel
+                    await ShowModDetailsAsyncNoHistory(modId);
+                    UpdateBackButtonIcon();
                 }
                 else
                 {
                     Logger.LogWarning($"Could not parse mod ID from URL: {modUrl}");
-                    // Fallback to loading mods list
                     await LoadModsAsync();
                 }
             }
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to load mod details from URL: {modUrl}", ex);
-                // Fallback to loading mods list and show error
                 await LoadModsAsync();
                 ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
                 ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
