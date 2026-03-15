@@ -75,7 +75,8 @@ namespace FlairX_Mod_Manager.Pages
 
         private readonly Stack<NavigationEntry> _navigationStack = new();
         private NavigationState _currentState = NavigationState.ModsList;
-        private bool _suppressNavigationPush = false; // When true, ShowModDetailsAsync/ShowAuthorModsAsync won't push to stack
+        private bool _suppressNavigationPush = false;
+        private bool _isNavigating = false; // Prevents race condition on rapid back clicks
 
         public class ModViewModel : INotifyPropertyChanged
         {
@@ -1425,6 +1426,8 @@ namespace FlairX_Mod_Manager.Pages
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
+            if (_isNavigating) return;
+
             if (_navigationStack.Count > 0)
             {
                 var previous = _navigationStack.Pop();
@@ -1432,100 +1435,101 @@ namespace FlairX_Mod_Manager.Pages
             }
             else
             {
-                // Nothing in history - close the panel
                 CloseRequested?.Invoke(this, new BrowserClosedEventArgs { ModWasInstalled = _modWasInstalled });
             }
         }
 
         private async Task RestoreNavigationEntryAsync(NavigationEntry entry)
         {
-            switch (entry.State)
+            _isNavigating = true;
+            try
             {
-                case NavigationState.ModsList:
-                    if (_currentState == NavigationState.AuthorMods)
-                    {
-                        // AuthorMods uses ModsListGrid - already visible, just reset state
-                        _authorMods.Clear();
-                        _currentAuthorId = null;
-                        _currentAuthorName = null;
-                        _authorModsOpenedFromSearch = false;
-                        _authorCurrentPage = 1;
-                        _authorHasMorePages = true;
-                        _authorIsLoadingMore = false;
-                        LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
-                        LoadMoreAuthorModsButton.IsEnabled = true;
-                        LoadMoreProgressBar.Visibility = Visibility.Collapsed;
-                        ModsGridView.ItemsSource = _mods;
-                        LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
-                        _currentState = NavigationState.ModsList;
-                    }
-                    else if (_currentState == NavigationState.ModDetails)
-                    {
-                        CloseDetailsPanelNoHistory();
-                        // CloseDetailsPanelNoHistory already sets _currentState = ModsList
-                    }
-                    // else already on ModsList - nothing to close
-
-                    // Reload only if search changed or mods list is empty
-                    // If same search, _mods still has the right content (infinite scroll preserved)
-                    if (entry.Search != _currentSearch || _mods.Count == 0)
-                    {
-                        _currentSearch = entry.Search;
-                        _currentPage = 1;
-                        SearchBox.Text = entry.Search ?? "";
-                        await LoadModsAsync();
-                    }
-                    _currentState = NavigationState.ModsList;
-                    TitleText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "BrowseTitle"), GetGameName(_gameTag));
-
-                    // Restore scroll position after layout
-                    if (entry.ScrollOffset > 0 && _modsScrollViewer != null)
-                    {
-                        await Task.Delay(50);
-                        _modsScrollViewer.ScrollToVerticalOffset(entry.ScrollOffset);
-                    }
-                    break;
-
-                case NavigationState.ModDetails:
-                    if (entry.ModId.HasValue)
-                    {
+                switch (entry.State)
+                {
+                    case NavigationState.ModsList:
                         if (_currentState == NavigationState.AuthorMods)
                         {
-                            // Going back from author mods to details panel
-                            CloseAuthorModsPanelNoHistory();
-                            // CloseAuthorModsPanelNoHistory sets _currentState = ModDetails and animates to DetailsPanel
+                            // AuthorMods uses ModsListGrid - already visible, just reset state
+                            _authorMods.Clear();
+                            _currentAuthorId = null;
+                            _currentAuthorName = null;
+                            _authorModsOpenedFromSearch = false;
+                            _authorCurrentPage = 1;
+                            _authorHasMorePages = true;
+                            _authorIsLoadingMore = false;
+                            LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
+                            LoadMoreAuthorModsButton.IsEnabled = true;
+                            LoadMoreProgressBar.Visibility = Visibility.Collapsed;
+                            ModsGridView.ItemsSource = _mods;
+                            LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
+                            _currentState = NavigationState.ModsList;
                         }
-                        else if (_currentState == NavigationState.ModsList)
+                        else if (_currentState == NavigationState.ModDetails)
                         {
-                            // Shouldn't happen in normal back nav, but handle gracefully
-                            AnimateContentSwitch(ModsListGrid, DetailsPanel);
-                            _currentState = NavigationState.ModDetails;
+                            CloseDetailsPanelNoHistory();
                         }
-                        // If _currentState == ModDetails already, DetailsPanel is visible - no animation needed
+                        // else already on ModsList - nothing to close
 
-                        // Reload mod details only if it's a different mod
-                        if (_currentModDetails?.Id != entry.ModId.Value)
+                        // Reload only if search changed or mods list is empty
+                        // If same search, _mods still has the right content (infinite scroll preserved)
+                        if (entry.Search != _currentSearch || _mods.Count == 0)
                         {
-                            await ShowModDetailsAsyncNoHistory(entry.ModId.Value);
+                            _currentSearch = entry.Search;
+                            _currentPage = 1;
+                            SearchBox.Text = entry.Search ?? "";
+                            await LoadModsAsync();
                         }
-                        else
-                        {
-                            DetailsScrollViewer.ScrollToVerticalOffset(0);
-                        }
-                    }
-                    break;
+                        _currentState = NavigationState.ModsList;
+                        TitleText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "BrowseTitle"), GetGameName(_gameTag));
 
-                case NavigationState.AuthorMods:
-                    if (entry.AuthorId.HasValue)
-                    {
-                        _currentAuthorId = entry.AuthorId;
-                        _currentAuthorName = entry.AuthorName;
-                        await ShowAuthorModsAsyncNoHistory();
-                    }
-                    break;
+                        // Restore scroll position after layout
+                        if (entry.ScrollOffset > 0 && _modsScrollViewer != null)
+                        {
+                            await Task.Delay(50);
+                            _modsScrollViewer.ScrollToVerticalOffset(entry.ScrollOffset);
+                        }
+                        break;
+
+                    case NavigationState.ModDetails:
+                        if (entry.ModId.HasValue)
+                        {
+                            if (_currentState == NavigationState.AuthorMods)
+                            {
+                                CloseAuthorModsPanelNoHistory();
+                            }
+                            else if (_currentState == NavigationState.ModsList)
+                            {
+                                AnimateContentSwitch(ModsListGrid, DetailsPanel);
+                                _currentState = NavigationState.ModDetails;
+                            }
+                            // If _currentState == ModDetails already, DetailsPanel is visible - no animation needed
+
+                            if (_currentModDetails?.Id != entry.ModId.Value)
+                            {
+                                await ShowModDetailsAsyncNoHistory(entry.ModId.Value);
+                            }
+                            else
+                            {
+                                DetailsScrollViewer.ScrollToVerticalOffset(0);
+                            }
+                        }
+                        break;
+
+                    case NavigationState.AuthorMods:
+                        if (entry.AuthorId.HasValue)
+                        {
+                            _currentAuthorId = entry.AuthorId;
+                            _currentAuthorName = entry.AuthorName;
+                            await ShowAuthorModsAsyncNoHistory();
+                        }
+                        break;
+                }
             }
-
-            UpdateBackButtonIcon();
+            finally
+            {
+                _isNavigating = false;
+                UpdateBackButtonIcon();
+            }
         }
 
         private void UpdateBackButtonIcon()
