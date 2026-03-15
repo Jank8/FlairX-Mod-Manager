@@ -1352,6 +1352,19 @@ namespace FlairX_Mod_Manager.Pages
                         Search: _currentSearch,
                         ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
                 }
+                else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
+                {
+                    _navigationStack.Push(new NavigationEntry(
+                        NavigationState.ModDetails,
+                        ModId: _currentModDetails.Id));
+                }
+                else if (_currentState == NavigationState.AuthorMods && _currentAuthorId.HasValue)
+                {
+                    _navigationStack.Push(new NavigationEntry(
+                        NavigationState.AuthorMods,
+                        AuthorId: _currentAuthorId,
+                        AuthorName: _currentAuthorName));
+                }
                 await LoadModDetailsFromUrlAsync(modUrl);
             }
             catch (Exception ex)
@@ -1895,7 +1908,8 @@ namespace FlairX_Mod_Manager.Pages
                     _isAttachedToSizeChanged = true;
                 }
                 
-                // Attach to the markdown text block layout updated event
+                // Attach to the markdown text block layout updated event (remove first to avoid duplicates)
+                DetailDescriptionMarkdown.LayoutUpdated -= DetailDescriptionMarkdown_LayoutUpdated;
                 DetailDescriptionMarkdown.LayoutUpdated += DetailDescriptionMarkdown_LayoutUpdated;
             }
             catch (Exception ex)
