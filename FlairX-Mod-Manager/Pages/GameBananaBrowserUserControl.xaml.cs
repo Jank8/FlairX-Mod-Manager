@@ -68,7 +68,6 @@ namespace FlairX_Mod_Manager.Pages
             NavigationState State,
             int? ModId = null,
             string? Search = null,
-            int Page = 1,
             int? AuthorId = null,
             string? AuthorName = null,
             double ScrollOffset = 0
@@ -1350,7 +1349,6 @@ namespace FlairX_Mod_Manager.Pages
                     _navigationStack.Push(new NavigationEntry(
                         NavigationState.ModsList,
                         Search: _currentSearch,
-                        Page: _currentPage,
                         ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
                 }
                 await LoadModDetailsFromUrlAsync(modUrl);
@@ -1468,11 +1466,12 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     // else already on ModsList - nothing to close
 
-                    // Reload if search/page changed
-                    if (entry.Search != _currentSearch || entry.Page != _currentPage)
+                    // Reload only if search changed or mods list is empty
+                    // If same search, _mods still has the right content (infinite scroll preserved)
+                    if (entry.Search != _currentSearch || _mods.Count == 0)
                     {
                         _currentSearch = entry.Search;
-                        _currentPage = entry.Page;
+                        _currentPage = 1;
                         SearchBox.Text = entry.Search ?? "";
                         await LoadModsAsync();
                     }
@@ -1648,7 +1647,6 @@ namespace FlairX_Mod_Manager.Pages
                         _navigationStack.Push(new NavigationEntry(
                             NavigationState.ModsList,
                             Search: _currentSearch,
-                            Page: _currentPage,
                             ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
                     }
                     else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
@@ -1925,7 +1923,6 @@ namespace FlairX_Mod_Manager.Pages
                         _navigationStack.Push(new NavigationEntry(
                             NavigationState.ModsList,
                             Search: _currentSearch,
-                            Page: _currentPage,
                             ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
                     }
                 }
