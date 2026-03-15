@@ -76,6 +76,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private readonly Stack<NavigationEntry> _navigationStack = new();
         private NavigationState _currentState = NavigationState.ModsList;
+        private bool _suppressNavigationPush = false; // When true, ShowModDetailsAsync/ShowAuthorModsAsync won't push to stack
 
         public class ModViewModel : INotifyPropertyChanged
         {
@@ -1443,10 +1444,9 @@ namespace FlairX_Mod_Manager.Pages
             switch (entry.State)
             {
                 case NavigationState.ModsList:
-                    // Restore mods list - need to close whatever is currently open
                     if (_currentState == NavigationState.AuthorMods)
                     {
-                        // Author mods uses ModsListGrid, just reset state
+                        // AuthorMods uses ModsListGrid - already visible, just reset state
                         _authorMods.Clear();
                         _currentAuthorId = null;
                         _currentAuthorName = null;
@@ -1459,11 +1459,15 @@ namespace FlairX_Mod_Manager.Pages
                         LoadMoreProgressBar.Visibility = Visibility.Collapsed;
                         ModsGridView.ItemsSource = _mods;
                         LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
+                        _currentState = NavigationState.ModsList;
                     }
                     else if (_currentState == NavigationState.ModDetails)
                     {
                         CloseDetailsPanelNoHistory();
+                        // CloseDetailsPanelNoHistory already sets _currentState = ModsList
                     }
+                    // else already on ModsList - nothing to close
+
                     // Reload if search/page changed
                     if (entry.Search != _currentSearch || entry.Page != _currentPage)
                     {
@@ -1473,9 +1477,8 @@ namespace FlairX_Mod_Manager.Pages
                         await LoadModsAsync();
                     }
                     _currentState = NavigationState.ModsList;
-                    var gameName2 = GetGameName(_gameTag);
-                    var titleFormat2 = SharedUtilities.GetTranslation(_lang, "BrowseTitle");
-                    TitleText.Text = string.Format(titleFormat2, gameName2);
+                    TitleText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "BrowseTitle"), GetGameName(_gameTag));
+
                     // Restore scroll position after layout
                     if (entry.ScrollOffset > 0 && _modsScrollViewer != null)
                     {
@@ -1489,21 +1492,27 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         if (_currentState == NavigationState.AuthorMods)
                         {
-                            // Going back from author mods to mod details
+                            // Going back from author mods to details panel
                             CloseAuthorModsPanelNoHistory();
+                            // CloseAuthorModsPanelNoHistory sets _currentState = ModDetails and animates to DetailsPanel
                         }
                         else if (_currentState == NavigationState.ModsList)
                         {
-                            // Going forward to details (shouldn't normally happen in back nav, but handle it)
+                            // Shouldn't happen in normal back nav, but handle gracefully
                             AnimateContentSwitch(ModsListGrid, DetailsPanel);
                             _currentState = NavigationState.ModDetails;
                         }
-                        // Reload mod details only if different mod
+                        // If _currentState == ModDetails already, DetailsPanel is visible - no animation needed
+
+                        // Reload mod details only if it's a different mod
                         if (_currentModDetails?.Id != entry.ModId.Value)
                         {
                             await ShowModDetailsAsyncNoHistory(entry.ModId.Value);
                         }
-                        DetailsScrollViewer.ScrollToVerticalOffset(0);
+                        else
+                        {
+                            DetailsScrollViewer.ScrollToVerticalOffset(0);
+                        }
                     }
                     break;
 
@@ -1567,28 +1576,16 @@ namespace FlairX_Mod_Manager.Pages
 
         private async Task ShowModDetailsAsyncNoHistory(int modId)
         {
-            // Temporarily set state to ModDetails so ShowModDetailsAsync won't push to stack
-            // (push only happens when coming from ModsList or ModDetails with a different mod)
-            var savedState = _currentState;
-            var savedModDetails = _currentModDetails;
-            // Set current mod details to the target so the "different mod" check passes but state won't push
-            _currentState = NavigationState.ModDetails;
-            _currentModDetails = null; // will be reloaded
-            await ShowModDetailsAsync(modId);
-            // Pop the entry that ShowModDetailsAsync just pushed (we don't want it)
-            if (_navigationStack.Count > 0)
-                _navigationStack.Pop();
+            _suppressNavigationPush = true;
+            try { await ShowModDetailsAsync(modId); }
+            finally { _suppressNavigationPush = false; }
         }
 
         private async Task ShowAuthorModsAsyncNoHistory()
         {
-            // Temporarily set state so ShowAuthorModsAsync won't push to stack
-            var savedState = _currentState;
-            _currentState = NavigationState.AuthorMods; // won't match push conditions
-            await ShowAuthorModsAsync();
-            // Pop the entry that ShowAuthorModsAsync just pushed (we don't want it)
-            if (_navigationStack.Count > 0)
-                _navigationStack.Pop();
+            _suppressNavigationPush = true;
+            try { await ShowAuthorModsAsync(); }
+            finally { _suppressNavigationPush = false; }
         }
 
         private void BackButton_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -1643,27 +1640,30 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                // Push current state to navigation stack before navigating
-                if (_currentState == NavigationState.ModsList)
+                // Push current state to navigation stack before navigating (unless suppressed)
+                if (!_suppressNavigationPush)
                 {
-                    _navigationStack.Push(new NavigationEntry(
-                        NavigationState.ModsList,
-                        Search: _currentSearch,
-                        Page: _currentPage,
-                        ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
-                }
-                else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
-                {
-                    _navigationStack.Push(new NavigationEntry(
-                        NavigationState.ModDetails,
-                        ModId: _currentModDetails.Id));
-                }
-                else if (_currentState == NavigationState.AuthorMods && _currentAuthorId.HasValue)
-                {
-                    _navigationStack.Push(new NavigationEntry(
-                        NavigationState.AuthorMods,
-                        AuthorId: _currentAuthorId,
-                        AuthorName: _currentAuthorName));
+                    if (_currentState == NavigationState.ModsList)
+                    {
+                        _navigationStack.Push(new NavigationEntry(
+                            NavigationState.ModsList,
+                            Search: _currentSearch,
+                            Page: _currentPage,
+                            ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
+                    }
+                    else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
+                    {
+                        _navigationStack.Push(new NavigationEntry(
+                            NavigationState.ModDetails,
+                            ModId: _currentModDetails.Id));
+                    }
+                    else if (_currentState == NavigationState.AuthorMods && _currentAuthorId.HasValue)
+                    {
+                        _navigationStack.Push(new NavigationEntry(
+                            NavigationState.AuthorMods,
+                            AuthorId: _currentAuthorId,
+                            AuthorName: _currentAuthorName));
+                    }
                 }
 
                 // Clear source mod path when navigating to different mod
@@ -1685,8 +1685,11 @@ namespace FlairX_Mod_Manager.Pages
                 DetailDownloadPreviewsButton.Visibility = Visibility.Collapsed;
                 DetailOpenBrowserButton.Visibility = Visibility.Collapsed;
                 
-                // Animate transition to details
-                AnimateContentSwitch(ModsListGrid, DetailsPanel);
+                // Animate transition to details only if not already showing details
+                if (_currentState != NavigationState.ModDetails)
+                {
+                    AnimateContentSwitch(ModsListGrid, DetailsPanel);
+                }
                 _currentState = NavigationState.ModDetails;
                 
                 // Scroll details to top
@@ -1700,8 +1703,9 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (_currentModDetails == null)
                 {
-                    // API error occurred - show error and go back to list
-                    CloseDetailsPanel();
+                    // API error - go back without clearing navigation history
+                    CloseDetailsPanelNoHistory();
+                    UpdateBackButtonIcon();
                     ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
                     ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
                     ConnectionErrorBar.IsOpen = true;
@@ -1711,8 +1715,9 @@ namespace FlairX_Mod_Manager.Pages
                 // Check if mod is private or unavailable (API returns data but with null fields)
                 if (!_currentModDetails.IsAvailable)
                 {
-                    // Mod is private or has been removed
-                    CloseDetailsPanel();
+                    // Mod is private or has been removed - go back without clearing history
+                    CloseDetailsPanelNoHistory();
+                    UpdateBackButtonIcon();
                     ModUnavailableBar.Title = SharedUtilities.GetTranslation(_lang, "ModUnavailableTitle") ?? "Mod Unavailable";
                     ModUnavailableBar.Message = SharedUtilities.GetTranslation(_lang, "ModUnavailableMessage") ?? "This mod is private or has been removed.";
                     ModUnavailableBar.IsOpen = true;
@@ -1894,7 +1899,8 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 Logger.LogError("Failed to load mod details", ex);
-                CloseDetailsPanel();
+                CloseDetailsPanelNoHistory();
+                UpdateBackButtonIcon();
                 ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
                 ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
                 ConnectionErrorBar.IsOpen = true;
@@ -1905,20 +1911,23 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                // Push current state to navigation stack before navigating
-                if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
+                // Push current state to navigation stack before navigating (unless suppressed)
+                if (!_suppressNavigationPush)
                 {
-                    _navigationStack.Push(new NavigationEntry(
-                        NavigationState.ModDetails,
-                        ModId: _currentModDetails.Id));
-                }
-                else if (_currentState == NavigationState.ModsList)
-                {
-                    _navigationStack.Push(new NavigationEntry(
-                        NavigationState.ModsList,
-                        Search: _currentSearch,
-                        Page: _currentPage,
-                        ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
+                    if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
+                    {
+                        _navigationStack.Push(new NavigationEntry(
+                            NavigationState.ModDetails,
+                            ModId: _currentModDetails.Id));
+                    }
+                    else if (_currentState == NavigationState.ModsList)
+                    {
+                        _navigationStack.Push(new NavigationEntry(
+                            NavigationState.ModsList,
+                            Search: _currentSearch,
+                            Page: _currentPage,
+                            ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
+                    }
                 }
 
                 // Update title to show author name
@@ -1930,8 +1939,12 @@ namespace FlairX_Mod_Manager.Pages
                 // Update back button icon
                 UpdateBackButtonIcon();
                 
-                // Switch to author mods view
-                AnimateContentSwitch(DetailsPanel, ModsListGrid);
+                // Animate transition to author mods only if coming from details panel
+                if (_currentState == NavigationState.ModDetails)
+                {
+                    AnimateContentSwitch(DetailsPanel, ModsListGrid);
+                }
+                // If coming from ModsList, ModsListGrid is already visible - no animation needed
                 _currentState = NavigationState.AuthorMods;
                 
                 // Bind author mods to the grid
