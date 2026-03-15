@@ -51,7 +51,6 @@ namespace FlairX_Mod_Manager.Pages
         private int? _currentAuthorId = null;
         private string? _currentAuthorName = null;
         private ObservableCollection<ModViewModel> _authorMods = new();
-        private bool _authorModsOpenedFromSearch = false; // Track if opened from search vs mod details
         private int _authorCurrentPage = 1;
         private bool _authorHasMorePages = true;
         private bool _authorIsLoadingMore = false;
@@ -1283,7 +1282,6 @@ namespace FlairX_Mod_Manager.Pages
                 // Set up author search and load mods
                 _currentAuthorId = authorId;
                 _currentAuthorName = username;
-                _authorModsOpenedFromSearch = true; // Mark as opened from search
                 
                 // Navigate to author mods view
                 await ShowAuthorModsAsync();
@@ -1466,7 +1464,6 @@ namespace FlairX_Mod_Manager.Pages
                             _authorMods.Clear();
                             _currentAuthorId = null;
                             _currentAuthorName = null;
-                            _authorModsOpenedFromSearch = false;
                             _authorCurrentPage = 1;
                             _authorHasMorePages = true;
                             _authorIsLoadingMore = false;
@@ -1582,7 +1579,6 @@ namespace FlairX_Mod_Manager.Pages
             _authorMods.Clear();
             _currentAuthorId = null;
             _currentAuthorName = null;
-            _authorModsOpenedFromSearch = false;
             _authorCurrentPage = 1;
             _authorHasMorePages = true;
             _authorIsLoadingMore = false;
@@ -2013,7 +2009,6 @@ namespace FlairX_Mod_Manager.Pages
             _authorMods.Clear();
             _currentAuthorId = null;
             _currentAuthorName = null;
-            _authorModsOpenedFromSearch = false;
             _authorCurrentPage = 1;
             _authorHasMorePages = true;
             _authorIsLoadingMore = false;
@@ -2662,7 +2657,6 @@ namespace FlairX_Mod_Manager.Pages
             {
                 _currentAuthorId = _currentModDetails.Submitter.Id;
                 _currentAuthorName = _currentModDetails.Submitter.Name;
-                _authorModsOpenedFromSearch = false; // Mark as opened from mod details
                 
                 // Navigate to author mods view
                 await ShowAuthorModsAsync();
