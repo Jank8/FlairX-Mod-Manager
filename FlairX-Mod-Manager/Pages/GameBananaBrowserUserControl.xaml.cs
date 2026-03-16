@@ -69,7 +69,8 @@ namespace FlairX_Mod_Manager.Pages
             string? Search = null,
             int? AuthorId = null,
             string? AuthorName = null,
-            double ScrollOffset = 0
+            double ScrollOffset = 0,
+            int Page = 1
         );
 
         private readonly Stack<NavigationEntry> _navigationStack = new();
@@ -1197,6 +1198,16 @@ namespace FlairX_Mod_Manager.Pages
             // If search box is cleared, reset to main page
             if (string.IsNullOrWhiteSpace(sender.Text) && !string.IsNullOrEmpty(_currentSearch))
             {
+                // Push current search state before clearing
+                if (_currentState == NavigationState.ModsList)
+                {
+                    _navigationStack.Push(new NavigationEntry(
+                        NavigationState.ModsList,
+                        Search: _currentSearch,
+                        ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
+                        Page: _currentPage));
+                    UpdateBackButtonIcon();
+                }
                 _currentSearch = null;
                 _currentPage = 1;
                 _ = LoadModsAsync();
@@ -1226,14 +1237,36 @@ namespace FlairX_Mod_Manager.Pages
             }
             
             // Regular search
-            _currentSearch = string.IsNullOrWhiteSpace(queryText) ? null : queryText;
+            var newSearch = string.IsNullOrWhiteSpace(queryText) ? null : queryText;
+            // Push current ModsList state only if search is actually changing
+            if (_currentState == NavigationState.ModsList && newSearch != _currentSearch)
+            {
+                _navigationStack.Push(new NavigationEntry(
+                    NavigationState.ModsList,
+                    Search: _currentSearch,
+                    ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
+                    Page: _currentPage));
+                UpdateBackButtonIcon();
+            }
+            _currentSearch = newSearch;
             _currentPage = 1;
             _ = LoadModsAsync();
         }
 
         private async Task PerformSearchAsync(string searchText)
         {
-            _currentSearch = string.IsNullOrWhiteSpace(searchText) ? null : searchText;
+            var newSearch = string.IsNullOrWhiteSpace(searchText) ? null : searchText;
+            // Push current ModsList state only if search is actually changing
+            if (_currentState == NavigationState.ModsList && newSearch != _currentSearch)
+            {
+                _navigationStack.Push(new NavigationEntry(
+                    NavigationState.ModsList,
+                    Search: _currentSearch,
+                    ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
+                    Page: _currentPage));
+                UpdateBackButtonIcon();
+            }
+            _currentSearch = newSearch;
             _currentPage = 1;
             await LoadModsAsync();
         }
@@ -1342,27 +1375,6 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 
                 Logger.LogInfo($"Opening GameBanana URL: {modUrl}");
-                // Push current state before navigating via URL
-                if (_currentState == NavigationState.ModsList)
-                {
-                    _navigationStack.Push(new NavigationEntry(
-                        NavigationState.ModsList,
-                        Search: _currentSearch,
-                        ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
-                }
-                else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
-                {
-                    _navigationStack.Push(new NavigationEntry(
-                        NavigationState.ModDetails,
-                        ModId: _currentModDetails.Id));
-                }
-                else if (_currentState == NavigationState.AuthorMods && _currentAuthorId.HasValue)
-                {
-                    _navigationStack.Push(new NavigationEntry(
-                        NavigationState.AuthorMods,
-                        AuthorId: _currentAuthorId,
-                        AuthorName: _currentAuthorName));
-                }
                 await LoadModDetailsFromUrlAsync(modUrl);
             }
             catch (Exception ex)
@@ -1442,6 +1454,7 @@ namespace FlairX_Mod_Manager.Pages
             if (_navigationStack.Count > 0)
             {
                 var previous = _navigationStack.Pop();
+                _isNavigating = true; // Set synchronously before async call to prevent race condition
                 _ = RestoreNavigationEntryAsync(previous);
             }
             else
@@ -1480,12 +1493,12 @@ namespace FlairX_Mod_Manager.Pages
                         }
                         // else already on ModsList - nothing to close
 
-                        // Reload only if search changed or mods list is empty
-                        // If same search, _mods still has the right content (infinite scroll preserved)
-                        if (entry.Search != _currentSearch || _mods.Count == 0)
+                        // Reload only if search changed, page changed, or mods list is empty
+                        // If same search and page, _mods still has the right content (infinite scroll preserved)
+                        if (entry.Search != _currentSearch || entry.Page != _currentPage || _mods.Count == 0)
                         {
                             _currentSearch = entry.Search;
-                            _currentPage = 1;
+                            _currentPage = entry.Page;
                             SearchBox.Text = entry.Search ?? "";
                             await LoadModsAsync();
                         }
@@ -1660,7 +1673,8 @@ namespace FlairX_Mod_Manager.Pages
                         _navigationStack.Push(new NavigationEntry(
                             NavigationState.ModsList,
                             Search: _currentSearch,
-                            ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
+                            ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
+                            Page: _currentPage));
                     }
                     else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
                     {
@@ -1937,7 +1951,15 @@ namespace FlairX_Mod_Manager.Pages
                         _navigationStack.Push(new NavigationEntry(
                             NavigationState.ModsList,
                             Search: _currentSearch,
-                            ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
+                            ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
+                            Page: _currentPage));
+                    }
+                    else if (_currentState == NavigationState.AuthorMods && _currentAuthorId.HasValue)
+                    {
+                        _navigationStack.Push(new NavigationEntry(
+                            NavigationState.AuthorMods,
+                            AuthorId: _currentAuthorId,
+                            AuthorName: _currentAuthorName));
                     }
                 }
 
@@ -2864,7 +2886,28 @@ namespace FlairX_Mod_Manager.Pages
                 if (match.Success && int.TryParse(match.Groups[1].Value, out int modId))
                 {
                     Logger.LogInfo($"Loading mod details from URL: {modUrl}, ID: {modId}");
-                    // Use NoHistory variant - stack stays empty so back button closes the panel
+                    // Push current state only now that URL is confirmed valid
+                    if (_currentState == NavigationState.ModsList)
+                    {
+                        _navigationStack.Push(new NavigationEntry(
+                            NavigationState.ModsList,
+                            Search: _currentSearch,
+                            ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
+                            Page: _currentPage));
+                    }
+                    else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
+                    {
+                        _navigationStack.Push(new NavigationEntry(
+                            NavigationState.ModDetails,
+                            ModId: _currentModDetails.Id));
+                    }
+                    else if (_currentState == NavigationState.AuthorMods && _currentAuthorId.HasValue)
+                    {
+                        _navigationStack.Push(new NavigationEntry(
+                            NavigationState.AuthorMods,
+                            AuthorId: _currentAuthorId,
+                            AuthorName: _currentAuthorName));
+                    }
                     await ShowModDetailsAsyncNoHistory(modId);
                     UpdateBackButtonIcon();
                 }
