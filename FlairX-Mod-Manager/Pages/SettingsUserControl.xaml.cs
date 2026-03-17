@@ -1626,11 +1626,16 @@ namespace FlairX_Mod_Manager.Pages
             SettingsManager.Save();
             UpdateToggleLabels();
 
-            // Reload categories if currently in category view
             var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
+            // Reload category tiles in ModGridPage
             if (mainWindow?.CurrentModGridPage != null)
             {
                 mainWindow.CurrentModGridPage.ReloadIfInCategoryView();
+            }
+            // Rebuild left column navigation menu
+            if (mainWindow != null)
+            {
+                _ = mainWindow.GenerateModCharacterMenuAsync();
             }
         }
 

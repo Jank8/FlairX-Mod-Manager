@@ -297,6 +297,14 @@ namespace FlairX_Mod_Manager
                                         // Skip if category is pinned or hidden
                                         if (pinnedCategories.Contains(category) || hiddenCategories.Contains(category))
                                             continue;
+
+                                        // Skip empty categories if setting is enabled
+                                        if (SettingsManager.Current.HideEmptyCategories)
+                                        {
+                                            var categoryPath = Path.Combine(modsPath, category);
+                                            if (Directory.Exists(categoryPath) && Directory.GetDirectories(categoryPath).Length == 0)
+                                                continue;
+                                        }
                                         
                                         var currentGameTag = SettingsManager.CurrentSelectedGame ?? "";
                                         bool isFavorite = SettingsManager.IsCategoryFavorite(currentGameTag, category);
