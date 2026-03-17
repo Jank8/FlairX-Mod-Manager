@@ -1626,16 +1626,19 @@ namespace FlairX_Mod_Manager.Pages
             SettingsManager.Save();
             UpdateToggleLabels();
 
+            // Mark category management as changed so menu rebuilds on panel close too
+            _categoryManagementChanged = true;
+
             var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
             // Reload category tiles in ModGridPage
             if (mainWindow?.CurrentModGridPage != null)
             {
                 mainWindow.CurrentModGridPage.ReloadIfInCategoryView();
             }
-            // Rebuild left column navigation menu
+            // Rebuild left column navigation menu — bypass suppression so it updates live while settings panel is open
             if (mainWindow != null)
             {
-                _ = mainWindow.GenerateModCharacterMenuAsync();
+                _ = mainWindow.ForceGenerateModCharacterMenuAsync();
             }
         }
 

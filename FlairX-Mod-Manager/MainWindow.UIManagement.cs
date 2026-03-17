@@ -171,6 +171,24 @@ namespace FlairX_Mod_Manager
             }
         }
 
+        /// <summary>
+        /// Regenerates the mod character menu, bypassing the suppression flag.
+        /// Use this when a setting change requires an immediate menu refresh even while the settings panel is open.
+        /// </summary>
+        public async Task ForceGenerateModCharacterMenuAsync()
+        {
+            var wasSuppressed = _suppressMenuRegeneration;
+            _suppressMenuRegeneration = false;
+            try
+            {
+                await GenerateModCharacterMenuAsync();
+            }
+            finally
+            {
+                _suppressMenuRegeneration = wasSuppressed;
+            }
+        }
+
         public async Task GenerateModCharacterMenuAsync()
         {
             // Debug logging to track when menu regeneration is triggered
