@@ -1320,6 +1320,17 @@ namespace FlairX_Mod_Manager.Pages
                 }
             });
         }
+
+        public void ReloadIfInCategoryView()
+        {
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                if (CurrentViewMode == ViewMode.Categories && _currentCategory == null)
+                {
+                    LoadCategories();
+                }
+            });
+        }
         
         // DISABLED: Blur mechanism not used - mods are hidden instead
         /*

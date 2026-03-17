@@ -78,6 +78,12 @@ namespace FlairX_Mod_Manager.Pages
                 if (string.IsNullOrEmpty(categoryName)) continue;
                 
                 // Add all categories, even empty ones
+                var modCount = Directory.GetDirectories(categoryDir).Length;
+                
+                // Skip empty categories if setting is enabled
+                if (SettingsManager.Current.HideEmptyCategories && modCount == 0)
+                    continue;
+                
                 var categoryTile = new ModTile
                 {
                     Name = categoryName,

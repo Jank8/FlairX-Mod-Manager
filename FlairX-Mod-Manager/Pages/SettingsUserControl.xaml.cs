@@ -268,6 +268,8 @@ namespace FlairX_Mod_Manager.Pages
                 MinimizeToTrayToggleLabel.Text = MinimizeToTrayToggle.IsOn ? onText : offText;
             if (BlurNSFWToggleLabel != null && BlurNSFWToggle != null)
                 BlurNSFWToggleLabel.Text = BlurNSFWToggle.IsOn ? onText : offText;
+            if (HideEmptyCategoriesToggleLabel != null && HideEmptyCategoriesToggle != null)
+                HideEmptyCategoriesToggleLabel.Text = HideEmptyCategoriesToggle.IsOn ? onText : offText;
             if (HotkeysEnabledToggleLabel != null && HotkeysEnabledToggle != null)
                 HotkeysEnabledToggleLabel.Text = HotkeysEnabledToggle.IsOn ? onText : offText;
             if (FastDownloadToggleLabel != null && FastDownloadToggle != null)
@@ -422,6 +424,7 @@ namespace FlairX_Mod_Manager.Pages
             if (ErrorOnlyLoggingLabel != null) ErrorOnlyLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Label");
             if (MinimizeToTrayLabel != null) MinimizeToTrayLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Label");
             if (BlurNSFWLabel != null) BlurNSFWLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Label");
+            if (HideEmptyCategoriesLabel != null) HideEmptyCategoriesLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideEmptyCategories_Label") ?? "Hide Empty Categories";
             if (CategoryManagementHeader != null) CategoryManagementHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_CategoryManagement_Header") ?? "Category Management";
             if (PinnedCategoriesLabel != null) PinnedCategoriesLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PinnedCategories_Label") ?? "Pinned Categories";
             if (HiddenCategoriesLabel != null) HiddenCategoriesLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HiddenCategories_Label") ?? "Hidden Categories";
@@ -456,6 +459,7 @@ namespace FlairX_Mod_Manager.Pages
             if (ErrorOnlyLoggingDescription != null) ErrorOnlyLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Description") ?? string.Empty;
             if (MinimizeToTrayDescription != null) MinimizeToTrayDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Description") ?? string.Empty;
             if (BlurNSFWDescription != null) BlurNSFWDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Description") ?? string.Empty;
+            if (HideEmptyCategoriesDescription != null) HideEmptyCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideEmptyCategories_Description") ?? "Hide categories that contain no mods";
             if (PinnedCategoriesDescription != null) PinnedCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PinnedCategories_Description") ?? "Pin categories to footer menu for quick access";
             if (HiddenCategoriesDescription != null) HiddenCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HiddenCategories_Description") ?? "Hide categories from the navigation menu";
             if (ShuffleExcludedCategoriesDescription != null) ShuffleExcludedCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShuffleExcludedCategories_Description") ?? "Exclude categories from shuffle hotkey (keeps mods as-is)";
@@ -648,6 +652,7 @@ namespace FlairX_Mod_Manager.Pages
             ErrorOnlyLoggingToggle.IsOn = SettingsManager.Current.ErrorOnlyLogging;
             MinimizeToTrayToggle.IsOn = SettingsManager.Current.MinimizeToTrayEnabled;
             BlurNSFWToggle.IsOn = SettingsManager.Current.HideNSFWMods;
+            HideEmptyCategoriesToggle.IsOn = SettingsManager.Current.HideEmptyCategories;
             HotkeysEnabledToggle.IsOn = SettingsManager.Current.HotkeysEnabled;
             
             // Set download settings
@@ -1612,6 +1617,20 @@ namespace FlairX_Mod_Manager.Pages
             if (mainWindow?.CurrentModGridPage != null)
             {
                 mainWindow.CurrentModGridPage.FilterNSFWMods(SettingsManager.Current.HideNSFWMods);
+            }
+        }
+
+        private void HideEmptyCategoriesToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.HideEmptyCategories = HideEmptyCategoriesToggle.IsOn;
+            SettingsManager.Save();
+            UpdateToggleLabels();
+
+            // Reload categories if currently in category view
+            var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
+            if (mainWindow?.CurrentModGridPage != null)
+            {
+                mainWindow.CurrentModGridPage.ReloadIfInCategoryView();
             }
         }
 

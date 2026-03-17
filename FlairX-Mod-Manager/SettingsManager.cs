@@ -136,6 +136,7 @@ namespace FlairX_Mod_Manager
         // Mod filtering settings
         public bool HideBrokenMods { get; set; } = false;
         public bool HideNSFWMods { get; set; } = true; // Hide NSFW mods by default
+        public bool HideEmptyCategories { get; set; } = false;
         
         // Download settings
         public bool FastDownloadEnabled { get; set; } = true;
