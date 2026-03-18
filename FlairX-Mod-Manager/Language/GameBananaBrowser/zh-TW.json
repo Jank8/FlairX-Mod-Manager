@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "查看作者的所有模組",
     "AuthorModsTitle": "所有模組",
     "PreviewOnlyMode_Info": "這將僅為已安裝的模組下載預覽圖片。",
-    "LoadMore": "載入更多"
+    "LoadMore": "載入更多",
+    "ArchivePassword_Label": "壓縮檔密碼",
+    "ArchivePassword_Description": "此壓縮檔受密碼保護。請輸入密碼以解壓縮。",
+    "ArchivePassword_Placeholder": "輸入密碼...",
+    "ArchivePassword_Wrong": "密碼錯誤，請重試。",
+    "ArchivePassword_Cancelled": "解壓縮已取消。"
 }

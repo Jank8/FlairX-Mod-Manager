@@ -70,5 +70,10 @@
     "StarterPack_Button_Tooltip": "Download Starter Pack for this game",
     "StarterPack_NotAvailable": "Starter Pack is not available for this game yet.",
     "ViewAllAuthorMods": "View All Author's Mods",
-    "AuthorModsTitle": "All Mods"
+    "AuthorModsTitle": "All Mods",
+    "ArchivePassword_Label": "Archive Password",
+    "ArchivePassword_Description": "This archive is password-protected. Enter the password to extract it.",
+    "ArchivePassword_Placeholder": "Enter password...",
+    "ArchivePassword_Wrong": "Incorrect password, please try again.",
+    "ArchivePassword_Cancelled": "Extraction cancelled."
 }

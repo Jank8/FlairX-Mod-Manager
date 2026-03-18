@@ -317,7 +317,7 @@ namespace FlairX_Mod_Manager
                                             continue;
 
                                         // Skip empty categories if setting is enabled
-                                        if (SettingsManager.Current.HideEmptyCategories)
+                                        if (SettingsManager.Current?.HideEmptyCategories == true)
                                         {
                                             var categoryPath = Path.Combine(modsPath, category);
                                             if (Directory.Exists(categoryPath) && Directory.GetDirectories(categoryPath).Length == 0)

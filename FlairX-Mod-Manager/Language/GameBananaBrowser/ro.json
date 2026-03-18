@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Vezi toate modurile autorului",
     "AuthorModsTitle": "Toate modurile",
     "PreviewOnlyMode_Info": "Aceasta va descărca doar imagini de previzualizare pentru modul instalat.",
-    "LoadMore": "Încarcă mai mult"
+    "LoadMore": "Încarcă mai mult",
+    "ArchivePassword_Label": "Parola arhivei",
+    "ArchivePassword_Description": "Această arhivă este protejată cu parolă. Introduceți parola pentru a o extrage.",
+    "ArchivePassword_Placeholder": "Introduceți parola...",
+    "ArchivePassword_Wrong": "Parolă incorectă, încercați din nou.",
+    "ArchivePassword_Cancelled": "Extragerea a fost anulată."
 }

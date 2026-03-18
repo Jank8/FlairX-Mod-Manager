@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Visualizza tutte le mod dell'autore",
     "AuthorModsTitle": "Tutte le mod",
     "PreviewOnlyMode_Info": "Questo scaricherà solo immagini di anteprima per la mod installata.",
-    "LoadMore": "Carica altro"
+    "LoadMore": "Carica altro",
+    "ArchivePassword_Label": "Password dell'archivio",
+    "ArchivePassword_Description": "Questo archivio è protetto da password. Inserisci la password per estrarlo.",
+    "ArchivePassword_Placeholder": "Inserisci la password...",
+    "ArchivePassword_Wrong": "Password errata, riprova.",
+    "ArchivePassword_Cancelled": "Estrazione annullata."
 }

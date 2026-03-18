@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Προβολή όλων των Mods του δημιουργού",
     "AuthorModsTitle": "Όλα τα Mods",
     "PreviewOnlyMode_Info": "Αυτό θα κατεβάσει μόνο εικόνες προεπισκόπησης για το εγκατεστημένο mod.",
-    "LoadMore": "Φόρτωση περισσότερων"
+    "LoadMore": "Φόρτωση περισσότερων",
+    "ArchivePassword_Label": "Κωδικός αρχείου",
+    "ArchivePassword_Description": "Αυτό το αρχείο προστατεύεται με κωδικό. Εισάγετε τον κωδικό για αποσυμπίεση.",
+    "ArchivePassword_Placeholder": "Εισάγετε κωδικό...",
+    "ArchivePassword_Wrong": "Λανθασμένος κωδικός, δοκιμάστε ξανά.",
+    "ArchivePassword_Cancelled": "Η αποσυμπίεση ακυρώθηκε."
 }

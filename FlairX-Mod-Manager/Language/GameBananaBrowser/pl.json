@@ -70,5 +70,10 @@
     "StarterPack_Button_Tooltip": "Pobierz pakiet startowy dla tej gry",
     "StarterPack_NotAvailable": "Pakiet startowy nie jest jeszcze dostępny dla tej gry.",
     "ViewAllAuthorMods": "Wyświetl wszystkie mody autora",
-    "AuthorModsTitle": "Wszystkie mody"
+    "AuthorModsTitle": "Wszystkie mody",
+    "ArchivePassword_Label": "Hasło archiwum",
+    "ArchivePassword_Description": "To archiwum jest chronione hasłem. Wprowadź hasło, aby je rozpakować.",
+    "ArchivePassword_Placeholder": "Wprowadź hasło...",
+    "ArchivePassword_Wrong": "Nieprawidłowe hasło, spróbuj ponownie.",
+    "ArchivePassword_Cancelled": "Rozpakowywanie anulowane."
 }

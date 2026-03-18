@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Bekijk alle mods van auteur",
     "AuthorModsTitle": "Alle mods",
     "PreviewOnlyMode_Info": "Dit zal alleen voorbeeldafbeeldingen downloaden voor de geïnstalleerde mod.",
-    "LoadMore": "Meer laden"
+    "LoadMore": "Meer laden",
+    "ArchivePassword_Label": "Archiefwachtwoord",
+    "ArchivePassword_Description": "Dit archief is beveiligd met een wachtwoord. Voer het wachtwoord in om het uit te pakken.",
+    "ArchivePassword_Placeholder": "Voer wachtwoord in...",
+    "ArchivePassword_Wrong": "Onjuist wachtwoord, probeer het opnieuw.",
+    "ArchivePassword_Cancelled": "Uitpakken geannuleerd."
 }

@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Lihat Semua Mod Pembuat",
     "AuthorModsTitle": "Semua Mod",
     "PreviewOnlyMode_Info": "Ini hanya akan mengunduh gambar pratinjau untuk mod yang terinstal.",
-    "LoadMore": "Muat lebih banyak"
+    "LoadMore": "Muat lebih banyak",
+    "ArchivePassword_Label": "Kata Sandi Arsip",
+    "ArchivePassword_Description": "Arsip ini dilindungi kata sandi. Masukkan kata sandi untuk mengekstraknya.",
+    "ArchivePassword_Placeholder": "Masukkan kata sandi...",
+    "ArchivePassword_Wrong": "Kata sandi salah, coba lagi.",
+    "ArchivePassword_Cancelled": "Ekstraksi dibatalkan."
 }

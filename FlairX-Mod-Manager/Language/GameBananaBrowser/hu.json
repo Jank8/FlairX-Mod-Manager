@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "A szerző összes modjának megtekintése",
     "AuthorModsTitle": "Összes mod",
     "PreviewOnlyMode_Info": "Ez csak az előnézeti képeket tölti le a telepített modhoz.",
-    "LoadMore": "Továbbiak betöltése"
+    "LoadMore": "Továbbiak betöltése",
+    "ArchivePassword_Label": "Archívum jelszava",
+    "ArchivePassword_Description": "Ez az archívum jelszóval védett. A kibontáshoz adja meg a jelszót.",
+    "ArchivePassword_Placeholder": "Adja meg a jelszót...",
+    "ArchivePassword_Wrong": "Helytelen jelszó, kérjük próbálja újra.",
+    "ArchivePassword_Cancelled": "Kibontás megszakítva."
 }

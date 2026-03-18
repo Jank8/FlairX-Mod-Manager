@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Visa alla författarens mods",
     "AuthorModsTitle": "Alla mods",
     "PreviewOnlyMode_Info": "Detta kommer endast att ladda ner förhandsvisningsbilder för den installerade modden.",
-    "LoadMore": "Ladda mer"
+    "LoadMore": "Ladda mer",
+    "ArchivePassword_Label": "Arkivlösenord",
+    "ArchivePassword_Description": "Det här arkivet är lösenordsskyddat. Ange lösenordet för att packa upp det.",
+    "ArchivePassword_Placeholder": "Ange lösenord...",
+    "ArchivePassword_Wrong": "Fel lösenord, försök igen.",
+    "ArchivePassword_Cancelled": "Uppackning avbruten."
 }

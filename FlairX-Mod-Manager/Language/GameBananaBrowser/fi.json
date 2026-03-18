@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Näytä kaikki tekijän modit",
     "AuthorModsTitle": "Kaikki modit",
     "PreviewOnlyMode_Info": "Tämä lataa vain esikatselukuvat asennetulle modille.",
-    "LoadMore": "Lataa lisää"
+    "LoadMore": "Lataa lisää",
+    "ArchivePassword_Label": "Arkiston salasana",
+    "ArchivePassword_Description": "Tämä arkisto on salasanasuojattu. Syötä salasana purkamista varten.",
+    "ArchivePassword_Placeholder": "Syötä salasana...",
+    "ArchivePassword_Wrong": "Väärä salasana, yritä uudelleen.",
+    "ArchivePassword_Cancelled": "Purku peruutettu."
 }

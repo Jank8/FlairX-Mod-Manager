@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "लेखक के सभी मॉड्स देखें",
     "AuthorModsTitle": "सभी मॉड्स",
     "PreviewOnlyMode_Info": "यह केवल स्थापित मॉड के लिए पूर्वावलोकन छवियां डाउनलोड करेगा।",
-    "LoadMore": "और लोड करें"
+    "LoadMore": "और लोड करें",
+    "ArchivePassword_Label": "आर्काइव पासवर्ड",
+    "ArchivePassword_Description": "यह आर्काइव पासवर्ड से सुरक्षित है। निकालने के लिए पासवर्ड दर्ज करें।",
+    "ArchivePassword_Placeholder": "पासवर्ड दर्ज करें...",
+    "ArchivePassword_Wrong": "गलत पासवर्ड, कृपया पुनः प्रयास करें।",
+    "ArchivePassword_Cancelled": "निष्कर्षण रद्द किया गया।"
 }

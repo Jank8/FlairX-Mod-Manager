@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Yazarın tüm modlarını görüntüle",
     "AuthorModsTitle": "Tüm modlar",
     "PreviewOnlyMode_Info": "Bu, yalnızca yüklü mod için önizleme görüntülerini indirecektir.",
-    "LoadMore": "Daha fazla yükle"
+    "LoadMore": "Daha fazla yükle",
+    "ArchivePassword_Label": "Arşiv Şifresi",
+    "ArchivePassword_Description": "Bu arşiv şifre korumalıdır. Çıkarmak için şifreyi girin.",
+    "ArchivePassword_Placeholder": "Şifreyi girin...",
+    "ArchivePassword_Wrong": "Yanlış şifre, lütfen tekrar deneyin.",
+    "ArchivePassword_Cancelled": "Çıkarma iptal edildi."
 }

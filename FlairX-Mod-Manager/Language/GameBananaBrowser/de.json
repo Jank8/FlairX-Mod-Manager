@@ -70,5 +70,10 @@
     "StarterPack_NotAvailable": "Starter-Paket ist für dieses Spiel noch nicht verfügbar.",
     "ViewAllAuthorMods": "Alle Mods des Autors anzeigen",
     "AuthorModsTitle": "Alle Mods",
-    "LoadMore": "Mehr laden"
+    "LoadMore": "Mehr laden",
+    "ArchivePassword_Label": "Archiv-Passwort",
+    "ArchivePassword_Description": "Dieses Archiv ist passwortgeschützt. Geben Sie das Passwort ein, um es zu entpacken.",
+    "ArchivePassword_Placeholder": "Passwort eingeben...",
+    "ArchivePassword_Wrong": "Falsches Passwort, bitte erneut versuchen.",
+    "ArchivePassword_Cancelled": "Entpacken abgebrochen."
 }

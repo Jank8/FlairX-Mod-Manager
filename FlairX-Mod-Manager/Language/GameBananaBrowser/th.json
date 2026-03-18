@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "ดูมอดทั้งหมดของผู้เขียน",
     "AuthorModsTitle": "มอดทั้งหมด",
     "PreviewOnlyMode_Info": "สิ่งนี้จะดาวน์โหลดเฉพาะภาพตัวอย่างสำหรับม็อดที่ติดตั้งแล้ว",
-    "LoadMore": "โหลดเพิ่มเติม"
+    "LoadMore": "โหลดเพิ่มเติม",
+    "ArchivePassword_Label": "รหัสผ่านไฟล์เก็บถาวร",
+    "ArchivePassword_Description": "ไฟล์เก็บถาวรนี้ถูกป้องกันด้วยรหัสผ่าน ป้อนรหัสผ่านเพื่อแตกไฟล์",
+    "ArchivePassword_Placeholder": "ป้อนรหัสผ่าน...",
+    "ArchivePassword_Wrong": "รหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง",
+    "ArchivePassword_Cancelled": "ยกเลิกการแตกไฟล์แล้ว"
 }

@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Tingnan ang lahat ng mod ng may-akda",
     "AuthorModsTitle": "Lahat ng mod",
     "PreviewOnlyMode_Info": "Ito ay mag-download lamang ng mga preview na larawan para sa naka-install na mod.",
-    "LoadMore": "Mag-load pa"
+    "LoadMore": "Mag-load pa",
+    "ArchivePassword_Label": "Password ng Archive",
+    "ArchivePassword_Description": "Ang archive na ito ay protektado ng password. Ilagay ang password para i-extract ito.",
+    "ArchivePassword_Placeholder": "Ilagay ang password...",
+    "ArchivePassword_Wrong": "Maling password, subukan muli.",
+    "ArchivePassword_Cancelled": "Kinansela ang pag-extract."
 }

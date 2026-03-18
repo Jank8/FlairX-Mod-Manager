@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "作者のすべてのModを表示",
     "AuthorModsTitle": "すべてのMod",
     "PreviewOnlyMode_Info": "これはインストールされたModのプレビュー画像のみをダウンロードします。",
-    "LoadMore": "さらに読み込む"
+    "LoadMore": "さらに読み込む",
+    "ArchivePassword_Label": "アーカイブのパスワード",
+    "ArchivePassword_Description": "このアーカイブはパスワードで保護されています。解凍するにはパスワードを入力してください。",
+    "ArchivePassword_Placeholder": "パスワードを入力...",
+    "ArchivePassword_Wrong": "パスワードが間違っています。もう一度お試しください。",
+    "ArchivePassword_Cancelled": "解凍がキャンセルされました。"
 }

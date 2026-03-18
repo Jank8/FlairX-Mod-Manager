@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Переглянути всі моди автора",
     "AuthorModsTitle": "Всі моди",
     "PreviewOnlyMode_Info": "Це завантажить лише превʼю зображення для встановленого мода.",
-    "LoadMore": "Завантажити більше"
+    "LoadMore": "Завантажити більше",
+    "ArchivePassword_Label": "Пароль архіву",
+    "ArchivePassword_Description": "Цей архів захищено паролем. Введіть пароль для розпакування.",
+    "ArchivePassword_Placeholder": "Введіть пароль...",
+    "ArchivePassword_Wrong": "Неправильний пароль, спробуйте ще раз.",
+    "ArchivePassword_Cancelled": "Розпакування скасовано."
 }

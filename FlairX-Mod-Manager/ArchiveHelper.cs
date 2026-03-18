@@ -6,10 +6,47 @@ using SharpSevenZip;
 namespace FlairX_Mod_Manager
 {
     /// <summary>
+    /// Thrown when an archive requires a password to extract.
+    /// </summary>
+    public class ArchiveEncryptedException : Exception
+    {
+        public ArchiveEncryptedException() : base("Archive is encrypted and requires a password.") { }
+    }
+
+    /// <summary>
     /// Helper class for archive operations using SharpSevenZip
     /// </summary>
     public static class ArchiveHelper
     {
+        /// <summary>
+        /// Returns true if the archive is encrypted (requires a password).
+        /// </summary>
+        public static bool IsEncrypted(string archivePath)
+        {
+            try
+            {
+                var format = GetFormatFromExtension(archivePath);
+                using var extractor = format.HasValue
+                    ? new SharpSevenZipExtractor(archivePath, format.Value)
+                    : new SharpSevenZipExtractor(archivePath);
+
+                // ArchiveFileData throws if headers are encrypted; otherwise check IsEncrypted per entry
+                var files = extractor.ArchiveFileData;
+                return files.Any(f => f.Encrypted);
+            }
+            catch (SharpSevenZip.Exceptions.SharpSevenZipArchiveException ex)
+            {
+                // Encrypted headers — can't even read the file list without a password
+                if (ex.Message.Contains("encrypted", StringComparison.OrdinalIgnoreCase) ||
+                    ex.Message.Contains("password", StringComparison.OrdinalIgnoreCase))
+                    return true;
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         /// <summary>
         /// Returns the SharpSevenZip InArchiveFormat for a given file extension, or null if unknown.
         /// </summary>
@@ -23,7 +60,7 @@ namespace FlairX_Mod_Manager
                 ".tar"  => InArchiveFormat.Tar,
                 ".gz"   => InArchiveFormat.GZip,
                 ".bz2"  => InArchiveFormat.BZip2,
-                ".xz"   => InArchiveFormat.Xz,
+                ".xz"   => InArchiveFormat.XZ,
                 _       => null
             };
         }
@@ -52,6 +89,10 @@ namespace FlairX_Mod_Manager
             }
             catch (SharpSevenZip.Exceptions.SharpSevenZipArchiveException ex)
             {
+                // Check if it's an encryption issue before trying format hint
+                if (IsEncrypted(archivePath))
+                    throw new ArchiveEncryptedException();
+
                 Logger.LogWarning($"SharpSevenZip failed to open archive (format detection issue), retrying with explicit format hint: {ex.Message}");
                 ExtractWithFormatHint(archivePath, destinationPath, progress);
             }
@@ -99,7 +140,8 @@ namespace FlairX_Mod_Manager
         }
         
         /// <summary>
-        /// Extract password-protected archive with progress reporting
+        /// Extract password-protected archive with progress reporting.
+        /// Throws <see cref="ArchiveEncryptedException"/> if the password is wrong.
         /// </summary>
         public static void ExtractToDirectory(string archivePath, string destinationPath, string password, IProgress<int>? progress)
         {
@@ -111,6 +153,17 @@ namespace FlairX_Mod_Manager
                     extractor.Extracting += (sender, e) => progress.Report(e.PercentDone);
                 
                 extractor.ExtractArchive(destinationPath);
+            }
+            catch (SharpSevenZip.Exceptions.SharpSevenZipArchiveException ex)
+            {
+                // Wrong password — archive is still encrypted
+                if (ex.Message.Contains("encrypted", StringComparison.OrdinalIgnoreCase) ||
+                    ex.Message.Contains("password", StringComparison.OrdinalIgnoreCase) ||
+                    IsEncrypted(archivePath))
+                    throw new ArchiveEncryptedException();
+
+                Logger.LogError($"Failed to extract password-protected archive with SharpSevenZip: {ex.Message}", ex);
+                throw;
             }
             catch (Exception ex)
             {

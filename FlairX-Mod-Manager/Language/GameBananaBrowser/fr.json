@@ -70,5 +70,10 @@
     "StarterPack_NotAvailable": "Le pack de démarrage n'est pas encore disponible pour ce jeu.",
     "ViewAllAuthorMods": "Voir tous les mods de l'auteur",
     "AuthorModsTitle": "Tous les mods",
-    "LoadMore": "Charger plus"
+    "LoadMore": "Charger plus",
+    "ArchivePassword_Label": "Mot de passe de l'archive",
+    "ArchivePassword_Description": "Cette archive est protégée par un mot de passe. Entrez le mot de passe pour l'extraire.",
+    "ArchivePassword_Placeholder": "Entrez le mot de passe...",
+    "ArchivePassword_Wrong": "Mot de passe incorrect, veuillez réessayer.",
+    "ArchivePassword_Cancelled": "Extraction annulée."
 }

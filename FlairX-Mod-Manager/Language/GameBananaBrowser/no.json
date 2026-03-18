@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Vis alle forfatterens mods",
     "AuthorModsTitle": "Alle mods",
     "PreviewOnlyMode_Info": "Dette vil kun laste ned forhåndsvisningsbilder for den installerte modden.",
-    "LoadMore": "Last inn mer"
+    "LoadMore": "Last inn mer",
+    "ArchivePassword_Label": "Arkivpassord",
+    "ArchivePassword_Description": "Dette arkivet er passordbeskyttet. Skriv inn passordet for å pakke det ut.",
+    "ArchivePassword_Placeholder": "Skriv inn passord...",
+    "ArchivePassword_Wrong": "Feil passord, prøv igjen.",
+    "ArchivePassword_Cancelled": "Utpakking avbrutt."
 }

@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Zobrazit všechny mody autora",
     "AuthorModsTitle": "Všechny mody",
     "PreviewOnlyMode_Info": "Toto stáhne pouze náhledy obrázků pro nainstalovaný mod.",
-    "LoadMore": "Načíst více"
+    "LoadMore": "Načíst více",
+    "ArchivePassword_Label": "Heslo archivu",
+    "ArchivePassword_Description": "Tento archiv je chráněn heslem. Zadejte heslo pro rozbalení.",
+    "ArchivePassword_Placeholder": "Zadejte heslo...",
+    "ArchivePassword_Wrong": "Nesprávné heslo, zkuste to znovu.",
+    "ArchivePassword_Cancelled": "Rozbalení zrušeno."
 }

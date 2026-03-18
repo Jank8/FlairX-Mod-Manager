@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Vis alle forfatterens mods",
     "AuthorModsTitle": "Alle mods",
     "PreviewOnlyMode_Info": "Dette vil kun downloade forhåndsvisningsbilleder for den installerede mod.",
-    "LoadMore": "Indlæs mere"
+    "LoadMore": "Indlæs mere",
+    "ArchivePassword_Label": "Arkivadgangskode",
+    "ArchivePassword_Description": "Dette arkiv er adgangskodebeskyttet. Indtast adgangskoden for at udpakke det.",
+    "ArchivePassword_Placeholder": "Indtast adgangskode...",
+    "ArchivePassword_Wrong": "Forkert adgangskode, prøv igen.",
+    "ArchivePassword_Cancelled": "Udpakning annulleret."
 }

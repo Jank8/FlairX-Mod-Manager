@@ -48,6 +48,12 @@ namespace FlairX_Mod_Manager.Dialogs
         private string? _version;
         private string? _existingModPathForPreviewsOnly = null;
 
+        // Password panel UI (shown when encrypted archive is detected)
+        private StackPanel _passwordPanel = null!;
+        private PasswordBox _passwordBox = null!;
+        private TextBlock _passwordErrorText = null!;
+        private TaskCompletionSource<string?>? _passwordTcs;
+
         // Event fired when mod is successfully installed
         public event EventHandler<ModInstalledEventArgs>? ModInstalled;
         
@@ -360,6 +366,49 @@ namespace FlairX_Mod_Manager.Dialogs
                 stackPanel.Children.Add(_updateOptionsGrid);
             }
 
+            // Password panel (hidden until encrypted archive is detected)
+            _passwordBox = new PasswordBox
+            {
+                PlaceholderText = SharedUtilities.GetTranslation(_lang, "ArchivePassword_Placeholder"),
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Margin = new Thickness(0, 0, 0, 4)
+            };
+
+            _passwordErrorText = new TextBlock
+            {
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red),
+                FontSize = 12,
+                Opacity = 0,
+                Margin = new Thickness(0, 0, 0, 0)
+            };
+
+            _passwordPanel = new StackPanel
+            {
+                Spacing = 4,
+                Visibility = Visibility.Collapsed,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+
+            var passwordLabel = new TextBlock
+            {
+                Text = SharedUtilities.GetTranslation(_lang, "ArchivePassword_Label"),
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                Margin = new Thickness(0, 0, 0, 4)
+            };
+            var passwordDesc = new TextBlock
+            {
+                Text = SharedUtilities.GetTranslation(_lang, "ArchivePassword_Description"),
+                FontSize = 12,
+                Opacity = 0.7,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 0, 0, 6)
+            };
+            _passwordPanel.Children.Add(passwordLabel);
+            _passwordPanel.Children.Add(passwordDesc);
+            _passwordPanel.Children.Add(_passwordBox);
+            _passwordPanel.Children.Add(_passwordErrorText);
+            stackPanel.Children.Add(_passwordPanel);
+
             // Download Progress
             _downloadStatusText = new TextBlock
             {
@@ -555,6 +604,13 @@ namespace FlairX_Mod_Manager.Dialogs
 
         private async void OnPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
+            // If password panel is active, this click submits the password
+            if (TrySubmitPassword())
+            {
+                args.Cancel = true;
+                return;
+            }
+
             // Check if this is preview-only mode (empty file list)
             bool isPreviewOnlyMode = _selectedFiles.Count == 0;
             
@@ -698,6 +754,23 @@ namespace FlairX_Mod_Manager.Dialogs
                     // Don't use Task.Run - we need to stay on UI thread for crop panel
                     _ = OptimizeDownloadedPreviewsAsync(_installedModPath);
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                // User cancelled password entry — show info and re-enable buttons
+                _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ArchivePassword_Cancelled");
+                _extractProgressBar.IsIndeterminate = false;
+                _extractProgressBar.Value = 0;
+                IsPrimaryButtonEnabled = true;
+                IsSecondaryButtonEnabled = true;
+            }
+            catch (AggregateException ae) when (ae.InnerException is OperationCanceledException)
+            {
+                _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ArchivePassword_Cancelled");
+                _extractProgressBar.IsIndeterminate = false;
+                _extractProgressBar.Value = 0;
+                IsPrimaryButtonEnabled = true;
+                IsSecondaryButtonEnabled = true;
             }
             catch (Exception ex)
             {
@@ -924,20 +997,71 @@ namespace FlairX_Mod_Manager.Dialogs
                             _extractStatusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "ExtractingProgress"), percent, 100);
                         });
                     });
-                    
-                    // Try extraction with timeout
-                    var extractTask = Task.Run(() => ArchiveHelper.ExtractToDirectory(_downloadedArchivePath!, tempExtractPath, progress));
-                    if (!extractTask.Wait(TimeSpan.FromMinutes(5)))
+
+                    // Password retry loop
+                    string? archivePassword = null;
+                    bool firstAttempt = true;
+                    while (true)
                     {
-                        Logger.LogWarning("Archive extraction timed out after 5 minutes, trying fallback method");
-                        // Fallback to System.IO.Compression for problematic archives
-                        if (_downloadedArchivePath!.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                        try
                         {
-                            System.IO.Compression.ZipFile.ExtractToDirectory(_downloadedArchivePath!, tempExtractPath, true);
+                            var extractTask = archivePassword == null
+                                ? Task.Run(() => ArchiveHelper.ExtractToDirectory(_downloadedArchivePath!, tempExtractPath, progress))
+                                : Task.Run(() => ArchiveHelper.ExtractToDirectory(_downloadedArchivePath!, tempExtractPath, archivePassword, progress));
+
+                            if (!extractTask.Wait(TimeSpan.FromMinutes(5)))
+                            {
+                                Logger.LogWarning("Archive extraction timed out after 5 minutes, trying fallback method");
+                                if (_downloadedArchivePath!.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+                                    System.IO.Compression.ZipFile.ExtractToDirectory(_downloadedArchivePath!, tempExtractPath, true);
+                                else
+                                    throw new TimeoutException(SharedUtilities.GetTranslation(_lang, "ExtractionTimeout"));
+                            }
+
+                            // Unwrap AggregateException to check for ArchiveEncryptedException
+                            if (extractTask.Exception != null)
+                                throw extractTask.Exception;
+
+                            break; // Success
                         }
-                        else
+                        catch (AggregateException ae) when (ae.InnerException is ArchiveEncryptedException)
                         {
-                            throw new TimeoutException(SharedUtilities.GetTranslation(_lang, "ExtractionTimeout"));
+                            // Show password panel and wait for user input
+                            if (!firstAttempt)
+                            {
+                                // Wrong password — show red error with fade-out
+                                DispatcherQueue.TryEnqueue(() =>
+                                {
+                                    IsPrimaryButtonEnabled = true;
+                                    _extractProgressBar.IsIndeterminate = false;
+                                    _extractProgressBar.Value = 0;
+                                    _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractExtractingFiles");
+                                });
+                                _ = ShowPasswordErrorAsync(SharedUtilities.GetTranslation(_lang, "ArchivePassword_Wrong"));
+                            }
+                            firstAttempt = false;
+
+                            archivePassword = await RequestPasswordAsync();
+
+                            if (archivePassword == null)
+                            {
+                                // User cancelled — abort extraction
+                                throw new OperationCanceledException(SharedUtilities.GetTranslation(_lang, "ArchivePassword_Cancelled"));
+                            }
+
+                            // Hide password panel, show progress again
+                            DispatcherQueue.TryEnqueue(() =>
+                            {
+                                _extractProgressBar.IsIndeterminate = true;
+                                _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractExtractingFiles");
+                                IsPrimaryButtonEnabled = false;
+                            });
+
+                            // Clear temp dir for retry
+                            foreach (var f in Directory.GetFiles(tempExtractPath, "*", SearchOption.AllDirectories))
+                                File.Delete(f);
+                            foreach (var d in Directory.GetDirectories(tempExtractPath).Reverse())
+                                Directory.Delete(d, true);
                         }
                     }
                     
@@ -1009,6 +1133,11 @@ namespace FlairX_Mod_Manager.Dialogs
                 
                 _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractComplete");
                 _extractProgressBar.Value = 100;
+            }
+            catch (OperationCanceledException ex)
+            {
+                Logger.LogInfo($"Archive extraction cancelled by user: {ex.Message}");
+                throw; // Let OnPrimaryButtonClick show the cancellation message
             }
             catch (Exception ex)
             {
@@ -1287,6 +1416,66 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             var invalid = Path.GetInvalidFileNameChars();
             return string.Join("-", fileName.Split(invalid, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
+        }
+
+        /// <summary>
+        /// Shows the password panel and waits for the user to submit a password via the primary button.
+        /// Returns null if the user cancels (empty password submitted).
+        /// </summary>
+        private Task<string?> RequestPasswordAsync()
+        {
+            _passwordTcs = new TaskCompletionSource<string?>();
+
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _passwordPanel.Visibility = Visibility.Visible;
+                _passwordBox.Password = string.Empty;
+                _passwordBox.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
+                PrimaryButtonText = SharedUtilities.GetTranslation(_lang, "Extract");
+                IsPrimaryButtonEnabled = true;
+            });
+
+            return _passwordTcs.Task;
+        }
+
+        /// <summary>
+        /// Called by the primary button handler when the password panel is visible.
+        /// Returns true if it consumed the click (password flow active).
+        /// </summary>
+        private bool TrySubmitPassword()
+        {
+            if (_passwordTcs == null || _passwordPanel.Visibility != Visibility.Visible)
+                return false;
+
+            var tcs = _passwordTcs;
+            _passwordTcs = null;
+            tcs.TrySetResult(string.IsNullOrEmpty(_passwordBox.Password) ? null : _passwordBox.Password);
+            return true;
+        }
+
+        /// <summary>
+        /// Shows a red error under the password box that fades out after 3 seconds.
+        /// </summary>
+        private async Task ShowPasswordErrorAsync(string message)
+        {
+            _passwordErrorText.Text = message;
+            _passwordErrorText.Opacity = 1;
+
+            await Task.Delay(3000);
+
+            var fadeAnimation = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+            {
+                From = 1,
+                To = 0,
+                Duration = new Duration(TimeSpan.FromMilliseconds(400)),
+                EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase
+                    { EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn }
+            };
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(fadeAnimation, _passwordErrorText);
+            Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(fadeAnimation, "Opacity");
+            var sb = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+            sb.Children.Add(fadeAnimation);
+            sb.Begin();
         }
 
         private async Task ShowError(string message)

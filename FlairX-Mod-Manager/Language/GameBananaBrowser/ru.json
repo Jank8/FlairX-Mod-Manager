@@ -70,5 +70,10 @@
     "ViewAllAuthorMods": "Посмотреть все моды автора",
     "AuthorModsTitle": "Все моды",
     "PreviewOnlyMode_Info": "Это загрузит только превью изображения для установленного мода.",
-    "LoadMore": "Загрузить ещё"
+    "LoadMore": "Загрузить ещё",
+    "ArchivePassword_Label": "Пароль архива",
+    "ArchivePassword_Description": "Этот архив защищён паролем. Введите пароль для извлечения.",
+    "ArchivePassword_Placeholder": "Введите пароль...",
+    "ArchivePassword_Wrong": "Неверный пароль, попробуйте ещё раз.",
+    "ArchivePassword_Cancelled": "Извлечение отменено."
 }
