@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "Fixeaz? ?n subsol",
   "ContextMenu_UnpinCategory": "Elibereaz? din subsol",
   "SettingsPage_HideEmptyCategories_Label": "Ascunde categoriile goale",
-  "SettingsPage_HideEmptyCategories_Description": "Ascunde categoriile care nu conțin niciun mod"
+  "SettingsPage_HideEmptyCategories_Description": "Ascunde categoriile care nu conțin niciun mod",
+  "ReportIssue_Button": "Raportează o eroare sau sugestie"
 }

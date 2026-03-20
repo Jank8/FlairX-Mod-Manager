@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "Fissa al pi? di pagina",
   "ContextMenu_UnpinCategory": "Rimuovi dal pi? di pagina",
   "SettingsPage_HideEmptyCategories_Label": "Nascondi categorie vuote",
-  "SettingsPage_HideEmptyCategories_Description": "Nascondi le categorie che non contengono mod"
+  "SettingsPage_HideEmptyCategories_Description": "Nascondi le categorie che non contengono mod",
+  "ReportIssue_Button": "Segnala un bug o un suggerimento"
 }

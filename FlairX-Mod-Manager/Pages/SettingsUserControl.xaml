@@ -1062,6 +1062,14 @@
                                 <TextBlock x:Name="CheckUpdatesButtonText" Text="" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
+                        <Button x:Name="ReportIssueButton"
+                                Width="200"
+                                Click="ReportIssueButton_Click">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <FontIcon Glyph="&#xEBE8;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                <TextBlock x:Name="ReportIssueButtonText" Text="" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
                         <Button x:Name="AboutButton"
                                 Width="200"
                                 Click="AboutButton_Click">

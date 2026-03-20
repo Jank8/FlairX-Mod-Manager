@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "Alt bilgiye sabitle",
   "ContextMenu_UnpinCategory": "Alt bilgiden kald?r",
   "SettingsPage_HideEmptyCategories_Label": "Boş kategorileri gizle",
-  "SettingsPage_HideEmptyCategories_Description": "Mod içermeyen kategorileri gizle"
+  "SettingsPage_HideEmptyCategories_Description": "Mod içermeyen kategorileri gizle",
+  "ReportIssue_Button": "Hata veya öneri bildir"
 }

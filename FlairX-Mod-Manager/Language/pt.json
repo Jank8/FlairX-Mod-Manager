@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "Fixar no rodap?",
   "ContextMenu_UnpinCategory": "Desafixar do rodap?",
   "SettingsPage_HideEmptyCategories_Label": "Ocultar categorias vazias",
-  "SettingsPage_HideEmptyCategories_Description": "Ocultar categorias que não contêm mods"
+  "SettingsPage_HideEmptyCategories_Description": "Ocultar categorias que não contêm mods",
+  "ReportIssue_Button": "Reportar bug ou sugestão"
 }

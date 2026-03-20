@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "Fest til bunntekst",
   "ContextMenu_UnpinCategory": "L?sne fra bunntekst",
   "SettingsPage_HideEmptyCategories_Label": "Skjul tomme kategorier",
-  "SettingsPage_HideEmptyCategories_Description": "Skjul kategorier som ikke inneholder noen mods"
+  "SettingsPage_HideEmptyCategories_Description": "Skjul kategorier som ikke inneholder noen mods",
+  "ReportIssue_Button": "Rapporter feil eller forslag"
 }

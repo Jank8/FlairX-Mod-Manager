@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "Anclar al pie",
   "ContextMenu_UnpinCategory": "Desanclar del pie",
   "SettingsPage_HideEmptyCategories_Label": "Ocultar categorías vacías",
-  "SettingsPage_HideEmptyCategories_Description": "Ocultar categorías que no contienen mods"
+  "SettingsPage_HideEmptyCategories_Description": "Ocultar categorías que no contienen mods",
+  "ReportIssue_Button": "Reportar error o sugerencia"
 }

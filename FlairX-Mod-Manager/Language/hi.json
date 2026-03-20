@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "????? ??? ??? ????",
   "ContextMenu_UnpinCategory": "????? ?? ????? ????",
   "SettingsPage_HideEmptyCategories_Label": "खाली श्रेणियाँ छिपाएं",
-  "SettingsPage_HideEmptyCategories_Description": "वे श्रेणियाँ छिपाएं जिनमें कोई मॉड नहीं है"
+  "SettingsPage_HideEmptyCategories_Description": "वे श्रेणियाँ छिपाएं जिनमें कोई मॉड नहीं है",
+  "ReportIssue_Button": "बग या सुझाव रिपोर्ट करें"
 }

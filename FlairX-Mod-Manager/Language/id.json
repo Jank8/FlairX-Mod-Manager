@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "Sematkan ke footer",
   "ContextMenu_UnpinCategory": "Lepas dari footer",
   "SettingsPage_HideEmptyCategories_Label": "Sembunyikan Kategori Kosong",
-  "SettingsPage_HideEmptyCategories_Description": "Sembunyikan kategori yang tidak memiliki mod"
+  "SettingsPage_HideEmptyCategories_Description": "Sembunyikan kategori yang tidak memiliki mod",
+  "ReportIssue_Button": "Laporkan bug atau saran"
 }

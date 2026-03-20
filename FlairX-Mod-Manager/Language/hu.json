@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "Rögzítés a láblécre",
   "ContextMenu_UnpinCategory": "Leválasztás a láblécről",
   "SettingsPage_HideEmptyCategories_Label": "Üres kategóriák elrejtése",
-  "SettingsPage_HideEmptyCategories_Description": "Elrejti azokat a kategóriákat, amelyek nem tartalmaznak modokat"
+  "SettingsPage_HideEmptyCategories_Description": "Elrejti azokat a kategóriákat, amelyek nem tartalmaznak modokat",
+  "ReportIssue_Button": "Hiba vagy javaslat bejelentése"
 }

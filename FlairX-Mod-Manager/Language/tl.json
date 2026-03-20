@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "I-pin sa footer",
   "ContextMenu_UnpinCategory": "Alisin ang pin sa footer",
   "SettingsPage_HideEmptyCategories_Label": "Itago ang mga walang laman na kategorya",
-  "SettingsPage_HideEmptyCategories_Description": "Itago ang mga kategoryang walang laman na mod"
+  "SettingsPage_HideEmptyCategories_Description": "Itago ang mga kategoryang walang laman na mod",
+  "ReportIssue_Button": "Mag-ulat ng bug o mungkahi"
 }

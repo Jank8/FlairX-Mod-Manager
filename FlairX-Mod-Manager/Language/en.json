@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "Pin to Footer",
   "ContextMenu_UnpinCategory": "Unpin from Footer",
   "SettingsPage_HideEmptyCategories_Label": "Hide Empty Categories",
-  "SettingsPage_HideEmptyCategories_Description": "Hide categories that contain no mods"
+  "SettingsPage_HideEmptyCategories_Description": "Hide categories that contain no mods",
+  "ReportIssue_Button": "Report a Bug or Suggestion"
 }

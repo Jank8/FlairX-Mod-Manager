@@ -346,6 +346,7 @@ namespace FlairX_Mod_Manager.Pages
             // Update all texts and icons once at the end
             UpdateTexts(lang);
             CheckUpdatesButtonText.Text = SharedUtilities.GetTranslation(lang, "CheckForUpdates");
+            ReportIssueButtonText.Text = SharedUtilities.GetTranslation(lang, "ReportIssue_Button") ?? "Report Issue";
             AboutButtonText.Text = SharedUtilities.GetTranslation(lang, "AboutButton_Label");
             AboutButtonIcon.Glyph = "\uE946";
             
@@ -2340,6 +2341,16 @@ namespace FlairX_Mod_Manager.Pages
             CheckUpdatesButton.IsEnabled = true;
         }
         
+        private void ReportIssueButton_Click(object sender, RoutedEventArgs e)
+        {
+            var startInfo = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = "https://github.com/Jank8/FlairX-Mod-Manager/issues/new",
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(startInfo);
+        }
+
         private async void AboutButton_Click(object sender, RoutedEventArgs e)
         {
             var lang = SharedUtilities.LoadLanguageDictionary();

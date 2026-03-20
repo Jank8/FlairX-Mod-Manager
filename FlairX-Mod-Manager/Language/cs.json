@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "P?ipnout do z?pat?",
   "ContextMenu_UnpinCategory": "Odepnout ze z?pat?",
   "SettingsPage_HideEmptyCategories_Label": "Skrýt prázdné kategorie",
-  "SettingsPage_HideEmptyCategories_Description": "Skrýt kategorie, které neobsahují žádné mody"
+  "SettingsPage_HideEmptyCategories_Description": "Skrýt kategorie, které neobsahují žádné mody",
+  "ReportIssue_Button": "Nahlásit chybu nebo návrh"
 }

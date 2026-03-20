@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "?????????? ??? ?????????",
   "ContextMenu_UnpinCategory": "???????????? ??? ?????????",
   "SettingsPage_HideEmptyCategories_Label": "Απόκρυψη κενών κατηγοριών",
-  "SettingsPage_HideEmptyCategories_Description": "Απόκρυψη κατηγοριών που δεν περιέχουν mods"
+  "SettingsPage_HideEmptyCategories_Description": "Απόκρυψη κατηγοριών που δεν περιέχουν mods",
+  "ReportIssue_Button": "Αναφορά σφάλματος ή πρότασης"
 }

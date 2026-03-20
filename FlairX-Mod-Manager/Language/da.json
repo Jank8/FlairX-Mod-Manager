@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "Fastg?r til sidefod",
   "ContextMenu_UnpinCategory": "Frig?r fra sidefod",
   "SettingsPage_HideEmptyCategories_Label": "Skjul tomme kategorier",
-  "SettingsPage_HideEmptyCategories_Description": "Skjul kategorier, der ikke indeholder nogen mods"
+  "SettingsPage_HideEmptyCategories_Description": "Skjul kategorier, der ikke indeholder nogen mods",
+  "ReportIssue_Button": "Rapporter fejl eller forslag"
 }

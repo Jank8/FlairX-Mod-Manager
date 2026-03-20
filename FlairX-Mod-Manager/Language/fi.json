@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "Kiinnit? alatunnisteeseen",
   "ContextMenu_UnpinCategory": "Irrota alatunnisteesta",
   "SettingsPage_HideEmptyCategories_Label": "Piilota tyhjät kategoriat",
-  "SettingsPage_HideEmptyCategories_Description": "Piilota kategoriat, joissa ei ole modeja"
+  "SettingsPage_HideEmptyCategories_Description": "Piilota kategoriat, joissa ei ole modeja",
+  "ReportIssue_Button": "Ilmoita virheestä tai ehdotuksesta"
 }

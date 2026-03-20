@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "?pingler au pied de page",
   "ContextMenu_UnpinCategory": "D?tacher du pied de page",
   "SettingsPage_HideEmptyCategories_Label": "Masquer les catégories vides",
-  "SettingsPage_HideEmptyCategories_Description": "Masquer les catégories ne contenant aucun mod"
+  "SettingsPage_HideEmptyCategories_Description": "Masquer les catégories ne contenant aucun mod",
+  "ReportIssue_Button": "Signaler un bug ou une suggestion"
 }

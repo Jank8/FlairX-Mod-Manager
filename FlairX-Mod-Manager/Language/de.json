@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "An Fu?zeile anheften",
   "ContextMenu_UnpinCategory": "Von Fu?zeile l?sen",
   "SettingsPage_HideEmptyCategories_Label": "Leere Kategorien ausblenden",
-  "SettingsPage_HideEmptyCategories_Description": "Kategorien ohne Mods ausblenden"
+  "SettingsPage_HideEmptyCategories_Description": "Kategorien ohne Mods ausblenden",
+  "ReportIssue_Button": "Fehler oder Vorschlag melden"
 }

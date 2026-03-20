@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "?????",
   "ContextMenu_UnpinCategory": "???????",
   "SettingsPage_HideEmptyCategories_Label": "隐藏空分类",
-  "SettingsPage_HideEmptyCategories_Description": "隐藏不包含任何模组的分类"
+  "SettingsPage_HideEmptyCategories_Description": "隐藏不包含任何模组的分类",
+  "ReportIssue_Button": "报告错误或建议"
 }

@@ -356,5 +356,6 @@
   "ContextMenu_PinCategory": "????????? ? ???????",
   "ContextMenu_UnpinCategory": "????????? ?? ???????",
   "SettingsPage_HideEmptyCategories_Label": "Скрыть пустые категории",
-  "SettingsPage_HideEmptyCategories_Description": "Скрыть категории, не содержащие модов"
+  "SettingsPage_HideEmptyCategories_Description": "Скрыть категории, не содержащие модов",
+  "ReportIssue_Button": "Сообщить об ошибке или предложении"
 }
