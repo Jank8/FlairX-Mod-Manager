@@ -735,7 +735,7 @@ namespace FlairX_Mod_Manager
         /// Send F10 key press to reload mods in game.
         /// With check_foreground_window = 0 in d3dx.ini, this works without admin privileges.
         /// </summary>
-        private async void SendF10KeyPress()
+        public async void SendF10KeyPress()
         {
             try
             {

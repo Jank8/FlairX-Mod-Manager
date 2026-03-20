@@ -255,6 +255,13 @@ namespace FlairX_Mod_Manager.Pages
                 
                 SaveActiveMods();
                 
+                // Send F10 to reload mods in game if enabled (same as overlay behaviour)
+                if (SettingsManager.Current.SendF10OnOverlayClose)
+                {
+                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                        mainWindow.SendF10KeyPress();
+                }
+                
                 // Update table view if it exists - sync the IsActive state and directory name
                 if (_originalTableItems != null)
                 {
