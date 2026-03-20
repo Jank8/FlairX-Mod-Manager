@@ -47,6 +47,10 @@ namespace FlairX_Mod_Manager.Pages
         // Track if any mod was installed during this session (internal for MainWindow access)
         internal bool _modWasInstalled = false;
         
+        // When opened via a mod URL (e.g. from mod detail panel), the mod page is the root of the nav stack.
+        // Back from the root should close the panel, not load the homepage.
+        private bool _openedWithUrl = false;
+        
         // Author mods functionality
         private int? _currentAuthorId = null;
         private string? _currentAuthorName = null;
@@ -236,6 +240,7 @@ namespace FlairX_Mod_Manager.Pages
             // If modUrl is provided, load mod details directly
             if (!string.IsNullOrEmpty(modUrl))
             {
+                _openedWithUrl = true;
                 _ = LoadModDetailsFromUrlAsync(modUrl);
             }
             else
@@ -2886,28 +2891,35 @@ namespace FlairX_Mod_Manager.Pages
                 if (match.Success && int.TryParse(match.Groups[1].Value, out int modId))
                 {
                     Logger.LogInfo($"Loading mod details from URL: {modUrl}, ID: {modId}");
-                    // Push current state only now that URL is confirmed valid
-                    if (_currentState == NavigationState.ModsList)
+                    // Push current state only now that URL is confirmed valid.
+                    // Skip pushing when opened via URL from constructor — the mod page IS the root,
+                    // so back should close the panel rather than navigate to the homepage.
+                    if (!_openedWithUrl)
                     {
-                        _navigationStack.Push(new NavigationEntry(
-                            NavigationState.ModsList,
-                            Search: _currentSearch,
-                            ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
-                            Page: _currentPage));
+                        if (_currentState == NavigationState.ModsList)
+                        {
+                            _navigationStack.Push(new NavigationEntry(
+                                NavigationState.ModsList,
+                                Search: _currentSearch,
+                                ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
+                                Page: _currentPage));
+                        }
+                        else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
+                        {
+                            _navigationStack.Push(new NavigationEntry(
+                                NavigationState.ModDetails,
+                                ModId: _currentModDetails.Id));
+                        }
+                        else if (_currentState == NavigationState.AuthorMods && _currentAuthorId.HasValue)
+                        {
+                            _navigationStack.Push(new NavigationEntry(
+                                NavigationState.AuthorMods,
+                                AuthorId: _currentAuthorId,
+                                AuthorName: _currentAuthorName));
+                        }
                     }
-                    else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
-                    {
-                        _navigationStack.Push(new NavigationEntry(
-                            NavigationState.ModDetails,
-                            ModId: _currentModDetails.Id));
-                    }
-                    else if (_currentState == NavigationState.AuthorMods && _currentAuthorId.HasValue)
-                    {
-                        _navigationStack.Push(new NavigationEntry(
-                            NavigationState.AuthorMods,
-                            AuthorId: _currentAuthorId,
-                            AuthorName: _currentAuthorName));
-                    }
+                    // After the initial URL load, subsequent navigations (e.g. author mods) should push normally
+                    _openedWithUrl = false;
                     await ShowModDetailsAsyncNoHistory(modId);
                     UpdateBackButtonIcon();
                 }
