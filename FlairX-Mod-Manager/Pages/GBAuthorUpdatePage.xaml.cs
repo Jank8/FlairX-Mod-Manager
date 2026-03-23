@@ -630,6 +630,11 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
 
+                // Save last run date and refresh the display
+                SettingsManager.Current.GameBananaLastAutoUpdate = DateTime.Now;
+                SettingsManager.Save();
+                UpdateLastRunText();
+
                 ResetUpdateButtonToFetchState();
                 string summary = string.Format(SharedUtilities.GetTranslation(lang, "TotalChecked"), _success + _fail + _skip) + "\n" +
                                 string.Format(SharedUtilities.GetTranslation(lang, "SuccessCount"), _success) + "\n" +
@@ -1668,7 +1673,18 @@ namespace FlairX_Mod_Manager.Pages
             var intervalDays = SettingsManager.Current.GameBananaAutoUpdateIntervalDays;
             AutoUpdateIntervalTextBox.Text = intervalDays.ToString();
             
+            // Show last auto-update run date
+            UpdateLastRunText();
+            
             SkipInvalidUrlsSwitch.IsOn = SettingsManager.Current.GameBananaSkipInvalidUrls;
+        }
+
+        private void UpdateLastRunText()
+        {
+            var lastRun = SettingsManager.Current.GameBananaLastAutoUpdate;
+            AutoUpdateLastRunText.Text = lastRun == DateTime.MinValue
+                ? ""
+                : lastRun.ToString("g");
         }
 
         private void AutoUpdateEnabledSwitch_Toggled(object sender, RoutedEventArgs e)

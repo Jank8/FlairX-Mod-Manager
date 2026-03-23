@@ -315,6 +315,8 @@ namespace FlairX_Mod_Manager
                     DispatcherQueue.TryEnqueue(async () =>
                     {
                         await ReloadModsAsync();
+                        if (SettingsManager.Current.SendF10OnOverlayClose)
+                            SendF10KeyPress();
                     });
                 }
                 catch (Exception ex)

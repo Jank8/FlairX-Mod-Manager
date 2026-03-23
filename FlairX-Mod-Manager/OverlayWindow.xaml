@@ -226,6 +226,24 @@
                                                   Foreground="{x:Bind FavoriteStarColor, Mode=OneWay}"
                                                   Margin="0"/>
                                     </Button>
+
+                                    <!-- Broken Mod Button (below favorite) -->
+                                    <Button Width="28"
+                                            Height="28"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            Margin="0,38,6,0"
+                                            Padding="0"
+                                            Background="{ThemeResource LauncherAcrylicBrush}"
+                                            BorderThickness="0"
+                                            CornerRadius="8"
+                                            Click="ModBrokenButton_Click"
+                                            Tag="{x:Bind}">
+                                        <FontIcon Glyph="{x:Bind BrokenIconGlyph, Mode=OneWay}"
+                                                  FontSize="14"
+                                                  Foreground="{x:Bind BrokenIconColor, Mode=OneWay}"
+                                                  Margin="0"/>
+                                    </Button>
                                     
                                     <!-- Selection border overlay -->
                                     <Border x:Name="TileBorder"

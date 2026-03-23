@@ -408,19 +408,32 @@ namespace FlairX_Mod_Manager.Pages
             var scrollOffset = ModsScrollViewer.VerticalOffset;
             var viewportHeight = ModsScrollViewer.ViewportHeight;
             var viewportWidth = ModsScrollViewer.ActualWidth;
-            
-            // Calculate items per row based on viewport width
-            var effectiveTileWidth = (TILE_WIDTH + TILE_MARGIN) * _zoomFactor;
-            var itemsPerRow = Math.Max(1, (int)(viewportWidth / effectiveTileWidth));
-            
-            // Calculate visible row range with buffer
-            var effectiveTileHeight = (TILE_HEIGHT + TILE_MARGIN) * _zoomFactor;
-            var firstVisibleRow = Math.Max(0, (int)(scrollOffset / effectiveTileHeight) - 2); // 2 row buffer above
-            var lastVisibleRow = (int)((scrollOffset + viewportHeight) / effectiveTileHeight) + 2; // 2 row buffer below
-            
-            // Calculate visible item indices
-            var firstVisibleIndex = firstVisibleRow * itemsPerRow;
-            var lastVisibleIndex = Math.Min((lastVisibleRow + 1) * itemsPerRow, itemsList.Count);
+
+            int firstVisibleIndex;
+            int lastVisibleIndex;
+
+            // If layout hasn't measured yet (viewport is 0), load all items.
+            // This happens on startup before the first layout pass completes and would
+            // otherwise cause the active mod thumbnail to be skipped.
+            if (viewportWidth <= 0 || viewportHeight <= 0)
+            {
+                firstVisibleIndex = 0;
+                lastVisibleIndex = itemsList.Count;
+            }
+            else
+            {
+                // Calculate items per row based on viewport width
+                var effectiveTileWidth = (TILE_WIDTH + TILE_MARGIN) * _zoomFactor;
+                var itemsPerRow = Math.Max(1, (int)(viewportWidth / effectiveTileWidth));
+
+                // Calculate visible row range with buffer
+                var effectiveTileHeight = (TILE_HEIGHT + TILE_MARGIN) * _zoomFactor;
+                var firstVisibleRow = Math.Max(0, (int)(scrollOffset / effectiveTileHeight) - 2); // 2 row buffer above
+                var lastVisibleRow = (int)((scrollOffset + viewportHeight) / effectiveTileHeight) + 2; // 2 row buffer below
+
+                firstVisibleIndex = firstVisibleRow * itemsPerRow;
+                lastVisibleIndex = Math.Min((lastVisibleRow + 1) * itemsPerRow, itemsList.Count);
+            }
 
             // Collect items to load and dispose
             var itemsToLoad = new List<ModTile>();

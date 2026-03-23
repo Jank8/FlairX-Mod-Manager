@@ -171,6 +171,27 @@ namespace FlairX_Mod_Manager
             ? new SolidColorBrush(Colors.Gold) 
             : new SolidColorBrush(Colors.White);
 
+        private bool _isBroken;
+        public bool IsBroken
+        {
+            get => _isBroken;
+            set
+            {
+                if (_isBroken != value)
+                {
+                    _isBroken = value;
+                    OnPropertyChanged(nameof(IsBroken));
+                    OnPropertyChanged(nameof(BrokenIconGlyph));
+                    OnPropertyChanged(nameof(BrokenIconColor));
+                }
+            }
+        }
+
+        public string BrokenIconGlyph => "\uE7BA"; // Warning icon
+        public SolidColorBrush BrokenIconColor => IsBroken
+            ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 100, 100))
+            : new SolidColorBrush(Colors.White);
+
         public SolidColorBrush StatusColor => IsActive 
             ? new SolidColorBrush(Windows.UI.Color.FromArgb(255, 76, 175, 80))  // Green
             : new SolidColorBrush(Windows.UI.Color.FromArgb(255, 96, 96, 96));  // Gray
@@ -1308,7 +1329,7 @@ namespace FlairX_Mod_Manager
                 HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();
                 
                 // Build list of mods with their active status and favorite status
-                var modItems = new List<(string dir, string name, bool isActive, bool isFavorite)>();
+                var modItems = new List<(string dir, string name, bool isActive, bool isFavorite, bool isBroken)>();
                 var gameTag = SettingsManager.CurrentSelectedGame;
                 
                 foreach (var modDir in modDirs)
@@ -1328,8 +1349,22 @@ namespace FlairX_Mod_Manager
                         continue;
                     
                     var isFavorite = !string.IsNullOrEmpty(gameTag) && SettingsManager.IsModFavorite(gameTag, cleanName);
+
+                    // Read isBroken from mod.json
+                    bool isBroken = false;
+                    try
+                    {
+                        var modJsonPath = Path.Combine(modDir, "mod.json");
+                        if (File.Exists(modJsonPath))
+                        {
+                            var json = Services.FileAccessQueue.ReadAllText(modJsonPath);
+                            using var doc = System.Text.Json.JsonDocument.Parse(json);
+                            isBroken = doc.RootElement.TryGetProperty("modBroken", out var bp) && bp.ValueKind == System.Text.Json.JsonValueKind.True;
+                        }
+                    }
+                    catch { }
                     
-                    modItems.Add((modDir, modName, isActive, isFavorite));
+                    modItems.Add((modDir, modName, isActive, isFavorite, isBroken));
                 }
                 
                 // Sort: favorites first, then active mods, then alphabetically by name
@@ -1339,7 +1374,7 @@ namespace FlairX_Mod_Manager
                     .ThenBy(m => m.isActive ? m.name : m.name.Substring(8).TrimStart('_', '-', ' '))
                     .ToList();
                 
-                foreach (var (modDir, modName, isActive, isFavorite) in sortedMods)
+                foreach (var (modDir, modName, isActive, isFavorite, isBroken) in sortedMods)
                 {
                     // Clean name for display
                     var displayName = isActive ? modName : modName.Substring(8).TrimStart('_', '-', ' ');
@@ -1350,6 +1385,7 @@ namespace FlairX_Mod_Manager
                         Directory = modDir,
                         IsActive = isActive,
                         IsFavorite = isFavorite,
+                        IsBroken = isBroken,
                         Thumbnail = await LoadThumbnailAsync(modDir),
                         Hotkeys = await LoadModHotkeysAsync(modDir)
                     };
@@ -1740,6 +1776,11 @@ namespace FlairX_Mod_Manager
 
         private void ToggleMod(OverlayModItem item, bool vibrate = false)
         {
+            _ = ToggleModAsync(item, vibrate);
+        }
+
+        private async Task ToggleModAsync(OverlayModItem item, bool vibrate = false)
+        {
             try
             {
                 var dir = item.Directory;
@@ -1764,6 +1805,31 @@ namespace FlairX_Mod_Manager
                         ? currentName.Substring(9) 
                         : currentName.TrimStart('D', 'I', 'S', 'A', 'B', 'L', 'E', '_');
                     newState = true;
+
+                    // Auto-deactivate conflicting mods in the same category (if setting enabled)
+                    if (SettingsManager.Current.AutoDeactivateConflictingMods)
+                    {
+                        var categoryName = Path.GetFileName(parentDir);
+                        var gameTag = SettingsManager.GetGameTagFromIndex(SettingsManager.Current.SelectedGameIndex);
+                        var conflictExcluded = SettingsManager.GetConflictExcludedCategories(gameTag);
+
+                        if (!conflictExcluded.Contains(categoryName, StringComparer.OrdinalIgnoreCase))
+                        {
+                            await Pages.ModGridPage.DeactivateModsInCategory(categoryName, newName);
+
+                            // Update IsActive state for other items in the same category
+                            foreach (var other in OverlayMods)
+                            {
+                                if (other != item && other.IsActive &&
+                                    string.Equals(Path.GetFileName(Path.GetDirectoryName(other.Directory)), categoryName, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    other.IsActive = false;
+                                    var otherName = Path.GetFileName(other.Directory);
+                                    other.Directory = Path.Combine(parentDir, "DISABLED_" + otherName);
+                                }
+                            }
+                        }
+                    }
                 }
                 
                 var newPath = Path.Combine(parentDir!, newName);
@@ -2553,6 +2619,40 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError("Failed to toggle mod favorite in overlay", ex);
+            }
+        }
+
+        private async void ModBrokenButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is Button button && button.Tag is OverlayModItem mod)
+                {
+                    var newBroken = !mod.IsBroken;
+                    var modJsonPath = Path.Combine(mod.Directory, "mod.json");
+                    if (!File.Exists(modJsonPath)) return;
+
+                    await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
+                    {
+                        var json = await File.ReadAllTextAsync(modJsonPath);
+                        var dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
+                        dict["modBroken"] = newBroken;
+                        await File.WriteAllTextAsync(modJsonPath,
+                            System.Text.Json.JsonSerializer.Serialize(dict, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+                    });
+
+                    mod.IsBroken = newBroken;
+                    Logger.LogInfo($"Overlay: Toggled broken for mod: {mod.Name}, IsBroken: {newBroken}");
+
+                    // Refresh ModListManager and main grid
+                    ModListManager.RebuildAllLists();
+                    if (_mainWindow?.ContentFrame?.Content is Pages.ModGridPage modGridPage)
+                        modGridPage.RefreshModTile(Path.GetFileName(mod.Directory), newBroken);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to toggle mod broken in overlay", ex);
             }
         }
 

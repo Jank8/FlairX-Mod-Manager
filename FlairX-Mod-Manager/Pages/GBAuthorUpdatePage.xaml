@@ -156,6 +156,7 @@
                         <StackPanel Grid.Column="2" VerticalAlignment="Center">
                             <TextBlock x:Name="AutoUpdateIntervalLabel" FontWeight="SemiBold" FontSize="14"/>
                             <TextBlock x:Name="AutoUpdateIntervalDescription" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            <TextBlock x:Name="AutoUpdateLastRunText" FontSize="11" Opacity="0.5" Margin="0,2,0,0"/>
                         </StackPanel>
                         
                         <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
