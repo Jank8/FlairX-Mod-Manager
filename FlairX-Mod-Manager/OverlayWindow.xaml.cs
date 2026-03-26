@@ -1910,10 +1910,24 @@ namespace FlairX_Mod_Manager
                 
                 var newPath = Path.Combine(parentDir!, newName);
                 
-                if (dir != newPath && !System.IO.Directory.Exists(newPath))
+                bool toggled = false;
+                if (dir != newPath)
                 {
-                    Services.FileAccessQueue.MoveDirectory(dir, newPath);
-                    
+                    if (System.IO.Directory.Exists(newPath))
+                    {
+                        // Target already exists — treat current state as already correct
+                        Logger.LogInfo($"Overlay toggle: target path already exists, updating state only: {newName}");
+                        toggled = true;
+                    }
+                    else
+                    {
+                        Services.FileAccessQueue.MoveDirectory(dir, newPath);
+                        toggled = true;
+                    }
+                }
+
+                if (toggled)
+                {
                     // Ensure UI updates and event firing happen on UI thread
                     DispatcherQueue.TryEnqueue(() =>
                     {
@@ -1928,7 +1942,7 @@ namespace FlairX_Mod_Manager
                             _gamepadManager?.Vibrate(30000, 30000, 300);
                         }
                         
-                        // Notify main window
+                        // Notify main window (triggers F10 reload if enabled)
                         ModToggleRequested?.Invoke(newPath);
                     });
                 }

@@ -634,6 +634,11 @@ namespace FlairX_Mod_Manager
                 // Toggle visibility
                 Logger.LogInfo("ToggleOverlayWindow: Calling Toggle()");
                 _overlayWindow.Toggle(vibrate);
+                
+                // Suspend main hotkeys when overlay is shown — overlay has exclusive input
+                if (_overlayWindow.IsOverlayVisible)
+                    _globalHotkeyManager?.UnregisterAllHotkeys();
+                
                 Logger.LogInfo($"Overlay window toggled");
             }
             catch (Exception ex)
@@ -731,7 +736,8 @@ namespace FlairX_Mod_Manager
             try
             {
                 Logger.LogInfo("Overlay window was hidden");
-                // F10 is now sent on each mod toggle, not on overlay close
+                // Restore main hotkeys now that overlay is closed
+                _globalHotkeyManager?.RefreshHotkeys();
             }
             catch (Exception ex)
             {
