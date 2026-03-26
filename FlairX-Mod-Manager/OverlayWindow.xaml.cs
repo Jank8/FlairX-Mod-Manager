@@ -1913,19 +1913,24 @@ namespace FlairX_Mod_Manager
                 if (dir != newPath && !System.IO.Directory.Exists(newPath))
                 {
                     Services.FileAccessQueue.MoveDirectory(dir, newPath);
-                    item.Directory = newPath;
-                    item.IsActive = newState;
                     
-                    Logger.LogInfo($"Overlay toggled mod: {currentName} -> {newName}");
-                    
-                    // Vibrate on toggle (only for gamepad)
-                    if (vibrate)
+                    // Ensure UI updates and event firing happen on UI thread
+                    DispatcherQueue.TryEnqueue(() =>
                     {
-                        _gamepadManager?.Vibrate(30000, 30000, 300);
-                    }
-                    
-                    // Notify main window
-                    ModToggleRequested?.Invoke(newPath);
+                        item.Directory = newPath;
+                        item.IsActive = newState;
+                        
+                        Logger.LogInfo($"Overlay toggled mod: {currentName} -> {newName}");
+                        
+                        // Vibrate on toggle (only for gamepad)
+                        if (vibrate)
+                        {
+                            _gamepadManager?.Vibrate(30000, 30000, 300);
+                        }
+                        
+                        // Notify main window
+                        ModToggleRequested?.Invoke(newPath);
+                    });
                 }
             }
             catch (Exception ex)

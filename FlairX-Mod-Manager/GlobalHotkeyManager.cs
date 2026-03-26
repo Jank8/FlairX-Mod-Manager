@@ -367,6 +367,13 @@ namespace FlairX_Mod_Manager
                 
                 // Check if this is an overlay hotkey
                 bool isOverlayHotkey = (id == HOTKEY_TOGGLE_OVERLAY || id == HOTKEY_FILTER_ACTIVE);
+
+                // Block non-overlay hotkeys when overlay is visible — overlay has exclusive input
+                if (!isOverlayHotkey && _mainWindow.OverlayWindow?.IsOverlayVisible == true)
+                {
+                    Logger.LogInfo($"OnHotkeyPressed: Hotkey {id} blocked — overlay is visible");
+                    return;
+                }
                 
                 // For main hotkeys, check if main hotkeys are enabled
                 if (!isOverlayHotkey && !settings.HotkeysEnabled)

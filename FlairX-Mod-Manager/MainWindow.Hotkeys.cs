@@ -104,6 +104,9 @@ namespace FlairX_Mod_Manager
         {
             try
             {
+                // Block main window hotkeys when overlay is visible — overlay has exclusive input
+                if (_overlayWindow?.IsOverlayVisible == true) return;
+
                 // Only handle hotkeys if they are enabled and a game is selected
                 if (!SettingsManager.Current.HotkeysEnabled || SettingsManager.Current.SelectedGameIndex <= 0)
                     return;
@@ -569,6 +572,9 @@ namespace FlairX_Mod_Manager
         {
             var buttonName = e.GetButtonDisplayName();
             _heldButtons.Add(buttonName);
+
+            // When overlay is visible it owns all gamepad input — don't process main window combos
+            if (_overlayWindow?.IsOverlayVisible == true) return;
 
             // Check if current held buttons match the configured combo
             var configuredCombo = SettingsManager.Current.GamepadToggleOverlayCombo ?? "Back+Start";
