@@ -253,6 +253,12 @@ namespace FlairX_Mod_Manager
         // Held buttons for combo detection
         private HashSet<string> _heldButtons = new();
 
+        // Key-repeat state for held navigation buttons
+        private string? _repeatButton = null;
+        private System.Threading.CancellationTokenSource? _repeatCts = null;
+        private const int REPEAT_INITIAL_DELAY_MS = 400;
+        private const int REPEAT_INTERVAL_MS = 100;
+
         // Animation state management
         private DispatcherTimer? _hideTimer;
         private bool _isAnimatingIn;
@@ -758,26 +764,44 @@ namespace FlairX_Mod_Manager
                         {
                             Logger.LogInfo("Navigate UP");
                             NavigateModGrid(0, -1);
+                            StartRepeat(buttonName, () => NavigateModGrid(0, -1));
                             return;
                         }
                         else if (IsButtonMatch(buttonName, settings.GamepadDPadDown))
                         {
                             Logger.LogInfo("Navigate DOWN");
                             NavigateModGrid(0, 1);
+                            StartRepeat(buttonName, () => NavigateModGrid(0, 1));
                             return;
                         }
                         else if (IsButtonMatch(buttonName, settings.GamepadDPadLeft))
                         {
                             Logger.LogInfo("Navigate LEFT");
                             NavigateModGrid(-1, 0);
+                            StartRepeat(buttonName, () => NavigateModGrid(-1, 0));
                             return;
                         }
                         else if (IsButtonMatch(buttonName, settings.GamepadDPadRight))
                         {
                             Logger.LogInfo("Navigate RIGHT");
                             NavigateModGrid(1, 0);
+                            StartRepeat(buttonName, () => NavigateModGrid(1, 0));
                             return;
                         }
+                    }
+                    
+                    // Next/Prev category — also support repeat
+                    if (IsButtonMatch(buttonName, settings.GamepadNextCategoryButton))
+                    {
+                        NavigateCategory(1);
+                        StartRepeat(buttonName, () => NavigateCategory(1));
+                        return;
+                    }
+                    else if (IsButtonMatch(buttonName, settings.GamepadPrevCategoryButton))
+                    {
+                        NavigateCategory(-1);
+                        StartRepeat(buttonName, () => NavigateCategory(-1));
+                        return;
                     }
                     
                     // Select/Toggle mod
@@ -797,16 +821,6 @@ namespace FlairX_Mod_Manager
                         Logger.LogInfo($"Overlay Gamepad: {buttonName} button pressed - toggling mod favorite");
                         ToggleModFavorite();
                     }
-                    // Next category
-                    else if (IsButtonMatch(buttonName, settings.GamepadNextCategoryButton))
-                    {
-                        NavigateCategory(1);
-                    }
-                    // Previous category
-                    else if (IsButtonMatch(buttonName, settings.GamepadPrevCategoryButton))
-                    {
-                        NavigateCategory(-1);
-                    }
                     // Back/Close
                     else if (IsButtonMatch(buttonName, settings.GamepadBackButton))
                     {
@@ -824,6 +838,39 @@ namespace FlairX_Mod_Manager
         {
             var buttonName = e.GetButtonDisplayName();
             _heldButtons.Remove(buttonName);
+            
+            // Stop repeat if the released button was the one repeating
+            if (_repeatButton == buttonName)
+                StopRepeat();
+        }
+
+        private void StartRepeat(string buttonName, Action action)
+        {
+            StopRepeat();
+            _repeatButton = buttonName;
+            _repeatCts = new System.Threading.CancellationTokenSource();
+            var token = _repeatCts.Token;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(REPEAT_INITIAL_DELAY_MS, token);
+                    while (!token.IsCancellationRequested)
+                    {
+                        DispatcherQueue.TryEnqueue(() => { if (!token.IsCancellationRequested) action(); });
+                        await Task.Delay(REPEAT_INTERVAL_MS, token);
+                    }
+                }
+                catch (TaskCanceledException) { }
+            });
+        }
+
+        private void StopRepeat()
+        {
+            _repeatCts?.Cancel();
+            _repeatCts = null;
+            _repeatButton = null;
         }
 
         private void OnLeftThumbstickMoved(object? sender, ThumbstickEventArgs e)
@@ -987,6 +1034,13 @@ namespace FlairX_Mod_Manager
         {
             if (OverlayMods.Count == 0) return;
 
+            // Guard: if current index is out of range (e.g. collection changed during async load), reset it
+            if (_selectedModIndex >= OverlayMods.Count)
+            {
+                _selectedModIndex = -1;
+                _selectedMod = null;
+            }
+
             // Deselect previous
             if (_selectedModIndex >= 0 && _selectedModIndex < OverlayMods.Count)
             {
@@ -1074,39 +1128,53 @@ namespace FlairX_Mod_Manager
             
             try
             {
-                // Try multiple times to get the element (it might not be realized yet)
-                UIElement? element = null;
-                for (int attempt = 0; attempt < 5; attempt++)
-                {
-                    element = ModsRepeater.TryGetElement(index);
-                    if (element != null) break;
-                    
-                    Logger.LogWarning($"ScrollModIntoView: Element at index {index} not realized yet, attempt {attempt + 1}/5");
-                    await Task.Delay(100);
-                }
-                
-                if (element == null)
-                {
-                    Logger.LogWarning($"ScrollModIntoView: Failed to get element at index {index} after 5 attempts");
-                    return;
-                }
-                
-                var transform = element.TransformToVisual(ModsScrollViewer);
-                var position = transform.TransformPoint(new Windows.Foundation.Point(0, 0));
-                
-                var elementHeight = element.ActualSize.Y;
+                var itemsPerRow = GetItemsPerRow();
+                if (itemsPerRow <= 0) itemsPerRow = 1;
+
+                // UniformGridLayout: MinItemHeight=262, MinRowSpacing=16
+                const double itemHeight = 262.0;
+                const double rowSpacing = 16.0;
+                var rowHeight = itemHeight + rowSpacing;
+
+                var row = index / itemsPerRow;
+                var itemTop = row * rowHeight;
+                var itemBottom = itemTop + itemHeight;
+
                 var viewportHeight = ModsScrollViewer.ViewportHeight;
                 var currentOffset = ModsScrollViewer.VerticalOffset;
-                
-                // Center the element in viewport if possible
-                var targetOffset = currentOffset + position.Y - (viewportHeight / 2) + (elementHeight / 2);
-                
-                // Clamp to valid scroll range
-                var maxOffset = ModsScrollViewer.ScrollableHeight;
-                targetOffset = Math.Max(0, Math.Min(targetOffset, maxOffset));
-                
-                ModsScrollViewer.ChangeView(null, targetOffset, null, false);
-                Logger.LogInfo($"Scrolled to mod at index {index}, offset: {targetOffset}");
+
+                // Only scroll if item is not fully visible
+                if (itemTop < currentOffset || itemBottom > currentOffset + viewportHeight)
+                {
+                    // Center the row in viewport
+                    var targetOffset = itemTop - (viewportHeight / 2) + (itemHeight / 2);
+                    targetOffset = Math.Max(0, Math.Min(targetOffset, ModsScrollViewer.ScrollableHeight));
+                    ModsScrollViewer.ChangeView(null, targetOffset, null, false);
+                    Logger.LogInfo($"Scrolled to mod at index {index} (row {row}), offset: {targetOffset}");
+                }
+
+                // Also try element-based scroll as fallback if viewport size not yet known
+                if (viewportHeight <= 0)
+                {
+                    UIElement? element = null;
+                    for (int attempt = 0; attempt < 5; attempt++)
+                    {
+                        element = ModsRepeater.TryGetElement(index);
+                        if (element != null) break;
+                        await Task.Delay(100);
+                    }
+                    if (element != null)
+                    {
+                        var transform = element.TransformToVisual(ModsScrollViewer);
+                        var position = transform.TransformPoint(new Windows.Foundation.Point(0, 0));
+                        var elementHeight = element.ActualSize.Y;
+                        var vp = ModsScrollViewer.ViewportHeight;
+                        var cur = ModsScrollViewer.VerticalOffset;
+                        var target = cur + position.Y - (vp / 2) + (elementHeight / 2);
+                        target = Math.Max(0, Math.Min(target, ModsScrollViewer.ScrollableHeight));
+                        ModsScrollViewer.ChangeView(null, target, null, false);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -1414,6 +1482,7 @@ namespace FlairX_Mod_Manager
             _selectedCategoryPath = category.Directory;
             
             // Clear selected mod and hotkeys when changing category
+            _selectedModIndex = -1;
             _selectedMod = null;
             UpdateHotkeysPanel(null);
             
@@ -1519,6 +1588,13 @@ namespace FlairX_Mod_Manager
                 }
                 
                 Logger.LogInfo($"Loaded {OverlayMods.Count} active mods from all categories");
+                
+                // If selection went out of range during async load, reset it
+                if (_selectedModIndex >= OverlayMods.Count)
+                {
+                    _selectedModIndex = -1;
+                    _selectedMod = null;
+                }
             }
             catch (Exception ex)
             {
@@ -1972,6 +2048,7 @@ namespace FlairX_Mod_Manager
                 _hideTimer = null;
                 
                 // Clean up gamepad
+                StopRepeat();
                 if (_gamepadManager != null)
                 {
                     _gamepadManager.ButtonPressed -= OnGamepadButtonPressed;
