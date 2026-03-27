@@ -679,12 +679,7 @@ namespace FlairX_Mod_Manager
                 
                 // Use lightweight refresh instead of full reload
                 RefreshModTileState(modPath);
-                
-                // Send F10 to reload mods in game if enabled
-                if (SettingsManager.Current.SendF10OnOverlayClose)
-                {
-                    SendF10KeyPress();
-                }
+                // F10 is sent directly from ToggleModAsync
             }
             catch (Exception ex)
             {

@@ -1935,11 +1935,11 @@ namespace FlairX_Mod_Manager
 
                 if (toggled)
                 {
-                    // Send F10 immediately — no threading dependency
+                    // Send F10 via MainWindow's DispatcherQueue to ensure proper async context
                     if (SettingsManager.Current.SendF10OnOverlayClose)
                     {
                         Logger.LogInfo($"ToggleModAsync: sending F10, thread={System.Threading.Thread.CurrentThread.ManagedThreadId}");
-                        _mainWindow?.SendF10KeyPress();
+                        _mainWindow?.DispatcherQueue.TryEnqueue(() => _mainWindow?.SendF10KeyPress());
                     }
 
                     // UI updates on UI thread
@@ -1981,6 +1981,9 @@ namespace FlairX_Mod_Manager
                 
                 _appWindow?.Show();
                 Logger.LogInfo("OverlayWindow.Show: Window shown");
+                
+                // Force focus to overlay so it captures input exclusively
+                this.Activate();
                 
                 // Small delay to let backdrop render before fading in
                 await Task.Delay(50);
