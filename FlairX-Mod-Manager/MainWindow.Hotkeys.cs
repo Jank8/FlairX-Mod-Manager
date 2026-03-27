@@ -633,11 +633,13 @@ namespace FlairX_Mod_Manager
 
                 // Toggle visibility
                 Logger.LogInfo("ToggleOverlayWindow: Calling Toggle()");
+                bool wasVisible = _overlayWindow.IsOverlayVisible;
                 _overlayWindow.Toggle(vibrate);
                 
-                // Suspend main hotkeys when overlay is shown — overlay has exclusive input
-                if (_overlayWindow.IsOverlayVisible)
-                    _globalHotkeyManager?.UnregisterAllHotkeys();
+                // Suspend/restore main hotkeys based on new visibility state
+                if (!wasVisible)
+                    _globalHotkeyManager?.UnregisterAllHotkeys(); // overlay just opened
+                // restore is handled in OnOverlayWindowHidden
                 
                 Logger.LogInfo($"Overlay window toggled");
             }

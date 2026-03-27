@@ -246,6 +246,7 @@ namespace FlairX_Mod_Manager
         // Flags to prevent concurrent loading
         private bool _isLoadingMods;
         private bool _isLoadingCategories;
+        private bool _isToggling;
         
         // Filter state
         private bool _showActiveOnly;
@@ -1852,11 +1853,13 @@ namespace FlairX_Mod_Manager
 
         private void ToggleMod(OverlayModItem item, bool vibrate = false)
         {
+            if (_isToggling) return;
             _ = ToggleModAsync(item, vibrate);
         }
 
         private async Task ToggleModAsync(OverlayModItem item, bool vibrate = false)
         {
+            _isToggling = true;
             try
             {
                 var dir = item.Directory;
@@ -1915,7 +1918,6 @@ namespace FlairX_Mod_Manager
                 {
                     if (System.IO.Directory.Exists(newPath))
                     {
-                        // Target already exists — treat current state as already correct
                         Logger.LogInfo($"Overlay toggle: target path already exists, updating state only: {newName}");
                         toggled = true;
                     }
@@ -1928,7 +1930,11 @@ namespace FlairX_Mod_Manager
 
                 if (toggled)
                 {
-                    // Ensure UI updates and event firing happen on UI thread
+                    // Send F10 immediately — no threading dependency
+                    if (SettingsManager.Current.SendF10OnOverlayClose)
+                        _mainWindow?.SendF10KeyPress();
+
+                    // UI updates on UI thread
                     DispatcherQueue.TryEnqueue(() =>
                     {
                         item.Directory = newPath;
@@ -1936,13 +1942,9 @@ namespace FlairX_Mod_Manager
                         
                         Logger.LogInfo($"Overlay toggled mod: {currentName} -> {newName}");
                         
-                        // Vibrate on toggle (only for gamepad)
                         if (vibrate)
-                        {
                             _gamepadManager?.Vibrate(30000, 30000, 300);
-                        }
                         
-                        // Notify main window (triggers F10 reload if enabled)
                         ModToggleRequested?.Invoke(newPath);
                     });
                 }
@@ -1950,6 +1952,10 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to toggle mod from overlay: {item.Name}", ex);
+            }
+            finally
+            {
+                _isToggling = false;
             }
         }
 
