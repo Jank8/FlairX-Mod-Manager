@@ -1853,7 +1853,12 @@ namespace FlairX_Mod_Manager
 
         private void ToggleMod(OverlayModItem item, bool vibrate = false)
         {
-            if (_isToggling) return;
+            if (_isToggling)
+            {
+                Logger.LogInfo("ToggleMod: skipped — already toggling");
+                return;
+            }
+            Logger.LogInfo($"ToggleMod: starting for {item.Name}, IsActive={item.IsActive}, vibrate={vibrate}");
             _ = ToggleModAsync(item, vibrate);
         }
 
@@ -1932,7 +1937,10 @@ namespace FlairX_Mod_Manager
                 {
                     // Send F10 immediately — no threading dependency
                     if (SettingsManager.Current.SendF10OnOverlayClose)
+                    {
+                        Logger.LogInfo($"ToggleModAsync: sending F10, thread={System.Threading.Thread.CurrentThread.ManagedThreadId}");
                         _mainWindow?.SendF10KeyPress();
+                    }
 
                     // UI updates on UI thread
                     DispatcherQueue.TryEnqueue(() =>
