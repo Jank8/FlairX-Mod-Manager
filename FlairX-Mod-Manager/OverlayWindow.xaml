@@ -330,6 +330,19 @@
                            FontSize="11"
                            Visibility="Collapsed"
                            Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                <TextBlock Text="•" 
+                           x:Name="ClickHintSeparator"
+                           Opacity="0.5"
+                           FontSize="11"
+                           Visibility="Collapsed"
+                           Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                <TextBlock x:Name="ClickFocusHintText"
+                           Text="Click anywhere to activate proper gamepad input"
+                           Opacity="0.9"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Visibility="Collapsed"
+                           Foreground="{ThemeResource SystemAccentColor}"/>
             </StackPanel>
         </Grid>
     </Grid>

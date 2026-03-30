@@ -660,20 +660,23 @@ namespace FlairX_Mod_Manager
                     GamepadHintText.Visibility = Visibility.Visible;
                 }
                 if (GamepadSeparator != null)
-                {
                     GamepadSeparator.Visibility = Visibility.Visible;
-                }
+
+                if (ClickFocusHintText != null)
+                    ClickFocusHintText.Visibility = Visibility.Visible;
+                if (ClickHintSeparator != null)
+                    ClickHintSeparator.Visibility = Visibility.Visible;
             }
             else
             {
                 if (GamepadHintText != null)
-                {
                     GamepadHintText.Visibility = Visibility.Collapsed;
-                }
                 if (GamepadSeparator != null)
-                {
                     GamepadSeparator.Visibility = Visibility.Collapsed;
-                }
+                if (ClickFocusHintText != null)
+                    ClickFocusHintText.Visibility = Visibility.Collapsed;
+                if (ClickHintSeparator != null)
+                    ClickHintSeparator.Visibility = Visibility.Collapsed;
             }
         }
 
