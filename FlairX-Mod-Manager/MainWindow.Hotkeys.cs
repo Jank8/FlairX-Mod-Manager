@@ -587,8 +587,6 @@ namespace FlairX_Mod_Manager
                     Logger.LogInfo($"Gamepad combo {configuredCombo} detected - toggling overlay");
                     ToggleOverlayWindow(vibrate: true);
                 });
-                
-                // Reset to prevent repeated triggers
                 _heldButtons.Clear();
             }
         }

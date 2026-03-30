@@ -213,6 +213,7 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public sealed partial class OverlayWindow : Window
     {
+
         public ObservableCollection<OverlayCategoryItem> OverlayCategories { get; } = new();
         public ObservableCollection<OverlayModItem> OverlayMods { get; } = new();
         
@@ -1982,12 +1983,9 @@ namespace FlairX_Mod_Manager
                 _appWindow?.Show();
                 Logger.LogInfo("OverlayWindow.Show: Window shown");
                 
-                // Force focus to overlay so it captures input exclusively
-                this.Activate();
-                
                 // Small delay to let backdrop render before fading in
                 await Task.Delay(50);
-                
+
                 // Fade in the content
                 if (MainRoot != null)
                 {
