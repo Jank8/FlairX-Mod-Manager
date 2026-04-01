@@ -220,11 +220,14 @@ namespace FlairX_Mod_Manager.Services
                             // Update version
                             dict["version"] = string.IsNullOrWhiteSpace(version) ? " " : version;
                             
-                            // Update dates
+                            // Update dateAdded from server
                             if (dateAdded.HasValue)
                                 dict["dateAdded"] = dateAdded.Value.ToString("yyyy-MM-dd");
+                            
+                            // Store server's last update date in gbChangeDate for comparison,
+                            // NOT in dateUpdated (which tracks when user installed/updated the mod)
                             if (dateUpdated.HasValue)
-                                dict["dateUpdated"] = dateUpdated.Value.ToString("yyyy-MM-dd");
+                                dict["gbChangeDate"] = dateUpdated.Value.ToString("yyyy-MM-dd");
                             
                             await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
                         }, token);
