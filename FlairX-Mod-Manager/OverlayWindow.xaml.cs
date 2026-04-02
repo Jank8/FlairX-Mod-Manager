@@ -116,7 +116,7 @@ namespace FlairX_Mod_Manager
         public string Name { get; set; } = "";
         public string Directory { get; set; } = "";
         public BitmapImage? Thumbnail { get; set; }
-        public List<(string Key, string Description)> Hotkeys { get; set; } = new();
+        public List<(string Key, string Description, string IniFile)> Hotkeys { get; set; } = new();
         
         private bool _isActive;
         public bool IsActive
@@ -2213,9 +2213,9 @@ namespace FlairX_Mod_Manager
         /// <summary>
         /// Load hotkeys for a specific mod
         /// </summary>
-        private async Task<List<(string Key, string Description)>> LoadModHotkeysAsync(string modDirectory)
+        private async Task<List<(string Key, string Description, string IniFile)>> LoadModHotkeysAsync(string modDirectory)
         {
-            var hotkeys = new List<(string Key, string Description)>();
+            var hotkeys = new List<(string Key, string Description, string IniFile)>();
             
             try
             {
@@ -2234,11 +2234,10 @@ namespace FlairX_Mod_Manager
                     {
                         var key = hotkey.TryGetProperty("key", out var keyProp) ? keyProp.GetString() : null;
                         var desc = hotkey.TryGetProperty("description", out var descProp) ? descProp.GetString() : null;
+                        var iniFile = hotkey.TryGetProperty("iniFile", out var iniProp) ? iniProp.GetString() ?? "" : "";
                         
                         if (!string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(desc))
-                        {
-                            hotkeys.Add((key, desc));
-                        }
+                            hotkeys.Add((key, desc, iniFile));
                     }
                 }
             }
@@ -2419,69 +2418,88 @@ namespace FlairX_Mod_Manager
         /// <summary>
         /// Animate hotkey rows in with directional wave effect
         /// </summary>
-        private void AnimateHotkeyRowsInWithDirection(List<(string Key, string Description)> hotkeys, AnimationDirection direction)
+        private void AnimateHotkeyRowsInWithDirection(List<(string Key, string Description, string IniFile)> hotkeys, AnimationDirection direction)
         {
             try
             {
                 if (hotkeys.Count == 0) return;
-                
-                // Calculate dynamic delay based on list length for consistent wave timing
-                var baseDelay = 50;
-                var delayPerItem = Math.Max(20, Math.Min(40, 250 / hotkeys.Count));
-                
-                // Maximum total animation time: ~600ms for better responsiveness
-                var maxTotalTime = 600;
-                var calculatedTotalTime = baseDelay + (hotkeys.Count * delayPerItem);
-                if (calculatedTotalTime > maxTotalTime)
+
+                // Group hotkeys by sub-mod folder (first segment of iniFile path)
+                static string GetSubModGroup(string iniFile)
                 {
-                    delayPerItem = Math.Max(20, (maxTotalTime - baseDelay) / hotkeys.Count);
+                    if (string.IsNullOrEmpty(iniFile)) return "";
+                    var parts = iniFile.Replace('\\', '/').Split('/');
+                    return parts.Length > 1 ? parts[0] : "";
                 }
-                
-                // Get slide offset for individual rows based on direction
-                var rowSlideOffset = GetRowSlideOffset(direction);
-                
-                // Create all rows with directional wave animation
-                for (int i = 0; i < hotkeys.Count; i++)
+
+                var groups = hotkeys.GroupBy(h => GetSubModGroup(h.IniFile)).ToList();
+                bool showHeaders = groups.Count > 1 || (groups.Count == 1 && !string.IsNullOrEmpty(groups[0].Key));
+
+                // Build flat list of UI elements (headers + rows) for wave animation
+                var elements = new List<UIElement>();
+
+                foreach (var group in groups)
                 {
-                    var (key, description) = hotkeys[i];
-                    var hotkeyRow = CreateSimpleHotkeyRow(key, description);
-                    
-                    // Start invisible and with directional slide effect
-                    hotkeyRow.Opacity = 0;
-                    hotkeyRow.Translation = rowSlideOffset;
-                    
-                    HotkeysList.Children.Add(hotkeyRow);
-                    
-                    // Calculate delay for this item in the wave
-                    var itemDelay = (int)(baseDelay + (i * delayPerItem));
-                    
+                    if (showHeaders && !string.IsNullOrEmpty(group.Key))
+                    {
+                        var header = new TextBlock
+                        {
+                            Text = group.Key,
+                            FontSize = 11,
+                            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                            Opacity = 0,
+                            Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                            Margin = new Thickness(4, 6, 0, 2)
+                        };
+                        header.OpacityTransition = new ScalarTransition { Duration = TimeSpan.FromMilliseconds(200) };
+                        HotkeysList.Children.Add(header);
+                        elements.Add(header);
+                    }
+
+                    foreach (var (key, description, _) in group)
+                    {
+                        var hotkeyRow = CreateSimpleHotkeyRow(key, description);
+                        hotkeyRow.Opacity = 0;
+                        hotkeyRow.Translation = GetRowSlideOffset(direction);
+                        HotkeysList.Children.Add(hotkeyRow);
+                        elements.Add(hotkeyRow);
+                    }
+                }
+
+                // Wave animation for all elements
+                var baseDelay = 50;
+                var delayPerItem = Math.Max(20, Math.Min(40, elements.Count > 0 ? 250 / elements.Count : 40));
+                var maxTotalTime = 600;
+                if (baseDelay + elements.Count * delayPerItem > maxTotalTime)
+                    delayPerItem = Math.Max(20, (maxTotalTime - baseDelay) / Math.Max(1, elements.Count));
+
+                for (int i = 0; i < elements.Count; i++)
+                {
+                    var itemDelay = baseDelay + i * delayPerItem;
+                    var currentElement = elements[i];
+
                     var timer = new DispatcherTimer();
                     timer.Interval = TimeSpan.FromMilliseconds(itemDelay);
-                    
-                    var currentRow = hotkeyRow;
-                    
                     timer.Tick += (s, e) =>
                     {
                         timer.Stop();
-                        
-                        // Always animate if the row is still in the list
-                        if (HotkeysList.Children.Contains(currentRow))
+                        if (HotkeysList.Children.Contains(currentElement))
                         {
-                            currentRow.Translation = new System.Numerics.Vector3(0, 0, 0);
-                            currentRow.Opacity = 1;
+                            currentElement.Opacity = 1;
+                            if (currentElement is Border border)
+                                border.Translation = new System.Numerics.Vector3(0, 0, 0);
                         }
                     };
                     timer.Start();
                 }
-                
-                Logger.LogInfo($"Started {direction} wave animation for {hotkeys.Count} hotkeys with {delayPerItem:F1}ms delay per item");
+
+                Logger.LogInfo($"Started {direction} wave animation for {elements.Count} hotkey elements");
             }
             catch (Exception ex)
             {
                 Logger.LogError("Failed to animate hotkey rows with direction", ex);
-                // Fallback: show all rows immediately
                 HotkeysList.Children.Clear();
-                foreach (var (key, description) in hotkeys)
+                foreach (var (key, description, _) in hotkeys)
                 {
                     var hotkeyRow = CreateSimpleHotkeyRow(key, description);
                     HotkeysList.Children.Add(hotkeyRow);

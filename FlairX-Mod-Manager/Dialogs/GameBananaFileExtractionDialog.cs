@@ -1567,35 +1567,29 @@ namespace FlairX_Mod_Manager.Dialogs
                 var screenshots = _previewMedia.Images.Where(img => img.Type == "screenshot").ToList();
                 if (screenshots.Count == 0) return;
 
-                // Download all images in their original format
                 _downloadProgressBar.IsIndeterminate = false;
                 _downloadProgressBar.Value = 0;
 
                 using var httpClient = new System.Net.Http.HttpClient();
+                
+                const int maxConcurrent = 4;
+                using var semaphore = new System.Threading.SemaphoreSlim(maxConcurrent, maxConcurrent);
+                int completed = 0;
 
-                for (int i = 0; i < screenshots.Count; i++)
+                var tasks = screenshots.Select(async (screenshot, i) =>
                 {
-                    var screenshot = screenshots[i];
-                    var imageUrl = $"{screenshot.BaseUrl}/{screenshot.File}";
-                    
-                    // Get original file extension from URL or use jpg as default
-                    var urlPath = new Uri(imageUrl).AbsolutePath;
-                    var fileExtension = Path.GetExtension(urlPath);
-                    if (string.IsNullOrEmpty(fileExtension))
-                    {
-                        fileExtension = ".jpg"; // Default if no extension in URL
-                    }
-                    
-                    var fileName = $"preview{(startIndex + i + 1):D3}{fileExtension}";
-                    var filePath = Path.Combine(modPath, fileName);
-
+                    await semaphore.WaitAsync();
                     try
                     {
-                        _downloadStatusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "DownloadingPreviews_Progress"), 
-                            i + 1, screenshots.Count);
-                        _downloadProgressBar.Value = (double)i / screenshots.Count * 100;
+                        var imageUrl = $"{screenshot.BaseUrl}/{screenshot.File}";
+                        var urlPath = new Uri(imageUrl).AbsolutePath;
+                        var fileExtension = Path.GetExtension(urlPath);
+                        if (string.IsNullOrEmpty(fileExtension))
+                            fileExtension = ".jpg";
 
-                        // Download image in original format
+                        var fileName = $"preview{(startIndex + i + 1):D3}{fileExtension}";
+                        var filePath = Path.Combine(modPath, fileName);
+
                         var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
                         await File.WriteAllBytesAsync(filePath, imageBytes);
                         Logger.LogInfo($"Downloaded: {fileName}");
@@ -1604,7 +1598,21 @@ namespace FlairX_Mod_Manager.Dialogs
                     {
                         Logger.LogError($"Failed to download preview image {i + 1}", ex);
                     }
-                }
+                    finally
+                    {
+                        semaphore.Release();
+                        var done = System.Threading.Interlocked.Increment(ref completed);
+                        _downloadStatusText.DispatcherQueue.TryEnqueue(() =>
+                        {
+                            _downloadStatusText.Text = string.Format(
+                                SharedUtilities.GetTranslation(_lang, "DownloadingPreviews_Progress"),
+                                done, screenshots.Count);
+                            _downloadProgressBar.Value = (double)done / screenshots.Count * 100;
+                        });
+                    }
+                });
+
+                await Task.WhenAll(tasks);
 
                 _downloadProgressBar.Value = 100;
                 _downloadStatusText.Text = SharedUtilities.GetTranslation(_lang, "DownloadComplete");

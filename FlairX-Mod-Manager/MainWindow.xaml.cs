@@ -513,8 +513,19 @@ namespace FlairX_Mod_Manager
                 {
                     if (args.Key == Windows.System.VirtualKey.Escape && _openPanelOverlays.Count > 0)
                     {
+                        // Check before closing - _openPanelOverlays is cleared inside CloseAllPanelsAsync
+                        var modWasInstalled = _openPanelOverlays
+                            .SelectMany(o => FindUserControlsInOverlay<Pages.GameBananaBrowserUserControl>(o))
+                            .Any(gb => gb._modWasInstalled);
+
                         await CloseAllPanelsAsync();
                         args.Handled = true;
+
+                        if (modWasInstalled)
+                        {
+                            await ReloadModsAsync();
+                            Logger.LogInfo("Refreshed mod grid after Escape (GameBanana mod was installed)");
+                        }
                     }
                 };
             }

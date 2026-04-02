@@ -462,16 +462,16 @@ namespace FlairX_Mod_Manager
                     {
                         if (args.Key == Windows.System.VirtualKey.Escape)
                         {
+                            // Check before closing - _openPanelOverlays is cleared inside CloseAllPanelsAsync
+                            var modWasInstalled = _openPanelOverlays
+                                .SelectMany(o => FindUserControlsInOverlay<Pages.GameBananaBrowserUserControl>(o))
+                                .Any(gb => gb._modWasInstalled);
+
                             // Close all panels instead of just this one
                             await CloseAllPanelsAsync();
                             args.Handled = true;
                             
-                            // Reload mods if any GameBanana browser was open and mod was installed
-                            var gameBananaBrowsers = _openPanelOverlays
-                                .SelectMany(o => FindUserControlsInOverlay<Pages.GameBananaBrowserUserControl>(o))
-                                .Where(gb => gb._modWasInstalled);
-                            
-                            if (gameBananaBrowsers.Any())
+                            if (modWasInstalled)
                             {
                                 await ReloadModsAsync();
                                 Logger.LogInfo("Refreshed mod grid after closing all panels via Escape (GameBanana mod was installed)");

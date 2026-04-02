@@ -1854,7 +1854,6 @@ namespace FlairX_Mod_Manager.Pages
                 
                 var hotkeysJsonPath = Path.Combine(_currentModDirectory, "hotkeys.json");
                 
-                // If hotkeys.json doesn't exist, hide section (hotkey finder will create it)
                 if (!File.Exists(hotkeysJsonPath))
                 {
                     HotkeysSection.Visibility = Visibility.Collapsed;
@@ -1865,9 +1864,8 @@ namespace FlairX_Mod_Manager.Pages
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
                 
-                var hotkeyList = new List<(string key, string desc, int originalIndex)>();
+                var hotkeyList = new List<(string key, string desc, int originalIndex, string iniFile)>();
                 
-                // Load current hotkeys
                 if (root.TryGetProperty("hotkeys", out var hotkeysProp) && hotkeysProp.ValueKind == JsonValueKind.Array)
                 {
                     int index = 0;
@@ -1875,10 +1873,11 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         var key = hotkey.TryGetProperty("key", out var keyProp) ? keyProp.GetString() : null;
                         var desc = hotkey.TryGetProperty("description", out var descProp) ? descProp.GetString() : null;
+                        var iniFile = hotkey.TryGetProperty("iniFile", out var iniProp) ? iniProp.GetString() ?? "" : "";
                         
                         if (!string.IsNullOrWhiteSpace(key) && !string.IsNullOrWhiteSpace(desc))
                         {
-                            hotkeyList.Add((key, desc, index));
+                            hotkeyList.Add((key, desc, index, iniFile));
                             _originalHotkeyOrder.Add(key);
                         }
                         index++;
@@ -1887,17 +1886,44 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (hotkeyList.Count > 0)
                 {
-                    // Sort: favorites first (maintaining original order within each group)
+                    // Sort: favorites first, then by original order
                     hotkeyList = hotkeyList
                         .OrderByDescending(x => _favoriteHotkeys.Contains(x.key))
                         .ThenBy(x => x.originalIndex)
                         .ToList();
-                    
-                    // Create rows
-                    foreach (var (key, desc, origIdx) in hotkeyList)
+
+                    // Determine sub-mod group from iniFile path (first path segment = sub-mod folder)
+                    string GetSubModGroup(string iniFile)
                     {
-                        var hotkeyRow = CreateHotkeyRow(key, desc, origIdx);
-                        ModHotkeysPanel.Children.Add(hotkeyRow);
+                        if (string.IsNullOrEmpty(iniFile)) return "";
+                        var parts = iniFile.Replace('\\', '/').Split('/');
+                        return parts.Length > 1 ? parts[0] : "";
+                    }
+
+                    var groups = hotkeyList.GroupBy(x => GetSubModGroup(x.iniFile)).ToList();
+                    bool showHeaders = groups.Count > 1 || (groups.Count == 1 && !string.IsNullOrEmpty(groups[0].Key));
+
+                    foreach (var group in groups)
+                    {
+                        // Add group header if there are multiple sub-mods
+                        if (showHeaders && !string.IsNullOrEmpty(group.Key))
+                        {
+                            var header = new TextBlock
+                            {
+                                Text = group.Key,
+                                FontSize = 13,
+                                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                                Opacity = 0.6,
+                                Margin = new Thickness(4, 8, 0, 4)
+                            };
+                            ModHotkeysPanel.Children.Add(header);
+                        }
+
+                        foreach (var (key, desc, origIdx, _) in group)
+                        {
+                            var hotkeyRow = CreateHotkeyRow(key, desc, origIdx);
+                            ModHotkeysPanel.Children.Add(hotkeyRow);
+                        }
                     }
                     
                     HotkeysSection.Visibility = Visibility.Visible;
