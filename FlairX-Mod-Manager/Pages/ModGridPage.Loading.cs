@@ -187,7 +187,10 @@ namespace FlairX_Mod_Manager.Pages
             if (ModsScrollViewer != null)
             {
                 ModsScrollViewer.ViewChanged += ModsScrollViewer_ViewChanged;
-                // Remove ScrollViewer wheel handler - use page level instead
+
+                // After first layout pass, reload visible images with correct viewport dimensions
+                // This catches the case where LoadVisibleImages was called with viewport=0 at startup
+                ModsScrollViewer.LayoutUpdated += OnScrollViewerFirstLayout;
             }
             // Monitor window size changes to reload visible images
             this.SizeChanged += ModGridPage_SizeChanged;
@@ -217,6 +220,20 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         private System.Threading.CancellationTokenSource? _resizeDebounceToken;
+
+        private bool _firstLayoutDone = false;
+        private void OnScrollViewerFirstLayout(object? sender, object e)
+        {
+            if (_firstLayoutDone) return;
+            if (ModsScrollViewer == null) return;
+            if (ModsScrollViewer.ViewportHeight <= 0 || ModsScrollViewer.ActualWidth <= 0) return;
+
+            // Viewport is now known - reload images that may have been skipped or failed
+            _firstLayoutDone = true;
+            ModsScrollViewer.LayoutUpdated -= OnScrollViewerFirstLayout;
+            LoadVisibleImages();
+            Logger.LogInfo("OnScrollViewerFirstLayout: Triggered LoadVisibleImages after first layout pass");
+        }
         
         private void ModGridPage_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -509,25 +526,39 @@ namespace FlairX_Mod_Manager.Pages
                 if (fileExists)
                 {
                     // Ensure we're on UI thread for BitmapImage creation
-                    DispatcherQueue.TryEnqueue(async () =>
+                    DispatcherQueue.TryEnqueue(() =>
                     {
                         try
                         {
                             Logger.LogDebug($"LoadImageAsync: Loading {imagePath}");
                             var bitmap = new BitmapImage();
-                            
+
+                            // Track load failure so we can retry
+                            bitmap.ImageFailed += (s, e) =>
+                            {
+                                Logger.LogWarning($"LoadImageAsync: ImageFailed for {imagePath}, clearing ImageSource for retry");
+                                mod.ImageSource = null;
+                                lock (_loadingLock)
+                                {
+                                    _currentlyLoading.Remove(imagePath);
+                                }
+                            };
+
+                            bitmap.ImageOpened += (s, e) =>
+                            {
+                                // Cache only after successful load
+                                ImageCacheManager.CacheImage(imagePath, bitmap);
+                                Logger.LogDebug($"LoadImageAsync: ImageOpened for {imagePath}");
+                            };
+
                             // Use UriSource with absolute path for WebP support via Windows codecs
                             var absolutePath = Path.GetFullPath(imagePath);
                             bitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
-                            
-                            Logger.LogDebug($"LoadImageAsync: Image loaded for {imagePath}");
-                            
-                            // Cache the image
-                            ImageCacheManager.CacheImage(imagePath, bitmap);
-                            
+
+                            // Assign immediately - WinUI will decode async, ImageOpened fires when done
                             mod.ImageSource = bitmap;
                             Logger.LogDebug($"LoadImageAsync: ImageSource assigned for {imagePath}");
-                            
+
                             // Apply scaling only if not at 100% zoom
                             if (Math.Abs(ZoomFactor - 1.0) > 0.001)
                             {
