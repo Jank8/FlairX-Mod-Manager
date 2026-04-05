@@ -1693,10 +1693,20 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             try
             {
+                Logger.LogInfo($"CleanModFolder: cleaning {modPath}");
+
                 // Delete all subdirectories unconditionally
-                foreach (var dir in Directory.GetDirectories(modPath))
+                foreach (var dir in Directory.GetDirectories(modPath, "*", SearchOption.AllDirectories)
+                                             .OrderByDescending(d => d.Length))
                 {
-                    try { Directory.Delete(dir, recursive: true); }
+                    try
+                    {
+                        if (Directory.Exists(dir))
+                        {
+                            Directory.Delete(dir, recursive: true);
+                            Logger.LogInfo($"CleanModFolder: deleted dir {dir}");
+                        }
+                    }
                     catch (Exception ex) { Logger.LogError($"Failed to delete directory: {dir}", ex); }
                 }
 
