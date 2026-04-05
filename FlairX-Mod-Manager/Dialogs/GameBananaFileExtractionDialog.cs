@@ -1160,11 +1160,36 @@ namespace FlairX_Mod_Manager.Dialogs
                 Directory.CreateDirectory(categoryPath);
 
                 // New mods are disabled by default
-                var modFolderName = "DISABLED_" + SanitizeFileName(_modNameTextBox.Text.Trim());
-                var modPath = Path.Combine(categoryPath, modFolderName);
+                var cleanModName = SanitizeFileName(_modNameTextBox.Text.Trim());
+                var existingModPath = FindExistingModPath(categoryPath, cleanModName);
+
+                string modPath;
+                if (!string.IsNullOrEmpty(existingModPath) && Directory.Exists(existingModPath))
+                {
+                    modPath = existingModPath;
+                    // Ensure mod is disabled during update
+                    var folderName = Path.GetFileName(modPath);
+                    if (!folderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var disabledPath = Path.Combine(categoryPath, "DISABLED_" + cleanModName);
+                        Services.FileAccessQueue.MoveDirectory(modPath, disabledPath);
+                        modPath = disabledPath;
+                    }
+                }
+                else
+                {
+                    modPath = Path.Combine(categoryPath, "DISABLED_" + cleanModName);
+                }
 
                 // Create main mod directory
                 Directory.CreateDirectory(modPath);
+
+                // Clean install - remove all files
+                if (_cleanInstall && Directory.Exists(modPath))
+                {
+                    _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ExtractCleaningOldFiles");
+                    CleanModFolder(modPath);
+                }
 
                 // Extract each archive to its own subfolder
                 int totalFiles = downloadedFiles.Count(f => IsArchiveFile(f.fileName));
