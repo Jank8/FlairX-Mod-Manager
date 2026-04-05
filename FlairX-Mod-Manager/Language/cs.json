@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Skrýt kategorie, které neobsahují žádné mody",
   "ReportIssue_Button": "Nahlásit chybu nebo návrh",
   "ForceUpdate": "Vynutit aktualizaci (stáhnout i když je verze aktuální)",
-  "ClearSettingsFolder": "Vymazat složku nastavení"
+  "ClearSettingsFolder": "Vymazat složku nastavení",
+  "CropPanel_ChooseDifferentFile": "Vybrat jiný soubor"
 }

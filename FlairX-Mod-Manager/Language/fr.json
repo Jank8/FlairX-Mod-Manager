@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Masquer les catégories ne contenant aucun mod",
   "ReportIssue_Button": "Signaler un bug ou une suggestion",
   "ForceUpdate": "Forcer la mise à jour (télécharger même si la version est à jour)",
-  "ClearSettingsFolder": "Vider le dossier de paramètres"
+  "ClearSettingsFolder": "Vider le dossier de paramètres",
+  "CropPanel_ChooseDifferentFile": "Choisir un autre fichier"
 }

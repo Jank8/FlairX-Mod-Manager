@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "वे श्रेणियाँ छिपाएं जिनमें कोई मॉड नहीं है",
   "ReportIssue_Button": "बग या सुझाव रिपोर्ट करें",
   "ForceUpdate": "अपडेट बाध्य करें (वर्तमान संस्करण होने पर भी डाउनलोड करें)",
-  "ClearSettingsFolder": "सेटिंग्स फ़ोल्डर साफ़ करें"
+  "ClearSettingsFolder": "सेटिंग्स फ़ोल्डर साफ़ करें",
+  "CropPanel_ChooseDifferentFile": "अलग फ़ाइल चुनें"
 }

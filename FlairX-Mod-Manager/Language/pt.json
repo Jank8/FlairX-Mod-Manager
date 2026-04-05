@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Ocultar categorias que não contêm mods",
   "ReportIssue_Button": "Reportar bug ou sugestão",
   "ForceUpdate": "Forçar atualização (transferir mesmo que a versão esteja atual)",
-  "ClearSettingsFolder": "Limpar pasta de definições"
+  "ClearSettingsFolder": "Limpar pasta de definições",
+  "CropPanel_ChooseDifferentFile": "Escolher outro ficheiro"
 }

@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Modが含まれていないカテゴリを非表示にする",
   "ReportIssue_Button": "バグや提案を報告する",
   "ForceUpdate": "強制アップデート（最新バージョンでもダウンロード）",
-  "ClearSettingsFolder": "設定フォルダをクリア"
+  "ClearSettingsFolder": "設定フォルダをクリア",
+  "CropPanel_ChooseDifferentFile": "別のファイルを選択"
 }

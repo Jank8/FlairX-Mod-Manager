@@ -267,6 +267,16 @@
                         <TextBlock x:Name="StopButtonText" Text="Stop"/>
                     </StackPanel>
                 </Button>
+                <Button x:Name="ChooseDifferentFileButton"
+                       Click="ChooseDifferentFileButton_Click"
+                       MinWidth="100"
+                       Height="40"
+                       Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE8B7;" FontSize="14"/>
+                        <TextBlock x:Name="ChooseDifferentFileButtonText" Text="Choose different file"/>
+                    </StackPanel>
+                </Button>
                 <Button x:Name="ResetButton" 
                        Click="ResetButton_Click"
                        MinWidth="100"

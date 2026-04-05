@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Kategorien ohne Mods ausblenden",
   "ReportIssue_Button": "Fehler oder Vorschlag melden",
   "ForceUpdate": "Update erzwingen (auch bei aktueller Version herunterladen)",
-  "ClearSettingsFolder": "Einstellungsordner leeren"
+  "ClearSettingsFolder": "Einstellungsordner leeren",
+  "CropPanel_ChooseDifferentFile": "Andere Datei wählen"
 }

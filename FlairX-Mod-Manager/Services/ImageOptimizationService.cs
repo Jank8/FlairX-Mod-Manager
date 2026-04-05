@@ -38,7 +38,8 @@ namespace FlairX_Mod_Manager.Services
         Confirm,    // Proceed with cropping and optimization
         Skip,       // Skip optimization, only rename file
         Delete,     // Delete/remove file completely
-        Cancel      // Cancel entire optimization process
+        Cancel,     // Cancel entire optimization process
+        ChooseDifferentFile // Go back to file selection panel
     }
 
     /// <summary>
@@ -2215,6 +2216,7 @@ namespace FlairX_Mod_Manager.Services
                 // Show selection if: 1) there are new files to process, OR 2) minitile is missing
                 string? selectedMinitileSource = null;
                 bool skipMinitileOnly = false;
+                List<string> filesToChooseFrom = new();
                 
                 Logger.LogInfo($"[PREVIEW_LITE] Minitile check - Path: {minitileFilePath}, Exists: {minitileFileExists}");
                 Logger.LogInfo($"[PREVIEW_LITE] Files count - newFilesToProcess: {newFilesToProcess.Count}, alreadyOptimizedFiles: {alreadyOptimizedFiles.Count}");
@@ -2223,7 +2225,7 @@ namespace FlairX_Mod_Manager.Services
                 if (context.CreateMinitile && (!minitileFileExists || newFilesToProcess.Count > 0))
                 {
                     // Get list of files to choose from - prefer new files, fallback to already optimized
-                    var filesToChooseFrom = newFilesToProcess.Count > 0 
+                    filesToChooseFrom = newFilesToProcess.Count > 0 
                         ? newFilesToProcess 
                         : alreadyOptimizedFiles;
                     
@@ -2436,7 +2438,7 @@ namespace FlairX_Mod_Manager.Services
                     // First try to use the original file if it still exists
                     if (File.Exists(selectedMinitileSource))
                     {
-                        await GenerateMinitileAsync(modDir, selectedMinitileSource, context);
+                        await GenerateMinitileAsync(modDir, selectedMinitileSource, context, filesToChooseFrom);
                     }
                     else
                     {
@@ -2450,7 +2452,7 @@ namespace FlairX_Mod_Manager.Services
                             string minitileSourceProcessed = Path.Combine(modDir, minitileSourceFileName);
                             if (File.Exists(minitileSourceProcessed))
                             {
-                                await GenerateMinitileAsync(modDir, minitileSourceProcessed, context);
+                                await GenerateMinitileAsync(modDir, minitileSourceProcessed, context, filesToChooseFrom);
                             }
                             else
                             {
@@ -2572,7 +2574,7 @@ namespace FlairX_Mod_Manager.Services
                     if (!string.IsNullOrEmpty(minitileSource))
                     {
                         Logger.LogInfo($"Generating minitile from: {Path.GetFileName(minitileSource)}");
-                        await GenerateMinitileAsync(modDir, minitileSource, context);
+                        await GenerateMinitileAsync(modDir, minitileSource, context, previewFiles);
                     }
                 }
                 else
@@ -2708,7 +2710,7 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Generate minitile.jpg thumbnail (600x722) from preview image
         /// </summary>
-        private static async Task GenerateMinitileAsync(string modDir, string previewPath, OptimizationContext context)
+        private static async Task GenerateMinitileAsync(string modDir, string previewPath, OptimizationContext context, List<string>? originalFiles = null)
         {
             try
             {
@@ -2716,42 +2718,70 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"Minitile generation context: InspectAndEditEnabled={context.InspectAndEditEnabled}, AllowUIInteraction={context.AllowUIInteraction}, AutoCreateModThumbnails={SettingsManager.Current.AutoCreateModThumbnails}");
                 
                 var minitilePath = Path.Combine(modDir, GetMinitileFilename());
+                var currentPreviewPath = previewPath;
                 
-                using (var img = Image.Load<Rgba32>(previewPath))
+                while (true)
                 {
-                    // Get crop rectangle with optional inspection (minitile is a thumbnail)
-                    var srcRect = await GetCropRectangleWithInspectionAsync(
-                        img, 600, 722, context, GetMinitileFilename(), isProtected: false, isThumbnail: true);
-                    
-                    if (srcRect == null)
+                    using (var img = Image.Load<Rgba32>(currentPreviewPath))
                     {
-                        Logger.LogInfo($"Deleted minitile generation for: {modDir}");
-                        return; // User chose to delete
-                    }
-                    
-                    // Check if user chose to skip optimization (rename only)
-                    if (srcRect.Value.X == -1 && srcRect.Value.Y == -1)
-                    {
-                        Logger.LogInfo($"Skipping minitile optimization for: {modDir}, rename only");
-                        // For minitile, skip means don't generate it at all (since it's a thumbnail)
-                        return;
-                    }
-                    
-                    // Generate minitile (600x722)
-                    using (var minitile = img.Clone(ctx => ctx
-                        .Crop(srcRect.Value)
-                        .Resize(new ResizeOptions
-                        {
-                            Size = new Size(600, 722),
-                            Mode = ResizeMode.Stretch,
-                            Sampler = KnownResamplers.Bicubic
-                        })))
-                    {
-                        SaveImage(minitile, minitilePath, context.JpegQuality);
-                        Logger.LogInfo($"Minitile generated: {minitilePath}");
+                        // Get crop rectangle with optional inspection (minitile is a thumbnail)
+                        var srcRect = await GetCropRectangleWithInspectionAsync(
+                            img, 600, 722, context, GetMinitileFilename(), isProtected: false, isThumbnail: true);
                         
-                        // Invalidate cache so the new minitile is loaded
-                        ImageCacheManager.InvalidateImage(minitilePath);
+                        if (srcRect == null)
+                        {
+                            Logger.LogInfo($"Deleted minitile generation for: {modDir}");
+                            return; // User chose to delete
+                        }
+                        
+                        // Check if user chose to skip optimization (rename only)
+                        if (srcRect.Value.X == -1 && srcRect.Value.Y == -1)
+                        {
+                            Logger.LogInfo($"Skipping minitile optimization for: {modDir}, rename only");
+                            return;
+                        }
+                        
+                        // Check if user wants to choose a different file
+                        if (srcRect.Value.X == -2 && srcRect.Value.Y == -2)
+                        {
+                            Logger.LogInfo($"User wants to choose a different file for minitile in: {modDir}");
+                            
+                            // Use original files list if available, otherwise fall back to disk scan
+                            var filesToShow = originalFiles?.Count > 0
+                                ? originalFiles
+                                : Directory.GetFiles(modDir)
+                                    .Where(f => {
+                                        var name = Path.GetFileNameWithoutExtension(f).ToLower();
+                                        return IsImageFile(f) && (name == "preview" || System.Text.RegularExpressions.Regex.IsMatch(name, @"^preview-\d+$"));
+                                    })
+                                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
+                                    .ToList();
+                            
+                            if (filesToShow.Count == 0)
+                                filesToShow = new List<string> { currentPreviewPath };
+                            
+                            var newSource = await SelectMinitileSourceAsync(filesToShow, modDir, context);
+                            if (string.IsNullOrEmpty(newSource))
+                                return; // Skipped or stopped during re-selection
+                            currentPreviewPath = newSource;
+                            continue; // Loop back with new file
+                        }
+                        
+                        // Generate minitile (600x722)
+                        using (var minitile = img.Clone(ctx => ctx
+                            .Crop(srcRect.Value)
+                            .Resize(new ResizeOptions
+                            {
+                                Size = new Size(600, 722),
+                                Mode = ResizeMode.Stretch,
+                                Sampler = KnownResamplers.Bicubic
+                            })))
+                        {
+                            SaveImage(minitile, minitilePath, context.JpegQuality);
+                            Logger.LogInfo($"Minitile generated: {minitilePath}");
+                            ImageCacheManager.InvalidateImage(minitilePath);
+                        }
+                        return;
                     }
                 }
             }
@@ -2868,6 +2898,10 @@ namespace FlairX_Mod_Manager.Services
                             case CropInspectionAction.Cancel:
                                 Logger.LogInfo($"User cancelled optimization");
                                 throw new OperationCanceledException("User cancelled crop inspection");
+                                
+                            case CropInspectionAction.ChooseDifferentFile:
+                                Logger.LogInfo($"User wants to choose a different file for {imageType}");
+                                return new Rectangle(-2, -2, -2, -2); // Special marker for "choose different file"
                                 
                             default:
                                 Logger.LogWarning($"Unknown crop action for {imageType}: {result.Action}");

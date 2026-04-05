@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Mod içermeyen kategorileri gizle",
   "ReportIssue_Button": "Hata veya öneri bildir",
   "ForceUpdate": "Güncellemeyi zorla (sürüm güncel olsa bile indir)",
-  "ClearSettingsFolder": "Ayarlar klasörünü temizle"
+  "ClearSettingsFolder": "Ayarlar klasörünü temizle",
+  "CropPanel_ChooseDifferentFile": "Farklı dosya seç"
 }

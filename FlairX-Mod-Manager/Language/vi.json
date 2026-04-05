@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Ẩn các danh mục không chứa mod nào",
   "ReportIssue_Button": "Báo cáo lỗi hoặc đề xuất",
   "ForceUpdate": "Buộc cập nhật (tải xuống dù phiên bản đã mới nhất)",
-  "ClearSettingsFolder": "Xóa thư mục cài đặt"
+  "ClearSettingsFolder": "Xóa thư mục cài đặt",
+  "CropPanel_ChooseDifferentFile": "Chọn tệp khác"
 }

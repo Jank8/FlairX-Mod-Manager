@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Elrejti azokat a kategóriákat, amelyek nem tartalmaznak modokat",
   "ReportIssue_Button": "Hiba vagy javaslat bejelentése",
   "ForceUpdate": "Frissítés kényszerítése (letöltés akkor is, ha a verzió aktuális)",
-  "ClearSettingsFolder": "Beállítások mappa törlése"
+  "ClearSettingsFolder": "Beállítások mappa törlése",
+  "CropPanel_ChooseDifferentFile": "Másik fájl kiválasztása"
 }

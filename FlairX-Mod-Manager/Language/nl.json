@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Verberg categorieën die geen mods bevatten",
   "ReportIssue_Button": "Meld een bug of suggestie",
   "ForceUpdate": "Update forceren (downloaden ook als versie actueel is)",
-  "ClearSettingsFolder": "Instellingenmap wissen"
+  "ClearSettingsFolder": "Instellingenmap wissen",
+  "CropPanel_ChooseDifferentFile": "Ander bestand kiezen"
 }

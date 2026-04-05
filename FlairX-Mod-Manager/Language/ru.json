@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Скрыть категории, не содержащие модов",
   "ReportIssue_Button": "Сообщить об ошибке или предложении",
   "ForceUpdate": "Принудительное обновление (скачать, даже если версия актуальна)",
-  "ClearSettingsFolder": "Очистить папку настроек"
+  "ClearSettingsFolder": "Очистить папку настроек",
+  "CropPanel_ChooseDifferentFile": "Выбрать другой файл"
 }

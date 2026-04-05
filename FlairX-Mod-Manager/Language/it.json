@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Nascondi le categorie che non contengono mod",
   "ReportIssue_Button": "Segnala un bug o un suggerimento",
   "ForceUpdate": "Forza aggiornamento (scarica anche se la versione è aggiornata)",
-  "ClearSettingsFolder": "Svuota cartella impostazioni"
+  "ClearSettingsFolder": "Svuota cartella impostazioni",
+  "CropPanel_ChooseDifferentFile": "Scegli un altro file"
 }

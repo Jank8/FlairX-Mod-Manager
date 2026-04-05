@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Ascunde categoriile care nu conțin niciun mod",
   "ReportIssue_Button": "Raportează o eroare sau sugestie",
   "ForceUpdate": "Forțează actualizarea (descarcă chiar dacă versiunea este curentă)",
-  "ClearSettingsFolder": "Șterge folderul de setări"
+  "ClearSettingsFolder": "Șterge folderul de setări",
+  "CropPanel_ChooseDifferentFile": "Alege alt fișier"
 }

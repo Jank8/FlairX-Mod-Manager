@@ -114,6 +114,8 @@ namespace FlairX_Mod_Manager.Controls
             this.Unloaded += OnUnloaded;
         }
 
+        private bool _choosingDifferentFile = false;
+
         /// <summary>
         /// Called when panel is unloaded - cancel any pending operation
         /// </summary>
@@ -127,6 +129,9 @@ namespace FlairX_Mod_Manager.Controls
         /// </summary>
         public void CancelOperation()
         {
+            // Don't cancel if user is navigating back to file selection
+            if (_choosingDifferentFile) return;
+
             // Only set result if not already completed
             if (_completionSource != null && !_completionSource.Task.IsCompleted)
             {
@@ -182,6 +187,7 @@ namespace FlairX_Mod_Manager.Controls
             DeleteButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Delete") ?? "Delete";
             SkipButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Skip") ?? "Skip";
             ConfirmButton.Content = SharedUtilities.GetTranslation(lang, "Confirm") ?? "Confirm";
+            ChooseDifferentFileButtonText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_ChooseDifferentFile") ?? "Choose different file";
             HintText.Text = SharedUtilities.GetTranslation(lang, "CropPanel_Hint") ?? "Drag to move • Corners maintain ratio • Edges change ratio";
             
             // For category images (catprev, catmini), hide Skip and Delete buttons
@@ -197,6 +203,9 @@ namespace FlairX_Mod_Manager.Controls
             
             // Hide Stop button for minitile (use Skip instead)
             StopButton.Visibility = isMinitile ? Visibility.Collapsed : Visibility.Visible;
+            
+            // Show "Choose different file" only for minitile and catprev/catmini
+            ChooseDifferentFileButton.Visibility = (isMinitile || isCategoryImage) ? Visibility.Visible : Visibility.Collapsed;
             
             // Disable Delete button if this file is protected (only relevant when visible)
             DeleteButton.IsEnabled = !isProtected;
@@ -762,6 +771,14 @@ namespace FlairX_Mod_Manager.Controls
             CloseRequested?.Invoke(this, EventArgs.Empty);
         }
 
+        private async void ChooseDifferentFileButton_Click(object sender, RoutedEventArgs e)
+        {
+            _choosingDifferentFile = true;
+            CloseRequested?.Invoke(this, EventArgs.Empty);
+            await Task.Delay(300);
+            _completionSource?.SetResult(new CropResult { Action = CropAction.ChooseDifferentFile, CropRectangle = _cropRect });
+        }
+
         private void SkipButton_Click(object sender, RoutedEventArgs e)
         {
             if (_isBatchMode)
@@ -1244,7 +1261,8 @@ namespace FlairX_Mod_Manager.Controls
         Confirm,    // Proceed with cropping and optimization
         Skip,       // Skip optimization, only rename file
         Delete,     // Delete/remove file completely
-        Cancel      // Cancel entire optimization process
+        Cancel,     // Cancel entire optimization process
+        ChooseDifferentFile // Go back to file selection panel
     }
 
     public class CropResult

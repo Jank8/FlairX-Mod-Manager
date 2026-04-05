@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Piilota kategoriat, joissa ei ole modeja",
   "ReportIssue_Button": "Ilmoita virheestä tai ehdotuksesta",
   "ForceUpdate": "Pakota päivitys (lataa vaikka versio olisi ajan tasalla)",
-  "ClearSettingsFolder": "Tyhjennä asetuskansio"
+  "ClearSettingsFolder": "Tyhjennä asetuskansio",
+  "CropPanel_ChooseDifferentFile": "Valitse eri tiedosto"
 }

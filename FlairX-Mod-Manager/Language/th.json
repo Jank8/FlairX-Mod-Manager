@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "ซ่อนหมวดหมู่ที่ไม่มีม็อด",
   "ReportIssue_Button": "รายงานข้อผิดพลาดหรือข้อเสนอแนะ",
   "ForceUpdate": "บังคับอัปเดต (ดาวน์โหลดแม้เวอร์ชันจะเป็นปัจจุบัน)",
-  "ClearSettingsFolder": "ล้างโฟลเดอร์การตั้งค่า"
+  "ClearSettingsFolder": "ล้างโฟลเดอร์การตั้งค่า",
+  "CropPanel_ChooseDifferentFile": "เลือกไฟล์อื่น"
 }

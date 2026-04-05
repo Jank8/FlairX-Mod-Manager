@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Skjul kategorier som ikke inneholder noen mods",
   "ReportIssue_Button": "Rapporter feil eller forslag",
   "ForceUpdate": "Tving oppdatering (last ned selv om versjonen er gjeldende)",
-  "ClearSettingsFolder": "Tøm innstillingsmappe"
+  "ClearSettingsFolder": "Tøm innstillingsmappe",
+  "CropPanel_ChooseDifferentFile": "Velg en annen fil"
 }

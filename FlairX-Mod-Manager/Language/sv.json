@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Dölj kategorier som inte innehåller några moddar",
   "ReportIssue_Button": "Rapportera fel eller förslag",
   "ForceUpdate": "Tvinga uppdatering (ladda ner även om versionen är aktuell)",
-  "ClearSettingsFolder": "Rensa inställningsmapp"
+  "ClearSettingsFolder": "Rensa inställningsmapp",
+  "CropPanel_ChooseDifferentFile": "Välj en annan fil"
 }

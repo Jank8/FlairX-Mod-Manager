@@ -359,5 +359,6 @@
   "SettingsPage_HideEmptyCategories_Description": "Sembunyikan kategori yang tidak memiliki mod",
   "ReportIssue_Button": "Laporkan bug atau saran",
   "ForceUpdate": "Paksa pembaruan (unduh meskipun versi sudah terkini)",
-  "ClearSettingsFolder": "Hapus folder pengaturan"
+  "ClearSettingsFolder": "Hapus folder pengaturan",
+  "CropPanel_ChooseDifferentFile": "Pilih file lain"
 }
