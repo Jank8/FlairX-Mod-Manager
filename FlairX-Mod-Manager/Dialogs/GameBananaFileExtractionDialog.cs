@@ -1693,47 +1693,33 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             try
             {
-                // Delete all files and folders except backups (and optionally previews)
-                foreach (var file in Directory.GetFiles(modPath, "*", SearchOption.AllDirectories))
+                // Delete all subdirectories unconditionally
+                foreach (var dir in Directory.GetDirectories(modPath))
                 {
-                    // Skip backups
-                    if (file.Contains("fxmm-backup"))
-                        continue;
-
-                    // Skip previews if Keep previews is enabled
-                    if (_keepPreviews)
-                    {
-                        var fileName = Path.GetFileName(file).ToLower();
-                        bool isPreview = (fileName.StartsWith("preview") || IsMinitileFile(fileName)) && 
-                                       IsImageFile(file);
-                        if (isPreview)
-                            continue;
-                    }
-
-                    try
-                    {
-                        File.Delete(file);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Failed to delete file: {file}", ex);
-                    }
+                    try { Directory.Delete(dir, recursive: true); }
+                    catch (Exception ex) { Logger.LogError($"Failed to delete directory: {dir}", ex); }
                 }
 
-                // Delete empty directories
-                foreach (var dir in Directory.GetDirectories(modPath, "*", SearchOption.AllDirectories).OrderByDescending(d => d.Length))
+                // Delete all files except mod.json (and previews if Keep previews is enabled)
+                foreach (var file in Directory.GetFiles(modPath))
                 {
-                    try
+                    var fileName = Path.GetFileName(file);
+
+                    // Always keep mod.json
+                    if (fileName.Equals("mod.json", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    // Keep previews if setting enabled
+                    if (_keepPreviews)
                     {
-                        if (Directory.GetFiles(dir).Length == 0 && Directory.GetDirectories(dir).Length == 0)
-                        {
-                            Directory.Delete(dir);
-                        }
+                        var fileNameLower = fileName.ToLower();
+                        bool isPreview = (fileNameLower.StartsWith("preview") || IsMinitileFile(fileNameLower)) &&
+                                         IsImageFile(file);
+                        if (isPreview) continue;
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError($"Failed to delete directory: {dir}", ex);
-                    }
+
+                    try { File.Delete(file); }
+                    catch (Exception ex) { Logger.LogError($"Failed to delete file: {file}", ex); }
                 }
 
                 Logger.LogInfo($"Cleaned mod folder: {modPath}");
