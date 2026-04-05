@@ -1164,12 +1164,14 @@ namespace FlairX_Mod_Manager.Dialogs
                 var existingModPath = FindExistingModPath(categoryPath, cleanModName);
 
                 string modPath;
+                bool wasActive = false;
                 if (!string.IsNullOrEmpty(existingModPath) && Directory.Exists(existingModPath))
                 {
                     modPath = existingModPath;
                     // Ensure mod is disabled during update
                     var folderName = Path.GetFileName(modPath);
-                    if (!folderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
+                    wasActive = !folderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase);
+                    if (wasActive)
                     {
                         var disabledPath = Path.Combine(categoryPath, "DISABLED_" + cleanModName);
                         Services.FileAccessQueue.MoveDirectory(modPath, disabledPath);
@@ -1280,7 +1282,19 @@ namespace FlairX_Mod_Manager.Dialogs
 
                 // Create mod.json in main mod folder
                 await CreateModJson(modPath);
-                
+
+                // If mod was active before update, reactivate it
+                if (wasActive)
+                {
+                    var finalActivePath = Path.Combine(categoryPath, cleanModName);
+                    if (!Directory.Exists(finalActivePath))
+                    {
+                        Services.FileAccessQueue.MoveDirectory(modPath, finalActivePath);
+                        modPath = finalActivePath;
+                        Logger.LogInfo($"Reactivated mod after update: {modPath}");
+                    }
+                }
+
                 // Save mod path for preview download
                 _installedModPath = modPath;
                 
