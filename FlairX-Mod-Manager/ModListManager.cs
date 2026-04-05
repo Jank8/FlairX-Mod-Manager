@@ -517,6 +517,17 @@ namespace FlairX_Mod_Manager
                     
                     if (data?.Mods != null)
                     {
+                        // Recalculate ImagePath from disk - stored paths may be stale
+                        // (e.g. mod was activated/deactivated, changing directory name)
+                        var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                        foreach (var mod in data.Mods)
+                        {
+                            if (string.IsNullOrEmpty(mod.Directory) || string.IsNullOrEmpty(mod.Category))
+                                continue;
+                            var modDir = Path.Combine(modsPath, mod.Category, mod.Directory);
+                            mod.ImagePath = GetOptimalImagePath(modDir);
+                        }
+
                         Logger.LogDebug($"Loaded {data.Mods.Count} mods from master list (updated: {data.LastUpdated})");
                         return data.Mods;
                     }
