@@ -187,7 +187,7 @@ namespace FlairX_Mod_Manager
             }
         }
 
-        public static async Task<bool> DownloadAndInstallUpdateAsync(string downloadUrl, IProgress<int>? progress = null)
+        public static async Task<bool> DownloadAndInstallUpdateAsync(string downloadUrl, IProgress<int>? progress = null, bool clearSettings = false)
         {
             try
             {
@@ -299,7 +299,11 @@ REM Kill any remaining processes
 taskkill /f /im ""FlairX Mod Manager.exe"" 2>nul
 taskkill /f /im ""FlairX Mod Manager Launcher.exe"" 2>nul
 timeout /t 1 /nobreak > nul
-
+{(clearSettings ? $@"
+REM Clear settings folder
+echo Clearing settings folder...
+if exist "".\app\Settings"" rmdir /s /q "".\app\Settings""
+" : "")}
 REM Try robocopy first (more reliable)
 echo Trying robocopy...
 robocopy ""{extractPath}"" . /E /IS /IT /R:3 /W:1 /XD .git /XF *.log *.tmp >nul 2>&1

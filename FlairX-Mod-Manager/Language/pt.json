@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "Desafixar do rodap?",
   "SettingsPage_HideEmptyCategories_Label": "Ocultar categorias vazias",
   "SettingsPage_HideEmptyCategories_Description": "Ocultar categorias que não contêm mods",
-  "ReportIssue_Button": "Reportar bug ou sugestão"
+  "ReportIssue_Button": "Reportar bug ou sugestão",
+  "ForceUpdate": "Forçar atualização (transferir mesmo que a versão esteja atual)",
+  "ClearSettingsFolder": "Limpar pasta de definições"
 }

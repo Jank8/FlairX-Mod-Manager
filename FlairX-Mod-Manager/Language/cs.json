@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "Odepnout ze z?pat?",
   "SettingsPage_HideEmptyCategories_Label": "Skrýt prázdné kategorie",
   "SettingsPage_HideEmptyCategories_Description": "Skrýt kategorie, které neobsahují žádné mody",
-  "ReportIssue_Button": "Nahlásit chybu nebo návrh"
+  "ReportIssue_Button": "Nahlásit chybu nebo návrh",
+  "ForceUpdate": "Vynutit aktualizaci (stáhnout i když je verze aktuální)",
+  "ClearSettingsFolder": "Vymazat složku nastavení"
 }

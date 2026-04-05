@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "?????????? ??? ???????? ???????????",
   "SettingsPage_HideEmptyCategories_Label": "Приховати порожні категорії",
   "SettingsPage_HideEmptyCategories_Description": "Приховати категорії, що не містять модів",
-  "ReportIssue_Button": "Повідомити про помилку або пропозицію"
+  "ReportIssue_Button": "Повідомити про помилку або пропозицію",
+  "ForceUpdate": "Примусове оновлення (завантажити, навіть якщо версія актуальна)",
+  "ClearSettingsFolder": "Очистити папку налаштувань"
 }

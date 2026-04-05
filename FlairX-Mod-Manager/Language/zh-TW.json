@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "???????",
   "SettingsPage_HideEmptyCategories_Label": "隱藏空分類",
   "SettingsPage_HideEmptyCategories_Description": "隱藏不包含任何模組的分類",
-  "ReportIssue_Button": "回報錯誤或建議"
+  "ReportIssue_Button": "回報錯誤或建議",
+  "ForceUpdate": "強制更新（即使版本已是最新也下載）",
+  "ClearSettingsFolder": "清除設定資料夾"
 }

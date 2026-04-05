@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "???????????? ??? ?????????",
   "SettingsPage_HideEmptyCategories_Label": "Απόκρυψη κενών κατηγοριών",
   "SettingsPage_HideEmptyCategories_Description": "Απόκρυψη κατηγοριών που δεν περιέχουν mods",
-  "ReportIssue_Button": "Αναφορά σφάλματος ή πρότασης"
+  "ReportIssue_Button": "Αναφορά σφάλματος ή πρότασης",
+  "ForceUpdate": "Εξαναγκασμός ενημέρωσης (λήψη ακόμα και αν η έκδοση είναι τρέχουσα)",
+  "ClearSettingsFolder": "Εκκαθάριση φακέλου ρυθμίσεων"
 }

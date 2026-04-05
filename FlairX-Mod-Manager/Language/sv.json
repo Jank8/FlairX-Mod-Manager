@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "Lossa fr?n sidfot",
   "SettingsPage_HideEmptyCategories_Label": "Dölj tomma kategorier",
   "SettingsPage_HideEmptyCategories_Description": "Dölj kategorier som inte innehåller några moddar",
-  "ReportIssue_Button": "Rapportera fel eller förslag"
+  "ReportIssue_Button": "Rapportera fel eller förslag",
+  "ForceUpdate": "Tvinga uppdatering (ladda ner även om versionen är aktuell)",
+  "ClearSettingsFolder": "Rensa inställningsmapp"
 }

@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "???????????????????????????",
   "SettingsPage_HideEmptyCategories_Label": "ซ่อนหมวดหมู่ที่ว่างเปล่า",
   "SettingsPage_HideEmptyCategories_Description": "ซ่อนหมวดหมู่ที่ไม่มีม็อด",
-  "ReportIssue_Button": "รายงานข้อผิดพลาดหรือข้อเสนอแนะ"
+  "ReportIssue_Button": "รายงานข้อผิดพลาดหรือข้อเสนอแนะ",
+  "ForceUpdate": "บังคับอัปเดต (ดาวน์โหลดแม้เวอร์ชันจะเป็นปัจจุบัน)",
+  "ClearSettingsFolder": "ล้างโฟลเดอร์การตั้งค่า"
 }

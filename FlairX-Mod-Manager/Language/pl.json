@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "Odepnij od stopki",
   "SettingsPage_HideEmptyCategories_Label": "Ukryj puste kategorie",
   "SettingsPage_HideEmptyCategories_Description": "Ukryj kategorie, które nie zawierają żadnych modów",
-  "ReportIssue_Button": "Zgłoś błąd lub sugestię"
+  "ReportIssue_Button": "Zgłoś błąd lub sugestię",
+  "ForceUpdate": "Wymuś aktualizację (pobierz nawet jeśli wersja jest aktualna)",
+  "ClearSettingsFolder": "Wyczyść folder ustawień"
 }

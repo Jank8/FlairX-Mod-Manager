@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "Losmaken van voettekst",
   "SettingsPage_HideEmptyCategories_Label": "Lege categorieën verbergen",
   "SettingsPage_HideEmptyCategories_Description": "Verberg categorieën die geen mods bevatten",
-  "ReportIssue_Button": "Meld een bug of suggestie"
+  "ReportIssue_Button": "Meld een bug of suggestie",
+  "ForceUpdate": "Update forceren (downloaden ook als versie actueel is)",
+  "ClearSettingsFolder": "Instellingenmap wissen"
 }

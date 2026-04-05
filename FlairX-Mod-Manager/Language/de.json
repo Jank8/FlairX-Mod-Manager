@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "Von Fu?zeile l?sen",
   "SettingsPage_HideEmptyCategories_Label": "Leere Kategorien ausblenden",
   "SettingsPage_HideEmptyCategories_Description": "Kategorien ohne Mods ausblenden",
-  "ReportIssue_Button": "Fehler oder Vorschlag melden"
+  "ReportIssue_Button": "Fehler oder Vorschlag melden",
+  "ForceUpdate": "Update erzwingen (auch bei aktueller Version herunterladen)",
+  "ClearSettingsFolder": "Einstellungsordner leeren"
 }

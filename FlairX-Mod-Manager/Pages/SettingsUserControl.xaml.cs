@@ -2328,14 +2328,66 @@ namespace FlairX_Mod_Manager.Pages
             }
             else
             {
+                var forceCheckBox = new CheckBox
+                {
+                    Content = SharedUtilities.GetTranslation(lang, "ForceUpdate"),
+                    IsChecked = false,
+                    Margin = new Thickness(0, 8, 0, 0)
+                };
+
+                var clearSettingsCheckBox = new CheckBox
+                {
+                    Content = SharedUtilities.GetTranslation(lang, "ClearSettingsFolder"),
+                    IsChecked = false,
+                    IsEnabled = false,
+                    Margin = new Thickness(0, 4, 0, 0)
+                };
+
+                forceCheckBox.Checked += (s, ev) => clearSettingsCheckBox.IsEnabled = true;
+                forceCheckBox.Unchecked += (s, ev) =>
+                {
+                    clearSettingsCheckBox.IsEnabled = false;
+                    clearSettingsCheckBox.IsChecked = false;
+                };
+
+                var panel = new StackPanel { Spacing = 4 };
+                panel.Children.Add(new TextBlock
+                {
+                    Text = $"{SharedUtilities.GetTranslation(lang, "LatestVersion")} ({UpdateChecker.GetCurrentVersion()})",
+                    TextWrapping = TextWrapping.Wrap
+                });
+                panel.Children.Add(forceCheckBox);
+                panel.Children.Add(clearSettingsCheckBox);
+
                 var infoDialog = new ContentDialog
                 {
                     Title = SharedUtilities.GetTranslation(lang, "Information"),
-                    Content = $"{SharedUtilities.GetTranslation(lang, "LatestVersion")} ({UpdateChecker.GetCurrentVersion()})",
+                    Content = panel,
+                    PrimaryButtonText = SharedUtilities.GetTranslation(lang, "DownloadAndInstall") ?? "Download and Install",
                     CloseButtonText = "OK",
+                    DefaultButton = ContentDialogButton.Close,
                     XamlRoot = this.XamlRoot
                 };
-                await infoDialog.ShowAsync();
+
+                // Only enable primary button when force is checked
+                infoDialog.Opened += (s, ev) => infoDialog.IsPrimaryButtonEnabled = false;
+                forceCheckBox.Checked += (s, ev) => infoDialog.IsPrimaryButtonEnabled = true;
+                forceCheckBox.Unchecked += (s, ev) => infoDialog.IsPrimaryButtonEnabled = false;
+
+                var infoResult = await infoDialog.ShowAsync();
+
+                if (infoResult == ContentDialogResult.Primary && forceCheckBox.IsChecked == true)
+                {
+                    var updateDialog = new FlairX_Mod_Manager.Dialogs.ManagerUpdateDialog(
+                        result.Value.latestVersion,
+                        result.Value.downloadUrl,
+                        result.Value.changelog,
+                        forceUpdate: true,
+                        clearSettings: clearSettingsCheckBox.IsChecked == true
+                    );
+                    updateDialog.XamlRoot = this.XamlRoot;
+                    await updateDialog.ShowAsync();
+                }
             }
             
             CheckUpdatesButton.IsEnabled = true;

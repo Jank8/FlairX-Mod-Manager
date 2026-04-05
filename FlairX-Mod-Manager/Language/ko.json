@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "???? ?? ??",
   "SettingsPage_HideEmptyCategories_Label": "빈 카테고리 숨기기",
   "SettingsPage_HideEmptyCategories_Description": "모드가 없는 카테고리를 숨깁니다",
-  "ReportIssue_Button": "버그 또는 제안 보고"
+  "ReportIssue_Button": "버그 또는 제안 보고",
+  "ForceUpdate": "강제 업데이트 (최신 버전이어도 다운로드)",
+  "ClearSettingsFolder": "설정 폴더 초기화"
 }

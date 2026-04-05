@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "L?sne fra bunntekst",
   "SettingsPage_HideEmptyCategories_Label": "Skjul tomme kategorier",
   "SettingsPage_HideEmptyCategories_Description": "Skjul kategorier som ikke inneholder noen mods",
-  "ReportIssue_Button": "Rapporter feil eller forslag"
+  "ReportIssue_Button": "Rapporter feil eller forslag",
+  "ForceUpdate": "Tving oppdatering (last ned selv om versjonen er gjeldende)",
+  "ClearSettingsFolder": "Tøm innstillingsmappe"
 }

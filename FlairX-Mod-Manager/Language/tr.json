@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "Alt bilgiden kald?r",
   "SettingsPage_HideEmptyCategories_Label": "Boş kategorileri gizle",
   "SettingsPage_HideEmptyCategories_Description": "Mod içermeyen kategorileri gizle",
-  "ReportIssue_Button": "Hata veya öneri bildir"
+  "ReportIssue_Button": "Hata veya öneri bildir",
+  "ForceUpdate": "Güncellemeyi zorla (sürüm güncel olsa bile indir)",
+  "ClearSettingsFolder": "Ayarlar klasörünü temizle"
 }

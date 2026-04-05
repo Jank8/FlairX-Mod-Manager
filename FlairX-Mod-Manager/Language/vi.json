@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "B? ghim kh?i ch?n trang",
   "SettingsPage_HideEmptyCategories_Label": "Ẩn danh mục trống",
   "SettingsPage_HideEmptyCategories_Description": "Ẩn các danh mục không chứa mod nào",
-  "ReportIssue_Button": "Báo cáo lỗi hoặc đề xuất"
+  "ReportIssue_Button": "Báo cáo lỗi hoặc đề xuất",
+  "ForceUpdate": "Buộc cập nhật (tải xuống dù phiên bản đã mới nhất)",
+  "ClearSettingsFolder": "Xóa thư mục cài đặt"
 }

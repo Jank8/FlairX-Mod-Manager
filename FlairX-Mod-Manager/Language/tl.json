@@ -357,5 +357,7 @@
   "ContextMenu_UnpinCategory": "Alisin ang pin sa footer",
   "SettingsPage_HideEmptyCategories_Label": "Itago ang mga walang laman na kategorya",
   "SettingsPage_HideEmptyCategories_Description": "Itago ang mga kategoryang walang laman na mod",
-  "ReportIssue_Button": "Mag-ulat ng bug o mungkahi"
+  "ReportIssue_Button": "Mag-ulat ng bug o mungkahi",
+  "ForceUpdate": "Pilitin ang update (i-download kahit kasalukuyang bersyon)",
+  "ClearSettingsFolder": "Linisin ang folder ng mga setting"
 }

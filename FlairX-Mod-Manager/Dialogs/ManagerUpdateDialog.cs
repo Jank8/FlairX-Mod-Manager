@@ -11,11 +11,13 @@ namespace FlairX_Mod_Manager.Dialogs
         private TextBlock _statusText;
         private string _downloadUrl;
         private string _latestVersion;
+        private bool _clearSettings;
 
-        public ManagerUpdateDialog(string latestVersion, string downloadUrl, string changelog = "")
+        public ManagerUpdateDialog(string latestVersion, string downloadUrl, string changelog = "", bool forceUpdate = false, bool clearSettings = false)
         {
             _latestVersion = latestVersion;
             _downloadUrl = downloadUrl;
+            _clearSettings = clearSettings;
 
             var lang = SharedUtilities.LoadLanguageDictionary();
 
@@ -107,7 +109,8 @@ namespace FlairX_Mod_Manager.Dialogs
                     });
                 });
 
-                var success = await UpdateChecker.DownloadAndInstallUpdateAsync(_downloadUrl, progress);
+                var success = await UpdateChecker.DownloadAndInstallUpdateAsync(_downloadUrl, progress,
+                    clearSettings: _clearSettings);
 
                 if (!success)
                 {
