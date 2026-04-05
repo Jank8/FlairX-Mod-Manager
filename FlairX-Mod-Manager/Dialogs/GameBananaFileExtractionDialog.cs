@@ -1320,21 +1320,39 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Use the sanitized mod name from the text box instead of _modName
                 var cleanModName = SanitizeFileName(_modNameTextBox.Text.Trim());
                 
-                // New mods are disabled by default - add DISABLED_ prefix
-                var modFolderName = "DISABLED_" + cleanModName;
-                var modPath = Path.Combine(categoryPath, modFolderName);
+                // Check if mod already exists
+                var existingModPath = FindExistingModPath(categoryPath, cleanModName);
+                string modPath;
+                bool wasActive = false;
 
-                if (Directory.Exists(modPath))
+                if (!string.IsNullOrEmpty(existingModPath) && Directory.Exists(existingModPath))
                 {
-                    int counter = 1;
-                    while (Directory.Exists($"{modPath}_{counter}"))
+                    modPath = existingModPath;
+                    var folderName = Path.GetFileName(modPath);
+                    wasActive = !folderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase);
+                    if (wasActive)
                     {
-                        counter++;
+                        var disabledPath = Path.Combine(categoryPath, "DISABLED_" + cleanModName);
+                        Services.FileAccessQueue.MoveDirectory(modPath, disabledPath);
+                        modPath = disabledPath;
                     }
-                    modPath = $"{modPath}_{counter}";
+                }
+                else
+                {
+                    modPath = Path.Combine(categoryPath, "DISABLED_" + cleanModName);
+                    if (Directory.Exists(modPath))
+                    {
+                        int counter = 1;
+                        while (Directory.Exists($"{modPath}_{counter}")) counter++;
+                        modPath = $"{modPath}_{counter}";
+                    }
                 }
 
                 Directory.CreateDirectory(modPath);
+
+                // Clean install
+                if (_cleanInstall && Directory.Exists(modPath))
+                    CleanModFolder(modPath);
 
                 // Copy all files
                 foreach (var file in Directory.GetFiles(sourceDir))
@@ -1345,6 +1363,17 @@ namespace FlairX_Mod_Manager.Dialogs
 
                 // Create mod.json
                 await CreateModJson(modPath);
+
+                // Restore active status if mod was active before update
+                if (wasActive)
+                {
+                    var finalActivePath = Path.Combine(categoryPath, cleanModName);
+                    if (!Directory.Exists(finalActivePath))
+                    {
+                        Services.FileAccessQueue.MoveDirectory(modPath, finalActivePath);
+                        modPath = finalActivePath;
+                    }
+                }
 
                 // Save mod path for preview download and event firing
                 _installedModPath = modPath;
