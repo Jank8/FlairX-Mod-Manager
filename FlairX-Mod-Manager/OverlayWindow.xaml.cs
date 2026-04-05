@@ -1334,11 +1334,20 @@ namespace FlairX_Mod_Manager
 
                 var categories = System.IO.Directory.GetDirectories(modsPath);
                 var gameTag = SettingsManager.CurrentSelectedGame;
+                var hideEmpty = SettingsManager.Current.HideEmptyCategories;
                 var categoryItems = new List<OverlayCategoryItem>();
                 
                 foreach (var categoryDir in categories)
                 {
                     var categoryName = Path.GetFileName(categoryDir);
+
+                    // Skip empty categories if setting enabled
+                    if (hideEmpty)
+                    {
+                        var hasMods = System.IO.Directory.GetDirectories(categoryDir)
+                            .Any(d => System.IO.File.Exists(Path.Combine(d, "mod.json")));
+                        if (!hasMods) continue;
+                    }
                     var isFavorite = !string.IsNullOrEmpty(gameTag) && SettingsManager.IsCategoryFavorite(gameTag, categoryName);
                     
                     var item = new OverlayCategoryItem
