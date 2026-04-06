@@ -138,6 +138,8 @@ namespace FlairX_Mod_Manager.Pages
             {
                 try
                 {
+                    // Invalidate cache first to force fresh load with current paths
+                    ModListManager.InvalidateCache();
                     ModListManager.RebuildAllLists();
                     
                     // Sync _activeMods with actual folder state after rebuild

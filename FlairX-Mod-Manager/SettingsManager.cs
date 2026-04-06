@@ -398,20 +398,21 @@ namespace FlairX_Mod_Manager
         {
             string gameTag = GetGameTagFromIndex(Current.SelectedGameIndex);
             
-            // If no game selected, return empty
             if (string.IsNullOrEmpty(gameTag))
                 return string.Empty;
             
             // Check if we have a custom XXMI root path for this game
             if (Current.GameXXMIRootPaths.TryGetValue(gameTag, out string? customXXMIRoot) && 
-                !string.IsNullOrEmpty(customXXMIRoot) && Directory.Exists(customXXMIRoot))
+                !string.IsNullOrEmpty(customXXMIRoot))
             {
-                // Build mods path from custom XXMI root
-                return Path.Combine(customXXMIRoot, gameTag, "Mods");
+                // Always resolve to absolute path (handles relative paths and drive letter changes)
+                var absoluteRoot = PathManager.GetAbsolutePath(customXXMIRoot);
+                if (Directory.Exists(absoluteRoot))
+                    return Path.Combine(absoluteRoot, gameTag, "Mods");
             }
             
-            // Fallback to default game-specific path
-            return AppConstants.GameConfig.GetModsPath(gameTag);
+            // Fallback to default game-specific path (relative, resolved at runtime)
+            return PathManager.GetAbsolutePath(AppConstants.GameConfig.GetModsPath(gameTag));
         }
         
         // Get current d3dx_user.ini path with per-game support and fallback
@@ -425,14 +426,16 @@ namespace FlairX_Mod_Manager
             
             // Check if we have a custom XXMI root path for this game
             if (Current.GameXXMIRootPaths.TryGetValue(gameTag, out string? customXXMIRoot) && 
-                !string.IsNullOrEmpty(customXXMIRoot) && Directory.Exists(customXXMIRoot))
+                !string.IsNullOrEmpty(customXXMIRoot))
             {
-                // Build d3dx_user.ini path from custom XXMI root
-                return Path.Combine(customXXMIRoot, gameTag, "d3dx_user.ini");
+                // Always resolve to absolute path (handles relative paths and drive letter changes)
+                var absoluteRoot = PathManager.GetAbsolutePath(customXXMIRoot);
+                if (Directory.Exists(absoluteRoot))
+                    return Path.Combine(absoluteRoot, gameTag, "d3dx_user.ini");
             }
             
-            // Fallback to default game-specific path
-            return AppConstants.GameConfig.GetD3dxUserIniPath(gameTag);
+            // Fallback to default game-specific path (relative, resolved at runtime)
+            return PathManager.GetAbsolutePath(AppConstants.GameConfig.GetD3dxUserIniPath(gameTag));
         }
         
         // Set XXMI root directory for current game
@@ -441,7 +444,11 @@ namespace FlairX_Mod_Manager
             string gameTag = GetGameTagFromIndex(Current.SelectedGameIndex);
             if (!string.IsNullOrEmpty(gameTag))
             {
-                Current.GameXXMIRootPaths[gameTag] = xxmiRootPath;
+                // Store as relative path if possible (portable app - drive letter may change)
+                var relativePath = PathManager.GetRelativePath(xxmiRootPath);
+                // Only use relative if it doesn't start with ".." (i.e. it's within app directory)
+                // Otherwise keep absolute - user chose a path outside app directory
+                Current.GameXXMIRootPaths[gameTag] = relativePath.StartsWith("..") ? xxmiRootPath : relativePath;
                 Save();
             }
         }

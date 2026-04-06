@@ -34,7 +34,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Skip if directory doesn't exist
                 if (!Directory.Exists(modDir))
                 {
-                    Logger.LogDebug($"Mod directory does not exist, skipping: {modDir}");
+                    Logger.LogHotkeyFinder($"Mod directory does not exist, skipping: {modDir}", "DEBUG");
                     continue;
                 }
 
@@ -61,7 +61,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError($"Failed to find INI files in {modDir}", ex);
+                        Logger.LogHotkeyFinderError($"Failed to find INI files in {modDir}", ex);
                     }
                 }
 
@@ -78,7 +78,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError($"Failed to parse INI file {iniFile}", ex);
+                        Logger.LogHotkeyFinderError($"Failed to parse INI file {iniFile}", ex);
                     }
                 }
 
@@ -89,12 +89,12 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (hotkeys.Count > 0)
                 {
-                    Logger.LogInfo($"Found {hotkeys.Count} hotkeys in mod: {Path.GetFileName(modDir)}");
+                    Logger.LogHotkeyFinder($"Found {hotkeys.Count} hotkeys in mod: {Path.GetFileName(modDir)}");
                     await UpdateModJsonWithHotkeysCommonAsync(modDir, hotkeys, token);
                 }
                 else
                 {
-                    Logger.LogInfo($"No hotkeys found in mod: {Path.GetFileName(modDir)}");
+                    Logger.LogHotkeyFinder($"No hotkeys found in mod: {Path.GetFileName(modDir)}");
                 }
             }
         }
@@ -108,7 +108,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (string.IsNullOrEmpty(xxmiModsPath) || !Directory.Exists(xxmiModsPath))
                 {
                     // Normal when no game is selected yet
-                    Logger.LogInfo("XXMI Mods path not configured - skipping hotkey detection");
+                    Logger.LogHotkeyFinder("XXMI Mods path not configured - skipping hotkey detection");
                     return;
                 }
                 
@@ -131,11 +131,11 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Clean up old hotkeys sections from mod.json files
                 await CleanupOldHotkeysFromModJsonAsync(modDirectories);
-                Logger.LogInfo($"Refreshed hotkeys for {modDirectories.Count} mods");
+                Logger.LogHotkeyFinder($"Refreshed hotkeys for {modDirectories.Count} mods");
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to refresh all mods hotkeys", ex);
+                Logger.LogHotkeyFinderError("Failed to refresh all mods hotkeys", ex);
             }
         }
         
@@ -148,7 +148,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Error auto-detecting hotkeys for {modPath}", ex);
+                Logger.LogHotkeyFinderError($"Error auto-detecting hotkeys for {modPath}", ex);
             }
         }
 
@@ -245,7 +245,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Check if directory exists before trying to access it
                 if (!Directory.Exists(folderPath))
                 {
-                    Logger.LogDebug($"Directory does not exist, skipping: {folderPath}");
+                    Logger.LogHotkeyFinder($"Directory does not exist, skipping: {folderPath}", "DEBUG");
                     return;
                 }
                 
@@ -270,15 +270,15 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (UnauthorizedAccessException ex)
             {
-                Logger.LogDebug($"Access denied to directory: {folderPath} - {ex.Message}");
+                Logger.LogHotkeyFinder($"Access denied to directory: {folderPath} - {ex.Message}", "DEBUG");
             }
             catch (DirectoryNotFoundException ex)
             {
-                Logger.LogDebug($"Directory not found: {folderPath} - {ex.Message}");
+                Logger.LogHotkeyFinder($"Directory not found: {folderPath} - {ex.Message}", "DEBUG");
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Directory access failed for {folderPath}", ex);
+                Logger.LogHotkeyFinderError($"Directory access failed for {folderPath}", ex);
             }
         }
         
@@ -409,7 +409,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                Logger.LogError($"File parsing failed for {iniFilePath}", ex);
+                Logger.LogHotkeyFinderError($"File parsing failed for {iniFilePath}", ex);
             }
 
             return hotkeys;
@@ -559,7 +559,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                Logger.LogError($"File update failed for {modJsonPath}", ex);
+                Logger.LogHotkeyFinderError($"File update failed for {modJsonPath}", ex);
             }
         }
 
@@ -568,7 +568,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                Logger.LogInfo("Cleaning up old hotkeys sections from mod.json files");
+                Logger.LogHotkeyFinder("Cleaning up old hotkeys sections from mod.json files");
                 int cleanedCount = 0;
                 
                 foreach (var modDir in modDirectories)
@@ -590,27 +590,27 @@ namespace FlairX_Mod_Manager.Pages
                             // Remove hotkeys section from mod.json
                             await RemoveHotkeysFromModJsonAsync(modJsonPath);
                             cleanedCount++;
-                            Logger.LogInfo($"Removed old hotkeys section from: {Path.GetFileName(modDir)}");
+                            Logger.LogHotkeyFinder($"Removed old hotkeys section from: {Path.GetFileName(modDir)}");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogError($"Failed to clean hotkeys from mod: {Path.GetFileName(modDir)}", ex);
+                        Logger.LogHotkeyFinderError($"Failed to clean hotkeys from mod: {Path.GetFileName(modDir)}", ex);
                     }
                 }
                 
                 if (cleanedCount > 0)
                 {
-                    Logger.LogInfo($"Cleanup completed: removed hotkeys sections from {cleanedCount} mod.json files");
+                    Logger.LogHotkeyFinder($"Cleanup completed: removed hotkeys sections from {cleanedCount} mod.json files");
                 }
                 else
                 {
-                    Logger.LogInfo("No mod.json files had hotkeys sections to remove");
+                    Logger.LogHotkeyFinder("No mod.json files had hotkeys sections to remove");
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to cleanup old hotkeys sections", ex);
+                Logger.LogHotkeyFinderError("Failed to cleanup old hotkeys sections", ex);
             }
         }
 
@@ -630,7 +630,7 @@ namespace FlairX_Mod_Manager.Pages
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Failed to remove hotkeys from {modJsonPath}", ex);
+                Logger.LogHotkeyFinderError($"Failed to remove hotkeys from {modJsonPath}", ex);
             }
         }
 
@@ -639,7 +639,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                Logger.LogInfo($"CreateOrUpdateHotkeysJsonAsync called for mod: {Path.GetFileName(modPath)} with {hotkeyList.Count} hotkeys");
+                Logger.LogHotkeyFinder($"CreateOrUpdateHotkeysJsonAsync called for mod: {Path.GetFileName(modPath)} with {hotkeyList.Count} hotkeys");
                 var hotkeysJsonPath = Path.Combine(modPath, "hotkeys.json");
                 
                 var existingDefaultHotkeys = new List<Dictionary<string, object>>();
@@ -753,11 +753,11 @@ namespace FlairX_Mod_Manager.Pages
                 var json = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
                 await Services.FileAccessQueue.WriteAllTextAsync(hotkeysJsonPath, json, token);
                 
-                Logger.LogInfo($"Created/updated hotkeys.json for mod: {Path.GetFileName(modPath)}");
+                Logger.LogHotkeyFinder($"Created/updated hotkeys.json for mod: {Path.GetFileName(modPath)}");
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Failed to create/update hotkeys.json for {modPath}", ex);
+                Logger.LogHotkeyFinderError($"Failed to create/update hotkeys.json for {modPath}", ex);
             }
         }
 
@@ -768,12 +768,12 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                Logger.LogInfo($"SaveHotkeyToIniAsync called: modPath={PathManager.GetRelativePath(modPath)}, description={description}, newKey={newKey}");
+                Logger.LogHotkeyFinder($"SaveHotkeyToIniAsync called: modPath={PathManager.GetRelativePath(modPath)}, description={description}, newKey={newKey}");
                 var hotkeysJsonPath = Path.Combine(modPath, "hotkeys.json");
                 
                 if (!File.Exists(hotkeysJsonPath))
                 {
-                    Logger.LogWarning($"Hotkeys file not found: {hotkeysJsonPath}");
+                    Logger.LogHotkeyFinder($"Hotkeys file not found: {hotkeysJsonPath}", "WARNING");
                     return;
                 }
                 
@@ -802,7 +802,7 @@ namespace FlairX_Mod_Manager.Pages
                             if (h.TryGetProperty("originalValue", out var originalValueProp))
                                 originalValue = originalValueProp.GetString() ?? "";
                             
-                            Logger.LogInfo($"Found hotkey info: iniFile={iniFile}, section={section}, keyName={keyName}");
+                            Logger.LogHotkeyFinder($"Found hotkey info: iniFile={iniFile}, section={section}, keyName={keyName}");
                             break;
                         }
                     }
@@ -810,7 +810,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (string.IsNullOrEmpty(iniFile) || string.IsNullOrEmpty(section) || string.IsNullOrEmpty(keyName))
                 {
-                    Logger.LogWarning($"Missing INI file information for hotkey: {description}");
+                    Logger.LogHotkeyFinder($"Missing INI file information for hotkey: {description}", "WARNING");
                     return;
                 }
                 
@@ -820,7 +820,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Normalize the path to handle any Unicode or path separator issues
                 absoluteIniPath = Path.GetFullPath(absoluteIniPath);
                 
-                Logger.LogInfo($"Converting path: iniFile='{iniFile}' -> absoluteIniPath='{absoluteIniPath}'");
+                Logger.LogHotkeyFinder($"Converting path: iniFile='{iniFile}' -> absoluteIniPath='{absoluteIniPath}'");
                 
                 // Convert display key back to INI format
                 var iniKeyValue = ConvertDisplayKeyToIniFormat(newKey);
@@ -828,7 +828,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Check if INI file exists
                 if (!File.Exists(absoluteIniPath))
                 {
-                    Logger.LogWarning($"INI file not found: {PathManager.GetRelativePath(absoluteIniPath)}");
+                    Logger.LogHotkeyFinder($"INI file not found: {PathManager.GetRelativePath(absoluteIniPath)}", "WARNING");
                     
                     // Try to find the INI file with the same name in the mod directory
                     var iniFileName = Path.GetFileName(iniFile);
@@ -839,8 +839,8 @@ namespace FlairX_Mod_Manager.Pages
                         var newIniPath = foundIniFiles[0];
                         var newRelativeIniPath = Path.GetRelativePath(modPath, newIniPath);
                         
-                        Logger.LogInfo($"Found INI file at new location: {PathManager.GetRelativePath(newIniPath)}");
-                        Logger.LogInfo($"Updating hotkeys.json with new path: {newRelativeIniPath}");
+                        Logger.LogHotkeyFinder($"Found INI file at new location: {PathManager.GetRelativePath(newIniPath)}");
+                        Logger.LogHotkeyFinder($"Updating hotkeys.json with new path: {newRelativeIniPath}");
                         
                         // Update the hotkeys.json with the new path
                         await UpdateIniPathInHotkeysJsonAsync(modPath, description, newRelativeIniPath);
@@ -850,7 +850,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     else
                     {
-                        Logger.LogError($"INI file '{iniFileName}' not found anywhere in mod directory: {PathManager.GetRelativePath(modPath)}");
+                        Logger.LogHotkeyFinder($"INI file '{iniFileName}' not found anywhere in mod directory: {PathManager.GetRelativePath(modPath)}", "ERROR");
                         return;
                     }
                 }
@@ -858,11 +858,11 @@ namespace FlairX_Mod_Manager.Pages
                 // Update the INI file
                 await UpdateIniFileAsync(absoluteIniPath, section, keyName, iniKeyValue);
                 
-                Logger.LogInfo($"Updated INI file {PathManager.GetRelativePath(absoluteIniPath)}: [{section}] {keyName} = {iniKeyValue}");
+                Logger.LogHotkeyFinder($"Updated INI file {PathManager.GetRelativePath(absoluteIniPath)}: [{section}] {keyName} = {iniKeyValue}");
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Failed to save hotkey to INI file: {description}", ex);
+                Logger.LogHotkeyFinderError($"Failed to save hotkey to INI file: {description}", ex);
             }
         }
         
@@ -944,19 +944,19 @@ namespace FlairX_Mod_Manager.Pages
                     
                     if (!keyUpdated)
                     {
-                        Logger.LogWarning($"Key '{keyName}' not found in section '[{section}]' of file {PathManager.GetRelativePath(iniFilePath)}");
+                        Logger.LogHotkeyFinder($"Key '{keyName}' not found in section '[{section}]' of file {PathManager.GetRelativePath(iniFilePath)}", "WARNING");
                         return;
                     }
                     
                     // Write the updated content back to the file
                     await File.WriteAllTextAsync(iniFilePath, string.Join("\n", updatedLines));
                     
-                    Logger.LogInfo($"Successfully updated {PathManager.GetRelativePath(iniFilePath)}: [{section}] {keyName} = {newValue}");
+                    Logger.LogHotkeyFinder($"Successfully updated {PathManager.GetRelativePath(iniFilePath)}: [{section}] {keyName} = {newValue}");
                 });
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Failed to update INI file {iniFilePath}", ex);
+                Logger.LogHotkeyFinderError($"Failed to update INI file {iniFilePath}", ex);
             }
         }
 
@@ -1054,13 +1054,14 @@ namespace FlairX_Mod_Manager.Pages
                 var newJson = JsonSerializer.Serialize(hotkeysData, new JsonSerializerOptions { WriteIndented = true });
                 await Services.FileAccessQueue.WriteAllTextAsync(hotkeysJsonPath, newJson);
                 
-                Logger.LogInfo($"Updated INI path in hotkeys.json for: {description}");
+                Logger.LogHotkeyFinder($"Updated INI path in hotkeys.json for: {description}");
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Failed to update INI path in hotkeys.json", ex);
+                Logger.LogHotkeyFinderError($"Failed to update INI path in hotkeys.json", ex);
             }
         }
 
     }
 }
+

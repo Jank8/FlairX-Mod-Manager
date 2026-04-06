@@ -268,16 +268,16 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 
                 UpdateEmptyState();
+                
+                // Load visible images after UI is updated
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(100);
+                    DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+                });
             });
             
             LogToGridLog($"Loaded {modTiles.Count} mods for category '{category}' from ModListManager");
-            
-            // Load visible images
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(100);
-                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
-            });
         }
 
         private void LoadCategoryModData(string category)
@@ -860,16 +860,16 @@ namespace FlairX_Mod_Manager.Pages
         
         private string GetOptimalImagePath(string modDirectory)
         {
-            // Check files in order of preference - optimized to minimize File.Exists calls
             var webpPath = Path.Combine(modDirectory, "minitile.webp");
             var jpegPath = Path.Combine(modDirectory, "minitile.jpg");
             
-            // Check webp first, if exists return immediately
             if (File.Exists(webpPath))
                 return webpPath;
             
-            // Return jpeg path (may or may not exist, but we return it as default)
-            return jpegPath;
+            if (File.Exists(jpegPath))
+                return jpegPath;
+            
+            return string.Empty;
         }
 
         private void LoadActiveModsOnly()

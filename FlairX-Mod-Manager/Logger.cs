@@ -10,9 +10,11 @@ namespace FlairX_Mod_Manager
         private static readonly string LogPath = PathManager.GetSettingsPath("Application.log");
         private static readonly string GridLogPath = PathManager.GetSettingsPath("GridLog.log");
         private static readonly string StatusKeeperLogPath = PathManager.GetSettingsPath("StatusKeeper.log");
+        private static readonly string HotkeyFinderLogPath = PathManager.GetSettingsPath("HotkeyFinder.log");
         private static readonly object LogLock = new object();
         private static readonly object GridLogLock = new object();
         private static readonly object StatusKeeperLogLock = new object();
+        private static readonly object HotkeyFinderLogLock = new object();
         private static bool _statusKeeperLogInitialized = false;
 
         public static void LogInfo(string message, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
@@ -191,6 +193,39 @@ namespace FlairX_Mod_Manager
         {
             var fullMessage = exception != null ? $"{message} - Exception: {exception}" : message;
             LogStatusKeeper(fullMessage, "ERROR", callerName, callerFile, lineNumber);
+        }
+
+        /// <summary>
+        /// Log to HotkeyFinder.log file
+        /// </summary>
+        public static void LogHotkeyFinder(string message, string level = "INFO", [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
+        {
+            var formattedMessage = FormatMessage(message, callerName, callerFile, lineNumber);
+            
+            // Log to debug console
+            Debug.WriteLine($"[HotkeyFinder] [{level}] {formattedMessage}");
+            
+            // If ErrorOnlyLogging is enabled, only log errors and warnings
+            try
+            {
+                if (SettingsManager.Current?.ErrorOnlyLogging == true && level != "ERROR" && level != "WARNING") return;
+            }
+            catch
+            {
+                // SettingsManager not initialized - continue logging
+            }
+            
+            // Log to HotkeyFinder.log file
+            LogToFile(HotkeyFinderLogPath, HotkeyFinderLogLock, level, formattedMessage);
+        }
+
+        /// <summary>
+        /// Log HotkeyFinder error
+        /// </summary>
+        public static void LogHotkeyFinderError(string message, Exception? exception = null, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
+        {
+            var fullMessage = exception != null ? $"{message} - Exception: {exception}" : message;
+            LogHotkeyFinder(fullMessage, "ERROR", callerName, callerFile, lineNumber);
         }
 
         private static string FormatMessage(string message, string? callerName, string? callerFile, int lineNumber = 0)

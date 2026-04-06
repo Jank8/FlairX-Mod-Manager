@@ -1548,7 +1548,47 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             _currentAuthorId = entry.AuthorId;
                             _currentAuthorName = entry.AuthorName;
-                            await ShowAuthorModsAsyncNoHistory();
+
+                            // If we already have data for this author in memory, don't reload from API
+                            bool alreadyLoaded = _authorMods.Count > 0 && _currentAuthorId == entry.AuthorId;
+
+                            if (alreadyLoaded)
+                            {
+                                // Just restore the UI state without API call
+                                _suppressNavigationPush = true;
+                                try
+                                {
+                                    var authorModsTitle = SharedUtilities.GetTranslation(_lang, "AuthorModsTitle");
+                                    TitleText.Text = $"{_currentAuthorName} - {authorModsTitle}";
+                                    UpdateBackButtonIcon();
+
+                                    if (_currentState == NavigationState.ModDetails)
+                                        AnimateContentSwitch(DetailsPanel, ModsListGrid);
+
+                                    _currentState = NavigationState.AuthorMods;
+                                    ModsGridView.ItemsSource = _authorMods;
+                                    LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
+                                    LoadMoreAuthorModsButton.Visibility = Visibility.Visible;
+                                }
+                                finally { _suppressNavigationPush = false; }
+
+                                // Restore scroll position
+                                if (entry.ScrollOffset > 0 && _modsScrollViewer != null)
+                                {
+                                    await Task.Delay(50);
+                                    _modsScrollViewer.ScrollToVerticalOffset(entry.ScrollOffset);
+                                }
+
+                                // Refresh installation status for all author mods
+                                foreach (var mod in _authorMods)
+                                    mod.IsInstalled = IsModInstalled(mod.ProfileUrl);
+
+                                Logger.LogInfo($"Restored author mods from cache for {_currentAuthorName}, scroll: {entry.ScrollOffset}");
+                            }
+                            else
+                            {
+                                await ShowAuthorModsAsyncNoHistory();
+                            }
                         }
                         break;
                 }
@@ -1692,7 +1732,8 @@ namespace FlairX_Mod_Manager.Pages
                         _navigationStack.Push(new NavigationEntry(
                             NavigationState.AuthorMods,
                             AuthorId: _currentAuthorId,
-                            AuthorName: _currentAuthorName));
+                            AuthorName: _currentAuthorName,
+                            ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
                     }
                 }
 
@@ -1964,7 +2005,8 @@ namespace FlairX_Mod_Manager.Pages
                         _navigationStack.Push(new NavigationEntry(
                             NavigationState.AuthorMods,
                             AuthorId: _currentAuthorId,
-                            AuthorName: _currentAuthorName));
+                            AuthorName: _currentAuthorName,
+                            ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
                     }
                 }
 
@@ -2915,7 +2957,8 @@ namespace FlairX_Mod_Manager.Pages
                             _navigationStack.Push(new NavigationEntry(
                                 NavigationState.AuthorMods,
                                 AuthorId: _currentAuthorId,
-                                AuthorName: _currentAuthorName));
+                                AuthorName: _currentAuthorName,
+                                ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0));
                         }
                     }
                     // After the initial URL load, subsequent navigations (e.g. author mods) should push normally

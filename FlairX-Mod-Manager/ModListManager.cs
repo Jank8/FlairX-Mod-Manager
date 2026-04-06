@@ -309,7 +309,16 @@ namespace FlairX_Mod_Manager
                 {
                     _cachedMasterList = LoadMasterList();
                 }
-                return new List<ModInfo>(_cachedMasterList);
+                var mods = new List<ModInfo>(_cachedMasterList);
+                // Recalculate ImagePath with current modsPath to handle drive letter changes
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                foreach (var mod in mods)
+                {
+                    if (string.IsNullOrEmpty(mod.Directory) || string.IsNullOrEmpty(mod.Category)) continue;
+                    var modDir = Path.Combine(modsPath, mod.Category, mod.Directory);
+                    mod.ImagePath = GetOptimalImagePath(modDir);
+                }
+                return mods;
             }
         }
 
@@ -441,7 +450,7 @@ namespace FlairX_Mod_Manager
                 _cachedOutdatedList = null;
                 _lastCacheUpdate = DateTime.MinValue;
             }
-            Logger.LogDebug("ModListManager: Cache invalidated");
+            Logger.LogInfo("ModListManager: Cache invalidated");
         }
 
         private static string GetCleanModName(string dirName)
@@ -478,10 +487,32 @@ namespace FlairX_Mod_Manager
                     var filename = AppConstants.GameConfig.GetMasterModsFilename(gameTag);
                     var settingsPath = PathManager.GetSettingsPath(filename);
                     
+                    // Convert ImagePath to relative filename before saving
+                    var modsToSave = mods.Select(m => new ModInfo
+                    {
+                        Name = m.Name,
+                        Directory = m.Directory,
+                        Category = m.Category,
+                        Character = m.Character,
+                        Author = m.Author,
+                        Url = m.Url,
+                        ImagePath = string.IsNullOrEmpty(m.ImagePath) ? string.Empty : Path.GetFileName(m.ImagePath),
+                        LastChecked = m.LastChecked,
+                        LastUpdated = m.LastUpdated,
+                        IsActive = m.IsActive,
+                        IsNSFW = m.IsNSFW,
+                        IsBroken = m.IsBroken,
+                        HasUpdate = m.HasUpdate,
+                        IsFavorite = m.IsFavorite,
+                        StatusKeeperSync = m.StatusKeeperSync,
+                        SyncMethod = m.SyncMethod,
+                        Namespaces = m.Namespaces
+                    }).ToList();
+                    
                     var data = new MasterModListData
                     {
                         LastUpdated = DateTime.UtcNow,
-                        Mods = mods
+                        Mods = modsToSave
                     };
 
                     var json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
@@ -698,6 +729,9 @@ namespace FlairX_Mod_Manager
                     _cachedMasterList = LoadMasterList();
                 }
 
+                // Convert imagePath to relative filename if it's absolute
+                var relativeImagePath = string.IsNullOrEmpty(imagePath) ? string.Empty : Path.GetFileName(imagePath);
+
                 // Check if mod already exists
                 var existingMod = _cachedMasterList.FirstOrDefault(m => m.Name == modName);
                 if (existingMod != null)
@@ -707,7 +741,7 @@ namespace FlairX_Mod_Manager
                     existingMod.Category = category;
                     existingMod.Author = author;
                     existingMod.Url = url;
-                    existingMod.ImagePath = imagePath;
+                    existingMod.ImagePath = relativeImagePath;
                     existingMod.IsActive = isActive;
                     existingMod.IsNSFW = isNSFW;
                     existingMod.IsBroken = isBroken;
@@ -727,7 +761,7 @@ namespace FlairX_Mod_Manager
                         Category = category,
                         Author = author,
                         Url = url,
-                        ImagePath = imagePath,
+                        ImagePath = relativeImagePath,
                         LastChecked = DateTime.UtcNow,
                         LastUpdated = DateTime.UtcNow,
                         IsActive = isActive,
