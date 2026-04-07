@@ -1504,23 +1504,24 @@ namespace FlairX_Mod_Manager
 
             var success = await Services.GameBananaService.DownloadCategoryIconAsync(iconUrl, categoryPath);
 
-            var resultDialog = new ContentDialog
-            {
-                Title = SharedUtilities.GetTranslation(lang, success ? "Success_Title" : "Error_Title"),
-                Content = success
-                    ? string.Format("Downloaded icon for '{0}' from '{1}'.", categoryName, selectedCat.Name)
-                    : "Failed to download icon.",
-                CloseButtonText = "OK",
-                XamlRoot = this.Content.XamlRoot
-            };
-            await resultDialog.ShowAsync();
-
             if (success)
             {
+                ShowSuccessInfo(string.Format("Downloaded icon for '{0}' from '{1}'.", categoryName, selectedCat.Name), 3000);
                 await RefreshCategoryIconInMenuAsync(categoryName);
                 if (contentFrame.Content is Pages.ModGridPage modGridPage &&
                     modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
                     modGridPage.LoadCategories();
+            }
+            else
+            {
+                var errDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
+                    Content = "Failed to download icon.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await errDialog.ShowAsync();
             }
         }
 
