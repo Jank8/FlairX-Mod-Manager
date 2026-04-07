@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Fehler oder Vorschlag melden",
   "ForceUpdate": "Update erzwingen (auch bei aktueller Version herunterladen)",
   "ClearSettingsFolder": "Einstellungsordner leeren",
-  "CropPanel_ChooseDifferentFile": "Andere Datei wählen"
+  "CropPanel_ChooseDifferentFile": "Andere Datei wählen",
+  "ContextMenu_DownloadThumbnail": "Vorschaubild herunterladen"
 }

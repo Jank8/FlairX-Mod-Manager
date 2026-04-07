@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Meld een bug of suggestie",
   "ForceUpdate": "Update forceren (downloaden ook als versie actueel is)",
   "ClearSettingsFolder": "Instellingenmap wissen",
-  "CropPanel_ChooseDifferentFile": "Ander bestand kiezen"
+  "CropPanel_ChooseDifferentFile": "Ander bestand kiezen",
+  "ContextMenu_DownloadThumbnail": "Miniatuur downloaden"
 }

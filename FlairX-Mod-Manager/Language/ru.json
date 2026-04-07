@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Сообщить об ошибке или предложении",
   "ForceUpdate": "Принудительное обновление (скачать, даже если версия актуальна)",
   "ClearSettingsFolder": "Очистить папку настроек",
-  "CropPanel_ChooseDifferentFile": "Выбрать другой файл"
+  "CropPanel_ChooseDifferentFile": "Выбрать другой файл",
+  "ContextMenu_DownloadThumbnail": "Скачать миниатюру"
 }

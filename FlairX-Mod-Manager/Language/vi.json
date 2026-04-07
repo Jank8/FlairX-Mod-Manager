@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Báo cáo lỗi hoặc đề xuất",
   "ForceUpdate": "Buộc cập nhật (tải xuống dù phiên bản đã mới nhất)",
   "ClearSettingsFolder": "Xóa thư mục cài đặt",
-  "CropPanel_ChooseDifferentFile": "Chọn tệp khác"
+  "CropPanel_ChooseDifferentFile": "Chọn tệp khác",
+  "ContextMenu_DownloadThumbnail": "Tải xuống hình thu nhỏ"
 }

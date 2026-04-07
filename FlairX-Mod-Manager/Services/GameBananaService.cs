@@ -784,6 +784,9 @@ namespace FlairX_Mod_Manager.Services
             
             [JsonPropertyName("_tsDateAdded")]
             public long? DateAdded { get; set; }
+
+            /// <summary>Children (subcategories) - populated when parsing cattree</summary>
+            public List<CategoryRecord> Children { get; set; } = new();
             
             /// <summary>
             /// Get icon URL from either _sIconUrl or _aPreviewMedia
@@ -824,40 +827,50 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Get all character categories for a specific game using WebView2 to render JavaScript
         /// </summary>
+        // Cache for category trees per game tag
+        private static readonly Dictionary<string, List<CategoryRecord>> _categoryTreeCache = new();
+
         public static async Task<List<CategoryRecord>?> GetCharacterCategoriesAsync(string gameTag)
         {
+            // Return cached result if available
+            if (_categoryTreeCache.TryGetValue(gameTag, out var cached))
+            {
+                Logger.LogInfo($"GetCharacterCategoriesAsync: returning cached {cached.Count} categories for {gameTag}");
+                return cached;
+            }
             try
             {
-                var categoryId = GetCharacterCategoryId(gameTag);
-                if (categoryId == 0)
+                var gameId = GetGameId(gameTag);
+                if (gameId == 0)
                 {
-                    Logger.LogError($"Unknown game tag or no character category defined: {gameTag}");
+                    Logger.LogError($"Unknown game tag: {gameTag}");
                     return null;
                 }
 
-                var url = $"https://gamebanana.com/mods/cats/{categoryId}";
-                Logger.LogInfo($"Fetching character categories from: {url}");
+                var url = $"https://gamebanana.com/games/cattree/{gameId}";
+                Logger.LogInfo($"Fetching category tree from: {url}");
 
-                // Use WebView2 to render the page and get the HTML
                 var html = await RenderPageWithWebView2Async(url);
-                
+
                 if (string.IsNullOrEmpty(html))
                 {
-                    Logger.LogError("Failed to render page with WebView2");
+                    Logger.LogError("Failed to render cattree page with WebView2");
                     return null;
                 }
 
                 Logger.LogInfo($"Received rendered HTML length: {html.Length} characters");
 
-                // Parse HTML to extract subcategories
-                var categories = ParseCharacterCategoriesFromHtml(html);
+                var categories = ParseCategoryTreeFromHtml(html);
+                Logger.LogInfo($"Found {categories.Count} categories for {gameTag}");
 
-                Logger.LogInfo($"Found {categories.Count} character categories for {gameTag}");
+                // Cache the result
+                _categoryTreeCache[gameTag] = categories;
+
                 return categories;
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Failed to fetch character categories for {gameTag}: {ex.Message}", ex);
+                Logger.LogError($"Failed to fetch categories for {gameTag}: {ex.Message}", ex);
                 return null;
             }
         }
@@ -904,8 +917,24 @@ namespace FlairX_Mod_Manager.Services
                                 {
                                     Logger.LogInfo("Navigation completed successfully, waiting for content to load");
 
-                                    // Wait for JavaScript to render content and lazy-load images
+                                    // Wait for JavaScript to render content
                                     await Task.Delay(5000);
+
+                                    // Expand all tree nodes to ensure subcategories are in DOM
+                                    await webView.CoreWebView2.ExecuteScriptAsync(@"
+                                        (function() {
+                                            var buttons = document.querySelectorAll('.PrimeTree_NodeToggleButton');
+                                            buttons.forEach(function(btn) {
+                                                var li = btn.closest('li');
+                                                if (li && li.getAttribute('aria-expanded') === 'false') {
+                                                    btn.click();
+                                                }
+                                            });
+                                        })();
+                                    ");
+
+                                    // Wait for expanded content to render
+                                    await Task.Delay(2000);
 
                                     // Get the rendered HTML
                                     var renderedHtml = await webView.CoreWebView2.ExecuteScriptAsync("document.documentElement.outerHTML");
@@ -943,7 +972,7 @@ namespace FlairX_Mod_Manager.Services
                 });
 
                 // Wait for the result with timeout
-                var timeoutTask = Task.Delay(15000);
+                var timeoutTask = Task.Delay(30000);
                 var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
 
                 if (completedTask == timeoutTask)
@@ -992,7 +1021,50 @@ namespace FlairX_Mod_Manager.Services
 
 
         /// <summary>
-        /// Parse character categories from HTML
+        /// Parse categories from cattree HTML preserving parent/child hierarchy.
+        /// Level-1 nodes are top-level categories; level-2 nodes are their children.
+        /// Structure per node:
+        ///   &lt;li aria-label="Name" aria-level="1|2" ...&gt;
+        ///     ...&lt;img src="iconUrl"&gt;...&lt;a href=".../cats/ID"&gt;Name&lt;/a&gt;...
+        /// </summary>
+        private static List<CategoryRecord> ParseCategoryTreeFromHtml(string html)
+        {
+            var all = new List<CategoryRecord>();
+            try
+            {
+                // Each category entry is inside <div class="Cluster">
+                // Structure: <div class="Cluster"><img src="...ModCategory/..."><a href=".../cats/ID">Name</a>
+                var clusterPattern = @"<div class=""Cluster""><img src=""(https://images\.gamebanana\.com/img/ico/ModCategory/[^""]+)""[^>]*><a href=""https://gamebanana\.com/mods/cats/(\d+)""[^>]*>([^<]+)</a>";
+                var matches = System.Text.RegularExpressions.Regex.Matches(html, clusterPattern,
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+                Logger.LogInfo($"ParseCategoryTreeFromHtml: found {matches.Count} cluster entries");
+
+                foreach (System.Text.RegularExpressions.Match m in matches)
+                {
+                    var iconUrl = m.Groups[1].Value;
+                    if (!int.TryParse(m.Groups[2].Value, out var id)) continue;
+                    var name = System.Net.WebUtility.HtmlDecode(m.Groups[3].Value.Trim());
+
+                    all.Add(new CategoryRecord
+                    {
+                        Id = id,
+                        Name = name,
+                        IconUrl = iconUrl,
+                        ProfileUrl = $"https://gamebanana.com/mods/cats/{id}"
+                    });
+                    Logger.LogInfo($"Parsed: {name} (ID: {id})");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"ParseCategoryTreeFromHtml failed: {ex.Message}", ex);
+            }
+            return all;
+        }
+
+        /// <summary>
+        /// Parse character categories from HTML (legacy - old mods/cats page)
         /// </summary>
         private static List<CategoryRecord> ParseCharacterCategoriesFromHtml(string html)
         {

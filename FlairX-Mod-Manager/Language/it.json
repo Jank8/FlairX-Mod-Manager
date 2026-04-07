@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Segnala un bug o un suggerimento",
   "ForceUpdate": "Forza aggiornamento (scarica anche se la versione è aggiornata)",
   "ClearSettingsFolder": "Svuota cartella impostazioni",
-  "CropPanel_ChooseDifferentFile": "Scegli un altro file"
+  "CropPanel_ChooseDifferentFile": "Scegli un altro file",
+  "ContextMenu_DownloadThumbnail": "Scarica miniatura"
 }

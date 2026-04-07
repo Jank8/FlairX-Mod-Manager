@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Reportar bug ou sugestão",
   "ForceUpdate": "Forçar atualização (baixar mesmo que a versão esteja atual)",
   "ClearSettingsFolder": "Limpar pasta de configurações",
-  "CropPanel_ChooseDifferentFile": "Escolher outro arquivo"
+  "CropPanel_ChooseDifferentFile": "Escolher outro arquivo",
+  "ContextMenu_DownloadThumbnail": "Baixar miniatura"
 }

@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Mag-ulat ng bug o mungkahi",
   "ForceUpdate": "Pilitin ang update (i-download kahit kasalukuyang bersyon)",
   "ClearSettingsFolder": "Linisin ang folder ng mga setting",
-  "CropPanel_ChooseDifferentFile": "Pumili ng ibang file"
+  "CropPanel_ChooseDifferentFile": "Pumili ng ibang file",
+  "ContextMenu_DownloadThumbnail": "I-download ang thumbnail"
 }

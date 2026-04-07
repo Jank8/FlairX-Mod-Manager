@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Ilmoita virheestä tai ehdotuksesta",
   "ForceUpdate": "Pakota päivitys (lataa vaikka versio olisi ajan tasalla)",
   "ClearSettingsFolder": "Tyhjennä asetuskansio",
-  "CropPanel_ChooseDifferentFile": "Valitse eri tiedosto"
+  "CropPanel_ChooseDifferentFile": "Valitse eri tiedosto",
+  "ContextMenu_DownloadThumbnail": "Lataa esikatselukuva"
 }

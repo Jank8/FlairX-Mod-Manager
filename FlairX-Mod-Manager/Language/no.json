@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Rapporter feil eller forslag",
   "ForceUpdate": "Tving oppdatering (last ned selv om versjonen er gjeldende)",
   "ClearSettingsFolder": "Tøm innstillingsmappe",
-  "CropPanel_ChooseDifferentFile": "Velg en annen fil"
+  "CropPanel_ChooseDifferentFile": "Velg en annen fil",
+  "ContextMenu_DownloadThumbnail": "Last ned miniatyrbilde"
 }

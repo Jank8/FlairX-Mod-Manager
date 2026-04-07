@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Rapportera fel eller förslag",
   "ForceUpdate": "Tvinga uppdatering (ladda ner även om versionen är aktuell)",
   "ClearSettingsFolder": "Rensa inställningsmapp",
-  "CropPanel_ChooseDifferentFile": "Välj en annan fil"
+  "CropPanel_ChooseDifferentFile": "Välj en annan fil",
+  "ContextMenu_DownloadThumbnail": "Ladda ner miniatyrbild"
 }

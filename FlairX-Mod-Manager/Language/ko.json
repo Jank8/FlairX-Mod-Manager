@@ -360,5 +360,6 @@
   "ReportIssue_Button": "버그 또는 제안 보고",
   "ForceUpdate": "강제 업데이트 (최신 버전이어도 다운로드)",
   "ClearSettingsFolder": "설정 폴더 초기화",
-  "CropPanel_ChooseDifferentFile": "다른 파일 선택"
+  "CropPanel_ChooseDifferentFile": "다른 파일 선택",
+  "ContextMenu_DownloadThumbnail": "썸네일 다운로드"
 }

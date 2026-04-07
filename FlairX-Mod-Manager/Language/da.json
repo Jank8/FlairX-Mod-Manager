@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Rapporter fejl eller forslag",
   "ForceUpdate": "Gennemtving opdatering (download selvom versionen er aktuel)",
   "ClearSettingsFolder": "Ryd indstillingsmappe",
-  "CropPanel_ChooseDifferentFile": "Vælg en anden fil"
+  "CropPanel_ChooseDifferentFile": "Vælg en anden fil",
+  "ContextMenu_DownloadThumbnail": "Download miniature"
 }

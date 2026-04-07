@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Zgłoś błąd lub sugestię",
   "ForceUpdate": "Wymuś aktualizację (pobierz nawet jeśli wersja jest aktualna)",
   "ClearSettingsFolder": "Wyczyść folder ustawień",
-  "CropPanel_ChooseDifferentFile": "Wybierz inny plik"
+  "CropPanel_ChooseDifferentFile": "Wybierz inny plik",
+  "ContextMenu_DownloadThumbnail": "Pobierz miniaturę"
 }

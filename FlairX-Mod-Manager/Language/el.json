@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Αναφορά σφάλματος ή πρότασης",
   "ForceUpdate": "Εξαναγκασμός ενημέρωσης (λήψη ακόμα και αν η έκδοση είναι τρέχουσα)",
   "ClearSettingsFolder": "Εκκαθάριση φακέλου ρυθμίσεων",
-  "CropPanel_ChooseDifferentFile": "Επιλογή διαφορετικού αρχείου"
+  "CropPanel_ChooseDifferentFile": "Επιλογή διαφορετικού αρχείου",
+  "ContextMenu_DownloadThumbnail": "Λήψη μικρογραφίας"
 }

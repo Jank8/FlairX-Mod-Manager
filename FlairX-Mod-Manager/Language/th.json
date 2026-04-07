@@ -360,5 +360,6 @@
   "ReportIssue_Button": "รายงานข้อผิดพลาดหรือข้อเสนอแนะ",
   "ForceUpdate": "บังคับอัปเดต (ดาวน์โหลดแม้เวอร์ชันจะเป็นปัจจุบัน)",
   "ClearSettingsFolder": "ล้างโฟลเดอร์การตั้งค่า",
-  "CropPanel_ChooseDifferentFile": "เลือกไฟล์อื่น"
+  "CropPanel_ChooseDifferentFile": "เลือกไฟล์อื่น",
+  "ContextMenu_DownloadThumbnail": "ดาวน์โหลดภาพขนาดย่อ"
 }

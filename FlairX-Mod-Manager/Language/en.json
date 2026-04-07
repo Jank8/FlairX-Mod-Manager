@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Report a Bug or Suggestion",
   "ForceUpdate": "Force update (download even if version is current)",
   "ClearSettingsFolder": "Clear settings folder",
-  "CropPanel_ChooseDifferentFile": "Choose different file"
+  "CropPanel_ChooseDifferentFile": "Choose different file",
+  "ContextMenu_DownloadThumbnail": "Download Thumbnail"
 }

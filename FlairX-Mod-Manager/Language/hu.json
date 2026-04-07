@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Hiba vagy javaslat bejelentése",
   "ForceUpdate": "Frissítés kényszerítése (letöltés akkor is, ha a verzió aktuális)",
   "ClearSettingsFolder": "Beállítások mappa törlése",
-  "CropPanel_ChooseDifferentFile": "Másik fájl kiválasztása"
+  "CropPanel_ChooseDifferentFile": "Másik fájl kiválasztása",
+  "ContextMenu_DownloadThumbnail": "Bélyegkép letöltése"
 }

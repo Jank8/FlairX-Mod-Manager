@@ -360,5 +360,6 @@
   "ReportIssue_Button": "报告错误或建议",
   "ForceUpdate": "强制更新（即使版本已是最新也下载）",
   "ClearSettingsFolder": "清除设置文件夹",
-  "CropPanel_ChooseDifferentFile": "选择其他文件"
+  "CropPanel_ChooseDifferentFile": "选择其他文件",
+  "ContextMenu_DownloadThumbnail": "下载缩略图"
 }

@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Raportează o eroare sau sugestie",
   "ForceUpdate": "Forțează actualizarea (descarcă chiar dacă versiunea este curentă)",
   "ClearSettingsFolder": "Șterge folderul de setări",
-  "CropPanel_ChooseDifferentFile": "Alege alt fișier"
+  "CropPanel_ChooseDifferentFile": "Alege alt fișier",
+  "ContextMenu_DownloadThumbnail": "Descarcă miniatura"
 }

@@ -1085,7 +1085,19 @@ namespace FlairX_Mod_Manager
                 };
                 pinItem.Click += CategoryContextMenu_PinUnpin_Click;
                 menuFlyout.Items.Add(pinItem);
-                
+
+                // Download thumbnail
+                menuFlyout.Items.Add(new MenuFlyoutSeparator());
+
+                var downloadThumbItem = new MenuFlyoutItem
+                {
+                    Text = SharedUtilities.GetTranslation(lang, "ContextMenu_DownloadThumbnail") ?? "Download Thumbnail",
+                    Icon = new FontIcon { Glyph = "\uE8C9" },
+                    Tag = categoryName
+                };
+                downloadThumbItem.Click += CategoryContextMenu_DownloadThumbnail_Click;
+                menuFlyout.Items.Add(downloadThumbItem);
+
                 // Delete option (always show, will auto-unpin if needed)
                 menuFlyout.Items.Add(new MenuFlyoutSeparator());
                 
@@ -1358,6 +1370,181 @@ namespace FlairX_Mod_Manager
             }
         }
         
+        private async void CategoryContextMenu_DownloadThumbnail_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not MenuFlyoutItem item || item.Tag is not string categoryName) return;
+
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            var gameTag = SettingsManager.CurrentSelectedGame;
+
+            if (string.IsNullOrEmpty(gameTag))
+            {
+                Logger.LogWarning("No game selected, cannot download thumbnail");
+                return;
+            }
+
+            var loadingDialog = new ContentDialog
+            {
+                Title = SharedUtilities.GetTranslation(lang, "ContextMenu_DownloadThumbnail") ?? "Download Thumbnail",
+                Content = new ProgressRing { IsActive = true, Width = 40, Height = 40 },
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            _ = loadingDialog.ShowAsync();
+
+            List<Services.GameBananaService.CategoryRecord>? gbCategories = null;
+            try
+            {
+                gbCategories = await Services.GameBananaService.GetCharacterCategoriesAsync(gameTag);
+            }
+            finally
+            {
+                loadingDialog.Hide();
+            }
+
+            if (gbCategories == null || gbCategories.Count == 0)
+            {
+                var errDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
+                    Content = "Failed to fetch categories from GameBanana.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await errDialog.ShowAsync();
+                return;
+            }
+
+            var searchBox = new TextBox
+            {
+                PlaceholderText = SharedUtilities.GetTranslation(lang, "Search_Placeholder") ?? "Search...",
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+
+            var listView = new ListView
+            {
+                Height = 420,
+                SelectionMode = ListViewSelectionMode.Single
+            };
+
+            void PopulateList(string filter)
+            {
+                listView.Items.Clear();
+                var filtered = string.IsNullOrWhiteSpace(filter)
+                    ? gbCategories
+                    : gbCategories.Where(c => c.Name.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                foreach (var cat in filtered)
+                {
+                    var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Tag = cat };
+                    if (!string.IsNullOrEmpty(cat.IconUrl))
+                    {
+                        row.Children.Add(new Image
+                        {
+                            Width = 24, Height = 24,
+                            Stretch = Microsoft.UI.Xaml.Media.Stretch.Uniform,
+                            Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(cat.IconUrl))
+                        });
+                    }
+                    row.Children.Add(new TextBlock { Text = cat.Name, VerticalAlignment = VerticalAlignment.Center });
+                    listView.Items.Add(row);
+                }
+
+                for (int i = 0; i < listView.Items.Count; i++)
+                {
+                    if (listView.Items[i] is StackPanel p && p.Tag is Services.GameBananaService.CategoryRecord r &&
+                        r.Name.Equals(categoryName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        listView.SelectedIndex = i;
+                        listView.ScrollIntoView(listView.Items[i]);
+                        break;
+                    }
+                }
+            }
+
+            PopulateList("");
+            searchBox.TextChanged += (s, args) => PopulateList(searchBox.Text);
+
+            var dialogPanel = new StackPanel { Spacing = 4 };
+            dialogPanel.Children.Add(searchBox);
+            dialogPanel.Children.Add(listView);
+
+            var selectionDialog = new ContentDialog
+            {
+                Title = SharedUtilities.GetTranslation(lang, "ContextMenu_DownloadThumbnail") ?? "Download Thumbnail",
+                Content = dialogPanel,
+                PrimaryButtonText = SharedUtilities.GetTranslation(lang, "Confirm") ?? "Confirm",
+                CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.Content.XamlRoot
+            };
+
+            var result = await selectionDialog.ShowAsync();
+            if (result != ContentDialogResult.Primary) return;
+
+            if (listView.SelectedItem is not StackPanel selectedPanel ||
+                selectedPanel.Tag is not Services.GameBananaService.CategoryRecord selectedCat) return;
+
+            var iconUrl = selectedCat.GetIconUrl();
+            if (string.IsNullOrEmpty(iconUrl))
+            {
+                var errDialog2 = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
+                    Content = "No icon URL available for selected category.",
+                    CloseButtonText = "OK",
+                    XamlRoot = this.Content.XamlRoot
+                };
+                await errDialog2.ShowAsync();
+                return;
+            }
+
+            var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+            var categoryPath = System.IO.Path.Combine(modsPath, categoryName);
+
+            var success = await Services.GameBananaService.DownloadCategoryIconAsync(iconUrl, categoryPath);
+
+            var resultDialog = new ContentDialog
+            {
+                Title = SharedUtilities.GetTranslation(lang, success ? "Success_Title" : "Error_Title"),
+                Content = success
+                    ? string.Format("Downloaded icon for '{0}' from '{1}'.", categoryName, selectedCat.Name)
+                    : "Failed to download icon.",
+                CloseButtonText = "OK",
+                XamlRoot = this.Content.XamlRoot
+            };
+            await resultDialog.ShowAsync();
+
+            if (success)
+            {
+                await RefreshCategoryIconInMenuAsync(categoryName);
+                if (contentFrame.Content is Pages.ModGridPage modGridPage &&
+                    modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
+                    modGridPage.LoadCategories();
+            }
+        }
+
+        private async Task RefreshCategoryIconInMenuAsync(string categoryName)
+        {
+            try
+            {
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                var menuItem = nvSample.MenuItems
+                    .OfType<NavigationViewItem>()
+                    .FirstOrDefault(i => i.Tag?.ToString() == $"Category_{categoryName}");
+
+                if (menuItem == null) return;
+
+                var newIcon = await CreateCategoryIconAsync(categoryName, modsPath);
+                menuItem.Icon = newIcon;
+                Logger.LogInfo($"Refreshed nav icon for category: {categoryName}");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to refresh category icon for {categoryName}", ex);
+            }
+        }
+
         private void SortMenuItemsByFavorites()
         {
             try

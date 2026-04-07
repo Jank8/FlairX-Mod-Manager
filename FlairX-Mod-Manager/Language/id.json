@@ -360,5 +360,6 @@
   "ReportIssue_Button": "Laporkan bug atau saran",
   "ForceUpdate": "Paksa pembaruan (unduh meskipun versi sudah terkini)",
   "ClearSettingsFolder": "Hapus folder pengaturan",
-  "CropPanel_ChooseDifferentFile": "Pilih file lain"
+  "CropPanel_ChooseDifferentFile": "Pilih file lain",
+  "ContextMenu_DownloadThumbnail": "Unduh thumbnail"
 }
