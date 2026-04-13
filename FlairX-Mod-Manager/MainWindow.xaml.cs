@@ -914,6 +914,9 @@ namespace FlairX_Mod_Manager
             }
         }
 
+        public List<(string Name, string Hotkey)> GetRegisteredHotkeyInfo()
+            => _globalHotkeyManager?.GetRegisteredHotkeyInfo() ?? new();
+
         // Enhanced InfoBar methods for better user feedback
         public void ShowInfoBar(string title, string message, Microsoft.UI.Xaml.Controls.InfoBarSeverity severity = Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational, int autoCloseDelayMs = 6000)
         {

@@ -359,6 +359,10 @@ namespace FlairX_Mod_Manager
                     // Add overlay to tracking list
                     _openPanelOverlays.Add(overlay);
                     
+                    // Disable game selection while any panel is open
+                    if (GameSelectionComboBox != null)
+                        GameSelectionComboBox.IsEnabled = false;
+                    
                     parentGrid.Children.Add(overlay);
 
                     // Track GameBanana browser for reload on close
@@ -369,6 +373,10 @@ namespace FlairX_Mod_Manager
                     {
                         // Remove from tracking list
                         _openPanelOverlays.Remove(overlay);
+
+                        // Re-enable game selection if no more panels are open
+                        if (_openPanelOverlays.Count == 0 && GameSelectionComboBox != null)
+                            GameSelectionComboBox.IsEnabled = true;
                         
                         // Create slide-out animation
                         var duration = new Duration(TimeSpan.FromMilliseconds(250));
@@ -514,6 +522,10 @@ namespace FlairX_Mod_Manager
                     
                     // Clear the tracking list
                     _openPanelOverlays.Clear();
+
+                    // Re-enable game selection
+                    if (GameSelectionComboBox != null)
+                        GameSelectionComboBox.IsEnabled = true;
                     
                     // Close all panels with animation
                     var closeTasks = new List<Task>();

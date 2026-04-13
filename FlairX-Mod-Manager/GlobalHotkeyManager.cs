@@ -99,6 +99,39 @@ namespace FlairX_Mod_Manager
         private readonly HashSet<int> _registeredHotkeys;
         private bool _disposed = false;
 
+        private static readonly Dictionary<int, string> _hotkeyNames = new()
+        {
+            { HOTKEY_RELOAD_MANAGER,      "Reload Manager" },
+            { HOTKEY_SHUFFLE_ACTIVE_MODS, "Shuffle Active Mods" },
+            { HOTKEY_DEACTIVATE_ALL_MODS, "Deactivate All Mods" },
+            { HOTKEY_TOGGLE_OVERLAY,      "Toggle Overlay" },
+            { HOTKEY_FILTER_ACTIVE,       "Filter Active (Overlay)" },
+            { HOTKEY_DEV_TOOLS,           "Developer Tools" },
+        };
+
+        /// <summary>Returns list of (name, hotkeyString) for all registered hotkeys</summary>
+        public List<(string Name, string Hotkey)> GetRegisteredHotkeyInfo()
+        {
+            var settings = SettingsManager.Current;
+            var result = new List<(string, string)>();
+            foreach (var id in _registeredHotkeys)
+            {
+                var name = _hotkeyNames.TryGetValue(id, out var n) ? n : $"ID {id}";
+                var hotkey = id switch
+                {
+                    HOTKEY_RELOAD_MANAGER      => settings.ReloadManagerHotkey,
+                    HOTKEY_SHUFFLE_ACTIVE_MODS => settings.ShuffleActiveModsHotkey,
+                    HOTKEY_DEACTIVATE_ALL_MODS => settings.DeactivateAllModsHotkey,
+                    HOTKEY_TOGGLE_OVERLAY      => settings.ToggleOverlayHotkey,
+                    HOTKEY_FILTER_ACTIVE       => settings.FilterActiveHotkey,
+                    HOTKEY_DEV_TOOLS           => "Ctrl+Alt+Shift+H",
+                    _                          => "?"
+                };
+                result.Add((name, hotkey ?? "?"));
+            }
+            return result;
+        }
+
         public GlobalHotkeyManager(MainWindow mainWindow)
         {
             Logger.LogInfo("GlobalHotkeyManager: Constructor starting");

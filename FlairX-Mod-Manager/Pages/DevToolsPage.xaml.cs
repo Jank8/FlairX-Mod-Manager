@@ -31,7 +31,36 @@ namespace FlairX_Mod_Manager.Pages
                 var memMB = GC.GetTotalMemory(false) / (1024 * 1024);
                 DiagMemory.Text = $"{memMB} MB";
 
-                DiagModsPath.Text = SettingsManager.GetCurrentXXMIModsDirectory() ?? "Not set";
+                // Paths
+                var baseDir = System.IO.Path.GetFullPath(AppContext.BaseDirectory);
+                PathAppDir.Text = baseDir;
+                PathSettings.Text = System.IO.Path.GetFullPath(PathManager.GetSettingsPath(""));
+                PathMods.Text = SettingsManager.GetCurrentXXMIModsDirectory() ?? "Not set";
+                PathLog.Text = System.IO.Path.GetFullPath(
+                    System.IO.Path.Combine(AppContext.BaseDirectory, "Settings", AppConstants.APPLICATION_LOG_FILE));
+                PathLanguage.Text = System.IO.Path.GetFullPath(
+                    System.IO.Path.Combine(AppContext.BaseDirectory, AppConstants.LANGUAGE_FOLDER));
+
+                // Hotkeys
+                HotkeysList.Children.Clear();
+                if (App.Current is App app && app.MainWindow is MainWindow mw)
+                {
+                    var hotkeys = mw.GetRegisteredHotkeyInfo();
+                    if (hotkeys.Count == 0)
+                    {
+                        HotkeysList.Children.Add(new TextBlock { Text = "No hotkeys registered", Opacity = 0.5 });
+                    }
+                    else
+                    {
+                        foreach (var (name, hotkey) in hotkeys)
+                        {
+                            var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 12 };
+                            row.Children.Add(new TextBlock { Text = name, Width = 200, Opacity = 0.7 });
+                            row.Children.Add(new TextBlock { Text = hotkey, FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas"), FontWeight = Microsoft.UI.Text.FontWeights.SemiBold });
+                            HotkeysList.Children.Add(row);
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -62,6 +91,44 @@ namespace FlairX_Mod_Manager.Pages
             RefreshDiagnostics();
             if (App.Current is App app && app.MainWindow is MainWindow mw)
                 mw.ShowSuccessInfo("Mod lists rebuilt");
+        }
+
+        private void OpenAppDir_Click(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("explorer.exe", System.IO.Path.GetFullPath(AppContext.BaseDirectory));
+        }
+
+        private void OpenSettingsDir_Click(object sender, RoutedEventArgs e)
+        {
+            var path = System.IO.Path.GetFullPath(System.IO.Path.Combine(AppContext.BaseDirectory, "Settings"));
+            if (System.IO.Directory.Exists(path))
+                System.Diagnostics.Process.Start("explorer.exe", path);
+        }
+
+        private void OpenModsDir_Click(object sender, RoutedEventArgs e)
+        {
+            var path = SettingsManager.GetCurrentXXMIModsDirectory();
+            if (!string.IsNullOrEmpty(path) && System.IO.Directory.Exists(path))
+                System.Diagnostics.Process.Start("explorer.exe", path);
+        }
+
+        private void SendF10_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.Current is App app && app.MainWindow is MainWindow mw)
+            {
+                mw.SendF10KeyPress();
+                mw.ShowSuccessInfo("F10 sent");
+            }
+        }
+
+        private void ForceGC_Click(object sender, RoutedEventArgs e)
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            RefreshDiagnostics();
+            if (App.Current is App app && app.MainWindow is MainWindow mw)
+                mw.ShowSuccessInfo("Garbage Collection completed");
         }
 
         private void DevTestSuccess_Click(object sender, RoutedEventArgs e)
