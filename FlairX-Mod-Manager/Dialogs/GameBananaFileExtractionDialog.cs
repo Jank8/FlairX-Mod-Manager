@@ -746,6 +746,16 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Close dialog - optimization will run in background after dialog closes
                 Hide();
                 Logger.LogInfo($"[DIALOG] Dialog closed");
+
+                // Show success InfoBar now that dialog is closed
+                if (!string.IsNullOrEmpty(_installedModPath))
+                {
+                    var modName = Path.GetFileName(_installedModPath);
+                    if (modName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
+                        modName = modName.Substring(9);
+                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                        mainWindow.ShowSuccessInfo(modName, 4000);
+                }
                 
                 // Run optimization AFTER dialog closes (on UI thread for crop panel support)
                 if (_downloadPreviews && !string.IsNullOrEmpty(_installedModPath))

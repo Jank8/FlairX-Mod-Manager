@@ -2212,20 +2212,6 @@ namespace FlairX_Mod_Manager.Pages
         {
             // Track that a mod was installed
             _modWasInstalled = true;
-
-            // Show success notification after dialog closes
-            if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
-            {
-                var modName = Path.GetFileName(e.ModPath ?? "");
-                if (modName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
-                    modName = modName.Substring(9);
-                var capturedName = modName;
-                mainWindow.DispatcherQueue.TryEnqueue(async () =>
-                {
-                    await System.Threading.Tasks.Task.Delay(500);
-                    mainWindow.ShowSuccessInfo(capturedName, 3000);
-                });
-            }
             
             // Find the mod in the list and update IsInstalled
             DispatcherQueue.TryEnqueue(() =>
