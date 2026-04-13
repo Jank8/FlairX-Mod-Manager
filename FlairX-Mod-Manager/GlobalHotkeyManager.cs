@@ -91,6 +91,7 @@ namespace FlairX_Mod_Manager
         private const int HOTKEY_DEACTIVATE_ALL_MODS = 4;
         private const int HOTKEY_TOGGLE_OVERLAY = 5;
         private const int HOTKEY_FILTER_ACTIVE = 6;
+        private const int HOTKEY_DEV_TOOLS = 7;
 
         private readonly IntPtr _windowHandle;
         private readonly MainWindow _mainWindow;
@@ -144,6 +145,13 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo("Global hotkey: Filter active mods triggered");
                 await Task.CompletedTask;
                 _mainWindow.DispatcherQueue.TryEnqueue(() => _mainWindow.ToggleOverlayActiveFilter());
+            };
+
+            _hotkeyActions[HOTKEY_DEV_TOOLS] = async () =>
+            {
+                Logger.LogInfo("Global hotkey: Dev tools triggered");
+                await Task.CompletedTask;
+                _mainWindow.DispatcherQueue.TryEnqueue(() => _mainWindow.ToggleDevToolsSection());
             };
         }
 
@@ -208,6 +216,9 @@ namespace FlairX_Mod_Manager
                 }
 
                 Logger.LogInfo($"RegisterAllHotkeys: Completed - registered {_registeredHotkeys.Count} global hotkeys");
+
+                // Always register dev tools hotkey (Ctrl+Alt+Shift+H) regardless of settings
+                RegisterHotkey(HOTKEY_DEV_TOOLS, "Ctrl+Alt+Shift+H");
             }
             catch (Exception ex)
             {

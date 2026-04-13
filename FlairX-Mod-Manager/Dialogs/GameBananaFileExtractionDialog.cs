@@ -747,22 +747,25 @@ namespace FlairX_Mod_Manager.Dialogs
                 Hide();
                 Logger.LogInfo($"[DIALOG] Dialog closed");
 
-                // Show success InfoBar now that dialog is closed
-                if (!string.IsNullOrEmpty(_installedModPath))
-                {
-                    var modName = Path.GetFileName(_installedModPath);
-                    if (modName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
-                        modName = modName.Substring(9);
-                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
-                        mainWindow.ShowSuccessInfo(modName, 4000);
-                }
-                
                 // Run optimization AFTER dialog closes (on UI thread for crop panel support)
                 if (_downloadPreviews && !string.IsNullOrEmpty(_installedModPath))
                 {
                     Logger.LogInfo($"[DIALOG] Starting OptimizeDownloadedPreviewsAsync for: {_installedModPath}");
                     // Don't use Task.Run - we need to stay on UI thread for crop panel
-                    _ = OptimizeDownloadedPreviewsAsync(_installedModPath);
+                    _ = OptimizeDownloadedPreviewsAsync(_installedModPath, showSuccessInfoBar: true);
+                }
+                else
+                {
+                    // No previews to download - show InfoBar after dialog animation
+                    if (!string.IsNullOrEmpty(_installedModPath))
+                    {
+                        var installedModName = Path.GetFileName(_installedModPath);
+                        if (installedModName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
+                            installedModName = installedModName.Substring(9);
+                        await Task.Delay(300);
+                        if (App.Current is App app2 && app2.MainWindow is MainWindow mw2)
+                            mw2.ShowSuccessInfo(installedModName);
+                    }
                 }
             }
             catch (OperationCanceledException)
@@ -1961,7 +1964,7 @@ namespace FlairX_Mod_Manager.Dialogs
             return reserved.Contains(nameWithoutExt);
         }
 
-        private async Task OptimizeDownloadedPreviewsAsync(string modPath)
+        private async Task OptimizeDownloadedPreviewsAsync(string modPath, bool showSuccessInfoBar = false)
         {
             try
             {
@@ -1984,6 +1987,16 @@ namespace FlairX_Mod_Manager.Dialogs
                 await Services.ImageOptimizationService.ProcessModPreviewImagesAsync(modPath, context);
                 
                 Logger.LogInfo($"Completed preview optimization for: {modPath}");
+
+                // Show success InfoBar after optimization completes
+                if (showSuccessInfoBar)
+                {
+                    var installedModName = Path.GetFileName(modPath);
+                    if (installedModName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
+                        installedModName = installedModName.Substring(9);
+                    if (App.Current is App app && app.MainWindow is MainWindow mw)
+                        mw.ShowSuccessInfo(installedModName);
+                }
                 
                 // Refresh the mod tile in UI after optimization
                 RefreshModTileInUI(modPath);

@@ -830,6 +830,8 @@ namespace FlairX_Mod_Manager.Services
         // Cache for category trees per game tag
         private static readonly Dictionary<string, List<CategoryRecord>> _categoryTreeCache = new();
 
+        public static void ClearCategoryTreeCache() => _categoryTreeCache.Clear();
+
         public static async Task<List<CategoryRecord>?> GetCharacterCategoriesAsync(string gameTag)
         {
             // Return cached result if available

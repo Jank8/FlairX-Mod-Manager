@@ -84,7 +84,18 @@
                             <FontIcon Glyph="&#xE7B3;"/>
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
+                    <NavigationViewItem x:Name="DevToolsNavItem"
+                                        Content="Developer"
+                                        Tag="DevTools"
+                                        Visibility="Collapsed">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xEBE8;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
                 </NavigationView.MenuItems>
+
+                <NavigationView.FooterMenuItems>
+                </NavigationView.FooterMenuItems>
                 
                 <!-- Frame for tab content -->
                 <Grid x:Name="SettingsContentGrid" VerticalAlignment="Stretch">

@@ -3130,12 +3130,17 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (tag == "GeneralSettings")
                 {
-                    // Show general settings content
                     GeneralSettingsScrollViewer.Visibility = Visibility.Visible;
                     FunctionContentFrame.Visibility = Visibility.Collapsed;
-                    
-                    // Animate general settings content
                     AnimateContentFadeIn(GeneralSettingsScrollViewer);
+                }
+                else if (tag == "DevTools")
+                {
+                    GeneralSettingsScrollViewer.Visibility = Visibility.Collapsed;
+                    FunctionContentFrame.Visibility = Visibility.Visible;
+                    var navInfo = new Microsoft.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo();
+                    FunctionContentFrame.Navigate(typeof(DevToolsPage), null, navInfo);
+                    AnimateContentFadeIn(FunctionContentFrame);
                 }
                 else
                 {
@@ -3211,6 +3216,20 @@ namespace FlairX_Mod_Manager.Pages
         }
         
         #endregion
+
+        #endregion
+
+        public void ToggleDevTools()
+        {
+            var isVisible = DevToolsNavItem.Visibility == Visibility.Visible;
+            DevToolsNavItem.Visibility = isVisible ? Visibility.Collapsed : Visibility.Visible;
+            if (!isVisible)
+                SettingsNavigationView.SelectedItem = DevToolsNavItem;
+        }
+
+        public bool IsDevToolsVisible => DevToolsNavItem.Visibility == Visibility.Visible;
+
+        #region Developer Tools
 
         #endregion
     }

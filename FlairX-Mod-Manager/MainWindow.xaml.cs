@@ -915,41 +915,41 @@ namespace FlairX_Mod_Manager
         }
 
         // Enhanced InfoBar methods for better user feedback
-        public void ShowInfoBar(string title, string message, Microsoft.UI.Xaml.Controls.InfoBarSeverity severity = Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational, int autoCloseDelayMs = 0)
+        public void ShowInfoBar(string title, string message, Microsoft.UI.Xaml.Controls.InfoBarSeverity severity = Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational, int autoCloseDelayMs = 6000)
         {
-            Logger.LogInfo($"Showing InfoBar: {severity} - {title}: {message}");
-            
-            if (MainInfoBar != null)
+            Logger.LogInfo($"Showing notification: {severity} - {title}: {message}");
+
+            if (MainNotificationPopup != null)
             {
-                MainInfoBar.Title = title;
-                MainInfoBar.Message = message;
-                MainInfoBar.Severity = severity;
-                MainInfoBar.IsOpen = true;
-                
-                // Auto-close after delay if specified
-                if (autoCloseDelayMs > 0)
+                MainNotificationPopup.AttachToWindow(this);
+                var popupSeverity = severity switch
                 {
-                    var timer = new System.Threading.Timer(_ => 
-                    {
-                        DispatcherQueue.TryEnqueue(() => MainInfoBar.IsOpen = false);
-                    }, null, autoCloseDelayMs, System.Threading.Timeout.Infinite);
-                }
+                    Microsoft.UI.Xaml.Controls.InfoBarSeverity.Success => Controls.NotificationSeverity.Success,
+                    Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning => Controls.NotificationSeverity.Warning,
+                    Microsoft.UI.Xaml.Controls.InfoBarSeverity.Error   => Controls.NotificationSeverity.Error,
+                    _                                                   => Controls.NotificationSeverity.Info
+                };
+                // Show message (prepend title if non-empty and different from message)
+                var displayMessage = !string.IsNullOrEmpty(title) && title != "Success" && title != "Warning" && title != "Error" && title != "Info"
+                    ? $"{title}: {message}"
+                    : message;
+                MainNotificationPopup.Show(displayMessage, popupSeverity, autoCloseDelayMs);
             }
         }
 
-        public void ShowSuccessInfo(string message, int autoCloseDelayMs = 3000)
+        public void ShowSuccessInfo(string message, int autoCloseDelayMs = 6000)
         {
-            ShowInfoBar("Success", message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Success, autoCloseDelayMs);
+            ShowInfoBar("", message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Success, autoCloseDelayMs);
         }
 
-        public void ShowWarningInfo(string message, int autoCloseDelayMs = 10000)
+        public void ShowWarningInfo(string message, int autoCloseDelayMs = 12000)
         {
-            ShowInfoBar("Warning", message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning, autoCloseDelayMs);
+            ShowInfoBar("", message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning, autoCloseDelayMs);
         }
 
         public void ShowErrorInfo(string message, int autoCloseDelayMs = 0)
         {
-            ShowInfoBar("Error", message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Error, autoCloseDelayMs);
+            ShowInfoBar("", message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Error, autoCloseDelayMs);
         }
 
 

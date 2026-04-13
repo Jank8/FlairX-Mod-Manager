@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="FlairX_Mod_Manager.Pages.DevToolsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="16" Margin="0,8,24,24">
+
+            <TextBlock Text="Developer Tools" FontSize="20" FontWeight="Bold" Margin="0,0,0,4"/>
+
+            <!-- Diagnostics -->
+            <TextBlock Text="Diagnostics" FontSize="14" FontWeight="SemiBold" Opacity="0.7"/>
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="16,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" Spacing="6">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="App version:" Opacity="0.6" Width="140"/>
+                            <TextBlock x:Name="DiagVersion" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Selected game:" Opacity="0.6" Width="140"/>
+                            <TextBlock x:Name="DiagGame" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Total mods:" Opacity="0.6" Width="140"/>
+                            <TextBlock x:Name="DiagModCount" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Active mods:" Opacity="0.6" Width="140"/>
+                            <TextBlock x:Name="DiagActiveCount" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="6">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Image cache:" Opacity="0.6" Width="140"/>
+                            <TextBlock x:Name="DiagImageCache" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="RAM cache:" Opacity="0.6" Width="140"/>
+                            <TextBlock x:Name="DiagRamCache" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Memory usage:" Opacity="0.6" Width="140"/>
+                            <TextBlock x:Name="DiagMemory" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Mods path:" Opacity="0.6" Width="140"/>
+                            <TextBlock x:Name="DiagModsPath" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" MaxWidth="300"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+            <Button Click="RefreshDiag_Click">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <FontIcon Glyph="&#xE72C;" FontSize="14"/>
+                    <TextBlock Text="Refresh"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Cache & Data -->
+            <TextBlock Text="Cache &amp; Data" FontSize="14" FontWeight="SemiBold" Opacity="0.7" Margin="0,8,0,0"/>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Click="ClearImageCache_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                        <TextBlock Text="Clear image cache"/>
+                    </StackPanel>
+                </Button>
+                <Button Click="ClearCategoryCache_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                        <TextBlock Text="Clear category tree cache"/>
+                    </StackPanel>
+                </Button>
+                <Button Click="RebuildModLists_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE8FD;" FontSize="14"/>
+                        <TextBlock Text="Rebuild mod lists"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <!-- Notification Test -->
+            <TextBlock Text="Notification Test" FontSize="14" FontWeight="SemiBold" Opacity="0.7" Margin="0,8,0,0"/>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Click="DevTestSuccess_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE73E;" FontSize="14" Foreground="#4CAF50"/>
+                        <TextBlock Text="Success"/>
+                    </StackPanel>
+                </Button>
+                <Button Click="DevTestWarning_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE7BA;" FontSize="14" Foreground="#FFC107"/>
+                        <TextBlock Text="Warning"/>
+                    </StackPanel>
+                </Button>
+                <Button Click="DevTestError_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xEA39;" FontSize="14" Foreground="#F44336"/>
+                        <TextBlock Text="Error"/>
+                    </StackPanel>
+                </Button>
+                <Button Click="DevTestInfo_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE946;" FontSize="14" Foreground="#2196F3"/>
+                        <TextBlock Text="Info"/>
+                    </StackPanel>
+                </Button>
+                <Button Click="DevTestLong_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE8A4;" FontSize="14"/>
+                        <TextBlock Text="Long text"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

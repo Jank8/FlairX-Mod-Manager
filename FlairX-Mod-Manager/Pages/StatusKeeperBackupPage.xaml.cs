@@ -192,7 +192,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Message in 3 lines
                 var message = string.Format(SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Dialog_Message"), newBackups, afterBackup).Replace("\\n", "\n");
                 if (App.Current is App appB && appB.MainWindow is MainWindow mwB)
-                    mwB.ShowSuccessInfo(message, 5000);
+                    mwB.ShowSuccessInfo(message);
 
                 Logger.LogInfo($"Backup complete! Created {backupCount} .msk files, skipped {skipCount} existing/disabled files");
             }
@@ -244,7 +244,7 @@ namespace FlairX_Mod_Manager.Pages
 
                 var message = string.Format(SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Dialog_Message"), restoreCount, skipCount);
                 if (App.Current is App appR && appR.MainWindow is MainWindow mwR)
-                    mwR.ShowSuccessInfo(message, 5000);
+                    mwR.ShowSuccessInfo(message);
 
                 Logger.LogInfo($"Restore complete! Restored {restoreCount} files, failed {skipCount} files");
             }
@@ -295,7 +295,7 @@ namespace FlairX_Mod_Manager.Pages
 
                 var message = string.Format(SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Dialog_Message"), deleteCount);
                 if (App.Current is App appD && appD.MainWindow is MainWindow mwD)
-                    mwD.ShowSuccessInfo(message, 5000);
+                    mwD.ShowSuccessInfo(message);
 
                 Logger.LogInfo($"Deletion complete! Deleted {deleteCount} backup files");
             }

@@ -667,6 +667,39 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
+        /// Toggle developer tools section in settings (Ctrl+Alt+Shift+H)
+        /// </summary>
+        public void ToggleDevToolsSection()
+        {
+            try
+            {
+                // Find open settings panel
+                var settingsPanel = _openPanelOverlays
+                    .SelectMany(o => FindUserControlsInOverlay<Pages.SettingsUserControl>(o))
+                    .FirstOrDefault();
+
+                if (settingsPanel != null)
+                {
+                    var wasVisible = settingsPanel.IsDevToolsVisible;
+                    settingsPanel.ToggleDevTools();
+
+                    if (!wasVisible)
+                        ShowSuccessInfo("Developer tools unlocked");
+
+                    Logger.LogInfo($"Dev tools section toggled: {!wasVisible}");
+                }
+                else
+                {
+                    Logger.LogInfo("ToggleDevToolsSection: Settings panel not open");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error toggling dev tools section", ex);
+            }
+        }
+
+        /// <summary>
         /// Handle mod toggle request from overlay
         /// </summary>
         private void OnOverlayModToggleRequested(string modPath)

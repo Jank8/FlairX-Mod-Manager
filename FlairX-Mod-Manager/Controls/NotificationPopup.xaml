@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="FlairX_Mod_Manager.Controls.NotificationPopup"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Popup x:Name="PopupRoot"
+           HorizontalOffset="0"
+           VerticalOffset="0">
+        <Border x:Name="PopupBorder"
+                Background="{ThemeResource LauncherAcrylicBrush}"
+                CornerRadius="10"
+                Padding="14,10"
+                MinWidth="200"
+                MaxWidth="480"
+                BorderThickness="1"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+            <Border.Shadow>
+                <ThemeShadow/>
+            </Border.Shadow>
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <!-- Colored icon -->
+                <FontIcon x:Name="SeverityIcon"
+                          Grid.Column="0"
+                          Glyph="&#xE73E;"
+                          FontSize="16"
+                          VerticalAlignment="Center"
+                          Margin="0,0,12,0"/>
+                <!-- Vertical separator - stretches to full row height -->
+                <Rectangle Grid.Column="1"
+                           Width="1"
+                           VerticalAlignment="Stretch"
+                           Margin="0,2,12,2"
+                           Opacity="0.3"
+                           Fill="{ThemeResource TextFillColorPrimaryBrush}"/>
+                <!-- Message -->
+                <TextBlock x:Name="MessageText"
+                           Grid.Column="2"
+                           FontSize="14"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           TextWrapping="Wrap"
+                           MaxWidth="340"/>
+                <!-- Close button -->
+                <Button x:Name="CloseButton"
+                        Grid.Column="3"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="4"
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center"
+                        Click="CloseButton_Click">
+                    <FontIcon Glyph="&#xE711;" FontSize="12" Opacity="0.6"/>
+                </Button>
+            </Grid>
+        </Border>
+    </Popup>
+</UserControl>

@@ -257,7 +257,7 @@ namespace FlairX_Mod_Manager
                 // Show success notification using new InfoBar
                 if (_window is MainWindow mainWindow)
                 {
-                    mainWindow.ShowSuccessInfo("FlairX Mod Manager loaded successfully", 2000);
+                    mainWindow.ShowSuccessInfo("FlairX Mod Manager loaded successfully");
                 }
             }
             catch (Exception ex)
