@@ -924,14 +924,7 @@ namespace FlairX_Mod_Manager
             }
             catch (Exception ex)
             {
-                var dialog = new ContentDialog
-                {
-                    Title = "Error",
-                    Content = ex.Message,
-                    CloseButtonText = "OK",
-                    XamlRoot = this.Content.XamlRoot
-                };
-                _ = dialog.ShowAsync();
+                ShowErrorInfo(ex.Message);
             }
         }
 

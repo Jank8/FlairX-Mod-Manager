@@ -500,56 +500,31 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     await Services.ImageOptimizationService.OptimizeAllPreviewsAsync();
                     
-                    // Show success dialog on UI thread
+                    // Show success notification and reload mods
                     DispatcherQueue.TryEnqueue(async () =>
                     {
-                        var successDialog = new ContentDialog
-                        {
-                            Title = SharedUtilities.GetTranslation(lang, "Success_Title"),
-                            Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"),
-                            CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                            XamlRoot = this.XamlRoot
-                        };
-                        await successDialog.ShowAsync();
-                        
-                        // Reload mods to refresh thumbnails after user closes dialog
                         if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                         {
+                            mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"), 4000);
                             await mainWindow.ReloadModsAsync();
                         }
                     });
                 }
                 catch (OperationCanceledException)
                 {
-                    // Show cancelled dialog on UI thread - use main language dictionary for common keys
-                    DispatcherQueue.TryEnqueue(async () =>
+                    DispatcherQueue.TryEnqueue(() =>
                     {
-                        var mainLang = SharedUtilities.LoadLanguageDictionary();
-                        var cancelDialog = new ContentDialog
-                        {
-                            Title = SharedUtilities.GetTranslation(mainLang, "Cancelled_Title"),
-                            Content = SharedUtilities.GetTranslation(lang, "OptimizePreviews_Cancelled"),
-                            CloseButtonText = SharedUtilities.GetTranslation(mainLang, "OK"),
-                            XamlRoot = this.XamlRoot
-                        };
-                        await cancelDialog.ShowAsync();
+                        if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                            mainWindow.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Cancelled"));
                     });
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError("Error during image optimization", ex);
-                    
-                    // Show error dialog on UI thread
-                    DispatcherQueue.TryEnqueue(async () =>
+                    DispatcherQueue.TryEnqueue(() =>
                     {
-                        var errorDialog = new ContentDialog
-                        {
-                            Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
-                            Content = ex.Message,
-                            CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                            XamlRoot = this.XamlRoot
-                        };
-                        await errorDialog.ShowAsync();
+                        if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                            mainWindow.ShowErrorInfo(ex.Message);
                     });
                 }
             });

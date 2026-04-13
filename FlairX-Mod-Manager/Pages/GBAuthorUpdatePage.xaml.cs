@@ -549,14 +549,7 @@ namespace FlairX_Mod_Manager.Pages
                 _ctsUpdate?.Cancel();
                 _isFetchingVersions = false;
                 ResetUpdateButtonToFetchState();
-                var cancelDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await cancelDialog.ShowAsync();
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "CancelledContent"));
                 return;
             }
 
@@ -619,14 +612,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (token.IsCancellationRequested)
                 {
                     ResetUpdateButtonToFetchState();
-                    var cancelDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                        Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await cancelDialog.ShowAsync();
+                    if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "CancelledContent"));
                     return;
                 }
 
@@ -725,14 +711,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 ResetUpdateButtonToFetchState();
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
-                    Content = ex.Message,
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
             }
         }
 
@@ -778,14 +757,7 @@ namespace FlairX_Mod_Manager.Pages
                 _ctsAllPreviews?.Cancel();
                 _isFetchingAllPreviews = false;
                 ResetAllPreviewsButtonToFetchState();
-                var cancelDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await cancelDialog.ShowAsync();
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "CancelledContent"));
                 return;
             }
 
@@ -857,14 +829,7 @@ namespace FlairX_Mod_Manager.Pages
                 _ctsMissingPreviews?.Cancel();
                 _isFetchingMissingPreviews = false;
                 ResetMissingPreviewsButtonToFetchState();
-                var cancelDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await cancelDialog.ShowAsync();
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "CancelledContent"));
                 return;
             }
 
@@ -1183,14 +1148,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     
                     // Show cancellation dialog
-                    var cancelDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                        Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await cancelDialog.ShowAsync();
+                    if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "CancelledContent"));
                     return;
                 }
 
@@ -1263,26 +1221,12 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Show cancellation dialog
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                var cancelDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await cancelDialog.ShowAsync();
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "CancelledContent"));
             }
             catch (Exception ex)
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
-                    Content = ex.Message,
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
             }
         }
 
@@ -1409,14 +1353,7 @@ namespace FlairX_Mod_Manager.Pages
                 _ctsCategoryFolders?.Cancel();
                 _isCreatingCategoryFolders = false;
                 ResetCategoryFoldersButtonToCreateState();
-                var cancelDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await cancelDialog.ShowAsync();
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "CancelledContent"));
                 return;
             }
 
@@ -1424,14 +1361,7 @@ namespace FlairX_Mod_Manager.Pages
             var gameTag = SettingsManager.CurrentSelectedGame;
             if (string.IsNullOrEmpty(gameTag))
             {
-                var errorDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "NoGameSelected"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await errorDialog.ShowAsync();
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(SharedUtilities.GetTranslation(lang, "NoGameSelected"));
                 return;
             }
 
@@ -1439,14 +1369,7 @@ namespace FlairX_Mod_Manager.Pages
             var categoryId = Services.GameBananaService.GetCharacterCategoryId(gameTag);
             if (categoryId == 0)
             {
-                var errorDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
-                    Content = string.Format(SharedUtilities.GetTranslation(lang, "CategoryNotSupported"), gameTag),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await errorDialog.ShowAsync();
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(string.Format(SharedUtilities.GetTranslation(lang, "CategoryNotSupported"), gameTag));
                 return;
             }
 
@@ -1497,14 +1420,7 @@ namespace FlairX_Mod_Manager.Pages
                 var categories = await Services.GameBananaService.GetCharacterCategoriesAsync(gameTag);
                 if (categories == null || categories.Count == 0)
                 {
-                    var errorDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
-                        Content = SharedUtilities.GetTranslation(lang, "FailedToFetchCategories"),
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
+                    if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(SharedUtilities.GetTranslation(lang, "FailedToFetchCategories"));
                     return;
                 }
 
@@ -1569,14 +1485,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (token.IsCancellationRequested)
                 {
                     ResetCategoryFoldersButtonToCreateState();
-                    var cancelDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                        Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await cancelDialog.ShowAsync();
+                    if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "CancelledContent"));
                     return;
                 }
 
@@ -1654,14 +1563,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 ResetCategoryFoldersButtonToCreateState();
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "ErrorTitle"),
-                    Content = ex.Message,
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
             }
         }
 

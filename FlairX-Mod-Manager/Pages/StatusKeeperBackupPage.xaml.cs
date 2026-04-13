@@ -191,14 +191,8 @@ namespace FlairX_Mod_Manager.Pages
 
                 // Message in 3 lines
                 var message = string.Format(SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Dialog_Message"), newBackups, afterBackup).Replace("\\n", "\n");
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "StatusKeeper_CreateBackup_Dialog_Title"),
-                    Content = message,
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
+                if (App.Current is App appB && appB.MainWindow is MainWindow mwB)
+                    mwB.ShowSuccessInfo(message, 5000);
 
                 Logger.LogInfo($"Backup complete! Created {backupCount} .msk files, skipped {skipCount} existing/disabled files");
             }
@@ -248,16 +242,9 @@ namespace FlairX_Mod_Manager.Pages
 
                 await Task.Run(() => RestoreFromBackups(modLibraryPath, ref restoreCount, ref skipCount));
 
-                // Show success dialog with results
                 var message = string.Format(SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Dialog_Message"), restoreCount, skipCount);
-                var successDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "StatusKeeper_RestoreBackup_Dialog_Title"),
-                    Content = message,
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await successDialog.ShowAsync();
+                if (App.Current is App appR && appR.MainWindow is MainWindow mwR)
+                    mwR.ShowSuccessInfo(message, 5000);
 
                 Logger.LogInfo($"Restore complete! Restored {restoreCount} files, failed {skipCount} files");
             }
@@ -306,16 +293,9 @@ namespace FlairX_Mod_Manager.Pages
 
                 await Task.Run(() => DeleteBackups(modLibraryPath, ref deleteCount));
 
-                // Show success dialog with results
                 var message = string.Format(SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Dialog_Message"), deleteCount);
-                var successDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "StatusKeeper_DeleteBackups_Dialog_Title"),
-                    Content = message,
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await successDialog.ShowAsync();
+                if (App.Current is App appD && appD.MainWindow is MainWindow mwD)
+                    mwD.ShowSuccessInfo(message, 5000);
 
                 Logger.LogInfo($"Deletion complete! Deleted {deleteCount} backup files");
             }
@@ -371,18 +351,12 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 });
 
-                // Use language keys for dialog title and content
                 string message = string.Format(SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackup_Dialog_Message"), 
                     iniCount, iniCount - incompleteCount, incompleteCount);
-
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackup_Dialog_Title"),
-                    Content = message,
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
+                if (App.Current is App appC && appC.MainWindow is MainWindow mwC)
+                    mwC.ShowInfoBar(SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackup_Dialog_Title"), message,
+                        incompleteCount > 0 ? Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning : Microsoft.UI.Xaml.Controls.InfoBarSeverity.Success,
+                        incompleteCount > 0 ? 0 : 5000);
             }
             finally
             {

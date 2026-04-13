@@ -942,7 +942,7 @@ namespace FlairX_Mod_Manager
             ShowInfoBar("Success", message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Success, autoCloseDelayMs);
         }
 
-        public void ShowWarningInfo(string message, int autoCloseDelayMs = 5000)
+        public void ShowWarningInfo(string message, int autoCloseDelayMs = 10000)
         {
             ShowInfoBar("Warning", message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning, autoCloseDelayMs);
         }

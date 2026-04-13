@@ -2791,14 +2791,7 @@ namespace FlairX_Mod_Manager.Pages
                     Logger.LogError($"Failed to delete preview image: {currentImagePath}", ex);
                     
                     // Show error dialog
-                    var errorDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "ModDetailPage_DeletePreview_Error_Title"),
-                        Content = ex.Message,
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
+                    if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
                 }
             }
         }
@@ -2845,14 +2838,7 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogError("Error starting screenshot capture mode", ex);
                 
                 var lang = SharedUtilities.LoadLanguageDictionary();
-                var errorDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
-                    Content = ex.Message,
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await errorDialog.ShowAsync();
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
             }
         }
         

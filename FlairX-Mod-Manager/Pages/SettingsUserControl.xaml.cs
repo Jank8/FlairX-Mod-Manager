@@ -2773,14 +2773,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (conflict != null)
                 {
                     var lang = SharedUtilities.LoadLanguageDictionary();
-                    var dialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "HotkeyConflict_Title"),
-                        Content = SharedUtilities.GetTranslation(lang, "HotkeyConflict_Message"),
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await dialog.ShowAsync();
+                    if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "HotkeyConflict_Message"));
                     return;
                 }
                 

@@ -1685,14 +1685,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private async System.Threading.Tasks.Task ShowErrorDialog(string message)
         {
-            var dialog = new ContentDialog
-            {
-                Title = "Error",
-                Content = message,
-                CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot
-            };
-            await dialog.ShowAsync();
+            if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(message);
         }
     }
 }
