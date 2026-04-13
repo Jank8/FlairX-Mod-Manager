@@ -2113,6 +2113,22 @@ namespace FlairX_Mod_Manager.Pages
             
             EmptyStatePanel.Visibility = shouldShowEmptyState ? Visibility.Visible : Visibility.Collapsed;
             ModsGrid.Visibility = shouldShowEmptyState ? Visibility.Collapsed : Visibility.Visible;
+
+            // Update mod count display
+            if (ModCountText != null)
+            {
+                int count;
+                if (string.IsNullOrEmpty(_currentCategory) || _currentCategory == "Active" || 
+                    _currentCategory == "Broken" || _currentCategory == "Outdated")
+                {
+                    count = _allModData.Count > 0 ? _allModData.Count : _allMods.Count;
+                }
+                else
+                {
+                    count = ModListManager.GetModsByCategory(_currentCategory).Count;
+                }
+                ModCountText.Text = count > 0 ? $"- {count}" : "";
+            }
         }
         
         private void EmptyStateBrowseButton_Click(object sender, RoutedEventArgs e)

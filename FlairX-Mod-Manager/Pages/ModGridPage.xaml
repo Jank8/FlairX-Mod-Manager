@@ -192,6 +192,12 @@
                            FontWeight="Bold"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Center"/>
+                <TextBlock x:Name="ModCountText"
+                           Text=""
+                           FontSize="20"
+                           Opacity="0.5"
+                           VerticalAlignment="Center"
+                           Margin="8,0,0,0"/>
             </StackPanel>
             
             <!-- Center: Search box (only visible when sorting/table mode is enabled) -->
