@@ -497,6 +497,15 @@ namespace FlairX_Mod_Manager.Pages
             if (XXMIRootDirectoryPickButton != null) ToolTipService.SetToolTip(XXMIRootDirectoryPickButton, SharedUtilities.GetTranslation(lang, "PickFolderDialog_Title"));
                         if (XXMIRootDirectoryBreadcrumb != null) ToolTipService.SetToolTip(XXMIRootDirectoryBreadcrumb, SharedUtilities.GetTranslation(lang, "OpenDirectory_Tooltip"));
                         if (DynamicModSearchToggle != null) ToolTipService.SetToolTip(DynamicModSearchToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Tooltip"));
+
+            // Bottom buttons
+            if (CheckUpdatesButtonText != null) CheckUpdatesButtonText.Text = SharedUtilities.GetTranslation(lang, "CheckForUpdates");
+            if (ReportIssueButtonText != null) ReportIssueButtonText.Text = SharedUtilities.GetTranslation(lang, "ReportIssue_Button") ?? "Report Issue";
+            if (AboutButtonText != null) AboutButtonText.Text = SharedUtilities.GetTranslation(lang, "AboutButton_Label");
+
+            // Reload hotkey rows with new language
+            if (SettingsHotkeysPanel != null)
+                LoadSettingsHotkeys();
         }
 
         private void LoadLanguages()

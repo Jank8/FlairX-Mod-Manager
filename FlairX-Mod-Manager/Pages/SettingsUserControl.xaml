@@ -1066,7 +1066,7 @@
                                 Margin="0,24,0,24"
                                 Spacing="12">
                         <Button x:Name="CheckUpdatesButton"
-                                Width="200"
+                                Padding="16,8"
                                 Click="CheckUpdatesButton_Click">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <FontIcon Glyph="&#xE895;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
@@ -1074,7 +1074,7 @@
                             </StackPanel>
                         </Button>
                         <Button x:Name="ReportIssueButton"
-                                Width="200"
+                                Padding="16,8"
                                 Click="ReportIssueButton_Click">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <FontIcon Glyph="&#xEBE8;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
@@ -1082,7 +1082,7 @@
                             </StackPanel>
                         </Button>
                         <Button x:Name="AboutButton"
-                                Width="200"
+                                Padding="16,8"
                                 Click="AboutButton_Click">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                                 <FontIcon x:Name="AboutButtonIcon" Glyph="&#xE946;" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center"/>
