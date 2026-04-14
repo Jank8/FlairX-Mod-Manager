@@ -2905,15 +2905,7 @@ namespace FlairX_Mod_Manager.Pages
                     var lang = SharedUtilities.LoadLanguageDictionary();
                     var cancelledMessage = SharedUtilities.GetTranslation(lang, "ScreenshotCapture_Cancelled") ?? "Screenshot capture was cancelled and captured files were deleted";
                     Logger.LogInfo(cancelledMessage);
-                    
-                    var cancelledDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "Cancelled_Title") ?? "Cancelled",
-                        Content = cancelledMessage,
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await cancelledDialog.ShowAsync();
+                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(cancelledMessage);
                 }
             }
             catch (Exception ex)

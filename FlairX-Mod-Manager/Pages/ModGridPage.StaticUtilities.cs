@@ -383,9 +383,25 @@ namespace FlairX_Mod_Manager.Pages
                 var preset = JsonSerializer.Deserialize<Dictionary<string, bool>>(json);
                 if (preset != null)
                 {
-                    // Apply preset by renaming mods
+                    var modsPath = SettingsManager.GetCurrentXXMIModsDirectory() ?? "";
+                    var gameTag = SettingsManager.CurrentSelectedGame ?? "";
+                    var excludedCategories = SettingsManager.GetShuffleExcludedCategories(gameTag);
+
+                    // Apply preset by renaming mods, skipping shuffle-excluded categories
                     foreach (var mod in preset)
                     {
+                        // Check if mod is in an excluded category
+                        if (excludedCategories.Count > 0)
+                        {
+                            var modPath = FindModFolderPathStatic(modsPath, mod.Key);
+                            if (!string.IsNullOrEmpty(modPath))
+                            {
+                                var categoryName = Path.GetFileName(Path.GetDirectoryName(modPath) ?? "");
+                                if (excludedCategories.Contains(categoryName, StringComparer.OrdinalIgnoreCase))
+                                    continue;
+                            }
+                        }
+
                         if (mod.Value)
                             ActivateModByRename(mod.Key);
                         else

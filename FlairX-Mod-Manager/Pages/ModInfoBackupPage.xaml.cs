@@ -190,7 +190,7 @@ namespace FlairX_Mod_Manager.Pages
                 _isCreatingBackup = false;
                 UpdateButtonStates();
                 var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
-                await ShowDialog(SharedUtilities.GetTranslation(lang, "Error"), ex.Message, SharedUtilities.GetTranslation(lang, "OK"));
+                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
             }
         }
         
@@ -205,7 +205,7 @@ namespace FlairX_Mod_Manager.Pages
             UpdateButtonStates();
             
             var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
-            await ShowDialog(SharedUtilities.GetTranslation(lang, "Title"), string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_BackupComplete"), count), SharedUtilities.GetTranslation(lang, "OK"));
+            if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowSuccessInfo(string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_BackupComplete"), count));
             UpdateBackupInfo();
         }
 
@@ -424,7 +424,7 @@ namespace FlairX_Mod_Manager.Pages
                     UpdateButtonStates();
                     
                     // Show success dialog
-                    await ShowDialog(SharedUtilities.GetTranslation(lang, "Title"), string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_RestoreComplete"), backupNum, count), SharedUtilities.GetTranslation(lang, "OK"));
+                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowSuccessInfo(string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_RestoreComplete"), backupNum, count));
                     UpdateBackupInfo();
                 }
                 catch (Exception ex)
@@ -441,7 +441,7 @@ namespace FlairX_Mod_Manager.Pages
                     UpdateButtonStates();
                     
                     var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
-                    await ShowDialog(SharedUtilities.GetTranslation(lang, "Error"), ex.Message, SharedUtilities.GetTranslation(lang, "OK"));
+                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
                 }
             }
         }
@@ -557,7 +557,7 @@ namespace FlairX_Mod_Manager.Pages
                     UpdateButtonStates();
                     
                     // Show success dialog
-                    await ShowDialog(SharedUtilities.GetTranslation(lang, "Title"), string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_DeleteComplete"), backupNum, count), SharedUtilities.GetTranslation(lang, "OK"));
+                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowSuccessInfo(string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_DeleteComplete"), backupNum, count));
                     UpdateBackupInfo();
                 }
                 catch (Exception ex)
@@ -574,7 +574,7 @@ namespace FlairX_Mod_Manager.Pages
                     UpdateButtonStates();
                     
                     var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
-                    await ShowDialog(SharedUtilities.GetTranslation(lang, "Error"), ex.Message, SharedUtilities.GetTranslation(lang, "OK"));
+                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
                 }
             }
         }

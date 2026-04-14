@@ -234,6 +234,19 @@ namespace FlairX_Mod_Manager.Pages
                 var fileName = GetPresetFileNameFromComboBox(presetName);
                 try
                 {
+                    // Default Preset = deactivate all (respects shuffle-excluded categories)
+                    if (fileName == "Default Preset")
+                    {
+                        if (App.Current is App appD && appD.MainWindow is MainWindow mwD)
+                        {
+                            mwD.ExecuteDeactivateAllModsHotkey();
+                            var langDictD = SharedUtilities.LoadLanguageDictionary();
+                            if (App.Current is App app2 && app2.MainWindow is MainWindow mw2)
+                                mw2.ShowSuccessInfo(SharedUtilities.GetTranslation(langDictD, "Preset_Loaded"));
+                        }
+                        return;
+                    }
+
                     FlairX_Mod_Manager.Pages.ModGridPage.ApplyPreset(fileName);
                     
                     // Reload manager to refresh the view
@@ -243,12 +256,13 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     
                     var langDict = SharedUtilities.LoadLanguageDictionary();
-                    await ShowDialog(SharedUtilities.GetTranslation(langDict, "Success_Title"), SharedUtilities.GetTranslation(langDict, "Preset_Loaded"));
+                    if (App.Current is App appN && appN.MainWindow is MainWindow mwN)
+                        mwN.ShowSuccessInfo(SharedUtilities.GetTranslation(langDict, "Preset_Loaded"));
                 }
                 catch (Exception ex)
                 {
-                    var langDict = SharedUtilities.LoadLanguageDictionary();
-                    await ShowDialog(SharedUtilities.GetTranslation(langDict, "Error_Title"), ex.Message);
+                    if (App.Current is App appE && appE.MainWindow is MainWindow mwE)
+                        mwE.ShowErrorInfo(ex.Message);
                 }
             }
         }
@@ -265,25 +279,26 @@ namespace FlairX_Mod_Manager.Pages
                 var activeModsFileName = AppConstants.GameConfig.GetActiveModsFilename(SettingsManager.CurrentSelectedGame);
                 var activeModsPath = PathManager.GetSettingsPath(activeModsFileName);
                 
-                // Get current active mods state
+                // Get current active mods state, excluding shuffle-excluded categories
                 var activeMods = new Dictionary<string, bool>();
-                if (File.Exists(activeModsPath))
+                var gameTag = SettingsManager.CurrentSelectedGame ?? "";
+                var excludedCategories = SettingsManager.GetShuffleExcludedCategories(gameTag);
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+
+                if (!string.IsNullOrEmpty(modsPath) && Directory.Exists(modsPath))
                 {
-                    try
+                    foreach (var categoryDir in Directory.GetDirectories(modsPath))
                     {
-                        var json = Services.FileAccessQueue.ReadAllText(activeModsPath);
-                        var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new Dictionary<string, bool>();
-                        foreach (var kv in currentMods)
+                        var categoryName = Path.GetFileName(categoryDir);
+                        if (excludedCategories.Contains(categoryName, StringComparer.OrdinalIgnoreCase))
+                            continue;
+
+                        foreach (var modDir in Directory.GetDirectories(categoryDir))
                         {
-                            string modName = Path.GetFileName(kv.Key);
-                            activeMods[modName] = kv.Value; // Save CURRENT state (true for active, false for inactive)
+                            var modFolderName = Path.GetFileName(modDir);
+                            var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
+                            activeMods[cleanName] = !modFolderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase);
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        var saveLangDict = SharedUtilities.LoadLanguageDictionary();
-                        await ShowDialog(SharedUtilities.GetTranslation(saveLangDict, "Error_Title"), ex.Message);
-                        return;
                     }
                 }
                 
@@ -295,13 +310,12 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 catch (Exception ex)
                 {
-                    var errorLangDict = SharedUtilities.LoadLanguageDictionary();
-                    await ShowDialog(SharedUtilities.GetTranslation(errorLangDict, "Error_Title"), ex.Message);
+                    if (App.Current is App _a1 && _a1.MainWindow is MainWindow _mw1) _mw1.ShowErrorInfo(ex.Message);
                     return;
                 }
                 LoadPresetsToComboBox();
                 var langDict = SharedUtilities.LoadLanguageDictionary();
-                await ShowDialog(SharedUtilities.GetTranslation(langDict, "Success_Title"), SharedUtilities.GetTranslation(langDict, "Preset_Saved"));
+                if (App.Current is App _a2 && _a2.MainWindow is MainWindow _mw2) _mw2.ShowSuccessInfo(SharedUtilities.GetTranslation(langDict, "Preset_Saved"));
             }
         }
 
@@ -319,12 +333,12 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     LoadPresetsToComboBox();
                     var langDict = SharedUtilities.LoadLanguageDictionary();
-                    await ShowDialog(SharedUtilities.GetTranslation(langDict, "Success_Title"), SharedUtilities.GetTranslation(langDict, "Preset_Deleted"));
+                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowSuccessInfo(SharedUtilities.GetTranslation(langDict, "Preset_Deleted"));
                 }
                 catch (Exception ex)
                 {
                     var langDict = SharedUtilities.LoadLanguageDictionary();
-                    await ShowDialog(SharedUtilities.GetTranslation(langDict, "Error_Title"), ex.Message);
+                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
                 }
             }
         }

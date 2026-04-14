@@ -925,14 +925,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (!Dialogs.StarterPackDialog.IsStarterPackAvailable(_gameTag))
                 {
                     var lang = SharedUtilities.LoadLanguageDictionary();
-                    var dialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "StarterPack_Title") ?? "Starter Pack",
-                        Content = SharedUtilities.GetTranslation(lang, "StarterPack_NotAvailable") ?? "Starter Pack is not available for this game yet.",
-                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK") ?? "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await dialog.ShowAsync();
+                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "StarterPack_NotAvailable") ?? "Starter Pack is not available for this game yet.");
                     return;
                 }
 
@@ -2133,14 +2126,7 @@ namespace FlairX_Mod_Manager.Pages
 
             if (selectedFiles.Count == 0)
             {
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(_lang, "Error"),
-                    Content = SharedUtilities.GetTranslation(_lang, "SelectAtLeastOneFile"),
-                    CloseButtonText = "OK",
-                    XamlRoot = XamlRoot
-                };
-                await dialog.ShowAsync();
+                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(SharedUtilities.GetTranslation(_lang, "SelectAtLeastOneFile"));
                 return;
             }
 
@@ -2152,14 +2138,7 @@ namespace FlairX_Mod_Manager.Pages
             if (freshModDetails == null || !freshModDetails.IsAvailable)
             {
                 Logger.LogError("Failed to get fresh mod details from API or mod is unavailable");
-                var errorDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(_lang, "Error"),
-                    Content = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage"),
-                    CloseButtonText = "OK",
-                    XamlRoot = XamlRoot
-                };
-                await errorDialog.ShowAsync();
+                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage"));
                 return;
             }
 
@@ -2305,15 +2284,8 @@ namespace FlairX_Mod_Manager.Pages
                 if (freshModDetails == null || !freshModDetails.IsAvailable)
                 {
                     Logger.LogError("Failed to get fresh mod details from API or mod is unavailable");
-                    var errorDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(_lang, "Error"),
-                        Content = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage"),
-                        CloseButtonText = "OK",
-                        XamlRoot = XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
-                    return;
+                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage"));
+                return;
                 }
 
                 // Check if previews are available

@@ -110,14 +110,7 @@ namespace FlairX_Mod_Manager.Pages
                     else
                     {
                         var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                        var dialog = new ContentDialog
-                        {
-                            Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
-                            Content = "Failed to open log file with default application",
-                            CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                            XamlRoot = this.XamlRoot
-                        };
-                        await dialog.ShowAsync();
+                        if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo("Failed to open log file with default application");
                     }
                 }
                 else
@@ -130,14 +123,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogStatusKeeperError($"Failed to open log file: {ex.Message}");
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "Error_Generic"),
-                    Content = $"Failed to open log file: {ex.Message}",
-                    CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
+                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo($"Failed to open log file: {ex.Message}");
             }
         }
 

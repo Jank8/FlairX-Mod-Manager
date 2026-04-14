@@ -1373,14 +1373,7 @@ namespace FlairX_Mod_Manager.Pages
         
         private async Task ShowErrorDialog(string title, string message)
         {
-            var dialog = new ContentDialog
-            {
-                Title = title,
-                Content = message,
-                CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot
-            };
-            await dialog.ShowAsync();
+            if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(message);
         }
 
         private string? GetModUrl(ModTile modTile)

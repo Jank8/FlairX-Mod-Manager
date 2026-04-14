@@ -2313,14 +2313,7 @@ namespace FlairX_Mod_Manager.Pages
             
             if (result == null)
             {
-                var errorDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
-                    Content = SharedUtilities.GetTranslation(lang, "UpdateCheckFailed"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await errorDialog.ShowAsync();
+                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(SharedUtilities.GetTranslation(lang, "UpdateCheckFailed"));
                 CheckUpdatesButton.IsEnabled = true;
                 return;
             }

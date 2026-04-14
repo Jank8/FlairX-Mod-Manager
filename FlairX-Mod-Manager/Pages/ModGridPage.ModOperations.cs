@@ -1330,14 +1330,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Show error dialog
                 var langDict = SharedUtilities.LoadLanguageDictionary();
-                var errorDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(langDict, "Error_Title"),
-                    Content = ex.Message,
-                    CloseButtonText = SharedUtilities.GetTranslation(langDict, "OK"),
-                    XamlRoot = this.Content.XamlRoot
-                };
-                await errorDialog.ShowAsync();
+                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
             }
         }
 

@@ -1307,14 +1307,7 @@ namespace FlairX_Mod_Manager
                     Logger.LogError($"Failed to delete category: {categoryName}", ex);
                     
                     var lang = SharedUtilities.LoadLanguageDictionary();
-                    var errorDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
-                        Content = $"Failed to delete category: {ex.Message}",
-                        CloseButtonText = SharedUtilities.GetTranslation(lang, "OK"),
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
+                    ShowErrorInfo($"Failed to delete category: {ex.Message}");
                 }
             }
         }
@@ -1404,14 +1397,7 @@ namespace FlairX_Mod_Manager
 
             if (gbCategories == null || gbCategories.Count == 0)
             {
-                var errDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
-                    Content = "Failed to fetch categories from GameBanana.",
-                    CloseButtonText = "OK",
-                    XamlRoot = this.Content.XamlRoot
-                };
-                await errDialog.ShowAsync();
+                ShowErrorInfo("Failed to fetch categories from GameBanana.");
                 return;
             }
 
@@ -1488,14 +1474,7 @@ namespace FlairX_Mod_Manager
             var iconUrl = selectedCat.GetIconUrl();
             if (string.IsNullOrEmpty(iconUrl))
             {
-                var errDialog2 = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
-                    Content = "No icon URL available for selected category.",
-                    CloseButtonText = "OK",
-                    XamlRoot = this.Content.XamlRoot
-                };
-                await errDialog2.ShowAsync();
+                ShowErrorInfo("No icon URL available for selected category.");
                 return;
             }
 
@@ -1514,14 +1493,7 @@ namespace FlairX_Mod_Manager
             }
             else
             {
-                var errDialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "Error_Title"),
-                    Content = "Failed to download icon.",
-                    CloseButtonText = "OK",
-                    XamlRoot = this.Content.XamlRoot
-                };
-                await errDialog.ShowAsync();
+                ShowErrorInfo("Failed to download icon.");
             }
         }
 

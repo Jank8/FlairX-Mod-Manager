@@ -698,14 +698,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 ResetUpdateButtonToFetchState();
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
+                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "CancelledContent"));
             }
             catch (Exception ex)
             {
@@ -1550,14 +1543,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 ResetCategoryFoldersButtonToCreateState();
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(lang, "CancelledTitle"),
-                    Content = SharedUtilities.GetTranslation(lang, "CancelledContent"),
-                    CloseButtonText = "OK",
-                    XamlRoot = this.XamlRoot
-                };
-                await dialog.ShowAsync();
+                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "CancelledContent"));
             }
             catch (Exception ex)
             {

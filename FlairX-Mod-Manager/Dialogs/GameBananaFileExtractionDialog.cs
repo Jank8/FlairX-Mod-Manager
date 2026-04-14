@@ -1561,14 +1561,7 @@ namespace FlairX_Mod_Manager.Dialogs
 
         private async Task ShowError(string message)
         {
-            var dialog = new ContentDialog
-            {
-                Title = SharedUtilities.GetTranslation(_lang, "Error"),
-                Content = message,
-                CloseButtonText = SharedUtilities.GetTranslation(_lang, "OK"),
-                XamlRoot = XamlRoot
-            };
-            await dialog.ShowAsync();
+            if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(message);
         }
 
         private async Task DownloadPreviewImagesAsync(string modPath)

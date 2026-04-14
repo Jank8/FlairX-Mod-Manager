@@ -1482,14 +1482,7 @@ namespace FlairX_Mod_Manager
                 DispatcherQueue.TryEnqueue(async () =>
                 {
                     var lang = SharedUtilities.LoadLanguageDictionary();
-                    var errorDialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(lang, "Error_Generic") ?? "Error",
-                        Content = $"Failed to optimize captured screenshots: {ex.Message}",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
+                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo($"Failed to optimize captured screenshots: {ex.Message}");
                 });
             }
         }
