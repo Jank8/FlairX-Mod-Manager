@@ -227,10 +227,10 @@ namespace FlairX_Mod_Manager.Dialogs
                 
                 _categoryComboBox.TextSubmitted += (s, e) => 
                 {
-                    // Replace forward slash with dash when text is submitted
-                    if (_categoryComboBox.Text.Contains('/'))
+                    // Sanitize category name when text is submitted
+                    if (!string.IsNullOrEmpty(_categoryComboBox.Text))
                     {
-                        _categoryComboBox.Text = _categoryComboBox.Text.Replace("/", "-");
+                        _categoryComboBox.Text = SanitizeCategoryName(_categoryComboBox.Text);
                     }
                     ValidateInputs();
                 };
@@ -472,8 +472,8 @@ namespace FlairX_Mod_Manager.Dialogs
             }
 
             // Check if this is an update and show appropriate checkboxes
-            // Normalize category name for folder lookup
-            var normalizedCategory = (categoryName ?? "Characters").Replace("/", "-");
+            // Sanitize category name for folder lookup
+            var normalizedCategory = SanitizeCategoryName(categoryName ?? "Characters");
             CheckIfUpdateAndShowOptions(normalizedCategory);
 
             // Validate inputs on initialization
@@ -646,8 +646,8 @@ namespace FlairX_Mod_Manager.Dialogs
                     return;
                 }
 
-                // Determine folder name: replace "/" with "-" to prevent subfolder creation
-                string categoryFolderName = category.Replace("/", "-");
+                // Determine folder name: sanitize to prevent illegal characters
+                string categoryFolderName = SanitizeCategoryName(category);
 
                 // Download files
                 var tempDir = Path.Combine(Path.GetTempPath(), "FlairX_Downloads", Guid.NewGuid().ToString());
@@ -819,8 +819,8 @@ namespace FlairX_Mod_Manager.Dialogs
                     if (string.IsNullOrWhiteSpace(category))
                         category = "Characters";
                     
-                    // Normalize category name
-                    string categoryFolderName = category.Replace("/", "-");
+                    // Sanitize category name to remove illegal characters
+                    string categoryFolderName = SanitizeCategoryName(category);
                     
                     var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
                     var categoryPath = Path.Combine(modsPath, categoryFolderName);
@@ -883,8 +883,8 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Get mod library path
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
 
-                // Normalize category name (replace "/" with "-" to avoid nested folders)
-                var normalizedCategory = category.Replace("/", "-");
+                // Sanitize category name to remove illegal characters (including "/")
+                var normalizedCategory = SanitizeCategoryName(category);
                 var categoryPath = Path.Combine(modsPath, normalizedCategory);
                 Directory.CreateDirectory(categoryPath);
 
@@ -1171,8 +1171,8 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Get mod library path
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
 
-                // Normalize category name (replace "/" with "-" to avoid nested folders)
-                var normalizedCategory = category.Replace("/", "-");
+                // Sanitize category name to remove illegal characters (including "/")
+                var normalizedCategory = SanitizeCategoryName(category);
                 var categoryPath = Path.Combine(modsPath, normalizedCategory);
                 Directory.CreateDirectory(categoryPath);
 
@@ -1331,8 +1331,8 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
 
-                // Normalize category name (replace "/" with "-" to avoid nested folders)
-                var normalizedCategory = category.Replace("/", "-");
+                // Sanitize category name to remove illegal characters (including "/")
+                var normalizedCategory = SanitizeCategoryName(category);
                 var categoryPath = Path.Combine(modsPath, normalizedCategory);
                 Directory.CreateDirectory(categoryPath);
 
@@ -1501,8 +1501,89 @@ namespace FlairX_Mod_Manager.Dialogs
 
         private string SanitizeFileName(string fileName)
         {
+            if (string.IsNullOrWhiteSpace(fileName))
+                return "Unnamed";
+            
+            // Step 1: Replace invalid characters with spaces
             var invalid = Path.GetInvalidFileNameChars();
-            return string.Join("-", fileName.Split(invalid, StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
+            var sanitized = string.Join(" ", fileName.Split(invalid, StringSplitOptions.RemoveEmptyEntries));
+            
+            // Step 2: Remove ASCII control characters (0-31) if any slipped through
+            sanitized = new string(sanitized.Where(c => c >= 32).ToArray());
+            
+            // Step 3: Replace multiple consecutive spaces with single space
+            while (sanitized.Contains("  "))
+            {
+                sanitized = sanitized.Replace("  ", " ");
+            }
+            
+            // Step 4: Trim leading/trailing spaces and trailing dots
+            sanitized = sanitized.Trim().TrimEnd('.');
+            
+            // Step 5: Check if empty after sanitization
+            if (string.IsNullOrWhiteSpace(sanitized))
+                return "Unnamed";
+            
+            // Step 6: Limit length to avoid path length issues
+            // Max path is 260, reserve ~150 for base path, 10 for DISABLED_, 20 for category = 80 chars for mod name
+            const int maxLength = 80;
+            if (sanitized.Length > maxLength)
+            {
+                sanitized = sanitized.Substring(0, maxLength);
+                // Re-trim after cutting (might have cut in the middle of a word leaving trailing space/dot)
+                sanitized = sanitized.TrimEnd('.', ' ');
+            }
+            
+            // Step 7: Check if it's a reserved Windows name and add suffix if needed
+            if (IsReservedWindowsName(sanitized))
+            {
+                sanitized = sanitized + "_mod";
+            }
+            
+            return sanitized;
+        }
+        
+        private string SanitizeCategoryName(string categoryName)
+        {
+            if (string.IsNullOrWhiteSpace(categoryName))
+                return "Other";
+            
+            // Step 1: Replace invalid characters with spaces
+            var invalid = Path.GetInvalidFileNameChars();
+            var sanitized = string.Join(" ", categoryName.Split(invalid, StringSplitOptions.RemoveEmptyEntries));
+            
+            // Step 2: Remove ASCII control characters (0-31) if any slipped through
+            sanitized = new string(sanitized.Where(c => c >= 32).ToArray());
+            
+            // Step 3: Replace multiple consecutive spaces with single space
+            while (sanitized.Contains("  "))
+            {
+                sanitized = sanitized.Replace("  ", " ");
+            }
+            
+            // Step 4: Trim leading/trailing spaces and trailing dots
+            sanitized = sanitized.Trim().TrimEnd('.');
+            
+            // Step 5: Check if empty after sanitization
+            if (string.IsNullOrWhiteSpace(sanitized))
+                return "Other";
+            
+            // Step 6: Limit length for category names
+            const int maxLength = 50;
+            if (sanitized.Length > maxLength)
+            {
+                sanitized = sanitized.Substring(0, maxLength);
+                // Re-trim after cutting (might have cut in the middle of a word leaving trailing space/dot)
+                sanitized = sanitized.TrimEnd('.', ' ');
+            }
+            
+            // Step 7: Check if it's a reserved Windows name and add suffix if needed
+            if (IsReservedWindowsName(sanitized))
+            {
+                sanitized = sanitized + "_category";
+            }
+            
+            return sanitized;
         }
 
         /// <summary>

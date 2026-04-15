@@ -1452,8 +1452,8 @@ namespace FlairX_Mod_Manager.Pages
                     try
                     {
                         // Create category folder
-                        // Normalize category name (replace "/" with "-" to avoid nested folders)
-                        var normalizedCategoryName = category.Name.Replace("/", "-");
+                        // Sanitize category name to remove illegal characters (including "/")
+                        var normalizedCategoryName = SanitizeCategoryName(category.Name);
                         var categoryPath = Path.Combine(modsPath, normalizedCategoryName);
                         if (!Directory.Exists(categoryPath))
                         {
@@ -1648,6 +1648,56 @@ namespace FlairX_Mod_Manager.Pages
                     timer.Start();
                 }
             }
+        }
+        
+        /// <summary>
+        /// Sanitize category name by replacing illegal file name characters with spaces
+        /// </summary>
+        private static string SanitizeCategoryName(string categoryName)
+        {
+            if (string.IsNullOrWhiteSpace(categoryName))
+                return "Other";
+            
+            // Step 1: Replace invalid characters with spaces
+            var invalid = System.IO.Path.GetInvalidFileNameChars();
+            var sanitized = string.Join(" ", categoryName.Split(invalid, StringSplitOptions.RemoveEmptyEntries));
+            
+            // Step 2: Remove ASCII control characters (0-31) if any slipped through
+            sanitized = new string(sanitized.Where(c => c >= 32).ToArray());
+            
+            // Step 3: Replace multiple consecutive spaces with single space
+            while (sanitized.Contains("  "))
+            {
+                sanitized = sanitized.Replace("  ", " ");
+            }
+            
+            // Step 4: Trim leading/trailing spaces and trailing dots
+            sanitized = sanitized.Trim().TrimEnd('.');
+            
+            // Step 5: Check if empty after sanitization
+            if (string.IsNullOrWhiteSpace(sanitized))
+                return "Other";
+            
+            // Step 6: Limit length for category names
+            const int maxLength = 50;
+            if (sanitized.Length > maxLength)
+            {
+                sanitized = sanitized.Substring(0, maxLength);
+                // Re-trim after cutting (might have cut in the middle of a word leaving trailing space/dot)
+                sanitized = sanitized.TrimEnd('.', ' ');
+            }
+            
+            // Step 7: Check if it's a reserved Windows name and add suffix if needed
+            var nameWithoutExt = sanitized.Split('.')[0].ToUpperInvariant();
+            var reserved = new[] { "CON", "PRN", "AUX", "NUL",
+                                   "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", 
+                                   "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9" };
+            if (reserved.Contains(nameWithoutExt))
+            {
+                sanitized = sanitized + "_category";
+            }
+            
+            return sanitized;
         }
     }
 }
