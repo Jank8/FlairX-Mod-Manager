@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Xaml.Controls;
+using Microsoft.Web.WebView2.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -573,6 +574,48 @@ namespace FlairX_Mod_Manager
             }
             
             return tcs.Task;
+        }
+
+        /// <summary>
+        /// Check if WebView2 runtime is installed. Shows a download dialog if not.
+        /// Returns true if available, false if not.
+        /// </summary>
+        public static async Task<bool> EnsureWebView2Available(Microsoft.UI.Xaml.XamlRoot xamlRoot)
+        {
+            try
+            {
+                Microsoft.Web.WebView2.Core.CoreWebView2Environment.GetAvailableBrowserVersionString();
+                return true;
+            }
+            catch
+            {
+                Logger.LogError("WebView2 runtime not installed");
+                try
+                {
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    
+                    var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
+                    {
+                        Title = SharedUtilities.GetTranslation(lang, "WebView2_Required_Title"),
+                        Content = SharedUtilities.GetTranslation(lang, "WebView2_Required_Message"),
+                        PrimaryButtonText = SharedUtilities.GetTranslation(lang, "WebView2_Download_Button"),
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "WebView2_Cancel_Button"),
+                        DefaultButton = Microsoft.UI.Xaml.Controls.ContentDialogButton.Primary,
+                        XamlRoot = xamlRoot
+                    };
+                    var result = await dialog.ShowAsync();
+                    if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
+                    {
+                        await Windows.System.Launcher.LaunchUriAsync(
+                            new Uri("https://developer.microsoft.com/microsoft-edge/webview2"));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to show WebView2 missing dialog", ex);
+                }
+                return false;
+            }
         }
     }
 }

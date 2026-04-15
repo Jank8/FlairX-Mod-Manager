@@ -1,3 +1,4 @@
+using FlairX_Mod_Manager;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 using System;
@@ -31,6 +32,13 @@ namespace FlairX_Mod_Manager.Dialogs
         {
             try
             {
+                // Check WebView2 availability first
+                if (!await FlairX_Mod_Manager.DispatcherQueueExtensions.EnsureWebView2Available(this.XamlRoot))
+                {
+                    this.Hide();
+                    return;
+                }
+
                 _webView = new Microsoft.UI.Xaml.Controls.WebView2();
                 WebViewContainer.Children.Add(_webView);
 

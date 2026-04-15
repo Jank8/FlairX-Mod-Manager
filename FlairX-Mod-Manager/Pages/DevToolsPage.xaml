@@ -12,6 +12,14 @@
 
             <TextBlock Text="Developer Tools" FontSize="20" FontWeight="Bold" Margin="0,0,0,4"/>
 
+            <!-- Runtime & Dependencies -->
+            <TextBlock Text="Runtime &amp; Dependencies" FontSize="14" FontWeight="SemiBold" Opacity="0.7" Margin="0,8,0,0"/>
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="16,12">
+                <StackPanel x:Name="RuntimeList" Spacing="8"/>
+            </Border>
+
             <!-- Diagnostics -->
             <TextBlock Text="Diagnostics" FontSize="14" FontWeight="SemiBold" Opacity="0.7"/>
             <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"

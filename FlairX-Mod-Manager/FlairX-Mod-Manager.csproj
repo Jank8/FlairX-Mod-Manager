@@ -46,11 +46,11 @@
        
        IMPORTANT: Check for package updates regularly!
        Command: dotnet list package (dash)(dash)outdated
-       Last updated: 2026-02-20 (v3.8.0)
+       Last updated: 2026-04-15 (v3.9.8)
        ======================================== -->
   <ItemGroup>
     <!-- WinUI 3 Community Toolkit -->
-    <PackageReference Include="CommunityToolkit.Common" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.Common" Version="8.4.2" />
     <PackageReference Include="CommunityToolkit.WinUI" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" Version="0.1.251030-build.2370" />
@@ -58,19 +58,19 @@
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
     
     <!-- Microsoft Packages -->
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260209005" />
-    <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.3.2" />
-    <PackageReference Include="ppy.SDL3-CS" Version="2025.1205.0" />
-    <PackageReference Include="ReverseMarkdown" Version="5.0.0" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260317003" />
+    <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
+    <PackageReference Include="ppy.SDL3-CS" Version="2026.320.0" />
+    <PackageReference Include="ReverseMarkdown" Version="5.3.0" />
     <PackageReference Include="SharpSevenZip" Version="2.0.36" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     
     <!-- Graphics & Scripting -->
-    <PackageReference Include="System.Drawing.Common" Version="10.0.3" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.6" />
     <PackageReference Include="NLua" Version="1.7.8" />
     
     <!-- WebView2 for Cloudflare bypass -->
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3800.47" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3912.50" />
 
   </ItemGroup>
 
@@ -107,6 +107,20 @@
   <!-- ========================================
        POST-BUILD CLEANUP & STRUCTURE CREATION
        ======================================== -->
+  <Target Name="GeneratePackageVersionsFile" BeforeTargets="Build">
+    <PropertyGroup>
+      <PackageVersionsJson>
+{
+  "Microsoft.WindowsAppSDK": "1.8.260317003",
+  "SharpSevenZip": "2.0.36",
+  "NLua": "1.7.8",
+  "CommunityToolkit.WinUI.Media": "8.2.251219"
+}
+      </PackageVersionsJson>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(OutputPath)Settings\package-versions.json" Lines="$(PackageVersionsJson)" Overwrite="true" />
+  </Target>
+
   <Target Name="CleanupUnnecessaryFiles" AfterTargets="Build">
     <ItemGroup>
       <LooseXbfFiles Include="$(OutputPath)*.xbf" />

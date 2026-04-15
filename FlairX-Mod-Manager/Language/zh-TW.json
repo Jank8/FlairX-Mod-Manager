@@ -361,5 +361,9 @@
   "ForceUpdate": "強制更新（即使版本已是最新也下載）",
   "ClearSettingsFolder": "清除設定資料夾",
   "CropPanel_ChooseDifferentFile": "選擇其他檔案",
-  "ContextMenu_DownloadThumbnail": "下載縮圖"
+  "ContextMenu_DownloadThumbnail": "下載縮圖",
+  "WebView2_Required_Title": "WebView2 Required",
+  "WebView2_Required_Message": "Microsoft Edge WebView2 Runtime is not installed on your system.\n\nThis component is required for this feature.\n\nPlease download and install it, then try again.",
+  "WebView2_Download_Button": "Download WebView2",
+  "WebView2_Cancel_Button": "Cancel"
 }

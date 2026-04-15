@@ -361,5 +361,9 @@
   "ForceUpdate": "Wymuś aktualizację (pobierz nawet jeśli wersja jest aktualna)",
   "ClearSettingsFolder": "Wyczyść folder ustawień",
   "CropPanel_ChooseDifferentFile": "Wybierz inny plik",
-  "ContextMenu_DownloadThumbnail": "Pobierz miniaturę"
+  "ContextMenu_DownloadThumbnail": "Pobierz miniaturę",
+  "WebView2_Required_Title": "Wymagany WebView2",
+  "WebView2_Required_Message": "Microsoft Edge WebView2 Runtime nie jest zainstalowany w systemie.\n\nTen komponent jest wymagany dla tej funkcji.\n\nProszę pobrać i zainstalować go, a następnie spróbować ponownie.",
+  "WebView2_Download_Button": "Pobierz WebView2",
+  "WebView2_Cancel_Button": "Anuluj"
 }

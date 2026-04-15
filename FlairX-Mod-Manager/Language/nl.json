@@ -361,5 +361,9 @@
   "ForceUpdate": "Update forceren (downloaden ook als versie actueel is)",
   "ClearSettingsFolder": "Instellingenmap wissen",
   "CropPanel_ChooseDifferentFile": "Ander bestand kiezen",
-  "ContextMenu_DownloadThumbnail": "Miniatuur downloaden"
+  "ContextMenu_DownloadThumbnail": "Miniatuur downloaden",
+  "WebView2_Required_Title": "WebView2 Required",
+  "WebView2_Required_Message": "Microsoft Edge WebView2 Runtime is not installed on your system.\n\nThis component is required for this feature.\n\nPlease download and install it, then try again.",
+  "WebView2_Download_Button": "Download WebView2",
+  "WebView2_Cancel_Button": "Cancel"
 }

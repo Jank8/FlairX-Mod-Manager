@@ -361,5 +361,9 @@
   "ForceUpdate": "Güncellemeyi zorla (sürüm güncel olsa bile indir)",
   "ClearSettingsFolder": "Ayarlar klasörünü temizle",
   "CropPanel_ChooseDifferentFile": "Farklı dosya seç",
-  "ContextMenu_DownloadThumbnail": "Küçük resmi indir"
+  "ContextMenu_DownloadThumbnail": "Küçük resmi indir",
+  "WebView2_Required_Title": "WebView2 Required",
+  "WebView2_Required_Message": "Microsoft Edge WebView2 Runtime is not installed on your system.\n\nThis component is required for this feature.\n\nPlease download and install it, then try again.",
+  "WebView2_Download_Button": "Download WebView2",
+  "WebView2_Cancel_Button": "Cancel"
 }

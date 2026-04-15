@@ -10,6 +10,7 @@ using Microsoft.UI.Dispatching;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats.Png;
+using FlairX_Mod_Manager;
 
 namespace FlairX_Mod_Manager.Services
 {
@@ -886,6 +887,30 @@ namespace FlairX_Mod_Manager.Services
             try
             {
                 Logger.LogInfo($"Initializing WebView2 for URL: {url}");
+
+                // Check if WebView2 runtime is available
+                try
+                {
+                    var version = Microsoft.Web.WebView2.Core.CoreWebView2Environment.GetAvailableBrowserVersionString();
+                    Logger.LogInfo($"WebView2 runtime available: {version}");
+                }
+                catch
+                {
+                    Logger.LogError("WebView2 runtime not installed");
+                    var wv2App = App.Current as App;
+                    var wv2Window = wv2App?.MainWindow as MainWindow;
+                    if (wv2Window != null)
+                    {
+                        var tcs2 = new TaskCompletionSource<bool>();
+                        wv2Window.DispatcherQueue.TryEnqueue(async () =>
+                        {
+                            await FlairX_Mod_Manager.DispatcherQueueExtensions.EnsureWebView2Available(wv2Window.Content.XamlRoot);
+                            tcs2.SetResult(true);
+                        });
+                        await tcs2.Task;
+                    }
+                    return null;
+                }
 
                 var tcs = new TaskCompletionSource<string?>();
 
