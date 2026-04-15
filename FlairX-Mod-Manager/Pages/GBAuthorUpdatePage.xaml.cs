@@ -141,6 +141,8 @@ namespace FlairX_Mod_Manager.Pages
         private static string _currentProcessingMod = "";
         private static int _totalMods = 0;
         private static double _progressValue = 0;
+        private static int _processedCount = 0;
+        private static int _totalCount = 0;
         
         public static bool IsUpdatingAuthors 
         { 
@@ -604,6 +606,8 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             _processedCount = p.current;
                             _totalCount = p.total;
+                            // Calculate progress value (0.0 to 1.0)
+                            _progressValue = p.total > 0 ? (double)p.current / p.total : 0;
                         }
                         NotifyProgressChanged();
                     });
@@ -1448,11 +1452,13 @@ namespace FlairX_Mod_Manager.Pages
                     try
                     {
                         // Create category folder
-                        var categoryPath = Path.Combine(modsPath, category.Name);
+                        // Normalize category name (replace "/" with "-" to avoid nested folders)
+                        var normalizedCategoryName = category.Name.Replace("/", "-");
+                        var categoryPath = Path.Combine(modsPath, normalizedCategoryName);
                         if (!Directory.Exists(categoryPath))
                         {
                             Directory.CreateDirectory(categoryPath);
-                            Logger.LogInfo($"Created category folder: {category.Name}");
+                            Logger.LogInfo($"Created category folder: {normalizedCategoryName}");
                         }
 
                         // Download icon if URL is available
