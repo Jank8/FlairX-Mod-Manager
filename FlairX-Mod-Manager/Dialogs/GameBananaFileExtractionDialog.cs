@@ -883,7 +883,9 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Get mod library path
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
 
-                var categoryPath = Path.Combine(modsPath, category);
+                // Normalize category name (replace "/" with "-" to avoid nested folders)
+                var normalizedCategory = category.Replace("/", "-");
+                var categoryPath = Path.Combine(modsPath, normalizedCategory);
                 Directory.CreateDirectory(categoryPath);
 
                 // Check if mod already exists (with or without DISABLED_ prefix)
@@ -1169,7 +1171,9 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Get mod library path
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
 
-                var categoryPath = Path.Combine(modsPath, category);
+                // Normalize category name (replace "/" with "-" to avoid nested folders)
+                var normalizedCategory = category.Replace("/", "-");
+                var categoryPath = Path.Combine(modsPath, normalizedCategory);
                 Directory.CreateDirectory(categoryPath);
 
                 // New mods are disabled by default
@@ -1327,7 +1331,9 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
 
-                var categoryPath = Path.Combine(modsPath, category);
+                // Normalize category name (replace "/" with "-" to avoid nested folders)
+                var normalizedCategory = category.Replace("/", "-");
+                var categoryPath = Path.Combine(modsPath, normalizedCategory);
                 Directory.CreateDirectory(categoryPath);
 
                 // Use the sanitized mod name from the text box instead of _modName

@@ -69,25 +69,25 @@ namespace FlairX_Mod_Manager.Services
         /// Combined function to fetch authors, versions and dates from GameBanana API
         /// </summary>
         public static async Task<(int success, int failed, int skipped, List<string> failedMods, List<string> skippedMods)> 
-            FetchAllDataAsync(CancellationToken token, bool silent = false, bool smartUpdate = false)
+            FetchAllDataAsync(CancellationToken token, bool silent = false, bool smartUpdate = false, IProgress<(int current, int total)>? progress = null)
         {
-            return await FetchAllDataInternalAsync(token, silent, smartUpdate);
+            return await FetchAllDataInternalAsync(token, silent, smartUpdate, progress);
         }
 
         /// <summary>
         /// Backward compatibility method for versions and dates only
         /// </summary>
         public static async Task<(int success, int failed, int skipped, List<string> failedMods, List<string> skippedMods)> 
-            FetchVersionsAndDatesAsync(CancellationToken token, bool silent = false)
+            FetchVersionsAndDatesAsync(CancellationToken token, bool silent = false, IProgress<(int current, int total)>? progress = null)
         {
-            return await FetchAllDataInternalAsync(token, silent, smartUpdate: false);
+            return await FetchAllDataInternalAsync(token, silent, smartUpdate: false, progress);
         }
 
         /// <summary>
         /// Internal method that does the actual work
         /// </summary>
         private static async Task<(int success, int failed, int skipped, List<string> failedMods, List<string> skippedMods)> 
-            FetchAllDataInternalAsync(CancellationToken token, bool silent = false, bool smartUpdate = false)
+            FetchAllDataInternalAsync(CancellationToken token, bool silent = false, bool smartUpdate = false, IProgress<(int current, int total)>? progress = null)
         {
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
             string modLibraryPath = SharedUtilities.GetSafeXXMIModsPath();
@@ -245,6 +245,7 @@ namespace FlairX_Mod_Manager.Services
                     }
 
                     Interlocked.Increment(ref processed);
+                    progress?.Report((processed, totalMods));
                 }
                 finally
                 {

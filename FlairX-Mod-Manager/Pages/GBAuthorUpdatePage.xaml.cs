@@ -595,8 +595,22 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
                 
+                var progress = new Progress<(int current, int total)>(p =>
+                {
+                    // Update progress on UI thread
+                    DispatcherQueue.TryEnqueue(() =>
+                    {
+                        lock (_lockObject)
+                        {
+                            _processedCount = p.current;
+                            _totalCount = p.total;
+                        }
+                        NotifyProgressChanged();
+                    });
+                });
+                
                 var (success, failed, skipped, failedMods, skippedMods) = 
-                    await Services.GameBananaAutoUpdateService.FetchAllDataAsync(token, silent: false, smartUpdate: IsSmartUpdate);
+                    await Services.GameBananaAutoUpdateService.FetchAllDataAsync(token, silent: false, smartUpdate: IsSmartUpdate, progress: progress);
 
                 lock (_lockObject)
                 {
