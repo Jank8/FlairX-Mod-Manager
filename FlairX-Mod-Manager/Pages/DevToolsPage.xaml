@@ -123,6 +123,37 @@
                 </Button>
             </StackPanel>
 
+            <!-- GameBanana -->
+            <TextBlock Text="GameBanana" FontSize="14" FontWeight="SemiBold" Opacity="0.7" Margin="0,8,0,0"/>
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="16,12">
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Cached cookies:" Opacity="0.6" Width="140" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="GBCookieStatus" FontFamily="Consolas" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Login prompt:" Opacity="0.6" Width="140" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="GBLoginPromptStatus" FontFamily="Consolas" FontSize="12" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Click="ClearGBCookies_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                        <TextBlock Text="Clear GB cookies &amp; WebView2 cache"/>
+                    </StackPanel>
+                </Button>
+                <Button Click="ResetGBLoginPrompt_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE72C;" FontSize="14"/>
+                        <TextBlock Text="Reset login prompt"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
             <!-- Open Directories -->
             <TextBlock Text="Open Directories" FontSize="14" FontWeight="SemiBold" Opacity="0.7" Margin="0,8,0,0"/>
             <StackPanel Orientation="Horizontal" Spacing="8">

@@ -1,4 +1,4 @@
-<Window
+﻿<Window
     x:Class="FlairX_Mod_Manager.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -277,6 +277,15 @@
             <FontIcon x:Name="LauncherFabIcon" Glyph="&#xE768;" FontSize="28" Foreground="{ThemeResource ButtonForeground}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
 
+
+
+        <!-- Hidden container for off-screen WebView2 rendering (comments scraping) -->
+        <Grid x:Name="HiddenWebViewContainer"
+              Width="1280" Height="900"
+              Opacity="0"
+              IsHitTestVisible="False"
+              HorizontalAlignment="Left"
+              VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

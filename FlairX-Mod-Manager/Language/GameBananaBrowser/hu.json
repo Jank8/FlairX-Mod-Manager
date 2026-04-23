@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Ez az archívum jelszóval védett. A kibontáshoz adja meg a jelszót.",
     "ArchivePassword_Placeholder": "Adja meg a jelszót...",
     "ArchivePassword_Wrong": "Helytelen jelszó, kérjük próbálja újra.",
-    "ArchivePassword_Cancelled": "Kibontás megszakítva."
+    "ArchivePassword_Cancelled": "Kibontás megszakítva.",
+    "Comments": "Hozzászólások",
+    "ShowComments": "Hozzászólások megjelenítése",
+    "LoadingComments": "Hozzászólások betöltése...",
+    "NoComments": "Még nincsenek hozzászólások.",
+    "CommentsLoadFailed": "Nem sikerült betölteni a hozzászólásokat.",
+    "Comments_LoginTitle": "GameBanana bejelentkezés",
+    "Comments_LoginInfo": "Jelentkezz be a GameBananára, hogy megtekintsd a korhatáros modok hozzászólásait. Jelentkezz be alább, majd kattints a Folytatás gombra.",
+    "Comments_GetCookies": "Sütik lekérése",
+    "Comments_DontAskAgain": "Ne kérdezze újra"
 }

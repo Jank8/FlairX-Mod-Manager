@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Dette arkiv er adgangskodebeskyttet. Indtast adgangskoden for at udpakke det.",
     "ArchivePassword_Placeholder": "Indtast adgangskode...",
     "ArchivePassword_Wrong": "Forkert adgangskode, prøv igen.",
-    "ArchivePassword_Cancelled": "Udpakning annulleret."
+    "ArchivePassword_Cancelled": "Udpakning annulleret.",
+    "Comments": "Kommentarer",
+    "ShowComments": "Vis kommentarer",
+    "LoadingComments": "Indlæser kommentarer...",
+    "NoComments": "Ingen kommentarer endnu.",
+    "CommentsLoadFailed": "Kunne ikke indlæse kommentarer.",
+    "Comments_LoginTitle": "GameBanana-login",
+    "Comments_LoginInfo": "Log ind på GameBanana for at se kommentarer til mods med aldersrestriktioner. Log ind nedenfor og klik på Fortsæt.",
+    "Comments_GetCookies": "Hent cookies",
+    "Comments_DontAskAgain": "Spørg ikke igen"
 }

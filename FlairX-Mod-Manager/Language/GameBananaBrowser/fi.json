@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Tämä arkisto on salasanasuojattu. Syötä salasana purkamista varten.",
     "ArchivePassword_Placeholder": "Syötä salasana...",
     "ArchivePassword_Wrong": "Väärä salasana, yritä uudelleen.",
-    "ArchivePassword_Cancelled": "Purku peruutettu."
+    "ArchivePassword_Cancelled": "Purku peruutettu.",
+    "Comments": "Kommentit",
+    "ShowComments": "Näytä kommentit",
+    "LoadingComments": "Ladataan kommentteja...",
+    "NoComments": "Ei vielä kommentteja.",
+    "CommentsLoadFailed": "Kommenttien lataaminen epäonnistui.",
+    "Comments_LoginTitle": "GameBanana-kirjautuminen",
+    "Comments_LoginInfo": "Kirjaudu GameBananaan nähdäksesi ikärajoitettujen modien kommentit. Kirjaudu alla ja napsauta Jatka.",
+    "Comments_GetCookies": "Hae evästeet",
+    "Comments_DontAskAgain": "Älä kysy uudelleen"
 }

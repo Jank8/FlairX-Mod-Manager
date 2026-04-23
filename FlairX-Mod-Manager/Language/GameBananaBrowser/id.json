@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Arsip ini dilindungi kata sandi. Masukkan kata sandi untuk mengekstraknya.",
     "ArchivePassword_Placeholder": "Masukkan kata sandi...",
     "ArchivePassword_Wrong": "Kata sandi salah, coba lagi.",
-    "ArchivePassword_Cancelled": "Ekstraksi dibatalkan."
+    "ArchivePassword_Cancelled": "Ekstraksi dibatalkan.",
+    "Comments": "Komentar",
+    "ShowComments": "Tampilkan komentar",
+    "LoadingComments": "Memuat komentar...",
+    "NoComments": "Belum ada komentar.",
+    "CommentsLoadFailed": "Gagal memuat komentar.",
+    "Comments_LoginTitle": "Login GameBanana",
+    "Comments_LoginInfo": "Masuk ke GameBanana untuk melihat komentar pada mod dengan batasan usia. Masuk di bawah, lalu klik Lanjutkan.",
+    "Comments_GetCookies": "Dapatkan cookie",
+    "Comments_DontAskAgain": "Jangan tanya lagi"
 }

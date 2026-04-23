@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Această arhivă este protejată cu parolă. Introduceți parola pentru a o extrage.",
     "ArchivePassword_Placeholder": "Introduceți parola...",
     "ArchivePassword_Wrong": "Parolă incorectă, încercați din nou.",
-    "ArchivePassword_Cancelled": "Extragerea a fost anulată."
+    "ArchivePassword_Cancelled": "Extragerea a fost anulată.",
+    "Comments": "Comentarii",
+    "ShowComments": "Afișați comentariile",
+    "LoadingComments": "Se încarcă comentariile...",
+    "NoComments": "Niciun comentariu încă.",
+    "CommentsLoadFailed": "Nu s-au putut încărca comentariile.",
+    "Comments_LoginTitle": "Autentificare GameBanana",
+    "Comments_LoginInfo": "Autentificați-vă pe GameBanana pentru a vedea comentariile la modurile cu restricții de vârstă. Autentificați-vă mai jos, apoi faceți clic pe Continuare.",
+    "Comments_GetCookies": "Obțineți cookie-uri",
+    "Comments_DontAskAgain": "Nu mai întreba"
 }

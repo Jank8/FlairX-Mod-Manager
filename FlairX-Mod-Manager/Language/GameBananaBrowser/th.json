@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "ไฟล์เก็บถาวรนี้ถูกป้องกันด้วยรหัสผ่าน ป้อนรหัสผ่านเพื่อแตกไฟล์",
     "ArchivePassword_Placeholder": "ป้อนรหัสผ่าน...",
     "ArchivePassword_Wrong": "รหัสผ่านไม่ถูกต้อง กรุณาลองอีกครั้ง",
-    "ArchivePassword_Cancelled": "ยกเลิกการแตกไฟล์แล้ว"
+    "ArchivePassword_Cancelled": "ยกเลิกการแตกไฟล์แล้ว",
+    "Comments": "ความคิดเห็น",
+    "ShowComments": "แสดงความคิดเห็น",
+    "LoadingComments": "กำลังโหลดความคิดเห็น...",
+    "NoComments": "ยังไม่มีความคิดเห็น",
+    "CommentsLoadFailed": "โหลดความคิดเห็นไม่สำเร็จ",
+    "Comments_LoginTitle": "เข้าสู่ระบบ GameBanana",
+    "Comments_LoginInfo": "เข้าสู่ระบบ GameBanana เพื่อดูความคิดเห็นในม็อดที่มีข้อจำกัดด้านอายุ เข้าสู่ระบบด้านล่าง จากนั้นคลิกดำเนินการต่อ",
+    "Comments_GetCookies": "รับคุกกี้",
+    "Comments_DontAskAgain": "อย่าถามอีก"
 }

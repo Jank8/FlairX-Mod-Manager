@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "To archiwum jest chronione hasłem. Wprowadź hasło, aby je rozpakować.",
     "ArchivePassword_Placeholder": "Wprowadź hasło...",
     "ArchivePassword_Wrong": "Nieprawidłowe hasło, spróbuj ponownie.",
-    "ArchivePassword_Cancelled": "Rozpakowywanie anulowane."
+    "ArchivePassword_Cancelled": "Rozpakowywanie anulowane.",
+    "Comments": "Komentarze",
+    "ShowComments": "Pokaż komentarze",
+    "LoadingComments": "Ładowanie komentarzy...",
+    "NoComments": "Brak komentarzy.",
+    "CommentsLoadFailed": "Nie udało się załadować komentarzy.",
+    "Comments_LoginTitle": "Logowanie GameBanana",
+    "Comments_LoginInfo": "Zaloguj się do GameBanana, aby wyświetlać komentarze przy modach z ograniczeniami wiekowymi. Zaloguj się poniżej, a następnie kliknij Kontynuuj.",
+    "Comments_GetCookies": "Pobierz ciasteczka",
+    "Comments_DontAskAgain": "Nie pytaj ponownie"
 }

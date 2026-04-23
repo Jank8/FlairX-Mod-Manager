@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Este archivo está protegido con contraseña. Ingrese la contraseña para extraerlo.",
     "ArchivePassword_Placeholder": "Ingrese contraseña...",
     "ArchivePassword_Wrong": "Contraseña incorrecta, inténtelo de nuevo.",
-    "ArchivePassword_Cancelled": "Extracción cancelada."
+    "ArchivePassword_Cancelled": "Extracción cancelada.",
+    "Comments": "Comentarios",
+    "ShowComments": "Mostrar comentarios",
+    "LoadingComments": "Cargando comentarios...",
+    "NoComments": "Aún no hay comentarios.",
+    "CommentsLoadFailed": "No se pudieron cargar los comentarios.",
+    "Comments_LoginTitle": "Inicio de sesión en GameBanana",
+    "Comments_LoginInfo": "Inicia sesión en GameBanana para ver comentarios en mods con restricciones de edad. Inicia sesión abajo y luego haz clic en Continuar.",
+    "Comments_GetCookies": "Obtener cookies",
+    "Comments_DontAskAgain": "No preguntar de nuevo"
 }

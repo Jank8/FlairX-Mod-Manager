@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "이 아카이브는 비밀번호로 보호되어 있습니다. 압축을 풀려면 비밀번호를 입력하세요.",
     "ArchivePassword_Placeholder": "비밀번호 입력...",
     "ArchivePassword_Wrong": "비밀번호가 틀렸습니다. 다시 시도하세요.",
-    "ArchivePassword_Cancelled": "압축 해제가 취소되었습니다."
+    "ArchivePassword_Cancelled": "압축 해제가 취소되었습니다.",
+    "Comments": "댓글",
+    "ShowComments": "댓글 표시",
+    "LoadingComments": "댓글 로딩 중...",
+    "NoComments": "아직 댓글이 없습니다.",
+    "CommentsLoadFailed": "댓글을 불러오지 못했습니다.",
+    "Comments_LoginTitle": "GameBanana 로그인",
+    "Comments_LoginInfo": "연령 제한 모드의 댓글을 보려면 GameBanana에 로그인하세요. 아래에서 로그인한 후 계속을 클릭하세요.",
+    "Comments_GetCookies": "쿠키 가져오기",
+    "Comments_DontAskAgain": "다시 묻지 않기"
 }

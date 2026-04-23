@@ -66,6 +66,15 @@ namespace FlairX_Mod_Manager.Pages
 
                 // Runtimes
                 RefreshRuntimes();
+
+                // GameBanana status
+                var cookies = Services.CloudflareBypassService.GetCachedCookies();
+                GBCookieStatus.Text = string.IsNullOrEmpty(cookies)
+                    ? "None"
+                    : $"Present ({cookies.Length} chars)";
+                GBLoginPromptStatus.Text = SettingsManager.Current.CommentsLoginPromptDismissed
+                    ? "Dismissed (won't show)"
+                    : "Active (will show on first comments load)";
             }
             catch (Exception ex)
             {
@@ -546,6 +555,45 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         private void RefreshDiag_Click(object sender, RoutedEventArgs e) => RefreshDiagnostics();
+
+        private void ClearGBCookies_Click(object sender, RoutedEventArgs e)
+        {
+            Services.CloudflareBypassService.ClearCookies();
+            SettingsManager.Current.CommentsLoginPromptDismissed = false;
+            SettingsManager.Save();
+
+            // Also clear WebView2 cache so session is fully gone
+            try
+            {
+                var exePath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+                if (!string.IsNullOrEmpty(exePath))
+                {
+                    var cacheDir = exePath + ".WebView2";
+                    if (System.IO.Directory.Exists(cacheDir))
+                    {
+                        System.IO.Directory.Delete(cacheDir, recursive: true);
+                        Logger.LogInfo($"WebView2 cache cleared alongside GB cookies: {cacheDir}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to clear WebView2 cache during cookie clear", ex);
+            }
+
+            RefreshDiagnostics();
+            if (App.Current is App app && app.MainWindow is MainWindow mw)
+                mw.ShowSuccessInfo("GameBanana cookies & WebView2 cache cleared");
+        }
+
+        private void ResetGBLoginPrompt_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.CommentsLoginPromptDismissed = false;
+            SettingsManager.Save();
+            RefreshDiagnostics();
+            if (App.Current is App app && app.MainWindow is MainWindow mw)
+                mw.ShowSuccessInfo("Login prompt reset — will show on next comments load");
+        }
 
         private void ClearImageCache_Click(object sender, RoutedEventArgs e)
         {

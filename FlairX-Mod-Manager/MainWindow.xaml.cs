@@ -46,6 +46,11 @@ namespace FlairX_Mod_Manager
         public Frame ContentFrame => contentFrame;
 
         /// <summary>
+        /// Hidden container for off-screen WebView2 rendering (comments scraping)
+        /// </summary>
+        public Grid GetHiddenWebViewContainer() => HiddenWebViewContainer;
+
+        /// <summary>
         /// Get the current ModGridPage instance if available
         /// </summary>
         public FlairX_Mod_Manager.Pages.ModGridPage? GetCurrentModGridPage()

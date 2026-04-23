@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Ang archive na ito ay protektado ng password. Ilagay ang password para i-extract ito.",
     "ArchivePassword_Placeholder": "Ilagay ang password...",
     "ArchivePassword_Wrong": "Maling password, subukan muli.",
-    "ArchivePassword_Cancelled": "Kinansela ang pag-extract."
+    "ArchivePassword_Cancelled": "Kinansela ang pag-extract.",
+    "Comments": "Mga Komento",
+    "ShowComments": "Ipakita ang mga komento",
+    "LoadingComments": "Naglo-load ng mga komento...",
+    "NoComments": "Wala pang mga komento.",
+    "CommentsLoadFailed": "Hindi ma-load ang mga komento.",
+    "Comments_LoginTitle": "GameBanana Login",
+    "Comments_LoginInfo": "Mag-login sa GameBanana upang makita ang mga komento sa mga mod na may paghihigpit sa edad. Mag-login sa ibaba, pagkatapos ay i-click ang Magpatuloy.",
+    "Comments_GetCookies": "Kumuha ng cookies",
+    "Comments_DontAskAgain": "Huwag nang itanong muli"
 }

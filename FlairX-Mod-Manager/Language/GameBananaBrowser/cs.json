@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Tento archiv je chráněn heslem. Zadejte heslo pro rozbalení.",
     "ArchivePassword_Placeholder": "Zadejte heslo...",
     "ArchivePassword_Wrong": "Nesprávné heslo, zkuste to znovu.",
-    "ArchivePassword_Cancelled": "Rozbalení zrušeno."
+    "ArchivePassword_Cancelled": "Rozbalení zrušeno.",
+    "Comments": "Komentáře",
+    "ShowComments": "Zobrazit komentáře",
+    "LoadingComments": "Načítání komentářů...",
+    "NoComments": "Zatím žádné komentáře.",
+    "CommentsLoadFailed": "Nepodařilo se načíst komentáře.",
+    "Comments_LoginTitle": "Přihlášení GameBanana",
+    "Comments_LoginInfo": "Přihlaste se do GameBanana, abyste mohli zobrazit komentáře k modům s věkovým omezením. Přihlaste se níže a klikněte na Pokračovat.",
+    "Comments_GetCookies": "Získat cookies",
+    "Comments_DontAskAgain": "Příště neptat"
 }

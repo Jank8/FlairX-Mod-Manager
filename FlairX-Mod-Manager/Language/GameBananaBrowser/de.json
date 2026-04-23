@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Dieses Archiv ist passwortgeschützt. Geben Sie das Passwort ein, um es zu entpacken.",
     "ArchivePassword_Placeholder": "Passwort eingeben...",
     "ArchivePassword_Wrong": "Falsches Passwort, bitte erneut versuchen.",
-    "ArchivePassword_Cancelled": "Entpacken abgebrochen."
+    "ArchivePassword_Cancelled": "Entpacken abgebrochen.",
+    "Comments": "Kommentare",
+    "ShowComments": "Kommentare anzeigen",
+    "LoadingComments": "Kommentare werden geladen...",
+    "NoComments": "Noch keine Kommentare.",
+    "CommentsLoadFailed": "Kommentare konnten nicht geladen werden.",
+    "Comments_LoginTitle": "GameBanana-Anmeldung",
+    "Comments_LoginInfo": "Melde dich bei GameBanana an, um Kommentare zu altersbeschränkten Mods anzuzeigen. Melde dich unten an und klicke dann auf Weiter.",
+    "Comments_GetCookies": "Cookies holen",
+    "Comments_DontAskAgain": "Nicht mehr fragen"
 }

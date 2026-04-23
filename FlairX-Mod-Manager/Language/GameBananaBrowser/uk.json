@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Цей архів захищено паролем. Введіть пароль для розпакування.",
     "ArchivePassword_Placeholder": "Введіть пароль...",
     "ArchivePassword_Wrong": "Неправильний пароль, спробуйте ще раз.",
-    "ArchivePassword_Cancelled": "Розпакування скасовано."
+    "ArchivePassword_Cancelled": "Розпакування скасовано.",
+    "Comments": "Коментарі",
+    "ShowComments": "Показати коментарі",
+    "LoadingComments": "Завантаження коментарів...",
+    "NoComments": "Коментарів поки немає.",
+    "CommentsLoadFailed": "Не вдалося завантажити коментарі.",
+    "Comments_LoginTitle": "Вхід у GameBanana",
+    "Comments_LoginInfo": "Увійдіть у GameBanana, щоб переглядати коментарі до модів з віковими обмеженнями. Увійдіть нижче, потім натисніть Продовжити.",
+    "Comments_GetCookies": "Отримати куки",
+    "Comments_DontAskAgain": "Більше не питати"
 }

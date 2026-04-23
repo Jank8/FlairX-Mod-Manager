@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "このアーカイブはパスワードで保護されています。解凍するにはパスワードを入力してください。",
     "ArchivePassword_Placeholder": "パスワードを入力...",
     "ArchivePassword_Wrong": "パスワードが間違っています。もう一度お試しください。",
-    "ArchivePassword_Cancelled": "解凍がキャンセルされました。"
+    "ArchivePassword_Cancelled": "解凍がキャンセルされました。",
+    "Comments": "コメント",
+    "ShowComments": "コメントを表示",
+    "LoadingComments": "コメントを読み込み中...",
+    "NoComments": "まだコメントはありません。",
+    "CommentsLoadFailed": "コメントの読み込みに失敗しました。",
+    "Comments_LoginTitle": "GameBananaログイン",
+    "Comments_LoginInfo": "年齢制限のあるModのコメントを表示するには、GameBananaにログインしてください。下でログインして「続行」をクリックしてください。",
+    "Comments_GetCookies": "Cookieを取得",
+    "Comments_DontAskAgain": "次回から表示しない"
 }

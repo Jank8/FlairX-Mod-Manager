@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Bu arşiv şifre korumalıdır. Çıkarmak için şifreyi girin.",
     "ArchivePassword_Placeholder": "Şifreyi girin...",
     "ArchivePassword_Wrong": "Yanlış şifre, lütfen tekrar deneyin.",
-    "ArchivePassword_Cancelled": "Çıkarma iptal edildi."
+    "ArchivePassword_Cancelled": "Çıkarma iptal edildi.",
+    "Comments": "Yorumlar",
+    "ShowComments": "Yorumları göster",
+    "LoadingComments": "Yorumlar yükleniyor...",
+    "NoComments": "Henüz yorum yok.",
+    "CommentsLoadFailed": "Yorumlar yüklenemedi.",
+    "Comments_LoginTitle": "GameBanana Girişi",
+    "Comments_LoginInfo": "Yaş kısıtlamalı modların yorumlarını görmek için GameBanana'ya giriş yapın. Aşağıdan giriş yapın, ardından Devam'a tıklayın.",
+    "Comments_GetCookies": "Çerezleri al",
+    "Comments_DontAskAgain": "Bir daha sorma"
 }

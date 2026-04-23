@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Tệp nén này được bảo vệ bằng mật khẩu. Nhập mật khẩu để giải nén.",
     "ArchivePassword_Placeholder": "Nhập mật khẩu...",
     "ArchivePassword_Wrong": "Mật khẩu không đúng, vui lòng thử lại.",
-    "ArchivePassword_Cancelled": "Đã hủy giải nén."
+    "ArchivePassword_Cancelled": "Đã hủy giải nén.",
+    "Comments": "Bình luận",
+    "ShowComments": "Hiển thị bình luận",
+    "LoadingComments": "Đang tải bình luận...",
+    "NoComments": "Chưa có bình luận.",
+    "CommentsLoadFailed": "Không thể tải bình luận.",
+    "Comments_LoginTitle": "Đăng nhập GameBanana",
+    "Comments_LoginInfo": "Đăng nhập vào GameBanana để xem bình luận trên các mod có giới hạn độ tuổi. Đăng nhập bên dưới, sau đó nhấp Tiếp tục.",
+    "Comments_GetCookies": "Lấy cookie",
+    "Comments_DontAskAgain": "Không hỏi lại"
 }

@@ -90,6 +90,14 @@ namespace FlairX_Mod_Manager.Services
 
         public static string? GetCachedCookies() => _cookies;
         public static string? GetCachedUserAgent() => _userAgent;
+
+        public static void SetCookiesManually(string cookies, string? userAgent)
+        {
+            _cookies = cookies;
+            _userAgent = userAgent;
+            SaveCookiesToFile();
+            Logger.LogInfo("Cookies set manually and saved");
+        }
         
         public static void ClearCookies()
         {

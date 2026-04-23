@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Αυτό το αρχείο προστατεύεται με κωδικό. Εισάγετε τον κωδικό για αποσυμπίεση.",
     "ArchivePassword_Placeholder": "Εισάγετε κωδικό...",
     "ArchivePassword_Wrong": "Λανθασμένος κωδικός, δοκιμάστε ξανά.",
-    "ArchivePassword_Cancelled": "Η αποσυμπίεση ακυρώθηκε."
+    "ArchivePassword_Cancelled": "Η αποσυμπίεση ακυρώθηκε.",
+    "Comments": "Σχόλια",
+    "ShowComments": "Εμφάνιση σχολίων",
+    "LoadingComments": "Φόρτωση σχολίων...",
+    "NoComments": "Δεν υπάρχουν σχόλια ακόμα.",
+    "CommentsLoadFailed": "Αποτυχία φόρτωσης σχολίων.",
+    "Comments_LoginTitle": "Σύνδεση GameBanana",
+    "Comments_LoginInfo": "Συνδεθείτε στο GameBanana για να δείτε σχόλια σε mods με περιορισμούς ηλικίας. Συνδεθείτε παρακάτω και κάντε κλικ στο Συνέχεια.",
+    "Comments_GetCookies": "Λήψη cookies",
+    "Comments_DontAskAgain": "Να μην ερωτηθώ ξανά"
 }

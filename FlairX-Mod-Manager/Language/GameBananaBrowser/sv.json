@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Det här arkivet är lösenordsskyddat. Ange lösenordet för att packa upp det.",
     "ArchivePassword_Placeholder": "Ange lösenord...",
     "ArchivePassword_Wrong": "Fel lösenord, försök igen.",
-    "ArchivePassword_Cancelled": "Uppackning avbruten."
+    "ArchivePassword_Cancelled": "Uppackning avbruten.",
+    "Comments": "Kommentarer",
+    "ShowComments": "Visa kommentarer",
+    "LoadingComments": "Laddar kommentarer...",
+    "NoComments": "Inga kommentarer ännu.",
+    "CommentsLoadFailed": "Det gick inte att ladda kommentarer.",
+    "Comments_LoginTitle": "GameBanana-inloggning",
+    "Comments_LoginInfo": "Logga in på GameBanana för att se kommentarer på åldersbegränsade mods. Logga in nedan och klicka sedan på Fortsätt.",
+    "Comments_GetCookies": "Hämta cookies",
+    "Comments_DontAskAgain": "Fråga inte igen"
 }

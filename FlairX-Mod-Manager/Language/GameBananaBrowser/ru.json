@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Этот архив защищён паролем. Введите пароль для извлечения.",
     "ArchivePassword_Placeholder": "Введите пароль...",
     "ArchivePassword_Wrong": "Неверный пароль, попробуйте ещё раз.",
-    "ArchivePassword_Cancelled": "Извлечение отменено."
+    "ArchivePassword_Cancelled": "Извлечение отменено.",
+    "Comments": "Комментарии",
+    "ShowComments": "Показать комментарии",
+    "LoadingComments": "Загрузка комментариев...",
+    "NoComments": "Комментариев пока нет.",
+    "CommentsLoadFailed": "Не удалось загрузить комментарии.",
+    "Comments_LoginTitle": "Вход в GameBanana",
+    "Comments_LoginInfo": "Войдите в GameBanana, чтобы просматривать комментарии к модам с возрастными ограничениями. Войдите ниже, затем нажмите Продолжить.",
+    "Comments_GetCookies": "Получить куки",
+    "Comments_DontAskAgain": "Больше не спрашивать"
 }

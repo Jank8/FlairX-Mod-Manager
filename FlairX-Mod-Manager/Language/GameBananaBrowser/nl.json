@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Dit archief is beveiligd met een wachtwoord. Voer het wachtwoord in om het uit te pakken.",
     "ArchivePassword_Placeholder": "Voer wachtwoord in...",
     "ArchivePassword_Wrong": "Onjuist wachtwoord, probeer het opnieuw.",
-    "ArchivePassword_Cancelled": "Uitpakken geannuleerd."
+    "ArchivePassword_Cancelled": "Uitpakken geannuleerd.",
+    "Comments": "Reacties",
+    "ShowComments": "Reacties tonen",
+    "LoadingComments": "Reacties laden...",
+    "NoComments": "Nog geen reacties.",
+    "CommentsLoadFailed": "Reacties konden niet worden geladen.",
+    "Comments_LoginTitle": "GameBanana inloggen",
+    "Comments_LoginInfo": "Log in op GameBanana om reacties op leeftijdsbeperkte mods te bekijken. Log hieronder in en klik op Doorgaan.",
+    "Comments_GetCookies": "Cookies ophalen",
+    "Comments_DontAskAgain": "Niet meer vragen"
 }

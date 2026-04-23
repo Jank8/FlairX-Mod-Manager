@@ -28,6 +28,53 @@ namespace FlairX_Mod_Manager.Pages
         private static readonly HttpClient _imageHttpClient = new();
         private readonly Dictionary<string, BitmapImage> _imageCache = new();
         
+        // Comments
+        private ObservableCollection<CommentViewModel> _comments = new();
+        private bool _commentsLoaded = false;
+        private bool _commentsHasMore = false;
+        private bool _commentsLoadingMore = false;
+        private Microsoft.UI.Xaml.Controls.WebView2? _commentsWebView = null;
+
+        public class CommentViewModel
+        {
+            public string AuthorName { get; set; } = "";
+            public string? AvatarUrl { get; set; }
+            public string Body { get; set; } = "";
+            public long DatePosted { get; set; }
+            public bool IsReply { get; set; } = false;
+            public ObservableCollection<CommentViewModel> Replies { get; set; } = new();
+            public bool HasReplies => Replies.Count > 0;
+            public Visibility RepliesVisibility => HasReplies ? Visibility.Visible : Visibility.Collapsed;
+
+            private BitmapImage? _avatarSource;
+            public BitmapImage? AvatarSource
+            {
+                get
+                {
+                    if (_avatarSource == null && !string.IsNullOrEmpty(AvatarUrl))
+                    {
+                        try { _avatarSource = new BitmapImage(new Uri(AvatarUrl)); } catch { }
+                    }
+                    return _avatarSource;
+                }
+            }
+
+            public string DateFormatted
+            {
+                get
+                {
+                    if (DatePosted == 0) return "";
+                    var dt = DateTimeOffset.FromUnixTimeSeconds(DatePosted).LocalDateTime;
+                    var diff = DateTime.Now - dt;
+                    if (diff.TotalDays >= 365) return $"{(int)(diff.TotalDays / 365)}y ago";
+                    if (diff.TotalDays >= 30)  return $"{(int)(diff.TotalDays / 30)}mo ago";
+                    if (diff.TotalDays >= 1)   return $"{(int)diff.TotalDays}d ago";
+                    if (diff.TotalHours >= 1)  return $"{(int)diff.TotalHours}h ago";
+                    if (diff.TotalMinutes >= 1) return $"{(int)diff.TotalMinutes}m ago";
+                    return "just now";
+                }
+            }
+        }
         // Source mod path - when opened from mod library, this is the path of the mod we're checking for updates
         private string? _sourceModPath = null;
         
@@ -231,6 +278,7 @@ namespace FlairX_Mod_Manager.Pages
                 : Visibility.Collapsed;
             
             ModsGridView.ItemsSource = _mods;
+            CommentsList.ItemsSource = _comments;
             
             // Attach to the named ScrollViewer directly
             ModsScrollViewer.ViewChanged += ModsScrollViewer_ViewChanged;
@@ -1607,6 +1655,16 @@ namespace FlairX_Mod_Manager.Pages
             _detailFiles.Clear();
             _currentState = NavigationState.ModsList;
             _imageCache.Clear();
+            // Reset comments
+            _commentsLoaded = false;
+            _commentsHasMore = false;
+            _commentsLoadingMore = false;
+            _comments.Clear();
+            CommentsSection.Visibility = Visibility.Collapsed;
+            ShowCommentsButton.Visibility = Visibility.Collapsed;
+            // Close WebView2 used for comments
+            try { _commentsWebView?.Close(); } catch { }
+            _commentsWebView = null;
             var gameName = GetGameName(_gameTag);
             var titleFormat = SharedUtilities.GetTranslation(_lang, "BrowseTitle");
             TitleText.Text = string.Format(titleFormat, gameName);
@@ -1950,6 +2008,20 @@ namespace FlairX_Mod_Manager.Pages
                 
                 DetailOpenBrowserButton.Visibility = Visibility.Visible;
                 
+                // Reset comments section for new mod
+                _commentsLoaded = false;
+                _commentsHasMore = false;
+                _commentsLoadingMore = false;
+                _comments.Clear();
+                try { _commentsWebView?.Close(); } catch { }
+                _commentsWebView = null;
+                CommentsSection.Visibility = Visibility.Collapsed;
+                CommentsLoadingPanel.Visibility = Visibility.Collapsed;
+                CommentsErrorText.Visibility = Visibility.Collapsed;
+                ShowCommentsButton.Visibility = Visibility.Visible;
+                ShowCommentsButtonText.Text = SharedUtilities.GetTranslation(_lang, "ShowComments") ?? "Show Comments";
+                ShowCommentsIcon.Glyph = "\uE8F2";
+                
                 // Ensure size changed event is attached for markdown images
                 if (!_isAttachedToSizeChanged)
                 {
@@ -2253,6 +2325,188 @@ namespace FlairX_Mod_Manager.Pages
             if (_currentModDetails != null && !string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
             {
                 await Windows.System.Launcher.LaunchUriAsync(new Uri(_currentModDetails.ProfileUrl));
+            }
+        }
+
+        private async void ShowCommentsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentModDetails == null) return;
+
+            // Toggle: if already loaded and visible, collapse
+            if (_commentsLoaded && CommentsSection.Visibility == Visibility.Visible)
+            {
+                CommentsSection.Visibility = Visibility.Collapsed;
+                ShowCommentsIcon.Glyph = "\uE8F2";
+                ShowCommentsButtonText.Text = SharedUtilities.GetTranslation(_lang, "ShowComments") ?? "Show Comments";
+                return;
+            }
+
+            // Show section
+            CommentsSection.Visibility = Visibility.Visible;
+            ShowCommentsIcon.Glyph = "\uE8F2";
+            ShowCommentsButtonText.Text = SharedUtilities.GetTranslation(_lang, "ShowComments") ?? "Show Comments";
+
+            // If already loaded, just show
+            if (_commentsLoaded) return;
+
+            // First time loading — show login dialog if not dismissed
+            if (!SettingsManager.Current.CommentsLoginPromptDismissed)
+            {
+                var loginDialog = new Dialogs.GameBananaLoginDialog
+                {
+                    XamlRoot = this.XamlRoot
+                };
+                await loginDialog.ShowAsync();
+
+                if (loginDialog.DontAskAgain)
+                {
+                    SettingsManager.Current.CommentsLoginPromptDismissed = true;
+                    SettingsManager.Save();
+                }
+                // Continue regardless — SFW mods work without login
+            }
+
+            // Load comments (first page only — no Load More clicks)
+            CommentsLoadingPanel.Visibility = Visibility.Visible;
+            CommentsErrorText.Visibility = Visibility.Collapsed;
+            CommentsLoadingText.Text = SharedUtilities.GetTranslation(_lang, "LoadingComments") ?? "Loading comments...";
+            _comments.Clear();
+
+            try
+            {
+                var (comments, hasMore, webView) = await GameBananaService.GetModCommentsAsync(_currentModDetails.Id, loadAllPages: false);
+                _commentsWebView = webView;
+
+                CommentsLoadingPanel.Visibility = Visibility.Collapsed;
+
+                if (comments == null)
+                {
+                    CommentsErrorText.Text = SharedUtilities.GetTranslation(_lang, "CommentsLoadFailed") ?? "Failed to load comments.";
+                    CommentsErrorText.Visibility = Visibility.Visible;
+                    return;
+                }
+
+                if (comments.Count == 0)
+                {
+                    CommentsErrorText.Text = SharedUtilities.GetTranslation(_lang, "NoComments") ?? "No comments yet.";
+                    CommentsErrorText.Visibility = Visibility.Visible;
+                    _commentsLoaded = true;
+                    return;
+                }
+
+                foreach (var c in comments)
+                {
+                    var vm = new CommentViewModel
+                    {
+                        AuthorName = c.AuthorName,
+                        AvatarUrl = c.AvatarUrl,
+                        Body = c.Body,
+                        DatePosted = c.DatePosted
+                    };
+                    foreach (var r in c.Replies)
+                    {
+                        vm.Replies.Add(new CommentViewModel
+                        {
+                            AuthorName = r.AuthorName,
+                            AvatarUrl = r.AvatarUrl,
+                            Body = r.Body,
+                            DatePosted = r.DatePosted,
+                            IsReply = true
+                        });
+                    }
+                    _comments.Add(vm);
+                }
+
+                _commentsHasMore = hasMore;
+                CommentsLoadMoreButton.Visibility = hasMore ? Visibility.Visible : Visibility.Collapsed;
+                _commentsLoaded = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to load comments", ex);
+                CommentsLoadingPanel.Visibility = Visibility.Collapsed;
+                CommentsErrorText.Text = SharedUtilities.GetTranslation(_lang, "CommentsLoadFailed") ?? "Failed to load comments.";
+                CommentsErrorText.Visibility = Visibility.Visible;
+            }
+        }
+
+        private async void LoadMoreComments_Click(object sender, RoutedEventArgs e)
+        {
+            if (_currentModDetails == null || _commentsLoadingMore) return;
+
+            _commentsLoadingMore = true;
+            CommentsLoadMoreButton.IsEnabled = false;
+            CommentsLoadMoreButton.Content = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Spacing = 8,
+                Children =
+                {
+                    new ProgressRing { IsActive = true, Width = 16, Height = 16 },
+                    new TextBlock { Text = SharedUtilities.GetTranslation(_lang, "LoadingComments") ?? "Loading..." }
+                }
+            };
+
+            try
+            {
+                List<GameBananaService.ModComment>? comments;
+                bool hasMore;
+
+                if (_commentsWebView?.CoreWebView2 != null)
+                {
+                    // Reuse existing WebView2 — just click Load More and extract
+                    var result = await GameBananaService.ExtractCommentsFromWebViewAsync(_commentsWebView, clickLoadMore: true);
+                    comments = result.Comments;
+                    hasMore = result.HasMore;
+                }
+                else
+                {
+                    // Fallback: full reload
+                    var result = await GameBananaService.GetModCommentsAsync(_currentModDetails.Id, loadAllPages: true);
+                    comments = result.Comments;
+                    hasMore = result.HasMore;
+                    _commentsWebView = result.WebView;
+                }
+
+                if (comments != null)
+                {
+                    _comments.Clear();
+                    foreach (var c in comments)
+                    {
+                        var vm = new CommentViewModel
+                        {
+                            AuthorName = c.AuthorName,
+                            AvatarUrl = c.AvatarUrl,
+                            Body = c.Body,
+                            DatePosted = c.DatePosted
+                        };
+                        foreach (var r in c.Replies)
+                        {
+                            vm.Replies.Add(new CommentViewModel
+                            {
+                                AuthorName = r.AuthorName,
+                                AvatarUrl = r.AvatarUrl,
+                                Body = r.Body,
+                                DatePosted = r.DatePosted,
+                                IsReply = true
+                            });
+                        }
+                        _comments.Add(vm);
+                    }
+                }
+
+                _commentsHasMore = hasMore;
+                CommentsLoadMoreButton.Visibility = hasMore ? Visibility.Visible : Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to load more comments", ex);
+            }
+            finally
+            {
+                _commentsLoadingMore = false;
+                CommentsLoadMoreButton.IsEnabled = true;
+                CommentsLoadMoreButton.Content = new TextBlock { Text = SharedUtilities.GetTranslation(_lang, "LoadMore") ?? "Load More" };
             }
         }
 

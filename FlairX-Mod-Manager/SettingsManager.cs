@@ -141,6 +141,9 @@ namespace FlairX_Mod_Manager
         // Download settings
         public bool FastDownloadEnabled { get; set; } = true;
         public int MaxDownloadConnections { get; set; } = 4;
+
+        // GameBanana comments settings
+        public bool CommentsLoginPromptDismissed { get; set; } = false;
         
         // Image Optimizer settings
         public int ImageOptimizerJpegQuality { get; set; } = 85;

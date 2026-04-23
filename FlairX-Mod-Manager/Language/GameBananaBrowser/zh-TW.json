@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "此壓縮檔受密碼保護。請輸入密碼以解壓縮。",
     "ArchivePassword_Placeholder": "輸入密碼...",
     "ArchivePassword_Wrong": "密碼錯誤，請重試。",
-    "ArchivePassword_Cancelled": "解壓縮已取消。"
+    "ArchivePassword_Cancelled": "解壓縮已取消。",
+    "Comments": "留言",
+    "ShowComments": "顯示留言",
+    "LoadingComments": "正在載入留言...",
+    "NoComments": "目前沒有留言。",
+    "CommentsLoadFailed": "載入留言失敗。",
+    "Comments_LoginTitle": "GameBanana 登入",
+    "Comments_LoginInfo": "登入 GameBanana 以查看年齡限制 Mod 的留言。在下方登入，然後點擊繼續。",
+    "Comments_GetCookies": "取得 Cookie",
+    "Comments_DontAskAgain": "不再詢問"
 }

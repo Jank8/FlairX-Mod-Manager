@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "Dette arkivet er passordbeskyttet. Skriv inn passordet for å pakke det ut.",
     "ArchivePassword_Placeholder": "Skriv inn passord...",
     "ArchivePassword_Wrong": "Feil passord, prøv igjen.",
-    "ArchivePassword_Cancelled": "Utpakking avbrutt."
+    "ArchivePassword_Cancelled": "Utpakking avbrutt.",
+    "Comments": "Kommentarer",
+    "ShowComments": "Vis kommentarer",
+    "LoadingComments": "Laster kommentarer...",
+    "NoComments": "Ingen kommentarer ennå.",
+    "CommentsLoadFailed": "Kunne ikke laste kommentarer.",
+    "Comments_LoginTitle": "GameBanana-innlogging",
+    "Comments_LoginInfo": "Logg inn på GameBanana for å se kommentarer på aldersrestriksjonsmoddene. Logg inn nedenfor og klikk Fortsett.",
+    "Comments_GetCookies": "Hent informasjonskapsler",
+    "Comments_DontAskAgain": "Ikke spør igjen"
 }

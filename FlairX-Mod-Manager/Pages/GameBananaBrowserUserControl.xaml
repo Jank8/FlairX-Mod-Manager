@@ -653,6 +653,170 @@
                             </Button>
                         </Grid>
                         
+                        <!-- 6. Show Comments Button -->
+                        <Button x:Name="ShowCommentsButton"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,12,0,0"
+                                Height="48"
+                                Visibility="Collapsed"
+                                Click="ShowCommentsButton_Click">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon x:Name="ShowCommentsIcon" Glyph="&#xE8F2;" FontSize="16"/>
+                                <TextBlock x:Name="ShowCommentsButtonText" Text="Show Comments" FontSize="14"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- 7. Comments Section -->
+                        <StackPanel x:Name="CommentsSection" Visibility="Collapsed" Margin="0,4,0,0">
+
+                            <!-- Comments loading indicator -->
+                            <StackPanel x:Name="CommentsLoadingPanel"
+                                        HorizontalAlignment="Center"
+                                        Spacing="12"
+                                        Margin="0,16,0,16"
+                                        Visibility="Collapsed">
+                                <ProgressRing IsActive="True" Width="36" Height="36"/>
+                                <TextBlock x:Name="CommentsLoadingText" Text="Loading comments..." FontSize="14" Opacity="0.7"/>
+                            </StackPanel>
+
+                            <!-- Comments error / empty -->
+                            <TextBlock x:Name="CommentsErrorText"
+                                       FontSize="14" Opacity="0.6"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,16,0,16"
+                                       Visibility="Collapsed"/>
+
+                            <!-- Comments list -->
+                            <ItemsControl x:Name="CommentsList">
+                                <ItemsControl.ItemTemplate>                                    <DataTemplate>
+                                        <!-- Top-level comment card -->
+                                        <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="8"
+                                                Padding="16"
+                                                Margin="0,0,0,8">
+                                            <StackPanel Spacing="0">
+
+                                                <!-- Comment header + body -->
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="12"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <!-- Avatar -->
+                                                    <Border Grid.Column="0"
+                                                            Width="36" Height="36"
+                                                            CornerRadius="6"
+                                                            Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                            BorderThickness="1"
+                                                            VerticalAlignment="Top">
+                                                        <Border CornerRadius="5" Margin="1">
+                                                            <Image Source="{Binding AvatarSource}" Stretch="UniformToFill"/>
+                                                        </Border>
+                                                    </Border>
+
+                                                    <!-- Author + date + body -->
+                                                    <StackPanel Grid.Column="2" Spacing="4">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0"
+                                                                       Text="{Binding AuthorName}"
+                                                                       FontWeight="SemiBold"
+                                                                       FontSize="13"
+                                                                       VerticalAlignment="Center"/>
+                                                            <TextBlock Grid.Column="1"
+                                                                       Text="{Binding DateFormatted}"
+                                                                       FontSize="11"
+                                                                       Opacity="0.45"
+                                                                       VerticalAlignment="Center"/>
+                                                        </Grid>
+                                                        <TextBlock Text="{Binding Body}"
+                                                                   FontSize="13"
+                                                                   TextWrapping="Wrap"
+                                                                   Opacity="0.85"
+                                                                   LineHeight="20"/>
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <!-- Replies -->
+                                                <ItemsControl ItemsSource="{Binding Replies}"
+                                                              Visibility="{Binding RepliesVisibility}"
+                                                              Margin="48,12,0,0">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Grid Margin="0,0,0,8">
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                    <ColumnDefinition Width="10"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                </Grid.ColumnDefinitions>
+
+                                                                <!-- Reply avatar (smaller) -->
+                                                                <Border Grid.Column="0"
+                                                                        Width="28" Height="28"
+                                                                        CornerRadius="5"
+                                                                        Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                                        BorderThickness="1"
+                                                                        VerticalAlignment="Top">
+                                                                    <Border CornerRadius="4" Margin="1">
+                                                                        <Image Source="{Binding AvatarSource}" Stretch="UniformToFill"/>
+                                                                    </Border>
+                                                                </Border>
+
+                                                                <!-- Reply content -->
+                                                                <StackPanel Grid.Column="2" Spacing="3">
+                                                                    <Grid>
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <TextBlock Grid.Column="0"
+                                                                                   Text="{Binding AuthorName}"
+                                                                                   FontWeight="SemiBold"
+                                                                                   FontSize="12"
+                                                                                   VerticalAlignment="Center"/>
+                                                                        <TextBlock Grid.Column="1"
+                                                                                   Text="{Binding DateFormatted}"
+                                                                                   FontSize="10"
+                                                                                   Opacity="0.45"
+                                                                                   VerticalAlignment="Center"/>
+                                                                    </Grid>
+                                                                    <TextBlock Text="{Binding Body}"
+                                                                               FontSize="12"
+                                                                               TextWrapping="Wrap"
+                                                                               Opacity="0.8"
+                                                                               LineHeight="18"/>
+                                                                </StackPanel>
+                                                            </Grid>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Load More Comments button -->
+                            <Button x:Name="CommentsLoadMoreButton"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,8,0,0"
+                                    Visibility="Collapsed"
+                                    Click="LoadMoreComments_Click">
+                                <TextBlock Text="Load More"/>
+                            </Button>
+
+                        </StackPanel>
+
                         <!-- Loading indicator -->
                         <StackPanel x:Name="DetailLoadingPanel" 
                                     HorizontalAlignment="Center" 

@@ -75,5 +75,14 @@
     "ArchivePassword_Description": "यह आर्काइव पासवर्ड से सुरक्षित है। निकालने के लिए पासवर्ड दर्ज करें।",
     "ArchivePassword_Placeholder": "पासवर्ड दर्ज करें...",
     "ArchivePassword_Wrong": "गलत पासवर्ड, कृपया पुनः प्रयास करें।",
-    "ArchivePassword_Cancelled": "निष्कर्षण रद्द किया गया।"
+    "ArchivePassword_Cancelled": "निष्कर्षण रद्द किया गया।",
+    "Comments": "टिप्पणियाँ",
+    "ShowComments": "टिप्पणियाँ दिखाएं",
+    "LoadingComments": "टिप्पणियाँ लोड हो रही हैं...",
+    "NoComments": "अभी तक कोई टिप्पणी नहीं।",
+    "CommentsLoadFailed": "टिप्पणियाँ लोड करने में विफल।",
+    "Comments_LoginTitle": "GameBanana लॉगिन",
+    "Comments_LoginInfo": "आयु-प्रतिबंधित मॉड्स पर टिप्पणियाँ देखने के लिए GameBanana में लॉग इन करें। नीचे लॉग इन करें, फिर जारी रखें पर क्लिक करें।",
+    "Comments_GetCookies": "कुकीज़ प्राप्त करें",
+    "Comments_DontAskAgain": "दोबारा मत पूछो"
 }
