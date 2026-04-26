@@ -319,7 +319,11 @@ namespace FlairX_Mod_Manager
                     {
                         await ReloadModsAsync();
                         if (SettingsManager.Current.SendF10OnOverlayClose)
+                        {
+                            // Wait for LoadingWindow to close and game to regain focus
+                            await Task.Delay(500);
                             SendF10KeyPress();
+                        }
                     });
                 }
                 catch (Exception ex)
@@ -491,6 +495,12 @@ namespace FlairX_Mod_Manager
                     DispatcherQueue.TryEnqueue(async () =>
                     {
                         await ReloadModsAsync();
+                        if (SettingsManager.Current.SendF10OnOverlayClose)
+                        {
+                            // Wait for LoadingWindow to close and game to regain focus
+                            await Task.Delay(500);
+                            SendF10KeyPress();
+                        }
                     });
                 }
                 catch (Exception ex)
@@ -776,59 +786,64 @@ namespace FlairX_Mod_Manager
         /// <summary>
         /// Send F10 key press to reload mods in game.
         /// With check_foreground_window = 0 in d3dx.ini, this works without admin privileges.
+        /// Sends 3 times with short intervals to ensure XXMI catches it under load.
         /// </summary>
         public async void SendF10KeyPress()
         {
             try
             {
                 Logger.LogInfo("SendF10KeyPress: Starting...");
-                
-                const ushort SCAN_F10 = 0x44; // Scan code for F10
-                
-                // Send F10 key down
-                var inputDown = new INPUT
-                {
-                    type = INPUT_KEYBOARD,
-                    u = new INPUTUNION
-                    {
-                        ki = new KEYBDINPUT
-                        {
-                            wVk = VK_F10,
-                            wScan = SCAN_F10,
-                            dwFlags = 0,
-                            time = 0,
-                            dwExtraInfo = GetMessageExtraInfo()
-                        }
-                    }
-                };
-                
+
+                const ushort SCAN_F10 = 0x44;
                 var sizeOfInput = Marshal.SizeOf<INPUT>();
-                var resultDown = SendInput(1, new[] { inputDown }, sizeOfInput);
-                Logger.LogInfo($"SendInput F10 key down result: {resultDown}");
-                
-                await Task.Delay(50);
-                
-                // Send F10 key up
-                var inputUp = new INPUT
+
+                for (int i = 0; i < 3; i++)
                 {
-                    type = INPUT_KEYBOARD,
-                    u = new INPUTUNION
+                    var inputDown = new INPUT
                     {
-                        ki = new KEYBDINPUT
+                        type = INPUT_KEYBOARD,
+                        u = new INPUTUNION
                         {
-                            wVk = VK_F10,
-                            wScan = SCAN_F10,
-                            dwFlags = KEYEVENTF_KEYUP,
-                            time = 0,
-                            dwExtraInfo = GetMessageExtraInfo()
+                            ki = new KEYBDINPUT
+                            {
+                                wVk = VK_F10,
+                                wScan = SCAN_F10,
+                                dwFlags = 0,
+                                time = 0,
+                                dwExtraInfo = GetMessageExtraInfo()
+                            }
                         }
-                    }
-                };
-                
-                var resultUp = SendInput(1, new[] { inputUp }, sizeOfInput);
-                Logger.LogInfo($"SendInput F10 key up result: {resultUp}");
-                
-                Logger.LogInfo("F10 key press sent via SendInput");
+                    };
+
+                    var resultDown = SendInput(1, new[] { inputDown }, sizeOfInput);
+                    Logger.LogInfo($"SendInput F10 key down [{i}] result: {resultDown}");
+
+                    await Task.Delay(50);
+
+                    var inputUp = new INPUT
+                    {
+                        type = INPUT_KEYBOARD,
+                        u = new INPUTUNION
+                        {
+                            ki = new KEYBDINPUT
+                            {
+                                wVk = VK_F10,
+                                wScan = SCAN_F10,
+                                dwFlags = KEYEVENTF_KEYUP,
+                                time = 0,
+                                dwExtraInfo = GetMessageExtraInfo()
+                            }
+                        }
+                    };
+
+                    var resultUp = SendInput(1, new[] { inputUp }, sizeOfInput);
+                    Logger.LogInfo($"SendInput F10 key up [{i}] result: {resultUp}");
+
+                    if (i < 2)
+                        await Task.Delay(150);
+                }
+
+                Logger.LogInfo("F10 key press sent via SendInput (3x)");
             }
             catch (Exception ex)
             {
