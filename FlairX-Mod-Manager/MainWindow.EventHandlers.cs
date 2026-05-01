@@ -82,7 +82,7 @@ namespace FlairX_Mod_Manager
                             var psi = new System.Diagnostics.ProcessStartInfo
                             {
                                 FileName = "powershell.exe",
-                                Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.2.0' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
+                                Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.2' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
                                 RedirectStandardOutput = true,
                                 UseShellExecute = false,
                                 CreateNoWindow = true
@@ -178,24 +178,14 @@ namespace FlairX_Mod_Manager
                         
                         if (result == ContentDialogResult.Primary)
                         {
-                            // Download .NET
-                            var psi = new System.Diagnostics.ProcessStartInfo
-                            {
-                                FileName = "https://dotnet.microsoft.com/download/dotnet/10.0",
-                                UseShellExecute = true
-                            };
-                            System.Diagnostics.Process.Start(psi);
+                            // Install .NET via winget or open browser
+                            await InstallDotNetRuntimeAsync();
                             // Don't close dialog, show it again
                         }
                         else if (result == ContentDialogResult.Secondary)
                         {
-                            // Download Windows App Runtime
-                            var psi = new System.Diagnostics.ProcessStartInfo
-                            {
-                                FileName = "https://aka.ms/windowsappsdk/stable/latest/windowsappruntimeinstall-x64.exe",
-                                UseShellExecute = true
-                            };
-                            System.Diagnostics.Process.Start(psi);
+                            // Install Windows App Runtime via winget or open browser
+                            await InstallWindowsAppRuntimeAsync();
                             // Don't close dialog, show it again
                         }
                     } while (result != ContentDialogResult.None); // None = CloseButton clicked
@@ -245,12 +235,8 @@ namespace FlairX_Mod_Manager
                     
                     if (result == ContentDialogResult.Primary)
                     {
-                        var psi = new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = "https://dotnet.microsoft.com/download/dotnet/10.0",
-                            UseShellExecute = true
-                        };
-                        System.Diagnostics.Process.Start(psi);
+                        // Install .NET Runtime via winget or open browser
+                        await InstallDotNetRuntimeAsync();
                     }
                 }
                 else
@@ -286,13 +272,8 @@ namespace FlairX_Mod_Manager
                 
                 if (result == ContentDialogResult.Primary)
                 {
-                    // Open download link for stable SDK 2.0+
-                    var psi = new System.Diagnostics.ProcessStartInfo
-                    {
-                        FileName = "https://aka.ms/windowsappsdk/stable/latest/windowsappruntimeinstall-x64.exe",
-                        UseShellExecute = true
-                    };
-                    System.Diagnostics.Process.Start(psi);
+                    // Install Windows App Runtime via winget or open browser
+                    await InstallWindowsAppRuntimeAsync();
                 }
             }
             catch (Exception ex)
@@ -319,7 +300,7 @@ namespace FlairX_Mod_Manager
                         var psi = new System.Diagnostics.ProcessStartInfo
                         {
                             FileName = "powershell.exe",
-                            Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.2.0' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
+                            Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.2' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
                             RedirectStandardOutput = true,
                             UseShellExecute = false,
                             CreateNoWindow = true
@@ -363,12 +344,8 @@ namespace FlairX_Mod_Manager
                     
                     if (result == ContentDialogResult.Primary)
                     {
-                        var psi = new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = "https://aka.ms/windowsappsdk/stable/latest/windowsappruntimeinstall-x64.exe",
-                            UseShellExecute = true
-                        };
-                        System.Diagnostics.Process.Start(psi);
+                        // Install Windows App Runtime via winget or open browser
+                        await InstallWindowsAppRuntimeAsync();
                     }
                 }
                 else if (installedVersion < requiredVersion)
@@ -393,12 +370,8 @@ namespace FlairX_Mod_Manager
                     
                     if (result == ContentDialogResult.Primary)
                     {
-                        var psi = new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = "https://aka.ms/windowsappsdk/stable/latest/windowsappruntimeinstall-x64.exe",
-                            UseShellExecute = true
-                        };
-                        System.Diagnostics.Process.Start(psi);
+                        // Install Windows App Runtime via winget or open browser
+                        await InstallWindowsAppRuntimeAsync();
                     }
                 }
                 else
@@ -409,6 +382,237 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError("Failed to check Windows App Runtime version", ex);
+            }
+        }
+
+        /// <summary>
+        /// Check if winget is available on the system
+        /// </summary>
+        private async Task<bool> IsWingetAvailableAsync()
+        {
+            try
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = "/c winget --version",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using var process = System.Diagnostics.Process.Start(psi);
+                if (process != null)
+                {
+                    await process.WaitForExitAsync();
+                    return process.ExitCode == 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogDebug($"Winget not available: {ex.Message}");
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Find the best available package version in winget that satisfies the required version
+        /// </summary>
+        private async Task<string?> FindBestWingetPackageAsync(string packagePrefix, Version requiredVersion)
+        {
+            try
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c winget search {packagePrefix}",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using var process = System.Diagnostics.Process.Start(psi);
+                if (process != null)
+                {
+                    var output = await process.StandardOutput.ReadToEndAsync();
+                    await process.WaitForExitAsync();
+                    
+                    if (process.ExitCode != 0)
+                    {
+                        return null;
+                    }
+
+                    // Parse winget output to find matching packages
+                    var lines = output.Split('\n');
+                    var bestPackageId = (string?)null;
+                    var bestVersion = (Version?)null;
+
+                    foreach (var line in lines)
+                    {
+                        // Skip header lines
+                        if (line.Contains("Name") || line.Contains("---") || string.IsNullOrWhiteSpace(line))
+                            continue;
+
+                        // Parse line format: "Name    Id    Version    Source"
+                        var parts = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (parts.Length < 3)
+                            continue;
+
+                        // Find the package ID (starts with packagePrefix)
+                        string? packageId = null;
+                        string? versionStr = null;
+
+                        for (int i = 0; i < parts.Length - 1; i++)
+                        {
+                            if (parts[i].StartsWith(packagePrefix, StringComparison.OrdinalIgnoreCase))
+                            {
+                                packageId = parts[i];
+                                // Version is typically the next part
+                                if (i + 1 < parts.Length)
+                                {
+                                    versionStr = parts[i + 1];
+                                }
+                                break;
+                            }
+                        }
+
+                        if (packageId == null || versionStr == null)
+                            continue;
+
+                        // Try to parse version
+                        if (Version.TryParse(versionStr, out var packageVersion))
+                        {
+                            // Check if this version satisfies the requirement
+                            if (packageVersion >= requiredVersion)
+                            {
+                                // Keep track of the best (highest) version found
+                                if (bestVersion == null || packageVersion > bestVersion)
+                                {
+                                    bestVersion = packageVersion;
+                                    bestPackageId = packageId;
+                                }
+                            }
+                        }
+                    }
+
+                    if (bestPackageId != null && bestVersion != null)
+                    {
+                        Logger.LogInfo($"Found package {bestPackageId} version {bestVersion} (required: {requiredVersion})");
+                        return bestPackageId;
+                    }
+                    else
+                    {
+                        Logger.LogInfo($"No package found matching {packagePrefix} with version >= {requiredVersion}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogDebug($"Failed to search for package {packagePrefix}: {ex.Message}");
+            }
+            
+            return null;
+        }
+
+        /// <summary>
+        /// Install .NET Runtime via winget or open browser
+        /// </summary>
+        private async Task InstallDotNetRuntimeAsync()
+        {
+            try
+            {
+                if (await IsWingetAvailableAsync())
+                {
+                    // Find the best available .NET Runtime package (10.0.7 or higher)
+                    var packageId = await FindBestWingetPackageAsync("Microsoft.DotNet.Runtime", new Version(10, 0, 7));
+                    
+                    if (packageId != null)
+                    {
+                        Logger.LogInfo($"Installing .NET Runtime via winget: {packageId}");
+                        
+                        var psi = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = "cmd.exe",
+                            Arguments = $"/c start cmd /k \"winget install {packageId} && pause\"",
+                            UseShellExecute = true,
+                            CreateNoWindow = false
+                        };
+                        System.Diagnostics.Process.Start(psi);
+                        return;
+                    }
+                    else
+                    {
+                        Logger.LogInfo(".NET Runtime 10.0.7+ not found in winget, falling back to browser");
+                    }
+                }
+                else
+                {
+                    Logger.LogInfo("Winget not available, opening browser for .NET download");
+                }
+                
+                // Fallback to browser
+                var browserPsi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "https://dotnet.microsoft.com/download/dotnet/10.0",
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(browserPsi);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to install .NET Runtime", ex);
+            }
+        }
+
+        /// <summary>
+        /// Install Windows App Runtime via winget or open browser
+        /// </summary>
+        private async Task InstallWindowsAppRuntimeAsync()
+        {
+            try
+            {
+                if (await IsWingetAvailableAsync())
+                {
+                    // Find the best available Windows App Runtime package (2.0.1 or higher)
+                    var packageId = await FindBestWingetPackageAsync("Microsoft.WindowsAppRuntime", new Version(2, 0, 1));
+                    
+                    if (packageId != null)
+                    {
+                        Logger.LogInfo($"Installing Windows App Runtime via winget: {packageId}");
+                        
+                        var psi = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = "cmd.exe",
+                            Arguments = $"/c start cmd /k \"winget install {packageId} && pause\"",
+                            UseShellExecute = true,
+                            CreateNoWindow = false
+                        };
+                        System.Diagnostics.Process.Start(psi);
+                        return;
+                    }
+                    else
+                    {
+                        Logger.LogInfo("Windows App Runtime 2.0.1+ not found in winget, falling back to browser");
+                    }
+                }
+                else
+                {
+                    Logger.LogInfo("Winget not available, opening browser for Windows App SDK download");
+                }
+                
+                // Fallback to browser
+                var browserPsi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "https://learn.microsoft.com/windows/apps/windows-app-sdk/downloads",
+                    UseShellExecute = true
+                };
+                System.Diagnostics.Process.Start(browserPsi);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to install Windows App Runtime", ex);
             }
         }
 

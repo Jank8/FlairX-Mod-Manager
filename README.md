@@ -269,7 +269,7 @@ For developers who want to build FlairX themselves:
 ### Prerequisites
 - **Visual Studio 2026** (required for .NET 10 support) or **Visual Studio 2022** with preview .NET 10 SDK
 - **[.NET 10.0.7 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)** (latest as of April 2026)
-- **[Windows App SDK 2.0.1](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads)** (stable release with SemVer)
+- **[Windows App SDK 2.0.1](https://learn.microsoft.com/windows/apps/windows-app-sdk/downloads)** (stable release with SemVer)
 
 ⚠️ **Important**: .NET 10 is officially supported only in Visual Studio 2026. Visual Studio 2022 requires enabling preview .NET SDK support and may have compatibility issues.
 

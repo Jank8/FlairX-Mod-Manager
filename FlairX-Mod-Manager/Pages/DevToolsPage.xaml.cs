@@ -349,7 +349,9 @@ namespace FlairX_Mod_Manager.Pages
                 // Use PackageManager API instead of PowerShell (much faster)
                 // SDK 2.0+ uses simple SemVer (2.0, 2.1, etc.) instead of complex subversioning
                 var packageManager = new Windows.Management.Deployment.PackageManager();
-                var packages = packageManager.FindPackagesForUser(string.Empty, "Microsoft.WindowsAppRuntime.2.0");
+                
+                // Try 2.0 first (newer naming without .0)
+                var packages = packageManager.FindPackagesForUser(string.Empty, "Microsoft.WindowsAppRuntime.2");
                 
                 foreach (var package in packages)
                 {
@@ -372,7 +374,7 @@ namespace FlairX_Mod_Manager.Pages
                 var psi = new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = "powershell.exe",
-                    Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.2.0' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
+                    Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.2' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
