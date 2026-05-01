@@ -347,15 +347,17 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 // Use PackageManager API instead of PowerShell (much faster)
+                // SDK 2.0+ uses simple SemVer (2.0, 2.1, etc.) instead of complex subversioning
                 var packageManager = new Windows.Management.Deployment.PackageManager();
-                var packages = packageManager.FindPackagesForUser(string.Empty, "Microsoft.WindowsAppRuntime.1.8");
+                var packages = packageManager.FindPackagesForUser(string.Empty, "Microsoft.WindowsAppRuntime.2.0");
                 
                 foreach (var package in packages)
                 {
                     if (package.Id.Architecture == Windows.System.ProcessorArchitecture.X64)
                     {
                         var ver = package.Id.Version;
-                        return $"{ver.Major}.{ver.Minor}.{ver.Build}.{ver.Revision}";
+                        // Return simple SemVer format: 2.0.1
+                        return $"{ver.Major}.{ver.Minor}.{ver.Build}";
                     }
                 }
             }
@@ -370,7 +372,7 @@ namespace FlairX_Mod_Manager.Pages
                 var psi = new System.Diagnostics.ProcessStartInfo
                 {
                     FileName = "powershell.exe",
-                    Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.1.8' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
+                    Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.2.0' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
@@ -382,9 +384,10 @@ namespace FlairX_Mod_Manager.Pages
                     var output = process.StandardOutput.ReadToEnd().Trim();
                     process.WaitForExit();
                     
-                    if (!string.IsNullOrWhiteSpace(output))
+                    if (!string.IsNullOrWhiteSpace(output) && Version.TryParse(output, out var version))
                     {
-                        return output;
+                        // Return simple SemVer format: 2.0.1
+                        return $"{version.Major}.{version.Minor}.{version.Build}";
                     }
                 }
             }

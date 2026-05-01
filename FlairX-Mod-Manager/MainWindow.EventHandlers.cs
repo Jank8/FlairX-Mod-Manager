@@ -60,16 +60,15 @@ namespace FlairX_Mod_Manager
                 var langDict = SharedUtilities.LoadLanguageDictionary();
                 
                 // Check .NET Runtime
-                var requiredDotNetVersion = new Version(10, 0, 2);
+                var requiredDotNetVersion = new Version(10, 0, 7);
                 var currentDotNetVersion = Environment.Version;
                 bool dotNetNeedsUpdate = currentDotNetVersion < requiredDotNetVersion;
                 
                 Logger.LogInfo($".NET Runtime version: {currentDotNetVersion}");
                 
                 // Check Windows App Runtime
-                // We only check major version (8000 = SDK 1.8, 7000 = SDK 1.7, etc.)
-                // Minor builds don't matter, only major SDK version
-                var requiredWinAppMajor = 8000; // SDK 1.8
+                // SDK 2.0+ uses simple SemVer - required version is 2.0.1
+                var requiredWinAppVersion = new Version("2.0.1");
                 Version? installedWinAppVersion = null;
                 bool winAppNeedsUpdate = false;
                 bool winAppMissing = App.IsWindowsAppRuntimeMissing;
@@ -83,7 +82,7 @@ namespace FlairX_Mod_Manager
                             var psi = new System.Diagnostics.ProcessStartInfo
                             {
                                 FileName = "powershell.exe",
-                                Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.1.8' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
+                                Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.2.0' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
                                 RedirectStandardOutput = true,
                                 UseShellExecute = false,
                                 CreateNoWindow = true
@@ -95,9 +94,10 @@ namespace FlairX_Mod_Manager
                                 var output = process.StandardOutput.ReadToEnd().Trim();
                                 process.WaitForExit();
                                 
-                                if (!string.IsNullOrWhiteSpace(output) && Version.TryParse(output, out var version))
+                                if (!string.IsNullOrWhiteSpace(output) && Version.TryParse(output, out var fullVersion))
                                 {
-                                    return version;
+                                    // Return simple SemVer format: Major.Minor.Build
+                                    return new Version(fullVersion.Major, fullVersion.Minor, fullVersion.Build);
                                 }
                             }
                         }
@@ -110,9 +110,9 @@ namespace FlairX_Mod_Manager
                     
                     if (installedWinAppVersion != null)
                     {
-                        // Only check major version (8000 = 1.8, 7000 = 1.7, etc.)
-                        winAppNeedsUpdate = installedWinAppVersion.Major < requiredWinAppMajor;
-                        Logger.LogInfo($"Windows App Runtime version: {installedWinAppVersion} (major: {installedWinAppVersion.Major}, required: {requiredWinAppMajor})");
+                        // Simple SemVer comparison (2.0.1 vs 2.0.0, etc.)
+                        winAppNeedsUpdate = installedWinAppVersion < requiredWinAppVersion;
+                        Logger.LogInfo($"Windows App Runtime version: {installedWinAppVersion} (required: {requiredWinAppVersion})");
                     }
                     else
                     {
@@ -152,7 +152,7 @@ namespace FlairX_Mod_Manager
                         else if (installedWinAppVersion != null)
                         {
                             var updateContent = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion");
-                            contentBuilder.AppendLine(string.Format(updateContent, installedWinAppVersion, $"{requiredWinAppMajor}.x"));
+                            contentBuilder.AppendLine(string.Format(updateContent, installedWinAppVersion, requiredWinAppVersion));
                         }
                         else
                         {
@@ -192,7 +192,7 @@ namespace FlairX_Mod_Manager
                             // Download Windows App Runtime
                             var psi = new System.Diagnostics.ProcessStartInfo
                             {
-                                FileName = "https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe",
+                                FileName = "https://aka.ms/windowsappsdk/stable/latest/windowsappruntimeinstall-x64.exe",
                                 UseShellExecute = true
                             };
                             System.Diagnostics.Process.Start(psi);
@@ -218,8 +218,8 @@ namespace FlairX_Mod_Manager
                 // Small delay to let the window fully load
                 await Task.Delay(500);
                 
-                // Required .NET version: 10.0.2 (corresponds to SDK 10.0.102)
-                var requiredVersion = new Version(10, 0, 2);
+                // Required .NET version: 10.0.7 (latest as of April 21, 2026)
+                var requiredVersion = new Version(10, 0, 7);
                 var currentVersion = Environment.Version;
                 
                 Logger.LogInfo($".NET Runtime version: {currentVersion}");
@@ -286,10 +286,10 @@ namespace FlairX_Mod_Manager
                 
                 if (result == ContentDialogResult.Primary)
                 {
-                    // Open download link
+                    // Open download link for stable SDK 2.0+
                     var psi = new System.Diagnostics.ProcessStartInfo
                     {
-                        FileName = "https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe",
+                        FileName = "https://aka.ms/windowsappsdk/stable/latest/windowsappruntimeinstall-x64.exe",
                         UseShellExecute = true
                     };
                     System.Diagnostics.Process.Start(psi);
@@ -300,7 +300,6 @@ namespace FlairX_Mod_Manager
                 Logger.LogError("Failed to show Windows App Runtime warning", ex);
             }
         }
-        
         private async Task CheckWindowsAppRuntimeVersionAsync()
         {
             try
@@ -308,12 +307,11 @@ namespace FlairX_Mod_Manager
                 // Small delay to let the window fully load
                 await Task.Delay(1500);
                 
-                // Required version from project (1.8.260101001 requires runtime 1.8)
-                // We check for 8000.731.1532.0 which is the minimum for SDK 1.8
-                const string requiredVersionString = "8000.731.1532.0";
+                // SDK 2.0+ uses simple SemVer - required version is 2.0.1
+                const string requiredVersionString = "2.0.1";
                 var requiredVersion = new Version(requiredVersionString);
                 
-                // Check installed runtime 1.8 version
+                // Check installed runtime 2.0 version
                 var installedVersion = await Task.Run(() =>
                 {
                     try
@@ -321,7 +319,7 @@ namespace FlairX_Mod_Manager
                         var psi = new System.Diagnostics.ProcessStartInfo
                         {
                             FileName = "powershell.exe",
-                            Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.1.8' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
+                            Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.2.0' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
                             RedirectStandardOutput = true,
                             UseShellExecute = false,
                             CreateNoWindow = true
@@ -333,9 +331,10 @@ namespace FlairX_Mod_Manager
                             var output = process.StandardOutput.ReadToEnd().Trim();
                             process.WaitForExit();
                             
-                            if (!string.IsNullOrWhiteSpace(output) && Version.TryParse(output, out var version))
+                            if (!string.IsNullOrWhiteSpace(output) && Version.TryParse(output, out var fullVersion))
                             {
-                                return version;
+                                // Return simple SemVer format: Major.Minor.Build
+                                return new Version(fullVersion.Major, fullVersion.Minor, fullVersion.Build);
                             }
                         }
                     }
@@ -348,7 +347,7 @@ namespace FlairX_Mod_Manager
                 
                 if (installedVersion == null)
                 {
-                    // No runtime 1.8 found at all
+                    // No runtime 2.0 found at all
                     var langDict = SharedUtilities.LoadLanguageDictionary();
                     
                     var dialog = new ContentDialog
@@ -366,7 +365,7 @@ namespace FlairX_Mod_Manager
                     {
                         var psi = new System.Diagnostics.ProcessStartInfo
                         {
-                            FileName = "https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe",
+                            FileName = "https://aka.ms/windowsappsdk/stable/latest/windowsappruntimeinstall-x64.exe",
                             UseShellExecute = true
                         };
                         System.Diagnostics.Process.Start(psi);
@@ -374,8 +373,8 @@ namespace FlairX_Mod_Manager
                 }
                 else if (installedVersion < requiredVersion)
                 {
-                    // Runtime 1.8 found but outdated
-                    Logger.LogInfo($"Outdated Windows App Runtime 1.8 detected: {installedVersion} (required: {requiredVersion})");
+                    // Runtime 2.0 found but outdated
+                    Logger.LogInfo($"Outdated Windows App Runtime 2.0 detected: {installedVersion} (required: {requiredVersion})");
                     
                     var langDict = SharedUtilities.LoadLanguageDictionary();
                     var contentTemplate = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion");
@@ -396,7 +395,7 @@ namespace FlairX_Mod_Manager
                     {
                         var psi = new System.Diagnostics.ProcessStartInfo
                         {
-                            FileName = "https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe",
+                            FileName = "https://aka.ms/windowsappsdk/stable/latest/windowsappruntimeinstall-x64.exe",
                             UseShellExecute = true
                         };
                         System.Diagnostics.Process.Start(psi);
@@ -404,7 +403,7 @@ namespace FlairX_Mod_Manager
                 }
                 else
                 {
-                    Logger.LogInfo($"Windows App Runtime 1.8 version OK: {installedVersion}");
+                    Logger.LogInfo($"Windows App Runtime 2.0 version OK: {installedVersion}");
                 }
             }
             catch (Exception ex)

@@ -22,7 +22,7 @@
     <AssemblyVersion>4.0.0.0</AssemblyVersion>
     <FileVersion>4.0.0.0</FileVersion>
     <AssemblyTitle>FlairX Mod Manager</AssemblyTitle>
-    <AssemblyDescription>Advanced mod manager for games with global hotkey support and WinUI3 1.8.4 compatibility</AssemblyDescription>
+    <AssemblyDescription>Advanced mod manager for games with global hotkey support and WinUI3 2.0 compatibility</AssemblyDescription>
     <AssemblyCompany>FlairX</AssemblyCompany>
     <AssemblyProduct>FlairX Mod Manager</AssemblyProduct>
     <AssemblyCopyright>Copyright © 2026 FlairX</AssemblyCopyright>
@@ -58,15 +58,15 @@
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
     
     <!-- Microsoft Packages -->
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260317003" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.1" />
     <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
-    <PackageReference Include="ppy.SDL3-CS" Version="2026.320.0" />
+    <PackageReference Include="ppy.SDL3-CS" Version="2026.429.0" />
     <PackageReference Include="ReverseMarkdown" Version="5.3.0" />
-    <PackageReference Include="SharpSevenZip" Version="2.0.36" />
+    <PackageReference Include="SharpSevenZip" Version="2.0.45" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     
     <!-- Graphics & Scripting -->
-    <PackageReference Include="System.Drawing.Common" Version="10.0.6" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.7" />
     <PackageReference Include="NLua" Version="1.7.8" />
     
     <!-- WebView2 for Cloudflare bypass -->
@@ -111,10 +111,12 @@
     <PropertyGroup>
       <PackageVersionsJson>
 {
-  "Microsoft.WindowsAppSDK": "1.8.260317003",
-  "SharpSevenZip": "2.0.36",
+  "Microsoft.WindowsAppSDK": "2.0.1",
+  "SharpSevenZip": "2.0.45",
   "NLua": "1.7.8",
-  "CommunityToolkit.WinUI.Media": "8.2.251219"
+  "CommunityToolkit.WinUI.Media": "8.2.251219",
+  "ppy.SDL3-CS": "2026.429.0",
+  "System.Drawing.Common": "10.0.7"
 }
       </PackageVersionsJson>
     </PropertyGroup>
