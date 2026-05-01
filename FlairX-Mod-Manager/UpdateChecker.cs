@@ -363,7 +363,7 @@ rmdir /s /q ""{tempDir}""
 
         public static string GetCurrentVersion()
         {
-            return AppConstants.APP_VERSION;
+            return AppConstants.APP_VERSION_DISPLAY;
         }
     }
 }

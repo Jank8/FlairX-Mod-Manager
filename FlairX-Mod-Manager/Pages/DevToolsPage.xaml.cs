@@ -19,7 +19,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
-                DiagVersion.Text = AppConstants.APP_VERSION;
+                DiagVersion.Text = AppConstants.APP_VERSION_DISPLAY;
                 DiagGame.Text = SettingsManager.CurrentSelectedGame ?? "None";
 
                 var allMods = ModListManager.GetAllMods();

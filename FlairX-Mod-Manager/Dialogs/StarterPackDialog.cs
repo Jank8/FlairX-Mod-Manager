@@ -24,7 +24,7 @@ namespace FlairX_Mod_Manager.Dialogs
 
         private static readonly Dictionary<string, string> _archiveKeys = new()
         {
-            { "ZZMI", "Kko0bUI3NXQzMEBqSEk2QkRAWGchSDJTVCFNQmJP" },
+            { "ZZMI", "SjRtQjc1dDMwQGpISTZCREBYZyFIMlNUIU1CYk8=" },
         };
 
         private static string? GetArchiveKey(string gameTag)
