@@ -28,17 +28,18 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 ## 💻 System Requirements
 
 - **Windows 11** (recommended) or **Windows 10 22H2**
-- **.NET 10 Runtime** - automatically installed if missing
+- **.NET 10.0.7 Runtime** - automatically installed if missing
+- **Windows App SDK 2.0.1** - automatically installed if missing
 - 4GB RAM (8GB recommended)
 - 1280×720 display resolution
 - 500MB free disk space
 
 ## 📥 Installation
 
-1. Download the latest release (v3.9.4)
+1. Download the latest release (v4.0.0 LTS)
 2. Extract files to your desired location
 3. Run `FlairX Mod Manager Launcher.exe`
-4. If .NET 10 is missing, FlairX will prompt you to install it
+4. If .NET 10.0.7 or Windows App SDK 2.0.1 is missing, FlairX will prompt you to install it
 5. Select your game and start managing mods
 
 ## 🚀 Quick Start
@@ -267,8 +268,8 @@ For developers who want to build FlairX themselves:
 
 ### Prerequisites
 - **Visual Studio 2026** (required for .NET 10 support) or **Visual Studio 2022** with preview .NET 10 SDK
-- **[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)**
-- **[Windows App SDK 1.8](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads)**
+- **[.NET 10.0.7 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)** (latest as of April 2026)
+- **[Windows App SDK 2.0.1](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads)** (stable release with SemVer)
 
 ⚠️ **Important**: .NET 10 is officially supported only in Visual Studio 2026. Visual Studio 2022 requires enabling preview .NET SDK support and may have compatibility issues.
 
@@ -286,11 +287,12 @@ dotnet publish "FlairX-Mod-Manager Launcher/FlairX Mod Manager Launcher.csproj" 
 ```
 
 ### Key Technologies Used
-- Microsoft.WindowsAppSDK (1.8.260209005) - Modern Windows UI
-- CommunityToolkit.WinUI (7.1.2) - UI components
-- ppy.SDL3-CS (2025.1205.0) - Controller support
-- Microsoft.Web.WebView2 (1.0.3800.47) - GameBanana browser
-- SharpSevenZip (2.0.36) - Archive extraction
+- **Microsoft.WindowsAppSDK (2.0.1)** - Modern Windows UI with SemVer
+- **CommunityToolkit.WinUI (7.1.2)** - UI components
+- **ppy.SDL3-CS (2026.429.0)** - Controller support
+- **Microsoft.Web.WebView2 (1.0.3912.50)** - GameBanana browser
+- **SharpSevenZip (2.0.45)** - Archive extraction
+- **System.Drawing.Common (10.0.7)** - Image processing
 
 ## 📄 License
 
