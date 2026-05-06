@@ -2194,21 +2194,30 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (sender is TextBox textBox && int.TryParse(textBox.Text, out int width))
             {
-                // Get full screen resolution (not just work area)
-                var bounds = Microsoft.UI.Windowing.DisplayArea.Primary.OuterBounds;
-                int maxWidth = bounds.Width;
-                int minWidth = 1300; // Use MainWindow MIN_WIDTH constant
-                
-                if (width >= minWidth && width <= maxWidth)
+                // Only validate if the textbox is enabled (user is editing)
+                if (textBox.IsEnabled)
                 {
-                    SettingsManager.Current.DefaultStartWidth = width;
-                    SettingsManager.Save();
-                    textBox.BorderBrush = null; // Reset border color
+                    // Get full screen resolution (not just work area)
+                    var bounds = Microsoft.UI.Windowing.DisplayArea.Primary.OuterBounds;
+                    int maxWidth = bounds.Width;
+                    int minWidth = 1300; // Use MainWindow MIN_WIDTH constant
+                    
+                    if (width >= minWidth && width <= maxWidth)
+                    {
+                        SettingsManager.Current.DefaultStartWidth = width;
+                        SettingsManager.Save();
+                        textBox.BorderBrush = null; // Reset border color
+                    }
+                    else
+                    {
+                        // Set red border to indicate invalid value
+                        textBox.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red);
+                    }
                 }
                 else
                 {
-                    // Set red border to indicate invalid value
-                    textBox.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red);
+                    // When disabled (showing current size), don't show red border
+                    textBox.BorderBrush = null;
                 }
             }
         }
@@ -2217,17 +2226,33 @@ namespace FlairX_Mod_Manager.Pages
         {
             if (sender is TextBox textBox && int.TryParse(textBox.Text, out int height))
             {
-                // Get full screen resolution (not just work area)
-                var bounds = Microsoft.UI.Windowing.DisplayArea.Primary.OuterBounds;
-                int maxHeight = bounds.Height;
-                int minHeight = 720; // Use MainWindow MIN_HEIGHT constant
-                
-                if (height >= minHeight && height <= maxHeight)
+                // Only validate if the textbox is enabled (user is editing)
+                if (textBox.IsEnabled)
                 {
-                    SettingsManager.Current.DefaultStartHeight = height;
-                    SettingsManager.Save();
-                    textBox.BorderBrush = null; // Reset border color
+                    // Get full screen resolution (not just work area)
+                    var bounds = Microsoft.UI.Windowing.DisplayArea.Primary.OuterBounds;
+                    int maxHeight = bounds.Height;
+                    int minHeight = 720; // Use MainWindow MIN_HEIGHT constant
+                    
+                    if (height >= minHeight && height <= maxHeight)
+                    {
+                        SettingsManager.Current.DefaultStartHeight = height;
+                        SettingsManager.Save();
+                        textBox.BorderBrush = null; // Reset border color
+                    }
+                    else
+                    {
+                        // Set red border to indicate invalid value
+                        textBox.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red);
+                    }
                 }
+                else
+                {
+                    // When disabled (showing current size), don't show red border
+                    textBox.BorderBrush = null;
+                }
+            }
+        }
                 else
                 {
                     // Set red border to indicate invalid value
