@@ -461,6 +461,14 @@ namespace FlairX_Mod_Manager.Pages
             if (MinimizeToTrayDescription != null) MinimizeToTrayDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Description") ?? string.Empty;
             if (BlurNSFWDescription != null) BlurNSFWDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Description") ?? string.Empty;
             if (HideEmptyCategoriesDescription != null) HideEmptyCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideEmptyCategories_Description") ?? "Hide categories that contain no mods";
+            if (BlacklistLabel != null) BlacklistLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Blacklist_Label") ?? "GameBanana Blacklist";
+            if (BlacklistDescription != null) BlacklistDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_Blacklist_Description") ?? "Hide mods from specific authors or containing certain keywords";
+            if (BlacklistedAuthorsHeader != null) BlacklistedAuthorsHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_BlacklistedAuthors_Header") ?? "Blacklisted Authors";
+            if (BlacklistAuthorTextBox != null) BlacklistAuthorTextBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "SettingsPage_BlacklistedAuthors_Placeholder") ?? "Enter author name...";
+            if (AddBlacklistAuthorButton != null) AddBlacklistAuthorButton.Content = SharedUtilities.GetTranslation(lang, "SettingsPage_Blacklist_Add") ?? "Add";
+            if (BlacklistedKeywordsHeader != null) BlacklistedKeywordsHeader.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_BlacklistedKeywords_Header") ?? "Blacklisted Keywords";
+            if (BlacklistTagTextBox != null) BlacklistTagTextBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "SettingsPage_BlacklistedKeywords_Placeholder") ?? "Enter keyword to filter...";
+            if (AddBlacklistTagButton != null) AddBlacklistTagButton.Content = SharedUtilities.GetTranslation(lang, "SettingsPage_Blacklist_Add") ?? "Add";
             if (PinnedCategoriesDescription != null) PinnedCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_PinnedCategories_Description") ?? "Pin categories to footer menu for quick access";
             if (HiddenCategoriesDescription != null) HiddenCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HiddenCategories_Description") ?? "Hide categories from the navigation menu";
             if (ShuffleExcludedCategoriesDescription != null) ShuffleExcludedCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShuffleExcludedCategories_Description") ?? "Exclude categories from shuffle hotkey (keeps mods as-is)";
@@ -664,6 +672,9 @@ namespace FlairX_Mod_Manager.Pages
             BlurNSFWToggle.IsOn = SettingsManager.Current.HideNSFWMods;
             HideEmptyCategoriesToggle.IsOn = SettingsManager.Current.HideEmptyCategories;
             HotkeysEnabledToggle.IsOn = SettingsManager.Current.HotkeysEnabled;
+            
+            // Load blacklist
+            LoadBlacklistSettings();
             
             // Set download settings
             FastDownloadToggle.IsOn = SettingsManager.GetFastDownloadEnabled();
@@ -3232,6 +3243,99 @@ namespace FlairX_Mod_Manager.Pages
         public bool IsDevToolsVisible => DevToolsNavItem.Visibility == Visibility.Visible;
 
         #region Developer Tools
+
+        #endregion
+
+        #region GameBanana Blacklist
+
+        private void LoadBlacklistSettings()
+        {
+            // Load blacklisted authors
+            var authors = SettingsManager.Current.GameBananaBlacklistedAuthors ?? new List<string>();
+            BlacklistedAuthorsListView.ItemsSource = new System.Collections.ObjectModel.ObservableCollection<string>(authors);
+            
+            // Load blacklisted tags/keywords
+            var tags = SettingsManager.Current.GameBananaBlacklistedTags ?? new List<string>();
+            BlacklistedTagsListView.ItemsSource = new System.Collections.ObjectModel.ObservableCollection<string>(tags);
+        }
+
+        private void AddBlacklistAuthor_Click(object sender, RoutedEventArgs e)
+        {
+            var authorName = BlacklistAuthorTextBox.Text?.Trim();
+            if (string.IsNullOrEmpty(authorName))
+                return;
+            
+            // Check if already exists
+            if (SettingsManager.Current.GameBananaBlacklistedAuthors.Contains(authorName))
+            {
+                BlacklistAuthorTextBox.Text = string.Empty;
+                return;
+            }
+            
+            // Add to settings
+            SettingsManager.Current.GameBananaBlacklistedAuthors.Add(authorName);
+            SettingsManager.Save();
+            
+            // Update UI
+            var collection = BlacklistedAuthorsListView.ItemsSource as System.Collections.ObjectModel.ObservableCollection<string>;
+            collection?.Add(authorName);
+            
+            // Clear input
+            BlacklistAuthorTextBox.Text = string.Empty;
+        }
+
+        private void RemoveBlacklistAuthor_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string authorName)
+            {
+                // Remove from settings
+                SettingsManager.Current.GameBananaBlacklistedAuthors.Remove(authorName);
+                SettingsManager.Save();
+                
+                // Update UI
+                var collection = BlacklistedAuthorsListView.ItemsSource as System.Collections.ObjectModel.ObservableCollection<string>;
+                collection?.Remove(authorName);
+            }
+        }
+
+        private void AddBlacklistTag_Click(object sender, RoutedEventArgs e)
+        {
+            var tag = BlacklistTagTextBox.Text?.Trim();
+            if (string.IsNullOrEmpty(tag))
+                return;
+            
+            // Check if already exists
+            if (SettingsManager.Current.GameBananaBlacklistedTags.Contains(tag))
+            {
+                BlacklistTagTextBox.Text = string.Empty;
+                return;
+            }
+            
+            // Add to settings
+            SettingsManager.Current.GameBananaBlacklistedTags.Add(tag);
+            SettingsManager.Save();
+            
+            // Update UI
+            var collection = BlacklistedTagsListView.ItemsSource as System.Collections.ObjectModel.ObservableCollection<string>;
+            collection?.Add(tag);
+            
+            // Clear input
+            BlacklistTagTextBox.Text = string.Empty;
+        }
+
+        private void RemoveBlacklistTag_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is string tag)
+            {
+                // Remove from settings
+                SettingsManager.Current.GameBananaBlacklistedTags.Remove(tag);
+                SettingsManager.Save();
+                
+                // Update UI
+                var collection = BlacklistedTagsListView.ItemsSource as System.Collections.ObjectModel.ObservableCollection<string>;
+                collection?.Remove(tag);
+            }
+        }
 
         #endregion
     }

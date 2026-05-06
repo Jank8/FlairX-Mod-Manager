@@ -365,5 +365,16 @@
   "WebView2_Required_Title": "WebView2 Required",
   "WebView2_Required_Message": "Microsoft Edge WebView2 Runtime is not installed on your system.\n\nThis component is required for this feature.\n\nPlease download and install it, then try again.",
   "WebView2_Download_Button": "Download WebView2",
-  "WebView2_Cancel_Button": "Cancel"
+  "WebView2_Cancel_Button": "Cancel",
+  "GameBanana_Blacklist_Title": "Blacklist",
+  "GameBanana_AuthorBlacklisted": "Author '{0}' has been blacklisted and will no longer appear in search results.",
+  "GameBanana_ModNameBlacklisted": "Mods containing '{0}' in their name will no longer appear in search results.",
+  "SettingsPage_Blacklist_Label": "Černá listina GameBanana",
+  "SettingsPage_Blacklist_Description": "Skrýt módy od konkrétních autorů nebo obsahující určitá klíčová slova",
+  "SettingsPage_BlacklistedAuthors_Header": "Zablokovaní autoři",
+  "SettingsPage_BlacklistedAuthors_Placeholder": "Zadejte jméno autora...",
+  "SettingsPage_BlacklistedKeywords_Header": "Zablokovaná klíčová slova",
+  "SettingsPage_BlacklistedKeywords_Placeholder": "Zadejte klíčové slovo k filtrování...",
+  "SettingsPage_Blacklist_Add": "Přidat",
+  "SettingsPage_Blacklist_Remove": "Odebrat"
 }

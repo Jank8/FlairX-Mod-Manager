@@ -1036,11 +1036,18 @@ namespace FlairX_Mod_Manager.Pages
                         try
                         {
                             var downloadedCount = await DownloadPreviewsFromApi(url, dir, token, startIndex);
+                            
+                            // Clear urlInvalid flag if API call succeeded (downloadedCount >= 0)
+                            // downloadedCount == 0 means no previews available, but URL is valid
+                            // downloadedCount == -1 means API error or invalid URL
+                            if (downloadedCount >= 0)
+                            {
+                                // Clear any previous invalid URL flag since we successfully contacted the API
+                                await ClearUrlInvalidFlagAsync(modJsonPath, token);
+                            }
+                            
                             if (downloadedCount > 0)
                             {
-                                // Clear any previous invalid URL flag since we successfully fetched data
-                                await ClearUrlInvalidFlagAsync(modJsonPath, token);
-                                
                                 SafeIncrementSuccess();
                                 
                                 // Check for cancellation before optimization
@@ -1115,9 +1122,16 @@ namespace FlairX_Mod_Manager.Pages
                                     Logger.LogError($"Failed to optimize previews for {modName}", optEx);
                                 }
                             }
-                            else
+                            else if (downloadedCount == 0)
                             {
-                                // Mark URL as invalid when we can't download previews
+                                // downloadedCount == 0 means no previews available, but URL is valid
+                                // Don't mark as invalid, just skip
+                                SafeIncrementSkip();
+                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "NoPreviewsAvailable")}");
+                            }
+                            else // downloadedCount < 0
+                            {
+                                // Mark URL as invalid when API call failed
                                 await MarkUrlAsInvalidAsync(modJsonPath, token);
                                 SafeIncrementSkip();
                                 SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
@@ -1249,7 +1263,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (!match.Success)
                 {
                     Logger.LogError($"Failed to parse GameBanana URL: {url}");
-                    return 0;
+                    return -1; // Return -1 to indicate URL parsing error (invalid URL)
                 }
 
                 string itemType = match.Groups[1].Value;
@@ -1264,6 +1278,9 @@ namespace FlairX_Mod_Manager.Pages
                 var response = await _httpClient.GetStringAsync(apiUrl, token);
                 using var doc = JsonDocument.Parse(response);
                 var root = doc.RootElement;
+
+                // API call succeeded - URL is valid even if there are no previews
+                // Return 0 for no previews, but this is different from -1 (invalid URL)
 
                 if (!root.TryGetProperty("_aPreviewMedia", out var previewMedia))
                 {
@@ -1333,7 +1350,7 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to fetch previews from API for URL: {url}", ex);
-                return 0;
+                return -1; // Return -1 to indicate API error (invalid URL or network error)
             }
         }
 

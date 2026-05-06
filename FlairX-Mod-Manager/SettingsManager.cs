@@ -127,6 +127,10 @@ namespace FlairX_Mod_Manager
         // GameBanana settings
         public bool BlurNSFWThumbnails { get; set; } = true;
         
+        // GameBanana Blacklist settings
+        public List<string> GameBananaBlacklistedAuthors { get; set; } = new List<string>();
+        public List<string> GameBananaBlacklistedTags { get; set; } = new List<string>();
+        
         // GameBanana Auto-Update settings
         public bool GameBananaAutoUpdateEnabled { get; set; } = false;
         public int GameBananaAutoUpdateIntervalDays { get; set; } = 7; // Check every 7 days

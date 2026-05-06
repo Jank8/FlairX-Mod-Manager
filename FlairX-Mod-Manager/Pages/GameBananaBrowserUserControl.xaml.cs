@@ -652,19 +652,27 @@ namespace FlairX_Mod_Manager.Pages
                         continue;
                     }
 
+                    // Skip blacklisted mods
+                    var authorName = record.Submitter?.Name ?? "";
+                    var modName = record.Name ?? "";
+                    if (IsModBlacklisted(authorName, modName))
+                    {
+                        continue;
+                    }
+
                     var viewModel = new ModViewModel
                     {
                         Id = record.Id,
-                        Name = record.Name,
+                        Name = record.Name ?? "",
                         AuthorName = record.Submitter?.Name ?? "Unknown",
-                        ProfileUrl = record.ProfileUrl,
+                        ProfileUrl = record.ProfileUrl ?? "",
                         LikeCount = record.GetLikeCount(),
                         ViewCount = record.GetViewCount(),
                         DateAdded = record.DateAdded,
                         DateModified = record.DateModified,
                         DateUpdated = record.DateUpdated,
                         IsRated = record.HasContentRatings,
-                        IsInstalled = IsModInstalled(record.ProfileUrl),
+                        IsInstalled = IsModInstalled(record.ProfileUrl ?? ""),
                         InstalledText = installedText
                     };
 
@@ -1058,19 +1066,27 @@ namespace FlairX_Mod_Manager.Pages
                         continue;
                     }
 
+                    // Skip blacklisted mods
+                    var authorName = record.Submitter?.Name ?? "";
+                    var modName = record.Name ?? "";
+                    if (IsModBlacklisted(authorName, modName))
+                    {
+                        continue;
+                    }
+
                     var viewModel = new ModViewModel
                     {
                         Id = record.Id,
-                        Name = record.Name,
+                        Name = record.Name ?? "",
                         AuthorName = record.Submitter?.Name ?? "Unknown",
-                        ProfileUrl = record.ProfileUrl,
+                        ProfileUrl = record.ProfileUrl ?? "",
                         LikeCount = record.GetLikeCount(),
                         ViewCount = record.GetViewCount(),
                         DateAdded = record.DateAdded,
                         DateModified = record.DateModified,
                         DateUpdated = record.DateUpdated,
                         IsRated = record.HasContentRatings,
-                        IsInstalled = IsModInstalled(record.ProfileUrl),
+                        IsInstalled = IsModInstalled(record.ProfileUrl ?? ""),
                         InstalledText = installedText
                     };
 
@@ -1490,6 +1506,135 @@ namespace FlairX_Mod_Manager.Pages
                 // Show details panel
                 _currentModIsNSFW = mod.IsRated;
                 _ = ShowModDetailsAsync(mod.Id);
+            }
+        }
+
+        private void ModTile_RightTapped(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            // Context menu will show automatically via ContextFlyout
+        }
+
+        /// <summary>
+        /// Check if a mod should be filtered out based on blacklist settings
+        /// </summary>
+        private bool IsModBlacklisted(string authorName, string modName)
+        {
+            // Check blacklisted authors
+            if (!string.IsNullOrEmpty(authorName) && 
+                SettingsManager.Current.GameBananaBlacklistedAuthors.Any(a => 
+                    a.Equals(authorName, StringComparison.OrdinalIgnoreCase)))
+            {
+                Logger.LogDebug($"Mod from blacklisted author: {authorName}");
+                return true;
+            }
+
+            // Check blacklisted tags/keywords in name
+            if (!string.IsNullOrEmpty(modName) && 
+                SettingsManager.Current.GameBananaBlacklistedTags.Any(tag => 
+                    modName.Contains(tag, StringComparison.OrdinalIgnoreCase)))
+            {
+                Logger.LogDebug($"Mod with blacklisted keyword in name: {modName}");
+                return true;
+            }
+
+            return false;
+        }
+
+        private async void BlacklistAuthor_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is MenuFlyoutItem item && item.Tag is ModViewModel mod)
+                {
+                    var authorName = mod.AuthorName;
+                    
+                    if (string.IsNullOrWhiteSpace(authorName))
+                    {
+                        Logger.LogWarning("Cannot blacklist author: author name is empty");
+                        return;
+                    }
+
+                    // Add to blacklist
+                    if (!SettingsManager.Current.GameBananaBlacklistedAuthors.Contains(authorName))
+                    {
+                        SettingsManager.Current.GameBananaBlacklistedAuthors.Add(authorName);
+                        SettingsManager.Save();
+                        Logger.LogInfo($"Blacklisted author: {authorName}");
+
+                        // Show confirmation
+                        var langDict = SharedUtilities.LoadLanguageDictionary();
+                        var message = SharedUtilities.GetTranslation(langDict, "GameBanana_AuthorBlacklisted");
+                        if (string.IsNullOrEmpty(message))
+                            message = $"Author '{authorName}' has been blacklisted and will no longer appear in search results.";
+                        else
+                            message = string.Format(message, authorName);
+
+                        var dialog = new ContentDialog
+                        {
+                            Title = SharedUtilities.GetTranslation(langDict, "GameBanana_Blacklist_Title") ?? "Blacklist",
+                            Content = message,
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        };
+                        await dialog.ShowAsync();
+
+                        // Reload mods to apply filter
+                        await LoadModsAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error blacklisting author", ex);
+            }
+        }
+
+        private async void BlacklistModName_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is MenuFlyoutItem item && item.Tag is ModViewModel mod)
+                {
+                    var modName = mod.Name;
+                    
+                    if (string.IsNullOrWhiteSpace(modName))
+                    {
+                        Logger.LogWarning("Cannot blacklist mod: mod name is empty");
+                        return;
+                    }
+
+                    // Add to blacklist (as a tag/keyword)
+                    if (!SettingsManager.Current.GameBananaBlacklistedTags.Contains(modName))
+                    {
+                        SettingsManager.Current.GameBananaBlacklistedTags.Add(modName);
+                        SettingsManager.Save();
+                        Logger.LogInfo($"Blacklisted mod name: {modName}");
+
+                        // Show confirmation
+                        var langDict = SharedUtilities.LoadLanguageDictionary();
+                        var message = SharedUtilities.GetTranslation(langDict, "GameBanana_ModNameBlacklisted");
+                        if (string.IsNullOrEmpty(message))
+                            message = $"Mods containing '{modName}' in their name will no longer appear in search results.";
+                        else
+                            message = string.Format(message, modName);
+
+                        var dialog = new ContentDialog
+                        {
+                            Title = SharedUtilities.GetTranslation(langDict, "GameBanana_Blacklist_Title") ?? "Blacklist",
+                            Content = message,
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        };
+                        await dialog.ShowAsync();
+
+                        // Reload mods to apply filter
+                        await LoadModsAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error blacklisting mod name", ex);
             }
         }
 

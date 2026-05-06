@@ -365,5 +365,16 @@
   "WebView2_Required_Title": "WebView2 Required",
   "WebView2_Required_Message": "Microsoft Edge WebView2 Runtime is not installed on your system.\n\nThis component is required for this feature.\n\nPlease download and install it, then try again.",
   "WebView2_Download_Button": "Download WebView2",
-  "WebView2_Cancel_Button": "Cancel"
+  "WebView2_Cancel_Button": "Cancel",
+  "GameBanana_Blacklist_Title": "Blacklist",
+  "GameBanana_AuthorBlacklisted": "Author '{0}' has been blacklisted and will no longer appear in search results.",
+  "GameBanana_ModNameBlacklisted": "Mods containing '{0}' in their name will no longer appear in search results.",
+  "SettingsPage_Blacklist_Label": "GameBananaブラックリスト",
+  "SettingsPage_Blacklist_Description": "特定の作者のModや特定のキーワードを含むModを非表示にする",
+  "SettingsPage_BlacklistedAuthors_Header": "ブラックリストの作者",
+  "SettingsPage_BlacklistedAuthors_Placeholder": "作者名を入力...",
+  "SettingsPage_BlacklistedKeywords_Header": "ブラックリストのキーワード",
+  "SettingsPage_BlacklistedKeywords_Placeholder": "フィルタリングするキーワードを入力...",
+  "SettingsPage_Blacklist_Add": "追加",
+  "SettingsPage_Blacklist_Remove": "削除"
 }

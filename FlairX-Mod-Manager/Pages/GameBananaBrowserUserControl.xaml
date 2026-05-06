@@ -181,10 +181,23 @@
                                     Tag="{Binding}"
                                     PointerEntered="ModTile_PointerEntered"
                                     PointerExited="ModTile_PointerExited"
+                                    RightTapped="ModTile_RightTapped"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
                                     HorizontalContentAlignment="Stretch"
                                     VerticalContentAlignment="Stretch">
+                                <Button.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Blacklist Author" 
+                                                        Icon="BlockContact"
+                                                        Click="BlacklistAuthor_Click"
+                                                        Tag="{Binding}"/>
+                                        <MenuFlyoutItem Text="Blacklist Mod Name" 
+                                                        Icon="Cancel"
+                                                        Click="BlacklistModName_Click"
+                                                        Tag="{Binding}"/>
+                                    </MenuFlyout>
+                                </Button.ContextFlyout>
                                 <Border x:Name="TileBorder"
                                         CornerRadius="8"
                                         Height="357"

@@ -365,5 +365,16 @@
   "WebView2_Required_Title": "Wymagany WebView2",
   "WebView2_Required_Message": "Microsoft Edge WebView2 Runtime nie jest zainstalowany w systemie.\n\nTen komponent jest wymagany dla tej funkcji.\n\nProszę pobrać i zainstalować go, a następnie spróbować ponownie.",
   "WebView2_Download_Button": "Pobierz WebView2",
-  "WebView2_Cancel_Button": "Anuluj"
+  "WebView2_Cancel_Button": "Anuluj",
+  "GameBanana_Blacklist_Title": "Czarna lista",
+  "GameBanana_AuthorBlacklisted": "Autor '{0}' został dodany do czarnej listy i nie będzie już pojawiał się w wynikach wyszukiwania.",
+  "GameBanana_ModNameBlacklisted": "Mody zawierające '{0}' w nazwie nie będą już pojawiały się w wynikach wyszukiwania.",
+  "SettingsPage_Blacklist_Label": "Czarna lista GameBanana",
+  "SettingsPage_Blacklist_Description": "Ukryj mody od konkretnych autorów lub zawierające określone słowa kluczowe",
+  "SettingsPage_BlacklistedAuthors_Header": "Zablokowani autorzy",
+  "SettingsPage_BlacklistedAuthors_Placeholder": "Wprowadź nazwę autora...",
+  "SettingsPage_BlacklistedKeywords_Header": "Zablokowane słowa kluczowe",
+  "SettingsPage_BlacklistedKeywords_Placeholder": "Wprowadź słowo kluczowe do filtrowania...",
+  "SettingsPage_Blacklist_Add": "Dodaj",
+  "SettingsPage_Blacklist_Remove": "Usuń"
 }

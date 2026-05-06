@@ -365,5 +365,16 @@
   "WebView2_Required_Title": "WebView2 Required",
   "WebView2_Required_Message": "Microsoft Edge WebView2 Runtime is not installed on your system.\n\nThis component is required for this feature.\n\nPlease download and install it, then try again.",
   "WebView2_Download_Button": "Download WebView2",
-  "WebView2_Cancel_Button": "Cancel"
+  "WebView2_Cancel_Button": "Cancel",
+  "GameBanana_Blacklist_Title": "Blacklist",
+  "GameBanana_AuthorBlacklisted": "Author '{0}' has been blacklisted and will no longer appear in search results.",
+  "GameBanana_ModNameBlacklisted": "Mods containing '{0}' in their name will no longer appear in search results.",
+  "SettingsPage_Blacklist_Label": "GameBanana 블랙리스트",
+  "SettingsPage_Blacklist_Description": "특정 작성자의 모드 또는 특정 키워드가 포함된 모드 숨기기",
+  "SettingsPage_BlacklistedAuthors_Header": "블랙리스트 작성자",
+  "SettingsPage_BlacklistedAuthors_Placeholder": "작성자 이름 입력...",
+  "SettingsPage_BlacklistedKeywords_Header": "블랙리스트 키워드",
+  "SettingsPage_BlacklistedKeywords_Placeholder": "필터링할 키워드 입력...",
+  "SettingsPage_Blacklist_Add": "추가",
+  "SettingsPage_Blacklist_Remove": "제거"
 }
