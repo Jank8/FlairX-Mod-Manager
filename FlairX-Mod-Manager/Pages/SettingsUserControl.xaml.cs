@@ -2253,13 +2253,6 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
         }
-                else
-                {
-                    // Set red border to indicate invalid value
-                    textBox.BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Red);
-                }
-            }
-        }
 
         public void RefreshContent()
         {
