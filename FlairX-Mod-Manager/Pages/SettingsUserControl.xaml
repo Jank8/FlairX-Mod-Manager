@@ -711,20 +711,23 @@
                                             Click="AddBlacklistAuthor_Click"/>
                                 </Grid>
                                 
-                                <ListView x:Name="BlacklistedAuthorsListView" 
-                                          MaxHeight="150"
-                                          SelectionMode="None"
-                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                          BorderThickness="1"
-                                          CornerRadius="4">
-                                    <ListView.ItemTemplate>
+                                <ItemsRepeater x:Name="BlacklistedAuthorsListView" 
+                                               Margin="0,8,0,0">
+                                    <ItemsRepeater.Layout>
+                                        <UniformGridLayout MinItemWidth="120" 
+                                                          MinItemHeight="36"
+                                                          ItemsStretch="None"
+                                                          MinRowSpacing="8"
+                                                          MinColumnSpacing="8"/>
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
                                         <DataTemplate>
                                             <Button Click="RemoveBlacklistAuthor_Click"
                                                     Tag="{Binding}"
                                                     HorizontalAlignment="Stretch"
                                                     HorizontalContentAlignment="Stretch"
                                                     Padding="12,6"
-                                                    Margin="4,2">
+                                                    MinWidth="120">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
@@ -748,8 +751,8 @@
                                                 </Grid>
                                             </Button>
                                         </DataTemplate>
-                                    </ListView.ItemTemplate>
-                                </ListView>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
                             </StackPanel>
                             
                             <!-- Blacklisted Tags/Keywords -->
@@ -771,20 +774,23 @@
                                             Click="AddBlacklistTag_Click"/>
                                 </Grid>
                                 
-                                <ListView x:Name="BlacklistedTagsListView" 
-                                          MaxHeight="150"
-                                          SelectionMode="None"
-                                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                          BorderThickness="1"
-                                          CornerRadius="4">
-                                    <ListView.ItemTemplate>
+                                <ItemsRepeater x:Name="BlacklistedTagsListView" 
+                                               Margin="0,8,0,0">
+                                    <ItemsRepeater.Layout>
+                                        <UniformGridLayout MinItemWidth="120" 
+                                                          MinItemHeight="36"
+                                                          ItemsStretch="None"
+                                                          MinRowSpacing="8"
+                                                          MinColumnSpacing="8"/>
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
                                         <DataTemplate>
                                             <Button Click="RemoveBlacklistTag_Click"
                                                     Tag="{Binding}"
                                                     HorizontalAlignment="Stretch"
                                                     HorizontalContentAlignment="Stretch"
                                                     Padding="12,6"
-                                                    Margin="4,2">
+                                                    MinWidth="120">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
@@ -808,8 +814,8 @@
                                                 </Grid>
                                             </Button>
                                         </DataTemplate>
-                                    </ListView.ItemTemplate>
-                                </ListView>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
                             </StackPanel>
                         </StackPanel>
                     </Border>
