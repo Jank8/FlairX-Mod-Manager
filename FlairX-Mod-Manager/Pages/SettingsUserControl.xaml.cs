@@ -3265,6 +3265,12 @@ namespace FlairX_Mod_Manager.Pages
             if (string.IsNullOrEmpty(authorName))
                 return;
             
+            // Limit to 20 characters
+            if (authorName.Length > 20)
+            {
+                authorName = authorName.Substring(0, 20);
+            }
+            
             // Check if already exists
             if (SettingsManager.Current.GameBananaBlacklistedAuthors.Contains(authorName))
             {
@@ -3282,6 +3288,15 @@ namespace FlairX_Mod_Manager.Pages
             
             // Clear input
             BlacklistAuthorTextBox.Text = string.Empty;
+        }
+
+        private void BlacklistAuthorTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                AddBlacklistAuthor_Click(sender, new RoutedEventArgs());
+                e.Handled = true;
+            }
         }
 
         private void RemoveBlacklistAuthor_Click(object sender, RoutedEventArgs e)
@@ -3304,6 +3319,12 @@ namespace FlairX_Mod_Manager.Pages
             if (string.IsNullOrEmpty(tag))
                 return;
             
+            // Limit to 20 characters
+            if (tag.Length > 20)
+            {
+                tag = tag.Substring(0, 20);
+            }
+            
             // Check if already exists
             if (SettingsManager.Current.GameBananaBlacklistedTags.Contains(tag))
             {
@@ -3321,6 +3342,15 @@ namespace FlairX_Mod_Manager.Pages
             
             // Clear input
             BlacklistTagTextBox.Text = string.Empty;
+        }
+
+        private void BlacklistTagTextBox_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                AddBlacklistTag_Click(sender, new RoutedEventArgs());
+                e.Handled = true;
+            }
         }
 
         private void RemoveBlacklistTag_Click(object sender, RoutedEventArgs e)
