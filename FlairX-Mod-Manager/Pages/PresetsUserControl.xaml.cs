@@ -249,15 +249,24 @@ namespace FlairX_Mod_Manager.Pages
 
                     FlairX_Mod_Manager.Pages.ModGridPage.ApplyPreset(fileName);
                     
-                    // Reload manager to refresh the view
+                    // Reload manager to refresh the view (same pattern as shuffle/deactivate)
                     if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                     {
-                        await mainWindow.ReloadModsAsync();
+                        mainWindow.DispatcherQueue.TryEnqueue(async () =>
+                        {
+                            await mainWindow.ReloadModsAsync();
+                            if (SettingsManager.Current.SendF10OnOverlayClose)
+                            {
+                                // Wait for LoadingWindow to close and game to regain focus
+                                await Task.Delay(500);
+                                mainWindow.SendF10KeyPress();
+                            }
+                            
+                            // Show success message after reload
+                            var langDict = SharedUtilities.LoadLanguageDictionary();
+                            mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(langDict, "Preset_Loaded"));
+                        });
                     }
-                    
-                    var langDict = SharedUtilities.LoadLanguageDictionary();
-                    if (App.Current is App appN && appN.MainWindow is MainWindow mwN)
-                        mwN.ShowSuccessInfo(SharedUtilities.GetTranslation(langDict, "Preset_Loaded"));
                 }
                 catch (Exception ex)
                 {
