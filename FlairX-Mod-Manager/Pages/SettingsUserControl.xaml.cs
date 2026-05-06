@@ -709,8 +709,18 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (appWindow != null)
                 {
-                    DefaultStartWidthTextBox.Text = appWindow.Size.Width.ToString();
-                    DefaultStartHeightTextBox.Text = appWindow.Size.Height.ToString();
+                    // Get the client area size (content area without title bar and borders)
+                    if (mainWindow.Content is FrameworkElement content)
+                    {
+                        DefaultStartWidthTextBox.Text = ((int)content.ActualWidth).ToString();
+                        DefaultStartHeightTextBox.Text = ((int)content.ActualHeight).ToString();
+                    }
+                    else
+                    {
+                        // Fallback to window size if content is not available
+                        DefaultStartWidthTextBox.Text = appWindow.Size.Width.ToString();
+                        DefaultStartHeightTextBox.Text = appWindow.Size.Height.ToString();
+                    }
                 }
                 else
                 {
@@ -2261,8 +2271,19 @@ namespace FlairX_Mod_Manager.Pages
                     
                     if (appWindow != null)
                     {
-                        DefaultStartWidthTextBox.Text = appWindow.Size.Width.ToString();
-                        DefaultStartHeightTextBox.Text = appWindow.Size.Height.ToString();
+                        // Get the client area size (content area without title bar and borders)
+                        // by using the actual content size instead of window size
+                        if (mainWindow.Content is FrameworkElement content)
+                        {
+                            DefaultStartWidthTextBox.Text = ((int)content.ActualWidth).ToString();
+                            DefaultStartHeightTextBox.Text = ((int)content.ActualHeight).ToString();
+                        }
+                        else
+                        {
+                            // Fallback to window size if content is not available
+                            DefaultStartWidthTextBox.Text = appWindow.Size.Width.ToString();
+                            DefaultStartHeightTextBox.Text = appWindow.Size.Height.ToString();
+                        }
                     }
                 }
             }
