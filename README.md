@@ -36,7 +36,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 
 ## 📥 Installation
 
-1. Download the latest release (v4.0.0 LTS)
+1. Download the latest release
 2. Extract files to your desired location
 3. Run `FlairX Mod Manager Launcher.exe`
 4. If .NET 10.0.7 or Windows App SDK 2.0.1 is missing, FlairX will prompt you to install it
