@@ -34,8 +34,15 @@ namespace FlairX_Mod_Manager
                 mainWindow._suppressMenuRegeneration = true;
             }
 
-            var settingsControl = new SettingsUserControl("GBAuthorUpdate");
+            var settingsControl = new SettingsUserControl();
             ShowSlidingPanel(settingsControl, "Settings");
+
+            // After Loaded, simulate clicking the GBAuthorUpdate tab
+            // This triggers SelectionChanged exactly like a user click would
+            settingsControl.Loaded += (s, e) =>
+            {
+                settingsControl.SelectGBAuthorUpdateTab();
+            };
         }
 
         private void ShowPresetsPanel()

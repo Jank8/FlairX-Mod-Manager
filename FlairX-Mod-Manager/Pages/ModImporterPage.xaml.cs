@@ -43,7 +43,6 @@ namespace FlairX_Mod_Manager.Pages
             
             CreateCategoriesTitle.Text = SharedUtilities.GetTranslation(lang, "ModImporter_CreateCategories");
             CreateCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "ModImporter_CreateCategoriesDesc");
-            CreateCategoriesButtonText.Text = SharedUtilities.GetTranslation(lang, "ModImporter_GoToGBUpdate");
             
             AliasesTitle.Text = SharedUtilities.GetTranslation(lang, "ModImporter_AliasesTitle");
             AliasesDescription.Text = SharedUtilities.GetTranslation(lang, "ModImporter_AliasesDesc");
@@ -214,6 +213,8 @@ namespace FlairX_Mod_Manager.Pages
                 mw.NavigateToGBAuthorUpdate();
             }
         }
+
+
 
         private async void SelectFolderButton_Click(object sender, RoutedEventArgs e)
         {

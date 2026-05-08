@@ -182,26 +182,14 @@ namespace FlairX_Mod_Manager.Pages
             this.Loaded += SettingsUserControl_Loaded;
             this.Unloaded += SettingsUserControl_Unloaded;
             
-            // Select initial tab or default to General Settings
-            if (SettingsNavigationView != null)
-            {
-                if (!string.IsNullOrEmpty(initialTab))
-                {
-                    var item = SettingsNavigationView.MenuItems
-                        .OfType<NavigationViewItem>()
-                        .FirstOrDefault(i => i.Tag?.ToString() == initialTab);
-                    if (item != null)
-                    {
-                        SettingsNavigationView.SelectedItem = item;
-                        // Manually trigger navigation since SelectionChanged may not fire yet
-                        NavigateToTab(initialTab);
-                        return;
-                    }
-                }
-                
-                if (GeneralSettingsNavItem != null)
-                    SettingsNavigationView.SelectedItem = GeneralSettingsNavItem;
-            }
+            if (SettingsNavigationView != null && GeneralSettingsNavItem != null)
+                SettingsNavigationView.SelectedItem = GeneralSettingsNavItem;
+        }
+
+        public void SelectGBAuthorUpdateTab()
+        {
+            if (GBAuthorUpdateNavItem != null)
+                SettingsNavigationView.SelectedItem = GBAuthorUpdateNavItem;
         }
 
         public void NavigateToTab(string tag)
