@@ -161,7 +161,7 @@ namespace FlairX_Mod_Manager.Pages
             return SharedUtilities.GetBreadcrumbBarPath(bar);
         }
 
-        public SettingsUserControl()
+        public SettingsUserControl(string? initialTab = null)
         {
             this.InitializeComponent();
             SettingsManager.Load();
@@ -172,7 +172,7 @@ namespace FlairX_Mod_Manager.Pages
             
             // Initialize timer for delayed window size updates
             _windowSizeUpdateTimer = new Microsoft.UI.Xaml.DispatcherTimer();
-            _windowSizeUpdateTimer.Interval = TimeSpan.FromMilliseconds(200); // 200ms delay
+            _windowSizeUpdateTimer.Interval = TimeSpan.FromMilliseconds(200);
             _windowSizeUpdateTimer.Tick += WindowSizeUpdateTimer_Tick;
             
             // Subscribe to window size changes
@@ -182,10 +182,71 @@ namespace FlairX_Mod_Manager.Pages
             this.Loaded += SettingsUserControl_Loaded;
             this.Unloaded += SettingsUserControl_Unloaded;
             
-            // Select General Settings tab by default
-            if (SettingsNavigationView != null && GeneralSettingsNavItem != null)
+            // Select initial tab or default to General Settings
+            if (SettingsNavigationView != null)
             {
-                SettingsNavigationView.SelectedItem = GeneralSettingsNavItem;
+                if (!string.IsNullOrEmpty(initialTab))
+                {
+                    var item = SettingsNavigationView.MenuItems
+                        .OfType<NavigationViewItem>()
+                        .FirstOrDefault(i => i.Tag?.ToString() == initialTab);
+                    if (item != null)
+                    {
+                        SettingsNavigationView.SelectedItem = item;
+                        // Manually trigger navigation since SelectionChanged may not fire yet
+                        NavigateToTab(initialTab);
+                        return;
+                    }
+                }
+                
+                if (GeneralSettingsNavItem != null)
+                    SettingsNavigationView.SelectedItem = GeneralSettingsNavItem;
+            }
+        }
+
+        public void NavigateToTab(string tag)
+        {
+            if (SettingsNavigationView == null) return;
+            
+            var item = SettingsNavigationView.MenuItems
+                .OfType<NavigationViewItem>()
+                .FirstOrDefault(i => i.Tag?.ToString() == tag);
+            if (item != null)
+                SettingsNavigationView.SelectedItem = item;
+
+            // Manually trigger the navigation logic
+            if (tag == "GeneralSettings")
+            {
+                GeneralSettingsScrollViewer.Visibility = Visibility.Visible;
+                FunctionContentFrame.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                GeneralSettingsScrollViewer.Visibility = Visibility.Collapsed;
+                FunctionContentFrame.Visibility = Visibility.Visible;
+
+                var navInfo = new Microsoft.UI.Xaml.Media.Animation.SuppressNavigationTransitionInfo();
+                switch (tag)
+                {
+                    case "ModImporter":
+                        FunctionContentFrame.Navigate(typeof(ModImporterPage), null, navInfo);
+                        break;
+                    case "GBAuthorUpdate":
+                        FunctionContentFrame.Navigate(typeof(GBAuthorUpdatePage), null, navInfo);
+                        break;
+                    case "StatusKeeperPage":
+                        FunctionContentFrame.Navigate(typeof(StatusKeeperPage), null, navInfo);
+                        break;
+                    case "ModInfoBackup":
+                        FunctionContentFrame.Navigate(typeof(ModInfoBackupPage), null, navInfo);
+                        break;
+                    case "ImageOptimizer":
+                        FunctionContentFrame.Navigate(typeof(ImageOptimizerPage), null, navInfo);
+                        break;
+                    case "GameOverlay":
+                        FunctionContentFrame.Navigate(typeof(GameOverlayPage), null, navInfo);
+                        break;
+                }
             }
         }
         
@@ -3205,6 +3266,9 @@ namespace FlairX_Mod_Manager.Pages
                     
                     switch (tag)
                     {
+                        case "ModImporter":
+                            FunctionContentFrame.Navigate(typeof(ModImporterPage), null, navigationTransitionInfo);
+                            break;
                         case "GBAuthorUpdate":
                             FunctionContentFrame.Navigate(typeof(GBAuthorUpdatePage), null, navigationTransitionInfo);
                             break;

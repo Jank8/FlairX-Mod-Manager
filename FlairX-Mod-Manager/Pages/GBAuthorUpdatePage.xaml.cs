@@ -1285,7 +1285,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async Task CreateCategoryFoldersButtonClickAsync()
+        public async Task CreateCategoryFoldersButtonClickAsync(Microsoft.UI.Xaml.XamlRoot? xamlRoot = null)
         {
             var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
             var mainLang = SharedUtilities.LoadLanguageDictionary();
@@ -1322,7 +1322,7 @@ namespace FlairX_Mod_Manager.Pages
                 Content = string.Format(SharedUtilities.GetTranslation(lang, "ConfirmCreateCategoryFolders"), gameTag),
                 PrimaryButtonText = SharedUtilities.GetTranslation(mainLang, "Continue"),
                 CloseButtonText = SharedUtilities.GetTranslation(mainLang, "Cancel"),
-                XamlRoot = this.XamlRoot
+                XamlRoot = xamlRoot ?? this.XamlRoot
             };
             var result = await confirmDialog.ShowAsync();
             if (result != ContentDialogResult.Primary)

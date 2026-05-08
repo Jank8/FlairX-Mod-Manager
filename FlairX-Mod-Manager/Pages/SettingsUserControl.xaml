@@ -60,6 +60,11 @@
                             <FontIcon Glyph="&#xE713;"/>
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
+                    <NavigationViewItem x:Name="ModImporterNavItem" Content="Mod Importer" Tag="ModImporter">
+                        <NavigationViewItem.Icon>
+                            <FontIcon Glyph="&#xE8B5;"/>
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
                     <NavigationViewItem x:Name="GBAuthorUpdateNavItem" Content="GameBanana Update" Tag="GBAuthorUpdate">
                         <NavigationViewItem.Icon>
                             <FontIcon Glyph="&#xF49A;"/>

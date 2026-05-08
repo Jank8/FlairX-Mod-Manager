@@ -26,6 +26,18 @@ namespace FlairX_Mod_Manager
             ShowSlidingPanel(settingsControl, "Settings");
         }
 
+        public void NavigateToGBAuthorUpdate()
+        {
+            // Suppress menu regeneration while settings panel is open
+            if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+            {
+                mainWindow._suppressMenuRegeneration = true;
+            }
+
+            var settingsControl = new SettingsUserControl("GBAuthorUpdate");
+            ShowSlidingPanel(settingsControl, "Settings");
+        }
+
         private void ShowPresetsPanel()
         {
             var presetsControl = new PresetsUserControl();
