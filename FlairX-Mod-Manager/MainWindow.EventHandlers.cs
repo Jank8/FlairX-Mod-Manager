@@ -54,17 +54,17 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                // Small delay to let the window fully load
+                // Wait for window to fully load
                 await Task.Delay(1000);
                 
                 var langDict = SharedUtilities.LoadLanguageDictionary();
                 
-                // Check .NET Runtime
+                // Check .NET Runtime — scan installed versions on disk, not just the running process version
                 var requiredDotNetVersion = new Version(10, 0, 7);
-                var currentDotNetVersion = Environment.Version;
+                var currentDotNetVersion = GetHighestInstalledDotNetVersion() ?? Environment.Version;
                 bool dotNetNeedsUpdate = currentDotNetVersion < requiredDotNetVersion;
                 
-                Logger.LogInfo($".NET Runtime version: {currentDotNetVersion}");
+                Logger.LogInfo($".NET Runtime: process={Environment.Version}, highest installed={currentDotNetVersion}, required={requiredDotNetVersion}, needsUpdate={dotNetNeedsUpdate}");
                 
                 // Check Windows App Runtime
                 // SDK 2.0+ uses simple SemVer - required version is 2.0.1
@@ -174,7 +174,7 @@ namespace FlairX_Mod_Manager
                     ContentDialogResult result;
                     do
                     {
-                        result = await dialog.ShowAsync();
+                        result = await MainWindow.ShowDialogAsync(dialog);
                         
                         if (result == ContentDialogResult.Primary)
                         {
@@ -201,189 +201,7 @@ namespace FlairX_Mod_Manager
             }
         }
         
-        private async Task CheckDotNetRuntimeVersionAsync()
-        {
-            try
-            {
-                // Small delay to let the window fully load
-                await Task.Delay(500);
-                
-                // Required .NET version: 10.0.7 (latest as of April 21, 2026)
-                var requiredVersion = new Version(10, 0, 7);
-                var currentVersion = Environment.Version;
-                
-                Logger.LogInfo($".NET Runtime version: {currentVersion}");
-                
-                if (currentVersion < requiredVersion)
-                {
-                    Logger.LogWarning($"Outdated .NET Runtime detected: {currentVersion} (required: {requiredVersion})");
-                    
-                    var langDict = SharedUtilities.LoadLanguageDictionary();
-                    var contentTemplate = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_DotNet_Update_Content");
-                    var content = string.Format(contentTemplate, currentVersion, requiredVersion);
-                    
-                    var dialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_DotNet_Update_Title"),
-                        Content = content,
-                        PrimaryButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_Download_Button"),
-                        CloseButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_MaybeLater_Button"),
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    
-                    var result = await dialog.ShowAsync();
-                    
-                    if (result == ContentDialogResult.Primary)
-                    {
-                        // Install .NET Runtime via winget or open browser
-                        await InstallDotNetRuntimeAsync();
-                    }
-                }
-                else
-                {
-                    Logger.LogInfo($".NET Runtime version OK: {currentVersion}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to check .NET Runtime version", ex);
-            }
-        }
         
-        private async Task ShowWindowsAppRuntimeWarningAsync()
-        {
-            try
-            {
-                // Small delay to let the window fully load
-                await Task.Delay(1000);
-                
-                var langDict = SharedUtilities.LoadLanguageDictionary();
-                
-                var dialog = new ContentDialog
-                {
-                    Title = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Missing_Title"),
-                    Content = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Missing_Content"),
-                    PrimaryButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_Download_Button"),
-                    CloseButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_ContinueAnyway_Button"),
-                    XamlRoot = this.Content.XamlRoot
-                };
-                
-                var result = await dialog.ShowAsync();
-                
-                if (result == ContentDialogResult.Primary)
-                {
-                    // Install Windows App Runtime via winget or open browser
-                    await InstallWindowsAppRuntimeAsync();
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to show Windows App Runtime warning", ex);
-            }
-        }
-        private async Task CheckWindowsAppRuntimeVersionAsync()
-        {
-            try
-            {
-                // Small delay to let the window fully load
-                await Task.Delay(1500);
-                
-                // SDK 2.0+ uses simple SemVer - required version is 2.0.1
-                const string requiredVersionString = "2.0.1";
-                var requiredVersion = new Version(requiredVersionString);
-                
-                // Check installed runtime 2.0 version
-                var installedVersion = await Task.Run(() =>
-                {
-                    try
-                    {
-                        var psi = new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = "powershell.exe",
-                            Arguments = "-NoProfile -Command \"Get-AppxPackage | Where-Object {$_.Name -eq 'Microsoft.WindowsAppRuntime.2' -and $_.Architecture -eq 'X64'} | Select-Object -First 1 -ExpandProperty Version\"",
-                            RedirectStandardOutput = true,
-                            UseShellExecute = false,
-                            CreateNoWindow = true
-                        };
-                        
-                        using var process = System.Diagnostics.Process.Start(psi);
-                        if (process != null)
-                        {
-                            var output = process.StandardOutput.ReadToEnd().Trim();
-                            process.WaitForExit();
-                            
-                            if (!string.IsNullOrWhiteSpace(output) && Version.TryParse(output, out var fullVersion))
-                            {
-                                // Return simple SemVer format: Major.Minor.Build
-                                return new Version(fullVersion.Major, fullVersion.Minor, fullVersion.Build);
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogDebug($"Failed to check runtime version: {ex.Message}");
-                    }
-                    return null;
-                });
-                
-                if (installedVersion == null)
-                {
-                    // No runtime 2.0 found at all
-                    var langDict = SharedUtilities.LoadLanguageDictionary();
-                    
-                    var dialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Title"),
-                        Content = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Content_NoVersion"),
-                        PrimaryButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_Download_Button"),
-                        CloseButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_MaybeLater_Button"),
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    
-                    var result = await dialog.ShowAsync();
-                    
-                    if (result == ContentDialogResult.Primary)
-                    {
-                        // Install Windows App Runtime via winget or open browser
-                        await InstallWindowsAppRuntimeAsync();
-                    }
-                }
-                else if (installedVersion < requiredVersion)
-                {
-                    // Runtime 2.0 found but outdated
-                    Logger.LogInfo($"Outdated Windows App Runtime 2.0 detected: {installedVersion} (required: {requiredVersion})");
-                    
-                    var langDict = SharedUtilities.LoadLanguageDictionary();
-                    var contentTemplate = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Content_WithVersion");
-                    var content = string.Format(contentTemplate, installedVersion, requiredVersion);
-                    
-                    var dialog = new ContentDialog
-                    {
-                        Title = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_WinAppRuntime_Update_Title"),
-                        Content = content,
-                        PrimaryButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_Download_Button"),
-                        CloseButtonText = SharedUtilities.GetTranslation(langDict, "RuntimeCheck_MaybeLater_Button"),
-                        XamlRoot = this.Content.XamlRoot
-                    };
-                    
-                    var result = await dialog.ShowAsync();
-                    
-                    if (result == ContentDialogResult.Primary)
-                    {
-                        // Install Windows App Runtime via winget or open browser
-                        await InstallWindowsAppRuntimeAsync();
-                    }
-                }
-                else
-                {
-                    Logger.LogInfo($"Windows App Runtime 2.0 version OK: {installedVersion}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to check Windows App Runtime version", ex);
-            }
-        }
 
         /// <summary>
         /// Check if winget is available on the system
@@ -514,6 +332,58 @@ namespace FlairX_Mod_Manager
             }
             
             return null;
+        }
+
+        /// <summary>
+        /// Get the highest installed .NET 10 patch version by scanning the runtime folder on disk.
+        /// Returns null if the folder cannot be read.
+        /// </summary>
+        private static Version? GetHighestInstalledDotNetVersion()
+        {
+            try
+            {
+                var candidates = new System.Collections.Generic.List<string>();
+
+                // Standard install locations
+                candidates.Add(@"C:\Program Files\dotnet\shared\Microsoft.NETCore.App");
+                candidates.Add(System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "dotnet", "shared", "Microsoft.NETCore.App"));
+
+                // Also check DOTNET_ROOT env var
+                var dotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT");
+                if (!string.IsNullOrEmpty(dotnetRoot))
+                    candidates.Add(System.IO.Path.Combine(dotnetRoot, "shared", "Microsoft.NETCore.App"));
+
+                // Check where dotnet.exe lives
+                var dotnetExe = System.Diagnostics.Process.GetProcessesByName("dotnet").FirstOrDefault()?.MainModule?.FileName;
+                if (!string.IsNullOrEmpty(dotnetExe))
+                    candidates.Add(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(dotnetExe)!, "shared", "Microsoft.NETCore.App"));
+
+                Version? highest = null;
+                foreach (var runtimeDir in candidates)
+                {
+                    Logger.LogInfo($"GetHighestInstalledDotNetVersion: checking {runtimeDir} (exists={System.IO.Directory.Exists(runtimeDir)})");
+                    if (!System.IO.Directory.Exists(runtimeDir)) continue;
+                    foreach (var dir in System.IO.Directory.GetDirectories(runtimeDir))
+                    {
+                        var name = System.IO.Path.GetFileName(dir);
+                        if (Version.TryParse(name, out var v) && v.Major == 10)
+                        {
+                            Logger.LogInfo($"GetHighestInstalledDotNetVersion: found {v}");
+                            if (highest == null || v > highest)
+                                highest = v;
+                        }
+                    }
+                    if (highest != null) break;
+                }
+
+                Logger.LogInfo($"GetHighestInstalledDotNetVersion: result={highest?.ToString() ?? "not found"}");
+                return highest;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to scan installed .NET versions", ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -979,7 +849,7 @@ namespace FlairX_Mod_Manager
                     XamlRoot = this.Content.XamlRoot
                 };
                 
-                var result = await dialog.ShowAsync();
+                var result = await MainWindow.ShowDialogAsync(dialog);
                 if (result == ContentDialogResult.Primary)
                 {
                     RestartApplication();
@@ -1217,7 +1087,7 @@ namespace FlairX_Mod_Manager
                 }
             };
 
-            await dialog.ShowAsync();
+            await MainWindow.ShowDialogAsync(dialog);
             
             if (downloadSuccess)
             {
@@ -1318,7 +1188,7 @@ namespace FlairX_Mod_Manager
                     await ReloadModsAsync();
                 };
                 
-                var result = await dialog.ShowAsync();
+                var result = await MainWindow.ShowDialogAsync(dialog);
                 Logger.LogDebug($"Starter Pack dialog result: {result}");
                 
                 // If user clicked "No thanks" with checkbox checked, it's already handled in the dialog

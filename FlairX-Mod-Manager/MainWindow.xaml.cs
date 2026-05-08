@@ -31,6 +31,25 @@ namespace FlairX_Mod_Manager
     public sealed partial class MainWindow : Window
     {
         private const int MIN_WIDTH = 1300;
+
+        // Semaphore to ensure only one ContentDialog is shown at a time
+        private static readonly System.Threading.SemaphoreSlim _dialogSemaphore = new(1, 1);
+
+        /// <summary>
+        /// Show a ContentDialog safely — waits if another dialog is already open.
+        /// </summary>
+        public static async Task<ContentDialogResult> ShowDialogAsync(ContentDialog dialog)
+        {
+            await _dialogSemaphore.WaitAsync();
+            try
+            {
+                return await dialog.ShowAsync();
+            }
+            finally
+            {
+                _dialogSemaphore.Release();
+            }
+        }
         private const int MIN_HEIGHT = 720;
         private Dictionary<string, string> _lang = new();
         

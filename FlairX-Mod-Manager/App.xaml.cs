@@ -650,7 +650,7 @@ namespace FlairX_Mod_Manager
                                     updateResult.Value.changelog
                                 );
                                 updateDialog.XamlRoot = mainWindow.Content.XamlRoot;
-                                await updateDialog.ShowAsync();
+                                await FlairX_Mod_Manager.MainWindow.ShowDialogAsync(updateDialog);
                                 
                                 Logger.LogInfo("Update dialog closed, checking for Starter Pack");
                                 // After update dialog is closed, check for Starter Pack
