@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "更新をチェックする頻度（1-365）",
   "ConfirmFetchAllData": "これにより、すべてのModについてGameBananaから作者、バージョン、日付の情報を取得して更新します。続行しますか？",
   "AllDataSummaryTitle": "すべてのデータ更新の概要",
-  "NoPreviewsAvailable": "プレビューがありません"
+  "NoPreviewsAvailable": "プレビューがありません",
+  "ConnectionError": "接続エラー"
 }

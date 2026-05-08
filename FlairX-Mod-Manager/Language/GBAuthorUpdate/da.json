@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Hvor ofte der skal tjekkes for opdateringer (1-365)",
   "ConfirmFetchAllData": "Dette vil hente og opdatere forfatter-, versions- og datoinformation fra GameBanana for alle mods. Vil du fortsætte?",
   "AllDataSummaryTitle": "Resumé af opdatering af alle data",
-  "NoPreviewsAvailable": "Ingen forhåndsvisninger tilgængelige"
+  "NoPreviewsAvailable": "Ingen forhåndsvisninger tilgængelige",
+  "ConnectionError": "Forbindelsesfejl"
 }

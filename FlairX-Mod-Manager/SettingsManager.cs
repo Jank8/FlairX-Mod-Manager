@@ -135,7 +135,6 @@ namespace FlairX_Mod_Manager
         public bool GameBananaAutoUpdateEnabled { get; set; } = false;
         public int GameBananaAutoUpdateIntervalDays { get; set; } = 7; // Check every 7 days
         public DateTime GameBananaLastAutoUpdate { get; set; } = DateTime.MinValue;
-        public bool GameBananaSkipInvalidUrls { get; set; } = true;
         
         // Mod filtering settings
         public bool HideBrokenMods { get; set; } = false;

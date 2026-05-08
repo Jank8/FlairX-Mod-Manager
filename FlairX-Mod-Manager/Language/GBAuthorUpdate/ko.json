@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "업데이트를 확인하는 빈도（1-365）",
   "ConfirmFetchAllData": "모든 모드에 대해 GameBanana에서 작성자, 버전 및 날짜 정보를 가져와서 업데이트합니다. 계속하시겠습니까?",
   "AllDataSummaryTitle": "모든 데이터 업데이트 요약",
-  "NoPreviewsAvailable": "사용 가능한 미리보기 없음"
+  "NoPreviewsAvailable": "사용 가능한 미리보기 없음",
+  "ConnectionError": "연결 오류"
 }

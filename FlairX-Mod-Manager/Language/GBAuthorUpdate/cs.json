@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Jak často kontrolovat aktualizace (1-365)",
   "ConfirmFetchAllData": "Toto načte a aktualizuje informace o autorech, verzích a datech z GameBanana pro všechny mody. Chcete pokračovat?",
   "AllDataSummaryTitle": "Souhrn aktualizace všech dat",
-  "NoPreviewsAvailable": "Žádné náhledy k dispozici"
+  "NoPreviewsAvailable": "Žádné náhledy k dispozici",
+  "ConnectionError": "Chyba připojení"
 }

@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Güncellemeleri ne sıklıkla kontrol et (1-365)",
   "ConfirmFetchAllData": "Bu, tüm modlar için GameBanana'dan yazar, sürüm ve tarih bilgilerini alacak ve güncelleyecektir. Devam etmek istiyor musunuz?",
   "AllDataSummaryTitle": "Tüm veri güncelleme özeti",
-  "NoPreviewsAvailable": "Önizleme mevcut değil"
+  "NoPreviewsAvailable": "Önizleme mevcut değil",
+  "ConnectionError": "Bağlantı hatası"
 }

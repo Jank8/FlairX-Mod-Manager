@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "檢查更新的頻率（1-365）",
   "ConfirmFetchAllData": "這將從GameBanana取得並更新所有模組的作者、版本和日期資訊。是否繼續？",
   "AllDataSummaryTitle": "所有資料更新摘要",
-  "NoPreviewsAvailable": "沒有可用的預覽"
+  "NoPreviewsAvailable": "沒有可用的預覽",
+  "ConnectionError": "連線錯誤"
 }

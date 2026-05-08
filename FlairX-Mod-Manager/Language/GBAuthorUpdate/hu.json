@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Milyen gyakran ellenőrizze a frissítéseket (1-365)",
   "ConfirmFetchAllData": "Ez lekéri és frissíti a szerző, verzió és dátum információkat a GameBanana-ról minden mod számára. Szeretné folytatni?",
   "AllDataSummaryTitle": "Minden adat frissítésének összefoglalója",
-  "NoPreviewsAvailable": "Nincs elérhető előnézet"
+  "NoPreviewsAvailable": "Nincs elérhető előnézet",
+  "ConnectionError": "Kapcsolati hiba"
 }

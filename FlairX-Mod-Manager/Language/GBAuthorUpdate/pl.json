@@ -62,5 +62,6 @@
   "NoIconUrlAvailable": "Brak dostępnego URL ikony",
   "ConfirmFetchAllData": "Spowoduje to pobranie i aktualizację informacji o autorach, wersjach i datach z GameBanana dla wszystkich modów. Czy chcesz kontynuować?",
   "AllDataSummaryTitle": "Podsumowanie aktualizacji wszystkich danych",
-  "NoPreviewsAvailable": "Brak dostępnych podglądów"
+  "NoPreviewsAvailable": "Brak dostępnych podglądów",
+  "ConnectionError": "Błąd połączenia"
 }

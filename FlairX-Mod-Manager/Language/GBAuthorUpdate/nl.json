@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Hoe vaak controleren op updates (1-365)",
   "ConfirmFetchAllData": "Dit haalt auteur-, versie- en datuminformatie op van GameBanana voor alle mods en werkt deze bij. Wilt u doorgaan?",
   "AllDataSummaryTitle": "Samenvatting van alle gegevens bijwerken",
-  "NoPreviewsAvailable": "Geen voorbeelden beschikbaar"
+  "NoPreviewsAvailable": "Geen voorbeelden beschikbaar",
+  "ConnectionError": "Verbindingsfout"
 }

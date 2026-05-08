@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Як часто перевіряти оновлення (1-365)",
   "ConfirmFetchAllData": "Це отримає та оновить інформацію про автора, версію та дату з GameBanana для всіх модів. Бажаєте продовжити?",
   "AllDataSummaryTitle": "Підсумок оновлення всіх даних",
-  "NoPreviewsAvailable": "Немає доступних попередніх переглядів"
+  "NoPreviewsAvailable": "Немає доступних попередніх переглядів",
+  "ConnectionError": "Помилка з'єднання"
 }

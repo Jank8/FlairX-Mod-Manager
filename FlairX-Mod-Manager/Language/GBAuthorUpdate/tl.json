@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Gaano kadalas suriin ang mga update (1-365)",
   "ConfirmFetchAllData": "Kukunin at ia-update nito ang impormasyon ng author, bersyon, at petsa mula sa GameBanana para sa lahat ng mod. Gusto mo bang magpatuloy?",
   "AllDataSummaryTitle": "Buod ng pag-update ng lahat ng data",
-  "NoPreviewsAvailable": "Walang available na preview"
+  "NoPreviewsAvailable": "Walang available na preview",
+  "ConnectionError": "Error sa koneksyon"
 }

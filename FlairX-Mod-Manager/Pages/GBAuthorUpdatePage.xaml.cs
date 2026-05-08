@@ -77,10 +77,6 @@ namespace FlairX_Mod_Manager.Pages
             CreateCategoryFoldersTitle.Text = SharedUtilities.GetTranslation(lang, "CreateCategoryFoldersButton");
             CreateCategoryFoldersDescription.Text = SharedUtilities.GetTranslation(lang, "CreateCategoryFoldersButton_Tooltip");
             // Button text is now handled by UpdateButtonStates()
-            
-            // Skip invalid URLs card
-            SkipInvalidUrlsLabel.Text = SharedUtilities.GetTranslation(lang, "SkipInvalidUrlsLabel");
-            SkipInvalidUrlsDescription.Text = SharedUtilities.GetTranslation(lang, "SkipInvalidUrlsDescription");
         }
         
         private void UpdateToggleLabels()
@@ -93,8 +89,6 @@ namespace FlairX_Mod_Manager.Pages
                 UpdateAuthorsToggleLabel.Text = UpdateAuthorsSwitch.IsOn ? onText : offText;
             if (SmartUpdateToggleLabel != null && SmartUpdateSwitch != null)
                 SmartUpdateToggleLabel.Text = SmartUpdateSwitch.IsOn ? onText : offText;
-            if (SkipInvalidUrlsToggleLabel != null && SkipInvalidUrlsSwitch != null)
-                SkipInvalidUrlsToggleLabel.Text = SkipInvalidUrlsSwitch.IsOn ? onText : offText;
         }
 
         // Thread-safe progress reporting
@@ -118,7 +112,6 @@ namespace FlairX_Mod_Manager.Pages
             ProgressChanged += OnProgressChanged;
             UpdateAuthorsSwitch.Toggled += UpdateAuthorsSwitch_Toggled;
             SmartUpdateSwitch.Toggled += SmartUpdateSwitch_Toggled;
-            SkipInvalidUrlsSwitch.Toggled += SkipInvalidUrlsSwitch_Toggled;
         }
 
         ~GBAuthorUpdatePage()
@@ -190,53 +183,6 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         /// <summary>
-        /// Mark a mod's URL as invalid in mod.json
-        /// </summary>
-        private static async Task MarkUrlAsInvalidAsync(string modJsonPath, CancellationToken token = default)
-        {
-            try
-            {
-                await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
-                {
-                    var currentJson = await File.ReadAllTextAsync(modJsonPath, token);
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(currentJson) ?? new();
-                    dict["urlInvalid"] = true;
-                    await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
-                }, token);
-                Logger.LogInfo($"Marked URL as invalid in: {modJsonPath}");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Failed to mark URL as invalid in {modJsonPath}", ex);
-            }
-        }
-
-        /// <summary>
-        /// Clear the invalid URL flag from mod.json
-        /// </summary>
-        private static async Task ClearUrlInvalidFlagAsync(string modJsonPath, CancellationToken token = default)
-        {
-            try
-            {
-                await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
-                {
-                    var currentJson = await File.ReadAllTextAsync(modJsonPath, token);
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(currentJson) ?? new();
-                    if (dict.ContainsKey("urlInvalid"))
-                    {
-                        dict.Remove("urlInvalid");
-                        await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
-                        Logger.LogInfo($"Cleared invalid URL flag from: {modJsonPath}");
-                    }
-                }, token);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Failed to clear invalid URL flag from {modJsonPath}", ex);
-            }
-        }
-
-        
         /// <summary>
         /// Update button states - disable all buttons when any operation is running
         /// </summary>
@@ -514,11 +460,6 @@ namespace FlairX_Mod_Manager.Pages
                 UpdateAuthorsSwitch.IsOn = true;
                 CurrentUpdateMode = UpdateMode.Full;
             }
-            UpdateToggleLabels();
-        }
-
-        private void SkipInvalidUrlsSwitch_Toggled(object sender, RoutedEventArgs e)
-        {
             UpdateToggleLabels();
         }
 
@@ -943,19 +884,6 @@ namespace FlairX_Mod_Manager.Pages
                             SafeSetCurrentProcessingMod(modName);
                             NotifyProgressChanged();
 
-                            // Check if URL is marked as invalid and skip if option is enabled
-                            if (SkipInvalidUrlsSwitch.IsOn && root.TryGetProperty("urlInvalid", out var urlInvalidProp) && 
-                                urlInvalidProp.ValueKind == JsonValueKind.True)
-                            {
-                                SafeIncrementSkip();
-                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
-                                Interlocked.Increment(ref processed);
-                                lock (_lockObject) { _progressValue = (double)processed / _totalMods; }
-                                SafeSetCurrentProcessingMod("");
-                                NotifyProgressChanged();
-                                return;
-                            }
-
                             if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
                                 string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
                             {
@@ -1037,15 +965,6 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             var downloadedCount = await DownloadPreviewsFromApi(url, dir, token, startIndex);
                             
-                            // Clear urlInvalid flag if API call succeeded (downloadedCount >= 0)
-                            // downloadedCount == 0 means no previews available, but URL is valid
-                            // downloadedCount == -1 means API error or invalid URL
-                            if (downloadedCount >= 0)
-                            {
-                                // Clear any previous invalid URL flag since we successfully contacted the API
-                                await ClearUrlInvalidFlagAsync(modJsonPath, token);
-                            }
-                            
                             if (downloadedCount > 0)
                             {
                                 SafeIncrementSuccess();
@@ -1124,25 +1043,21 @@ namespace FlairX_Mod_Manager.Pages
                             }
                             else if (downloadedCount == 0)
                             {
-                                // downloadedCount == 0 means no previews available, but URL is valid
-                                // Don't mark as invalid, just skip
+                                // No previews available
                                 SafeIncrementSkip();
                                 SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "NoPreviewsAvailable")}");
                             }
                             else // downloadedCount < 0
                             {
-                                // Mark URL as invalid when API call failed
-                                await MarkUrlAsInvalidAsync(modJsonPath, token);
-                                SafeIncrementSkip();
-                                SafeAddSkippedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
+                                // Error fetching previews
+                                SafeIncrementFail();
+                                SafeAddFailedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "PreviewFetchError")}");
                             }
                         }
                         catch (OperationCanceledException) { }
                         catch (Exception ex)
                         {
                             Logger.LogError($"Failed to fetch previews for {modName}", ex);
-                            // Mark URL as invalid on any fetch error
-                            await MarkUrlAsInvalidAsync(modJsonPath, token);
                             SafeIncrementFail();
                             SafeAddFailedMod($"{modName}: {SharedUtilities.GetTranslation(lang, "PreviewFetchError")}");
                         }
@@ -1263,7 +1178,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (!match.Success)
                 {
                     Logger.LogError($"Failed to parse GameBanana URL: {url}");
-                    return -1; // Return -1 to indicate URL parsing error (invalid URL)
+                    return -1; // Return -1 to indicate error
                 }
 
                 string itemType = match.Groups[1].Value;
@@ -1279,8 +1194,7 @@ namespace FlairX_Mod_Manager.Pages
                 using var doc = JsonDocument.Parse(response);
                 var root = doc.RootElement;
 
-                // API call succeeded - URL is valid even if there are no previews
-                // Return 0 for no previews, but this is different from -1 (invalid URL)
+                // API call succeeded - return 0 for no previews
 
                 if (!root.TryGetProperty("_aPreviewMedia", out var previewMedia))
                 {
@@ -1350,7 +1264,7 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to fetch previews from API for URL: {url}", ex);
-                return -1; // Return -1 to indicate API error (invalid URL or network error)
+                return -1; // Return -1 for any error
             }
         }
 
@@ -1600,8 +1514,6 @@ namespace FlairX_Mod_Manager.Pages
             
             // Show last auto-update run date
             UpdateLastRunText();
-            
-            SkipInvalidUrlsSwitch.IsOn = SettingsManager.Current.GameBananaSkipInvalidUrls;
         }
 
         private void UpdateLastRunText()

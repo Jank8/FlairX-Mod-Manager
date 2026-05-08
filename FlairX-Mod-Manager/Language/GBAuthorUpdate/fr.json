@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "À quelle fréquence vérifier les mises à jour (1-365)",
   "ConfirmFetchAllData": "Ceci récupérera et mettra à jour les informations d'auteur, de version et de date depuis GameBanana pour tous les mods. Voulez-vous continuer ?",
   "AllDataSummaryTitle": "Résumé de mise à jour de toutes les données",
-  "NoPreviewsAvailable": "Aucun aperçu disponible"
+  "NoPreviewsAvailable": "Aucun aperçu disponible",
+  "ConnectionError": "Erreur de connexion"
 }

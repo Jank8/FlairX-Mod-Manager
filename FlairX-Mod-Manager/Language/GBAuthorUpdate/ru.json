@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Как часто проверять обновления (1-365)",
   "ConfirmFetchAllData": "Это получит и обновит информацию об авторах, версиях и датах с GameBanana для всех модов. Хотите продолжить?",
   "AllDataSummaryTitle": "Краткое содержание обновления всех данных",
-  "NoPreviewsAvailable": "Нет доступных превью"
+  "NoPreviewsAvailable": "Нет доступных превью",
+  "ConnectionError": "Ошибка соединения"
 }

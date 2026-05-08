@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Cât de des să verifice actualizările (1-365)",
   "ConfirmFetchAllData": "Aceasta va prelua și actualiza informațiile despre autor, versiune și dată de pe GameBanana pentru toate mod-urile. Vrei să continui?",
   "AllDataSummaryTitle": "Rezumat actualizare toate datele",
-  "NoPreviewsAvailable": "Nicio previzualizare disponibilă"
+  "NoPreviewsAvailable": "Nicio previzualizare disponibilă",
+  "ConnectionError": "Eroare de conexiune"
 }

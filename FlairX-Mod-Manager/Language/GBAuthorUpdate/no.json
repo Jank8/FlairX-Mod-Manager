@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Hvor ofte sjekke for oppdateringer (1-365)",
   "ConfirmFetchAllData": "Dette vil hente og oppdatere forfatter-, versjon- og datoinformasjon fra GameBanana for alle modifikasjoner. Vil du fortsette?",
   "AllDataSummaryTitle": "Sammendrag av oppdatering av alle data",
-  "NoPreviewsAvailable": "Ingen forhåndsvisninger tilgjengelig"
+  "NoPreviewsAvailable": "Ingen forhåndsvisninger tilgjengelig",
+  "ConnectionError": "Tilkoblingsfeil"
 }

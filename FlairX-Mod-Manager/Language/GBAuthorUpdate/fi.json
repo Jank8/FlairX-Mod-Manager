@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Kuinka usein tarkistaa päivitykset (1-365)",
   "ConfirmFetchAllData": "Tämä hakee ja päivittää tekijä-, versio- ja päivämäärätiedot GameBananasta kaikille modeille. Haluatko jatkaa?",
   "AllDataSummaryTitle": "Kaikkien tietojen päivityksen yhteenveto",
-  "NoPreviewsAvailable": "Ei esikatseluja saatavilla"
+  "NoPreviewsAvailable": "Ei esikatseluja saatavilla",
+  "ConnectionError": "Yhteysvirhe"
 }

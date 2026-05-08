@@ -2458,16 +2458,6 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var lang = SharedUtilities.LoadLanguageDictionary();
                 
-                // Check if URL is marked as invalid - this has priority over update notifications
-                if (root.TryGetProperty("urlInvalid", out var urlInvalidProp) && 
-                    urlInvalidProp.ValueKind == JsonValueKind.True)
-                {
-                    // Show "URL moda niedostępny" - this takes priority over everything
-                    UpdateAvailableNotification.Text = SharedUtilities.GetTranslation(lang, "ModDetailPage_UrlUnavailable");
-                    UpdateAvailableNotification.Visibility = Visibility.Visible;
-                    return;
-                }
-
                 // Get gbChangeDate and dateUpdated from mod.json
                 string? gbChangeDate = root.TryGetProperty("gbChangeDate", out var gbChangeProp) ? gbChangeProp.GetString() : null;
                 string? dateUpdated = root.TryGetProperty("dateUpdated", out var dateUpdatedProp) ? dateUpdatedProp.GetString() : null;

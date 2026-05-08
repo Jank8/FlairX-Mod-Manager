@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Tần suất kiểm tra cập nhật (1-365)",
   "ConfirmFetchAllData": "Điều này sẽ lấy và cập nhật thông tin tác giả, phiên bản và ngày từ GameBanana cho tất cả các mod. Bạn có muốn tiếp tục không?",
   "AllDataSummaryTitle": "Tóm tắt cập nhật tất cả dữ liệu",
-  "NoPreviewsAvailable": "Không có bản xem trước nào"
+  "NoPreviewsAvailable": "Không có bản xem trước nào",
+  "ConnectionError": "Lỗi kết nối"
 }

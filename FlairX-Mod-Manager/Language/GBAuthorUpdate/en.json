@@ -62,5 +62,6 @@
   "FailedToFetchCategories": "Failed to fetch character categories or no categories found.",
   "FailedToDownloadIcon": "Failed to download icon",
   "NoIconUrlAvailable": "No icon URL available",
-  "NoPreviewsAvailable": "No previews available"
+  "NoPreviewsAvailable": "No previews available",
+  "ConnectionError": "Connection error"
 }

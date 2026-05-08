@@ -114,14 +114,17 @@ namespace FlairX_Mod_Manager.Services
                 _failedMods.Clear();
             }
 
-            // Process in parallel with max 5 concurrent requests
-            var semaphore = new SemaphoreSlim(5);
+            // Process in parallel with max 3 concurrent requests (reduced from 5 to avoid rate limiting)
+            var semaphore = new SemaphoreSlim(3);
             var tasks = allModDirs.Select(async dir =>
             {
                 await semaphore.WaitAsync(token);
                 try
                 {
                     if (token.IsCancellationRequested) return;
+                    
+                    // Add delay between requests to avoid rate limiting (500ms per request)
+                    await Task.Delay(500, token);
 
                     var modJsonPath = Path.Combine(dir, "mod.json");
                     var modFolderName = Path.GetFileName(dir);
@@ -168,17 +171,6 @@ namespace FlairX_Mod_Manager.Services
                             return;
                         }
 
-                        // Check if URL is marked as invalid and skip if option is enabled
-                        if (SettingsManager.Current.GameBananaSkipInvalidUrls && 
-                            root.TryGetProperty("urlInvalid", out var urlInvalidProp) && 
-                            urlInvalidProp.ValueKind == JsonValueKind.True)
-                        {
-                            SafeIncrementSkip();
-                            SafeAddSkippedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "UrlUnavailable")}");
-                            Interlocked.Increment(ref processed);
-                            return;
-                        }
-
                         if (!root.TryGetProperty("url", out var urlProp) || urlProp.ValueKind != JsonValueKind.String ||
                             string.IsNullOrWhiteSpace(urlProp.GetString()) || !urlProp.GetString()!.Contains("gamebanana.com"))
                         {
@@ -195,9 +187,6 @@ namespace FlairX_Mod_Manager.Services
                     {
                         // Fetch author, version and dates in one API call
                         var (author, version, dateAdded, dateUpdated) = await FetchAllDataFromApi(url, token);
-                        
-                        // Clear any previous invalid URL flag since we successfully fetched data
-                        await ClearUrlInvalidFlagAsync(modJsonPath, token);
                         
                         if (!SecurityValidator.IsValidModDirectoryName(modFolderName))
                         {
@@ -237,9 +226,8 @@ namespace FlairX_Mod_Manager.Services
                     catch (OperationCanceledException) { }
                     catch (Exception ex)
                     {
+                        // Log error but continue processing other mods
                         Logger.LogError($"Failed to fetch data for {displayName}", ex);
-                        // Mark URL as invalid on any fetch error
-                        await MarkUrlAsInvalidAsync(modJsonPath, token);
                         SafeIncrementFail();
                         SafeAddFailedMod($"{displayName}: {SharedUtilities.GetTranslation(lang, "AuthorFetchError")}");
                     }
@@ -265,6 +253,9 @@ namespace FlairX_Mod_Manager.Services
         {
             try
             {
+                // Add small delay before API call to avoid rate limiting
+                await Task.Delay(100, token);
+                
                 // Parse GameBanana URL to get item type and ID
                 var uri = new Uri(url);
                 var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
@@ -332,42 +323,6 @@ namespace FlairX_Mod_Manager.Services
             {
                 Logger.LogError($"API request failed for {url}", ex);
                 throw;
-            }
-        }
-
-        private static async Task ClearUrlInvalidFlagAsync(string modJsonPath, CancellationToken token)
-        {
-            try
-            {
-                await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
-                {
-                    var json = await File.ReadAllTextAsync(modJsonPath, token);
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
-                    dict.Remove("urlInvalid");
-                    await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
-                }, token);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Failed to clear urlInvalid flag for {modJsonPath}", ex);
-            }
-        }
-
-        private static async Task MarkUrlAsInvalidAsync(string modJsonPath, CancellationToken token)
-        {
-            try
-            {
-                await Services.FileAccessQueue.ExecuteAsync(modJsonPath, async () =>
-                {
-                    var json = await File.ReadAllTextAsync(modJsonPath, token);
-                    var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json) ?? new();
-                    dict["urlInvalid"] = true;
-                    await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
-                }, token);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError($"Failed to mark URL as invalid for {modJsonPath}", ex);
             }
         }
 

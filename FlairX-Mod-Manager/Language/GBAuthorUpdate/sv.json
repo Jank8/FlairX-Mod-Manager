@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Hur ofta kontrollera för uppdateringar (1-365)",
   "ConfirmFetchAllData": "Detta kommer att hämta och uppdatera författar-, versions- och datuminformation från GameBanana för alla moddar. Vill du fortsätta?",
   "AllDataSummaryTitle": "Sammanfattning av uppdatering av all data",
-  "NoPreviewsAvailable": "Inga förhandsvisningar tillgängliga"
+  "NoPreviewsAvailable": "Inga förhandsvisningar tillgängliga",
+  "ConnectionError": "Anslutningsfel"
 }

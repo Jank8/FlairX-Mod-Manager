@@ -62,5 +62,6 @@
   "AutoUpdateIntervalDescription": "Seberapa sering memeriksa pembaruan (1-365)",
   "ConfirmFetchAllData": "Ini akan mengambil dan memperbarui informasi penulis, versi, dan tanggal dari GameBanana untuk semua mod. Apakah Anda ingin melanjutkan?",
   "AllDataSummaryTitle": "Ringkasan pembaruan semua data",
-  "NoPreviewsAvailable": "Tidak ada pratinjau tersedia"
+  "NoPreviewsAvailable": "Tidak ada pratinjau tersedia",
+  "ConnectionError": "Kesalahan koneksi"
 }
