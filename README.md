@@ -1,6 +1,6 @@
 # FlairX Mod Manager
 
-<img align="right" width="256" height="256" alt="fx" src="https://github.com/user-attachments/assets/4486fb47-8bb7-40d6-b4bb-28838136f0ae" />
+<img align="right" width="256" height="256" alt="fx" src="https://i.imgur.com/rFbHc8Y.png" />
 
 **Modern mod manager for XXMI-supported games**
 
