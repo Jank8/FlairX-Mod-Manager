@@ -127,7 +127,7 @@ namespace FlairX_Mod_Manager
                                 character = "other",
                                 isNSFW = false,
                                 modBroken = false,
-                                statusKeeperSync = false,
+                                statusKeeperSync = true,
                                 dateChecked = DateTime.UtcNow.ToString("o"),
                                 dateUpdated = DateTime.UtcNow.ToString("o")
                             };
