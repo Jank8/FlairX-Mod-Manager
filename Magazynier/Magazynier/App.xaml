@@ -1,0 +1,79 @@
+<Application
+    x:Class="Magazynier.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Magazynier">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Fonts -->
+            <FontFamily x:Key="AppFontFamily">ms-appx:///Assets/Fonts/NotoSans.ttf#Noto Sans</FontFamily>
+
+            <!-- Global control styles (matching FlairX) -->
+            <Style TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+            </Style>
+            <Style TargetType="Button">
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+                <Setter Property="CornerRadius" Value="4" />
+            </Style>
+            <Style TargetType="ComboBox">
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+                <Setter Property="CornerRadius" Value="4" />
+            </Style>
+            <Style TargetType="ComboBoxItem">
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+                <Setter Property="CornerRadius" Value="4" />
+            </Style>
+            <Style TargetType="NavigationViewItem">
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+                <Setter Property="MinHeight" Value="48" />
+                <Setter Property="Height" Value="48" />
+                <Setter Property="Padding" Value="16,8,16,8" />
+            </Style>
+            <Style TargetType="ContentDialog">
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+                <Setter Property="CornerRadius" Value="8" />
+            </Style>
+            <Style TargetType="TextBox">
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+                <Setter Property="CornerRadius" Value="4" />
+            </Style>
+            <Style TargetType="ListView">
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+            </Style>
+            <Style TargetType="ListViewItem">
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+            </Style>
+
+            <!-- Theme-specific brushes -->
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <AcrylicBrush x:Key="AppAcrylicBrush"
+                                  TintColor="#FFFFFFFF"
+                                  TintOpacity="0.75"
+                                  FallbackColor="White"
+                                  AlwaysUseFallback="False" />
+                    <SolidColorBrush x:Key="StatusBadgeAssignedBrush" Color="#2196F3" />
+                    <SolidColorBrush x:Key="StatusBadgeAvailableBrush" Color="#4CAF50" />
+                    <SolidColorBrush x:Key="StatusBadgeRetiredBrush" Color="#9E9E9E" />
+                    <SolidColorBrush x:Key="StatusBadgeRepairBrush" Color="#FF9800" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <AcrylicBrush x:Key="AppAcrylicBrush"
+                                  TintColor="#FF222222"
+                                  TintOpacity="0.45"
+                                  FallbackColor="Black"
+                                  AlwaysUseFallback="False" />
+                    <SolidColorBrush x:Key="StatusBadgeAssignedBrush" Color="#42A5F5" />
+                    <SolidColorBrush x:Key="StatusBadgeAvailableBrush" Color="#66BB6A" />
+                    <SolidColorBrush x:Key="StatusBadgeRetiredBrush" Color="#BDBDBD" />
+                    <SolidColorBrush x:Key="StatusBadgeRepairBrush" Color="#FFA726" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
