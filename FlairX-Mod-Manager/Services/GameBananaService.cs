@@ -159,6 +159,14 @@ namespace FlairX_Mod_Manager.Services
             [JsonPropertyName("_bHasContentRatings")]
             public bool HasContentRatings { get; set; }
             
+            [JsonPropertyName("_bIsNsfw")]
+            public bool IsNsfw { get; set; }
+            
+            /// <summary>
+            /// Returns true if the mod has content ratings (apiv11) OR is marked NSFW (apiv6)
+            /// </summary>
+            public bool HasAnyContentWarning => HasContentRatings || IsNsfw;
+            
             [JsonPropertyName("_bHasRipe")]
             public bool HasRipe { get; set; }
             
@@ -403,6 +411,257 @@ namespace FlairX_Mod_Manager.Services
             
             [JsonPropertyName("_nDownloadCount")]
             public int DownloadCount { get; set; }
+        }
+
+        /// <summary>
+        /// Internal model for apiv6 ByCategory response items — PreviewMedia is a flat list, not a nested object.
+        /// </summary>
+        private class ModRecordV6
+        {
+            [JsonPropertyName("_idRow")]
+            public int Id { get; set; }
+
+            [JsonPropertyName("_sName")]
+            public string Name { get; set; } = "";
+
+            [JsonPropertyName("_sProfileUrl")]
+            public string ProfileUrl { get; set; } = "";
+
+            [JsonPropertyName("_tsDateAdded")]
+            public long DateAdded { get; set; }
+
+            [JsonPropertyName("_tsDateUpdated")]
+            public long DateUpdated { get; set; }
+
+            [JsonPropertyName("_bIsNsfw")]
+            public bool IsNsfw { get; set; }
+
+            [JsonPropertyName("_nLikeCount")]
+            public int LikeCount { get; set; }
+
+            [JsonPropertyName("_nViewCount")]
+            public int ViewCount { get; set; }
+
+            [JsonPropertyName("_nDownloadCount")]
+            public int DownloadCount { get; set; }
+
+            [JsonPropertyName("_nPostCount")]
+            public int PostCount { get; set; }
+
+            [JsonPropertyName("_aPreviewMedia")]
+            public List<ImageInfo>? PreviewImages { get; set; }
+
+            [JsonPropertyName("_aSubmitter")]
+            public Submitter? Submitter { get; set; }
+        }
+
+        /// <summary>
+        /// Valid sort orders for GetModsByCategoryAsync (used by apiv6 ByCategory).
+        /// When searching by name, sorting is not supported by the API and this value is ignored.
+        /// </summary>
+        public enum CategorySortOrder
+        {
+            LatestUpdated,   // _tsDateUpdated,DESC  (default)
+            Newest,          // _tsDateAdded,DESC
+            Oldest,          // _tsDateAdded,ASC
+            MostLiked,       // _nLikeCount,DESC
+            MostViewed,      // _nViewCount,DESC
+            MostDownloaded,  // _nDownloadCount,DESC
+            MostCommented,   // _nPostCount,DESC
+        }
+
+        private static string GetSortParam(CategorySortOrder sort) => sort switch
+        {
+            CategorySortOrder.Newest         => "_tsDateAdded,DESC",
+            CategorySortOrder.Oldest         => "_tsDateAdded,ASC",
+            CategorySortOrder.MostLiked      => "_nLikeCount,DESC",
+            CategorySortOrder.MostViewed     => "_nViewCount,DESC",
+            CategorySortOrder.MostDownloaded => "_nDownloadCount,DESC",
+            CategorySortOrder.MostCommented  => "_nPostCount,DESC",
+            _                                => "_tsDateUpdated,DESC",
+        };
+
+        /// <summary>
+        /// Get list of mods filtered by a specific category (e.g. Character Skins).
+        /// Browse mode (no search): uses apiv6/Mod/ByCategory — supports sorting.
+        /// Search mode: uses apiv11/Game/Subfeed with _aCategoryRowIds[] — supports name filtering.
+        /// </summary>
+        public static async Task<ModListResponse?> GetModsByCategoryAsync(
+            string gameTag,
+            int categoryId,
+            int page = 1,
+            string? search = null,
+            CategorySortOrder sort = CategorySortOrder.LatestUpdated)
+        {
+            // When searching, switch to apiv11 Subfeed which supports _sName filtering in a category.
+            // apiv6 ByCategory ignores any name filter parameter.
+            if (!string.IsNullOrEmpty(search))
+            {
+                return await GetModsByCategorySearchAsync(gameTag, categoryId, page, search);
+            }
+
+            try
+            {
+                // apiv6 ByCategory — supports sorting, no name filtering
+                // Note: _bHasContentRatings does NOT exist in apiv6, use _bIsNsfw instead
+                var url = $"https://gamebanana.com/apiv6/Mod/ByCategory" +
+                    $"?_csvProperties=_idRow,_sName,_sProfileUrl,_tsDateAdded,_tsDateUpdated" +
+                    $",_aPreviewMedia,_aSubmitter,_bIsNsfw,_nLikeCount,_nViewCount,_nDownloadCount,_nPostCount" +
+                    $"&_nPerpage=50" +
+                    $"&_nPage={page}" +
+                    $"&_aCategoryRowIds[]={categoryId}" +
+                    $"&_sOrderBy={GetSortParam(sort)}";
+
+                Logger.LogInfo($"GameBanana ByCategory API URL: {url}");
+
+                var cookies = CloudflareBypassService.GetCachedCookies();
+                var userAgent = CloudflareBypassService.GetCachedUserAgent();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("User-Agent", userAgent ?? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+                if (!string.IsNullOrEmpty(cookies))
+                {
+                    request.Headers.Add("Cookie", cookies);
+                }
+
+                var httpResponse = await _httpClient.SendAsync(request);
+
+                Logger.LogInfo($"ByCategory response status: {httpResponse.StatusCode}");
+
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Forbidden ||
+                    httpResponse.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+                {
+                    Logger.LogInfo("Got blocked by Cloudflare on ByCategory request");
+                    return null;
+                }
+
+                httpResponse.EnsureSuccessStatusCode();
+
+                var content = await httpResponse.Content.ReadAsStringAsync();
+
+                // apiv6 ByCategory returns a bare JSON array, not { _aRecords, _aMetadata }.
+                // Total record count is in the response header: X-Gbapi-Metadata_nrecordcount
+                var v6Records = JsonSerializer.Deserialize<List<ModRecordV6>>(content);
+                if (v6Records == null) return null;
+
+                // Read total count from header to compute whether more pages exist
+                int totalCount = 0;
+                if (httpResponse.Headers.TryGetValues("X-Gbapi-Metadata_nrecordcount", out var countValues))
+                {
+                    int.TryParse(countValues.FirstOrDefault(), out totalCount);
+                }
+
+                int perPage = 50;
+                bool isComplete = totalCount > 0
+                    ? (page * perPage) >= totalCount
+                    : v6Records.Count < perPage;
+
+                // Convert to the shared ModRecord / ModListResponse model
+                var records = v6Records.Select(v6 => new ModRecord
+                {
+                    Id = v6.Id,
+                    Name = v6.Name,
+                    ProfileUrl = v6.ProfileUrl,
+                    DateAdded = v6.DateAdded,
+                    DateUpdated = v6.DateUpdated,
+                    IsNsfw = v6.IsNsfw,
+                    LikeCount = v6.LikeCount,
+                    ViewCount = v6.ViewCount,
+                    DownloadCount = v6.DownloadCount,
+                    PostCount = v6.PostCount,
+                    Submitter = v6.Submitter,
+                    PreviewMedia = v6.PreviewImages != null
+                        ? new PreviewMedia { Images = v6.PreviewImages }
+                        : null
+                }).ToList();
+
+                return new ModListResponse
+                {
+                    Records = records,
+                    Metadata = new ResponseMetadata
+                    {
+                        RecordCount = totalCount > 0 ? totalCount : v6Records.Count,
+                        PerPage = perPage,
+                        IsComplete = isComplete
+                    }
+                };
+            }
+            catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+            {
+                Logger.LogError($"Timeout while fetching mods by category from GameBanana", ex);
+                return null;
+            }
+            catch (TaskCanceledException ex)
+            {
+                Logger.LogError($"Request cancelled while fetching mods by category from GameBanana", ex);
+                return null;
+            }
+            catch (HttpRequestException ex)
+            {
+                Logger.LogError($"Network error while fetching mods by category: {ex.Message}", ex);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to fetch mods by category: {ex.Message}", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Search mods by name within a specific category using apiv11 Subfeed + _aCategoryRowIds[].
+        /// Sorting is not supported by this endpoint (Subfeed ignores _sOrderBy when using _aCategoryRowIds).
+        /// </summary>
+        private static async Task<ModListResponse?> GetModsByCategorySearchAsync(
+            string gameTag,
+            int categoryId,
+            int page,
+            string search)
+        {
+            try
+            {
+                var gameId = GetGameId(gameTag);
+                if (gameId == 0) return null;
+
+                var url = $"https://gamebanana.com/apiv11/Game/{gameId}/Subfeed" +
+                    $"?_csvModelInclusions=Mod" +
+                    $"&_csvProperties=_idRow,_sName,_sProfileUrl,_tsDateAdded,_tsDateUpdated,_aPreviewMedia,_aSubmitter,_bHasContentRatings" +
+                    $"&_nPerpage=50" +
+                    $"&_nPage={page}" +
+                    $"&_aCategoryRowIds[]={categoryId}" +
+                    $"&_sName={Uri.EscapeDataString(search)}";
+
+                Logger.LogInfo($"GameBanana ByCategory search URL: {url}");
+
+                var cookies = CloudflareBypassService.GetCachedCookies();
+                var userAgent = CloudflareBypassService.GetCachedUserAgent();
+
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("User-Agent", userAgent ?? "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
+                if (!string.IsNullOrEmpty(cookies))
+                    request.Headers.Add("Cookie", cookies);
+
+                var httpResponse = await _httpClient.SendAsync(request);
+
+                if (httpResponse.StatusCode == System.Net.HttpStatusCode.Forbidden ||
+                    httpResponse.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+                    return null;
+
+                httpResponse.EnsureSuccessStatusCode();
+
+                var content = await httpResponse.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<ModListResponse>(content);
+            }
+            catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
+            {
+                Logger.LogError("Timeout while searching mods by category", ex);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to search mods by category: {ex.Message}", ex);
+                return null;
+            }
         }
 
         /// <summary>

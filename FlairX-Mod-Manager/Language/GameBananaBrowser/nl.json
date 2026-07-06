@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBanana inloggen",
     "Comments_LoginInfo": "Log in op GameBanana om reacties op leeftijdsbeperkte mods te bekijken. Log hieronder in en klik op Doorgaan.",
     "Comments_GetCookies": "Cookies ophalen",
-    "Comments_DontAskAgain": "Niet meer vragen"
+    "Comments_DontAskAgain": "Niet meer vragen",
+    "Filter_AllMods": "Alle mods",
+    "Filter_CharacterSkins": "Karakter-skins",
+    "Sort_LatestUpdated": "Laatste update",
+    "Sort_Newest": "Nieuwste",
+    "Sort_Oldest": "Oudste",
+    "Sort_MostLiked": "Meest geliked",
+    "Sort_MostViewed": "Meest bekeken",
+    "Sort_MostDownloaded": "Meest gedownload",
+    "Sort_MostCommented": "Meest becommentarieerd"
 }

@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBanana-Anmeldung",
     "Comments_LoginInfo": "Melde dich bei GameBanana an, um Kommentare zu altersbeschränkten Mods anzuzeigen. Melde dich unten an und klicke dann auf Weiter.",
     "Comments_GetCookies": "Cookies holen",
-    "Comments_DontAskAgain": "Nicht mehr fragen"
+    "Comments_DontAskAgain": "Nicht mehr fragen",
+    "Filter_AllMods": "Alle Mods",
+    "Filter_CharacterSkins": "Charakter-Skins",
+    "Sort_LatestUpdated": "Zuletzt aktualisiert",
+    "Sort_Newest": "Neueste",
+    "Sort_Oldest": "Älteste",
+    "Sort_MostLiked": "Meiste Likes",
+    "Sort_MostViewed": "Meiste Aufrufe",
+    "Sort_MostDownloaded": "Meiste Downloads",
+    "Sort_MostCommented": "Meiste Kommentare"
 }

@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "Đăng nhập GameBanana",
     "Comments_LoginInfo": "Đăng nhập vào GameBanana để xem bình luận trên các mod có giới hạn độ tuổi. Đăng nhập bên dưới, sau đó nhấp Tiếp tục.",
     "Comments_GetCookies": "Lấy cookie",
-    "Comments_DontAskAgain": "Không hỏi lại"
+    "Comments_DontAskAgain": "Không hỏi lại",
+    "Filter_AllMods": "Tất cả mod",
+    "Filter_CharacterSkins": "Skin nhân vật",
+    "Sort_LatestUpdated": "Cập nhật gần đây",
+    "Sort_Newest": "Mới nhất",
+    "Sort_Oldest": "Cũ nhất",
+    "Sort_MostLiked": "Được thích nhất",
+    "Sort_MostViewed": "Xem nhiều nhất",
+    "Sort_MostDownloaded": "Tải nhiều nhất",
+    "Sort_MostCommented": "Bình luận nhiều nhất"
 }

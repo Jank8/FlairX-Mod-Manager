@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBanana-inloggning",
     "Comments_LoginInfo": "Logga in på GameBanana för att se kommentarer på åldersbegränsade mods. Logga in nedan och klicka sedan på Fortsätt.",
     "Comments_GetCookies": "Hämta cookies",
-    "Comments_DontAskAgain": "Fråga inte igen"
+    "Comments_DontAskAgain": "Fråga inte igen",
+    "Filter_AllMods": "Alla mods",
+    "Filter_CharacterSkins": "Karaktärsskins",
+    "Sort_LatestUpdated": "Senast uppdaterade",
+    "Sort_Newest": "Nyaste",
+    "Sort_Oldest": "Äldsta",
+    "Sort_MostLiked": "Mest gillade",
+    "Sort_MostViewed": "Mest sedda",
+    "Sort_MostDownloaded": "Mest nedladdade",
+    "Sort_MostCommented": "Mest kommenterade"
 }

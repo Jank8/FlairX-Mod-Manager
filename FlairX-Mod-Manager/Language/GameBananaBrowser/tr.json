@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBanana Girişi",
     "Comments_LoginInfo": "Yaş kısıtlamalı modların yorumlarını görmek için GameBanana'ya giriş yapın. Aşağıdan giriş yapın, ardından Devam'a tıklayın.",
     "Comments_GetCookies": "Çerezleri al",
-    "Comments_DontAskAgain": "Bir daha sorma"
+    "Comments_DontAskAgain": "Bir daha sorma",
+    "Filter_AllMods": "Tüm modlar",
+    "Filter_CharacterSkins": "Karakter görünümleri",
+    "Sort_LatestUpdated": "Son güncelleme",
+    "Sort_Newest": "En yeni",
+    "Sort_Oldest": "En eski",
+    "Sort_MostLiked": "En çok beğenilen",
+    "Sort_MostViewed": "En çok görüntülenen",
+    "Sort_MostDownloaded": "En çok indirilen",
+    "Sort_MostCommented": "En çok yorumlanan"
 }

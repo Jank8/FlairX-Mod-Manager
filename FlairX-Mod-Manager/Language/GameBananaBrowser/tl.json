@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBanana Login",
     "Comments_LoginInfo": "Mag-login sa GameBanana upang makita ang mga komento sa mga mod na may paghihigpit sa edad. Mag-login sa ibaba, pagkatapos ay i-click ang Magpatuloy.",
     "Comments_GetCookies": "Kumuha ng cookies",
-    "Comments_DontAskAgain": "Huwag nang itanong muli"
+    "Comments_DontAskAgain": "Huwag nang itanong muli",
+    "Filter_AllMods": "Lahat ng mods",
+    "Filter_CharacterSkins": "Mga skin ng karakter",
+    "Sort_LatestUpdated": "Pinakabagong update",
+    "Sort_Newest": "Pinakabago",
+    "Sort_Oldest": "Pinakamatanda",
+    "Sort_MostLiked": "Pinakamaraming like",
+    "Sort_MostViewed": "Pinakamaraming view",
+    "Sort_MostDownloaded": "Pinakamaraming download",
+    "Sort_MostCommented": "Pinakamaraming komento"
 }

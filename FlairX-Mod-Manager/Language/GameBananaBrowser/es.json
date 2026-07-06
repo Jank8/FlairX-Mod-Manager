@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "Inicio de sesión en GameBanana",
     "Comments_LoginInfo": "Inicia sesión en GameBanana para ver comentarios en mods con restricciones de edad. Inicia sesión abajo y luego haz clic en Continuar.",
     "Comments_GetCookies": "Obtener cookies",
-    "Comments_DontAskAgain": "No preguntar de nuevo"
+    "Comments_DontAskAgain": "No preguntar de nuevo",
+    "Filter_AllMods": "Todos los mods",
+    "Filter_CharacterSkins": "Skins de personajes",
+    "Sort_LatestUpdated": "Última actualización",
+    "Sort_Newest": "Más nuevos",
+    "Sort_Oldest": "Más antiguos",
+    "Sort_MostLiked": "Más gustados",
+    "Sort_MostViewed": "Más vistos",
+    "Sort_MostDownloaded": "Más descargados",
+    "Sort_MostCommented": "Más comentados"
 }

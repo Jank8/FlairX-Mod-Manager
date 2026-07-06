@@ -98,12 +98,31 @@
             <!-- Search and filters -->
             <Grid Grid.Row="0" Padding="16">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
+                <!-- Category filter -->
+                <ComboBox x:Name="CategoryFilterComboBox"
+                          Grid.Column="0"
+                          MinWidth="160"
+                          Margin="0,0,12,0"
+                          VerticalAlignment="Center"
+                          SelectionChanged="CategoryFilterComboBox_SelectionChanged"/>
+
+                <!-- Sort order (only visible for Character Skins) -->
+                <ComboBox x:Name="SortOrderComboBox"
+                          Grid.Column="1"
+                          MinWidth="160"
+                          Margin="0,0,12,0"
+                          VerticalAlignment="Center"
+                          Visibility="Collapsed"
+                          SelectionChanged="SortOrderComboBox_SelectionChanged"/>
+                
                 <AutoSuggestBox x:Name="SearchBox"
-                                Grid.Column="0"
+                                Grid.Column="2"
                                 PlaceholderText="Search mods or enter URL/ID..."
                                 QueryIcon="Find"
                                 QuerySubmitted="SearchBox_QuerySubmitted"
@@ -111,7 +130,7 @@
                 
                 <!-- Starter Pack button -->
                 <Button x:Name="StarterPackButton"
-                        Grid.Column="1"
+                        Grid.Column="3"
                         Margin="12,0,0,0"
                         Click="StarterPackButton_Click"
                         ToolTipService.ToolTip="Download Starter Pack">
@@ -155,7 +174,7 @@
                             Spacing="12"
                             Visibility="Collapsed">
                     <ProgressRing IsActive="True" Width="48" Height="48"/>
-                    <TextBlock Text="Loading mods..." FontSize="14" Opacity="0.7"/>
+                    <TextBlock x:Name="LoadingText" Text="Loading mods..." FontSize="14" Opacity="0.7"/>
                 </StackPanel>
 
                 <!-- Empty state -->

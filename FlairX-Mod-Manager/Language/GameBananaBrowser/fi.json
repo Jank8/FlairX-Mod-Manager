@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBanana-kirjautuminen",
     "Comments_LoginInfo": "Kirjaudu GameBananaan nähdäksesi ikärajoitettujen modien kommentit. Kirjaudu alla ja napsauta Jatka.",
     "Comments_GetCookies": "Hae evästeet",
-    "Comments_DontAskAgain": "Älä kysy uudelleen"
+    "Comments_DontAskAgain": "Älä kysy uudelleen",
+    "Filter_AllMods": "Kaikki modit",
+    "Filter_CharacterSkins": "Hahmojen ulkoasut",
+    "Sort_LatestUpdated": "Viimeksi päivitetty",
+    "Sort_Newest": "Uusimmat",
+    "Sort_Oldest": "Vanhimmat",
+    "Sort_MostLiked": "Eniten tykätyt",
+    "Sort_MostViewed": "Eniten katsotut",
+    "Sort_MostDownloaded": "Eniten ladatut",
+    "Sort_MostCommented": "Eniten kommentoidut"
 }

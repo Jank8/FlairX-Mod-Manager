@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "Přihlášení GameBanana",
     "Comments_LoginInfo": "Přihlaste se do GameBanana, abyste mohli zobrazit komentáře k modům s věkovým omezením. Přihlaste se níže a klikněte na Pokračovat.",
     "Comments_GetCookies": "Získat cookies",
-    "Comments_DontAskAgain": "Příště neptat"
+    "Comments_DontAskAgain": "Příště neptat",
+    "Filter_AllMods": "Všechny mody",
+    "Filter_CharacterSkins": "Skiny postav",
+    "Sort_LatestUpdated": "Nejnovější aktualizace",
+    "Sort_Newest": "Nejnovější",
+    "Sort_Oldest": "Nejstarší",
+    "Sort_MostLiked": "Nejvíce lajků",
+    "Sort_MostViewed": "Nejvíce zobrazení",
+    "Sort_MostDownloaded": "Nejvíce stažení",
+    "Sort_MostCommented": "Nejvíce komentářů"
 }

@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBanana-innlogging",
     "Comments_LoginInfo": "Logg inn på GameBanana for å se kommentarer på aldersrestriksjonsmoddene. Logg inn nedenfor og klikk Fortsett.",
     "Comments_GetCookies": "Hent informasjonskapsler",
-    "Comments_DontAskAgain": "Ikke spør igjen"
+    "Comments_DontAskAgain": "Ikke spør igjen",
+    "Filter_AllMods": "Alle mods",
+    "Filter_CharacterSkins": "Karakterskinn",
+    "Sort_LatestUpdated": "Sist oppdatert",
+    "Sort_Newest": "Nyeste",
+    "Sort_Oldest": "Eldste",
+    "Sort_MostLiked": "Mest likt",
+    "Sort_MostViewed": "Mest sett",
+    "Sort_MostDownloaded": "Mest nedlastet",
+    "Sort_MostCommented": "Mest kommentert"
 }

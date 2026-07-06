@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBananaログイン",
     "Comments_LoginInfo": "年齢制限のあるModのコメントを表示するには、GameBananaにログインしてください。下でログインして「続行」をクリックしてください。",
     "Comments_GetCookies": "Cookieを取得",
-    "Comments_DontAskAgain": "次回から表示しない"
+    "Comments_DontAskAgain": "次回から表示しない",
+    "Filter_AllMods": "全てのMod",
+    "Filter_CharacterSkins": "キャラクタースキン",
+    "Sort_LatestUpdated": "最近更新",
+    "Sort_Newest": "最新",
+    "Sort_Oldest": "古い順",
+    "Sort_MostLiked": "いいね数",
+    "Sort_MostViewed": "閲覧数",
+    "Sort_MostDownloaded": "ダウンロード数",
+    "Sort_MostCommented": "コメント数"
 }

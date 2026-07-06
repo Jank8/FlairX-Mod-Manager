@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBanana bejelentkezés",
     "Comments_LoginInfo": "Jelentkezz be a GameBananára, hogy megtekintsd a korhatáros modok hozzászólásait. Jelentkezz be alább, majd kattints a Folytatás gombra.",
     "Comments_GetCookies": "Sütik lekérése",
-    "Comments_DontAskAgain": "Ne kérdezze újra"
+    "Comments_DontAskAgain": "Ne kérdezze újra",
+    "Filter_AllMods": "Összes mod",
+    "Filter_CharacterSkins": "Karakter skinek",
+    "Sort_LatestUpdated": "Legutóbb frissített",
+    "Sort_Newest": "Legújabb",
+    "Sort_Oldest": "Legrégebbi",
+    "Sort_MostLiked": "Legtöbb like",
+    "Sort_MostViewed": "Legtöbb megtekintés",
+    "Sort_MostDownloaded": "Legtöbb letöltés",
+    "Sort_MostCommented": "Legtöbb hozzászólás"
 }

@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBanana लॉगिन",
     "Comments_LoginInfo": "आयु-प्रतिबंधित मॉड्स पर टिप्पणियाँ देखने के लिए GameBanana में लॉग इन करें। नीचे लॉग इन करें, फिर जारी रखें पर क्लिक करें।",
     "Comments_GetCookies": "कुकीज़ प्राप्त करें",
-    "Comments_DontAskAgain": "दोबारा मत पूछो"
+    "Comments_DontAskAgain": "दोबारा मत पूछो",
+    "Filter_AllMods": "सभी मॉड",
+    "Filter_CharacterSkins": "कैरेक्टर स्किन",
+    "Sort_LatestUpdated": "हाल में अपडेट",
+    "Sort_Newest": "नवीनतम",
+    "Sort_Oldest": "पुराने",
+    "Sort_MostLiked": "सर्वाधिक लाइक",
+    "Sort_MostViewed": "सर्वाधिक देखे गए",
+    "Sort_MostDownloaded": "सर्वाधिक डाउनलोड",
+    "Sort_MostCommented": "सर्वाधिक टिप्पणियाँ"
 }

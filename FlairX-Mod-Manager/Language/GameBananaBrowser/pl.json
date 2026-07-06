@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "Logowanie GameBanana",
     "Comments_LoginInfo": "Zaloguj się do GameBanana, aby wyświetlać komentarze przy modach z ograniczeniami wiekowymi. Zaloguj się poniżej, a następnie kliknij Kontynuuj.",
     "Comments_GetCookies": "Pobierz ciasteczka",
-    "Comments_DontAskAgain": "Nie pytaj ponownie"
+    "Comments_DontAskAgain": "Nie pytaj ponownie",
+    "Filter_AllMods": "Wszystkie mody",
+    "Filter_CharacterSkins": "Skórki postaci",
+    "Sort_LatestUpdated": "Ostatnio zaktualizowane",
+    "Sort_Newest": "Najnowsze",
+    "Sort_Oldest": "Najstarsze",
+    "Sort_MostLiked": "Najwięcej polubień",
+    "Sort_MostViewed": "Najwięcej wyświetleń",
+    "Sort_MostDownloaded": "Najwięcej pobrań",
+    "Sort_MostCommented": "Najwięcej komentarzy"
 }

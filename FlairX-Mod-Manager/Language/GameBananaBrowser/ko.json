@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBanana 로그인",
     "Comments_LoginInfo": "연령 제한 모드의 댓글을 보려면 GameBanana에 로그인하세요. 아래에서 로그인한 후 계속을 클릭하세요.",
     "Comments_GetCookies": "쿠키 가져오기",
-    "Comments_DontAskAgain": "다시 묻지 않기"
+    "Comments_DontAskAgain": "다시 묻지 않기",
+    "Filter_AllMods": "모든 모드",
+    "Filter_CharacterSkins": "캐릭터 스킨",
+    "Sort_LatestUpdated": "최근 업데이트",
+    "Sort_Newest": "최신순",
+    "Sort_Oldest": "오래된순",
+    "Sort_MostLiked": "좋아요 많은순",
+    "Sort_MostViewed": "조회 많은순",
+    "Sort_MostDownloaded": "다운로드 많은순",
+    "Sort_MostCommented": "댓글 많은순"
 }

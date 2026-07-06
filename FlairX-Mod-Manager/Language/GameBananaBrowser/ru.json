@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "Вход в GameBanana",
     "Comments_LoginInfo": "Войдите в GameBanana, чтобы просматривать комментарии к модам с возрастными ограничениями. Войдите ниже, затем нажмите Продолжить.",
     "Comments_GetCookies": "Получить куки",
-    "Comments_DontAskAgain": "Больше не спрашивать"
+    "Comments_DontAskAgain": "Больше не спрашивать",
+    "Filter_AllMods": "Все моды",
+    "Filter_CharacterSkins": "Скины персонажей",
+    "Sort_LatestUpdated": "Последнее обновление",
+    "Sort_Newest": "Новые",
+    "Sort_Oldest": "Старые",
+    "Sort_MostLiked": "Больше лайков",
+    "Sort_MostViewed": "Больше просмотров",
+    "Sort_MostDownloaded": "Больше загрузок",
+    "Sort_MostCommented": "Больше комментариев"
 }

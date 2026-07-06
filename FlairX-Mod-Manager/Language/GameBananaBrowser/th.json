@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "เข้าสู่ระบบ GameBanana",
     "Comments_LoginInfo": "เข้าสู่ระบบ GameBanana เพื่อดูความคิดเห็นในม็อดที่มีข้อจำกัดด้านอายุ เข้าสู่ระบบด้านล่าง จากนั้นคลิกดำเนินการต่อ",
     "Comments_GetCookies": "รับคุกกี้",
-    "Comments_DontAskAgain": "อย่าถามอีก"
+    "Comments_DontAskAgain": "อย่าถามอีก",
+    "Filter_AllMods": "ทุกม็อด",
+    "Filter_CharacterSkins": "สกินตัวละคร",
+    "Sort_LatestUpdated": "อัพเดทล่าสุด",
+    "Sort_Newest": "ใหม่ที่สุด",
+    "Sort_Oldest": "เก่าที่สุด",
+    "Sort_MostLiked": "ถูกใจมากที่สุด",
+    "Sort_MostViewed": "ดูมากที่สุด",
+    "Sort_MostDownloaded": "ดาวน์โหลดมากที่สุด",
+    "Sort_MostCommented": "แสดงความคิดเห็นมากที่สุด"
 }

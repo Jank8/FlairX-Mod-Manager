@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "Login GameBanana",
     "Comments_LoginInfo": "Masuk ke GameBanana untuk melihat komentar pada mod dengan batasan usia. Masuk di bawah, lalu klik Lanjutkan.",
     "Comments_GetCookies": "Dapatkan cookie",
-    "Comments_DontAskAgain": "Jangan tanya lagi"
+    "Comments_DontAskAgain": "Jangan tanya lagi",
+    "Filter_AllMods": "Semua mod",
+    "Filter_CharacterSkins": "Skin karakter",
+    "Sort_LatestUpdated": "Terbaru diperbarui",
+    "Sort_Newest": "Terbaru",
+    "Sort_Oldest": "Terlama",
+    "Sort_MostLiked": "Paling disukai",
+    "Sort_MostViewed": "Paling dilihat",
+    "Sort_MostDownloaded": "Paling diunduh",
+    "Sort_MostCommented": "Paling dikomentari"
 }

@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "Σύνδεση GameBanana",
     "Comments_LoginInfo": "Συνδεθείτε στο GameBanana για να δείτε σχόλια σε mods με περιορισμούς ηλικίας. Συνδεθείτε παρακάτω και κάντε κλικ στο Συνέχεια.",
     "Comments_GetCookies": "Λήψη cookies",
-    "Comments_DontAskAgain": "Να μην ερωτηθώ ξανά"
+    "Comments_DontAskAgain": "Να μην ερωτηθώ ξανά",
+    "Filter_AllMods": "Όλα τα mods",
+    "Filter_CharacterSkins": "Εμφανίσεις χαρακτήρων",
+    "Sort_LatestUpdated": "Πρόσφατη ενημέρωση",
+    "Sort_Newest": "Νεότερα",
+    "Sort_Oldest": "Παλαιότερα",
+    "Sort_MostLiked": "Περισσότερα likes",
+    "Sort_MostViewed": "Περισσότερες προβολές",
+    "Sort_MostDownloaded": "Περισσότερες λήψεις",
+    "Sort_MostCommented": "Περισσότερα σχόλια"
 }

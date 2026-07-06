@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "Connexion GameBanana",
     "Comments_LoginInfo": "Connectez-vous à GameBanana pour voir les commentaires des mods avec restrictions d'âge. Connectez-vous ci-dessous, puis cliquez sur Continuer.",
     "Comments_GetCookies": "Obtenir les cookies",
-    "Comments_DontAskAgain": "Ne plus demander"
+    "Comments_DontAskAgain": "Ne plus demander",
+    "Filter_AllMods": "Tous les mods",
+    "Filter_CharacterSkins": "Skins de personnages",
+    "Sort_LatestUpdated": "Dernière mise à jour",
+    "Sort_Newest": "Les plus récents",
+    "Sort_Oldest": "Les plus anciens",
+    "Sort_MostLiked": "Les plus aimés",
+    "Sort_MostViewed": "Les plus vus",
+    "Sort_MostDownloaded": "Les plus téléchargés",
+    "Sort_MostCommented": "Les plus commentés"
 }

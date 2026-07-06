@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "GameBanana 登录",
     "Comments_LoginInfo": "登录 GameBanana 以查看年龄限制 Mod 的评论。在下方登录，然后点击继续。",
     "Comments_GetCookies": "获取 Cookie",
-    "Comments_DontAskAgain": "不再询问"
+    "Comments_DontAskAgain": "不再询问",
+    "Filter_AllMods": "全部 Mod",
+    "Filter_CharacterSkins": "角色皮肤",
+    "Sort_LatestUpdated": "最近更新",
+    "Sort_Newest": "最新",
+    "Sort_Oldest": "最旧",
+    "Sort_MostLiked": "最多点赞",
+    "Sort_MostViewed": "最多浏览",
+    "Sort_MostDownloaded": "最多下载",
+    "Sort_MostCommented": "最多评论"
 }

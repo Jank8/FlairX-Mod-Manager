@@ -84,5 +84,14 @@
     "Comments_LoginTitle": "Autentificare GameBanana",
     "Comments_LoginInfo": "Autentificați-vă pe GameBanana pentru a vedea comentariile la modurile cu restricții de vârstă. Autentificați-vă mai jos, apoi faceți clic pe Continuare.",
     "Comments_GetCookies": "Obțineți cookie-uri",
-    "Comments_DontAskAgain": "Nu mai întreba"
+    "Comments_DontAskAgain": "Nu mai întreba",
+    "Filter_AllMods": "Toate modurile",
+    "Filter_CharacterSkins": "Skin-uri de personaje",
+    "Sort_LatestUpdated": "Ultima actualizare",
+    "Sort_Newest": "Cele mai noi",
+    "Sort_Oldest": "Cele mai vechi",
+    "Sort_MostLiked": "Cele mai apreciate",
+    "Sort_MostViewed": "Cele mai vizualizate",
+    "Sort_MostDownloaded": "Cele mai descărcate",
+    "Sort_MostCommented": "Cele mai comentate"
 }
