@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Meest geliked",
     "Sort_MostViewed": "Meest bekeken",
     "Sort_MostDownloaded": "Meest gedownload",
-    "Sort_MostCommented": "Meest becommentarieerd"
+    "Sort_MostCommented": "Meest becommentarieerd",
+    "GB_LoadImages": "Afbeeldingen laden",
+    "GB_NoDescription": "Geen beschrijving beschikbaar."
 }

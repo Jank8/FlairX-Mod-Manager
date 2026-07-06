@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Mest gillade",
     "Sort_MostViewed": "Mest sedda",
     "Sort_MostDownloaded": "Mest nedladdade",
-    "Sort_MostCommented": "Mest kommenterade"
+    "Sort_MostCommented": "Mest kommenterade",
+    "GB_LoadImages": "Ladda bilder",
+    "GB_NoDescription": "Ingen beskrivning tillgänglig."
 }

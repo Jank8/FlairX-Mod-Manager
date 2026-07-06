@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Được thích nhất",
     "Sort_MostViewed": "Xem nhiều nhất",
     "Sort_MostDownloaded": "Tải nhiều nhất",
-    "Sort_MostCommented": "Bình luận nhiều nhất"
+    "Sort_MostCommented": "Bình luận nhiều nhất",
+    "GB_LoadImages": "Tải hình ảnh",
+    "GB_NoDescription": "Không có mô tả."
 }

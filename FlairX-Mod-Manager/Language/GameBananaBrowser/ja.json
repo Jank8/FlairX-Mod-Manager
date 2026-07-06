@@ -93,5 +93,7 @@
     "Sort_MostLiked": "いいね数",
     "Sort_MostViewed": "閲覧数",
     "Sort_MostDownloaded": "ダウンロード数",
-    "Sort_MostCommented": "コメント数"
+    "Sort_MostCommented": "コメント数",
+    "GB_LoadImages": "画像を読み込む",
+    "GB_NoDescription": "説明がありません。"
 }

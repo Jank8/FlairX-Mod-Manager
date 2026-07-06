@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Most Liked",
     "Sort_MostViewed": "Most Viewed",
     "Sort_MostDownloaded": "Most Downloaded",
-    "Sort_MostCommented": "Most Commented"
+    "Sort_MostCommented": "Most Commented",
+    "GB_LoadImages": "Load Images",
+    "GB_NoDescription": "No description available."
 }

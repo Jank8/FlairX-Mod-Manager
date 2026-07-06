@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Cele mai apreciate",
     "Sort_MostViewed": "Cele mai vizualizate",
     "Sort_MostDownloaded": "Cele mai descărcate",
-    "Sort_MostCommented": "Cele mai comentate"
+    "Sort_MostCommented": "Cele mai comentate",
+    "GB_LoadImages": "Încarcă imagini",
+    "GB_NoDescription": "Nicio descriere disponibilă."
 }

@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Eniten tykätyt",
     "Sort_MostViewed": "Eniten katsotut",
     "Sort_MostDownloaded": "Eniten ladatut",
-    "Sort_MostCommented": "Eniten kommentoidut"
+    "Sort_MostCommented": "Eniten kommentoidut",
+    "GB_LoadImages": "Lataa kuvat",
+    "GB_NoDescription": "Ei kuvausta saatavilla."
 }

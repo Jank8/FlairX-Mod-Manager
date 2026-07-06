@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Περισσότερα likes",
     "Sort_MostViewed": "Περισσότερες προβολές",
     "Sort_MostDownloaded": "Περισσότερες λήψεις",
-    "Sort_MostCommented": "Περισσότερα σχόλια"
+    "Sort_MostCommented": "Περισσότερα σχόλια",
+    "GB_LoadImages": "Φόρτωση εικόνων",
+    "GB_NoDescription": "Δεν υπάρχει διαθέσιμη περιγραφή."
 }

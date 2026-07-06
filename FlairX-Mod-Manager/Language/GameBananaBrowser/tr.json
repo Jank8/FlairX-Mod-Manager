@@ -93,5 +93,7 @@
     "Sort_MostLiked": "En çok beğenilen",
     "Sort_MostViewed": "En çok görüntülenen",
     "Sort_MostDownloaded": "En çok indirilen",
-    "Sort_MostCommented": "En çok yorumlanan"
+    "Sort_MostCommented": "En çok yorumlanan",
+    "GB_LoadImages": "Görselleri Yükle",
+    "GB_NoDescription": "Açıklama mevcut değil."
 }

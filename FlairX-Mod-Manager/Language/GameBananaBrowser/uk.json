@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Найбільше лайків",
     "Sort_MostViewed": "Найбільше переглядів",
     "Sort_MostDownloaded": "Найбільше завантажень",
-    "Sort_MostCommented": "Найбільше коментарів"
+    "Sort_MostCommented": "Найбільше коментарів",
+    "GB_LoadImages": "Завантажити зображення",
+    "GB_NoDescription": "Опис недоступний."
 }

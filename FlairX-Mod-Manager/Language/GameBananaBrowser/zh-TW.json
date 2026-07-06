@@ -93,5 +93,7 @@
     "Sort_MostLiked": "最多贊",
     "Sort_MostViewed": "最多瀏覽",
     "Sort_MostDownloaded": "最多下載",
-    "Sort_MostCommented": "最多留言"
+    "Sort_MostCommented": "最多留言",
+    "GB_LoadImages": "載入圖片",
+    "GB_NoDescription": "暫無描述。"
 }

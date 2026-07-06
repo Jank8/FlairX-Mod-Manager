@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Paling disukai",
     "Sort_MostViewed": "Paling dilihat",
     "Sort_MostDownloaded": "Paling diunduh",
-    "Sort_MostCommented": "Paling dikomentari"
+    "Sort_MostCommented": "Paling dikomentari",
+    "GB_LoadImages": "Muat Gambar",
+    "GB_NoDescription": "Tidak ada deskripsi tersedia."
 }

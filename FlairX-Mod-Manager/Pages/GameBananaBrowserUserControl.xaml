@@ -568,13 +568,26 @@
                                 CornerRadius="8" 
                                 Padding="16" 
                                 Margin="0,0,0,12">
-                            <ScrollViewer x:Name="DetailDescriptionScrollViewer" 
-                                          MaxHeight="400" 
-                                          VerticalScrollBarVisibility="Auto"
-                                          SizeChanged="DetailDescriptionScrollViewer_SizeChanged">
-                                <ctk:MarkdownTextBlock x:Name="DetailDescriptionMarkdown"
-                                                      Loaded="DetailDescriptionMarkdown_Loaded"/>
-                            </ScrollViewer>
+                            <StackPanel Spacing="12">
+                                <ScrollViewer x:Name="DetailDescriptionScrollViewer" 
+                                              MaxHeight="400" 
+                                              VerticalScrollBarVisibility="Auto"
+                                              SizeChanged="DetailDescriptionScrollViewer_SizeChanged">
+                                    <ctk:MarkdownTextBlock x:Name="DetailDescriptionMarkdown"
+                                                          Loaded="DetailDescriptionMarkdown_Loaded"/>
+                                </ScrollViewer>
+                                
+                                <!-- Load Images button — visible only when description has images -->
+                                <Button x:Name="LoadImagesButton"
+                                        Visibility="Collapsed"
+                                        HorizontalAlignment="Stretch"
+                                        Click="LoadImagesButton_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon x:Name="LoadImagesIcon" Glyph="&#xEB9F;" FontSize="16"/>
+                                        <TextBlock x:Name="LoadImagesButtonText" Text="Load Images" FontSize="14"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
                         </Border>
                         
                         <!-- 4. Files Section -->

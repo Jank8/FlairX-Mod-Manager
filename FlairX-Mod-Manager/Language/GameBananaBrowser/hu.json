@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Legtöbb like",
     "Sort_MostViewed": "Legtöbb megtekintés",
     "Sort_MostDownloaded": "Legtöbb letöltés",
-    "Sort_MostCommented": "Legtöbb hozzászólás"
+    "Sort_MostCommented": "Legtöbb hozzászólás",
+    "GB_LoadImages": "Képek betöltése",
+    "GB_NoDescription": "Nincs elérhető leírás."
 }

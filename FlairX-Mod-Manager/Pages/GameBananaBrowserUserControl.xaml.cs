@@ -99,6 +99,10 @@ namespace FlairX_Mod_Manager.Pages
         // Markdown image resizing
         private bool _isAttachedToSizeChanged = false;
         
+        // Lazy image loading for description markdown
+        private string? _fullDescriptionMarkdown = null;
+        private bool _descriptionImagesLoaded = false;
+        
         // Track if any mod was installed during this session (internal for MainWindow access)
         internal bool _modWasInstalled = false;
         
@@ -3223,9 +3227,14 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                // Reset lazy-load state for the new mod
+                _fullDescriptionMarkdown = null;
+                _descriptionImagesLoaded = false;
+                LoadImagesButton.Visibility = Visibility.Collapsed;
+
                 if (string.IsNullOrWhiteSpace(htmlContent))
                 {
-                    DetailDescriptionMarkdown.Text = "No description available.";
+                    DetailDescriptionMarkdown.Text = SharedUtilities.GetTranslation(_lang, "GB_NoDescription") ?? "No description available.";
                     return;
                 }
                 
@@ -3252,11 +3261,33 @@ namespace FlairX_Mod_Manager.Pages
                 markdown = string.Join('\n', lines.Select(l => l.Trim()));
                 
                 Logger.LogInfo($"Description converted to Markdown ({markdown.Length} chars)");
+
+                // Check if the description contains any inline images
+                bool hasImages = System.Text.RegularExpressions.Regex.IsMatch(markdown, @"!\[.*?\]\(.+?\)");
+
+                if (hasImages)
+                {
+                    // Save full markdown for on-demand loading
+                    _fullDescriptionMarkdown = markdown;
+
+                    // Strip image lines so only text loads immediately
+                    var strippedMarkdown = System.Text.RegularExpressions.Regex.Replace(markdown, @"!\[.*?\]\(.+?\)", "");
+                    // Clean up blank lines left by removed images
+                    strippedMarkdown = System.Text.RegularExpressions.Regex.Replace(strippedMarkdown, @"\n{3,}", "\n\n").Trim();
+
+                    DetailDescriptionMarkdown.Text = strippedMarkdown;
+
+                    // Show the load-images button with translated label
+                    LoadImagesButtonText.Text = SharedUtilities.GetTranslation(_lang, "GB_LoadImages") ?? "Load Images";
+                    LoadImagesButton.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    // No images — set text directly, no button needed
+                    DetailDescriptionMarkdown.Text = markdown;
+                }
                 
-                // Just set the markdown text directly
-                DetailDescriptionMarkdown.Text = markdown;
-                
-                // Update images after a small delay to ensure the visual tree is ready
+                // Update image sizes after a small delay to ensure the visual tree is ready
                 _ = UpdateMarkdownImagesWithRetry();
             }
             catch (Exception ex)
@@ -3288,6 +3319,17 @@ namespace FlairX_Mod_Manager.Pages
         private void DetailDescriptionScrollViewer_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateMarkdownImages();
+        }
+
+        private void LoadImagesButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_fullDescriptionMarkdown == null || _descriptionImagesLoaded) return;
+
+            _descriptionImagesLoaded = true;
+            LoadImagesButton.Visibility = Visibility.Collapsed;
+
+            DetailDescriptionMarkdown.Text = _fullDescriptionMarkdown;
+            _ = UpdateMarkdownImagesWithRetry();
         }
 
         private void DetailDescriptionMarkdown_Loaded(object sender, RoutedEventArgs e)

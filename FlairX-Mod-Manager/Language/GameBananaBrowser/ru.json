@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Больше лайков",
     "Sort_MostViewed": "Больше просмотров",
     "Sort_MostDownloaded": "Больше загрузок",
-    "Sort_MostCommented": "Больше комментариев"
+    "Sort_MostCommented": "Больше комментариев",
+    "GB_LoadImages": "Загрузить изображения",
+    "GB_NoDescription": "Описание недоступно."
 }

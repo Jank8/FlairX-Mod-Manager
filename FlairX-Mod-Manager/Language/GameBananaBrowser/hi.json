@@ -93,5 +93,7 @@
     "Sort_MostLiked": "सर्वाधिक लाइक",
     "Sort_MostViewed": "सर्वाधिक देखे गए",
     "Sort_MostDownloaded": "सर्वाधिक डाउनलोड",
-    "Sort_MostCommented": "सर्वाधिक टिप्पणियाँ"
+    "Sort_MostCommented": "सर्वाधिक टिप्पणियाँ",
+    "GB_LoadImages": "छवियां लोड करें",
+    "GB_NoDescription": "कोई विवरण उपलब्ध नहीं है।"
 }

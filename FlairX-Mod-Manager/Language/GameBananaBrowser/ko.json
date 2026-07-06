@@ -93,5 +93,7 @@
     "Sort_MostLiked": "좋아요 많은순",
     "Sort_MostViewed": "조회 많은순",
     "Sort_MostDownloaded": "다운로드 많은순",
-    "Sort_MostCommented": "댓글 많은순"
+    "Sort_MostCommented": "댓글 많은순",
+    "GB_LoadImages": "이미지 불러오기",
+    "GB_NoDescription": "설명을 사용할 수 없습니다."
 }

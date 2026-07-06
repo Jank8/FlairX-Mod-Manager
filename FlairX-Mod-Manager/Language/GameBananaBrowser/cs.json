@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Nejvíce lajků",
     "Sort_MostViewed": "Nejvíce zobrazení",
     "Sort_MostDownloaded": "Nejvíce stažení",
-    "Sort_MostCommented": "Nejvíce komentářů"
+    "Sort_MostCommented": "Nejvíce komentářů",
+    "GB_LoadImages": "Načíst obrázky",
+    "GB_NoDescription": "Popis není k dispozici."
 }

@@ -93,5 +93,7 @@
     "Sort_MostLiked": "ถูกใจมากที่สุด",
     "Sort_MostViewed": "ดูมากที่สุด",
     "Sort_MostDownloaded": "ดาวน์โหลดมากที่สุด",
-    "Sort_MostCommented": "แสดงความคิดเห็นมากที่สุด"
+    "Sort_MostCommented": "แสดงความคิดเห็นมากที่สุด",
+    "GB_LoadImages": "โหลดรูปภาพ",
+    "GB_NoDescription": "ไม่มีคำอธิบาย"
 }

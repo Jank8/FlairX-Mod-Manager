@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Mest liked",
     "Sort_MostViewed": "Mest sete",
     "Sort_MostDownloaded": "Mest downloadede",
-    "Sort_MostCommented": "Mest kommenterede"
+    "Sort_MostCommented": "Mest kommenterede",
+    "GB_LoadImages": "Indlæs billeder",
+    "GB_NoDescription": "Ingen beskrivelse tilgængelig."
 }

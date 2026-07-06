@@ -93,5 +93,7 @@
     "Sort_MostLiked": "Pinakamaraming like",
     "Sort_MostViewed": "Pinakamaraming view",
     "Sort_MostDownloaded": "Pinakamaraming download",
-    "Sort_MostCommented": "Pinakamaraming komento"
+    "Sort_MostCommented": "Pinakamaraming komento",
+    "GB_LoadImages": "I-load ang mga Larawan",
+    "GB_NoDescription": "Walang paglalarawan na available."
 }
