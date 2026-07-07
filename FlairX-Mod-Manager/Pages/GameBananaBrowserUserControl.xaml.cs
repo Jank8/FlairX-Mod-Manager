@@ -103,6 +103,9 @@ namespace FlairX_Mod_Manager.Pages
         private string? _fullDescriptionMarkdown = null;
         private bool _descriptionImagesLoaded = false;
         
+        // Pending mod URL to load after control is added to visual tree
+        internal string? _pendingModUrl = null;
+        
         // Track if any mod was installed during this session (internal for MainWindow access)
         internal bool _modWasInstalled = false;
         
@@ -319,11 +322,12 @@ namespace FlairX_Mod_Manager.Pages
             _modsScrollViewer = ModsScrollViewer;
             Logger.LogInfo("ScrollViewer attached directly from XAML");
             
-            // If modUrl is provided, load mod details directly
+            // If modUrl is provided, load mod details after control is loaded into visual tree
             if (!string.IsNullOrEmpty(modUrl))
             {
                 _openedWithUrl = true;
-                _ = LoadModDetailsFromUrlAsync(modUrl);
+                _pendingModUrl = modUrl;
+                this.Loaded += GameBananaBrowserUserControl_Loaded;
             }
             else
             {
@@ -332,9 +336,27 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        private void GameBananaBrowserUserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.Loaded -= GameBananaBrowserUserControl_Loaded;
+            Logger.LogInfo($"[GBBrowser] Loaded event fired, _pendingModUrl={((_pendingModUrl != null) ? _pendingModUrl : "null")}");
+            if (_pendingModUrl != null)
+            {
+                var url = _pendingModUrl;
+                _pendingModUrl = null;
+                Logger.LogInfo($"[GBBrowser] Firing LoadModDetailsFromUrlAsync for: {url}");
+                _ = LoadModDetailsFromUrlAsync(url);
+            }
+        }
+
         private bool IsModInstalled(string profileUrl)
         {
             return !string.IsNullOrEmpty(GetInstalledModPath(profileUrl));
+        }
+
+        private async Task<string?> GetInstalledModPathAsync(string profileUrl)
+        {
+            return await Task.Run(() => GetInstalledModPath(profileUrl));
         }
 
         private string? GetInstalledModPath(string profileUrl)
@@ -360,7 +382,9 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             try
                             {
-                                var jsonContent = Services.FileAccessQueue.ReadAllText(modJsonPath);
+                                // Use direct File.ReadAllText — this runs in Task.Run (background thread),
+                                // bypassing FileAccessQueue to avoid deadlocks with concurrent UI operations
+                                var jsonContent = System.IO.File.ReadAllText(modJsonPath);
                                 var modData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, System.Text.Json.JsonElement>>(jsonContent);
                                 
                                 if (modData != null && modData.TryGetValue("url", out var urlElement))
@@ -2024,6 +2048,7 @@ namespace FlairX_Mod_Manager.Pages
 
         private async Task ShowModDetailsAsync(int modId)
         {
+            Logger.LogInfo($"[GBBrowser] ShowModDetailsAsync start, modId={modId}, currentState={_currentState}");
             try
             {
                 // Push current state to navigation stack before navigating (unless suppressed)
@@ -2115,7 +2140,9 @@ namespace FlairX_Mod_Manager.Pages
                 bool isInstalled = false;
                 if (!string.IsNullOrEmpty(_currentModDetails.ProfileUrl))
                 {
-                    isInstalled = IsModInstalled(_currentModDetails.ProfileUrl);
+                    Logger.LogInfo($"[ShowModDetails] Checking if mod is installed (scanning mod library)...");
+                    isInstalled = !string.IsNullOrEmpty(await GetInstalledModPathAsync(_currentModDetails.ProfileUrl));
+                    Logger.LogInfo($"[ShowModDetails] Mod installed: {isInstalled}");
                     
                     // Update dateChecked in mod.json if this mod is installed
                     if (isInstalled)
@@ -2150,6 +2177,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Load description in MarkdownTextBlock
                 LoadDescriptionInMarkdown(_currentModDetails.Description);
+                Logger.LogInfo($"[ShowModDetails] Description loaded, loading avatar...");
                 
                 // Load author avatar
                 if (!string.IsNullOrEmpty(_currentModDetails.Submitter?.AvatarUrl))
@@ -2167,6 +2195,8 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     DetailAuthorAvatar.Source = null;
                 }
+                
+                Logger.LogInfo($"[ShowModDetails] Avatar done, loading category...");
                 
                 // Set profile link
                 DetailAuthorProfileLink.Tag = _currentModDetails.Submitter?.ProfileUrl;
@@ -2202,6 +2232,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Load preview images into slider
                 _detailPreviewImages.Clear();
                 _currentDetailImageIndex = 0;
+                Logger.LogInfo($"[ShowModDetails] Loading preview images...");
                 
                 if (_currentModDetails.PreviewMedia?.Images != null && _currentModDetails.PreviewMedia.Images.Count > 0)
                 {
@@ -2215,6 +2246,7 @@ namespace FlairX_Mod_Manager.Pages
                     UpdateDetailImageNavigation();
                 }
 
+                Logger.LogInfo($"[ShowModDetails] Preview images done, loading files...");
                 // Load files
                 _detailFiles.Clear();
                 if (_currentModDetails.Files != null && _currentModDetails.Files.Count > 0)
@@ -2257,6 +2289,7 @@ namespace FlairX_Mod_Manager.Pages
                 }
 
                 // Show content (WebView/TextBlock visibility is set in LoadDescriptionInWebView)
+                Logger.LogInfo($"[ShowModDetails] Setting visibility of UI elements...");
                 DetailLoadingPanel.Visibility = Visibility.Collapsed;
                 DetailAuthor.Visibility = Visibility.Visible;
                 DetailImage.Visibility = Visibility.Visible;
@@ -2297,6 +2330,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Attach to the markdown text block layout updated event (remove first to avoid duplicates)
                 DetailDescriptionMarkdown.LayoutUpdated -= DetailDescriptionMarkdown_LayoutUpdated;
                 DetailDescriptionMarkdown.LayoutUpdated += DetailDescriptionMarkdown_LayoutUpdated;
+                Logger.LogInfo($"[ShowModDetails] ShowModDetailsAsync COMPLETE for modId={modId}");
             }
             catch (Exception ex)
             {
@@ -3452,8 +3486,9 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async Task LoadModDetailsFromUrlAsync(string modUrl)
+        internal async Task LoadModDetailsFromUrlAsync(string modUrl)
         {
+            Logger.LogInfo($"[GBBrowser] LoadModDetailsFromUrlAsync called, url={modUrl}, currentState={_currentState}");
             try
             {
                 var urlPattern = new System.Text.RegularExpressions.Regex(@"gamebanana\.com/mods/(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);

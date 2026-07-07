@@ -247,9 +247,23 @@ namespace FlairX_Mod_Manager
                 
                 if (existingPanel != null)
                 {
-                    Logger.LogInfo($"Panel of type {userControl.GetType().Name} is already open, skipping");
+                    // Special case: if a GB browser is already open and the new one has a pending URL,
+                    // navigate to that URL in the existing browser instead of blocking.
+                    if (existingPanel is Pages.GameBananaBrowserUserControl existingBrowser &&
+                        userControl is Pages.GameBananaBrowserUserControl newBrowser &&
+                        newBrowser._pendingModUrl != null)
+                    {
+                        var url = newBrowser._pendingModUrl;
+                        newBrowser._pendingModUrl = null;
+                        Logger.LogInfo($"[ShowSlidingPanel] GB browser already open — routing URL to existing browser: {url}");
+                        _ = existingBrowser.LoadModDetailsFromUrlAsync(url);
+                        return;
+                    }
+
+                    Logger.LogInfo($"[ShowSlidingPanel] Panel of type {userControl.GetType().Name} is already open, skipping");
                     return;
                 }
+                Logger.LogInfo($"[ShowSlidingPanel] Opening new panel: {userControl.GetType().Name}");
 
                 // Get current app theme and create appropriate background
                 string appTheme = FlairX_Mod_Manager.SettingsManager.Current.Theme ?? "Auto";
