@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Категорія:",
   "CategoryConflict_ActiveMods": "Активні моди:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Автоматично вимикати конфліктуючі моди",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Автоматично вимикати інші моди в тій же категорії при активації нового",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Автоматично деактивує інші моди в тій самій категорії при активації нового. Утримуйте лівий Shift під час кліку, щоб активувати без впливу на інші моди.",
   "ModDetailPage_DownloadPreviews_Label": "Завантажити превʼю",
   "ModDetailPage_DownloadPreviews_Desc": "Завантажити превʼю зображення з GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Завантажити",

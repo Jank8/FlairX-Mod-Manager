@@ -296,7 +296,7 @@
   "CategoryConflict_Category": "Catégorie:",
   "CategoryConflict_ActiveMods": "Mods actifs:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Désactiver automatiquement les mods en conflit",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Désactiver automatiquement les autres mods de la même catégorie lors de l'activation d'un nouveau",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Désactive automatiquement les autres mods de la même catégorie lors de l'activation d'un nouveau. Maintenez Shift gauche en cliquant pour activer sans affecter les autres mods.",
   "HideBroken": "Cacher cassé",
   "RuntimeCheck_Download_Button": "Télécharger",
   "RuntimeCheck_MaybeLater_Button": "Peut-être plus tard",

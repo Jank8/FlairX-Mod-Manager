@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Categoria:",
   "CategoryConflict_ActiveMods": "Mods ativos:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Desativar automaticamente mods conflitantes",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Desativar automaticamente outros mods na mesma categoria ao ativar um novo",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Desativa automaticamente outros mods da mesma categoria ao ativar um novo. Segure Shift esquerdo ao clicar para ativar sem afetar outros mods.",
   "ModDetailPage_DownloadPreviews_Label": "Baixar visualizações",
   "ModDetailPage_DownloadPreviews_Desc": "Baixar imagens de visualização do GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Baixar",

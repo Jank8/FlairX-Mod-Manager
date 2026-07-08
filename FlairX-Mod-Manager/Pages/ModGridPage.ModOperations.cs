@@ -53,6 +53,10 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
 
+                // Check if Left Shift is held — skip conflict dialog/auto-deactivate, just activate
+                bool leftShiftHeld = (Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.LeftShift) 
+                    & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0;
+
                 // NEW SYSTEM: Toggle activation by renaming with DISABLED_ prefix
                 // Use mod.IsActive (UI state) to determine action instead of folder state
                 if (!mod.IsActive)
@@ -71,8 +75,13 @@ namespace FlairX_Mod_Manager.Pages
                     
                     if (activeModsInCategory.Count > 0)
                     {
+                        if (leftShiftHeld)
+                        {
+                            // Left Shift held: skip conflict handling entirely, just activate
+                            Logger.LogInfo($"Left Shift held — skipping conflict dialog/auto-deactivate, activating directly: {mod.Directory}");
+                        }
                         // Check if auto-deactivation is enabled
-                        if (SettingsManager.Current.AutoDeactivateConflictingMods)
+                        else if (SettingsManager.Current.AutoDeactivateConflictingMods)
                         {
                             // Auto-deactivate conflicting mods
                             Logger.LogInfo($"Auto-deactivating {activeModsInCategory.Count} conflicting mods in category '{categoryName}'");

@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Kategori:",
   "CategoryConflict_ActiveMods": "Aktif modlar:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Çakışan modları otomatik olarak devre dışı bırak",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Yeni bir mod etkinleştirirken aynı kategorideki diğer modları otomatik olarak devre dışı bırak",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Yeni bir mod etkinleştirilirken aynı kategorideki diğer modları otomatik olarak devre dışı bırakır. Diğer modları etkilemeden etkinleştirmek için tıklarken Sol Shift'i basılı tutun.",
   "ModDetailPage_DownloadPreviews_Label": "Önizlemeleri indir",
   "ModDetailPage_DownloadPreviews_Desc": "GameBanana'dan önizleme görüntülerini indirin.",
   "ModDetailPage_DownloadPreviews_Button": "İndir",

@@ -29,6 +29,7 @@ namespace FlairX_Mod_Manager.Pages
         private CategoryFilter _currentCategoryFilter = CategoryFilter.AllMods;
         private GameBananaService.CategorySortOrder _currentSortOrder = GameBananaService.CategorySortOrder.LatestUpdated;
         private ObservableCollection<ModViewModel> _mods = new();
+        private HashSet<int> _loadedModIds = new(); // Track loaded mod IDs to prevent duplicates
         private System.Collections.Generic.Dictionary<string, string> _lang = new();
         private GameBananaService.ModDetailsResponse? _currentModDetails;
         private ObservableCollection<Models.GameBananaFileViewModel> _detailFiles = new();
@@ -633,6 +634,7 @@ namespace FlairX_Mod_Manager.Pages
                 ConnectionErrorBar.IsOpen = false;
 
                 _mods.Clear();
+                _loadedModIds.Clear(); // Reset tracking for new search/page
                 
                 // Fetch single page from API
                 GameBananaService.ModListResponse? response;
@@ -732,6 +734,12 @@ namespace FlairX_Mod_Manager.Pages
                 
                 foreach (var record in response.Records)
                 {
+                    // Skip duplicates (important for infinite scroll and auto-load)
+                    if (_loadedModIds.Contains(record.Id))
+                    {
+                        continue;
+                    }
+
                     // Skip NSFW content if setting is enabled
                     if (record.HasAnyContentWarning && SettingsManager.Current.HideNSFWMods)
                     {
@@ -770,6 +778,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
 
                     _mods.Add(viewModel);
+                    _loadedModIds.Add(record.Id); // Track to prevent duplicates
                 }
 
                 // If we have very few mods (likely due to NSFW filtering), load more automatically
@@ -1161,6 +1170,12 @@ namespace FlairX_Mod_Manager.Pages
                 
                 foreach (var record in response.Records)
                 {
+                    // Skip duplicates (important for infinite scroll and auto-load)
+                    if (_loadedModIds.Contains(record.Id))
+                    {
+                        continue;
+                    }
+
                     // Skip NSFW content if setting is enabled
                     if (record.HasAnyContentWarning && SettingsManager.Current.HideNSFWMods)
                     {
@@ -1199,6 +1214,7 @@ namespace FlairX_Mod_Manager.Pages
                     }
 
                     _mods.Add(viewModel);
+                    _loadedModIds.Add(record.Id); // Track to prevent duplicates
                 }
 
                 // Load images for new mods

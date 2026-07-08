@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Kategoria:",
   "CategoryConflict_ActiveMods": "Aktiiviset modit:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Poista ristiriitaiset modit automaattisesti käytöstä",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Poista automaattisesti muut modit samasta kategoriasta käytöstä uutta aktivoidessa",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Poistaa automaattisesti muut modit samasta kategoriasta uuden aktivoinnin yhteydessä. Pidä vasen Shift pohjassa klikatessa aktivoidaksesi vaikuttamatta muihin modeihin.",
   "ModDetailPage_DownloadPreviews_Label": "Lataa esikatselut",
   "ModDetailPage_DownloadPreviews_Desc": "Lataa esikatselukuvat GameBananasta.",
   "ModDetailPage_DownloadPreviews_Button": "Lataa",

@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Categoria:",
   "CategoryConflict_ActiveMods": "Mod attivi:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Disattiva automaticamente i mod in conflitto",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Disattiva automaticamente altri mod nella stessa categoria quando ne attivi uno nuovo",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Disattiva automaticamente gli altri mod nella stessa categoria quando se ne attiva uno nuovo. Tieni premuto Shift sinistro mentre clicchi per attivare senza influenzare gli altri mod.",
   "ModDetailPage_DownloadPreviews_Label": "Scarica anteprime",
   "ModDetailPage_DownloadPreviews_Desc": "Scarica immagini di anteprima da GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Scarica",

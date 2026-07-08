@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Kategori:",
   "CategoryConflict_ActiveMods": "Aktive mods:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Automatisk deaktivering af konfliktende mods",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Deaktiver automatisk andre mods i samme kategori når en ny aktiveres",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Deaktiverer automatisk andre mods i samme kategori ved aktivering af en ny. Hold venstre Shift nede under klik for at aktivere uden at påvirke andre mods.",
   "ModDetailPage_DownloadPreviews_Label": "Download forhåndsvisninger",
   "ModDetailPage_DownloadPreviews_Desc": "Download forhåndsvisningsbilleder fra GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Download",

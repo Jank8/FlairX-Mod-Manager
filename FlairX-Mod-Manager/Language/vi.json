@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Danh mục:",
   "CategoryConflict_ActiveMods": "Mod đang hoạt động:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Tự động vô hiệu hóa các mod xung đột",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Tự động vô hiệu hóa các mod khác trong cùng danh mục khi kích hoạt mod mới",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Tự động vô hiệu hóa các mod khác trong cùng danh mục khi kích hoạt mod mới. Giữ Shift trái khi nhấp để kích hoạt mà không ảnh hưởng đến các mod khác.",
   "ModDetailPage_DownloadPreviews_Label": "Tải xuống bản xem trước",
   "ModDetailPage_DownloadPreviews_Desc": "Tải xuống hình ảnh xem trước từ GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Tải xuống",

@@ -298,7 +298,7 @@
   "CategoryConflict_Category": "Kategoria:",
   "CategoryConflict_ActiveMods": "Aktywne mody:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Automatycznie dezaktywuj konfliktowe mody",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Automatycznie dezaktywuj inne mody w tej samej kategorii podczas aktywacji nowego",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Automatycznie dezaktywuje inne mody w tej samej kategorii przy aktywacji nowego. Przytrzymaj Lewy Shift podczas klikania, aby aktywować bez wpływu na inne mody.",
   "RuntimeCheck_WinAppRuntime_Missing_Title": "Brak Windows App Runtime",
   "RuntimeCheck_WinAppRuntime_Missing_Content": "Windows App Runtime 2.0 nie jest zainstalowany w systemie.\n\nAplikacja będzie działać, ale niektóre funkcje mogą być ograniczone.\n\nAby zainstalować, pobierz z:\nhttps://learn.microsoft.com/windows/apps/windows-app-sdk/downloads\n\nLub użyj winget:\nwinget install Microsoft.WindowsAppRuntime.2.0",
   "RuntimeCheck_WinAppRuntime_Update_Title": "Zalecana aktualizacja",

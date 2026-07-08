@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Kategorie:",
   "CategoryConflict_ActiveMods": "Aktivní mody:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Automaticky deaktivovat konfliktní módy",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Automaticky deaktivovat ostatní módy ve stejné kategorii při aktivaci nového",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Automaticky deaktivuje ostatní mody ve stejné kategorii při aktivaci nového. Podržte levý Shift při kliknutí pro aktivaci bez ovlivnění ostatních modů.",
   "ModDetailPage_DownloadPreviews_Label": "Stáhnout náhledy",
   "ModDetailPage_DownloadPreviews_Desc": "Stáhnout náhledy obrázků z GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Stáhnout",
