@@ -522,6 +522,12 @@ namespace FlairX_Mod_Manager.Pages
                 _totalMods = 0;
             }
             NotifyProgressChanged();
+
+            // Show "in progress" notification (no auto-close — stays until done)
+            if (App.Current is App _appStart && _appStart.MainWindow is MainWindow _mwStart)
+                _mwStart.ShowInfoBar("", SharedUtilities.GetTranslation(lang, "UpdateInProgress"),
+                    Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational, autoCloseDelayMs: 0);
+
             await UpdateAllDataAsync(_ctsUpdate.Token);
             ResetUpdateButtonToFetchState();
         }
@@ -651,6 +657,7 @@ namespace FlairX_Mod_Manager.Pages
                     Logger.LogInfo("Reloading mods after all data update");
                     await mainWindow.ReloadModsAsync();
                     Logger.LogInfo("Mods reloaded successfully");
+                    mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "UpdateSuccess"));
                 }
             }
             catch (OperationCanceledException)
@@ -663,7 +670,8 @@ namespace FlairX_Mod_Manager.Pages
             {
                 ResetUpdateButtonToFetchState();
                 var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
-                if (App.Current is App _app && _app.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
+                if (App.Current is App _app && _app.MainWindow is MainWindow _mw)
+                    _mw.ShowErrorInfo(SharedUtilities.GetTranslation(lang, "UpdateFailed") + " " + ex.Message);
             }
         }
 

@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "Kukunin at ia-update nito ang impormasyon ng author, bersyon, at petsa mula sa GameBanana para sa lahat ng mod. Gusto mo bang magpatuloy?",
   "AllDataSummaryTitle": "Buod ng pag-update ng lahat ng data",
   "NoPreviewsAvailable": "Walang available na preview",
-  "ConnectionError": "Error sa koneksyon"
+  "ConnectionError": "Error sa koneksyon",
+  "UpdateInProgress": "Kinukuha ang data mula sa GameBanana...",
+  "UpdateSuccess": "Matagumpay na natapos ang GameBanana update.",
+  "UpdateFailed": "Nabigo ang GameBanana update."
 }

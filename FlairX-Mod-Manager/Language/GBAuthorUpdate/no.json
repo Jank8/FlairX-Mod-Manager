@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "Dette vil hente og oppdatere forfatter-, versjon- og datoinformasjon fra GameBanana for alle modifikasjoner. Vil du fortsette?",
   "AllDataSummaryTitle": "Sammendrag av oppdatering av alle data",
   "NoPreviewsAvailable": "Ingen forhåndsvisninger tilgjengelig",
-  "ConnectionError": "Tilkoblingsfeil"
+  "ConnectionError": "Tilkoblingsfeil",
+  "UpdateInProgress": "Henter data fra GameBanana...",
+  "UpdateSuccess": "GameBanana-oppdatering fullført.",
+  "UpdateFailed": "GameBanana-oppdatering mislyktes."
 }

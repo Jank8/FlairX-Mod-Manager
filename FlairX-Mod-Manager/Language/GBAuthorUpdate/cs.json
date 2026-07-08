@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "Toto načte a aktualizuje informace o autorech, verzích a datech z GameBanana pro všechny mody. Chcete pokračovat?",
   "AllDataSummaryTitle": "Souhrn aktualizace všech dat",
   "NoPreviewsAvailable": "Žádné náhledy k dispozici",
-  "ConnectionError": "Chyba připojení"
+  "ConnectionError": "Chyba připojení",
+  "UpdateInProgress": "Načítání dat z GameBanana...",
+  "UpdateSuccess": "Aktualizace GameBanana úspěšně dokončena.",
+  "UpdateFailed": "Aktualizace GameBanana se nezdařila."
 }

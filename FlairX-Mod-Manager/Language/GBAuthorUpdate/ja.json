@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "これにより、すべてのModについてGameBananaから作者、バージョン、日付の情報を取得して更新します。続行しますか？",
   "AllDataSummaryTitle": "すべてのデータ更新の概要",
   "NoPreviewsAvailable": "プレビューがありません",
-  "ConnectionError": "接続エラー"
+  "ConnectionError": "接続エラー",
+  "UpdateInProgress": "GameBananaからデータを取得中...",
+  "UpdateSuccess": "GameBananaの更新が完了しました。",
+  "UpdateFailed": "GameBananaの更新に失敗しました。"
 }

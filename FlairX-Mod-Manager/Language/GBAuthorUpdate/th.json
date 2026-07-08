@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "การดำเนินการนี้จะดึงและอัปเดตข้อมูลผู้เขียน เวอร์ชัน และวันที่จาก GameBanana สำหรับมอดทั้งหมด คุณต้องการดำเนินการต่อหรือไม่?",
   "AllDataSummaryTitle": "สรุปการอัปเดตข้อมูลทั้งหมด",
   "NoPreviewsAvailable": "ไม่มีตัวอย่างที่พร้อมใช้งาน",
-  "ConnectionError": "ข้อผิดพลาดการเชื่อมต่อ"
+  "ConnectionError": "ข้อผิดพลาดการเชื่อมต่อ",
+  "UpdateInProgress": "กำลังดึงข้อมูลจาก GameBanana...",
+  "UpdateSuccess": "อัปเดต GameBanana สำเร็จ",
+  "UpdateFailed": "การอัปเดต GameBanana ล้มเหลว"
 }

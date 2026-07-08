@@ -63,5 +63,8 @@
   "FailedToDownloadIcon": "Failed to download icon",
   "NoIconUrlAvailable": "No icon URL available",
   "NoPreviewsAvailable": "No previews available",
-  "ConnectionError": "Connection error"
+  "ConnectionError": "Connection error",
+  "UpdateInProgress": "Fetching data from GameBanana...",
+  "UpdateSuccess": "GameBanana update completed successfully.",
+  "UpdateFailed": "GameBanana update failed."
 }

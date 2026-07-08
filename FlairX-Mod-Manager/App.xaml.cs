@@ -682,11 +682,12 @@ namespace FlairX_Mod_Manager
                 if (Services.GameBananaAutoUpdateService.ShouldRunAutoUpdate())
                 {
                     Logger.LogInfo("Starting GameBanana auto-update...");
+                    var mw = MainWindow as MainWindow;
                     _ = Task.Run(async () =>
                     {
                         try
                         {
-                            await Services.GameBananaAutoUpdateService.RunAutoUpdateAsync();
+                            await Services.GameBananaAutoUpdateService.RunAutoUpdateAsync(mw);
                         }
                         catch (Exception ex)
                         {

@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "यह सभी मॉड्स के लिए GameBanana से लेखक, संस्करण और दिनांक की जानकारी प्राप्त करेगा और अपडेट करेगा। क्या आप जारी रखना चाहते हैं?",
   "AllDataSummaryTitle": "सभी डेटा अपडेट सारांश",
   "NoPreviewsAvailable": "कोई पूर्वावलोकन उपलब्ध नहीं",
-  "ConnectionError": "कनेक्शन त्रुटि"
+  "ConnectionError": "कनेक्शन त्रुटि",
+  "UpdateInProgress": "GameBanana से डेटा प्राप्त हो रहा है...",
+  "UpdateSuccess": "GameBanana अपडेट सफलतापूर्वक पूरा हुआ।",
+  "UpdateFailed": "GameBanana अपडेट विफल हुआ।"
 }

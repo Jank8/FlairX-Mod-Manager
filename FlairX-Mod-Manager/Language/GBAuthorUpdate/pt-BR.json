@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "Isso buscará e atualizará informações de autor, versão e data do GameBanana para todos os mods. Deseja continuar?",
   "AllDataSummaryTitle": "Resumo da atualização de todos os dados",
   "NoPreviewsAvailable": "Nenhuma prévia disponível",
-  "ConnectionError": "Erro de conexão"
+  "ConnectionError": "Erro de conexão",
+  "UpdateInProgress": "Buscando dados do GameBanana...",
+  "UpdateSuccess": "Atualização do GameBanana concluída.",
+  "UpdateFailed": "Atualização do GameBanana falhou."
 }

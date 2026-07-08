@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml.Controls;
+using FlairX_Mod_Manager;
 
 namespace FlairX_Mod_Manager.Services
 {
@@ -35,7 +36,7 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Run auto-update in background (silent mode)
         /// </summary>
-        public static async Task RunAutoUpdateAsync()
+        public static async Task RunAutoUpdateAsync(MainWindow? mainWindow = null)
         {
             try
             {
@@ -51,6 +52,15 @@ namespace FlairX_Mod_Manager.Services
                     _failedMods.Clear();
                 }
 
+                // Show "in progress" notification
+                var lang = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+                if (mainWindow != null)
+                {
+                    mainWindow.DispatcherQueue.TryEnqueue(() =>
+                        mainWindow.ShowInfoBar("", SharedUtilities.GetTranslation(lang, "UpdateInProgress"),
+                            Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational, autoCloseDelayMs: 0));
+                }
+
                 await FetchAllDataAsync(CancellationToken.None, silent: true, smartUpdate: false);
                 
                 // Update last run time
@@ -58,10 +68,25 @@ namespace FlairX_Mod_Manager.Services
                 SettingsManager.Save();
                 
                 Logger.LogInfo($"GameBanana auto-update completed - Success: {_success}, Failed: {_fail}, Skipped: {_skip}");
+
+                // Show success notification
+                if (mainWindow != null)
+                {
+                    mainWindow.DispatcherQueue.TryEnqueue(() =>
+                        mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "UpdateSuccess")));
+                }
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error during GameBanana auto-update", ex);
+
+                // Show failure notification
+                if (mainWindow != null)
+                {
+                    var lang2 = SharedUtilities.LoadLanguageDictionary("GBAuthorUpdate");
+                    mainWindow.DispatcherQueue.TryEnqueue(() =>
+                        mainWindow.ShowErrorInfo(SharedUtilities.GetTranslation(lang2, "UpdateFailed")));
+                }
             }
         }
 

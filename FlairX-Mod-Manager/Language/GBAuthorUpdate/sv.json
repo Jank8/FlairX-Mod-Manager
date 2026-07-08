@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "Detta kommer att hämta och uppdatera författar-, versions- och datuminformation från GameBanana för alla moddar. Vill du fortsätta?",
   "AllDataSummaryTitle": "Sammanfattning av uppdatering av all data",
   "NoPreviewsAvailable": "Inga förhandsvisningar tillgängliga",
-  "ConnectionError": "Anslutningsfel"
+  "ConnectionError": "Anslutningsfel",
+  "UpdateInProgress": "Hämtar data från GameBanana...",
+  "UpdateSuccess": "GameBanana-uppdatering slutförd.",
+  "UpdateFailed": "GameBanana-uppdatering misslyckades."
 }

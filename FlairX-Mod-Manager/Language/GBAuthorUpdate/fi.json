@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "Tämä hakee ja päivittää tekijä-, versio- ja päivämäärätiedot GameBananasta kaikille modeille. Haluatko jatkaa?",
   "AllDataSummaryTitle": "Kaikkien tietojen päivityksen yhteenveto",
   "NoPreviewsAvailable": "Ei esikatseluja saatavilla",
-  "ConnectionError": "Yhteysvirhe"
+  "ConnectionError": "Yhteysvirhe",
+  "UpdateInProgress": "Haetaan tietoja GameBananasta...",
+  "UpdateSuccess": "GameBanana-päivitys valmistui.",
+  "UpdateFailed": "GameBanana-päivitys epäonnistui."
 }

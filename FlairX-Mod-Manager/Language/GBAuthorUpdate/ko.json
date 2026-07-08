@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "모든 모드에 대해 GameBanana에서 작성자, 버전 및 날짜 정보를 가져와서 업데이트합니다. 계속하시겠습니까?",
   "AllDataSummaryTitle": "모든 데이터 업데이트 요약",
   "NoPreviewsAvailable": "사용 가능한 미리보기 없음",
-  "ConnectionError": "연결 오류"
+  "ConnectionError": "연결 오류",
+  "UpdateInProgress": "GameBanana에서 데이터를 가져오는 중...",
+  "UpdateSuccess": "GameBanana 업데이트가 완료되었습니다.",
+  "UpdateFailed": "GameBanana 업데이트에 실패했습니다."
 }

@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "Aceasta va prelua și actualiza informațiile despre autor, versiune și dată de pe GameBanana pentru toate mod-urile. Vrei să continui?",
   "AllDataSummaryTitle": "Rezumat actualizare toate datele",
   "NoPreviewsAvailable": "Nicio previzualizare disponibilă",
-  "ConnectionError": "Eroare de conexiune"
+  "ConnectionError": "Eroare de conexiune",
+  "UpdateInProgress": "Se preiau date de pe GameBanana...",
+  "UpdateSuccess": "Actualizarea GameBanana s-a finalizat.",
+  "UpdateFailed": "Actualizarea GameBanana a eșuat."
 }

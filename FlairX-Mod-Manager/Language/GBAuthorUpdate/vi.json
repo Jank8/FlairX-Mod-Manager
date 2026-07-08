@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "Điều này sẽ lấy và cập nhật thông tin tác giả, phiên bản và ngày từ GameBanana cho tất cả các mod. Bạn có muốn tiếp tục không?",
   "AllDataSummaryTitle": "Tóm tắt cập nhật tất cả dữ liệu",
   "NoPreviewsAvailable": "Không có bản xem trước nào",
-  "ConnectionError": "Lỗi kết nối"
+  "ConnectionError": "Lỗi kết nối",
+  "UpdateInProgress": "Đang tải dữ liệu từ GameBanana...",
+  "UpdateSuccess": "Cập nhật GameBanana hoàn tất.",
+  "UpdateFailed": "Cập nhật GameBanana thất bại."
 }

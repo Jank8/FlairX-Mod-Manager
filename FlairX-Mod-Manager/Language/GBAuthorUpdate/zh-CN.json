@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "这将从GameBanana获取并更新所有模组的作者、版本和日期信息。是否继续？",
   "AllDataSummaryTitle": "所有数据更新摘要",
   "NoPreviewsAvailable": "没有可用的预览",
-  "ConnectionError": "连接错误"
+  "ConnectionError": "连接错误",
+  "UpdateInProgress": "正在从 GameBanana 获取数据...",
+  "UpdateSuccess": "GameBanana 更新成功完成。",
+  "UpdateFailed": "GameBanana 更新失败。"
 }

@@ -63,5 +63,8 @@
   "ConfirmFetchAllData": "Ez lekéri és frissíti a szerző, verzió és dátum információkat a GameBanana-ról minden mod számára. Szeretné folytatni?",
   "AllDataSummaryTitle": "Minden adat frissítésének összefoglalója",
   "NoPreviewsAvailable": "Nincs elérhető előnézet",
-  "ConnectionError": "Kapcsolati hiba"
+  "ConnectionError": "Kapcsolati hiba",
+  "UpdateInProgress": "Adatok lekérése a GameBanana-ból...",
+  "UpdateSuccess": "A GameBanana frissítés sikeresen befejeződött.",
+  "UpdateFailed": "A GameBanana frissítés sikertelen volt."
 }
