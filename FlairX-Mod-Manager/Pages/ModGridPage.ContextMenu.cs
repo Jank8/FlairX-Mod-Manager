@@ -524,6 +524,14 @@ namespace FlairX_Mod_Manager.Pages
         // Dynamic Context Menu
         private void ContextMenu_Opening(object sender, object e)
         {
+            // Suppress context menu when Left Shift is held (used for force-activate shortcut)
+            if ((Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.LeftShift)
+                & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0)
+            {
+                (sender as MenuFlyout)?.Hide();
+                return;
+            }
+
             if (sender is MenuFlyout menuFlyout)
             {
                 ModTile? modTile = null;
