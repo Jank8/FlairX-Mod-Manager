@@ -1358,6 +1358,10 @@ namespace FlairX_Mod_Manager.Pages
             {
                 LoadBrokenModsOnly();
             }
+            else if (string.Equals(_currentCategory, "NoPreviews", StringComparison.OrdinalIgnoreCase))
+            {
+                LoadNoPreviewModsOnly();
+            }
             else
             {
                 LoadMods(_currentCategory);

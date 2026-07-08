@@ -412,5 +412,7 @@
   "Failed": "Başarısız",
   "Add": "Ekle",
   "Create": "Oluştur",
-  "ConnectionError": "Baglanti hatasi"
+  "ConnectionError": "Baglanti hatasi",
+  "ShowNoPreviews": "Önizlemesiz göster",
+  "Category_No_Previews": "Önizleme yok"
 }

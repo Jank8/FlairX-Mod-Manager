@@ -411,5 +411,7 @@
   "Skipped": "Übersprungen",
   "Failed": "Fehlgeschlagen",
   "Add": "Hinzufügen",
-  "Create": "Erstellen"
+  "Create": "Erstellen",
+  "ShowNoPreviews": "Ohne Vorschaubilder anzeigen",
+  "Category_No_Previews": "Keine Vorschaubilder"
 }

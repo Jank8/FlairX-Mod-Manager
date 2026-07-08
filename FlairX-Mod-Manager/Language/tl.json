@@ -412,5 +412,7 @@
   "Failed": "Nabigo",
   "Add": "Idagdag",
   "Create": "Lumikha",
-  "ConnectionError": "Error sa koneksyon"
+  "ConnectionError": "Error sa koneksyon",
+  "ShowNoPreviews": "Ipakita ang walang preview",
+  "Category_No_Previews": "Walang preview"
 }

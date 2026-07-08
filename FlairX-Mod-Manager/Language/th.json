@@ -412,5 +412,7 @@
   "Failed": "ล้มเหลว",
   "Add": "เพิ่ม",
   "Create": "สร้าง",
-  "ConnectionError": "ข้อผิดพลาดการเชื่อมต่อ"
+  "ConnectionError": "ข้อผิดพลาดการเชื่อมต่อ",
+  "ShowNoPreviews": "แสดงที่ไม่มีภาพตัวอย่าง",
+  "Category_No_Previews": "ไม่มีภาพตัวอย่าง"
 }

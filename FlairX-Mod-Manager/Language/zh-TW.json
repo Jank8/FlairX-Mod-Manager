@@ -412,5 +412,7 @@
   "Failed": "失敗",
   "Add": "新增",
   "Create": "建立",
-  "ConnectionError": "連線錯誤"
+  "ConnectionError": "連線錯誤",
+  "ShowNoPreviews": "顯示無預覽圖的",
+  "Category_No_Previews": "無預覽圖"
 }

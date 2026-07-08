@@ -412,5 +412,7 @@
   "Failed": "失敗",
   "Add": "追加",
   "Create": "作成",
-  "ConnectionError": "接続エラー"
+  "ConnectionError": "接続エラー",
+  "ShowNoPreviews": "プレビューなしを表示",
+  "Category_No_Previews": "プレビューなし"
 }

@@ -411,5 +411,7 @@
   "Skipped": "Ohitettu",
   "Failed": "Epäonnistui",
   "Add": "Lisää",
-  "Create": "Luo"
+  "Create": "Luo",
+  "ShowNoPreviews": "Näytä ilman esikatseluja",
+  "Category_No_Previews": "Ei esikatseluja"
 }

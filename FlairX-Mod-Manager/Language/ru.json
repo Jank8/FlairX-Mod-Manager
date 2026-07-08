@@ -412,5 +412,7 @@
   "Failed": "Ошибка",
   "Add": "Добавить",
   "Create": "Создать",
-  "ConnectionError": "Ошибка соединения"
+  "ConnectionError": "Ошибка соединения",
+  "ShowNoPreviews": "Показать без превью",
+  "Category_No_Previews": "Без превью"
 }

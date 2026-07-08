@@ -412,5 +412,7 @@
   "Failed": "Falhou",
   "Add": "Adicionar",
   "Create": "Criar",
-  "ConnectionError": "Erro de ligacao"
+  "ConnectionError": "Erro de ligacao",
+  "ShowNoPreviews": "Mostrar sem pré-visualizações",
+  "Category_No_Previews": "Sem pré-visualizações"
 }

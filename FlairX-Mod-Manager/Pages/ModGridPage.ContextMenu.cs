@@ -38,6 +38,7 @@ namespace FlairX_Mod_Manager.Pages
             ShowOutdatedItem.Text = SharedUtilities.GetTranslation(langDict, "ShowOutdated");
             ShowActiveItem.Text = SharedUtilities.GetTranslation(langDict, "ShowActive");
             ShowBrokenItem.Text = SharedUtilities.GetTranslation(langDict, "ShowBroken");
+            ShowNoPreviewsItem.Text = SharedUtilities.GetTranslation(langDict, "ShowNoPreviews");
             HideBrokenItem.Text = SharedUtilities.GetTranslation(langDict, "HideBroken");
             HideBrokenItem.IsChecked = SettingsManager.Current.HideBrokenMods;
             OpenModsFolderItem.Text = SharedUtilities.GetTranslation(langDict, "OpenModsFolder");
@@ -51,7 +52,8 @@ namespace FlairX_Mod_Manager.Pages
             // Check if we're in a specific category (not "All Mods", "Active", or "Broken")
             bool isInSpecificCategory = !string.IsNullOrEmpty(_currentCategory) && 
                                        _currentCategory != "Active" && 
-                                       _currentCategory != "Broken" && 
+                                       _currentCategory != "Broken" &&
+                                       _currentCategory != "NoPreviews" &&
                                        !_currentCategory.Equals("All Mods", StringComparison.OrdinalIgnoreCase);
             
             if (isInCategoryModeShowingCategories)
@@ -63,6 +65,7 @@ namespace FlairX_Mod_Manager.Pages
                 SortByNameSubItem.Visibility = Visibility.Visible;
                 ShowOutdatedItem.Visibility = Visibility.Visible;
                 ShowActiveItem.Visibility = Visibility.Visible;
+                ShowNoPreviewsItem.Visibility = Visibility.Visible;
             }
             else if (isInSpecificCategory)
             {
@@ -73,6 +76,7 @@ namespace FlairX_Mod_Manager.Pages
                 SortByNameSubItem.Visibility = Visibility.Visible;
                 ShowOutdatedItem.Visibility = Visibility.Visible;
                 ShowActiveItem.Visibility = Visibility.Visible;
+                ShowNoPreviewsItem.Visibility = Visibility.Visible;
             }
             else
             {
@@ -83,6 +87,7 @@ namespace FlairX_Mod_Manager.Pages
                 SortByNameSubItem.Visibility = Visibility.Visible;
                 ShowOutdatedItem.Visibility = Visibility.Visible;
                 ShowActiveItem.Visibility = Visibility.Visible;
+                ShowNoPreviewsItem.Visibility = Visibility.Visible;
             }
         }
         
@@ -139,6 +144,23 @@ namespace FlairX_Mod_Manager.Pages
             CategoryOpenFolderButton.Visibility = Visibility.Collapsed; // Hide folder button for Broken mods
         }
 
+        private void ShowNoPreviews_Click(object sender, RoutedEventArgs e)
+        {
+            // Exit table view if active and clear sorting
+            if (CurrentViewMode == ViewMode.Table)
+            {
+                _currentSortMode = SortMode.None;
+                CurrentViewMode = ViewMode.Mods;
+            }
+
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_No_Previews");
+            _currentCategory = "NoPreviews";
+            LoadNoPreviewModsOnly();
+            CategoryBackButton.Visibility = Visibility.Visible;
+            CategoryOpenFolderButton.Visibility = Visibility.Collapsed;
+        }
+
         private void HideBroken_Click(object sender, RoutedEventArgs e)
         {
             // Toggle the setting
@@ -161,6 +183,10 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     // Don't reload if we're in the "Show Broken" view - that would be confusing
                     return;
+                }
+                else if (_currentCategory == "NoPreviews")
+                {
+                    LoadNoPreviewModsOnly();
                 }
                 else if (_currentCategory == "Outdated")
                 {

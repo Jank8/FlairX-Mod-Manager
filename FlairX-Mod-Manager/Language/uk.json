@@ -412,5 +412,7 @@
   "Failed": "Помилка",
   "Add": "Додати",
   "Create": "Створити",
-  "ConnectionError": "Помилка з'єднання"
+  "ConnectionError": "Помилка з'єднання",
+  "ShowNoPreviews": "Показати без превью",
+  "Category_No_Previews": "Без превью"
 }

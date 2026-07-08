@@ -412,5 +412,7 @@
   "Failed": "Eșuat",
   "Add": "Adaugă",
   "Create": "Creează",
-  "ConnectionError": "Eroare de conexiune"
+  "ConnectionError": "Eroare de conexiune",
+  "ShowNoPreviews": "Afișează fără previzualizări",
+  "Category_No_Previews": "Fără previzualizări"
 }

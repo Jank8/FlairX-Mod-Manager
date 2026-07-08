@@ -412,5 +412,7 @@
   "Failed": "Mislukt",
   "Add": "Toevoegen",
   "Create": "Aanmaken",
-  "ConnectionError": "Verbindingsfout"
+  "ConnectionError": "Verbindingsfout",
+  "ShowNoPreviews": "Toon zonder voorbeeldafbeeldingen",
+  "Category_No_Previews": "Geen voorbeeldafbeeldingen"
 }

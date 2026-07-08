@@ -412,5 +412,7 @@
   "Failed": "Thất bại",
   "Add": "Thêm",
   "Create": "Tạo",
-  "ConnectionError": "Lỗi kết nối"
+  "ConnectionError": "Lỗi kết nối",
+  "ShowNoPreviews": "Hiển thị không có xem trước",
+  "Category_No_Previews": "Không có xem trước"
 }

@@ -412,5 +412,7 @@
   "Failed": "失败",
   "Add": "添加",
   "Create": "创建",
-  "ConnectionError": "连接错误"
+  "ConnectionError": "连接错误",
+  "ShowNoPreviews": "显示无预览图的",
+  "Category_No_Previews": "无预览图"
 }

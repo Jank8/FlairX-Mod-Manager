@@ -1048,6 +1048,90 @@ namespace FlairX_Mod_Manager.Pages
             });
         }
 
+        private void LoadNoPreviewModsOnly()
+        {
+            LogToGridLog("LoadNoPreviewModsOnly() called");
+
+            // Get all mods and filter to those with no preview image
+            var allMods = ModListManager.GetAllMods();
+
+            bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            bool hideNSFW = SettingsManager.Current.HideNSFWMods;
+
+            var filteredMods = allMods.Where(mod =>
+            {
+                if (hideBroken && mod.IsBroken) return false;
+                if (hideNSFW && mod.IsNSFW) return false;
+                return string.IsNullOrEmpty(mod.ImagePath);
+            }).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
+
+            _allModData.Clear();
+            _lastLoadedModDataIndex = 0;
+
+            foreach (var modInfo in filteredMods)
+            {
+                _allModData.Add(new ModData
+                {
+                    Name = modInfo.Name,
+                    Directory = modInfo.Directory,
+                    ImagePath = modInfo.ImagePath,
+                    IsActive = modInfo.IsActive,
+                    Category = modInfo.Category,
+                    Author = modInfo.Author,
+                    Url = modInfo.Url,
+                    LastChecked = modInfo.LastChecked,
+                    LastUpdated = modInfo.LastUpdated,
+                    HasUpdate = modInfo.HasUpdate,
+                    IsNSFW = modInfo.IsNSFW,
+                    IsBroken = modInfo.IsBroken,
+                    Character = modInfo.Character
+                });
+            }
+
+            const int initialLoadCount = 30;
+            var initialTiles = new List<ModTile>();
+
+            for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
+            {
+                var modData = _allModData[i];
+                initialTiles.Add(new ModTile
+                {
+                    Name = modData.Name,
+                    Directory = modData.Directory,
+                    ImagePath = modData.ImagePath,
+                    IsActive = modData.IsActive,
+                    Category = modData.Category,
+                    Author = modData.Author,
+                    Url = modData.Url,
+                    LastChecked = modData.LastChecked,
+                    LastUpdated = modData.LastUpdated,
+                    HasUpdate = modData.HasUpdate,
+                    IsVisible = true,
+                    IsBroken = modData.IsBroken,
+                    IsNSFW = modData.IsNSFW,
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    ImageSource = null
+                });
+                _lastLoadedModDataIndex = i + 1;
+            }
+
+            LogToGridLog($"Loaded {initialTiles.Count} initial tiles from {_allModData.Count} mods with no previews");
+
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _allMods.Clear();
+                foreach (var tile in initialTiles)
+                    _allMods.Add(tile);
+                UpdateEmptyState();
+            });
+
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100);
+                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+            });
+        }
+
         private void LoadOutdatedModsOnly()
         {
             LogToGridLog("LoadOutdatedModsOnly() called");

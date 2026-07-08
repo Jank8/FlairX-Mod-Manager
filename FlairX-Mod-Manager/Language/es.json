@@ -411,5 +411,7 @@
   "Skipped": "Omitido",
   "Failed": "Fallido",
   "Add": "Añadir",
-  "Create": "Crear"
+  "Create": "Crear",
+  "ShowNoPreviews": "Mostrar sin vistas previas",
+  "Category_No_Previews": "Sin vistas previas"
 }

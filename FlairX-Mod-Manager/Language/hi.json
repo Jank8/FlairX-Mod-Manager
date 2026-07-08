@@ -412,5 +412,7 @@
   "Failed": "विफल",
   "Add": "जोड़ें",
   "Create": "बनाएं",
-  "ConnectionError": "कनेक्शन त्रुटि"
+  "ConnectionError": "कनेक्शन त्रुटि",
+  "ShowNoPreviews": "बिना प्रीव्यू के दिखाएं",
+  "Category_No_Previews": "कोई प्रीव्यू नहीं"
 }

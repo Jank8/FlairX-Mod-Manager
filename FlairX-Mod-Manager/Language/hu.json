@@ -412,5 +412,7 @@
   "Failed": "Sikertelen",
   "Add": "Hozzáadás",
   "Create": "Létrehozás",
-  "ConnectionError": "Kapcsolati hiba"
+  "ConnectionError": "Kapcsolati hiba",
+  "ShowNoPreviews": "Előnézet nélküliek megjelenítése",
+  "Category_No_Previews": "Nincs előnézet"
 }

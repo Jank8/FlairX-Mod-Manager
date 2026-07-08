@@ -412,5 +412,7 @@
   "Failed": "Fallito",
   "Add": "Aggiungi",
   "Create": "Crea",
-  "ConnectionError": "Errore di connessione"
+  "ConnectionError": "Errore di connessione",
+  "ShowNoPreviews": "Mostra senza anteprime",
+  "Category_No_Previews": "Senza anteprime"
 }

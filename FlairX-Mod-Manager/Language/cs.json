@@ -411,5 +411,7 @@
   "Skipped": "Přeskočeno",
   "Failed": "Selhalo",
   "Add": "Přidat",
-  "Create": "Vytvořit"
+  "Create": "Vytvořit",
+  "ShowNoPreviews": "Zobrazit bez náhledů",
+  "Category_No_Previews": "Bez náhledů"
 }

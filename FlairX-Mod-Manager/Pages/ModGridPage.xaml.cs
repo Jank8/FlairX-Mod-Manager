@@ -307,7 +307,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (_currentCategory == "Broken" && brokenModsList != null && !brokenModsList.Contains(modData.Name))
                     shouldInclude = false;
                 
-                if (!string.IsNullOrEmpty(_currentCategory) && _currentCategory != "Active" && _currentCategory != "Broken" && 
+                if (!string.IsNullOrEmpty(_currentCategory) && _currentCategory != "Active" && _currentCategory != "Broken" && _currentCategory != "NoPreviews" &&
                     !string.Equals(modData.Category, _currentCategory, StringComparison.OrdinalIgnoreCase))
                     shouldInclude = false;
 
@@ -667,6 +667,13 @@ namespace FlairX_Mod_Manager.Pages
                 var langDict = SharedUtilities.LoadLanguageDictionary();
                 CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Broken_Mods");
                 LoadBrokenModsOnly();
+                CategoryBackButton.Visibility = Visibility.Visible;
+            }
+            else if (string.Equals(_currentCategory, "NoPreviews", StringComparison.OrdinalIgnoreCase))
+            {
+                var langDict = SharedUtilities.LoadLanguageDictionary();
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_No_Previews");
+                LoadNoPreviewModsOnly();
                 CategoryBackButton.Visibility = Visibility.Visible;
             }
             else
@@ -1227,6 +1234,10 @@ namespace FlairX_Mod_Manager.Pages
             {
                 // Outdated Mods view
                 CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Outdated_Mods");
+            }
+            else if (_currentCategory == "NoPreviews")
+            {
+                CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_No_Previews");
             }
             else if (_currentCategory.Equals("other", StringComparison.OrdinalIgnoreCase))
             {

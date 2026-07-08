@@ -412,5 +412,7 @@
   "Failed": "Mislyktes",
   "Add": "Legg til",
   "Create": "Opprett",
-  "ConnectionError": "Tilkoblingsfeil"
+  "ConnectionError": "Tilkoblingsfeil",
+  "ShowNoPreviews": "Vis uten forhåndsvisninger",
+  "Category_No_Previews": "Ingen forhåndsvisninger"
 }

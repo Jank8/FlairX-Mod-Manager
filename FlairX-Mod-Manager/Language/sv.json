@@ -412,5 +412,7 @@
   "Failed": "Misslyckades",
   "Add": "Lägg till",
   "Create": "Skapa",
-  "ConnectionError": "Anslutningsfel"
+  "ConnectionError": "Anslutningsfel",
+  "ShowNoPreviews": "Visa utan förhandsvisningar",
+  "Category_No_Previews": "Inga förhandsvisningar"
 }

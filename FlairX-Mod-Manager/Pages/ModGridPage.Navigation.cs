@@ -100,7 +100,8 @@ namespace FlairX_Mod_Manager.Pages
                     
                     if (shouldLoadCategories && !string.Equals(parameter, "Active", StringComparison.OrdinalIgnoreCase) && 
                         !string.Equals(parameter, "Broken", StringComparison.OrdinalIgnoreCase) &&
-                        !string.Equals(parameter, "Outdated", StringComparison.OrdinalIgnoreCase))
+                        !string.Equals(parameter, "Outdated", StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(parameter, "NoPreviews", StringComparison.OrdinalIgnoreCase))
                     {
                         // In category mode, ignore legacy navigation and load categories (except for Active, Broken, Outdated)
                         _currentViewMode = ViewMode.Categories;

@@ -412,5 +412,7 @@
   "Failed": "실패",
   "Add": "추가",
   "Create": "생성",
-  "ConnectionError": "연결 오류"
+  "ConnectionError": "연결 오류",
+  "ShowNoPreviews": "미리보기 없는 항목 표시",
+  "Category_No_Previews": "미리보기 없음"
 }

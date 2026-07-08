@@ -412,5 +412,7 @@
   "Failed": "Falhou",
   "Add": "Adicionar",
   "Create": "Criar",
-  "ConnectionError": "Erro de conexao"
+  "ConnectionError": "Erro de conexao",
+  "ShowNoPreviews": "Mostrar sem prévias",
+  "Category_No_Previews": "Sem prévias"
 }

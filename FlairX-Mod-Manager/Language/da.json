@@ -411,5 +411,7 @@
   "Skipped": "Sprunget over",
   "Failed": "Mislykkedes",
   "Add": "Tilføj",
-  "Create": "Opret"
+  "Create": "Opret",
+  "ShowNoPreviews": "Vis uden forhåndsvisninger",
+  "Category_No_Previews": "Ingen forhåndsvisninger"
 }

@@ -411,5 +411,7 @@
   "Skipped": "Pominięto",
   "Failed": "Nieudane",
   "Add": "Dodaj",
-  "Create": "Utwórz"
+  "Create": "Utwórz",
+  "ShowNoPreviews": "Pokaż bez grafik",
+  "Category_No_Previews": "Bez grafik"
 }

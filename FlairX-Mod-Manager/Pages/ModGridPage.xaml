@@ -295,6 +295,11 @@
                             <FontIcon Glyph="&#xEA92;"/>
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
+                    <MenuFlyoutItem x:Name="ShowNoPreviewsItem" Click="ShowNoPreviews_Click">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xEB9F;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
                     <ToggleMenuFlyoutItem x:Name="HideBrokenItem" Click="HideBroken_Click">
                         <ToggleMenuFlyoutItem.Icon>
                             <FontIcon Glyph="&#xED1A;"/>

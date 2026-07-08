@@ -412,5 +412,7 @@
   "Failed": "Gagal",
   "Add": "Tambah",
   "Create": "Buat",
-  "ConnectionError": "Kesalahan koneksi"
+  "ConnectionError": "Kesalahan koneksi",
+  "ShowNoPreviews": "Tampilkan tanpa pratinjau",
+  "Category_No_Previews": "Tanpa pratinjau"
 }
