@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "หมวดหม:",
   "CategoryConflict_ActiveMods": "Mod ทใชงาน:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "ปิดการใช้งาน mod ที่ขัดแย้งโดยอัตโนมัติ",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "ปิดใช้งานมอดอื่นในหมวดหมู่เดียวกันโดยอัตโนมัติเมื่อเปิดใช้งานมอดใหม่ กด Shift ซ้ายค้างไว้ขณะคลิกเพื่อเปิดใช้งานโดยไม่กระทบมอดอื่น",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "ปิดใช้งานมอดที่ขัดแย้งโดยอัตโนมัติ กด Shift ค้างไว้เพื่อเพิกเฉยต่อการตั้งค่านี้",
   "ModDetailPage_DownloadPreviews_Label": "ดาวน์โหลดตัวอย่าง",
   "ModDetailPage_DownloadPreviews_Desc": "ดาวน์โหลดภาพตัวอย่างจาก GameBanana",
   "ModDetailPage_DownloadPreviews_Button": "ดาวน์โหลด",

@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Категория:",
   "CategoryConflict_ActiveMods": "Активные моды:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Автоматически отключать конфликтующие моды",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Автоматически деактивирует другие моды в той же категории при активации нового. Удерживайте левый Shift при клике, чтобы активировать без влияния на другие моды.",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Автоматически деактивировать конфликтующие моды. Удерживайте Shift для игнорирования этой настройки.",
   "ModDetailPage_DownloadPreviews_Label": "Скачать превью",
   "ModDetailPage_DownloadPreviews_Desc": "Скачать превью изображения с GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Скачать",

@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Kategória:",
   "CategoryConflict_ActiveMods": "Aktív modok:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Ütköző modok automatikus kikapcsolása",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Automatikusan deaktiválja a többi modot ugyanabban a kategóriában, amikor egy újat aktiválsz. Tartsd lenyomva a bal Shift-et kattintáskor, hogy a többi modot ne érintse.",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Ütköző modok automatikus deaktiválása. Tartsd lenyomva a Shift-et a beállítás figyelmen kívül hagyásához.",
   "ModDetailPage_DownloadPreviews_Label": "Előnézetek letöltése",
   "ModDetailPage_DownloadPreviews_Desc": "Előnézeti képek letöltése a GameBanana-ról.",
   "ModDetailPage_DownloadPreviews_Button": "Letöltés",

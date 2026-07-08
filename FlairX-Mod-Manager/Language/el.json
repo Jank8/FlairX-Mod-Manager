@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Κατηγορία:",
   "CategoryConflict_ActiveMods": "Ενεργά mods:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Αυτόματη απενεργοποίηση συγκρουόμενων mods",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Απενεργοποιεί αυτόματα άλλα mods στην ίδια κατηγορία κατά την ενεργοποίηση νέου. Κρατήστε το αριστερό Shift κατά το κλικ για ενεργοποίηση χωρίς επίπτωση σε άλλα mods.",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Αυτόματη απενεργοποίηση mods σε σύγκρουση. Κρατήστε Shift για να αγνοήσετε αυτή τη ρύθμιση.",
   "ModDetailPage_DownloadPreviews_Label": "Λήψη προεπισκοπήσεων",
   "ModDetailPage_DownloadPreviews_Desc": "Λήψη εικόνων προεπισκόπησης από το GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Λήψη",

@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Kategorya:",
   "CategoryConflict_ActiveMods": "Mga aktibong mod:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Awtomatikong i-deactivate ang mga conflicting mods",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Awtomatikong dina-disable ang ibang mga mod sa parehong kategorya kapag nag-activate ng bago. Hawakan ang kaliwang Shift habang kinki-click para ma-activate nang hindi nakakaapekto sa ibang mga mod.",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Awtomatikong i-deactivate ang mga mod na nagko-conflict. Hawakan ang Shift para balewalain ang setting na ito.",
   "ModDetailPage_DownloadPreviews_Label": "I-download ang mga preview",
   "ModDetailPage_DownloadPreviews_Desc": "I-download ang mga preview na larawan mula sa GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "I-download",

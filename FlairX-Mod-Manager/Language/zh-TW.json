@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "類別:",
   "CategoryConflict_ActiveMods": "活動模組:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "自動停用衝突模組",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "啟用新Mod時自動停用同類別中的其他Mod。點擊時按住左Shift可在不影響其他Mod的情況下啟用。",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "自動停用衝突的Mod。按住Shift以忽略此設定。",
   "ModDetailPage_DownloadPreviews_Label": "下載預覽",
   "ModDetailPage_DownloadPreviews_Desc": "從GameBanana下載預覽圖片。",
   "ModDetailPage_DownloadPreviews_Button": "下載",

@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Categorie:",
   "CategoryConflict_ActiveMods": "Moduri active:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Dezactivează automat mod-urile în conflict",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Dezactivează automat alte moduri din aceeași categorie la activarea unuia nou. Ține apăsat Shift stânga în timp ce dai click pentru a activa fără a afecta alte moduri.",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Dezactivează automat modurile conflictuale. Ține apăsat Shift pentru a ignora această setare.",
   "ModDetailPage_DownloadPreviews_Label": "Descarcă previzualizări",
   "ModDetailPage_DownloadPreviews_Desc": "Descarcă imagini de previzualizare de pe GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Descarcă",

@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Kategori:",
   "CategoryConflict_ActiveMods": "Mod aktif:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Nonaktifkan mod yang bertentangan secara otomatis",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Menonaktifkan mod lain di kategori yang sama secara otomatis saat mengaktifkan yang baru. Tahan Shift kiri saat mengklik untuk mengaktifkan tanpa memengaruhi mod lain.",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Nonaktifkan mod yang konflik secara otomatis. Tahan Shift untuk mengabaikan pengaturan ini.",
   "ModDetailPage_DownloadPreviews_Label": "Unduh pratinjau",
   "ModDetailPage_DownloadPreviews_Desc": "Unduh gambar pratinjau dari GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Unduh",

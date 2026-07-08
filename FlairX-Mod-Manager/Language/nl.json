@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Categorie:",
   "CategoryConflict_ActiveMods": "Actieve mods:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Conflicterende mods automatisch deactiveren",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Deactiveert automatisch andere mods in dezelfde categorie bij het activeren van een nieuwe. Houd linker Shift ingedrukt tijdens het klikken om te activeren zonder andere mods te beïnvloeden.",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Conflicterende mods automatisch deactiveren. Houd Shift ingedrukt om deze instelling te negeren.",
   "ModDetailPage_DownloadPreviews_Label": "Voorbeelden downloaden",
   "ModDetailPage_DownloadPreviews_Desc": "Download voorbeeldafbeeldingen van GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Downloaden",

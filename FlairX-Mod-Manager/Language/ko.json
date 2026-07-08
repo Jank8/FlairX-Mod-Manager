@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "카테고리:",
   "CategoryConflict_ActiveMods": "활성 모드:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "충돌하는 모드 자동 비활성화",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "새 모드를 활성화할 때 같은 카테고리의 다른 모드를 자동으로 비활성화합니다. 왼쪽 Shift를 누른 채 클릭하면 다른 모드에 영향 없이 활성화할 수 있습니다.",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "충돌하는 모드를 자동으로 비활성화합니다. Shift를 누른 채로 이 설정을 무시합니다.",
   "ModDetailPage_DownloadPreviews_Label": "미리보기 다운로드",
   "ModDetailPage_DownloadPreviews_Desc": "GameBanana에서 미리보기 이미지를 다운로드합니다.",
   "ModDetailPage_DownloadPreviews_Button": "다운로드",

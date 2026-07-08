@@ -292,7 +292,7 @@
   "CategoryConflict_Category": "Kategori:",
   "CategoryConflict_ActiveMods": "Aktiva mods:",
   "SettingsPage_AutoDeactivateConflictingMods_Label": "Inaktivera motstridiga mods automatiskt",
-  "SettingsPage_AutoDeactivateConflictingMods_Description": "Avaktiverar automatiskt andra mods i samma kategori när ett nytt aktiveras. Håll vänster Shift nedtryckt vid klick för att aktivera utan att påverka andra mods.",
+  "SettingsPage_AutoDeactivateConflictingMods_Description": "Avaktivera konfliktande mods automatiskt. Håll Shift nedtryckt för att ignorera denna inställning.",
   "ModDetailPage_DownloadPreviews_Label": "Ladda ner förhandsvisningar",
   "ModDetailPage_DownloadPreviews_Desc": "Ladda ner förhandsvisningsbilder från GameBanana.",
   "ModDetailPage_DownloadPreviews_Button": "Ladda ner",
