@@ -29,8 +29,12 @@ namespace FlairX_Mod_Manager.Services
 
             var lastUpdate = SettingsManager.Current.GameBananaLastAutoUpdate;
             var intervalDays = SettingsManager.Current.GameBananaAutoUpdateIntervalDays;
-            
-            return DateTime.Now.Subtract(lastUpdate).TotalDays >= intervalDays;
+
+            // Use calendar-day logic: compare dates, not elapsed hours.
+            // If interval = 1, run the next calendar day after last update (i.e. after midnight).
+            // If interval = 7, run 7 calendar days later, etc.
+            var nextUpdateDate = lastUpdate.Date.AddDays(intervalDays);
+            return DateTime.Now.Date >= nextUpdateDate;
         }
 
         /// <summary>
