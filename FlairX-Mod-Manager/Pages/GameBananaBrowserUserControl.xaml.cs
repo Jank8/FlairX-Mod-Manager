@@ -1167,28 +1167,23 @@ namespace FlairX_Mod_Manager.Pages
                 }
 
                 var installedText = SharedUtilities.GetTranslation(_lang, "Installed");
-                
+                var newViewModels = new List<ModViewModel>();
+
                 foreach (var record in response.Records)
                 {
                     // Skip duplicates (important for infinite scroll and auto-load)
                     if (_loadedModIds.Contains(record.Id))
-                    {
                         continue;
-                    }
 
                     // Skip NSFW content if setting is enabled
                     if (record.HasAnyContentWarning && SettingsManager.Current.HideNSFWMods)
-                    {
                         continue;
-                    }
 
                     // Skip blacklisted mods
                     var authorName = record.Submitter?.Name ?? "";
                     var modName = record.Name ?? "";
                     if (IsModBlacklisted(authorName, modName))
-                    {
                         continue;
-                    }
 
                     var viewModel = new ModViewModel
                     {
@@ -1202,20 +1197,30 @@ namespace FlairX_Mod_Manager.Pages
                         DateModified = record.DateModified,
                         DateUpdated = record.DateUpdated,
                         IsRated = record.HasAnyContentWarning,
-                        IsInstalled = IsModInstalled(record.ProfileUrl ?? ""),
+                        IsInstalled = false, // Checked lazily in background below
                         InstalledText = installedText
                     };
 
-                    // Get preview image
                     var image = record.PreviewMedia?.Images?.FirstOrDefault();
                     if (image != null)
-                    {
                         viewModel.ImageUrl = $"{image.BaseUrl}/{image.File220 ?? image.File100 ?? image.File}";
-                    }
 
                     _mods.Add(viewModel);
-                    _loadedModIds.Add(record.Id); // Track to prevent duplicates
+                    _loadedModIds.Add(record.Id);
+                    newViewModels.Add(viewModel);
                 }
+
+                // Check installed status in background to avoid blocking UI during load-more
+                _ = Task.Run(async () =>
+                {
+                    foreach (var vm in newViewModels)
+                    {
+                        if (string.IsNullOrEmpty(vm.ProfileUrl)) continue;
+                        var installed = !string.IsNullOrEmpty(await GetInstalledModPathAsync(vm.ProfileUrl));
+                        if (installed)
+                            DispatcherQueue.TryEnqueue(() => vm.IsInstalled = true);
+                    }
+                });
 
                 // Load images for new mods
                 _ = LoadImagesAsync();
