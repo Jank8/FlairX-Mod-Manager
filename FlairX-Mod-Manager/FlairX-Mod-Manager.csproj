@@ -19,9 +19,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     
     <!-- Version Information -->
-    <Version>4.0.4</Version>
-    <AssemblyVersion>4.0.4.0</AssemblyVersion>
-    <FileVersion>4.0.4.0</FileVersion>
+    <Version>4.0.5</Version>
+    <AssemblyVersion>4.0.5.0</AssemblyVersion>
+    <FileVersion>4.0.5.0</FileVersion>
     <AssemblyTitle>FlairX Mod Manager</AssemblyTitle>
     <AssemblyDescription>Advanced mod manager for games with global hotkey support and WinUI3 2.0 compatibility</AssemblyDescription>
     <AssemblyCompany>FlairX</AssemblyCompany>
