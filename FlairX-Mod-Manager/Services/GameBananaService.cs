@@ -1123,7 +1123,44 @@ namespace FlairX_Mod_Manager.Services
                 Logger.LogInfo($"Received rendered HTML length: {html.Length} characters");
 
                 var categories = ParseCategoryTreeFromHtml(html);
-                Logger.LogInfo($"Found {categories.Count} categories for {gameTag}");
+                Logger.LogInfo($"Found {categories.Count} categories for {gameTag} from cattree");
+
+                // Some games have additional category pages not covered by the cattree
+                var additionalCatUrls = new Dictionary<string, List<string>>
+                {
+                    { "GIMI", new List<string> { "https://gamebanana.com/mods/cats/18140" } },
+                    { "EFMI", new List<string> { "https://gamebanana.com/mods/cats/42770" } },
+                    { "HIMI", new List<string> { "https://gamebanana.com/mods/cats/23620" } },
+                    { "SRMI", new List<string> { "https://gamebanana.com/mods/cats/22832" } },
+                };
+
+                if (additionalCatUrls.TryGetValue(gameTag, out var extraUrls))
+                {
+                    var existingIds = new HashSet<int>(categories.Select(c => c.Id));
+                    foreach (var extraUrl in extraUrls)
+                    {
+                        Logger.LogInfo($"{gameTag}: also fetching from {extraUrl}");
+                        var extraHtml = await RenderPageWithWebView2Async(extraUrl);
+                        if (!string.IsNullOrEmpty(extraHtml))
+                        {
+                            var extraCategories = ParseCategoryTreeFromHtml(extraHtml);
+                            Logger.LogInfo($"{gameTag}: found {extraCategories.Count} entries from {extraUrl}");
+                            foreach (var cat in extraCategories)
+                            {
+                                if (existingIds.Add(cat.Id))
+                                {
+                                    categories.Add(cat);
+                                    Logger.LogInfo($"{gameTag}: added missing category: {cat.Name} (ID: {cat.Id})");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Logger.LogWarning($"{gameTag}: failed to fetch from {extraUrl}");
+                        }
+                    }
+                    Logger.LogInfo($"{gameTag}: total categories after merge: {categories.Count}");
+                }
 
                 // Cache the result
                 _categoryTreeCache[gameTag] = categories;
@@ -1784,30 +1821,45 @@ namespace FlairX_Mod_Manager.Services
         private static List<CategoryRecord> ParseCategoryTreeFromHtml(string html)
         {
             var all = new List<CategoryRecord>();
+            var seenIds = new HashSet<int>();
             try
             {
-                // Each category entry is inside <div class="Cluster">
-                // Structure: <div class="Cluster"><img src="...ModCategory/..."><a href=".../cats/ID">Name</a>
+                // Format 1: cattree page — <div class="Cluster"><img src="..."><a href=".../cats/ID">Name</a>
                 var clusterPattern = @"<div class=""Cluster""><img src=""(https://images\.gamebanana\.com/img/ico/ModCategory/[^""]+)""[^>]*><a href=""https://gamebanana\.com/mods/cats/(\d+)""[^>]*>([^<]+)</a>";
                 var matches = System.Text.RegularExpressions.Regex.Matches(html, clusterPattern,
                     System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
-                Logger.LogInfo($"ParseCategoryTreeFromHtml: found {matches.Count} cluster entries");
+                Logger.LogInfo($"ParseCategoryTreeFromHtml: found {matches.Count} Cluster entries");
 
                 foreach (System.Text.RegularExpressions.Match m in matches)
                 {
                     var iconUrl = m.Groups[1].Value;
                     if (!int.TryParse(m.Groups[2].Value, out var id)) continue;
                     var name = System.Net.WebUtility.HtmlDecode(m.Groups[3].Value.Trim());
-
-                    all.Add(new CategoryRecord
+                    if (seenIds.Add(id))
                     {
-                        Id = id,
-                        Name = name,
-                        IconUrl = iconUrl,
-                        ProfileUrl = $"https://gamebanana.com/mods/cats/{id}"
-                    });
-                    Logger.LogInfo($"Parsed: {name} (ID: {id})");
+                        all.Add(new CategoryRecord { Id = id, Name = name, IconUrl = iconUrl, ProfileUrl = $"https://gamebanana.com/mods/cats/{id}" });
+                        Logger.LogInfo($"Parsed (Cluster): {name} (ID: {id})");
+                    }
+                }
+
+                // Format 2: mods/cats page — <record>...<recordcell class="Icon"><a href=".../cats/ID"><img src="..."></a></recordcell><recordcell class="Info"><a href=".../cats/ID">Name</a>...
+                var recordPattern = @"<record[^>]*>.*?<recordcell[^>]*class=""Icon""[^>]*>.*?<img[^>]*src=""([^""]+)""[^>]*>.*?</recordcell>\s*<recordcell[^>]*class=""Info""[^>]*>\s*<a[^>]*href=""https://gamebanana\.com/mods/cats/(\d+)""[^>]*>([^<]+)</a>";
+                var recordMatches = System.Text.RegularExpressions.Regex.Matches(html, recordPattern,
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
+
+                Logger.LogInfo($"ParseCategoryTreeFromHtml: found {recordMatches.Count} record entries");
+
+                foreach (System.Text.RegularExpressions.Match m in recordMatches)
+                {
+                    var iconUrl = m.Groups[1].Value;
+                    if (!int.TryParse(m.Groups[2].Value, out var id)) continue;
+                    var name = System.Net.WebUtility.HtmlDecode(m.Groups[3].Value.Trim());
+                    if (seenIds.Add(id))
+                    {
+                        all.Add(new CategoryRecord { Id = id, Name = name, IconUrl = iconUrl, ProfileUrl = $"https://gamebanana.com/mods/cats/{id}" });
+                        Logger.LogInfo($"Parsed (record): {name} (ID: {id})");
+                    }
                 }
             }
             catch (Exception ex)
