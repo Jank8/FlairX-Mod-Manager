@@ -437,6 +437,22 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
+        /// <summary>
+        /// Update IsFavorite on a cached mod without rebuilding the entire list.
+        /// Call this after SettingsManager.ToggleModFavorite.
+        /// </summary>
+        public static void UpdateModFavorite(string modName, bool isFavorite)
+        {
+            lock (_listLock)
+            {
+                if (_cachedMasterList == null) return;
+                var mod = _cachedMasterList.FirstOrDefault(m => m.Name == modName);
+                if (mod != null)
+                    mod.IsFavorite = isFavorite;
+            }
+        }
+
+        /// <summary>
         /// Invalidate cache - forces reload on next access
         /// </summary>
         public static void InvalidateCache()

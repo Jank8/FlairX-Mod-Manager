@@ -794,6 +794,10 @@ namespace FlairX_Mod_Manager.Pages
                     SettingsManager.ToggleModFavorite(gameTag, tile.Name);
                     tile.IsFavorite = SettingsManager.IsModFavorite(gameTag, tile.Name);
                     
+                    // Sync the new favorite state into ModListManager cache
+                    // so that re-entering the category shows the correct order
+                    ModListManager.UpdateModFavorite(tile.Name, tile.IsFavorite);
+                    
                     Logger.LogInfo($"Toggled favorite for mod: {tile.Name}, IsFavorite: {tile.IsFavorite}");
                     
                     // Re-sort mods with animation to move favorites to top

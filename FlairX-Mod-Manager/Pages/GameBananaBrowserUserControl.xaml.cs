@@ -137,7 +137,9 @@ namespace FlairX_Mod_Manager.Pages
             int? AuthorId = null,
             string? AuthorName = null,
             double ScrollOffset = 0,
-            int Page = 1
+            int Page = 1,
+            CategoryFilter Filter = CategoryFilter.AllMods,
+            GameBananaService.CategorySortOrder SortOrder = GameBananaService.CategorySortOrder.LatestUpdated
         );
 
         private readonly Stack<NavigationEntry> _navigationStack = new();
@@ -1432,7 +1434,9 @@ namespace FlairX_Mod_Manager.Pages
                         NavigationState.ModsList,
                         Search: _currentSearch,
                         ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
-                        Page: _currentPage));
+                        Page: _currentPage,
+                        Filter: _currentCategoryFilter,
+                        SortOrder: _currentSortOrder));
                     UpdateBackButtonIcon();
                 }
                 _currentSearch = null;
@@ -1472,7 +1476,9 @@ namespace FlairX_Mod_Manager.Pages
                     NavigationState.ModsList,
                     Search: _currentSearch,
                     ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
-                    Page: _currentPage));
+                    Page: _currentPage,
+                    Filter: _currentCategoryFilter,
+                    SortOrder: _currentSortOrder));
                 UpdateBackButtonIcon();
             }
             _currentSearch = newSearch;
@@ -1490,7 +1496,9 @@ namespace FlairX_Mod_Manager.Pages
                     NavigationState.ModsList,
                     Search: _currentSearch,
                     ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
-                    Page: _currentPage));
+                    Page: _currentPage,
+                    Filter: _currentCategoryFilter,
+                    SortOrder: _currentSortOrder));
                 UpdateBackButtonIcon();
             }
             _currentSearch = newSearch;
@@ -1849,13 +1857,38 @@ namespace FlairX_Mod_Manager.Pages
                         }
                         // else already on ModsList - nothing to close
 
-                        // Reload only if search changed, page changed, or mods list is empty
-                        // If same search and page, _mods still has the right content (infinite scroll preserved)
-                        if (entry.Search != _currentSearch || entry.Page != _currentPage || _mods.Count == 0)
+                        // Reload if search, page, filter or sort changed — or if list is empty
+                        if (entry.Search != _currentSearch || entry.Page != _currentPage || 
+                            entry.Filter != _currentCategoryFilter || entry.SortOrder != _currentSortOrder ||
+                            _mods.Count == 0)
                         {
                             _currentSearch = entry.Search;
                             _currentPage = entry.Page;
                             SearchBox.Text = entry.Search ?? "";
+
+                            // Restore filter without triggering SelectionChanged reload
+                            _currentCategoryFilter = entry.Filter;
+                            CategoryFilterComboBox.SelectionChanged -= CategoryFilterComboBox_SelectionChanged;
+                            CategoryFilterComboBox.SelectedIndex = entry.Filter == CategoryFilter.CharacterSkins ? 1 : 0;
+                            SortOrderComboBox.Visibility = entry.Filter == CategoryFilter.CharacterSkins
+                                ? Visibility.Visible : Visibility.Collapsed;
+                            CategoryFilterComboBox.SelectionChanged += CategoryFilterComboBox_SelectionChanged;
+
+                            // Restore sort order without triggering SelectionChanged reload
+                            _currentSortOrder = entry.SortOrder;
+                            SortOrderComboBox.SelectionChanged -= SortOrderComboBox_SelectionChanged;
+                            SortOrderComboBox.SelectedIndex = entry.SortOrder switch
+                            {
+                                GameBananaService.CategorySortOrder.Newest => 1,
+                                GameBananaService.CategorySortOrder.Oldest => 2,
+                                GameBananaService.CategorySortOrder.MostLiked => 3,
+                                GameBananaService.CategorySortOrder.MostViewed => 4,
+                                GameBananaService.CategorySortOrder.MostDownloaded => 5,
+                                GameBananaService.CategorySortOrder.MostCommented => 6,
+                                _ => 0
+                            };
+                            SortOrderComboBox.SelectionChanged += SortOrderComboBox_SelectionChanged;
+
                             await LoadModsAsync();
                         }
                         _currentState = NavigationState.ModsList;
@@ -2081,7 +2114,9 @@ namespace FlairX_Mod_Manager.Pages
                             NavigationState.ModsList,
                             Search: _currentSearch,
                             ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
-                            Page: _currentPage));
+                            Page: _currentPage,
+                            Filter: _currentCategoryFilter,
+                            SortOrder: _currentSortOrder));
                     }
                     else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
                     {
@@ -2383,7 +2418,9 @@ namespace FlairX_Mod_Manager.Pages
                             NavigationState.ModsList,
                             Search: _currentSearch,
                             ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
-                            Page: _currentPage));
+                            Page: _currentPage,
+                            Filter: _currentCategoryFilter,
+                            SortOrder: _currentSortOrder));
                     }
                     else if (_currentState == NavigationState.AuthorMods && _currentAuthorId.HasValue)
                     {
