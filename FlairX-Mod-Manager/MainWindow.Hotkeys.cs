@@ -22,7 +22,7 @@ namespace FlairX_Mod_Manager
         // Debounce timer for F10 sending - prevents spam when user changes multiple mods quickly
         private static System.Threading.Timer? _f10DebounceTimer;
         private static readonly object _f10DebounceLock = new object();
-        private const int F10_DEBOUNCE_DELAY_MS = 1000; // Wait 1 second after last mod change before sending F10
+        private const int F10_DEBOUNCE_DELAY_MS = 500; // Wait 500ms after last mod change before sending F10
         
         // Overlay window instance
         private OverlayWindow? _overlayWindow;
