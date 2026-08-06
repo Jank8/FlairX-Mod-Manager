@@ -1948,11 +1948,11 @@ namespace FlairX_Mod_Manager
 
                 if (toggled)
                 {
-                    // Send F10 via MainWindow's DispatcherQueue to ensure proper async context
-                    if (SettingsManager.Current.SendF10OnOverlayClose)
+                    // Send F10 with debouncing to prevent spam when toggling multiple mods quickly
+                    if (SettingsManager.Current.SendF10OnModChange)
                     {
-                        Logger.LogInfo($"ToggleModAsync: sending F10, thread={System.Threading.Thread.CurrentThread.ManagedThreadId}");
-                        _mainWindow?.DispatcherQueue.TryEnqueue(() => _mainWindow?.SendF10KeyPress());
+                        Logger.LogInfo($"ToggleModAsync: triggering debounced F10 send");
+                        _mainWindow?.SendF10KeyPressDebounced();
                     }
 
                     // UI updates on UI thread

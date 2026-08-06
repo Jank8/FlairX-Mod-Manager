@@ -480,6 +480,9 @@ namespace FlairX_Mod_Manager
                 // Ensure settings are loaded before initializing game selection
                 SettingsManager.Load();
                 
+                // Synchronize d3dx.ini with SendF10OnModChange setting on startup
+                Pages.GameOverlayPage.EnsureBackgroundKeypressIni(SettingsManager.Current.SendF10OnModChange);
+                
                 // Restore last position after UI is fully loaded (only if game is selected)
                 if (SettingsManager.Current.SelectedGameIndex > 0)
                 {

@@ -255,7 +255,7 @@ namespace FlairX_Mod_Manager.Pages
                         mainWindow.DispatcherQueue.TryEnqueue(async () =>
                         {
                             await mainWindow.ReloadModsAsync();
-                            if (SettingsManager.Current.SendF10OnOverlayClose)
+                            if (SettingsManager.Current.SendF10OnModChange)
                             {
                                 // Wait for LoadingWindow to close and game to regain focus
                                 await Task.Delay(500);

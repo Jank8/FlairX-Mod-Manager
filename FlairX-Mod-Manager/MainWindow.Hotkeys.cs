@@ -18,6 +18,11 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        // Debounce timer for F10 sending - prevents spam when user changes multiple mods quickly
+        private static System.Threading.Timer? _f10DebounceTimer;
+        private static readonly object _f10DebounceLock = new object();
+        private const int F10_DEBOUNCE_DELAY_MS = 1000; // Wait 1 second after last mod change before sending F10
+        
         // Overlay window instance
         private OverlayWindow? _overlayWindow;
         
@@ -318,7 +323,7 @@ namespace FlairX_Mod_Manager
                     DispatcherQueue.TryEnqueue(async () =>
                     {
                         await ReloadModsAsync();
-                        if (SettingsManager.Current.SendF10OnOverlayClose)
+                        if (SettingsManager.Current.SendF10OnModChange)
                         {
                             // Wait for LoadingWindow to close and game to regain focus
                             await Task.Delay(500);
@@ -495,7 +500,7 @@ namespace FlairX_Mod_Manager
                     DispatcherQueue.TryEnqueue(async () =>
                     {
                         await ReloadModsAsync();
-                        if (SettingsManager.Current.SendF10OnOverlayClose)
+                        if (SettingsManager.Current.SendF10OnModChange)
                         {
                             // Wait for LoadingWindow to close and game to regain focus
                             await Task.Delay(500);
@@ -787,12 +792,19 @@ namespace FlairX_Mod_Manager
         /// Send F10 key press to reload mods in game.
         /// With check_foreground_window = 0 in d3dx.ini, this works without admin privileges.
         /// Sends 3 times with short intervals to ensure XXMI catches it under load.
+        /// Automatically ensures d3dx.ini has check_foreground_window = 0 if enabled.
         /// </summary>
         public async void SendF10KeyPress()
         {
             try
             {
                 Logger.LogInfo("SendF10KeyPress: Starting...");
+
+                // Ensure d3dx.ini is configured to accept background keypresses
+                if (SettingsManager.Current.SendF10OnModChange)
+                {
+                    Pages.GameOverlayPage.EnsureBackgroundKeypressIni(true);
+                }
 
                 const ushort SCAN_F10 = 0x44;
                 var sizeOfInput = Marshal.SizeOf<INPUT>();
@@ -848,6 +860,31 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError("Failed to send F10 key press", ex);
+            }
+        }
+
+        /// <summary>
+        /// Send F10 with debouncing - resets timer on each call, sends only after delay with no new calls.
+        /// This prevents F10 spam when user changes multiple mods quickly in succession.
+        /// </summary>
+        public void SendF10KeyPressDebounced()
+        {
+            if (!SettingsManager.Current.SendF10OnModChange)
+                return;
+
+            lock (_f10DebounceLock)
+            {
+                // Cancel previous timer if exists
+                _f10DebounceTimer?.Dispose();
+
+                // Create new timer that fires once after delay
+                _f10DebounceTimer = new System.Threading.Timer(_ =>
+                {
+                    Logger.LogInfo($"F10 debounce timer fired - sending F10 after {F10_DEBOUNCE_DELAY_MS}ms of inactivity");
+                    DispatcherQueue.TryEnqueue(() => SendF10KeyPress());
+                }, null, F10_DEBOUNCE_DELAY_MS, Timeout.Infinite);
+
+                Logger.LogInfo($"F10 debounce timer reset - will send in {F10_DEBOUNCE_DELAY_MS}ms if no more changes");
             }
         }
 
