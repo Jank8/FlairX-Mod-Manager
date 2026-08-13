@@ -629,7 +629,7 @@ namespace FlairX_Mod_Manager
             // so subsequent SetForegroundWindow calls work without foreground lock issues.
             if (SettingsManager.Current.GamepadEnabled || SettingsManager.Current.OverlayHotkeysEnabled)
             {
-                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, async () =>
+                DispatcherQueue?.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, async () =>
                 {
                     try
                     {
@@ -639,9 +639,9 @@ namespace FlairX_Mod_Manager
                             if (_overlayWindow == null)
                             {
                                 _overlayWindow = new OverlayWindow(this);
-                                _overlayWindow.ModToggleRequested += OnOverlayModToggleRequested;
-                                _overlayWindow.WindowClosed       += OnOverlayWindowClosed;
-                                _overlayWindow.WindowHidden       += OnOverlayWindowHidden;
+                                _overlayWindow!.ModToggleRequested += OnOverlayModToggleRequested;
+                                _overlayWindow!.WindowClosed       += OnOverlayWindowClosed;
+                                _overlayWindow!.WindowHidden       += OnOverlayWindowHidden;
                             }
 
                             // Show briefly, activate, then hide
