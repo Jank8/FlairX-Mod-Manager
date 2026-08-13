@@ -627,7 +627,7 @@ namespace FlairX_Mod_Manager
             // Show briefly, activate (give it focus), then hide.
             // This registers the overlay as a "known foreground window" with Windows,
             // so subsequent SetForegroundWindow calls work without foreground lock issues.
-            if (SettingsManager.Current.GamepadEnabled || SettingsManager.Current.OverlayHotkeysEnabled)
+            if (SettingsManager.Current?.GamepadEnabled == true || SettingsManager.Current?.OverlayHotkeysEnabled == true)
             {
                 DispatcherQueue?.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, async () =>
                 {
