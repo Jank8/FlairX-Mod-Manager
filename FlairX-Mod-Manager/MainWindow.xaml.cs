@@ -170,6 +170,14 @@ namespace FlairX_Mod_Manager
         
         [DllImport("user32.dll")]
         private static extern bool GetCursorPos(out POINT lpPoint);
+
+        // Focus stealing APIs — used in WndProc while we have "foreground love" from WM_HOTKEY
+        [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
+        [DllImport("user32.dll")] private static extern bool BringWindowToTop(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+        [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+        [DllImport("kernel32.dll")] private static extern uint GetCurrentThreadId();
         
         [StructLayout(LayoutKind.Sequential)]
         private struct POINT
@@ -214,6 +222,39 @@ namespace FlairX_Mod_Manager
             {
                 int id = wParam.ToInt32();
                 Logger.LogInfo($"WndProc: WM_HOTKEY message received, ID: {id}");
+
+                // For overlay toggle: steal focus HERE while we have "foreground love" from WM_HOTKEY
+                // This must happen BEFORE TryEnqueue — the foreground token is only valid synchronously
+                const int HOTKEY_TOGGLE_OVERLAY = 5;
+                if (id == HOTKEY_TOGGLE_OVERLAY && _overlayWindow != null && !_overlayWindow.IsOverlayVisible)
+                {
+                    try
+                    {
+                        var overlayHwnd = WinRT.Interop.WindowNative.GetWindowHandle(_overlayWindow);
+                        IntPtr fgHwnd  = GetForegroundWindow();
+                        uint   fgThread = GetWindowThreadProcessId(fgHwnd, out _);
+                        uint   myThread = GetCurrentThreadId();
+
+                        bool attached = fgThread != 0 && fgThread != myThread &&
+                                        AttachThreadInput(myThread, fgThread, true);
+                        try
+                        {
+                            BringWindowToTop(overlayHwnd);
+                            SwitchToThisWindow(overlayHwnd, true);
+                            SetForegroundWindow(overlayHwnd);
+                        }
+                        finally
+                        {
+                            if (attached) AttachThreadInput(myThread, fgThread, false);
+                        }
+                        Logger.LogInfo("WndProc: SetForegroundWindow on overlay called with foreground love");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("WndProc: focus steal failed", ex);
+                    }
+                }
+
                 _globalHotkeyManager?.OnHotkeyPressed(id);
                 return IntPtr.Zero;
             }
@@ -581,7 +622,43 @@ namespace FlairX_Mod_Manager
             
             // Initialize global gamepad manager for overlay toggle
             InitializeGlobalGamepad();
-        }
+
+            // Pre-initialize overlay window at startup so it has a valid HWND.
+            // Show briefly, activate (give it focus), then hide.
+            // This registers the overlay as a "known foreground window" with Windows,
+            // so subsequent SetForegroundWindow calls work without foreground lock issues.
+            if (SettingsManager.Current.GamepadEnabled || SettingsManager.Current.OverlayHotkeysEnabled)
+            {
+                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, async () =>
+                {
+                    try
+                    {
+                        if (SettingsManager.Current.SelectedGameIndex > 0)
+                        {
+                            // Create overlay if it doesn't exist
+                            if (_overlayWindow == null)
+                            {
+                                _overlayWindow = new OverlayWindow(this);
+                                _overlayWindow.ModToggleRequested += OnOverlayModToggleRequested;
+                                _overlayWindow.WindowClosed       += OnOverlayWindowClosed;
+                                _overlayWindow.WindowHidden       += OnOverlayWindowHidden;
+                            }
+
+                            // Show briefly, activate, then hide
+                            var appWindow = _overlayWindow.GetAppWindow();
+                            appWindow?.Show();
+                            _overlayWindow.Activate();
+                            await Task.Delay(100);
+                            appWindow?.Hide();
+                            Logger.LogInfo("Overlay pre-initialized with focus at startup");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError("Failed to pre-initialize overlay", ex);
+                    }
+                });
+            }
 
         // Hotkey methods moved to MainWindow.Hotkeys.cs partial class
 

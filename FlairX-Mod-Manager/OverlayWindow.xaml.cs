@@ -222,6 +222,9 @@ namespace FlairX_Mod_Manager
         
         private AppWindow? _appWindow;
         private MainWindow? _mainWindow;
+
+        /// <summary>Public accessor for AppWindow — used by MainWindow for pre-init focus trick.</summary>
+        public AppWindow? GetAppWindow() => _appWindow;
         
         // Backdrop controllers (same as MainWindow)
         private DesktopAcrylicController? _acrylicController;

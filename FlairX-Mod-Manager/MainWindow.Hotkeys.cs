@@ -654,6 +654,13 @@ namespace FlairX_Mod_Manager
                 Logger.LogInfo("ToggleOverlayWindow: Calling Toggle()");
                 bool wasVisible = _overlayWindow.IsOverlayVisible;
                 _overlayWindow.Toggle(vibrate);
+
+                // If we just showed the overlay, call Activate() so WinUI3 finalizes focus
+                // (SetForegroundWindow was already called from WndProc synchronously)
+                if (!wasVisible)
+                {
+                    _overlayWindow.Activate();
+                }
                 
                 // Suspend/restore main hotkeys based on new visibility state
                 if (!wasVisible)
