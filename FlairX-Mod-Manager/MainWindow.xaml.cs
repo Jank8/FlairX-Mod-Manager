@@ -659,6 +659,7 @@ namespace FlairX_Mod_Manager
                     }
                 });
             }
+        }
 
         // Hotkey methods moved to MainWindow.Hotkeys.cs partial class
 
