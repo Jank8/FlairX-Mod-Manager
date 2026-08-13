@@ -258,6 +258,9 @@ namespace FlairX_Mod_Manager
         // Held buttons for combo detection
         private HashSet<string> _heldButtons = new();
 
+        // Flag to ignore input briefly after overlay opens (prevents combo buttons from triggering)
+        private bool _ignoreInputAfterShow = true; // Start with true, enable after first full show
+
         // Key-repeat state for held navigation buttons
         private string? _repeatButton = null;
         private System.Threading.CancellationTokenSource? _repeatCts = null;
@@ -794,6 +797,13 @@ namespace FlairX_Mod_Manager
                 {
                     // Ignore input if overlay is not visible
                     if (!IsOverlayVisible) return;
+                    
+                    // Ignore all input until all buttons are released after opening overlay
+                    if (_ignoreInputAfterShow)
+                    {
+                        Logger.LogInfo($"Ignoring gamepad input after show: {e.GetButtonDisplayName()}");
+                        return;
+                    }
                     
                     var settings = SettingsManager.Current;
                     var buttonName = e.GetButtonDisplayName();
@@ -2036,6 +2046,9 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogInfo("OverlayWindow.Show: Starting");
                 
+                // Block all gamepad input during opening
+                _ignoreInputAfterShow = true;
+                
                 // Set opacity to 0 BEFORE showing window (prevents black flash on first show)
                 if (MainRoot != null)
                 {
@@ -2082,6 +2095,11 @@ namespace FlairX_Mod_Manager
                 {
                     _gamepadManager?.Vibrate(0, 25000, 400);
                 }
+                
+                // Re-enable gamepad input now that overlay is fully shown
+                _ignoreInputAfterShow = false;
+                _heldButtons.Clear(); // Clear any buttons held during opening
+                
                 Logger.LogInfo("OverlayWindow.Show: Completed");
             }
             catch (Exception ex)
