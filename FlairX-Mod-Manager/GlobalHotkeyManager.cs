@@ -432,6 +432,8 @@ namespace FlairX_Mod_Manager
                 Logger.LogError("ForceOverlayForegroundFromHotkeyThread failed", ex);
             }
         }
+
+        public void UnregisterAllHotkeys()
         {
             try
             {
