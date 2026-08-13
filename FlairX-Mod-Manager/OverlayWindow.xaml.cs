@@ -2009,6 +2009,10 @@ namespace FlairX_Mod_Manager
                 
                 _appWindow?.Show();
                 Logger.LogInfo("OverlayWindow.Show: Window shown");
+
+                // Switch gamepad to WinRT mode — overlay now has focus, game stops getting input
+                if (_gamepadManager != null)
+                    _gamepadManager.IsOverlayActive = true;
                 
                 // Small delay to let backdrop render before fading in
                 await Task.Delay(50);
@@ -2049,6 +2053,10 @@ namespace FlairX_Mod_Manager
 
         public void Hide()
         {
+            // Switch gamepad back to XInput mode — game will get focus back
+            if (_gamepadManager != null)
+                _gamepadManager.IsOverlayActive = false;
+
             // Fade out the content
             if (MainRoot != null)
             {
