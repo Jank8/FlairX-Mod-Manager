@@ -258,10 +258,6 @@ namespace FlairX_Mod_Manager
         // Held buttons for combo detection
         private HashSet<string> _heldButtons = new();
 
-        // Timestamp of last overlay show (to debounce gamepad input)
-        private DateTime _lastShowTime = DateTime.MinValue;
-        private const int INPUT_DEBOUNCE_MS = 300;
-
         // Key-repeat state for held navigation buttons
         private string? _repeatButton = null;
         private System.Threading.CancellationTokenSource? _repeatCts = null;
@@ -799,19 +795,11 @@ namespace FlairX_Mod_Manager
                     // Ignore input if overlay is not visible
                     if (!IsOverlayVisible) return;
                     
-                    // Debounce input after show to prevent combo buttons from triggering actions
-                    var timeSinceShow = (DateTime.Now - _lastShowTime).TotalMilliseconds;
-                    if (timeSinceShow < INPUT_DEBOUNCE_MS)
-                    {
-                        Logger.LogInfo($"Overlay gamepad input debounced ({timeSinceShow:F0}ms since show)");
-                        return;
-                    }
-                    
                     var settings = SettingsManager.Current;
                     var buttonName = e.GetButtonDisplayName();
                     _heldButtons.Add(buttonName);
 
-                    Logger.LogInfo($"Overlay gamepad button: {buttonName}");
+                    Logger.LogInfo($"Overlay gamepad button: {buttonName}, held buttons: {_heldButtons.Count} ({string.Join(", ", _heldButtons)})");
                     
                     // Check for filter active combo
                     var filterCombo = settings.GamepadFilterActiveCombo ?? "Back+A";
@@ -858,38 +846,40 @@ namespace FlairX_Mod_Manager
                     }
                     
                     // Next/Prev category — also support repeat
-                    if (IsButtonMatch(buttonName, settings.GamepadNextCategoryButton))
+                    // Execute action only if this is the ONLY button currently pressed
+                    if (_heldButtons.Count == 1 && IsButtonMatch(buttonName, settings.GamepadNextCategoryButton))
                     {
                         NavigateCategory(1);
                         StartRepeat(buttonName, () => NavigateCategory(1));
                         return;
                     }
-                    else if (IsButtonMatch(buttonName, settings.GamepadPrevCategoryButton))
+                    else if (_heldButtons.Count == 1 && IsButtonMatch(buttonName, settings.GamepadPrevCategoryButton))
                     {
                         NavigateCategory(-1);
                         StartRepeat(buttonName, () => NavigateCategory(-1));
                         return;
                     }
                     
-                    // Select/Toggle mod
-                    if (IsButtonMatch(buttonName, settings.GamepadSelectButton))
+                    // Select/Toggle mod - execute only if this is the ONLY button pressed
+                    if (_heldButtons.Count == 1 && IsButtonMatch(buttonName, settings.GamepadSelectButton))
                     {
+                        Logger.LogInfo($"Overlay: Toggling selected mod (button: {buttonName})");
                         ToggleSelectedMod();
                     }
-                    // Toggle category favorite
-                    else if (IsButtonMatch(buttonName, settings.GamepadCategoryFavoriteButton))
+                    // Toggle category favorite - execute only if this is the ONLY button pressed
+                    else if (_heldButtons.Count == 1 && IsButtonMatch(buttonName, settings.GamepadCategoryFavoriteButton))
                     {
                         Logger.LogInfo($"Overlay Gamepad: {buttonName} button pressed - toggling category favorite");
                         ToggleCategoryFavorite();
                     }
-                    // Toggle mod favorite
-                    else if (IsButtonMatch(buttonName, settings.GamepadModFavoriteButton))
+                    // Toggle mod favorite - execute only if this is the ONLY button pressed
+                    else if (_heldButtons.Count == 1 && IsButtonMatch(buttonName, settings.GamepadModFavoriteButton))
                     {
                         Logger.LogInfo($"Overlay Gamepad: {buttonName} button pressed - toggling mod favorite");
                         ToggleModFavorite();
                     }
-                    // Back/Close
-                    else if (IsButtonMatch(buttonName, settings.GamepadBackButton))
+                    // Back/Close - execute only if this is the ONLY button pressed
+                    else if (_heldButtons.Count == 1 && IsButtonMatch(buttonName, settings.GamepadBackButton))
                     {
                         Hide();
                     }
@@ -2047,9 +2037,6 @@ namespace FlairX_Mod_Manager
             try
             {
                 Logger.LogInfo("OverlayWindow.Show: Starting");
-                
-                // Record show time for input debouncing
-                _lastShowTime = DateTime.Now;
                 
                 // Set opacity to 0 BEFORE showing window (prevents black flash on first show)
                 if (MainRoot != null)
