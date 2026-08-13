@@ -14,7 +14,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -214,14 +213,6 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public sealed partial class OverlayWindow : Window
     {
-        // Win32 P/Invoke for focus stealing
-        [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
-        [DllImport("user32.dll")] private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
-        [DllImport("user32.dll")] private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
-        [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
-        [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
-        [DllImport("kernel32.dll")] private static extern uint GetCurrentThreadId();
-
         public ObservableCollection<OverlayCategoryItem> OverlayCategories { get; } = new();
         public ObservableCollection<OverlayModItem> OverlayMods { get; } = new();
         
@@ -440,45 +431,17 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
-        /// Steals focus from the game using AttachThreadInput trick + Activate.
-        /// AttachThreadInput connects our thread's input queue to the foreground thread,
-        /// making SetForegroundWindow work even when another window holds focus.
-        /// Required for WinRT Gamepad API to deliver input to this window.
+        /// Activates the WinUI3 window and sets focus on root control.
+        /// SetForegroundWindow is already called from hotkey thread before Show() —
+        /// here we just finalize the WinUI3-level activation.
         /// </summary>
         private void StealFocusWithClick()
         {
             try
             {
-                var hwnd = WindowNative.GetWindowHandle(this);
-
-                // Get the thread that currently owns foreground
-                IntPtr fgHwnd = GetForegroundWindow();
-                uint fgThread = GetWindowThreadProcessId(fgHwnd, out _);
-                uint myThread = GetCurrentThreadId();
-
-                // Attach our input queue to the foreground thread — this makes
-                // SetForegroundWindow work without the foreground lock restriction
-                bool attached = false;
-                if (fgThread != myThread)
-                {
-                    attached = AttachThreadInput(myThread, fgThread, true);
-                }
-
-                try
-                {
-                    SwitchToThisWindow(hwnd, true);
-                    SetForegroundWindow(hwnd);
-                }
-                finally
-                {
-                    if (attached)
-                        AttachThreadInput(myThread, fgThread, false);
-                }
-
-                // Activate the WinUI3 window (triggers Activated event)
+                // Activate WinUI3 window (triggers Activated event)
                 this.Activate();
-
-                Logger.LogInfo("StealFocusWithClick: focus acquired via AttachThreadInput");
+                Logger.LogInfo("StealFocusWithClick: Activate() called");
             }
             catch (Exception ex)
             {

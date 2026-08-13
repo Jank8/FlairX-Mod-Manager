@@ -170,6 +170,19 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogInfo("Global hotkey: Toggle overlay triggered");
                 await Task.CompletedTask;
+
+                // Get overlay HWND before enqueue — if overlay exists and is hidden, use it
+                // If overlay doesn't exist yet, use MainWindow hwnd as fallback
+                var overlayHwnd = _mainWindow.OverlayWindow != null
+                    ? WinRT.Interop.WindowNative.GetWindowHandle(_mainWindow.OverlayWindow)
+                    : _windowHandle;
+
+                // Call SetForegroundWindow HERE, on this thread, before TryEnqueue.
+                // This thread received WM_HOTKEY so Windows gives us "foreground love" —
+                // SetForegroundWindow works without foreground lock restriction.
+                ForceOverlayForegroundFromHotkeyThread(overlayHwnd);
+
+                // Now show the overlay on UI thread
                 _mainWindow.DispatcherQueue.TryEnqueue(() => _mainWindow.ToggleOverlayWindow());
             };
 
@@ -374,7 +387,51 @@ namespace FlairX_Mod_Manager
             return false;
         }
 
-        public void UnregisterAllHotkeys()
+        // Win32 P/Invoke for foreground activation from hotkey handler
+        [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
+        [DllImport("user32.dll")] private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+        [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+        [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
+        [DllImport("kernel32.dll")] private static extern uint GetCurrentThreadId();
+        [DllImport("user32.dll")] private static extern bool BringWindowToTop(IntPtr hWnd);
+
+        /// <summary>
+        /// Called from WM_HOTKEY handler — this thread has "foreground love" from the hotkey event.
+        /// SetForegroundWindow works here without foreground lock restrictions.
+        /// Must be called BEFORE DispatcherQueue.TryEnqueue.
+        /// </summary>
+        private void ForceOverlayForegroundFromHotkeyThread(IntPtr overlayHwnd)
+        {
+            if (overlayHwnd == IntPtr.Zero) return;
+            try
+            {
+                IntPtr fgHwnd  = GetForegroundWindow();
+                uint   fgThread = GetWindowThreadProcessId(fgHwnd, out _);
+                uint   myThread = GetCurrentThreadId();
+
+                bool attached = false;
+                if (fgThread != 0 && fgThread != myThread)
+                    attached = AttachThreadInput(myThread, fgThread, true);
+
+                try
+                {
+                    BringWindowToTop(overlayHwnd);
+                    SwitchToThisWindow(overlayHwnd, true);
+                    SetForegroundWindow(overlayHwnd);
+                }
+                finally
+                {
+                    if (attached)
+                        AttachThreadInput(myThread, fgThread, false);
+                }
+                Logger.LogInfo("ForceOverlayForegroundFromHotkeyThread: SetForegroundWindow called with foreground love");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("ForceOverlayForegroundFromHotkeyThread failed", ex);
+            }
+        }
         {
             try
             {
