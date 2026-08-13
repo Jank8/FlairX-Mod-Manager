@@ -258,6 +258,10 @@ namespace FlairX_Mod_Manager
         // Held buttons for combo detection
         private HashSet<string> _heldButtons = new();
 
+        // Timestamp of last overlay show (to debounce gamepad input)
+        private DateTime _lastShowTime = DateTime.MinValue;
+        private const int INPUT_DEBOUNCE_MS = 300;
+
         // Key-repeat state for held navigation buttons
         private string? _repeatButton = null;
         private System.Threading.CancellationTokenSource? _repeatCts = null;
@@ -794,6 +798,14 @@ namespace FlairX_Mod_Manager
                 {
                     // Ignore input if overlay is not visible
                     if (!IsOverlayVisible) return;
+                    
+                    // Debounce input after show to prevent combo buttons from triggering actions
+                    var timeSinceShow = (DateTime.Now - _lastShowTime).TotalMilliseconds;
+                    if (timeSinceShow < INPUT_DEBOUNCE_MS)
+                    {
+                        Logger.LogInfo($"Overlay gamepad input debounced ({timeSinceShow:F0}ms since show)");
+                        return;
+                    }
                     
                     var settings = SettingsManager.Current;
                     var buttonName = e.GetButtonDisplayName();
@@ -2035,6 +2047,9 @@ namespace FlairX_Mod_Manager
             try
             {
                 Logger.LogInfo("OverlayWindow.Show: Starting");
+                
+                // Record show time for input debouncing
+                _lastShowTime = DateTime.Now;
                 
                 // Set opacity to 0 BEFORE showing window (prevents black flash on first show)
                 if (MainRoot != null)
