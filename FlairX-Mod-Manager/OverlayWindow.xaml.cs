@@ -217,6 +217,8 @@ namespace FlairX_Mod_Manager
         // Win32 focus APIs — gives overlay the same focus as a mouse click would
         [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
         [DllImport("user32.dll")] private static extern IntPtr SetFocus(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
+        [DllImport("user32.dll")] private static extern bool BringWindowToTop(IntPtr hWnd);
 
 
         public ObservableCollection<OverlayCategoryItem> OverlayCategories { get; } = new();
@@ -2016,14 +2018,18 @@ namespace FlairX_Mod_Manager
                 _appWindow?.Show();
                 Logger.LogInfo("OverlayWindow.Show: Window shown");
                 
-                // Force focus like a mouse click would — prevents game from stealing gamepad input
+                // Small delay to let backdrop render before fading in
+                await Task.Delay(50);
+
+                // Force focus — WinRT Gamepad API respects window focus,
+                // so stealing focus stops the game from receiving gamepad input.
+                // Must happen AFTER the window is fully rendered (after delay).
                 var hwnd = WindowNative.GetWindowHandle(this);
+                BringWindowToTop(hwnd);
+                SwitchToThisWindow(hwnd, true); // fAltTab=true simulates Alt+Tab focus switch
                 SetForegroundWindow(hwnd);
                 SetFocus(hwnd);
                 Logger.LogInfo("OverlayWindow.Show: Focus acquired");
-                
-                // Small delay to let backdrop render before fading in
-                await Task.Delay(50);
 
                 // Fade in the content
                 if (MainRoot != null)
