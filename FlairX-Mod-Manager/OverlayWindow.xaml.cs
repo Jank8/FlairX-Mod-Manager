@@ -14,6 +14,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -213,6 +214,14 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public sealed partial class OverlayWindow : Window
     {
+        // Win32 P/Invoke for focus and simulated click
+        [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
+        [DllImport("user32.dll")] private static extern bool SetCursorPos(int x, int y);
+        [DllImport("user32.dll")] private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, int dwExtraInfo);
+        private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
+        private const uint MOUSEEVENTF_LEFTUP   = 0x0004;
+
         public ObservableCollection<OverlayCategoryItem> OverlayCategories { get; } = new();
         public ObservableCollection<OverlayModItem> OverlayMods { get; } = new();
         
@@ -416,10 +425,41 @@ namespace FlairX_Mod_Manager
             }
         }
 
+        /// <summary>
+        /// Steals focus from the game by simulating a mouse click in the center of the overlay.
+        /// Required for WinRT Gamepad API to deliver input to this window instead of the game.
+        /// </summary>
+        private void StealFocusWithClick()
+        {
+            try
+            {
+                var hwnd = WindowNative.GetWindowHandle(this);
+                SwitchToThisWindow(hwnd, true);
+                SetForegroundWindow(hwnd);
+
+                // Get window center position and simulate click there
+                if (_appWindow != null)
+                {
+                    var pos  = _appWindow.Position;
+                    var size = _appWindow.Size;
+                    int cx = pos.X + size.Width  / 2;
+                    int cy = pos.Y + size.Height / 2;
+
+                    SetCursorPos(cx, cy);
+                    mouse_event(MOUSEEVENTF_LEFTDOWN, cx, cy, 0, 0);
+                    mouse_event(MOUSEEVENTF_LEFTUP,   cx, cy, 0, 0);
+                    Logger.LogInfo($"StealFocusWithClick: clicked at ({cx},{cy})");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("StealFocusWithClick failed", ex);
+            }
+        }
+
         private void SaveWindowState()
         {
-            if (_appWindow == null) return;
-            
+            if (_appWindow == null) return;            
             try
             {
                 var settings = SettingsManager.Current;
@@ -2016,6 +2056,10 @@ namespace FlairX_Mod_Manager
                 
                 // Small delay to let backdrop render before fading in
                 await Task.Delay(50);
+
+                // Simulate a mouse click in the center of the overlay to force WinRT focus
+                // WinRT Gamepad only delivers input to the foreground window — this ensures it
+                StealFocusWithClick();
 
                 // Fade in the content
                 if (MainRoot != null)
