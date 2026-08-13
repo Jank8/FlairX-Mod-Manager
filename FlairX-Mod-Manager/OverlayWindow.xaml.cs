@@ -214,13 +214,13 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public sealed partial class OverlayWindow : Window
     {
-        // Win32 P/Invoke for focus and simulated click
+        // Win32 P/Invoke for focus stealing
         [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
         [DllImport("user32.dll")] private static extern void SwitchToThisWindow(IntPtr hWnd, bool fAltTab);
-        [DllImport("user32.dll")] private static extern bool SetCursorPos(int x, int y);
-        [DllImport("user32.dll")] private static extern void mouse_event(uint dwFlags, int dx, int dy, uint dwData, int dwExtraInfo);
-        private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
-        private const uint MOUSEEVENTF_LEFTUP   = 0x0004;
+        [DllImport("user32.dll")] private static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+        [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+        [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
+        [DllImport("kernel32.dll")] private static extern uint GetCurrentThreadId();
 
         public ObservableCollection<OverlayCategoryItem> OverlayCategories { get; } = new();
         public ObservableCollection<OverlayModItem> OverlayMods { get; } = new();
@@ -329,6 +329,20 @@ namespace FlairX_Mod_Manager
                 
                 // Handle window closing to clean up resources
                 this.Closed += OverlayWindow_Closed;
+
+                // Set focus on first control when window activates (required for WinRT gamepad)
+                this.Activated += (s, e) =>
+                {
+                    if (e.WindowActivationState != WindowActivationState.Deactivated)
+                    {
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            // Focus the root panel so WinRT gamepad input flows in
+                            if (MainRoot != null)
+                                MainRoot.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
+                        });
+                    }
+                };
                 
                 Logger.LogInfo("OverlayWindow: InitializeGamepad starting");
                 // Use shared gamepad manager from MainWindow (avoids dual XInput polling conflict)
@@ -426,30 +440,45 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
-        /// Steals focus from the game by simulating a mouse click in the center of the overlay.
-        /// Required for WinRT Gamepad API to deliver input to this window instead of the game.
+        /// Steals focus from the game using AttachThreadInput trick + Activate.
+        /// AttachThreadInput connects our thread's input queue to the foreground thread,
+        /// making SetForegroundWindow work even when another window holds focus.
+        /// Required for WinRT Gamepad API to deliver input to this window.
         /// </summary>
         private void StealFocusWithClick()
         {
             try
             {
                 var hwnd = WindowNative.GetWindowHandle(this);
-                SwitchToThisWindow(hwnd, true);
-                SetForegroundWindow(hwnd);
 
-                // Get window center position and simulate click there
-                if (_appWindow != null)
+                // Get the thread that currently owns foreground
+                IntPtr fgHwnd = GetForegroundWindow();
+                uint fgThread = GetWindowThreadProcessId(fgHwnd, out _);
+                uint myThread = GetCurrentThreadId();
+
+                // Attach our input queue to the foreground thread — this makes
+                // SetForegroundWindow work without the foreground lock restriction
+                bool attached = false;
+                if (fgThread != myThread)
                 {
-                    var pos  = _appWindow.Position;
-                    var size = _appWindow.Size;
-                    int cx = pos.X + size.Width  / 2;
-                    int cy = pos.Y + size.Height / 2;
-
-                    SetCursorPos(cx, cy);
-                    mouse_event(MOUSEEVENTF_LEFTDOWN, cx, cy, 0, 0);
-                    mouse_event(MOUSEEVENTF_LEFTUP,   cx, cy, 0, 0);
-                    Logger.LogInfo($"StealFocusWithClick: clicked at ({cx},{cy})");
+                    attached = AttachThreadInput(myThread, fgThread, true);
                 }
+
+                try
+                {
+                    SwitchToThisWindow(hwnd, true);
+                    SetForegroundWindow(hwnd);
+                }
+                finally
+                {
+                    if (attached)
+                        AttachThreadInput(myThread, fgThread, false);
+                }
+
+                // Activate the WinUI3 window (triggers Activated event)
+                this.Activate();
+
+                Logger.LogInfo("StealFocusWithClick: focus acquired via AttachThreadInput");
             }
             catch (Exception ex)
             {
