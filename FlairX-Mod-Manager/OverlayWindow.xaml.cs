@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -213,6 +214,10 @@ namespace FlairX_Mod_Manager
     /// </summary>
     public sealed partial class OverlayWindow : Window
     {
+        // Win32 focus APIs — gives overlay the same focus as a mouse click would
+        [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern IntPtr SetFocus(IntPtr hWnd);
+
 
         public ObservableCollection<OverlayCategoryItem> OverlayCategories { get; } = new();
         public ObservableCollection<OverlayModItem> OverlayMods { get; } = new();
@@ -2010,6 +2015,12 @@ namespace FlairX_Mod_Manager
                 
                 _appWindow?.Show();
                 Logger.LogInfo("OverlayWindow.Show: Window shown");
+                
+                // Force focus like a mouse click would — prevents game from stealing gamepad input
+                var hwnd = WindowNative.GetWindowHandle(this);
+                SetForegroundWindow(hwnd);
+                SetFocus(hwnd);
+                Logger.LogInfo("OverlayWindow.Show: Focus acquired");
                 
                 // Small delay to let backdrop render before fading in
                 await Task.Delay(50);
