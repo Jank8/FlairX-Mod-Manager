@@ -229,8 +229,9 @@ namespace FlairX_Mod_Manager
         private MicaController? _micaController;
         private SystemBackdropConfiguration? _configurationSource;
         
-        // Gamepad support
+        // Gamepad support — shared instance from MainWindow (not owned here)
         private GamepadManager? _gamepadManager;
+        private bool _ownsGamepadManager = false;
         
         // Theme change handler reference for cleanup
         private TypedEventHandler<FrameworkElement, object>? _themeChangedHandler;
@@ -322,8 +323,8 @@ namespace FlairX_Mod_Manager
                 this.Closed += OverlayWindow_Closed;
                 
                 Logger.LogInfo("OverlayWindow: InitializeGamepad starting");
-                // Initialize gamepad if enabled
-                InitializeGamepad();
+                // Use shared gamepad manager from MainWindow (avoids dual XInput polling conflict)
+                AttachGamepad(mainWindow.GlobalGamepadManager);
                 Logger.LogInfo("OverlayWindow: Constructor completed successfully");
             }
             catch (Exception ex)
@@ -699,7 +700,7 @@ namespace FlairX_Mod_Manager
 
         #region Gamepad Support
 
-        private void InitializeGamepad()
+        private void AttachGamepad(GamepadManager? sharedManager)
         {
             if (!SettingsManager.Current.GamepadEnabled)
             {
@@ -707,33 +708,48 @@ namespace FlairX_Mod_Manager
                 return;
             }
 
-            try
+            if (sharedManager == null)
             {
-                _gamepadManager = new GamepadManager();
-                _gamepadManager.ButtonPressed += OnGamepadButtonPressed;
-                _gamepadManager.ButtonReleased += OnGamepadButtonReleased;
-                _gamepadManager.LeftThumbstickMoved += OnLeftThumbstickMoved;
-                _gamepadManager.StickMoved += OnGamepadStickMoved;
-                
-                // Subscribe to raw axis events for smooth scrolling
-                _gamepadManager.RawAxisMoved += OnGamepadRawAxisMoved;
-                
-                _gamepadManager.ControllerConnected += (s, e) =>
-                {
-                    Logger.LogInfo("Gamepad connected - overlay navigation enabled");
-                    DispatcherQueue.TryEnqueue(() => _gamepadManager?.Vibrate((ushort)20000, (ushort)20000, 300));
-                };
-                _gamepadManager.ControllerDisconnected += (s, e) =>
-                {
-                    Logger.LogInfo("Gamepad disconnected");
-                };
-                _gamepadManager.StartPolling();
-                Logger.LogInfo("Gamepad manager initialized for overlay");
+                Logger.LogInfo("No shared gamepad manager available");
+                return;
             }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to initialize gamepad for overlay", ex);
-            }
+
+            _gamepadManager = sharedManager;
+            _ownsGamepadManager = false; // MainWindow owns it, we just subscribe
+
+            _gamepadManager.ButtonPressed += OnGamepadButtonPressed;
+            _gamepadManager.ButtonReleased += OnGamepadButtonReleased;
+            _gamepadManager.LeftThumbstickMoved += OnLeftThumbstickMoved;
+            _gamepadManager.StickMoved += OnGamepadStickMoved;
+            _gamepadManager.RawAxisMoved += OnGamepadRawAxisMoved;
+
+            Logger.LogInfo("Gamepad attached to overlay (shared XInput instance)");
+        }
+
+        /// <summary>
+        /// Called from MainWindow when gamepad settings change — re-attach to new instance.
+        /// </summary>
+        public void RefreshGamepad(GamepadManager? sharedManager)
+        {
+            DetachGamepad();
+            AttachGamepad(sharedManager);
+        }
+
+        private void DetachGamepad()
+        {
+            if (_gamepadManager == null) return;
+
+            _gamepadManager.ButtonPressed -= OnGamepadButtonPressed;
+            _gamepadManager.ButtonReleased -= OnGamepadButtonReleased;
+            _gamepadManager.LeftThumbstickMoved -= OnLeftThumbstickMoved;
+            _gamepadManager.StickMoved -= OnGamepadStickMoved;
+            _gamepadManager.RawAxisMoved -= OnGamepadRawAxisMoved;
+
+            // Only dispose if we own it (we never do in current design)
+            if (_ownsGamepadManager)
+                _gamepadManager.Dispose();
+
+            _gamepadManager = null;
         }
 
         private void OnGamepadButtonPressed(object? sender, GamepadButtonEventArgs e)
@@ -2093,18 +2109,9 @@ namespace FlairX_Mod_Manager
                 _hideTimer?.Stop();
                 _hideTimer = null;
                 
-                // Clean up gamepad
+                // Clean up gamepad (detach only — MainWindow owns the instance)
                 StopRepeat();
-                if (_gamepadManager != null)
-                {
-                    _gamepadManager.ButtonPressed -= OnGamepadButtonPressed;
-                    _gamepadManager.ButtonReleased -= OnGamepadButtonReleased;
-                    _gamepadManager.LeftThumbstickMoved -= OnLeftThumbstickMoved;
-                    _gamepadManager.StickMoved -= OnGamepadStickMoved;
-                    _gamepadManager.RawAxisMoved -= OnGamepadRawAxisMoved;
-                    _gamepadManager.Dispose();
-                    _gamepadManager = null;
-                }
+                DetachGamepad();
                 
                 // Clean up backdrop controllers
                 if (_acrylicController != null)

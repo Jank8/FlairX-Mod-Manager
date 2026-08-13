@@ -1,14 +1,78 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using SDL;
 
 namespace FlairX_Mod_Manager
 {
-    /// <summary>
-    /// Controller type detected by SDL3
-    /// </summary>
+    // ============================================================
+    // XInput P/Invoke definitions
+    // ============================================================
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct XINPUT_GAMEPAD
+    {
+        public ushort wButtons;
+        public byte bLeftTrigger;
+        public byte bRightTrigger;
+        public short sThumbLX;
+        public short sThumbLY;
+        public short sThumbRX;
+        public short sThumbRY;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct XINPUT_STATE
+    {
+        public uint dwPacketNumber;
+        public XINPUT_GAMEPAD Gamepad;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct XINPUT_VIBRATION
+    {
+        public ushort wLeftMotorSpeed;
+        public ushort wRightMotorSpeed;
+    }
+
+    internal static class XInput
+    {
+        // XInput button bitmasks
+        public const ushort XINPUT_GAMEPAD_DPAD_UP        = 0x0001;
+        public const ushort XINPUT_GAMEPAD_DPAD_DOWN      = 0x0002;
+        public const ushort XINPUT_GAMEPAD_DPAD_LEFT      = 0x0004;
+        public const ushort XINPUT_GAMEPAD_DPAD_RIGHT     = 0x0008;
+        public const ushort XINPUT_GAMEPAD_START          = 0x0010;
+        public const ushort XINPUT_GAMEPAD_BACK           = 0x0020;
+        public const ushort XINPUT_GAMEPAD_LEFT_THUMB     = 0x0040;
+        public const ushort XINPUT_GAMEPAD_RIGHT_THUMB    = 0x0080;
+        public const ushort XINPUT_GAMEPAD_LEFT_SHOULDER  = 0x0100;
+        public const ushort XINPUT_GAMEPAD_RIGHT_SHOULDER = 0x0200;
+        public const ushort XINPUT_GAMEPAD_A              = 0x1000;
+        public const ushort XINPUT_GAMEPAD_B              = 0x2000;
+        public const ushort XINPUT_GAMEPAD_X              = 0x4000;
+        public const ushort XINPUT_GAMEPAD_Y              = 0x8000;
+
+        public const int ERROR_SUCCESS       = 0;
+        public const int ERROR_DEVICE_NOT_CONNECTED = 1167;
+
+        // Trigger threshold: XInput triggers are 0-255, ~30% threshold
+        public const byte TRIGGER_THRESHOLD = 75;
+
+        // Stick deadzone (same as XInput default: 7849 for left, 8689 for right)
+        public const short STICK_DEADZONE = 8000;
+
+        [DllImport("xinput1_4.dll", EntryPoint = "XInputGetState")]
+        public static extern int GetState(int dwUserIndex, out XINPUT_STATE pState);
+
+        [DllImport("xinput1_4.dll", EntryPoint = "XInputSetState")]
+        public static extern int SetState(int dwUserIndex, ref XINPUT_VIBRATION pVibration);
+    }
+
+    // ============================================================
+    // Controller type enum (kept for compat with existing code)
+    // ============================================================
     public enum ControllerType
     {
         Unknown,
@@ -27,60 +91,147 @@ namespace FlairX_Mod_Manager
         Generic
     }
 
+    // ============================================================
+    // Event Args (kept for full backward compat)
+    // ============================================================
+
+    public class SDL3ButtonEventArgs : EventArgs
+    {
+        public string DisplayName { get; }
+        public SDL3ButtonEventArgs(string displayName) { DisplayName = displayName; }
+    }
+
+    public class SDL3AxisEventArgs : EventArgs
+    {
+        public int Direction { get; } // 1=Up, 2=Down, 3=Left, 4=Right
+        public string DisplayName { get; }
+        public bool IsLeftStick { get; }
+        public SDL3AxisEventArgs(int direction, string displayName, bool isLeftStick)
+        {
+            Direction = direction; DisplayName = displayName; IsLeftStick = isLeftStick;
+        }
+        public bool IsUp    => Direction == 1;
+        public bool IsDown  => Direction == 2;
+        public bool IsLeft  => Direction == 3;
+        public bool IsRight => Direction == 4;
+    }
+
+    public class SDL3ControllerEventArgs : EventArgs
+    {
+        public string ControllerName { get; }
+        public ControllerType ControllerType { get; }
+        public SDL3ControllerEventArgs(string name, ControllerType type)
+        {
+            ControllerName = name; ControllerType = type;
+        }
+    }
+
+    public class ThumbstickEventArgs : EventArgs
+    {
+        public int Direction { get; }
+        public ThumbstickEventArgs(int direction) { Direction = direction; }
+        public bool IsUp    => Direction == 1;
+        public bool IsDown  => Direction == 2;
+        public bool IsLeft  => Direction == 3;
+        public bool IsRight => Direction == 4;
+    }
+
+    public class GamepadButtonEventArgs : EventArgs
+    {
+        public string DisplayName { get; }
+        public GamepadButtonEventArgs(string displayName) { DisplayName = displayName; }
+        public string GetButtonDisplayName() => DisplayName;
+    }
+
+    public class SDL3RawAxisEventArgs : EventArgs
+    {
+        public short LeftX  { get; }
+        public short LeftY  { get; }
+        public short RightX { get; }
+        public short RightY { get; }
+        public short LeftTrigger  { get; }
+        public short RightTrigger { get; }
+
+        public SDL3RawAxisEventArgs(short lx, short ly, short rx, short ry, short lt, short rt)
+        {
+            LeftX = lx; LeftY = ly; RightX = rx; RightY = ry; LeftTrigger = lt; RightTrigger = rt;
+        }
+
+        public float GetNormalizedRightY() => RightY / 32767.0f;
+        public float GetNormalizedRightX() => RightX / 32767.0f;
+    }
+
+    // ============================================================
+    // XInput-based gamepad manager (replaces SDL3)
+    // Single instance shared between MainWindow and OverlayWindow
+    // ============================================================
+
     /// <summary>
-    /// Manager for gamepad input using SDL3 - supports Xbox, PlayStation, Nintendo, Steam Deck and more
+    /// Gamepad manager using pure XInput (xinput1_4.dll P/Invoke).
+    /// No external dependencies. Xbox controllers only.
+    /// Single shared instance — MainWindow owns it, OverlayWindow borrows it.
     /// </summary>
     public class SDL3GamepadManager : IDisposable
     {
         #region Events
 
-        public event EventHandler<SDL3ButtonEventArgs>? ButtonPressed;
-        public event EventHandler<SDL3ButtonEventArgs>? ButtonReleased;
-        public event EventHandler<SDL3AxisEventArgs>? AxisMoved;
+        public event EventHandler<SDL3ButtonEventArgs>?    ButtonPressed;
+        public event EventHandler<SDL3ButtonEventArgs>?    ButtonReleased;
+        public event EventHandler<SDL3AxisEventArgs>?      AxisMoved;
         public event EventHandler<SDL3ControllerEventArgs>? ControllerConnected;
         public event EventHandler<SDL3ControllerEventArgs>? ControllerDisconnected;
-
-        /// <summary>
-        /// Event for raw axis values - fires continuously while axis is moved
-        /// </summary>
-        public event EventHandler<SDL3RawAxisEventArgs>? RawAxisMoved;
-
-        /// <summary>
-        /// Compatibility event for old GamepadManager API - fires when left thumbstick moves
-        /// </summary>
-        public event EventHandler<ThumbstickEventArgs>? LeftThumbstickMoved;
+        public event EventHandler<SDL3RawAxisEventArgs>?   RawAxisMoved;
+        public event EventHandler<ThumbstickEventArgs>?    LeftThumbstickMoved;
 
         #endregion
 
         #region Fields
 
-        private unsafe SDL_Gamepad* _gamepad = null;
-        private SDL_JoystickID _joystickId;
+        private int  _userIndex = -1;          // XInput player index (0-3), -1 = none connected
+        private bool _wasConnected = false;
+        private bool _disposed = false;
+
         private CancellationTokenSource? _pollCts;
         private Task? _pollTask;
-        private bool _disposed;
-        private bool _sdlInitialized;
-        private ControllerType _controllerType = ControllerType.Unknown;
-        private string _controllerName = "";
 
-        private readonly Dictionary<SDL_GamepadButton, bool> _buttonStates = new();
-        private readonly Dictionary<SDL_GamepadAxis, short> _axisStates = new();
+        private int _pollIntervalMs = 16; // ~60 fps polling
 
-        private const short AXIS_DEADZONE = 8000;
-        private const short TRIGGER_THRESHOLD = 8000;
-        private int _pollIntervalMs = 16;
+        // Button state tracking
+        private ushort _prevButtons  = 0;
+        private bool   _prevLT       = false;
+        private bool   _prevRT       = false;
 
-        private int _leftStickDirection = 0;
-        private int _rightStickDirection = 0;
+        // Stick direction tracking (discrete)
+        private int _prevLeftDir  = 0;
+        private int _prevRightDir = 0;
+
+        // XInput button → display name map (Xbox layout)
+        private static readonly (ushort Mask, string Name)[] ButtonNames =
+        {
+            (XInput.XINPUT_GAMEPAD_A,              "XB A"),
+            (XInput.XINPUT_GAMEPAD_B,              "XB B"),
+            (XInput.XINPUT_GAMEPAD_X,              "XB X"),
+            (XInput.XINPUT_GAMEPAD_Y,              "XB Y"),
+            (XInput.XINPUT_GAMEPAD_LEFT_SHOULDER,  "XB LB"),
+            (XInput.XINPUT_GAMEPAD_RIGHT_SHOULDER, "XB RB"),
+            (XInput.XINPUT_GAMEPAD_START,          "XB Start"),
+            (XInput.XINPUT_GAMEPAD_BACK,           "XB Back"),
+            (XInput.XINPUT_GAMEPAD_LEFT_THUMB,     "XB L CLICK"),
+            (XInput.XINPUT_GAMEPAD_RIGHT_THUMB,    "XB R CLICK"),
+            (XInput.XINPUT_GAMEPAD_DPAD_UP,        "XB ↑"),
+            (XInput.XINPUT_GAMEPAD_DPAD_DOWN,      "XB ↓"),
+            (XInput.XINPUT_GAMEPAD_DPAD_LEFT,      "XB ←"),
+            (XInput.XINPUT_GAMEPAD_DPAD_RIGHT,     "XB →"),
+        };
 
         #endregion
 
         #region Properties
 
-        public unsafe bool IsConnected => _gamepad != null;
-        public bool IsPolling => _pollTask != null && !_pollTask.IsCompleted;
-        public ControllerType ControllerType => _controllerType;
-        public string ControllerName => _controllerName;
+        public bool IsConnected   => _userIndex >= 0;
+        public bool IsPolling     => _pollTask != null && !_pollTask.IsCompleted;
+        public ControllerType ControllerType => ControllerType.Xbox360; // XInput = Xbox
+        public string ControllerName => IsConnected ? $"XInput Controller {_userIndex}" : "Not connected";
 
         public int PollIntervalMs
         {
@@ -92,87 +243,27 @@ namespace FlairX_Mod_Manager
 
         public SDL3GamepadManager()
         {
-            InitializeSDL();
+            // Scan for first connected XInput device
+            ScanForControllers();
         }
 
-        #region Initialization
+        #region Controller scanning
 
-        private unsafe void InitializeSDL()
+        private void ScanForControllers()
         {
-            try
+            for (int i = 0; i < 4; i++)
             {
-                if (!SDL3.SDL_Init(SDL_InitFlags.SDL_INIT_GAMEPAD | SDL_InitFlags.SDL_INIT_JOYSTICK))
+                int result = XInput.GetState(i, out _);
+                if (result == XInput.ERROR_SUCCESS)
                 {
-                    Logger.LogError($"SDL3 initialization failed: {SDL3.SDL_GetError()}");
+                    _userIndex = i;
+                    _wasConnected = true;
+                    Logger.LogInfo($"XInput controller found at index {i}");
+                    ControllerConnected?.Invoke(this, new SDL3ControllerEventArgs(ControllerName, ControllerType.Xbox360));
                     return;
                 }
-
-                _sdlInitialized = true;
-                Logger.LogInfo("SDL3 initialized successfully");
-
-                TryConnectGamepad();
             }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to initialize SDL3", ex);
-            }
-        }
-
-        private unsafe void TryConnectGamepad()
-        {
-            int count;
-            SDL_JoystickID* joysticks = SDL3.SDL_GetGamepads(&count);
-
-            if (joysticks != null && count > 0)
-            {
-                OpenGamepad(joysticks[0]);
-            }
-
-            if (joysticks != null)
-            {
-                SDL3.SDL_free(joysticks);
-            }
-        }
-
-        private unsafe void OpenGamepad(SDL_JoystickID id)
-        {
-            if (_gamepad != null)
-            {
-                SDL3.SDL_CloseGamepad(_gamepad);
-            }
-
-            _gamepad = SDL3.SDL_OpenGamepad(id);
-
-            if (_gamepad != null)
-            {
-                _joystickId = id;
-                _controllerName = SDL3.SDL_GetGamepadName(_gamepad) ?? "Unknown Controller";
-                _controllerType = DetectControllerType();
-
-                Logger.LogInfo($"Gamepad connected: {_controllerName} (Type: {_controllerType})");
-                ControllerConnected?.Invoke(this, new SDL3ControllerEventArgs(_controllerName, _controllerType));
-            }
-        }
-
-        private unsafe ControllerType DetectControllerType()
-        {
-            if (_gamepad == null) return ControllerType.Unknown;
-
-            var type = SDL3.SDL_GetGamepadType(_gamepad);
-
-            return type switch
-            {
-                SDL_GamepadType.SDL_GAMEPAD_TYPE_XBOX360 => ControllerType.Xbox360,
-                SDL_GamepadType.SDL_GAMEPAD_TYPE_XBOXONE => ControllerType.XboxOne,
-                SDL_GamepadType.SDL_GAMEPAD_TYPE_PS3 => ControllerType.PS3,
-                SDL_GamepadType.SDL_GAMEPAD_TYPE_PS4 => ControllerType.PS4,
-                SDL_GamepadType.SDL_GAMEPAD_TYPE_PS5 => ControllerType.PS5,
-                SDL_GamepadType.SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO => ControllerType.NintendoSwitchPro,
-                SDL_GamepadType.SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT => ControllerType.NintendoSwitchJoyConLeft,
-                SDL_GamepadType.SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT => ControllerType.NintendoSwitchJoyConRight,
-                SDL_GamepadType.SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR => ControllerType.NintendoSwitchJoyConPair,
-                _ => ControllerType.Generic
-            };
+            Logger.LogInfo("No XInput controller found at startup");
         }
 
         #endregion
@@ -181,216 +272,58 @@ namespace FlairX_Mod_Manager
 
         public void StartPolling()
         {
-            if (!_sdlInitialized || IsPolling) return;
-
+            if (IsPolling) return;
             _pollCts = new CancellationTokenSource();
             _pollTask = Task.Run(() => PollLoop(_pollCts.Token));
-            Logger.LogInfo("SDL3 gamepad polling started");
+            Logger.LogInfo("XInput gamepad polling started");
         }
 
         public void StopPolling()
         {
             if (!IsPolling) return;
-
             _pollCts?.Cancel();
             try { _pollTask?.Wait(500); } catch (AggregateException) { }
-
             _pollCts?.Dispose();
-            _pollCts = null;
+            _pollCts  = null;
             _pollTask = null;
-            Logger.LogInfo("SDL3 gamepad polling stopped");
+            Logger.LogInfo("XInput gamepad polling stopped");
         }
 
-        public unsafe void Rumble(ushort lowFrequency, ushort highFrequency, uint durationMs = 200)
-        {
-            if (_gamepad == null) return;
-            SDL3.SDL_RumbleGamepad(_gamepad, lowFrequency, highFrequency, durationMs);
-        }
-
-        /// <summary>
-        /// Compatibility method for old GamepadManager API
-        /// </summary>
         public void Vibrate(ushort leftMotor, ushort rightMotor, int durationMs = 200)
         {
-            Rumble(leftMotor, rightMotor, (uint)durationMs);
-        }
-
-        /// <summary>
-        /// Compatibility method for old GamepadManager API
-        /// </summary>
-        public bool CheckConnection()
-        {
-            return IsConnected;
-        }
-
-        public string GetButtonDisplayName(SDL_GamepadButton button)
-        {
-            return _controllerType switch
+            if (_userIndex < 0) return;
+            try
             {
-                ControllerType.PS3 or ControllerType.PS4 or ControllerType.PS5 => GetPlayStationButtonName(button),
-                ControllerType.NintendoSwitchPro or ControllerType.NintendoSwitchJoyConLeft or
-                ControllerType.NintendoSwitchJoyConRight or ControllerType.NintendoSwitchJoyConPair => GetNintendoButtonName(button),
-                ControllerType.SteamDeck => GetSteamDeckButtonName(button),
-                _ => GetXboxButtonName(button)
-            };
+                var vib = new XINPUT_VIBRATION { wLeftMotorSpeed = leftMotor, wRightMotorSpeed = rightMotor };
+                XInput.SetState(_userIndex, ref vib);
+
+                if (durationMs > 0)
+                {
+                    // Stop vibration after duration
+                    _ = Task.Run(async () =>
+                    {
+                        await Task.Delay(durationMs);
+                        var stop = new XINPUT_VIBRATION { wLeftMotorSpeed = 0, wRightMotorSpeed = 0 };
+                        try { XInput.SetState(_userIndex, ref stop); } catch { }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("XInput vibration failed", ex);
+            }
         }
+
+        public void Rumble(ushort lowFrequency, ushort highFrequency, uint durationMs = 200)
+            => Vibrate(lowFrequency, highFrequency, (int)durationMs);
+
+        public bool CheckConnection() => IsConnected;
+
+        public string GetButtonDisplayName(string buttonName) => buttonName;
 
         #endregion
 
-        #region Button Name Mappings
-
-        private static string GetXboxButtonName(SDL_GamepadButton button)
-        {
-            return button switch
-            {
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_SOUTH => "XB A",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_EAST => "XB B",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_WEST => "XB X",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_NORTH => "XB Y",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_BACK => "XB Back",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_GUIDE => "XB Home",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_START => "XB Start",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_STICK => "XB L CLICK",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_STICK => "XB R CLICK",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_SHOULDER => "XB LB",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER => "XB RB",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_UP => "XB ↑",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_DOWN => "XB ↓",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_LEFT => "XB ←",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_RIGHT => "XB →",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_MISC1 => "XB Share",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE1 => "XB P1",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE2 => "XB P2",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1 => "XB P3",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2 => "XB P4",
-                _ => button.ToString()
-            };
-        }
-
-        private static string GetPlayStationButtonName(SDL_GamepadButton button)
-        {
-            return button switch
-            {
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_SOUTH => "PS ×",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_EAST => "PS ○",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_WEST => "PS □",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_NORTH => "PS △",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_BACK => "PS Share",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_GUIDE => "PS Home",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_START => "PS Options",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_STICK => "PS L CLICK",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_STICK => "PS R CLICK",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_SHOULDER => "PS L1",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER => "PS R1",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_UP => "PS ↑",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_DOWN => "PS ↓",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_LEFT => "PS ←",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_RIGHT => "PS →",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_TOUCHPAD => "PS Touchpad",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_MISC1 => "PS5 Mute",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_MISC2 => "PS Misc2",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_MISC3 => "PS Misc3",
-                _ => button.ToString()
-            };
-        }
-
-        private static string GetNintendoButtonName(SDL_GamepadButton button)
-        {
-            return button switch
-            {
-                // Nintendo has A/B and X/Y swapped compared to Xbox
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_SOUTH => "NIN B",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_EAST => "NIN A",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_WEST => "NIN Y",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_NORTH => "NIN X",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_BACK => "NIN -",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_GUIDE => "NIN Home",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_START => "NIN +",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_STICK => "NIN L CLICK",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_STICK => "NIN R CLICK",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_SHOULDER => "NIN L",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER => "NIN R",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_UP => "NIN ↑",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_DOWN => "NIN ↓",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_LEFT => "NIN ←",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_RIGHT => "NIN →",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_MISC1 => "NIN Capture",
-                _ => button.ToString()
-            };
-        }
-
-        private static string GetSteamDeckButtonName(SDL_GamepadButton button)
-        {
-            return button switch
-            {
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_SOUTH => "SD A",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_EAST => "SD B",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_WEST => "SD X",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_NORTH => "SD Y",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_BACK => "SD View",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_GUIDE => "SD Guide",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_START => "SD Options",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_STICK => "SD L CLICK",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_STICK => "SD R CLICK",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_SHOULDER => "SD L1",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER => "SD R1",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_UP => "SD ↑",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_DOWN => "SD ↓",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_LEFT => "SD ←",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_DPAD_RIGHT => "SD →",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_MISC1 => "SD Quick",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE1 => "SD L4",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_LEFT_PADDLE2 => "SD L5",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1 => "SD R4",
-                SDL_GamepadButton.SDL_GAMEPAD_BUTTON_RIGHT_PADDLE2 => "SD R5",
-                _ => button.ToString()
-            };
-        }
-
-        public string GetAxisDisplayName(SDL_GamepadAxis axis, bool positive)
-        {
-            string prefix = _controllerType switch
-            {
-                ControllerType.PS3 or ControllerType.PS4 or ControllerType.PS5 => "PS",
-                ControllerType.NintendoSwitchPro or ControllerType.NintendoSwitchJoyConLeft or
-                ControllerType.NintendoSwitchJoyConRight or ControllerType.NintendoSwitchJoyConPair => "NIN",
-                ControllerType.SteamDeck => "SD",
-                _ => "XB"
-            };
-
-            // Trigger names vary by controller type
-            string leftTrigger = _controllerType switch
-            {
-                ControllerType.PS3 or ControllerType.PS4 or ControllerType.PS5 => "L2",
-                ControllerType.NintendoSwitchPro or ControllerType.NintendoSwitchJoyConLeft or
-                ControllerType.NintendoSwitchJoyConRight or ControllerType.NintendoSwitchJoyConPair => "ZL",
-                ControllerType.SteamDeck => "L2",
-                _ => "LT"
-            };
-            string rightTrigger = _controllerType switch
-            {
-                ControllerType.PS3 or ControllerType.PS4 or ControllerType.PS5 => "R2",
-                ControllerType.NintendoSwitchPro or ControllerType.NintendoSwitchJoyConLeft or
-                ControllerType.NintendoSwitchJoyConRight or ControllerType.NintendoSwitchJoyConPair => "ZR",
-                ControllerType.SteamDeck => "R2",
-                _ => "RT"
-            };
-
-            return axis switch
-            {
-                SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFTX => positive ? $"{prefix} L→" : $"{prefix} L←",
-                SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFTY => positive ? $"{prefix} L↓" : $"{prefix} L↑",
-                SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHTX => positive ? $"{prefix} R→" : $"{prefix} R←",
-                SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHTY => positive ? $"{prefix} R↓" : $"{prefix} R↑",
-                SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFT_TRIGGER => $"{prefix} {leftTrigger}",
-                SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHT_TRIGGER => $"{prefix} {rightTrigger}",
-                _ => axis.ToString()
-            };
-        }
-
-        #endregion
-
-        #region Polling
+        #region Poll loop
 
         private async Task PollLoop(CancellationToken ct)
         {
@@ -398,334 +331,177 @@ namespace FlairX_Mod_Manager
             {
                 try
                 {
-                    ProcessEvents();
-
-                    unsafe
-                    {
-                        if (_gamepad != null)
-                        {
-                            PollGamepadState();
-                        }
-                    }
-
+                    PollState();
                     await Task.Delay(_pollIntervalMs, ct);
                 }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
+                catch (OperationCanceledException) { break; }
                 catch (Exception ex)
                 {
-                    Logger.LogError("Error in SDL3 gamepad poll loop", ex);
+                    Logger.LogError("XInput poll loop error", ex);
                     await Task.Delay(1000, ct);
                 }
             }
         }
 
-        private unsafe void ProcessEvents()
+        private void PollState()
         {
-            SDL_Event e;
-            while (SDL3.SDL_PollEvent(&e))
+            // If no controller known, scan periodically (every ~2s at 16ms interval = ~125 polls)
+            if (_userIndex < 0)
             {
-                if (e.type == (uint)SDL_EventType.SDL_EVENT_GAMEPAD_ADDED)
-                {
-                    if (_gamepad == null)
-                    {
-                        OpenGamepad(e.gdevice.which);
-                    }
-                }
-                else if (e.type == (uint)SDL_EventType.SDL_EVENT_GAMEPAD_REMOVED)
-                {
-                    if (_gamepad != null)
-                    {
-                        var removedName = _controllerName;
-                        var removedType = _controllerType;
-
-                        SDL3.SDL_CloseGamepad(_gamepad);
-                        _gamepad = null;
-                        _controllerName = "";
-                        _controllerType = ControllerType.Unknown;
-
-                        Logger.LogInfo($"Controller disconnected: {removedName}");
-                        ControllerDisconnected?.Invoke(this, new SDL3ControllerEventArgs(removedName, removedType));
-
-                        TryConnectGamepad();
-                    }
-                }
+                ScanForControllers();
+                return;
             }
+
+            int result = XInput.GetState(_userIndex, out XINPUT_STATE state);
+
+            if (result == XInput.ERROR_DEVICE_NOT_CONNECTED)
+            {
+                if (_wasConnected)
+                {
+                    _wasConnected = false;
+                    var oldName = ControllerName;
+                    _userIndex = -1;
+                    Logger.LogInfo($"XInput controller disconnected");
+                    ControllerDisconnected?.Invoke(this, new SDL3ControllerEventArgs(oldName, ControllerType.Xbox360));
+                    // Reset states
+                    _prevButtons = 0;
+                    _prevLT = false; _prevRT = false;
+                    _prevLeftDir = 0; _prevRightDir = 0;
+                }
+                return;
+            }
+
+            if (result != XInput.ERROR_SUCCESS) return;
+
+            if (!_wasConnected)
+            {
+                _wasConnected = true;
+                Logger.LogInfo($"XInput controller reconnected at index {_userIndex}");
+                ControllerConnected?.Invoke(this, new SDL3ControllerEventArgs(ControllerName, ControllerType.Xbox360));
+            }
+
+            var gp = state.Gamepad;
+
+            // --- Buttons ---
+            ushort curr = gp.wButtons;
+            ushort prev = _prevButtons;
+
+            foreach (var (mask, name) in ButtonNames)
+            {
+                bool isNow  = (curr & mask) != 0;
+                bool wasPrev = (prev & mask) != 0;
+
+                if (isNow && !wasPrev)
+                    ButtonPressed?.Invoke(this, new SDL3ButtonEventArgs(name));
+                else if (!isNow && wasPrev)
+                    ButtonReleased?.Invoke(this, new SDL3ButtonEventArgs(name));
+            }
+            _prevButtons = curr;
+
+            // --- Triggers (treated as buttons with threshold) ---
+            bool ltNow = gp.bLeftTrigger  > XInput.TRIGGER_THRESHOLD;
+            bool rtNow = gp.bRightTrigger > XInput.TRIGGER_THRESHOLD;
+
+            if (ltNow && !_prevLT) ButtonPressed?.Invoke(this,  new SDL3ButtonEventArgs("XB LT"));
+            else if (!ltNow && _prevLT) ButtonReleased?.Invoke(this, new SDL3ButtonEventArgs("XB LT"));
+            if (rtNow && !_prevRT) ButtonPressed?.Invoke(this,  new SDL3ButtonEventArgs("XB RT"));
+            else if (!rtNow && _prevRT) ButtonReleased?.Invoke(this, new SDL3ButtonEventArgs("XB RT"));
+            _prevLT = ltNow;
+            _prevRT = rtNow;
+
+            // --- Left stick (discrete navigation) ---
+            int leftDir = GetStickDirection(gp.sThumbLX, gp.sThumbLY);
+            if (leftDir != _prevLeftDir)
+            {
+                if (leftDir != 0)
+                {
+                    string name = GetStickDirectionName("L", leftDir);
+                    AxisMoved?.Invoke(this, new SDL3AxisEventArgs(leftDir, name, isLeftStick: true));
+                    LeftThumbstickMoved?.Invoke(this, new ThumbstickEventArgs(leftDir));
+                }
+                _prevLeftDir = leftDir;
+            }
+
+            // --- Right stick (discrete navigation) ---
+            int rightDir = GetStickDirection(gp.sThumbRX, gp.sThumbRY);
+            if (rightDir != _prevRightDir)
+            {
+                if (rightDir != 0)
+                {
+                    string name = GetStickDirectionName("R", rightDir);
+                    AxisMoved?.Invoke(this, new SDL3AxisEventArgs(rightDir, name, isLeftStick: false));
+                }
+                _prevRightDir = rightDir;
+            }
+
+            // --- Raw axis event (for smooth scrolling) ---
+            short lt16 = (short)(gp.bLeftTrigger  * 128);
+            short rt16 = (short)(gp.bRightTrigger * 128);
+            RawAxisMoved?.Invoke(this, new SDL3RawAxisEventArgs(
+                gp.sThumbLX, gp.sThumbLY,
+                gp.sThumbRX, gp.sThumbRY,
+                lt16, rt16));
         }
 
-        private unsafe void PollGamepadState()
+        private static int GetStickDirection(short x, short y)
         {
-            // Poll buttons
-            foreach (SDL_GamepadButton button in Enum.GetValues(typeof(SDL_GamepadButton)))
-            {
-                if (button == SDL_GamepadButton.SDL_GAMEPAD_BUTTON_INVALID ||
-                    button == SDL_GamepadButton.SDL_GAMEPAD_BUTTON_COUNT)
-                    continue;
-
-                bool isPressed = SDL3.SDL_GetGamepadButton(_gamepad, button);
-                bool wasPressed = _buttonStates.TryGetValue(button, out var prev) && prev;
-
-                if (isPressed && !wasPressed)
-                {
-                    ButtonPressed?.Invoke(this, new SDL3ButtonEventArgs(button, GetButtonDisplayName(button)));
-                }
-                else if (!isPressed && wasPressed)
-                {
-                    ButtonReleased?.Invoke(this, new SDL3ButtonEventArgs(button, GetButtonDisplayName(button)));
-                }
-
-                _buttonStates[button] = isPressed;
-            }
-
-            // Poll triggers
-            var leftTrigger = SDL3.SDL_GetGamepadAxis(_gamepad, SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFT_TRIGGER);
-            var rightTrigger = SDL3.SDL_GetGamepadAxis(_gamepad, SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHT_TRIGGER);
-
-            CheckTrigger(SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFT_TRIGGER, leftTrigger);
-            CheckTrigger(SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHT_TRIGGER, rightTrigger);
-
-            // Poll thumbsticks for discrete navigation
-            var leftX = SDL3.SDL_GetGamepadAxis(_gamepad, SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFTX);
-            var leftY = SDL3.SDL_GetGamepadAxis(_gamepad, SDL_GamepadAxis.SDL_GAMEPAD_AXIS_LEFTY);
-            CheckThumbstickDirection(leftX, leftY, ref _leftStickDirection, true);
-
-            var rightX = SDL3.SDL_GetGamepadAxis(_gamepad, SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHTX);
-            var rightY = SDL3.SDL_GetGamepadAxis(_gamepad, SDL_GamepadAxis.SDL_GAMEPAD_AXIS_RIGHTY);
-            CheckThumbstickDirection(rightX, rightY, ref _rightStickDirection, false);
-
-            // Fire raw axis event for continuous input
-            RawAxisMoved?.Invoke(this, new SDL3RawAxisEventArgs(leftX, leftY, rightX, rightY, leftTrigger, rightTrigger));
+            if (y >  XInput.STICK_DEADZONE) return 1; // Up
+            if (y < -XInput.STICK_DEADZONE) return 2; // Down
+            if (x < -XInput.STICK_DEADZONE) return 3; // Left
+            if (x >  XInput.STICK_DEADZONE) return 4; // Right
+            return 0;
         }
 
-        private void CheckTrigger(SDL_GamepadAxis axis, short value)
+        private static string GetStickDirectionName(string stick, int dir)
         {
-            bool isPressed = value > TRIGGER_THRESHOLD;
-            bool wasPressed = _axisStates.TryGetValue(axis, out var prev) && prev > TRIGGER_THRESHOLD;
-
-            if (isPressed && !wasPressed)
-            {
-                var displayName = GetAxisDisplayName(axis, true);
-                ButtonPressed?.Invoke(this, new SDL3ButtonEventArgs(SDL_GamepadButton.SDL_GAMEPAD_BUTTON_INVALID, displayName, axis));
-            }
-            else if (!isPressed && wasPressed)
-            {
-                var displayName = GetAxisDisplayName(axis, true);
-                ButtonReleased?.Invoke(this, new SDL3ButtonEventArgs(SDL_GamepadButton.SDL_GAMEPAD_BUTTON_INVALID, displayName, axis));
-            }
-
-            _axisStates[axis] = value;
-        }
-
-        private void CheckThumbstickDirection(short x, short y, ref int previousDirection, bool isLeft)
-        {
-            int currentDirection = 0;
-
-            if (y < -AXIS_DEADZONE) currentDirection = 1; // Up
-            else if (y > AXIS_DEADZONE) currentDirection = 2; // Down
-            else if (x < -AXIS_DEADZONE) currentDirection = 3; // Left
-            else if (x > AXIS_DEADZONE) currentDirection = 4; // Right
-
-            if (currentDirection != previousDirection && currentDirection != 0)
-            {
-                string prefix = _controllerType switch
-                {
-                    ControllerType.PS3 or ControllerType.PS4 or ControllerType.PS5 => "PS",
-                    ControllerType.NintendoSwitchPro => "NIN",
-                    ControllerType.SteamDeck => "SD",
-                    _ => "XB"
-                };
-
-                string stick = isLeft ? "L" : "R";
-                string dir = currentDirection switch
-                {
-                    1 => "↑",
-                    2 => "↓",
-                    3 => "←",
-                    4 => "→",
-                    _ => ""
-                };
-
-                var displayName = $"{prefix} {stick}{dir}";
-                AxisMoved?.Invoke(this, new SDL3AxisEventArgs(currentDirection, displayName, isLeft));
-
-                // Fire compatibility event for left stick
-                if (isLeft)
-                {
-                    LeftThumbstickMoved?.Invoke(this, new ThumbstickEventArgs(currentDirection));
-                }
-            }
-
-            previousDirection = currentDirection;
+            string arrow = dir switch { 1 => "↑", 2 => "↓", 3 => "←", 4 => "→", _ => "?" };
+            return $"XB {stick}{arrow}";
         }
 
         #endregion
 
         #region IDisposable
 
-        public unsafe void Dispose()
+        public void Dispose()
         {
             if (_disposed) return;
-
-            StopPolling();
-
-            if (_gamepad != null)
-            {
-                SDL3.SDL_CloseGamepad(_gamepad);
-                _gamepad = null;
-            }
-
-            if (_sdlInitialized)
-            {
-                SDL3.SDL_Quit();
-                _sdlInitialized = false;
-            }
-
             _disposed = true;
+            StopPolling();
+            // Stop vibration on dispose
+            if (_userIndex >= 0)
+            {
+                try
+                {
+                    var stop = new XINPUT_VIBRATION();
+                    XInput.SetState(_userIndex, ref stop);
+                }
+                catch { }
+            }
         }
 
         #endregion
     }
 
-    #region Event Args
-
-    public class SDL3ButtonEventArgs : EventArgs
-    {
-        public SDL_GamepadButton Button { get; }
-        public SDL_GamepadAxis Axis { get; }
-        public string DisplayName { get; }
-        public bool IsTrigger => Axis != SDL_GamepadAxis.SDL_GAMEPAD_AXIS_INVALID;
-
-        public SDL3ButtonEventArgs(SDL_GamepadButton button, string displayName, SDL_GamepadAxis axis = SDL_GamepadAxis.SDL_GAMEPAD_AXIS_INVALID)
-        {
-            Button = button;
-            DisplayName = displayName;
-            Axis = axis;
-        }
-    }
-
-    public class SDL3AxisEventArgs : EventArgs
-    {
-        public int Direction { get; } // 1=Up, 2=Down, 3=Left, 4=Right
-        public string DisplayName { get; }
-        public bool IsLeftStick { get; }
-
-        public SDL3AxisEventArgs(int direction, string displayName, bool isLeftStick)
-        {
-            Direction = direction;
-            DisplayName = displayName;
-            IsLeftStick = isLeftStick;
-        }
-
-        public bool IsUp => Direction == 1;
-        public bool IsDown => Direction == 2;
-        public bool IsLeft => Direction == 3;
-        public bool IsRight => Direction == 4;
-    }
-
-    public class SDL3ControllerEventArgs : EventArgs
-    {
-        public string ControllerName { get; }
-        public ControllerType ControllerType { get; }
-
-        public SDL3ControllerEventArgs(string name, ControllerType type)
-        {
-            ControllerName = name;
-            ControllerType = type;
-        }
-    }
+    // ============================================================
+    // GamepadManager — alias for backward compatibility
+    // ============================================================
 
     /// <summary>
-    /// Compatibility class for old GamepadManager API
-    /// </summary>
-    public class ThumbstickEventArgs : EventArgs
-    {
-        public int Direction { get; } // 1=Up, 2=Down, 3=Left, 4=Right
-
-        public ThumbstickEventArgs(int direction)
-        {
-            Direction = direction;
-        }
-
-        public bool IsUp => Direction == 1;
-        public bool IsDown => Direction == 2;
-        public bool IsLeft => Direction == 3;
-        public bool IsRight => Direction == 4;
-    }
-
-    /// <summary>
-    /// Compatibility class for old GamepadManager API - wraps SDL3ButtonEventArgs
-    /// </summary>
-    public class GamepadButtonEventArgs : EventArgs
-    {
-        public string DisplayName { get; }
-
-        public GamepadButtonEventArgs(string displayName)
-        {
-            DisplayName = displayName;
-        }
-
-        public string GetButtonDisplayName() => DisplayName;
-    }
-
-    /// <summary>
-    /// Event args for raw axis values - provides continuous axis data
-    /// </summary>
-    public class SDL3RawAxisEventArgs : EventArgs
-    {
-        public short LeftX { get; }
-        public short LeftY { get; }
-        public short RightX { get; }
-        public short RightY { get; }
-        public short LeftTrigger { get; }
-        public short RightTrigger { get; }
-
-        public SDL3RawAxisEventArgs(short leftX, short leftY, short rightX, short rightY, short leftTrigger, short rightTrigger)
-        {
-            LeftX = leftX;
-            LeftY = leftY;
-            RightX = rightX;
-            RightY = rightY;
-            LeftTrigger = leftTrigger;
-            RightTrigger = rightTrigger;
-        }
-
-        /// <summary>
-        /// Get normalized axis value (-1.0 to 1.0)
-        /// </summary>
-        public float GetNormalizedRightY() => RightY / 32767.0f;
-        
-        /// <summary>
-        /// Get normalized axis value (-1.0 to 1.0)
-        /// </summary>
-        public float GetNormalizedRightX() => RightX / 32767.0f;
-    }
-
-    #endregion
-
-    /// <summary>
-    /// Alias for backward compatibility - use SDL3GamepadManager
+    /// Backward-compatible alias for SDL3GamepadManager (now XInput-based).
+    /// Used by MainWindow, OverlayWindow, and settings pages.
     /// </summary>
     public class GamepadManager : SDL3GamepadManager
     {
-        /// <summary>
-        /// Compatibility event that wraps SDL3ButtonEventArgs into GamepadButtonEventArgs
-        /// </summary>
+        // Compatibility events wrapping base events into GamepadButtonEventArgs
         public new event EventHandler<GamepadButtonEventArgs>? ButtonPressed;
         public new event EventHandler<GamepadButtonEventArgs>? ButtonReleased;
-
-        /// <summary>
-        /// Compatibility event that wraps SDL3AxisEventArgs into GamepadButtonEventArgs for stick input
-        /// </summary>
-        public event EventHandler<GamepadButtonEventArgs>? StickMoved;
+        public event EventHandler<GamepadButtonEventArgs>?     StickMoved;
 
         public GamepadManager() : base()
         {
-            // Subscribe to base events and re-emit as compatibility events
-            base.ButtonPressed += (s, e) => ButtonPressed?.Invoke(this, new GamepadButtonEventArgs(e.DisplayName));
+            base.ButtonPressed  += (s, e) => ButtonPressed?.Invoke(this,  new GamepadButtonEventArgs(e.DisplayName));
             base.ButtonReleased += (s, e) => ButtonReleased?.Invoke(this, new GamepadButtonEventArgs(e.DisplayName));
-            base.AxisMoved += (s, e) => StickMoved?.Invoke(this, new GamepadButtonEventArgs(e.DisplayName));
+            base.AxisMoved      += (s, e) => StickMoved?.Invoke(this,     new GamepadButtonEventArgs(e.DisplayName));
         }
     }
 }

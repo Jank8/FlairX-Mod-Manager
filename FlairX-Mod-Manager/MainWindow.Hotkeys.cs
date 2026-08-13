@@ -33,6 +33,9 @@ namespace FlairX_Mod_Manager
         // Global gamepad manager for overlay toggle
         private GamepadManager? _globalGamepadManager;
 
+        // Public accessor so OverlayWindow can share the same XInput instance
+        public GamepadManager? GlobalGamepadManager => _globalGamepadManager;
+
         // Win32 API for checking window focus
         [DllImport("user32.dll")]
         private static extern IntPtr GetForegroundWindow();
@@ -580,6 +583,8 @@ namespace FlairX_Mod_Manager
         {
             StopGlobalGamepad();
             InitializeGlobalGamepad();
+            // Re-attach shared instance to overlay if it exists
+            _overlayWindow?.RefreshGamepad(_globalGamepadManager);
         }
 
         private HashSet<string> _heldButtons = new();
