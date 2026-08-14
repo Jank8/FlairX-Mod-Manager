@@ -18,6 +18,9 @@ namespace FlairX_Mod_Manager
         private static readonly object HotkeyFinderLogLock = new object();
         private static readonly object GameBananaLogLock = new object();
         private static bool _statusKeeperLogInitialized = false;
+        
+        // Anonymization setting (default: true for privacy)
+        public static bool AnonymizeOutput { get; set; } = true;
 
         public static void LogInfo(string message, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
@@ -66,7 +69,7 @@ namespace FlairX_Mod_Manager
 
         public static void LogError(string message, Exception? exception = null, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
-            var fullMessage = exception != null ? $"{message} - Exception: {exception}" : message;
+            var fullMessage = exception != null ? $"{message} - Exception: {PathAnonymizer.AnonymizeException(exception)}" : message;
             Log("ERROR", FormatMessage(fullMessage, callerName, callerFile, lineNumber));
         }
 
@@ -193,7 +196,7 @@ namespace FlairX_Mod_Manager
         /// </summary>
         public static void LogStatusKeeperError(string message, Exception? exception = null, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
-            var fullMessage = exception != null ? $"{message} - Exception: {exception}" : message;
+            var fullMessage = exception != null ? $"{message} - Exception: {PathAnonymizer.AnonymizeException(exception)}" : message;
             LogStatusKeeper(fullMessage, "ERROR", callerName, callerFile, lineNumber);
         }
 
@@ -226,7 +229,7 @@ namespace FlairX_Mod_Manager
         /// </summary>
         public static void LogHotkeyFinderError(string message, Exception? exception = null, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
-            var fullMessage = exception != null ? $"{message} - Exception: {exception}" : message;
+            var fullMessage = exception != null ? $"{message} - Exception: {PathAnonymizer.AnonymizeException(exception)}" : message;
             LogHotkeyFinder(fullMessage, "ERROR", callerName, callerFile, lineNumber);
         }
 
@@ -245,7 +248,7 @@ namespace FlairX_Mod_Manager
         /// </summary>
         public static void LogGameBananaError(string message, Exception? exception = null, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
-            var fullMessage = exception != null ? $"{message} | Exception: {exception}" : message;
+            var fullMessage = exception != null ? $"{message} | Exception: {PathAnonymizer.AnonymizeException(exception)}" : message;
             LogGameBanana(fullMessage, "ERROR", callerName, callerFile, lineNumber);
         }
 
@@ -260,7 +263,8 @@ namespace FlairX_Mod_Manager
         private static void LogToFile(string logPath, object lockObj, string level, string message)
         {
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            var logMessage = $"[{timestamp}] [{level}] {message}";
+            var anonymizedMessage = AnonymizeOutput ? PathAnonymizer.Anonymize(message) : message;
+            var logMessage = $"[{timestamp}] [{level}] {anonymizedMessage}";
             
             try
             {
@@ -284,7 +288,8 @@ namespace FlairX_Mod_Manager
         private static void Log(string level, string message)
         {
             var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            var logMessage = $"[{timestamp}] [{level}] {message}";
+            var anonymizedMessage = AnonymizeOutput ? PathAnonymizer.Anonymize(message) : message;
+            var logMessage = $"[{timestamp}] [{level}] {anonymizedMessage}";
             
             // Always log to debug console
             Debug.WriteLine(logMessage);

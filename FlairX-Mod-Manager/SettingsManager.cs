@@ -18,6 +18,7 @@ namespace FlairX_Mod_Manager
         public bool DynamicModSearchEnabled { get; set; } = true;
         public bool GridLoggingEnabled { get; set; } = false;
         public bool ErrorOnlyLogging { get; set; } = false; // Log only errors to file
+        public bool AnonymizeLogsEnabled { get; set; } = true; // Anonymize user paths in logs (default: enabled for privacy)
         public bool MinimizeToTrayEnabled { get; set; } = false;
         public bool HotkeysEnabled { get; set; } = true;
         public bool OverlayHotkeysEnabled { get; set; } = true;
@@ -208,18 +209,24 @@ namespace FlairX_Mod_Manager
                     Logger.LogDebug($"Settings file size: {json.Length} characters");
                     
                     Current = JsonSerializer.Deserialize<Settings>(json) ?? new Settings();
+                    
+                    // Apply log anonymization setting to Logger
+                    Logger.AnonymizeOutput = Current.AnonymizeLogsEnabled;
+                    
                     Logger.LogInfo($"Settings loaded successfully - Game: {GetGameTagFromIndex(Current.SelectedGameIndex)}, Theme: {Current.Theme}");
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError("Failed to deserialize settings file, using defaults", ex);
                     Current = new Settings();
+                    Logger.AnonymizeOutput = Current.AnonymizeLogsEnabled;
                 }
             }
             else
             {
                 Logger.LogInfo("Settings file does not exist, creating with default values");
                 Current = new Settings();
+                Logger.AnonymizeOutput = Current.AnonymizeLogsEnabled;
                 Save(); // Create the file with defaults
             }
 
