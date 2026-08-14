@@ -18,6 +18,8 @@ namespace FlairX_Mod_Manager.Pages
     /// </summary>
     public sealed partial class ModGridPage : Page
     {
+        // Queue for mod activation/deactivation operations
+        private static readonly System.Threading.SemaphoreSlim _modOperationSemaphore = new System.Threading.SemaphoreSlim(1, 1);
 
         
         [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
@@ -53,7 +55,22 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
 
-                // Check if Left Shift is held — skip conflict dialog/auto-deactivate, just activate
+                // Queue the operation to prevent race conditions when clicking rapidly
+                await _modOperationSemaphore.WaitAsync();
+                try
+                {
+                    await ProcessModActivationAsync(mod);
+                }
+                finally
+                {
+                    _modOperationSemaphore.Release();
+                }
+            }
+        }
+
+        private async Task ProcessModActivationAsync(ModTile mod)
+        {
+            // Check if Left Shift is held — skip conflict dialog/auto-deactivate, just activate
                 bool leftShiftHeld = (Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(Windows.System.VirtualKey.LeftShift) 
                     & Windows.UI.Core.CoreVirtualKeyStates.Down) != 0;
 
@@ -295,7 +312,6 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Reset hover only on clicked tile
                 mod.IsHovered = false;
-            }
         }
 
         private void ModActiveButton_PointerEntered(object sender, PointerRoutedEventArgs e)
