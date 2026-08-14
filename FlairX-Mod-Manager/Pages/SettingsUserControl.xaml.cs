@@ -313,6 +313,8 @@ namespace FlairX_Mod_Manager.Pages
                 GridLoggingToggleLabel.Text = GridLoggingToggle.IsOn ? onText : offText;
             if (ErrorOnlyLoggingToggleLabel != null && ErrorOnlyLoggingToggle != null)
                 ErrorOnlyLoggingToggleLabel.Text = ErrorOnlyLoggingToggle.IsOn ? onText : offText;
+            if (AnonymizeLogsToggleLabel != null && AnonymizeLogsToggle != null)
+                AnonymizeLogsToggleLabel.Text = AnonymizeLogsToggle.IsOn ? onText : offText;
             if (MinimizeToTrayToggleLabel != null && MinimizeToTrayToggle != null)
                 MinimizeToTrayToggleLabel.Text = MinimizeToTrayToggle.IsOn ? onText : offText;
             if (BlurNSFWToggleLabel != null && BlurNSFWToggle != null)
@@ -472,6 +474,7 @@ namespace FlairX_Mod_Manager.Pages
             if (ModGridZoomLabel != null) ModGridZoomLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Label");
             if (GridLoggingLabel != null) GridLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Label");
             if (ErrorOnlyLoggingLabel != null) ErrorOnlyLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Label");
+            if (AnonymizeLogsLabel != null) AnonymizeLogsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AnonymizeLogs_Label");
             if (MinimizeToTrayLabel != null) MinimizeToTrayLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Label");
             if (BlurNSFWLabel != null) BlurNSFWLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Label");
             if (HideEmptyCategoriesLabel != null) HideEmptyCategoriesLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideEmptyCategories_Label") ?? "Hide Empty Categories";
@@ -507,6 +510,7 @@ namespace FlairX_Mod_Manager.Pages
             if (ModGridZoomDescription != null) ModGridZoomDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Description") ?? string.Empty;
             if (GridLoggingDescription != null) GridLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Description") ?? string.Empty;
             if (ErrorOnlyLoggingDescription != null) ErrorOnlyLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Description") ?? string.Empty;
+            if (AnonymizeLogsDescription != null) AnonymizeLogsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AnonymizeLogs_Description") ?? string.Empty;
             if (MinimizeToTrayDescription != null) MinimizeToTrayDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_MinimizeToTray_Description") ?? string.Empty;
             if (BlurNSFWDescription != null) BlurNSFWDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideNSFW_Description") ?? string.Empty;
             if (HideEmptyCategoriesDescription != null) HideEmptyCategoriesDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_HideEmptyCategories_Description") ?? "Hide categories that contain no mods";
@@ -717,6 +721,7 @@ namespace FlairX_Mod_Manager.Pages
             DynamicModSearchToggle.IsOn = SettingsManager.Current.DynamicModSearchEnabled;
             GridLoggingToggle.IsOn = SettingsManager.Current.GridLoggingEnabled;
             ErrorOnlyLoggingToggle.IsOn = SettingsManager.Current.ErrorOnlyLogging;
+            AnonymizeLogsToggle.IsOn = SettingsManager.Current.AnonymizeLogsEnabled;
             MinimizeToTrayToggle.IsOn = SettingsManager.Current.MinimizeToTrayEnabled;
             BlurNSFWToggle.IsOn = SettingsManager.Current.HideNSFWMods;
             HideEmptyCategoriesToggle.IsOn = SettingsManager.Current.HideEmptyCategories;
@@ -1673,6 +1678,14 @@ namespace FlairX_Mod_Manager.Pages
         private void ErrorOnlyLoggingToggle_Toggled(object sender, RoutedEventArgs e)
         {
             SettingsManager.Current.ErrorOnlyLogging = ErrorOnlyLoggingToggle.IsOn;
+            SettingsManager.Save();
+            UpdateToggleLabels();
+        }
+
+        private void AnonymizeLogsToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.AnonymizeLogsEnabled = AnonymizeLogsToggle.IsOn;
+            Logger.AnonymizeOutput = AnonymizeLogsToggle.IsOn;
             SettingsManager.Save();
             UpdateToggleLabels();
         }
