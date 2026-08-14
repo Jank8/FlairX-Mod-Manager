@@ -414,5 +414,7 @@
   "Create": "Aanmaken",
   "ConnectionError": "Verbindingsfout",
   "ShowNoPreviews": "Toon zonder voorbeeldafbeeldingen",
-  "Category_No_Previews": "Geen voorbeeldafbeeldingen"
+  "Category_No_Previews": "Geen voorbeeldafbeeldingen",
+  "SettingsPage_AnonymizeLogs_Label": "Logs anonimiseren",
+  "SettingsPage_AnonymizeLogs_Description": "Vervang gebruikerspaden en namen door placeholders in logs"
 }

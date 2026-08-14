@@ -414,5 +414,7 @@
   "Create": "Tạo",
   "ConnectionError": "Lỗi kết nối",
   "ShowNoPreviews": "Hiển thị không có xem trước",
-  "Category_No_Previews": "Không có xem trước"
+  "Category_No_Previews": "Không có xem trước",
+  "SettingsPage_AnonymizeLogs_Label": "Ẩn danh hóa nhật ký",
+  "SettingsPage_AnonymizeLogs_Description": "Thay thế đường dẫn và tên người dùng bằng trình giữ chỗ trong nhật ký"
 }

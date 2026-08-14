@@ -414,5 +414,7 @@
   "Create": "Створити",
   "ConnectionError": "Помилка з'єднання",
   "ShowNoPreviews": "Показати без превью",
-  "Category_No_Previews": "Без превью"
+  "Category_No_Previews": "Без превью",
+  "SettingsPage_AnonymizeLogs_Label": "Анонімізувати журнали",
+  "SettingsPage_AnonymizeLogs_Description": "Замінити шляхи та імена користувачів заповнювачами в журналах"
 }

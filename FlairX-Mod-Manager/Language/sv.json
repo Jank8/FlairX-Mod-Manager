@@ -414,5 +414,7 @@
   "Create": "Skapa",
   "ConnectionError": "Anslutningsfel",
   "ShowNoPreviews": "Visa utan förhandsvisningar",
-  "Category_No_Previews": "Inga förhandsvisningar"
+  "Category_No_Previews": "Inga förhandsvisningar",
+  "SettingsPage_AnonymizeLogs_Label": "Anonymisera loggar",
+  "SettingsPage_AnonymizeLogs_Description": "Ersätt användarsökvägar och namn med platshållare i loggar"
 }

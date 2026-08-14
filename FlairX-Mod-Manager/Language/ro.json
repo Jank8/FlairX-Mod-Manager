@@ -414,5 +414,7 @@
   "Create": "Creează",
   "ConnectionError": "Eroare de conexiune",
   "ShowNoPreviews": "Afișează fără previzualizări",
-  "Category_No_Previews": "Fără previzualizări"
+  "Category_No_Previews": "Fără previzualizări",
+  "SettingsPage_AnonymizeLogs_Label": "Anonimizați jurnalele",
+  "SettingsPage_AnonymizeLogs_Description": "Înlocuiți căile și numele utilizatorilor cu substituenți în jurnale"
 }

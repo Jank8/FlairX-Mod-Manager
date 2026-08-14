@@ -414,5 +414,7 @@
   "Create": "생성",
   "ConnectionError": "연결 오류",
   "ShowNoPreviews": "미리보기 없는 항목 표시",
-  "Category_No_Previews": "미리보기 없음"
+  "Category_No_Previews": "미리보기 없음",
+  "SettingsPage_AnonymizeLogs_Label": "로그 익명화",
+  "SettingsPage_AnonymizeLogs_Description": "개인정보 보호를 위해 로그의 사용자 경로와 이름을 자리 표시자로 대체"
 }

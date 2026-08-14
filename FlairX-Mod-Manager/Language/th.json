@@ -414,5 +414,7 @@
   "Create": "สร้าง",
   "ConnectionError": "ข้อผิดพลาดการเชื่อมต่อ",
   "ShowNoPreviews": "แสดงที่ไม่มีภาพตัวอย่าง",
-  "Category_No_Previews": "ไม่มีภาพตัวอย่าง"
+  "Category_No_Previews": "ไม่มีภาพตัวอย่าง",
+  "SettingsPage_AnonymizeLogs_Label": "ทำให้บันทึกเป็นนิรนาม",
+  "SettingsPage_AnonymizeLogs_Description": "แทนที่เส้นทางและชื่อผู้ใช้ด้วยตัวยึดตำแหน่งในบันทึก"
 }

@@ -414,5 +414,7 @@
   "Create": "बनाएं",
   "ConnectionError": "कनेक्शन त्रुटि",
   "ShowNoPreviews": "बिना प्रीव्यू के दिखाएं",
-  "Category_No_Previews": "कोई प्रीव्यू नहीं"
+  "Category_No_Previews": "कोई प्रीव्यू नहीं",
+  "SettingsPage_AnonymizeLogs_Label": "लॉग को गुमनाम करें",
+  "SettingsPage_AnonymizeLogs_Description": "गोपनीयता के लिए लॉग में उपयोगकर्ता पथ और नाम को प्लेसहोल्डर से बदलें"
 }

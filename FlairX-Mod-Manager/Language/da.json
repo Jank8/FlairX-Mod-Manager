@@ -413,5 +413,7 @@
   "Add": "Tilføj",
   "Create": "Opret",
   "ShowNoPreviews": "Vis uden forhåndsvisninger",
-  "Category_No_Previews": "Ingen forhåndsvisninger"
+  "Category_No_Previews": "Ingen forhåndsvisninger",
+  "SettingsPage_AnonymizeLogs_Label": "Anonymiser logs",
+  "SettingsPage_AnonymizeLogs_Description": "Erstat brugerstier og navne med pladsholdere i logfiler"
 }

@@ -413,5 +413,7 @@
   "Add": "Přidat",
   "Create": "Vytvořit",
   "ShowNoPreviews": "Zobrazit bez náhledů",
-  "Category_No_Previews": "Bez náhledů"
+  "Category_No_Previews": "Bez náhledů",
+  "SettingsPage_AnonymizeLogs_Label": "Anonymizovat logy",
+  "SettingsPage_AnonymizeLogs_Description": "Nahradit cesty a jména uživatelů zástupnými symboly v protokolech"
 }

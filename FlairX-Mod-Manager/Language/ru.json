@@ -414,5 +414,7 @@
   "Create": "Создать",
   "ConnectionError": "Ошибка соединения",
   "ShowNoPreviews": "Показать без превью",
-  "Category_No_Previews": "Без превью"
+  "Category_No_Previews": "Без превью",
+  "SettingsPage_AnonymizeLogs_Label": "Анонимизировать логи",
+  "SettingsPage_AnonymizeLogs_Description": "Заменять пути и имена пользователей заполнителями в логах"
 }

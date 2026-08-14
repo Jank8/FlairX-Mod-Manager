@@ -413,5 +413,7 @@
   "Add": "Lisää",
   "Create": "Luo",
   "ShowNoPreviews": "Näytä ilman esikatseluja",
-  "Category_No_Previews": "Ei esikatseluja"
+  "Category_No_Previews": "Ei esikatseluja",
+  "SettingsPage_AnonymizeLogs_Label": "Anonymisoi lokit",
+  "SettingsPage_AnonymizeLogs_Description": "Korvaa käyttäjäpolut ja nimet paikkamerkeillä lokeissa"
 }

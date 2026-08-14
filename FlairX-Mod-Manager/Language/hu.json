@@ -414,5 +414,7 @@
   "Create": "Létrehozás",
   "ConnectionError": "Kapcsolati hiba",
   "ShowNoPreviews": "Előnézet nélküliek megjelenítése",
-  "Category_No_Previews": "Nincs előnézet"
+  "Category_No_Previews": "Nincs előnézet",
+  "SettingsPage_AnonymizeLogs_Label": "Naplók anonimizálása",
+  "SettingsPage_AnonymizeLogs_Description": "Felhasználói útvonalak és nevek helyettesítése helyőrzőkkel a naplókban"
 }

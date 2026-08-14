@@ -414,5 +414,7 @@
   "Create": "Criar",
   "ConnectionError": "Erro de ligacao",
   "ShowNoPreviews": "Mostrar sem pré-visualizações",
-  "Category_No_Previews": "Sem pré-visualizações"
+  "Category_No_Previews": "Sem pré-visualizações",
+  "SettingsPage_AnonymizeLogs_Label": "Anonimizar logs",
+  "SettingsPage_AnonymizeLogs_Description": "Substituir caminhos e nomes de utilizador por marcadores nos logs"
 }

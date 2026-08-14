@@ -414,5 +414,7 @@
   "Create": "作成",
   "ConnectionError": "接続エラー",
   "ShowNoPreviews": "プレビューなしを表示",
-  "Category_No_Previews": "プレビューなし"
+  "Category_No_Previews": "プレビューなし",
+  "SettingsPage_AnonymizeLogs_Label": "ログを匿名化",
+  "SettingsPage_AnonymizeLogs_Description": "ログ内のユーザーパスと名前をプレースホルダーに置き換える"
 }

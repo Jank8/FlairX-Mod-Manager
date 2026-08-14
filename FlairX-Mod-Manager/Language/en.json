@@ -413,5 +413,7 @@
   "Add": "Add",
   "Create": "Create",
   "ShowNoPreviews": "Show Without Previews",
-  "Category_No_Previews": "No Previews"
+  "Category_No_Previews": "No Previews",
+  "SettingsPage_AnonymizeLogs_Label": "Anonymize Logs",
+  "SettingsPage_AnonymizeLogs_Description": "Replace user paths and names with placeholders in logs for privacy"
 }

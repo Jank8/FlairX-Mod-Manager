@@ -414,5 +414,7 @@
   "Create": "Opprett",
   "ConnectionError": "Tilkoblingsfeil",
   "ShowNoPreviews": "Vis uten forhåndsvisninger",
-  "Category_No_Previews": "Ingen forhåndsvisninger"
+  "Category_No_Previews": "Ingen forhåndsvisninger",
+  "SettingsPage_AnonymizeLogs_Label": "Anonymiser logger",
+  "SettingsPage_AnonymizeLogs_Description": "Erstatt brukerstier og navn med plassholdere i logger"
 }

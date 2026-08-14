@@ -414,5 +414,7 @@
   "Create": "Buat",
   "ConnectionError": "Kesalahan koneksi",
   "ShowNoPreviews": "Tampilkan tanpa pratinjau",
-  "Category_No_Previews": "Tanpa pratinjau"
+  "Category_No_Previews": "Tanpa pratinjau",
+  "SettingsPage_AnonymizeLogs_Label": "Anonimkan log",
+  "SettingsPage_AnonymizeLogs_Description": "Ganti jalur dan nama pengguna dengan placeholder di log"
 }
