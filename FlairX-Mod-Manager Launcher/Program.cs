@@ -104,13 +104,14 @@ catch (Exception ex)
     Log(logPath, $"Stack trace: {ex.StackTrace}");
 }
 
-// Logging function
+// Logging function with anonymization
 static void Log(string? logPath, string message)
 {
     try
     {
         var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        var logLine = $"[{timestamp}] {message}";
+        var anonymizedMessage = AnonymizePath(message);
+        var logLine = $"[{timestamp}] {anonymizedMessage}";
         
         if (!string.IsNullOrEmpty(logPath))
         {
@@ -121,6 +122,53 @@ static void Log(string? logPath, string message)
     {
         // Silent fail for logging
     }
+}
+
+// Anonymize user-specific paths in log messages
+static string AnonymizePath(string message)
+{
+    if (string.IsNullOrEmpty(message))
+        return message;
+    
+    var anonymized = message;
+    
+    // Replace user profile path
+    var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    if (!string.IsNullOrEmpty(userProfile))
+    {
+        anonymized = anonymized.Replace(userProfile, "<USER_PROFILE>", StringComparison.OrdinalIgnoreCase);
+    }
+    
+    // Replace username
+    var userName = Environment.UserName;
+    if (!string.IsNullOrEmpty(userName))
+    {
+        anonymized = anonymized.Replace(userName, "<USER>", StringComparison.OrdinalIgnoreCase);
+    }
+    
+    // Replace machine name
+    var machineName = Environment.MachineName;
+    if (!string.IsNullOrEmpty(machineName))
+    {
+        anonymized = anonymized.Replace(machineName, "<MACHINE>", StringComparison.OrdinalIgnoreCase);
+    }
+    
+    // Replace common C:\Users\<name> patterns
+    anonymized = System.Text.RegularExpressions.Regex.Replace(
+        anonymized, 
+        @"C:\\Users\\[^\\]+", 
+        "C:\\Users\\<USER>", 
+        System.Text.RegularExpressions.RegexOptions.IgnoreCase
+    );
+    
+    // Replace common user directories
+    anonymized = anonymized
+        .Replace("\\AppData\\", "\\<APPDATA>\\", StringComparison.OrdinalIgnoreCase)
+        .Replace("\\Documents\\", "\\<DOCUMENTS>\\", StringComparison.OrdinalIgnoreCase)
+        .Replace("\\Desktop\\", "\\<DESKTOP>\\", StringComparison.OrdinalIgnoreCase)
+        .Replace("\\Downloads\\", "\\<DOWNLOADS>\\", StringComparison.OrdinalIgnoreCase);
+    
+    return anonymized;
 }
 
 // Win32 API imports
