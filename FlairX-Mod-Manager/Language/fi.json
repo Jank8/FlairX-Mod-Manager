@@ -415,5 +415,7 @@
   "ShowNoPreviews": "Näytä ilman esikatseluja",
   "Category_No_Previews": "Ei esikatseluja",
   "SettingsPage_AnonymizeLogs_Label": "Anonymisoi lokit",
-  "SettingsPage_AnonymizeLogs_Description": "Korvaa käyttäjäpolut ja nimet paikkamerkeillä lokeissa"
+  "SettingsPage_AnonymizeLogs_Description": "Korvaa käyttäjäpolut ja nimet paikkamerkeillä lokeissa",
+  "ShowDuplicates": "Näytä kaksoiskappaleet",
+  "Category_Duplicates": "Päällekkäiset modit"
 }

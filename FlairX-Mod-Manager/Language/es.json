@@ -415,5 +415,7 @@
   "ShowNoPreviews": "Mostrar sin vistas previas",
   "Category_No_Previews": "Sin vistas previas",
   "SettingsPage_AnonymizeLogs_Label": "Anonimizar registros",
-  "SettingsPage_AnonymizeLogs_Description": "Reemplazar rutas y nombres de usuario con marcadores en los registros"
+  "SettingsPage_AnonymizeLogs_Description": "Reemplazar rutas y nombres de usuario con marcadores en los registros",
+  "ShowDuplicates": "Mostrar duplicados",
+  "Category_Duplicates": "Mods duplicados"
 }

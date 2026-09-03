@@ -39,6 +39,7 @@ namespace FlairX_Mod_Manager.Pages
             ShowActiveItem.Text = SharedUtilities.GetTranslation(langDict, "ShowActive");
             ShowBrokenItem.Text = SharedUtilities.GetTranslation(langDict, "ShowBroken");
             ShowNoPreviewsItem.Text = SharedUtilities.GetTranslation(langDict, "ShowNoPreviews");
+            ShowDuplicatesItem.Text = SharedUtilities.GetTranslation(langDict, "ShowDuplicates");
             HideBrokenItem.Text = SharedUtilities.GetTranslation(langDict, "HideBroken");
             HideBrokenItem.IsChecked = SettingsManager.Current.HideBrokenMods;
             OpenModsFolderItem.Text = SharedUtilities.GetTranslation(langDict, "OpenModsFolder");
@@ -161,6 +162,23 @@ namespace FlairX_Mod_Manager.Pages
             CategoryOpenFolderButton.Visibility = Visibility.Collapsed;
         }
 
+        private void ShowDuplicates_Click(object sender, RoutedEventArgs e)
+        {
+            // Exit table view if active and clear sorting
+            if (CurrentViewMode == ViewMode.Table)
+            {
+                _currentSortMode = SortMode.None;
+                CurrentViewMode = ViewMode.Mods;
+            }
+
+            var langDict = SharedUtilities.LoadLanguageDictionary();
+            CategoryTitle.Text = SharedUtilities.GetTranslation(langDict, "Category_Duplicates");
+            _currentCategory = "Duplicates";
+            LoadDuplicateModsOnly();
+            CategoryBackButton.Visibility = Visibility.Visible;
+            CategoryOpenFolderButton.Visibility = Visibility.Collapsed;
+        }
+
         private void HideBroken_Click(object sender, RoutedEventArgs e)
         {
             // Toggle the setting
@@ -187,6 +205,10 @@ namespace FlairX_Mod_Manager.Pages
                 else if (_currentCategory == "NoPreviews")
                 {
                     LoadNoPreviewModsOnly();
+                }
+                else if (_currentCategory == "Duplicates")
+                {
+                    LoadDuplicateModsOnly();
                 }
                 else if (_currentCategory == "Outdated")
                 {

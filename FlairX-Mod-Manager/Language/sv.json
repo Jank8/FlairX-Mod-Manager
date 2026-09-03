@@ -416,5 +416,7 @@
   "ShowNoPreviews": "Visa utan förhandsvisningar",
   "Category_No_Previews": "Inga förhandsvisningar",
   "SettingsPage_AnonymizeLogs_Label": "Anonymisera loggar",
-  "SettingsPage_AnonymizeLogs_Description": "Ersätt användarsökvägar och namn med platshållare i loggar"
+  "SettingsPage_AnonymizeLogs_Description": "Ersätt användarsökvägar och namn med platshållare i loggar",
+  "ShowDuplicates": "Visa dubbletter",
+  "Category_Duplicates": "Dubbla mods"
 }

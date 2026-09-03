@@ -416,5 +416,7 @@
   "ShowNoPreviews": "Показать без превью",
   "Category_No_Previews": "Без превью",
   "SettingsPage_AnonymizeLogs_Label": "Анонимизировать логи",
-  "SettingsPage_AnonymizeLogs_Description": "Заменять пути и имена пользователей заполнителями в логах"
+  "SettingsPage_AnonymizeLogs_Description": "Заменять пути и имена пользователей заполнителями в логах",
+  "ShowDuplicates": "Показать дубликаты",
+  "Category_Duplicates": "Дубликаты модов"
 }

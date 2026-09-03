@@ -415,5 +415,7 @@
   "ShowNoPreviews": "Εμφάνιση χωρίς προεπισκοπήσεις",
   "Category_No_Previews": "Χωρίς προεπισκοπήσεις",
   "SettingsPage_AnonymizeLogs_Label": "Ανωνυμοποίηση αρχείων καταγραφής",
-  "SettingsPage_AnonymizeLogs_Description": "Αντικατάσταση διαδρομών και ονομάτων χρήστη με κράτηση θέσης"
+  "SettingsPage_AnonymizeLogs_Description": "Αντικατάσταση διαδρομών και ονομάτων χρήστη με κράτηση θέσης",
+  "ShowDuplicates": "Εμφάνιση διπλότυπων",
+  "Category_Duplicates": "Διπλότυπα mods"
 }

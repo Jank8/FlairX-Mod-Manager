@@ -416,5 +416,7 @@
   "ShowNoPreviews": "Mostra senza anteprime",
   "Category_No_Previews": "Senza anteprime",
   "SettingsPage_AnonymizeLogs_Label": "Anonimizza log",
-  "SettingsPage_AnonymizeLogs_Description": "Sostituire percorsi e nomi utente con segnaposto nei log"
+  "SettingsPage_AnonymizeLogs_Description": "Sostituire percorsi e nomi utente con segnaposto nei log",
+  "ShowDuplicates": "Mostra duplicati",
+  "Category_Duplicates": "Mod duplicate"
 }

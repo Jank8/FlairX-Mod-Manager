@@ -416,5 +416,7 @@
   "ShowNoPreviews": "Önizlemesiz göster",
   "Category_No_Previews": "Önizleme yok",
   "SettingsPage_AnonymizeLogs_Label": "Günlükleri anonimleştir",
-  "SettingsPage_AnonymizeLogs_Description": "Gizlilik için günlüklerdeki kullanıcı yollarını ve isimlerini yer tutucularla değiştir"
+  "SettingsPage_AnonymizeLogs_Description": "Gizlilik için günlüklerdeki kullanıcı yollarını ve isimlerini yer tutucularla değiştir",
+  "ShowDuplicates": "Kopyaları Göster",
+  "Category_Duplicates": "Kopya Modlar"
 }

@@ -416,5 +416,7 @@
   "ShowNoPreviews": "顯示無預覽圖的",
   "Category_No_Previews": "無預覽圖",
   "SettingsPage_AnonymizeLogs_Label": "匿名化日誌",
-  "SettingsPage_AnonymizeLogs_Description": "將日誌中的使用者路徑和名稱替換為佔位符以保護隱私"
+  "SettingsPage_AnonymizeLogs_Description": "將日誌中的使用者路徑和名稱替換為佔位符以保護隱私",
+  "ShowDuplicates": "顯示重複項",
+  "Category_Duplicates": "重複模組"
 }

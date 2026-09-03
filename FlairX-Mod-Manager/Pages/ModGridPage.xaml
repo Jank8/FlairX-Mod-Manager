@@ -300,6 +300,11 @@
                             <FontIcon Glyph="&#xEB9F;"/>
                         </MenuFlyoutItem.Icon>
                     </MenuFlyoutItem>
+                    <MenuFlyoutItem x:Name="ShowDuplicatesItem" Click="ShowDuplicates_Click">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE8FD;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
                     <ToggleMenuFlyoutItem x:Name="HideBrokenItem" Click="HideBroken_Click">
                         <ToggleMenuFlyoutItem.Icon>
                             <FontIcon Glyph="&#xED1A;"/>

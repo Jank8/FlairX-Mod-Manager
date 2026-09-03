@@ -416,5 +416,7 @@
   "ShowNoPreviews": "プレビューなしを表示",
   "Category_No_Previews": "プレビューなし",
   "SettingsPage_AnonymizeLogs_Label": "ログを匿名化",
-  "SettingsPage_AnonymizeLogs_Description": "ログ内のユーザーパスと名前をプレースホルダーに置き換える"
+  "SettingsPage_AnonymizeLogs_Description": "ログ内のユーザーパスと名前をプレースホルダーに置き換える",
+  "ShowDuplicates": "重複を表示",
+  "Category_Duplicates": "重複MOD"
 }

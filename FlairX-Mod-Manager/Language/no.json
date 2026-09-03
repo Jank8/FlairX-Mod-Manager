@@ -416,5 +416,7 @@
   "ShowNoPreviews": "Vis uten forhåndsvisninger",
   "Category_No_Previews": "Ingen forhåndsvisninger",
   "SettingsPage_AnonymizeLogs_Label": "Anonymiser logger",
-  "SettingsPage_AnonymizeLogs_Description": "Erstatt brukerstier og navn med plassholdere i logger"
+  "SettingsPage_AnonymizeLogs_Description": "Erstatt brukerstier og navn med plassholdere i logger",
+  "ShowDuplicates": "Vis duplikater",
+  "Category_Duplicates": "Duplikate mods"
 }

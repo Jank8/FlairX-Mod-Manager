@@ -415,5 +415,7 @@
   "ShowNoPreviews": "Pokaż bez grafik",
   "Category_No_Previews": "Bez grafik",
   "SettingsPage_AnonymizeLogs_Label": "Anonimizuj logi",
-  "SettingsPage_AnonymizeLogs_Description": "Zamień ścieżki użytkownika i nazwy na symbole zastępcze w logach dla prywatności"
+  "SettingsPage_AnonymizeLogs_Description": "Zamień ścieżki użytkownika i nazwy na symbole zastępcze w logach dla prywatności",
+  "ShowDuplicates": "Pokaż duplikaty",
+  "Category_Duplicates": "Duplikaty modów"
 }

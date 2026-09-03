@@ -416,5 +416,7 @@
   "ShowNoPreviews": "Показати без превью",
   "Category_No_Previews": "Без превью",
   "SettingsPage_AnonymizeLogs_Label": "Анонімізувати журнали",
-  "SettingsPage_AnonymizeLogs_Description": "Замінити шляхи та імена користувачів заповнювачами в журналах"
+  "SettingsPage_AnonymizeLogs_Description": "Замінити шляхи та імена користувачів заповнювачами в журналах",
+  "ShowDuplicates": "Показати дублікати",
+  "Category_Duplicates": "Дублікати модів"
 }

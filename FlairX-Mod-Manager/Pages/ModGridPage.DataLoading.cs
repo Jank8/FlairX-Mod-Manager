@@ -1224,6 +1224,114 @@ namespace FlairX_Mod_Manager.Pages
             });
         }
 
+        private void LoadDuplicateModsOnly()
+        {
+            LogToGridLog("LoadDuplicateModsOnly() called");
+
+            // Get all mods
+            var allMods = ModListManager.GetAllMods();
+
+            bool hideBroken = SettingsManager.Current.HideBrokenMods;
+            bool hideNSFW = SettingsManager.Current.HideNSFWMods;
+
+            // Group mods by their base name (without DISABLED_ and _1, _2, etc.)
+            var modGroups = allMods
+                .GroupBy(mod => new { BaseName = GetCleanModName(mod.Directory), mod.Category })
+                .Where(g => g.Count() > 1) // Only groups with more than 1 mod (duplicates)
+                .ToList();
+
+            // Flatten into list of mods that have duplicates
+            var duplicateMods = new List<ModListManager.ModInfo>();
+            foreach (var group in modGroups)
+            {
+                // Sort within group: base name first, then _1, _2, etc.
+                var sortedGroup = group.OrderBy(m =>
+                {
+                    var clean = m.Directory.Replace("DISABLED_", "", StringComparison.OrdinalIgnoreCase);
+                    var parts = clean.Split('_');
+                    if (parts.Length > 1 && int.TryParse(parts[^1], out int num))
+                        return num;
+                    return -1; // Base name comes first
+                }).ToList();
+                
+                duplicateMods.AddRange(sortedGroup);
+            }
+
+            // Apply filters
+            var filteredMods = duplicateMods.Where(mod =>
+            {
+                if (hideBroken && mod.IsBroken) return false;
+                if (hideNSFW && mod.IsNSFW) return false;
+                return true;
+            }).ToList();
+
+            _allModData.Clear();
+            _lastLoadedModDataIndex = 0;
+
+            foreach (var modInfo in filteredMods)
+            {
+                _allModData.Add(new ModData
+                {
+                    Name = modInfo.Name,
+                    Directory = modInfo.Directory,
+                    ImagePath = modInfo.ImagePath,
+                    IsActive = modInfo.IsActive,
+                    Category = modInfo.Category,
+                    Author = modInfo.Author,
+                    Url = modInfo.Url,
+                    LastChecked = modInfo.LastChecked,
+                    LastUpdated = modInfo.LastUpdated,
+                    HasUpdate = modInfo.HasUpdate,
+                    IsNSFW = modInfo.IsNSFW,
+                    IsBroken = modInfo.IsBroken,
+                    Character = modInfo.Character
+                });
+            }
+
+            const int initialLoadCount = 30;
+            var initialTiles = new List<ModTile>();
+
+            for (int i = 0; i < Math.Min(initialLoadCount, _allModData.Count); i++)
+            {
+                var modData = _allModData[i];
+                initialTiles.Add(new ModTile
+                {
+                    Name = modData.Name,
+                    Directory = modData.Directory,
+                    ImagePath = modData.ImagePath,
+                    IsActive = modData.IsActive,
+                    Category = modData.Category,
+                    Author = modData.Author,
+                    Url = modData.Url,
+                    LastChecked = modData.LastChecked,
+                    LastUpdated = modData.LastUpdated,
+                    HasUpdate = modData.HasUpdate,
+                    IsVisible = true,
+                    IsBroken = modData.IsBroken,
+                    IsNSFW = modData.IsNSFW,
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    ImageSource = null
+                });
+                _lastLoadedModDataIndex = i + 1;
+            }
+
+            LogToGridLog($"Loaded {initialTiles.Count} initial tiles from {_allModData.Count} duplicate mods ({modGroups.Count} mod groups)");
+
+            DispatcherQueue.TryEnqueue(() =>
+            {
+                _allMods.Clear();
+                foreach (var tile in initialTiles)
+                    _allMods.Add(tile);
+                UpdateEmptyState();
+            });
+
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(100);
+                DispatcherQueue.TryEnqueue(() => LoadVisibleImages());
+            });
+        }
+
         // No cache system - direct file reading only
     }
 }
