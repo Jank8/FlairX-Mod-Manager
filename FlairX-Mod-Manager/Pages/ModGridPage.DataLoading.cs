@@ -1234,9 +1234,30 @@ namespace FlairX_Mod_Manager.Pages
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
             bool hideNSFW = SettingsManager.Current.HideNSFWMods;
 
+            // Helper function to get base name without DISABLED_ and _1, _2, etc.
+            string GetBaseName(string directory)
+            {
+                // Remove DISABLED_ prefix
+                var clean = directory.Replace("DISABLED_", "", StringComparison.OrdinalIgnoreCase);
+                
+                // Remove _1, _2, etc. suffix
+                var lastUnderscore = clean.LastIndexOf('_');
+                if (lastUnderscore > 0)
+                {
+                    var suffix = clean.Substring(lastUnderscore + 1);
+                    // Check if suffix is a number
+                    if (int.TryParse(suffix, out _))
+                    {
+                        return clean.Substring(0, lastUnderscore);
+                    }
+                }
+                
+                return clean;
+            }
+
             // Group mods by their base name (without DISABLED_ and _1, _2, etc.)
             var modGroups = allMods
-                .GroupBy(mod => new { BaseName = GetCleanModName(mod.Directory), mod.Category })
+                .GroupBy(mod => new { BaseName = GetBaseName(mod.Directory), mod.Category })
                 .Where(g => g.Count() > 1) // Only groups with more than 1 mod (duplicates)
                 .ToList();
 
@@ -1248,9 +1269,13 @@ namespace FlairX_Mod_Manager.Pages
                 var sortedGroup = group.OrderBy(m =>
                 {
                     var clean = m.Directory.Replace("DISABLED_", "", StringComparison.OrdinalIgnoreCase);
-                    var parts = clean.Split('_');
-                    if (parts.Length > 1 && int.TryParse(parts[^1], out int num))
-                        return num;
+                    var lastUnderscore = clean.LastIndexOf('_');
+                    if (lastUnderscore > 0)
+                    {
+                        var suffix = clean.Substring(lastUnderscore + 1);
+                        if (int.TryParse(suffix, out int num))
+                            return num;
+                    }
                     return -1; // Base name comes first
                 }).ToList();
                 
