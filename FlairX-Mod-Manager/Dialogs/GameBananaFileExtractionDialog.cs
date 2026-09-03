@@ -38,6 +38,7 @@ namespace FlairX_Mod_Manager.Dialogs
         private bool _combinePreviews = false;
         private GameBananaService.PreviewMedia? _previewMedia;
         private string? _installedModPath = null;
+        private bool _isNewModInstall = true; // Track if this is a new installation (not an update)
         private CheckBox? _cleanInstallCheckBox;
         private CheckBox? _createBackupCheckBox;
         private CheckBox? _keepPreviewsCheckBox;
@@ -919,6 +920,7 @@ namespace FlairX_Mod_Manager.Dialogs
                                 if (existingUrl == _modProfileUrl)
                                 {
                                     isUpdate = true;
+                                    _isNewModInstall = false; // Mark as update, not new install
                                     Logger.LogInfo($"Updating existing mod at: {modPath} (was active: {wasActive})");
                                     
                                     // If mod is active, temporarily deactivate it for update
@@ -2109,6 +2111,50 @@ namespace FlairX_Mod_Manager.Dialogs
             catch (Exception ex)
             {
                 Logger.LogError("Failed to optimize downloaded preview images", ex);
+            }
+        }
+
+        /// <summary>
+        /// Clean up partially created mod folder if installation failed or was cancelled
+        /// Only applies to NEW mod installations, not updates
+        /// </summary>
+        private void CleanupFailedInstallation()
+        {
+            try
+            {
+                // Only clean up new mod installations (not updates)
+                if (!_isNewModInstall)
+                {
+                    Logger.LogInfo("Skipping cleanup - this was an update, not a new installation");
+                    return;
+                }
+                
+                // Only clean up if mod path was set
+                if (string.IsNullOrEmpty(_installedModPath))
+                    return;
+                
+                // If folder exists, delete it (extract failed = no partial content needed)
+                if (Directory.Exists(_installedModPath))
+                {
+                    Logger.LogInfo($"Cleaning up failed installation: {_installedModPath}");
+                    
+                    try
+                    {
+                        Directory.Delete(_installedModPath, true);
+                        Logger.LogInfo($"Successfully deleted failed installation folder: {_installedModPath}");
+                    }
+                    catch (Exception deleteEx)
+                    {
+                        Logger.LogWarning($"Failed to delete installation folder: {_installedModPath}, Error: {deleteEx.Message}");
+                    }
+                }
+                
+                // Reset installed mod path
+                _installedModPath = null;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error during cleanup of failed installation", ex);
             }
         }
 
