@@ -631,7 +631,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (string.IsNullOrEmpty(modsPath) || !System.IO.Directory.Exists(modsPath))
                 {
                     if (App.Current is App app && app.MainWindow is MainWindow mw)
-                        mw.ShowErrorInfo("Mods directory not found");
+                        mw.ShowErrorNotification("Mods directory not found");
                     return;
                 }
 
@@ -682,7 +682,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (fieldsToRemove.Count > 0)
                         {
                             // Rebuild JSON with only valid fields, preserving complex types
-                            var cleanedData = new Dictionary<string, object>();
+                            var cleanedData = new Dictionary<string, object?>();
                             foreach (var prop in root.EnumerateObject())
                             {
                                 if (validFields.Contains(prop.Name))
@@ -709,9 +709,9 @@ namespace FlairX_Mod_Manager.Pages
                 if (App.Current is App app2 && app2.MainWindow is MainWindow mw2)
                 {
                     if (cleanedCount > 0)
-                        mw2.ShowSuccessInfo($"Cleaned {cleanedCount} mod.json files (scanned {totalFiles} total)");
+                        mw2.ShowSuccessNotification($"Cleaned {cleanedCount} mod.json files (scanned {totalFiles} total)");
                     else
-                        mw2.ShowInfoInfo($"No unused fields found in {totalFiles} mod.json files");
+                        mw2.ShowInfoNotification($"No unused fields found in {totalFiles} mod.json files");
                 }
 
                 RefreshDiagnostics();
@@ -720,7 +720,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogError("Error cleaning mod.json files", ex);
                 if (App.Current is App app && app.MainWindow is MainWindow mw)
-                    mw.ShowErrorInfo($"Error: {ex.Message}");
+                    mw.ShowErrorNotification($"Error: {ex.Message}");
             }
         }
 
