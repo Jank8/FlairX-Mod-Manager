@@ -3333,10 +3333,10 @@ namespace FlairX_Mod_Manager.Pages
                 // Convert HTML to Markdown with custom config
                 var config = new ReverseMarkdown.Config
                 {
-                    UnknownTags = ReverseMarkdown.Config.UnknownTagsOption.PassThrough,
+                    Tags = { Unknown = ReverseMarkdown.Config.UnknownTagsOption.PassThrough },
                     GithubFlavored = true,
-                    RemoveComments = true,
-                    SmartHrefHandling = true
+                    Formatting = { RemoveComments = true },
+                    Links = { SmartHref = true }
                 };
                 
                 // 🆕 Preprocessing pipeline - clean HTML before conversion
