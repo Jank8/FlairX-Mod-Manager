@@ -1142,6 +1142,24 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var lang = SharedUtilities.LoadLanguageDictionary();
                 
+                // ALWAYS deactivate mod before renaming (simplification)
+                if (!modTile.IsCategory && modTile.IsActive)
+                {
+                    Logger.LogInfo($"Auto-deactivating mod '{modTile.Name}' before rename");
+                    if (DeactivateModByRename(modTile.Directory, out string newModName))
+                    {
+                        modTile.IsActive = false;
+                        modTile.Directory = newModName;
+                        var cleanName = GetCleanModName(modTile.Directory);
+                        _activeMods[cleanName] = false;
+                    }
+                    else
+                    {
+                        await ShowErrorDialog("Error", "Failed to deactivate mod before rename.");
+                        return;
+                    }
+                }
+                
                 var textBox = new TextBox
                 {
                     Text = modTile.Name,
@@ -1173,13 +1191,11 @@ namespace FlairX_Mod_Manager.Pages
                     
                     if (newName == modTile.Name)
                     {
-                        // No change - just refresh the tile image instead of renaming
+                        // No change - just refresh the tile image
                         Logger.LogInfo($"Name unchanged for {(modTile.IsCategory ? "category" : "mod")} '{modTile.Name}' - refreshing tile image");
                         
-                        // Refresh the mod tile image
                         try
                         {
-                            // Find the full path to the mod
                             var modsPath = SharedUtilities.GetSafeXXMIModsPath();
                             string? fullModPath = null;
                             
@@ -1189,7 +1205,6 @@ namespace FlairX_Mod_Manager.Pages
                             }
                             else
                             {
-                                // Find mod in categories - modTile.Directory already contains the actual folder name
                                 foreach (var categoryDir in Directory.GetDirectories(modsPath))
                                 {
                                     var modPath = Path.Combine(categoryDir, modTile.Directory);
@@ -1212,7 +1227,7 @@ namespace FlairX_Mod_Manager.Pages
                             Logger.LogError($"Failed to refresh mod tile image for '{modTile.Name}'", ex);
                         }
                         
-                        return; // No change
+                        return;
                     }
                     
                     if (!SecurityValidator.IsValidModDirectoryName(newName))
@@ -1235,7 +1250,6 @@ namespace FlairX_Mod_Manager.Pages
                 var modsPath = SharedUtilities.GetSafeXXMIModsPath();
                 string? currentPath = null;
                 string? parentPath = null;
-                bool isActive = false;
                 
                 if (modTile.IsCategory)
                 {
@@ -1245,7 +1259,7 @@ namespace FlairX_Mod_Manager.Pages
                 }
                 else
                 {
-                    // Renaming mod - find it in categories
+                    // Renaming mod - find it in categories (always DISABLED_ now)
                     foreach (var categoryDir in Directory.GetDirectories(modsPath))
                     {
                         var modPath = Path.Combine(categoryDir, modTile.Directory);
@@ -1253,7 +1267,6 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             currentPath = modPath;
                             parentPath = categoryDir;
-                            isActive = !modTile.Directory.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase);
                             break;
                         }
                     }
@@ -1265,24 +1278,15 @@ namespace FlairX_Mod_Manager.Pages
                     return;
                 }
                 
-                Logger.LogInfo($"Found mod at: '{currentPath}', isActive: {isActive}");
+                Logger.LogInfo($"Found item at: '{currentPath}'");
                 
-                // Determine new directory name (preserve active/inactive state)
-                string newDirectoryName;
-                if (modTile.IsCategory)
-                {
-                    newDirectoryName = newName;
-                }
-                else
-                {
-                    newDirectoryName = isActive ? newName : "DISABLED_" + newName;
-                }
-                
+                // New directory name (mods are always DISABLED_ at this point)
+                string newDirectoryName = modTile.IsCategory ? newName : "DISABLED_" + newName;
                 var newPath = Path.Combine(parentPath, newDirectoryName);
                 
                 Logger.LogInfo($"Will rename: '{currentPath}' -> '{newPath}'");
                 
-                // Safety check - don't rename to same path
+                // Safety check
                 if (string.Equals(currentPath, newPath, StringComparison.OrdinalIgnoreCase))
                 {
                     Logger.LogInfo("Source and destination are the same - nothing to do");
@@ -1294,18 +1298,6 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     await ShowErrorDialog("Error", $"A {(modTile.IsCategory ? "category" : "mod")} with the name '{newName}' already exists.");
                     return;
-                }
-                
-                // Also check the opposite state (active/inactive) to prevent conflicts
-                if (!modTile.IsCategory)
-                {
-                    var oppositeDirectoryName = isActive ? "DISABLED_" + newName : newName;
-                    var oppositePath = Path.Combine(parentPath, oppositeDirectoryName);
-                    if (Directory.Exists(oppositePath))
-                    {
-                        await ShowErrorDialog("Error", $"A mod with the name '{newName}' already exists in a different state.");
-                        return;
-                    }
                 }
                 
                 // Perform the rename with retry loop
@@ -1350,36 +1342,17 @@ namespace FlairX_Mod_Manager.Pages
                 
                 Logger.LogInfo($"Updated ModTile: Name='{modTile.Name}', Directory='{modTile.Directory}'");
                 
-                // Update active mods file if needed
-                if (!modTile.IsCategory && isActive)
+                // Update _activeMods dictionary (mod is always inactive after rename)
+                if (!modTile.IsCategory)
                 {
-                    var activeModsPath = PathManager.GetActiveModsPath();
-                    if (File.Exists(activeModsPath))
+                    var cleanOldName = GetCleanModName(oldDirectory);
+                    var cleanNewName = GetCleanModName(newDirectoryName);
+                    
+                    if (_activeMods.ContainsKey(cleanOldName))
                     {
-                        try
-                        {
-                            var cleanOldName = GetCleanModName(oldDirectory);
-                            await Services.FileAccessQueue.ExecuteAsync(activeModsPath, async () =>
-                            {
-                                var json = await File.ReadAllTextAsync(activeModsPath);
-                                var activeMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
-                                
-                                if (activeMods.ContainsKey(cleanOldName))
-                                {
-                                    activeMods.Remove(cleanOldName);
-                                    activeMods[newName] = true;
-                                    
-                                    var newJson = JsonSerializer.Serialize(activeMods, new JsonSerializerOptions { WriteIndented = true });
-                                    await File.WriteAllTextAsync(activeModsPath, newJson);
-                                    Logger.LogInfo($"Updated active mods file: '{cleanOldName}' -> '{newName}'");
-                                }
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"Failed to update active mods file after rename", ex);
-                        }
+                        _activeMods.Remove(cleanOldName);
                     }
+                    _activeMods[cleanNewName] = false;
                 }
                 
                 Logger.LogInfo($"Successfully renamed {(modTile.IsCategory ? "category" : "mod")} from '{oldDirectory}' to '{newDirectoryName}'");

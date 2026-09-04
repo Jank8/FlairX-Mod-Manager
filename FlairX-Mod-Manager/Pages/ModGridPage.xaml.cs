@@ -2129,15 +2129,42 @@ namespace FlairX_Mod_Manager.Pages
             if (ModCountText != null)
             {
                 int count;
-                if (string.IsNullOrEmpty(_currentCategory) || _currentCategory == "Active" || 
-                    _currentCategory == "Broken" || _currentCategory == "Outdated")
+                if (string.IsNullOrEmpty(_currentCategory))
                 {
+                    // "All Mods" view - get total count from ModListManager
+                    count = ModListManager.GetAllMods().Count;
+                }
+                else if (_currentCategory == "Active")
+                {
+                    // Active mods count
+                    count = ModListManager.GetAllMods().Count(m => m.IsActive);
+                }
+                else if (_currentCategory == "Broken")
+                {
+                    // Broken mods count
+                    count = ModListManager.GetBrokenMods().Count;
+                }
+                else if (_currentCategory == "Outdated")
+                {
+                    // Outdated mods count
+                    count = ModListManager.GetOutdatedMods().Count;
+                }
+                else if (_currentCategory == "NoPreviews")
+                {
+                    // No previews count
+                    count = ModListManager.GetAllMods().Count(m => string.IsNullOrEmpty(m.ImagePath));
+                }
+                else if (_currentCategory == "Duplicates")
+                {
+                    // Duplicates count - count loaded data
                     count = _allModData.Count > 0 ? _allModData.Count : _allMods.Count;
                 }
                 else
                 {
+                    // Specific category - get count from ModListManager
                     count = ModListManager.GetModsByCategory(_currentCategory).Count;
                 }
+                
                 ModCountText.Text = count > 0 ? $"- {count}" : "";
             }
         }
