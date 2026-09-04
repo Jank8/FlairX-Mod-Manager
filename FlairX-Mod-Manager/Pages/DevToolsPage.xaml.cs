@@ -623,6 +623,107 @@ namespace FlairX_Mod_Manager.Pages
                 mw.ShowSuccessInfo("Mod lists rebuilt");
         }
 
+        private void CleanUnusedModJsonFields_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+                if (string.IsNullOrEmpty(modsPath) || !System.IO.Directory.Exists(modsPath))
+                {
+                    if (App.Current is App app && app.MainWindow is MainWindow mw)
+                        mw.ShowErrorInfo("Mods directory not found");
+                    return;
+                }
+
+                // Known valid fields for mod.json
+                var validFields = new HashSet<string>
+                {
+                    // Basic metadata
+                    "author", "url", "version", "name", "character",
+                    // Dates
+                    "dateChecked", "dateUpdated", "gbChangeDate",
+                    // Flags
+                    "isNSFW", "modBroken", "statusKeeperSync",
+                    // Sync configuration
+                    "syncMethod", "namespaces",
+                    // Hotkeys
+                    "hotkeys", "defaultHotkeys", "favoriteHotkeys",
+                    // Fingerprint
+                    "IniStructureFingerprint"
+                };
+
+                int cleanedCount = 0;
+                int totalFiles = 0;
+
+                foreach (var modDir in System.IO.Directory.GetDirectories(modsPath))
+                {
+                    var modJsonPath = System.IO.Path.Combine(modDir, "mod.json");
+                    if (!System.IO.File.Exists(modJsonPath))
+                        continue;
+
+                    totalFiles++;
+
+                    try
+                    {
+                        var jsonText = System.IO.File.ReadAllText(modJsonPath);
+                        var doc = JsonDocument.Parse(jsonText);
+                        var root = doc.RootElement;
+
+                        // Check if there are any fields to remove
+                        var fieldsToRemove = new List<string>();
+                        foreach (var prop in root.EnumerateObject())
+                        {
+                            if (!validFields.Contains(prop.Name))
+                            {
+                                fieldsToRemove.Add(prop.Name);
+                            }
+                        }
+
+                        if (fieldsToRemove.Count > 0)
+                        {
+                            // Rebuild JSON with only valid fields, preserving complex types
+                            var cleanedData = new Dictionary<string, object>();
+                            foreach (var prop in root.EnumerateObject())
+                            {
+                                if (validFields.Contains(prop.Name))
+                                {
+                                    // Preserve the value exactly as-is using raw JSON
+                                    cleanedData[prop.Name] = JsonSerializer.Deserialize<object>(prop.Value.GetRawText());
+                                }
+                            }
+
+                            var options = new JsonSerializerOptions { WriteIndented = true };
+                            var cleanedJson = JsonSerializer.Serialize(cleanedData, options);
+                            System.IO.File.WriteAllText(modJsonPath, cleanedJson);
+                            cleanedCount++;
+
+                            Logger.LogInfo($"Cleaned {fieldsToRemove.Count} unused fields from {System.IO.Path.GetFileName(modDir)}/mod.json: {string.Join(", ", fieldsToRemove)}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Error cleaning {modJsonPath}", ex);
+                    }
+                }
+
+                if (App.Current is App app2 && app2.MainWindow is MainWindow mw2)
+                {
+                    if (cleanedCount > 0)
+                        mw2.ShowSuccessInfo($"Cleaned {cleanedCount} mod.json files (scanned {totalFiles} total)");
+                    else
+                        mw2.ShowInfoInfo($"No unused fields found in {totalFiles} mod.json files");
+                }
+
+                RefreshDiagnostics();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Error cleaning mod.json files", ex);
+                if (App.Current is App app && app.MainWindow is MainWindow mw)
+                    mw.ShowErrorInfo($"Error: {ex.Message}");
+            }
+        }
+
         private void OpenAppDir_Click(object sender, RoutedEventArgs e)
         {
             System.Diagnostics.Process.Start("explorer.exe", System.IO.Path.GetFullPath(AppContext.BaseDirectory));

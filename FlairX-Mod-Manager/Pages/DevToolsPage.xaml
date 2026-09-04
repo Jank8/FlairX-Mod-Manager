@@ -121,6 +121,12 @@
                         <TextBlock Text="Rebuild mod lists"/>
                     </StackPanel>
                 </Button>
+                <Button Click="CleanUnusedModJsonFields_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <FontIcon Glyph="&#xE74D;" FontSize="14"/>
+                        <TextBlock Text="Clean unused mod.json fields"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
 
             <!-- GameBanana -->
