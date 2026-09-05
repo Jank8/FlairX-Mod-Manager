@@ -416,5 +416,7 @@
   "ShowNoPreviews": "Mostrar sem prévias",
   "Category_No_Previews": "Sem prévias",
   "SettingsPage_AnonymizeLogs_Label": "Anonimizar logs",
-  "SettingsPage_AnonymizeLogs_Description": "Substituir caminhos e nomes de usuário por marcadores nos logs"
+  "SettingsPage_AnonymizeLogs_Description": "Substituir caminhos e nomes de usuário por marcadores nos logs",
+  "ModInfoBackup_Cancelled": "Backup cancelado",
+  "ModInfoBackup_Cancel": "Cancelar"
 }

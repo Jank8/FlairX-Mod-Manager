@@ -416,5 +416,7 @@
   "ShowNoPreviews": "显示无预览图的",
   "Category_No_Previews": "无预览图",
   "SettingsPage_AnonymizeLogs_Label": "匿名化日志",
-  "SettingsPage_AnonymizeLogs_Description": "将日志中的用户路径和名称替换为占位符以保护隐私"
+  "SettingsPage_AnonymizeLogs_Description": "将日志中的用户路径和名称替换为占位符以保护隐私",
+  "ModInfoBackup_Cancelled": "备份已取消",
+  "ModInfoBackup_Cancel": "取消"
 }

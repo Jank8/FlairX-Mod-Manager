@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Ești sigur că vrei să ștergi setul de backup {0}? Această acțiune nu poate fi anulată.",
     "Yes": "Da",
     "No": "Nu",
-    "Error": "Eroare"
+    "Error": "Eroare",
+    "Cancel": "Anulează",
+    "Cancelled": "Backup anulat"
 }

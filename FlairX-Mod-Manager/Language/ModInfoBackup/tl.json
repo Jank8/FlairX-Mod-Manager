@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Sigurado ka bang gusto mong tanggalin ang backup set {0}? Hindi na ito mababalik.",
     "Yes": "Oo",
     "No": "Hindi",
-    "Error": "Pagkakamali"
+    "Error": "Pagkakamali",
+    "Cancel": "Kanselahin",
+    "Cancelled": "Kinansela ang backup"
 }

@@ -416,5 +416,7 @@
   "ShowNoPreviews": "Ipakita ang walang preview",
   "Category_No_Previews": "Walang preview",
   "SettingsPage_AnonymizeLogs_Label": "I-anonymize ang mga log",
-  "SettingsPage_AnonymizeLogs_Description": "Palitan ang mga landas at pangalan ng user ng mga placeholder sa mga log"
+  "SettingsPage_AnonymizeLogs_Description": "Palitan ang mga landas at pangalan ng user ng mga placeholder sa mga log",
+  "ModInfoBackup_Cancelled": "Kinansela ang backup",
+  "ModInfoBackup_Cancel": "Kanselahin"
 }

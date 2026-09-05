@@ -418,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Label": "ทำให้บันทึกเป็นนิรนาม",
   "SettingsPage_AnonymizeLogs_Description": "แทนที่เส้นทางและชื่อผู้ใช้ด้วยตัวยึดตำแหน่งในบันทึก",
   "ShowDuplicates": "แสดงรายการที่ซ้ำกัน",
-  "Category_Duplicates": "ม็อดที่ซ้ำกัน"
+  "Category_Duplicates": "ม็อดที่ซ้ำกัน",
+  "ModInfoBackup_Cancelled": "ยกเลิกการสำรองข้อมูล",
+  "ModInfoBackup_Cancel": "ยกเลิก"
 }

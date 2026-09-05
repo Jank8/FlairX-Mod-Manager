@@ -417,5 +417,7 @@
   "SettingsPage_AnonymizeLogs_Label": "Anonymiser les journaux",
   "SettingsPage_AnonymizeLogs_Description": "Remplacer les chemins et noms d'utilisateur par des espaces réservés",
   "ShowDuplicates": "Afficher les doublons",
-  "Category_Duplicates": "Mods en double"
+  "Category_Duplicates": "Mods en double",
+  "ModInfoBackup_Cancelled": "Sauvegarde annulée",
+  "ModInfoBackup_Cancel": "Annuler"
 }

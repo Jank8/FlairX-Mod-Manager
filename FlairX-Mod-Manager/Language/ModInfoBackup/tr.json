@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Yedek seti {0}'ı silmek istediğinizden emin misiniz? Bu eylem geri alınamaz.",
     "Yes": "Evet",
     "No": "Hayır",
-    "Error": "Hata"
+    "Error": "Hata",
+    "Cancel": "İptal",
+    "Cancelled": "Yedekleme iptal edildi"
 }

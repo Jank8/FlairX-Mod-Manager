@@ -418,5 +418,6 @@
   "SettingsPage_AnonymizeLogs_Label": "Anonimkan log",
   "SettingsPage_AnonymizeLogs_Description": "Ganti jalur dan nama pengguna dengan placeholder di log",
   "ShowDuplicates": "Tampilkan duplikat",
-  "Category_Duplicates": "Mod duplikat"
+  "Category_Duplicates": "Mod duplikat",
+  "ModInfoBackup_Cancel": "Cancel"
 }

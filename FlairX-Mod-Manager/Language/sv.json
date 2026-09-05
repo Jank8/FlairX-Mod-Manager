@@ -418,5 +418,6 @@
   "SettingsPage_AnonymizeLogs_Label": "Anonymisera loggar",
   "SettingsPage_AnonymizeLogs_Description": "Ersätt användarsökvägar och namn med platshållare i loggar",
   "ShowDuplicates": "Visa dubbletter",
-  "Category_Duplicates": "Dubbla mods"
+  "Category_Duplicates": "Dubbla mods",
+  "ModInfoBackup_Cancel": "Cancel"
 }

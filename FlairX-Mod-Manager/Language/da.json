@@ -417,5 +417,6 @@
   "SettingsPage_AnonymizeLogs_Label": "Anonymiser logs",
   "SettingsPage_AnonymizeLogs_Description": "Erstat brugerstier og navne med pladsholdere i logfiler",
   "ShowDuplicates": "Vis dubletter",
-  "Category_Duplicates": "Duplikerede mods"
+  "Category_Duplicates": "Duplikerede mods",
+  "ModInfoBackup_Cancel": "Cancel"
 }

@@ -418,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Label": "Ẩn danh hóa nhật ký",
   "SettingsPage_AnonymizeLogs_Description": "Thay thế đường dẫn và tên người dùng bằng trình giữ chỗ trong nhật ký",
   "ShowDuplicates": "Hiển thị bản sao",
-  "Category_Duplicates": "Mod trùng lặp"
+  "Category_Duplicates": "Mod trùng lặp",
+  "ModInfoBackup_Cancelled": "Đã hủy sao lưu",
+  "ModInfoBackup_Cancel": "Hủy"
 }

@@ -418,5 +418,6 @@
   "SettingsPage_AnonymizeLogs_Label": "Anonimizar logs",
   "SettingsPage_AnonymizeLogs_Description": "Substituir caminhos e nomes de utilizador por marcadores nos logs",
   "ShowDuplicates": "Mostrar duplicados",
-  "Category_Duplicates": "Mods duplicados"
+  "Category_Duplicates": "Mods duplicados",
+  "ModInfoBackup_Cancel": "Cancel"
 }

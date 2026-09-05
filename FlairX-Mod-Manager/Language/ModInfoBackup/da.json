@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Er du sikker på, at du vil slette backup sæt {0}? Denne handling kan ikke fortrydes.",
     "Yes": "Ja",
     "No": "Nej",
-    "Error": "Fejl"
+    "Error": "Fejl",
+    "Cancel": "Annuller",
+    "Cancelled": "Backup annulleret"
 }

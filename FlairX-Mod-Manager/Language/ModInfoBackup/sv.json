@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Är du säker på att du vill ta bort säkerhetskopiaset {0}? Denna åtgärd kan inte ångras.",
     "Yes": "Ja",
     "No": "Nej",
-    "Error": "Fel"
+    "Error": "Fel",
+    "Cancel": "Avbryt",
+    "Cancelled": "Säkerhetskopiering avbruten"
 }

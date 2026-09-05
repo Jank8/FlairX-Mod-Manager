@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Êtes-vous sûr de vouloir supprimer l'ensemble de sauvegarde {0} ? Cette action ne peut pas être annulée.",
     "Yes": "Oui",
     "No": "Non",
-    "Error": "Erreur"
+    "Error": "Erreur",
+    "Cancel": "Annuler",
+    "Cancelled": "Sauvegarde annulée"
 }

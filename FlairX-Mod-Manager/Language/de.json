@@ -417,5 +417,7 @@
   "SettingsPage_AnonymizeLogs_Label": "Logs anonymisieren",
   "SettingsPage_AnonymizeLogs_Description": "Benutzerpfade und Namen in Logs durch Platzhalter ersetzen",
   "ShowDuplicates": "Duplikate anzeigen",
-  "Category_Duplicates": "Doppelte Mods"
+  "Category_Duplicates": "Doppelte Mods",
+  "ModInfoBackup_Cancelled": "Sicherung abgebrochen",
+  "ModInfoBackup_Cancel": "Abbrechen"
 }

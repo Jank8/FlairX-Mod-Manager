@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Opravdu chcete smazat zálohu {0}? Tuto akci nelze vrátit zpět.",
     "Yes": "Ano",
     "No": "Ne",
-    "Error": "Chyba"
+    "Error": "Chyba",
+    "Cancel": "Zrušit",
+    "Cancelled": "Záloha zrušena"
 }

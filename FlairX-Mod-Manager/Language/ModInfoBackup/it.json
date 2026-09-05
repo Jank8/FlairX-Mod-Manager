@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Sei sicuro di voler eliminare il set di backup {0}? Questa azione non può essere annullata.",
     "Yes": "Sì",
     "No": "No",
-    "Error": "Errore"
+    "Error": "Errore",
+    "Cancel": "Annulla",
+    "Cancelled": "Backup annullato"
 }

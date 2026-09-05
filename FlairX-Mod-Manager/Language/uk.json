@@ -418,5 +418,6 @@
   "SettingsPage_AnonymizeLogs_Label": "Анонімізувати журнали",
   "SettingsPage_AnonymizeLogs_Description": "Замінити шляхи та імена користувачів заповнювачами в журналах",
   "ShowDuplicates": "Показати дублікати",
-  "Category_Duplicates": "Дублікати модів"
+  "Category_Duplicates": "Дублікати модів",
+  "ModInfoBackup_Cancel": "Cancel"
 }

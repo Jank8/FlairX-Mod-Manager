@@ -417,5 +417,6 @@
   "SettingsPage_AnonymizeLogs_Label": "Ανωνυμοποίηση αρχείων καταγραφής",
   "SettingsPage_AnonymizeLogs_Description": "Αντικατάσταση διαδρομών και ονομάτων χρήστη με κράτηση θέσης",
   "ShowDuplicates": "Εμφάνιση διπλότυπων",
-  "Category_Duplicates": "Διπλότυπα mods"
+  "Category_Duplicates": "Διπλότυπα mods",
+  "ModInfoBackup_Cancel": "Cancel"
 }

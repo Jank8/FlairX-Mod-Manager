@@ -417,5 +417,7 @@
   "SettingsPage_AnonymizeLogs_Label": "Anonymizovat logy",
   "SettingsPage_AnonymizeLogs_Description": "Nahradit cesty a jména uživatelů zástupnými symboly v protokolech",
   "ShowDuplicates": "Zobrazit duplikáty",
-  "Category_Duplicates": "Duplicitní módy"
+  "Category_Duplicates": "Duplicitní módy",
+  "ModInfoBackup_Cancelled": "Záloha zrušena",
+  "ModInfoBackup_Cancel": "Zrušit"
 }

@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Weet je zeker dat je back-upset {0} wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
     "Yes": "Ja",
     "No": "Nee",
-    "Error": "Fout"
+    "Error": "Fout",
+    "Cancel": "Annuleren",
+    "Cancelled": "Back-up geannuleerd"
 }

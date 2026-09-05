@@ -418,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Label": "Анонимизировать логи",
   "SettingsPage_AnonymizeLogs_Description": "Заменять пути и имена пользователей заполнителями в логах",
   "ShowDuplicates": "Показать дубликаты",
-  "Category_Duplicates": "Дубликаты модов"
+  "Category_Duplicates": "Дубликаты модов",
+  "ModInfoBackup_Cancelled": "Резервное копирование отменено",
+  "ModInfoBackup_Cancel": "Отмена"
 }

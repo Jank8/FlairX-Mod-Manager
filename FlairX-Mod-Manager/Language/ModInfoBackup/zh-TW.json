@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "您確定要刪除備份集合{0}嗎？此操作無法復原。",
     "Yes": "是",
     "No": "否",
-    "Error": "錯誤"
+    "Error": "錯誤",
+    "Cancel": "取消",
+    "Cancelled": "備份已取消"
 }

@@ -22,6 +22,9 @@ namespace FlairX_Mod_Manager.Pages
         private static volatile bool _isDeletingBackup1 = false;
         private static volatile bool _isDeletingBackup2 = false;
         private static volatile bool _isDeletingBackup3 = false;
+        
+        // Cancellation token for backup creation
+        private System.Threading.CancellationTokenSource? _backupCancellationToken;
 
         public ModInfoBackupPage()
         {
@@ -67,56 +70,58 @@ namespace FlairX_Mod_Manager.Pages
             bool anyOperationRunning = _isCreatingBackup || _isRestoringBackup1 || _isRestoringBackup2 || _isRestoringBackup3 ||
                                      _isDeletingBackup1 || _isDeletingBackup2 || _isDeletingBackup3;
             
-            // Create Backup button
+            // Create Backup button - disable when creating, show as Cancel (red)
             if (CreateBackupsButton != null && CreateBackupsText != null)
             {
-                CreateBackupsButton.IsEnabled = !anyOperationRunning || _isCreatingBackup;
-                CreateBackupsText.Text = _isCreatingBackup 
-                    ? SharedUtilities.GetTranslation(lang, "ModInfoBackup_Creating")
-                    : SharedUtilities.GetTranslation(lang, "Create");
+                if (_isCreatingBackup)
+                {
+                    CreateBackupsButton.IsEnabled = true;
+                    CreateBackupsButton.Style = (Style)this.Resources["RedCancelButtonStyle"];
+                    CreateBackupsText.Text = SharedUtilities.GetTranslation(lang, "Cancel");
+                }
+                else
+                {
+                    CreateBackupsButton.IsEnabled = true;
+                    CreateBackupsButton.Style = (Style)Application.Current.Resources["AccentButtonStyle"];
+                    CreateBackupsText.Text = SharedUtilities.GetTranslation(lang, "Create");
+                }
             }
             
             // Restore Backup 1 button
             if (RestoreBackup1Button != null && RestoreBackup1Text != null)
             {
-                RestoreBackup1Button.IsEnabled = (!anyOperationRunning || _isRestoringBackup1) && RestoreBackup1Button.Tag != null;
-                RestoreBackup1Text.Text = _isRestoringBackup1 
-                    ? SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restoring")
-                    : SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore");
+                RestoreBackup1Button.IsEnabled = !anyOperationRunning && RestoreBackup1Button.Tag != null;
+                RestoreBackup1Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore");
             }
             
             // Restore Backup 2 button
             if (RestoreBackup2Button != null && RestoreBackup2Text != null)
             {
-                RestoreBackup2Button.IsEnabled = (!anyOperationRunning || _isRestoringBackup2) && RestoreBackup2Button.Tag != null;
-                RestoreBackup2Text.Text = _isRestoringBackup2 
-                    ? SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restoring")
-                    : SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore");
+                RestoreBackup2Button.IsEnabled = !anyOperationRunning && RestoreBackup2Button.Tag != null;
+                RestoreBackup2Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore");
             }
             
             // Restore Backup 3 button
             if (RestoreBackup3Button != null && RestoreBackup3Text != null)
             {
-                RestoreBackup3Button.IsEnabled = (!anyOperationRunning || _isRestoringBackup3) && RestoreBackup3Button.Tag != null;
-                RestoreBackup3Text.Text = _isRestoringBackup3 
-                    ? SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restoring")
-                    : SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore");
+                RestoreBackup3Button.IsEnabled = !anyOperationRunning && RestoreBackup3Button.Tag != null;
+                RestoreBackup3Text.Text = SharedUtilities.GetTranslation(lang, "ModInfoBackup_Restore");
             }
             
             // Delete buttons
             if (DeleteBackup1Button != null)
             {
-                DeleteBackup1Button.IsEnabled = !anyOperationRunning || _isDeletingBackup1;
+                DeleteBackup1Button.IsEnabled = !anyOperationRunning;
             }
             
             if (DeleteBackup2Button != null)
             {
-                DeleteBackup2Button.IsEnabled = !anyOperationRunning || _isDeletingBackup2;
+                DeleteBackup2Button.IsEnabled = !anyOperationRunning;
             }
             
             if (DeleteBackup3Button != null)
             {
-                DeleteBackup3Button.IsEnabled = !anyOperationRunning || _isDeletingBackup3;
+                DeleteBackup3Button.IsEnabled = !anyOperationRunning;
             }
             
             // Update progress bars and status texts
@@ -182,12 +187,21 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                // If already creating, cancel it
+                if (_isCreatingBackup && _backupCancellationToken != null)
+                {
+                    _backupCancellationToken.Cancel();
+                    return;
+                }
+                
                 await CreateBackupsAsync();
             }
             catch (Exception ex)
             {
                 Logger.LogError("Error in CreateBackupsButton_Click", ex);
                 _isCreatingBackup = false;
+                _backupCancellationToken?.Dispose();
+                _backupCancellationToken = null;
                 UpdateButtonStates();
                 var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
                 if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
@@ -197,19 +211,53 @@ namespace FlairX_Mod_Manager.Pages
         private async Task CreateBackupsAsync()
         {
             _isCreatingBackup = true;
+            _backupCancellationToken = new System.Threading.CancellationTokenSource();
             UpdateButtonStates();
             
-            int count = await Task.Run(() => CreateAllBackups());
+            // Progress reporting
+            var progress = new Progress<(int current, int total)>(value =>
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    if (CreateBackupsProgressBar != null && CreateBackupsStatusText != null)
+                    {
+                        var percentage = value.total > 0 ? (double)value.current / value.total * 100 : 0;
+                        CreateBackupsProgressBar.Value = percentage;
+                        CreateBackupsStatusText.Text = $"{value.current}/{value.total}";
+                    }
+                });
+            });
             
-            _isCreatingBackup = false;
-            UpdateButtonStates();
-            
-            var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
-            if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowSuccessInfo(string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_BackupComplete"), count));
-            UpdateBackupInfo();
+            try
+            {
+                int count = await Task.Run(() => CreateAllBackups(_backupCancellationToken.Token, progress), _backupCancellationToken.Token);
+                
+                _isCreatingBackup = false;
+                UpdateButtonStates();
+                
+                var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
+                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) 
+                    _mw.ShowSuccessInfo(string.Format(SharedUtilities.GetTranslation(lang, "ModInfoBackup_BackupComplete"), count));
+                UpdateBackupInfo();
+            }
+            catch (OperationCanceledException)
+            {
+                _isCreatingBackup = false;
+                UpdateButtonStates();
+                
+                var lang = SharedUtilities.LoadLanguageDictionary("ModInfoBackup");
+                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) 
+                    _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "Cancelled"));
+                UpdateBackupInfo();
+            }
+            finally
+            {
+                _backupCancellationToken?.Dispose();
+                _backupCancellationToken = null;
+            }
         }
 
-        private int CreateAllBackups()
+        private int CreateAllBackups(System.Threading.CancellationToken cancellationToken, IProgress<(int current, int total)> progress)
         {
             int count = 0;
             if (!Directory.Exists(ModLibraryPath)) return count;
@@ -219,6 +267,8 @@ namespace FlairX_Mod_Manager.Pages
             {
                 foreach (var categoryDir in Directory.GetDirectories(ModLibraryPath))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    
                     if (!Directory.Exists(categoryDir)) continue;
                     
                     var categoryName = new DirectoryInfo(categoryDir).Name;
@@ -297,16 +347,39 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (Directory.Exists(categoryDir))
                 {
+                    // Include both regular and DISABLED_ prefixed directories
                     modDirs.AddRange(Directory.GetDirectories(categoryDir));
                 }
             }
             
-            foreach (var dir in modDirs)
+            // Use parallel processing for faster backup creation
+            var successCount = 0;
+            var processedCount = 0;
+            var totalCount = modDirs.Count;
+            var lockObj = new object();
+            
+            var parallelOptions = new System.Threading.Tasks.ParallelOptions
             {
+                CancellationToken = cancellationToken
+            };
+            
+            System.Threading.Tasks.Parallel.ForEach(modDirs, parallelOptions, dir =>
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                
                 var modJson = Path.Combine(dir, "mod.json");
                 
-                if (!File.Exists(modJson)) continue;
+                if (!File.Exists(modJson))
+                {
+                    lock (lockObj)
+                    {
+                        processedCount++;
+                        progress?.Report((processedCount, totalCount));
+                    }
+                    return;
+                }
                 
+                // Use actual folder name (with DISABLED_ prefix if present)
                 var modName = new DirectoryInfo(dir).Name;
                 
                 // Shift existing backups: 2->3, 1->2, new->1
@@ -369,15 +442,28 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     
                     ArchiveHelper.CreateArchiveFromFiles(backup1, filesToBackup);
-                    count++;
+                    
+                    lock (lockObj)
+                    {
+                        successCount++;
+                        processedCount++;
+                        progress?.Report((processedCount, totalCount));
+                    }
+                    
                     Logger.LogInfo($"Created backup for mod: {modName}");
                 }
                 catch (Exception ex)
                 {
+                    lock (lockObj)
+                    {
+                        processedCount++;
+                        progress?.Report((processedCount, totalCount));
+                    }
                     Logger.LogError($"Failed to create backup for mod {modName}", ex);
                 }
-            }
-            return count;
+            });
+            
+            return successCount;
         }
 
         private async void RestoreBackupButton_Click(object sender, RoutedEventArgs e)
@@ -412,7 +498,37 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     UpdateButtonStates();
                     
-                    int count = await Task.Run(() => RestoreAllBackups(backupNum));
+                    // Progress reporting
+                    var progress = new Progress<(int current, int total)>(value =>
+                    {
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            ProgressBar? progressBar = backupNum switch
+                            {
+                                1 => RestoreBackup1ProgressBar,
+                                2 => RestoreBackup2ProgressBar,
+                                3 => RestoreBackup3ProgressBar,
+                                _ => null
+                            };
+                            
+                            TextBlock? statusText = backupNum switch
+                            {
+                                1 => RestoreBackup1StatusText,
+                                2 => RestoreBackup2StatusText,
+                                3 => RestoreBackup3StatusText,
+                                _ => null
+                            };
+                            
+                            if (progressBar != null && statusText != null)
+                            {
+                                var percentage = value.total > 0 ? (double)value.current / value.total * 100 : 0;
+                                progressBar.Value = percentage;
+                                statusText.Text = $"{value.current}/{value.total}";
+                            }
+                        });
+                    });
+                    
+                    int count = await Task.Run(() => RestoreAllBackups(backupNum, progress));
                     
                     // Reset operation state
                     switch (backupNum)
@@ -448,7 +564,7 @@ namespace FlairX_Mod_Manager.Pages
         
 
 
-        private int RestoreAllBackups(int backupNum)
+        private int RestoreAllBackups(int backupNum, IProgress<(int current, int total)> progress)
         {
             int count = 0;
             if (!Directory.Exists(ModLibraryPath)) return count;
@@ -491,26 +607,52 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            foreach (var dir in modDirs)
+            // Use parallel processing for faster restore
+            var successCount = 0;
+            var processedCount = 0;
+            var totalCount = modDirs.Count;
+            var lockObj = new object();
+            
+            System.Threading.Tasks.Parallel.ForEach(modDirs, dir =>
             {
                 var modName = new DirectoryInfo(dir).Name;
                 var backupZip = Path.Combine(dir, $"{modName}.mib{backupNum}.zip");
                 
-                if (!File.Exists(backupZip)) continue;
+                if (!File.Exists(backupZip))
+                {
+                    lock (lockObj)
+                    {
+                        processedCount++;
+                        progress?.Report((processedCount, totalCount));
+                    }
+                    return;
+                }
                 
                 try
                 {
                     ArchiveHelper.ExtractToDirectory(backupZip, dir);
-                    count++;
+                    
+                    lock (lockObj)
+                    {
+                        successCount++;
+                        processedCount++;
+                        progress?.Report((processedCount, totalCount));
+                    }
+                    
                     Logger.LogInfo($"Restored backup {backupNum} for mod: {modName}");
                 }
                 catch (Exception ex)
                 {
+                    lock (lockObj)
+                    {
+                        processedCount++;
+                        progress?.Report((processedCount, totalCount));
+                    }
                     Logger.LogError($"Failed to restore backup {backupNum} for mod {modName}", ex);
-                    continue;
                 }
-            }
-            return count;
+            });
+            
+            return successCount;
         }
 
         private async void DeleteBackupButton_Click(object sender, RoutedEventArgs e)
@@ -545,7 +687,37 @@ namespace FlairX_Mod_Manager.Pages
                     }
                     UpdateButtonStates();
                     
-                    int count = await Task.Run(() => DeleteAllBackups(backupNum));
+                    // Progress reporting
+                    var progress = new Progress<(int current, int total)>(value =>
+                    {
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            ProgressBar? progressBar = backupNum switch
+                            {
+                                1 => RestoreBackup1ProgressBar,
+                                2 => RestoreBackup2ProgressBar,
+                                3 => RestoreBackup3ProgressBar,
+                                _ => null
+                            };
+                            
+                            TextBlock? statusText = backupNum switch
+                            {
+                                1 => RestoreBackup1StatusText,
+                                2 => RestoreBackup2StatusText,
+                                3 => RestoreBackup3StatusText,
+                                _ => null
+                            };
+                            
+                            if (progressBar != null && statusText != null)
+                            {
+                                var percentage = value.total > 0 ? (double)value.current / value.total * 100 : 0;
+                                progressBar.Value = percentage;
+                                statusText.Text = $"{value.current}/{value.total}";
+                            }
+                        });
+                    });
+                    
+                    int count = await Task.Run(() => DeleteAllBackups(backupNum, progress));
                     
                     // Reset operation state
                     switch (backupNum)
@@ -579,7 +751,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private int DeleteAllBackups(int backupNum)
+        private int DeleteAllBackups(int backupNum, IProgress<(int current, int total)> progress)
         {
             int count = 0;
             if (!Directory.Exists(ModLibraryPath)) return count;
@@ -623,26 +795,52 @@ namespace FlairX_Mod_Manager.Pages
                 }
             }
             
-            foreach (var dir in modDirs)
+            // Use parallel processing for faster deletion
+            var successCount = 0;
+            var processedCount = 0;
+            var totalCount = modDirs.Count;
+            var lockObj = new object();
+            
+            System.Threading.Tasks.Parallel.ForEach(modDirs, dir =>
             {
                 var modName = new DirectoryInfo(dir).Name;
                 var backupZip = Path.Combine(dir, $"{modName}.mib{backupNum}.zip");
                 
-                if (!File.Exists(backupZip)) continue;
+                if (!File.Exists(backupZip))
+                {
+                    lock (lockObj)
+                    {
+                        processedCount++;
+                        progress?.Report((processedCount, totalCount));
+                    }
+                    return;
+                }
                 
                 try
                 {
                     File.Delete(backupZip);
-                    count++;
+                    
+                    lock (lockObj)
+                    {
+                        successCount++;
+                        processedCount++;
+                        progress?.Report((processedCount, totalCount));
+                    }
+                    
                     Logger.LogInfo($"Deleted backup {backupNum} for mod: {modName}");
                 }
                 catch (Exception ex)
                 {
+                    lock (lockObj)
+                    {
+                        processedCount++;
+                        progress?.Report((processedCount, totalCount));
+                    }
                     Logger.LogError($"Failed to delete backup {backupNum} for mod {modName}", ex);
-                    continue;
                 }
-            }
-            return count;
+            });
+            
+            return successCount;
         }
 
         private async Task ShowDialog(string title, string content, string closeText)

@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Bạn có chắc chắn muốn xóa bộ sao lưu {0}? Hành động này không thể hoàn tác.",
     "Yes": "Có",
     "No": "Không",
-    "Error": "Lỗi"
+    "Error": "Lỗi",
+    "Cancel": "Hủy",
+    "Cancelled": "Đã hủy sao lưu"
 }

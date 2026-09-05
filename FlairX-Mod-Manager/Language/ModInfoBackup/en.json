@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Are you sure you want to delete backup set {0}? This action cannot be undone.",
     "Yes": "Yes",
     "No": "No",
-    "Error": "Error"
+    "Error": "Error",
+    "Cancel": "Cancel",
+    "Cancelled": "Backup cancelled"
 }

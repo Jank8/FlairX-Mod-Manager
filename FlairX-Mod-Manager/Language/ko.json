@@ -418,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Label": "로그 익명화",
   "SettingsPage_AnonymizeLogs_Description": "개인정보 보호를 위해 로그의 사용자 경로와 이름을 자리 표시자로 대체",
   "ShowDuplicates": "중복 표시",
-  "Category_Duplicates": "중복 모드"
+  "Category_Duplicates": "중복 모드",
+  "ModInfoBackup_Cancelled": "백업이 취소되었습니다",
+  "ModInfoBackup_Cancel": "취소"
 }

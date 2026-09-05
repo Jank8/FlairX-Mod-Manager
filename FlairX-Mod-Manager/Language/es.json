@@ -417,5 +417,7 @@
   "SettingsPage_AnonymizeLogs_Label": "Anonimizar registros",
   "SettingsPage_AnonymizeLogs_Description": "Reemplazar rutas y nombres de usuario con marcadores en los registros",
   "ShowDuplicates": "Mostrar duplicados",
-  "Category_Duplicates": "Mods duplicados"
+  "Category_Duplicates": "Mods duplicados",
+  "ModInfoBackup_Cancelled": "Copia de seguridad cancelada",
+  "ModInfoBackup_Cancel": "Cancelar"
 }

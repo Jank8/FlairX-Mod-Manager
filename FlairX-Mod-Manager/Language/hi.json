@@ -418,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Label": "लॉग को गुमनाम करें",
   "SettingsPage_AnonymizeLogs_Description": "गोपनीयता के लिए लॉग में उपयोगकर्ता पथ और नाम को प्लेसहोल्डर से बदलें",
   "ShowDuplicates": "डुप्लिकेट दिखाएं",
-  "Category_Duplicates": "डुप्लिकेट मॉड"
+  "Category_Duplicates": "डुप्लिकेट मॉड",
+  "ModInfoBackup_Cancelled": "बैकअप रद्द किया गया",
+  "ModInfoBackup_Cancel": "रद्द करें"
 }

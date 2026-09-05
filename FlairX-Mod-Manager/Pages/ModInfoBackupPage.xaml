@@ -8,7 +8,16 @@
     mc:Ignorable="d"
     Background="Transparent">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="24">
+    <Page.Resources>
+        <!-- Red Cancel Button Style -->
+        <Style x:Key="RedCancelButtonStyle" TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <SolidColorBrush Color="#F44336"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="24">
         <Grid HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
@@ -42,7 +51,7 @@
                         </StackPanel>
                         
                         <StackPanel Grid.Column="3" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
-                            <ProgressBar x:Name="CreateBackupsProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                            <ProgressBar x:Name="CreateBackupsProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Minimum="0" Maximum="100" />
                             <TextBlock x:Name="CreateBackupsStatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,4,0,0"/>
                         </StackPanel>
                         
@@ -90,7 +99,7 @@
                             </StackPanel>
                             
                             <StackPanel Grid.Column="3" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
-                                <ProgressBar x:Name="RestoreBackup1ProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                                <ProgressBar x:Name="RestoreBackup1ProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Minimum="0" Maximum="100" />
                                 <TextBlock x:Name="RestoreBackup1StatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,4,0,0"/>
                             </StackPanel>
                             
@@ -145,7 +154,7 @@
                             </StackPanel>
                             
                             <StackPanel Grid.Column="3" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
-                                <ProgressBar x:Name="RestoreBackup2ProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                                <ProgressBar x:Name="RestoreBackup2ProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Minimum="0" Maximum="100" />
                                 <TextBlock x:Name="RestoreBackup2StatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,4,0,0"/>
                             </StackPanel>
                             
@@ -200,7 +209,7 @@
                             </StackPanel>
                             
                             <StackPanel Grid.Column="3" Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
-                                <ProgressBar x:Name="RestoreBackup3ProgressBar" Width="130" IsIndeterminate="True" Visibility="Collapsed" ShowPaused="False" ShowError="False" />
+                                <ProgressBar x:Name="RestoreBackup3ProgressBar" Width="130" IsIndeterminate="False" Visibility="Collapsed" ShowPaused="False" ShowError="False" Minimum="0" Maximum="100" />
                                 <TextBlock x:Name="RestoreBackup3StatusText" FontSize="10" Opacity="0.7" HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,4,0,0"/>
                             </StackPanel>
                             

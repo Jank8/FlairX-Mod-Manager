@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Biztosan törölni szeretné a {0} mentési készletet? Ez a művelet nem vonható vissza.",
     "Yes": "Igen",
     "No": "Nem",
-    "Error": "Hiba"
+    "Error": "Hiba",
+    "Cancel": "Mégse",
+    "Cancelled": "Biztonsági mentés megszakítva"
 }

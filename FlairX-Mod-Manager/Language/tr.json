@@ -418,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Label": "Günlükleri anonimleştir",
   "SettingsPage_AnonymizeLogs_Description": "Gizlilik için günlüklerdeki kullanıcı yollarını ve isimlerini yer tutucularla değiştir",
   "ShowDuplicates": "Kopyaları Göster",
-  "Category_Duplicates": "Kopya Modlar"
+  "Category_Duplicates": "Kopya Modlar",
+  "ModInfoBackup_Cancelled": "Yedekleme iptal edildi",
+  "ModInfoBackup_Cancel": "İptal"
 }

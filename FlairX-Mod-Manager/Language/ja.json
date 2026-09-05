@@ -418,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Label": "ログを匿名化",
   "SettingsPage_AnonymizeLogs_Description": "ログ内のユーザーパスと名前をプレースホルダーに置き換える",
   "ShowDuplicates": "重複を表示",
-  "Category_Duplicates": "重複MOD"
+  "Category_Duplicates": "重複MOD",
+  "ModInfoBackup_Cancelled": "バックアップがキャンセルされました",
+  "ModInfoBackup_Cancel": "キャンセル"
 }

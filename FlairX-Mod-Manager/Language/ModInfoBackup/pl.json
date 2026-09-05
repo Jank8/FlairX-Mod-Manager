@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Czy na pewno chcesz usunąć zestaw kopii zapasowej {0}? Ta operacja nie może być cofnięta.",
     "Yes": "Tak",
     "No": "Nie",
-    "Error": "Błąd"
+    "Error": "Błąd",
+    "Cancel": "Anuluj",
+    "Cancelled": "Anulowano tworzenie kopii"
 }

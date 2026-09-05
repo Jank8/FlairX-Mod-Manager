@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Apakah Anda yakin ingin menghapus set cadangan {0}? Tindakan ini tidak dapat dibatalkan.",
     "Yes": "Ya",
     "No": "Tidak",
-    "Error": "Kesalahan"
+    "Error": "Kesalahan",
+    "Cancel": "Batal",
+    "Cancelled": "Pencadangan dibatalkan"
 }

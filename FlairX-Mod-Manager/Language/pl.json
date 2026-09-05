@@ -417,5 +417,7 @@
   "SettingsPage_AnonymizeLogs_Label": "Anonimizuj logi",
   "SettingsPage_AnonymizeLogs_Description": "Zamień ścieżki użytkownika i nazwy na symbole zastępcze w logach dla prywatności",
   "ShowDuplicates": "Pokaż duplikaty",
-  "Category_Duplicates": "Duplikaty modów"
+  "Category_Duplicates": "Duplikaty modów",
+  "ModInfoBackup_Cancelled": "Anulowano tworzenie kopii",
+  "ModInfoBackup_Cancel": "Anuluj"
 }

@@ -418,5 +418,6 @@
   "SettingsPage_AnonymizeLogs_Label": "Naplók anonimizálása",
   "SettingsPage_AnonymizeLogs_Description": "Felhasználói útvonalak és nevek helyettesítése helyőrzőkkel a naplókban",
   "ShowDuplicates": "Duplikátumok megjelenítése",
-  "Category_Duplicates": "Duplikált modok"
+  "Category_Duplicates": "Duplikált modok",
+  "ModInfoBackup_Cancel": "Cancel"
 }

@@ -647,15 +647,23 @@ namespace FlairX_Mod_Manager.Pages
                     // Sync configuration
                     "syncMethod", "namespaces",
                     // Hotkeys
-                    "hotkeys", "defaultHotkeys", "favoriteHotkeys",
-                    // Fingerprint
-                    "IniStructureFingerprint"
+                    "hotkeys", "defaultHotkeys", "favoriteHotkeys"
                 };
 
                 int cleanedCount = 0;
                 int totalFiles = 0;
 
-                foreach (var modDir in System.IO.Directory.GetDirectories(modsPath))
+                // Get all mod directories from all categories
+                var modDirs = new List<string>();
+                foreach (var categoryDir in System.IO.Directory.GetDirectories(modsPath))
+                {
+                    if (System.IO.Directory.Exists(categoryDir))
+                    {
+                        modDirs.AddRange(System.IO.Directory.GetDirectories(categoryDir));
+                    }
+                }
+
+                foreach (var modDir in modDirs)
                 {
                     var modJsonPath = System.IO.Path.Combine(modDir, "mod.json");
                     if (!System.IO.File.Exists(modJsonPath))

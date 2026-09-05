@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "バックアップセット {0} を削除してもよろしいです？ この操作は元に戻せません。",
     "Yes": "はい",
     "No": "いいえ",
-    "Error": "エラー"
+    "Error": "エラー",
+    "Cancel": "キャンセル",
+    "Cancelled": "バックアップがキャンセルされました"
 }

@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Haluatko varmasti poistaa varmuuskopiosarjan {0}? Tätä toimintoa ei voi perua.",
     "Yes": "Kyllä",
     "No": "Ei",
-    "Error": "Virhe"
+    "Error": "Virhe",
+    "Cancel": "Peruuta",
+    "Cancelled": "Varmuuskopiointi peruutettu"
 }

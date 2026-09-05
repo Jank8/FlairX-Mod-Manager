@@ -417,5 +417,6 @@
   "SettingsPage_AnonymizeLogs_Label": "Anonymisoi lokit",
   "SettingsPage_AnonymizeLogs_Description": "Korvaa käyttäjäpolut ja nimet paikkamerkeillä lokeissa",
   "ShowDuplicates": "Näytä kaksoiskappaleet",
-  "Category_Duplicates": "Päällekkäiset modit"
+  "Category_Duplicates": "Päällekkäiset modit",
+  "ModInfoBackup_Cancel": "Cancel"
 }

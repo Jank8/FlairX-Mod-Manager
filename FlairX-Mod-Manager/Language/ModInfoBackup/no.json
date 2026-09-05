@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "Er du sikker på at du vil slette sikkerhetskopisett {0}? Denne handlingen kan ikke angres.",
     "Yes": "Ja",
     "No": "Nei",
-    "Error": "Feil"
+    "Error": "Feil",
+    "Cancel": "Avbryt",
+    "Cancelled": "Sikkerhetskopiering avbrutt"
 }

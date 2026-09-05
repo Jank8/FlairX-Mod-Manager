@@ -25,5 +25,7 @@
     "ModInfoBackup_DeleteConfirm_Message": "¿Estás seguro de que quieres eliminar el conjunto de copia de seguridad {0}? Esta acción no se puede deshacer.",
     "Yes": "Sí",
     "No": "No",
-    "Error": "Error"
+    "Error": "Error",
+    "Cancel": "Cancelar",
+    "Cancelled": "Copia de seguridad cancelada"
 }
