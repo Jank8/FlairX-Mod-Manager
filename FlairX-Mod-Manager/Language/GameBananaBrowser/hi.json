@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "सर्वाधिक डाउनलोड",
     "Sort_MostCommented": "सर्वाधिक टिप्पणियाँ",
     "GB_LoadImages": "छवियां लोड करें",
-    "GB_NoDescription": "कोई विवरण उपलब्ध नहीं है।"
+    "GB_NoDescription": "कोई विवरण उपलब्ध नहीं है।",
+    "SelectFilesToDownload": "डाउनलोड करने के लिए फ़ाइलें चुनें"
 }

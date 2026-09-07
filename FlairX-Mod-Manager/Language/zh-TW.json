@@ -52,7 +52,6 @@
   "Browse_GameBanana_Tooltip": "瀏覽 GameBanana 模組",
   "AddToFavorites_Tooltip": "加入我的最愛",
   "RemoveFromFavorites_Tooltip": "從我的最愛移除",
-  "ContextMenu_CheckUpdates": "檢查更新",
   "OpenDirectory_Tooltip": "點擊開啟目錄",
   "OptimizePreviews_Cancelled": "最佳化已取消。",
   "OptimizePreviews_Completed": "最佳化已完成。",
@@ -420,5 +419,7 @@
   "ShowDuplicates": "顯示重複項",
   "Category_Duplicates": "重複模組",
   "ModInfoBackup_Cancelled": "備份已取消",
-  "ModInfoBackup_Cancel": "取消"
+  "ModInfoBackup_Cancel": "取消",
+  "ContextMenu_QuickUpdate": "快速更新",
+  "Loading": "載入中..."
 }

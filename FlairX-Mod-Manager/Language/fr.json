@@ -53,7 +53,6 @@
   "Browse_GameBanana_Tooltip": "Parcourir les mods GameBanana",
   "AddToFavorites_Tooltip": "Ajouter aux favoris",
   "RemoveFromFavorites_Tooltip": "Retirer des favoris",
-  "ContextMenu_CheckUpdates": "Vérifier les mises à jour",
   "OpenDirectory_Tooltip": "Cliquez pour ouvrir le répertoire",
   "OptimizePreviews_Cancelled": "Optimisation annulée.",
   "OptimizePreviews_Completed": "Optimisation terminée.",
@@ -419,5 +418,7 @@
   "ShowDuplicates": "Afficher les doublons",
   "Category_Duplicates": "Mods en double",
   "ModInfoBackup_Cancelled": "Sauvegarde annulée",
-  "ModInfoBackup_Cancel": "Annuler"
+  "ModInfoBackup_Cancel": "Annuler",
+  "ContextMenu_QuickUpdate": "Mise à jour rapide",
+  "Loading": "Chargement..."
 }

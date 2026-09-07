@@ -52,7 +52,6 @@
   "Browse_GameBanana_Tooltip": "GameBanana modlarına göz at",
   "AddToFavorites_Tooltip": "Favorilere ekle",
   "RemoveFromFavorites_Tooltip": "Favorilerden kaldır",
-  "ContextMenu_CheckUpdates": "Güncellemeleri kontrol et",
   "OpenDirectory_Tooltip": "Dizini açmak için tıklayın",
   "OptimizePreviews_Cancelled": "Optimizasyon iptal edildi.",
   "OptimizePreviews_Completed": "Optimizasyon tamamlandı.",
@@ -420,5 +419,7 @@
   "ShowDuplicates": "Kopyaları Göster",
   "Category_Duplicates": "Kopya Modlar",
   "ModInfoBackup_Cancelled": "Yedekleme iptal edildi",
-  "ModInfoBackup_Cancel": "İptal"
+  "ModInfoBackup_Cancel": "İptal",
+  "ContextMenu_QuickUpdate": "Hızlı güncelleme",
+  "Loading": "Yükleniyor..."
 }

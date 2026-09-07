@@ -55,7 +55,6 @@
   "Browse_GameBanana_Tooltip": "Bla gjennom GameBanana Mods",
   "AddToFavorites_Tooltip": "Legg til i favoritter",
   "RemoveFromFavorites_Tooltip": "Fjern fra favoritter",
-  "ContextMenu_CheckUpdates": "Sjekk etter Oppdateringer",
   "OptimizePreviews_Cancelled": "Optimalisering avbrutt.",
   "OptimizePreviews_Completed": "Optimalisering fullført.",
   "Other_Mods": "Andre Mods",
@@ -419,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Description": "Erstatt brukerstier og navn med plassholdere i logger",
   "ShowDuplicates": "Vis duplikater",
   "Category_Duplicates": "Duplikate mods",
-  "ModInfoBackup_Cancel": "Cancel"
+  "ModInfoBackup_Cancel": "Cancel",
+  "ContextMenu_QuickUpdate": "Hurtigoppdatering",
+  "Loading": "Laster..."
 }

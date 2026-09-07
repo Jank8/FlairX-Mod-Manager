@@ -52,7 +52,6 @@
   "Browse_GameBanana_Tooltip": "Mag-browse ng GameBanana mods",
   "AddToFavorites_Tooltip": "Idagdag sa mga paborito",
   "RemoveFromFavorites_Tooltip": "Alisin sa mga paborito",
-  "ContextMenu_CheckUpdates": "Suriin ang mga update",
   "OpenDirectory_Tooltip": "I-click upang buksan ang directory",
   "OptimizePreviews_Cancelled": "Nakansela ang optimization.",
   "OptimizePreviews_Completed": "Natapos na ang optimization.",
@@ -418,5 +417,7 @@
   "SettingsPage_AnonymizeLogs_Label": "I-anonymize ang mga log",
   "SettingsPage_AnonymizeLogs_Description": "Palitan ang mga landas at pangalan ng user ng mga placeholder sa mga log",
   "ModInfoBackup_Cancelled": "Kinansela ang backup",
-  "ModInfoBackup_Cancel": "Kanselahin"
+  "ModInfoBackup_Cancel": "Kanselahin",
+  "ContextMenu_QuickUpdate": "Mabilis na pag-update",
+  "Loading": "Naglo-load..."
 }

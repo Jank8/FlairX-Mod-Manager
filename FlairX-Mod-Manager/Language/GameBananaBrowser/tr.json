@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "En çok indirilen",
     "Sort_MostCommented": "En çok yorumlanan",
     "GB_LoadImages": "Görselleri Yükle",
-    "GB_NoDescription": "Açıklama mevcut değil."
+    "GB_NoDescription": "Açıklama mevcut değil.",
+    "SelectFilesToDownload": "İndirilecek dosyaları seçin"
 }

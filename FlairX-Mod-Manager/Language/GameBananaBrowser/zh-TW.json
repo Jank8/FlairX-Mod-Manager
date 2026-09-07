@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "最多下載",
     "Sort_MostCommented": "最多留言",
     "GB_LoadImages": "載入圖片",
-    "GB_NoDescription": "暫無描述。"
+    "GB_NoDescription": "暫無描述。",
+    "SelectFilesToDownload": "選擇要下載的文件"
 }

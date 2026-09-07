@@ -55,7 +55,6 @@
   "Browse_GameBanana_Tooltip": "Jelajahi Mod GameBanana",
   "AddToFavorites_Tooltip": "Tambahkan ke favorit",
   "RemoveFromFavorites_Tooltip": "Hapus dari favorit",
-  "ContextMenu_CheckUpdates": "Periksa Pembaruan",
   "OptimizePreviews_Cancelled": "Optimalisasi dibatalkan.",
   "OptimizePreviews_Completed": "Optimalisasi selesai.",
   "Other_Mods": "Mod Lainnya",
@@ -419,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Description": "Ganti jalur dan nama pengguna dengan placeholder di log",
   "ShowDuplicates": "Tampilkan duplikat",
   "Category_Duplicates": "Mod duplikat",
-  "ModInfoBackup_Cancel": "Cancel"
+  "ModInfoBackup_Cancel": "Cancel",
+  "ContextMenu_QuickUpdate": "Pembaruan cepat",
+  "Loading": "Memuat..."
 }

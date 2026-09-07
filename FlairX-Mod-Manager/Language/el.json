@@ -55,7 +55,6 @@
   "Browse_GameBanana_Tooltip": "Περιήγηση Mods GameBanana",
   "AddToFavorites_Tooltip": "Προσθήκη στα αγαπημένα",
   "RemoveFromFavorites_Tooltip": "Αφαίρεση από τα αγαπημένα",
-  "ContextMenu_CheckUpdates": "Έλεγχος για Ενημερώσεις",
   "OptimizePreviews_Cancelled": "Η βελτιστοποίηση ακυρώθηκε.",
   "OptimizePreviews_Completed": "Η βελτιστοποίηση ολοκληρώθηκε.",
   "Other_Mods": "Άλλα Mods",
@@ -418,5 +417,7 @@
   "SettingsPage_AnonymizeLogs_Description": "Αντικατάσταση διαδρομών και ονομάτων χρήστη με κράτηση θέσης",
   "ShowDuplicates": "Εμφάνιση διπλότυπων",
   "Category_Duplicates": "Διπλότυπα mods",
-  "ModInfoBackup_Cancel": "Cancel"
+  "ModInfoBackup_Cancel": "Cancel",
+  "ContextMenu_QuickUpdate": "Γρήγορη ενημέρωση",
+  "Loading": "Φόρτωση..."
 }

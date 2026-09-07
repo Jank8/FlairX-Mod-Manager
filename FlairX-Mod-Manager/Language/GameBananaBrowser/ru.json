@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "Больше загрузок",
     "Sort_MostCommented": "Больше комментариев",
     "GB_LoadImages": "Загрузить изображения",
-    "GB_NoDescription": "Описание недоступно."
+    "GB_NoDescription": "Описание недоступно.",
+    "SelectFilesToDownload": "Выберите файлы для загрузки"
 }

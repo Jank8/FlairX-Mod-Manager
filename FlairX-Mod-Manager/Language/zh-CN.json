@@ -53,7 +53,6 @@
   "Browse_GameBanana_Tooltip": "浏览 GameBanana 模组",
   "AddToFavorites_Tooltip": "添加到收藏夹",
   "RemoveFromFavorites_Tooltip": "从收藏夹中移除",
-  "ContextMenu_CheckUpdates": "检查更新",
   "OpenDirectory_Tooltip": "点击打开目录",
   "OptimizePreviews_Cancelled": "优化已取消。",
   "OptimizePreviews_Completed": "优化已完成。",
@@ -418,5 +417,7 @@
   "SettingsPage_AnonymizeLogs_Label": "匿名化日志",
   "SettingsPage_AnonymizeLogs_Description": "将日志中的用户路径和名称替换为占位符以保护隐私",
   "ModInfoBackup_Cancelled": "备份已取消",
-  "ModInfoBackup_Cancel": "取消"
+  "ModInfoBackup_Cancel": "取消",
+  "ContextMenu_QuickUpdate": "快速更新",
+  "Loading": "加载中..."
 }

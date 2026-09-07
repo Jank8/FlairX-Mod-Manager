@@ -55,7 +55,6 @@
   "Browse_GameBanana_Tooltip": "Blader door GameBanana Mods",
   "AddToFavorites_Tooltip": "Toevoegen aan favorieten",
   "RemoveFromFavorites_Tooltip": "Verwijderen uit favorieten",
-  "ContextMenu_CheckUpdates": "Controleer op Updates",
   "OptimizePreviews_Cancelled": "Optimalisatie geannuleerd.",
   "OptimizePreviews_Completed": "Optimalisatie voltooid.",
   "Other_Mods": "Andere Mods",
@@ -419,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Description": "Vervang gebruikerspaden en namen door placeholders in logs",
   "ShowDuplicates": "Duplicaten weergeven",
   "Category_Duplicates": "Dubbele mods",
-  "ModInfoBackup_Cancel": "Cancel"
+  "ModInfoBackup_Cancel": "Cancel",
+  "ContextMenu_QuickUpdate": "Snelle update",
+  "Loading": "Laden..."
 }

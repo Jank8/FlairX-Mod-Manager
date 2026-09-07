@@ -55,7 +55,6 @@
   "Browse_GameBanana_Tooltip": "GameBanana Modok Böngészése",
   "AddToFavorites_Tooltip": "Hozzáadás a kedvencekhez",
   "RemoveFromFavorites_Tooltip": "Eltávolítás a kedvencekből",
-  "ContextMenu_CheckUpdates": "Frissítések Keresése",
   "OptimizePreviews_Cancelled": "Optimalizálás megszakítva.",
   "OptimizePreviews_Completed": "Optimalizálás befejezve.",
   "Other_Mods": "Egyéb Modok",
@@ -419,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Description": "Felhasználói útvonalak és nevek helyettesítése helyőrzőkkel a naplókban",
   "ShowDuplicates": "Duplikátumok megjelenítése",
   "Category_Duplicates": "Duplikált modok",
-  "ModInfoBackup_Cancel": "Cancel"
+  "ModInfoBackup_Cancel": "Cancel",
+  "ContextMenu_QuickUpdate": "Gyors frissítés",
+  "Loading": "Betöltés..."
 }

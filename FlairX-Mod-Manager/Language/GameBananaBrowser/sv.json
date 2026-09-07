@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "Mest nedladdade",
     "Sort_MostCommented": "Mest kommenterade",
     "GB_LoadImages": "Ladda bilder",
-    "GB_NoDescription": "Ingen beskrivning tillgänglig."
+    "GB_NoDescription": "Ingen beskrivning tillgänglig.",
+    "SelectFilesToDownload": "Välj filer att ladda ner"
 }

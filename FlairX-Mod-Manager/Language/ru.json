@@ -53,7 +53,6 @@
   "Browse_GameBanana_Tooltip": "Просмотр модов GameBanana",
   "AddToFavorites_Tooltip": "Добавить в избранное",
   "RemoveFromFavorites_Tooltip": "Удалить из избранного",
-  "ContextMenu_CheckUpdates": "Проверить обновления",
   "OpenDirectory_Tooltip": "Нажмите, чтобы открыть каталог",
   "OptimizePreviews_Cancelled": "Оптимизация отменена.",
   "OptimizePreviews_Completed": "Оптимизация выполнена.",
@@ -420,5 +419,7 @@
   "ShowDuplicates": "Показать дубликаты",
   "Category_Duplicates": "Дубликаты модов",
   "ModInfoBackup_Cancelled": "Резервное копирование отменено",
-  "ModInfoBackup_Cancel": "Отмена"
+  "ModInfoBackup_Cancel": "Отмена",
+  "ContextMenu_QuickUpdate": "Быстрое обновление",
+  "Loading": "Загрузка..."
 }

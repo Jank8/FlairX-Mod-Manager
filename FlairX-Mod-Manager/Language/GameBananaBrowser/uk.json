@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "Найбільше завантажень",
     "Sort_MostCommented": "Найбільше коментарів",
     "GB_LoadImages": "Завантажити зображення",
-    "GB_NoDescription": "Опис недоступний."
+    "GB_NoDescription": "Опис недоступний.",
+    "SelectFilesToDownload": "Виберіть файли для завантаження"
 }

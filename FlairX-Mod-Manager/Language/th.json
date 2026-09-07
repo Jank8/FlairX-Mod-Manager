@@ -52,7 +52,6 @@
   "Browse_GameBanana_Tooltip": "เรียกดู Mod จาก GameBanana",
   "AddToFavorites_Tooltip": "เพิ่มในรายการโปรด",
   "RemoveFromFavorites_Tooltip": "ลบออกจากรายการโปรด",
-  "ContextMenu_CheckUpdates": "ตรวจสอบการอัปเดต",
   "OpenDirectory_Tooltip": "คลิกเพื่อเปิดไดเรกทอรี",
   "OptimizePreviews_Cancelled": "การปรับให้เหมาะสมถูกยกเลิก",
   "OptimizePreviews_Completed": "การปรับให้เหมาะสมเสร็จสิ้น",
@@ -420,5 +419,7 @@
   "ShowDuplicates": "แสดงรายการที่ซ้ำกัน",
   "Category_Duplicates": "ม็อดที่ซ้ำกัน",
   "ModInfoBackup_Cancelled": "ยกเลิกการสำรองข้อมูล",
-  "ModInfoBackup_Cancel": "ยกเลิก"
+  "ModInfoBackup_Cancel": "ยกเลิก",
+  "ContextMenu_QuickUpdate": "อัปเดตด่วน",
+  "Loading": "กำลังโหลด..."
 }

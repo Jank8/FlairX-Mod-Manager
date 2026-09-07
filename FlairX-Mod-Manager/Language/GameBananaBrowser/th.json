@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "ดาวน์โหลดมากที่สุด",
     "Sort_MostCommented": "แสดงความคิดเห็นมากที่สุด",
     "GB_LoadImages": "โหลดรูปภาพ",
-    "GB_NoDescription": "ไม่มีคำอธิบาย"
+    "GB_NoDescription": "ไม่มีคำอธิบาย",
+    "SelectFilesToDownload": "เลือกไฟล์ที่จะดาวน์โหลด"
 }

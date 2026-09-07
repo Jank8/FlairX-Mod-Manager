@@ -55,7 +55,6 @@
   "Browse_GameBanana_Tooltip": "Procházet Mody GameBanana",
   "AddToFavorites_Tooltip": "Přidat do oblíbených",
   "RemoveFromFavorites_Tooltip": "Odebrat z oblíbených",
-  "ContextMenu_CheckUpdates": "Zkontrolovat Aktualizace",
   "OptimizePreviews_Cancelled": "Optimalizace zrušena.",
   "OptimizePreviews_Completed": "Optimalizace dokončena.",
   "Other_Mods": "Ostatní Mody",
@@ -419,5 +418,7 @@
   "ShowDuplicates": "Zobrazit duplikáty",
   "Category_Duplicates": "Duplicitní módy",
   "ModInfoBackup_Cancelled": "Záloha zrušena",
-  "ModInfoBackup_Cancel": "Zrušit"
+  "ModInfoBackup_Cancel": "Zrušit",
+  "ContextMenu_QuickUpdate": "Rychlá aktualizace",
+  "Loading": "Načítání..."
 }

@@ -53,7 +53,6 @@
   "Browse_GameBanana_Tooltip": "GameBanana 모드 탐색",
   "AddToFavorites_Tooltip": "즐겨찾기에 추가",
   "RemoveFromFavorites_Tooltip": "즐겨찾기에서 제거",
-  "ContextMenu_CheckUpdates": "업데이트 확인",
   "OpenDirectory_Tooltip": "디렉토리를 열려면 클릭",
   "OptimizePreviews_Cancelled": "최적화가 취소되었습니다.",
   "OptimizePreviews_Completed": "최적화가 완료되었습니다.",
@@ -420,5 +419,7 @@
   "ShowDuplicates": "중복 표시",
   "Category_Duplicates": "중복 모드",
   "ModInfoBackup_Cancelled": "백업이 취소되었습니다",
-  "ModInfoBackup_Cancel": "취소"
+  "ModInfoBackup_Cancel": "취소",
+  "ContextMenu_QuickUpdate": "빠른 업데이트",
+  "Loading": "로딩 중..."
 }

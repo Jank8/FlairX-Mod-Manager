@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "Nejvíce stažení",
     "Sort_MostCommented": "Nejvíce komentářů",
     "GB_LoadImages": "Načíst obrázky",
-    "GB_NoDescription": "Popis není k dispozici."
+    "GB_NoDescription": "Popis není k dispozici.",
+    "SelectFilesToDownload": "Vyberte soubory ke stažení"
 }

@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "다운로드 많은순",
     "Sort_MostCommented": "댓글 많은순",
     "GB_LoadImages": "이미지 불러오기",
-    "GB_NoDescription": "설명을 사용할 수 없습니다."
+    "GB_NoDescription": "설명을 사용할 수 없습니다.",
+    "SelectFilesToDownload": "다운로드할 파일 선택"
 }

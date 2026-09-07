@@ -55,7 +55,6 @@
   "Browse_GameBanana_Tooltip": "Переглянути моди GameBanana",
   "AddToFavorites_Tooltip": "Додати до обраного",
   "RemoveFromFavorites_Tooltip": "Видалити з обраного",
-  "ContextMenu_CheckUpdates": "Перевірити оновлення",
   "OptimizePreviews_Cancelled": "Оптимізацію скасовано.",
   "OptimizePreviews_Completed": "Оптимізацію завершено.",
   "Other_Mods": "Інші моди",
@@ -419,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Description": "Замінити шляхи та імена користувачів заповнювачами в журналах",
   "ShowDuplicates": "Показати дублікати",
   "Category_Duplicates": "Дублікати модів",
-  "ModInfoBackup_Cancel": "Cancel"
+  "ModInfoBackup_Cancel": "Cancel",
+  "ContextMenu_QuickUpdate": "Швидке оновлення",
+  "Loading": "Завантаження..."
 }

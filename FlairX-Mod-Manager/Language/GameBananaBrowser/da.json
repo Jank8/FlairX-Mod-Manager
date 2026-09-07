@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "Mest downloadede",
     "Sort_MostCommented": "Mest kommenterede",
     "GB_LoadImages": "Indlæs billeder",
-    "GB_NoDescription": "Ingen beskrivelse tilgængelig."
+    "GB_NoDescription": "Ingen beskrivelse tilgængelig.",
+    "SelectFilesToDownload": "Vælg filer til download"
 }

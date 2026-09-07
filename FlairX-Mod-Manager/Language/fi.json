@@ -55,7 +55,6 @@
   "Browse_GameBanana_Tooltip": "Selaa GameBanana modeja",
   "AddToFavorites_Tooltip": "Lisää suosikkeihin",
   "RemoveFromFavorites_Tooltip": "Poista suosikeista",
-  "ContextMenu_CheckUpdates": "Tarkista päivitykset",
   "OptimizePreviews_Cancelled": "Optimointi peruutettu.",
   "OptimizePreviews_Completed": "Optimointi valmis.",
   "Other_Mods": "Muut modit",
@@ -418,5 +417,7 @@
   "SettingsPage_AnonymizeLogs_Description": "Korvaa käyttäjäpolut ja nimet paikkamerkeillä lokeissa",
   "ShowDuplicates": "Näytä kaksoiskappaleet",
   "Category_Duplicates": "Päällekkäiset modit",
-  "ModInfoBackup_Cancel": "Cancel"
+  "ModInfoBackup_Cancel": "Cancel",
+  "ContextMenu_QuickUpdate": "Nopea päivitys",
+  "Loading": "Ladataan..."
 }

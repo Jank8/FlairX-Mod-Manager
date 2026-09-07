@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "Mest nedlastet",
     "Sort_MostCommented": "Mest kommentert",
     "GB_LoadImages": "Last inn bilder",
-    "GB_NoDescription": "Ingen beskrivelse tilgjengelig."
+    "GB_NoDescription": "Ingen beskrivelse tilgjengelig.",
+    "SelectFilesToDownload": "Velg filer å laste ned"
 }

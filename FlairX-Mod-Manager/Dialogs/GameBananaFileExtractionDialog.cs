@@ -166,6 +166,95 @@ namespace FlairX_Mod_Manager.Dialogs
                 _modNameTextBox.TextChanged += (s, e) => ValidateInputs();
                 stackPanel.Children.Add(_modNameTextBox);
 
+                // File Selection (show if multiple files available)
+                if (selectedFiles != null && selectedFiles.Count > 0)
+                {
+                    var filesLabel = new TextBlock
+                    {
+                        Text = SharedUtilities.GetTranslation(_lang, "SelectFilesToDownload") ?? "Select Files to Download",
+                        FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                        Margin = new Thickness(0, 0, 0, 4)
+                    };
+                    stackPanel.Children.Add(filesLabel);
+
+                    // Create ScrollViewer with StackPanel for file checkboxes
+                    var fileScrollViewer = new ScrollViewer
+                    {
+                        MaxHeight = 200,
+                        Margin = new Thickness(0, 0, 0, 8),
+                        VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+                    };
+
+                    var fileStack = new StackPanel { Spacing = 4 };
+
+                    foreach (var file in selectedFiles)
+                    {
+                        var fileCheckBox = new CheckBox
+                        {
+                            IsChecked = file.IsSelected,
+                            Padding = new Thickness(8, 6, 8, 6)
+                        };
+
+                        // Create content for checkbox
+                        var fileGrid = new Grid();
+                        fileGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+                        fileGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+
+                        var fileInfoStack = new StackPanel();
+                        
+                        var fileNameText = new TextBlock
+                        {
+                            Text = file.FileName,
+                            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
+                        };
+                        fileInfoStack.Children.Add(fileNameText);
+
+                        var fileSizeText = new TextBlock
+                        {
+                            Text = file.FileSizeFormatted,
+                            FontSize = 12,
+                            Opacity = 0.6
+                        };
+                        fileInfoStack.Children.Add(fileSizeText);
+
+                        Grid.SetRow(fileInfoStack, 0);
+                        fileGrid.Children.Add(fileInfoStack);
+
+                        if (!string.IsNullOrEmpty(file.Description))
+                        {
+                            var descText = new TextBlock
+                            {
+                                Text = file.Description,
+                                FontSize = 12,
+                                Opacity = 0.6,
+                                TextWrapping = TextWrapping.Wrap,
+                                Margin = new Thickness(0, 4, 0, 0)
+                            };
+                            Grid.SetRow(descText, 1);
+                            fileGrid.Children.Add(descText);
+                        }
+
+                        fileCheckBox.Content = fileGrid;
+
+                        // Bind IsChecked to file.IsSelected
+                        fileCheckBox.Checked += (s, e) => 
+                        { 
+                            file.IsSelected = true;
+                            ValidateInputs(); // Revalidate when file is selected
+                        };
+                        fileCheckBox.Unchecked += (s, e) => 
+                        { 
+                            file.IsSelected = false;
+                            ValidateInputs(); // Revalidate when file is unselected
+                        };
+
+                        fileStack.Children.Add(fileCheckBox);
+                    }
+
+                    fileScrollViewer.Content = fileStack;
+                    stackPanel.Children.Add(fileScrollViewer);
+                }
+
                 // Category selection (only show in normal mode)
                 var categoryLabel = new TextBlock
                 {
@@ -789,6 +878,10 @@ namespace FlairX_Mod_Manager.Dialogs
             catch (Exception ex)
             {
                 Logger.LogError("Failed to download and install mod", ex);
+                
+                // Cleanup failed installation if it was a new mod
+                CleanupFailedInstallation();
+                
                 await ShowError(string.Format(SharedUtilities.GetTranslation(_lang, "InstallationFailed"), ex.Message));
                 IsPrimaryButtonEnabled = true;
                 IsSecondaryButtonEnabled = true;
@@ -2027,6 +2120,14 @@ namespace FlairX_Mod_Manager.Dialogs
                           !string.IsNullOrWhiteSpace(category) &&
                           !IsReservedWindowsName(modName) && 
                           !IsReservedWindowsName(category);
+            
+            // Check if at least one file is selected (if files are available)
+            if (_selectedFiles != null && _selectedFiles.Count > 0)
+            {
+                bool hasSelectedFile = _selectedFiles.Any(f => f.IsSelected);
+                isValid = isValid && hasSelectedFile;
+            }
+            
             IsPrimaryButtonEnabled = isValid;
         }
 

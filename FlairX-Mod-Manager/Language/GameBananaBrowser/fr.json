@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "Les plus téléchargés",
     "Sort_MostCommented": "Les plus commentés",
     "GB_LoadImages": "Charger les images",
-    "GB_NoDescription": "Aucune description disponible."
+    "GB_NoDescription": "Aucune description disponible.",
+    "SelectFilesToDownload": "Sélectionner les fichiers à télécharger"
 }

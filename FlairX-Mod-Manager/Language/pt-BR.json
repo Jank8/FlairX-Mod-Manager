@@ -53,7 +53,6 @@
   "Browse_GameBanana_Tooltip": "Navegar mods do GameBanana",
   "AddToFavorites_Tooltip": "Adicionar aos favoritos",
   "RemoveFromFavorites_Tooltip": "Remover dos favoritos",
-  "ContextMenu_CheckUpdates": "Verificar atualizações",
   "OpenDirectory_Tooltip": "Clique para abrir o diretório",
   "OptimizePreviews_Cancelled": "Otimização cancelada.",
   "OptimizePreviews_Completed": "Otimização concluída.",
@@ -418,5 +417,7 @@
   "SettingsPage_AnonymizeLogs_Label": "Anonimizar logs",
   "SettingsPage_AnonymizeLogs_Description": "Substituir caminhos e nomes de usuário por marcadores nos logs",
   "ModInfoBackup_Cancelled": "Backup cancelado",
-  "ModInfoBackup_Cancel": "Cancelar"
+  "ModInfoBackup_Cancel": "Cancelar",
+  "ContextMenu_QuickUpdate": "Atualização rápida",
+  "Loading": "Carregando..."
 }

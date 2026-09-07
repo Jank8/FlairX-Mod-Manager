@@ -52,7 +52,6 @@
   "Browse_GameBanana_Tooltip": "Duyệt mod GameBanana",
   "AddToFavorites_Tooltip": "Thêm vào yêu thích",
   "RemoveFromFavorites_Tooltip": "Xóa khỏi yêu thích",
-  "ContextMenu_CheckUpdates": "Kiểm tra cập nhật",
   "OpenDirectory_Tooltip": "Nhấp để mở thư mục",
   "OptimizePreviews_Cancelled": "Tối ưu hóa đã bị hủy.",
   "OptimizePreviews_Completed": "Tối ưu hóa đã hoàn thành.",
@@ -420,5 +419,7 @@
   "ShowDuplicates": "Hiển thị bản sao",
   "Category_Duplicates": "Mod trùng lặp",
   "ModInfoBackup_Cancelled": "Đã hủy sao lưu",
-  "ModInfoBackup_Cancel": "Hủy"
+  "ModInfoBackup_Cancel": "Hủy",
+  "ContextMenu_QuickUpdate": "Cập nhật nhanh",
+  "Loading": "Đang tải..."
 }

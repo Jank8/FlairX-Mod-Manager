@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "Eniten ladatut",
     "Sort_MostCommented": "Eniten kommentoidut",
     "GB_LoadImages": "Lataa kuvat",
-    "GB_NoDescription": "Ei kuvausta saatavilla."
+    "GB_NoDescription": "Ei kuvausta saatavilla.",
+    "SelectFilesToDownload": "Valitse ladattavat tiedostot"
 }

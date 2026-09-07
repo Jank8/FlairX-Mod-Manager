@@ -95,5 +95,6 @@
     "Sort_MostDownloaded": "ダウンロード数",
     "Sort_MostCommented": "コメント数",
     "GB_LoadImages": "画像を読み込む",
-    "GB_NoDescription": "説明がありません。"
+    "GB_NoDescription": "説明がありません。",
+    "SelectFilesToDownload": "ダウンロードするファイルを選択"
 }

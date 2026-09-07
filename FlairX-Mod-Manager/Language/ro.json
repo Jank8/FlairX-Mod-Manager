@@ -55,7 +55,6 @@
   "Browse_GameBanana_Tooltip": "Răsfoiește Modurile GameBanana",
   "AddToFavorites_Tooltip": "Adaugă la favorite",
   "RemoveFromFavorites_Tooltip": "Elimină din favorite",
-  "ContextMenu_CheckUpdates": "Verifică Actualizări",
   "OptimizePreviews_Cancelled": "Optimizare anulată.",
   "OptimizePreviews_Completed": "Optimizare finalizată.",
   "Other_Mods": "Alte Moduri",
@@ -419,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Description": "Înlocuiți căile și numele utilizatorilor cu substituenți în jurnale",
   "ShowDuplicates": "Afișează dubluri",
   "Category_Duplicates": "Moduri duplicate",
-  "ModInfoBackup_Cancel": "Cancel"
+  "ModInfoBackup_Cancel": "Cancel",
+  "ContextMenu_QuickUpdate": "Actualizare rapidă",
+  "Loading": "Se încarcă..."
 }

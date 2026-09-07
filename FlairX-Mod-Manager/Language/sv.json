@@ -55,7 +55,6 @@
   "Browse_GameBanana_Tooltip": "Bläddra bland GameBanana-moddar",
   "AddToFavorites_Tooltip": "Lägg till i favoriter",
   "RemoveFromFavorites_Tooltip": "Ta bort från favoriter",
-  "ContextMenu_CheckUpdates": "Sök efter uppdateringar",
   "OptimizePreviews_Cancelled": "Optimering avbruten.",
   "OptimizePreviews_Completed": "Optimering slutförd.",
   "Other_Mods": "Andra moddar",
@@ -419,5 +418,7 @@
   "SettingsPage_AnonymizeLogs_Description": "Ersätt användarsökvägar och namn med platshållare i loggar",
   "ShowDuplicates": "Visa dubbletter",
   "Category_Duplicates": "Dubbla mods",
-  "ModInfoBackup_Cancel": "Cancel"
+  "ModInfoBackup_Cancel": "Cancel",
+  "ContextMenu_QuickUpdate": "Snabb uppdatering",
+  "Loading": "Laddar..."
 }

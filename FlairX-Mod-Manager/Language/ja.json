@@ -53,7 +53,6 @@
   "Browse_GameBanana_Tooltip": "GameBanana mod を閲覧",
   "AddToFavorites_Tooltip": "お気に入りに追加",
   "RemoveFromFavorites_Tooltip": "お気に入りから削除",
-  "ContextMenu_CheckUpdates": "アップデートを確認",
   "OpenDirectory_Tooltip": "ディレクトリを開くにはクリック",
   "OptimizePreviews_Cancelled": "最適化をキャンセルしました。",
   "OptimizePreviews_Completed": "最適化が完了しました。",
@@ -420,5 +419,7 @@
   "ShowDuplicates": "重複を表示",
   "Category_Duplicates": "重複MOD",
   "ModInfoBackup_Cancelled": "バックアップがキャンセルされました",
-  "ModInfoBackup_Cancel": "キャンセル"
+  "ModInfoBackup_Cancel": "キャンセル",
+  "ContextMenu_QuickUpdate": "クイックアップデート",
+  "Loading": "読み込み中..."
 }

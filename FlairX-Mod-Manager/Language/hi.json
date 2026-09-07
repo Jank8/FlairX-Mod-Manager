@@ -52,7 +52,6 @@
   "Browse_GameBanana_Tooltip": "GameBanana मॉड ब्राउज़ करें",
   "AddToFavorites_Tooltip": "पसंदीदा में जोड़ें",
   "RemoveFromFavorites_Tooltip": "पसंदीदा से हटाएं",
-  "ContextMenu_CheckUpdates": "अपडेट जांचें",
   "OpenDirectory_Tooltip": "डायरेक्टरी खोलने के लिए क्लिक करें",
   "OptimizePreviews_Cancelled": "अनुकूलन रद्द किया गया।",
   "OptimizePreviews_Completed": "अनुकूलन पूरा हुआ।",
@@ -420,5 +419,7 @@
   "ShowDuplicates": "डुप्लिकेट दिखाएं",
   "Category_Duplicates": "डुप्लिकेट मॉड",
   "ModInfoBackup_Cancelled": "बैकअप रद्द किया गया",
-  "ModInfoBackup_Cancel": "रद्द करें"
+  "ModInfoBackup_Cancel": "रद्द करें",
+  "ContextMenu_QuickUpdate": "त्वरित अपडेट",
+  "Loading": "लोड हो रहा है..."
 }

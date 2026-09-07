@@ -731,18 +731,18 @@ namespace FlairX_Mod_Manager.Pages
                     openUrlItem.Click += ContextMenu_OpenUrl_Click;
                     menuFlyout.Items.Add(openUrlItem);
                     
-                    // Check for Updates option (only if mod has GameBanana URL)
+                    // Quick Update option (only if mod has GameBanana URL)
                     var modId = FlairX_Mod_Manager.Services.GameBananaService.ExtractModIdFromUrl(modUrl ?? "");
                     if (modId.HasValue)
                     {
-                        var checkUpdatesItem = new MenuFlyoutItem
+                        var quickUpdateItem = new MenuFlyoutItem
                         {
-                            Text = SharedUtilities.GetTranslation(lang, "ContextMenu_CheckUpdates"),
+                            Text = SharedUtilities.GetTranslation(lang, "ContextMenu_QuickUpdate"),
                             Icon = new FontIcon { Glyph = "\uE895" },
                             Tag = modTile
                         };
-                        checkUpdatesItem.Click += ContextMenu_CheckUpdates_Click;
-                        menuFlyout.Items.Add(checkUpdatesItem);
+                        quickUpdateItem.Click += ContextMenu_CheckUpdates_Click;
+                        menuFlyout.Items.Add(quickUpdateItem);
                     }
                     
                     menuFlyout.Items.Add(new MenuFlyoutSeparator());
@@ -1659,7 +1659,7 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void ContextMenu_CheckUpdates_Click(object sender, RoutedEventArgs e)
+        private async void ContextMenu_CheckUpdates_Click(object sender, RoutedEventArgs e)
         {
             if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
             {
@@ -1669,17 +1669,111 @@ namespace FlairX_Mod_Manager.Pages
                     // Check if it's a GameBanana URL
                     if (modUrl.Contains("gamebanana.com", StringComparison.OrdinalIgnoreCase))
                     {
+                        // Extract mod ID from URL
+                        var modId = FlairX_Mod_Manager.Services.GameBananaService.ExtractModIdFromUrl(modUrl);
+                        if (!modId.HasValue)
+                        {
+                            Logger.LogWarning("Failed to extract mod ID from URL");
+                            return;
+                        }
+
                         // Get game tag from current game
                         var gameTag = SettingsManager.CurrentSelectedGame;
-                        if (!string.IsNullOrEmpty(gameTag))
+                        if (string.IsNullOrEmpty(gameTag))
                         {
-                            // Open GameBanana browser with mod URL and mod path
-                            var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
-                            mainWindow?.ShowGameBananaBrowserPanel(gameTag, modUrl, modTile.Directory);
+                            Logger.LogWarning("No game tag found, cannot quick update");
+                            return;
                         }
-                        else
+
+                        // Show loading notification
+                        var lang = SharedUtilities.LoadLanguageDictionary();
+                        if (App.Current is App _app && _app.MainWindow is MainWindow _mainWin)
+                            _mainWin.ShowInfoBar("", SharedUtilities.GetTranslation(lang, "Loading") ?? "Loading...", Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational, 3000);
+
+                        try
                         {
-                            Logger.LogWarning("No game tag found, cannot open GameBanana browser");
+                            // Fetch mod details from GameBanana API
+                            var modDetails = await Services.GameBananaService.GetModDetailsAsync(modId.Value);
+                            
+                            if (modDetails == null || !modDetails.IsAvailable)
+                            {
+                                Logger.LogError("Failed to get mod details from API or mod is unavailable");
+                                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) 
+                                    _mw.ShowErrorInfo(SharedUtilities.GetTranslation(lang, "ConnectionErrorMessage") ?? "Connection error");
+                                return;
+                            }
+
+                            // Check if mod has files
+                            if (modDetails.Files == null || modDetails.Files.Count == 0)
+                            {
+                                Logger.LogWarning("Mod has no files available");
+                                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) 
+                                    _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "NoFilesAvailable") ?? "No files available");
+                                return;
+                            }
+
+                            // Convert ModFile to GameBananaFileViewModel
+                            var fileViewModels = modDetails.Files.Select(f => new Models.GameBananaFileViewModel
+                            {
+                                Id = f.Id,
+                                FileName = f.FileName,
+                                Description = f.Description,
+                                FileSize = f.FileSize,
+                                DateAdded = f.DateAdded,
+                                DownloadCount = f.DownloadCount,
+                                DownloadUrl = f.DownloadUrl,
+                                IsSelected = false // User will select in dialog
+                            }).ToList();
+
+                            // Prepare data for dialog
+                            var authorName = modDetails.Submitter?.Name ?? "unknown";
+                            var dateUpdated = (modDetails.DateUpdated ?? 0) > 0 ? modDetails.DateUpdated ?? 0 : modDetails.DateAdded ?? 0;
+                            var categoryName = modDetails.Category?.Name;
+                            var modName = modDetails.Name;
+                            var existingModPath = modTile.Directory; // Use current mod path
+
+                            // Create and show file extraction dialog
+                            var extractDialog = new Dialogs.GameBananaFileExtractionDialog(
+                                fileViewModels,
+                                modName,
+                                gameTag,
+                                modDetails.ProfileUrl,
+                                authorName,
+                                modDetails.Id,
+                                dateUpdated,
+                                categoryName,
+                                modDetails.PreviewMedia,
+                                modTile.IsNSFW,
+                                modDetails.Version,
+                                existingModPath);
+
+                            // Set XamlRoot for dialog
+                            if (App.Current is App _appx && _appx.MainWindow is MainWindow _mainWinx && _mainWinx.Content is FrameworkElement fe)
+                            {
+                                extractDialog.XamlRoot = fe.XamlRoot;
+                            }
+
+                            // Track if mod was installed
+                            bool modWasInstalled = false;
+                            extractDialog.ModInstalled += (s, e) => { modWasInstalled = true; };
+
+                            var result = await extractDialog.ShowAsync();
+
+                            // Reload mod grid only if mod was actually installed
+                            if (modWasInstalled)
+                            {
+                                var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
+                                if (mainWindow != null)
+                                {
+                                    await mainWindow.ReloadModsAsync();
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError($"Failed to quick update mod: {ex.Message}", ex);
+                            if (App.Current is App _a && _a.MainWindow is MainWindow _mw) 
+                                _mw.ShowErrorInfo(SharedUtilities.GetTranslation(lang, "Error_Generic") ?? "Error");
                         }
                     }
                     else
