@@ -177,62 +177,110 @@ namespace FlairX_Mod_Manager.Dialogs
                     };
                     stackPanel.Children.Add(filesLabel);
 
+                    // Border wrapping file list (same as GameBanana browser)
+                    var fileBorder = new Border
+                    {
+                        Background = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"],
+                        BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"],
+                        BorderThickness = new Thickness(1),
+                        CornerRadius = new CornerRadius(8),
+                        Padding = new Thickness(8),
+                        Margin = new Thickness(0, 0, 0, 8)
+                    };
+
                     // Create ScrollViewer with StackPanel for file checkboxes
                     var fileScrollViewer = new ScrollViewer
                     {
-                        MaxHeight = 200,
-                        Margin = new Thickness(0, 0, 0, 8),
+                        MaxHeight = 300,
                         VerticalScrollBarVisibility = ScrollBarVisibility.Auto
                     };
 
-                    var fileStack = new StackPanel { Spacing = 4 };
+                    var fileStack = new StackPanel { Spacing = 0 };
 
                     foreach (var file in selectedFiles)
                     {
                         var fileCheckBox = new CheckBox
                         {
                             IsChecked = file.IsSelected,
-                            Padding = new Thickness(8, 6, 8, 6)
+                            Padding = new Thickness(12, 8, 12, 8),
+                            HorizontalAlignment = HorizontalAlignment.Stretch,
+                            HorizontalContentAlignment = HorizontalAlignment.Stretch
                         };
 
-                        // Create content for checkbox
+                        // Create content grid with 3 rows (like GameBanana browser)
                         var fileGrid = new Grid();
                         fileGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
                         fileGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
+                        fileGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Auto) });
 
-                        var fileInfoStack = new StackPanel();
-                        
+                        // Row 0: File name
                         var fileNameText = new TextBlock
                         {
                             Text = file.FileName,
                             FontWeight = Microsoft.UI.Text.FontWeights.SemiBold
                         };
-                        fileInfoStack.Children.Add(fileNameText);
+                        Grid.SetRow(fileNameText, 0);
+                        fileGrid.Children.Add(fileNameText);
 
-                        var fileSizeText = new TextBlock
-                        {
-                            Text = file.FileSizeFormatted,
-                            FontSize = 12,
-                            Opacity = 0.6
-                        };
-                        fileInfoStack.Children.Add(fileSizeText);
-
-                        Grid.SetRow(fileInfoStack, 0);
-                        fileGrid.Children.Add(fileInfoStack);
-
+                        // Row 1: Description (if exists)
                         if (!string.IsNullOrEmpty(file.Description))
                         {
                             var descText = new TextBlock
                             {
                                 Text = file.Description,
-                                FontSize = 12,
-                                Opacity = 0.6,
                                 TextWrapping = TextWrapping.Wrap,
+                                Opacity = 0.7,
+                                FontSize = 12,
                                 Margin = new Thickness(0, 4, 0, 0)
                             };
                             Grid.SetRow(descText, 1);
                             fileGrid.Children.Add(descText);
                         }
+
+                        // Row 2: Metadata (Size, Downloads, Date Added)
+                        var metadataStack = new StackPanel
+                        {
+                            Orientation = Orientation.Horizontal,
+                            Spacing = 16,
+                            Margin = new Thickness(0, 4, 0, 0)
+                        };
+
+                        // Size
+                        var sizeText = new TextBlock
+                        {
+                            FontSize = 12,
+                            Opacity = 0.6
+                        };
+                        sizeText.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = SharedUtilities.GetTranslation(_lang, "Size") });
+                        sizeText.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = " " });
+                        sizeText.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = file.FileSizeFormatted });
+                        metadataStack.Children.Add(sizeText);
+
+                        // Downloads
+                        var downloadsText = new TextBlock
+                        {
+                            FontSize = 12,
+                            Opacity = 0.6
+                        };
+                        downloadsText.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = SharedUtilities.GetTranslation(_lang, "Downloads") });
+                        downloadsText.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = " " });
+                        downloadsText.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = file.DownloadCount.ToString("N0") });
+                        metadataStack.Children.Add(downloadsText);
+
+                        // Date Added
+                        var dateText = new TextBlock
+                        {
+                            FontSize = 12,
+                            Opacity = 0.6
+                        };
+                        dateText.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = SharedUtilities.GetTranslation(_lang, "Added") });
+                        dateText.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = " " });
+                        var dateAdded = DateTimeOffset.FromUnixTimeSeconds(file.DateAdded).LocalDateTime;
+                        dateText.Inlines.Add(new Microsoft.UI.Xaml.Documents.Run { Text = dateAdded.ToString("d MMM yyyy") });
+                        metadataStack.Children.Add(dateText);
+
+                        Grid.SetRow(metadataStack, 2);
+                        fileGrid.Children.Add(metadataStack);
 
                         fileCheckBox.Content = fileGrid;
 
@@ -252,7 +300,8 @@ namespace FlairX_Mod_Manager.Dialogs
                     }
 
                     fileScrollViewer.Content = fileStack;
-                    stackPanel.Children.Add(fileScrollViewer);
+                    fileBorder.Child = fileScrollViewer;
+                    stackPanel.Children.Add(fileBorder);
                 }
 
                 // Category selection (only show in normal mode)
@@ -739,17 +788,20 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Determine folder name: sanitize to prevent illegal characters
                 string categoryFolderName = SanitizeCategoryName(category);
 
-                // Download files
+                // Download files (only selected ones)
                 var tempDir = Path.Combine(Path.GetTempPath(), "FlairX_Downloads", Guid.NewGuid().ToString());
                 Directory.CreateDirectory(tempDir);
 
                 var downloadedFiles = new List<(string filePath, string fileName)>();
 
-                for (int i = 0; i < _selectedFiles.Count; i++)
+                // Filter to only selected files
+                var filesToDownload = _selectedFiles.Where(f => f.IsSelected).ToList();
+                
+                for (int i = 0; i < filesToDownload.Count; i++)
                 {
-                    var file = _selectedFiles[i];
+                    var file = filesToDownload[i];
                     _downloadStatusText.Text = string.Format(SharedUtilities.GetTranslation(_lang, "DownloadingFile"), 
-                        file.FileName, i + 1, _selectedFiles.Count);
+                        file.FileName, i + 1, filesToDownload.Count);
 
                     var tempFilePath = Path.Combine(tempDir, file.FileName);
                     var progress = new Progress<double>(value =>
@@ -780,7 +832,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 
                 if (hasArchives)
                 {
-                    if (_selectedFiles.Count == 1)
+                    if (filesToDownload.Count == 1)
                     {
                         // Single file - extract directly to mod folder (old behavior)
                         _downloadedArchivePath = downloadedFiles[0].filePath;
