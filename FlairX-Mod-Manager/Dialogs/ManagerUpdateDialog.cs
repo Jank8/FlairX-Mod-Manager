@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Threading.Tasks;
+using CommunityToolkit.WinUI.Controls;
 
 namespace FlairX_Mod_Manager.Dialogs
 {
@@ -36,7 +37,7 @@ namespace FlairX_Mod_Manager.Dialogs
             };
             stackPanel.Children.Add(infoText);
 
-            // Add changelog if available
+            // Add changelog if available - use MarkdownTextBlock for rich formatting
             if (!string.IsNullOrWhiteSpace(changelog))
             {
                 var changelogLabel = new TextBlock
@@ -47,15 +48,13 @@ namespace FlairX_Mod_Manager.Dialogs
                 };
                 stackPanel.Children.Add(changelogLabel);
 
-                var changelogText = new TextBlock
+                var changelogMarkdown = new MarkdownTextBlock
                 {
                     Text = changelog,
-                    TextWrapping = TextWrapping.Wrap,
-                    FontSize = 12,
-                    Opacity = 0.8,
+                    Background = null, // Transparent background
                     Margin = new Thickness(0, 0, 0, 8)
                 };
-                stackPanel.Children.Add(changelogText);
+                stackPanel.Children.Add(changelogMarkdown);
             }
 
             _statusText = new TextBlock
