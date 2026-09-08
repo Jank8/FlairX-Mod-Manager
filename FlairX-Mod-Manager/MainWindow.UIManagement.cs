@@ -327,32 +327,61 @@ namespace FlairX_Mod_Manager
                                                 continue;
                                         }
                                         
-                                        // Get first letter (uppercase)
-                                        char firstLetter = char.ToUpperInvariant(category[0]);
+                                        // Get first character
+                                        char firstChar = category[0];
+                                        char sectionKey;
                                         
-                                        // Only group by letters (A-Z), others go to '#'
-                                        if (!char.IsLetter(firstLetter))
-                                            firstLetter = '#';
+                                        // Latin letters (A-Z) - uppercase
+                                        if ((firstChar >= 'A' && firstChar <= 'Z') || (firstChar >= 'a' && firstChar <= 'z'))
+                                        {
+                                            sectionKey = char.ToUpperInvariant(firstChar);
+                                        }
+                                        // Digits (0-9) - keep as is
+                                        else if (firstChar >= '0' && firstChar <= '9')
+                                        {
+                                            sectionKey = firstChar;
+                                        }
+                                        // Everything else (kanji, cyrillic, symbols, etc.) goes to '#'
+                                        else
+                                        {
+                                            sectionKey = '#';
+                                        }
                                         
-                                        if (!categoryGroups.ContainsKey(firstLetter))
-                                            categoryGroups[firstLetter] = new List<string>();
+                                        if (!categoryGroups.ContainsKey(sectionKey))
+                                            categoryGroups[sectionKey] = new List<string>();
                                         
-                                        categoryGroups[firstLetter].Add(category);
+                                        categoryGroups[sectionKey].Add(category);
                                     }
                                     
-                                    // Sort group keys alphabetically (# comes first)
+                                    // Sort group keys: A-Z, then 0-9, then # at the end
                                     var sortedGroupKeys = categoryGroups.Keys
-                                        .OrderBy(k => k == '#' ? " " : k.ToString()) // # first, then A-Z
+                                        .OrderBy(k => k == '#' ? "~~" : k.ToString()) // # last (~ sorts after all alphanumerics)
                                         .ToList();
                                     
                                     // Add categories with section headers
                                     foreach (var letter in sortedGroupKeys)
                                     {
-                                        // Add section header
-                                        var headerItem = new NavigationViewItemHeader
+                                        // Create centered header with TextBlock and fixed gray color
+                                        var brush = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 128, 128, 128)); // Fixed gray
+                                        
+                                        var headerText = new TextBlock
                                         {
-                                            Content = letter.ToString()
+                                            Text = $"────── {letter} ──────",
+                                            TextAlignment = TextAlignment.Center,
+                                            HorizontalAlignment = HorizontalAlignment.Center,
+                                            Foreground = brush
                                         };
+                                        
+                                        // Use ENABLED NavigationViewItem (disabled forces gray which changes)
+                                        var headerItem = new NavigationViewItem
+                                        {
+                                            Content = headerText,
+                                            IsEnabled = true, // Keep enabled to prevent automatic color override
+                                            SelectsOnInvoked = false,
+                                            HorizontalContentAlignment = HorizontalAlignment.Center,
+                                            Tag = "__SECTION_HEADER__" // Mark as header so it won't be selected
+                                        };
+                                        
                                         nvSample.MenuItems.Add(headerItem);
                                         
                                         // Add categories in this section

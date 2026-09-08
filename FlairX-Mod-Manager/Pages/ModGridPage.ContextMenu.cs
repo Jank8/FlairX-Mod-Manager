@@ -1745,7 +1745,8 @@ namespace FlairX_Mod_Manager.Pages
                                 modDetails.PreviewMedia,
                                 modTile.IsNSFW,
                                 modDetails.Version,
-                                existingModPath);
+                                existingModPath,
+                                showFileSelection: true); // Quick Update shows file selection
 
                             // Set XamlRoot for dialog
                             if (App.Current is App _appx && _appx.MainWindow is MainWindow _mainWinx && _mainWinx.Content is FrameworkElement fe)

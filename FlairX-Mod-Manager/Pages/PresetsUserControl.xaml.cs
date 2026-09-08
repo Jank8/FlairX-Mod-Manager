@@ -306,7 +306,9 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             var modFolderName = Path.GetFileName(modDir);
                             var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
-                            activeMods[cleanName] = !modFolderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase);
+                            var isActive = !modFolderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase);
+                            var presetKey = $"{categoryName}|{cleanName}"; // Use "Category|ModName" format
+                            activeMods[presetKey] = isActive;
                         }
                     }
                 }
@@ -358,21 +360,17 @@ namespace FlairX_Mod_Manager.Pages
             
             try
             {
-                // Use game-specific ActiveMods file name
+                // Use new ModListData format with "Category|ModName"
                 var activeModsFileName = AppConstants.GameConfig.GetActiveModsFilename(SettingsManager.CurrentSelectedGame);
                 var activeModsPath = PathManager.GetSettingsPath(activeModsFileName);
                 
                 if (File.Exists(activeModsPath))
                 {
                     var json = Services.FileAccessQueue.ReadAllText(activeModsPath);
-                    var currentMods = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new Dictionary<string, bool>();
-                    foreach (var kv in currentMods)
+                    var data = System.Text.Json.JsonSerializer.Deserialize<ModListManager.ModListData>(json);
+                    if (data?.Mods != null)
                     {
-                        string modName = Path.GetFileName(kv.Key);
-                        if (kv.Value) // Only add active mods
-                        {
-                            activeMods.Add(modName);
-                        }
+                        activeMods.AddRange(data.Mods); // Already in "Category|ModName" format
                     }
                 }
             }

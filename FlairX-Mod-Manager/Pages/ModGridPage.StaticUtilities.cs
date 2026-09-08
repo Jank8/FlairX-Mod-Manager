@@ -390,27 +390,32 @@ namespace FlairX_Mod_Manager.Pages
                     // Apply preset by renaming mods, skipping shuffle-excluded categories
                     foreach (var mod in preset)
                     {
-                        // Check if mod is in an excluded category
-                        if (excludedCategories.Count > 0)
-                        {
-                            var modPath = FindModFolderPathStatic(modsPath, mod.Key);
-                            if (!string.IsNullOrEmpty(modPath))
-                            {
-                                var categoryName = Path.GetFileName(Path.GetDirectoryName(modPath) ?? "");
-                                if (excludedCategories.Contains(categoryName, StringComparer.OrdinalIgnoreCase))
-                                    continue;
-                            }
-                        }
+                        // Parse "Category|ModName" format
+                        var parts = mod.Key.Split('|');
+                        if (parts.Length != 2) continue; // Skip invalid entries
+                        
+                        var categoryName = parts[0];
+                        var modName = parts[1];
+                        
+                        // Check if category is excluded
+                        if (excludedCategories.Contains(categoryName, StringComparer.OrdinalIgnoreCase))
+                            continue;
 
                         if (mod.Value)
-                            ActivateModByRename(mod.Key);
+                            ActivateModByRename(modName);
                         else
-                            DeactivateModByRename(mod.Key);
+                            DeactivateModByRename(modName);
                     }
 
-                    // Update ActiveMods.json
+                    // Update ActiveMods.json with new format
                     var activeModsPath = PathManager.GetActiveModsPath();
-                    var presetJson = JsonSerializer.Serialize(preset, new JsonSerializerOptions { WriteIndented = true });
+                    var activeMods = preset.Where(kv => kv.Value).Select(kv => kv.Key).ToList();
+                    var data = new ModListManager.ModListData
+                    {
+                        LastUpdated = DateTime.UtcNow,
+                        Mods = activeMods
+                    };
+                    var presetJson = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
                     Services.FileAccessQueue.WriteAllText(activeModsPath, presetJson);
                 }
             }
@@ -440,6 +445,8 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (!Directory.Exists(categoryDir)) continue;
                 
+                var categoryName = Path.GetFileName(categoryDir);
+                
                 foreach (var modDir in Directory.GetDirectories(categoryDir))
                 {
                     var modJsonPath = Path.Combine(modDir, "mod.json");
@@ -461,7 +468,8 @@ namespace FlairX_Mod_Manager.Pages
                         }
                         
                         string modName = GetCleanModName(Path.GetFileName(modDir));
-                        allMods[modName] = false;
+                        var presetKey = $"{categoryName}|{modName}"; // Use "Category|ModName" format
+                        allMods[presetKey] = false;
                     }
                 }
             }

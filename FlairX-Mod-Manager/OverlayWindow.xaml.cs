@@ -115,6 +115,7 @@ namespace FlairX_Mod_Manager
     {
         public string Name { get; set; } = "";
         public string Directory { get; set; } = "";
+        public string Category { get; set; } = "Other"; // Add Category property
         public BitmapImage? Thumbnail { get; set; }
         public List<(string Key, string Description, string IniFile)> Hotkeys { get; set; } = new();
         
@@ -1490,7 +1491,16 @@ namespace FlairX_Mod_Manager
                     if (hideNSFW && nsfwMods.Contains(cleanName))
                         continue;
                     
-                    var isFavorite = !string.IsNullOrEmpty(gameTag) && SettingsManager.IsModFavorite(gameTag, cleanName);
+                    // Extract category from path
+                    var categoryName = "Other";
+                    try
+                    {
+                        var parent = Directory.GetParent(modDir);
+                        if (parent != null) categoryName = parent.Name;
+                    }
+                    catch { }
+                    
+                    var isFavorite = !string.IsNullOrEmpty(gameTag) && SettingsManager.IsModFavorite(gameTag, categoryName, cleanName);
 
                     // Read isBroken from mod.json
                     bool isBroken = false;
@@ -1518,6 +1528,15 @@ namespace FlairX_Mod_Manager
                 
                 foreach (var (modDir, modName, isActive, isFavorite, isBroken) in sortedMods)
                 {
+                    // Extract category from path
+                    var categoryName = "Other";
+                    try
+                    {
+                        var parent = Directory.GetParent(modDir);
+                        if (parent != null) categoryName = parent.Name;
+                    }
+                    catch { }
+                    
                     // Clean name for display
                     var displayName = isActive ? modName : modName.Substring(8).TrimStart('_', '-', ' ');
                     
@@ -1525,6 +1544,7 @@ namespace FlairX_Mod_Manager
                     {
                         Name = displayName,
                         Directory = modDir,
+                        Category = categoryName,  // Add category
                         IsActive = isActive,
                         IsFavorite = isFavorite,
                         IsBroken = isBroken,
@@ -1650,10 +1670,20 @@ namespace FlairX_Mod_Manager
                 
                 foreach (var (modDir, modName) in sortedMods)
                 {
+                    // Extract category from path
+                    var categoryName = "Other";
+                    try
+                    {
+                        var parent = Directory.GetParent(modDir);
+                        if (parent != null) categoryName = parent.Name;
+                    }
+                    catch { }
+                    
                     var item = new OverlayModItem
                     {
                         Name = modName,
                         Directory = modDir,
+                        Category = categoryName,  // Add category
                         IsActive = true,
                         Thumbnail = await LoadThumbnailAsync(modDir)
                     };
@@ -2806,8 +2836,8 @@ namespace FlairX_Mod_Manager
                     if (string.IsNullOrEmpty(gameTag)) return;
 
                     // Toggle favorite status
-                    SettingsManager.ToggleModFavorite(gameTag, mod.Name);
-                    mod.IsFavorite = SettingsManager.IsModFavorite(gameTag, mod.Name);
+                    SettingsManager.ToggleModFavorite(gameTag, mod.Category ?? "Other", mod.Name);
+                    mod.IsFavorite = SettingsManager.IsModFavorite(gameTag, mod.Category ?? "Other", mod.Name);
                     
                     Logger.LogInfo($"Overlay: Toggled favorite for mod: {mod.Name}, IsFavorite: {mod.IsFavorite}");
                     
@@ -2928,8 +2958,8 @@ namespace FlairX_Mod_Manager
                 if (string.IsNullOrEmpty(gameTag)) return;
 
                 // Toggle favorite status
-                SettingsManager.ToggleModFavorite(gameTag, _selectedMod.Name);
-                _selectedMod.IsFavorite = SettingsManager.IsModFavorite(gameTag, _selectedMod.Name);
+                SettingsManager.ToggleModFavorite(gameTag, _selectedMod.Category ?? "Other", _selectedMod.Name);
+                _selectedMod.IsFavorite = SettingsManager.IsModFavorite(gameTag, _selectedMod.Category ?? "Other", _selectedMod.Name);
                 
                 Logger.LogInfo($"Overlay Gamepad: Toggled favorite for mod: {_selectedMod.Name}, IsFavorite: {_selectedMod.IsFavorite}");
                 

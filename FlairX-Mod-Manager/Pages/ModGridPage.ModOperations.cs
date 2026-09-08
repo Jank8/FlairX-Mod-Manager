@@ -807,8 +807,8 @@ namespace FlairX_Mod_Manager.Pages
                 else
                 {
                     // Handle mod favorites
-                    SettingsManager.ToggleModFavorite(gameTag, tile.Name);
-                    tile.IsFavorite = SettingsManager.IsModFavorite(gameTag, tile.Name);
+                    SettingsManager.ToggleModFavorite(gameTag, tile.Category ?? "Other", tile.Name);
+                    tile.IsFavorite = SettingsManager.IsModFavorite(gameTag, tile.Category ?? "Other", tile.Name);
                     
                     // Sync the new favorite state into ModListManager cache
                     // so that re-entering the category shows the correct order
@@ -1200,7 +1200,7 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     foreach (var item in items.Where(i => !i.IsCategory))
                     {
-                        item.IsFavorite = SettingsManager.IsModFavorite(gameTag, item.Name);
+                        item.IsFavorite = SettingsManager.IsModFavorite(gameTag, item.Category ?? "Other", item.Name);
                     }
                     
                     // Re-sort
@@ -1320,7 +1320,8 @@ namespace FlairX_Mod_Manager.Pages
                 }
 
                 // Remove from persistent lists
-                ModListManager.RemoveFromAllLists(cleanName);
+                var categoryName = mod.Category ?? "Other";
+                ModListManager.RemoveFromAllLists(categoryName, cleanName);
 
                 // No cache to remove - direct file reading
 

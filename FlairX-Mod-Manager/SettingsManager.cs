@@ -587,31 +587,32 @@ namespace FlairX_Mod_Manager
             return new List<string>();
         }
         
-        // Favorite mods management
-        public static bool IsModFavorite(string gameTag, string modName)
+        // Favorite mods management (uses "Category|ModName" format)
+        public static bool IsModFavorite(string gameTag, string categoryName, string modName)
         {
             if (Favorites.FavoriteMods.TryGetValue(gameTag, out var favorites))
             {
-                return favorites.Contains(modName);
+                return favorites.Contains($"{categoryName}|{modName}");
             }
             return false;
         }
         
-        public static void ToggleModFavorite(string gameTag, string modName)
+        public static void ToggleModFavorite(string gameTag, string categoryName, string modName)
         {
             if (!Favorites.FavoriteMods.ContainsKey(gameTag))
             {
                 Favorites.FavoriteMods[gameTag] = new List<string>();
             }
             
+            var key = $"{categoryName}|{modName}";
             var favorites = Favorites.FavoriteMods[gameTag];
-            if (favorites.Contains(modName))
+            if (favorites.Contains(key))
             {
-                favorites.Remove(modName);
+                favorites.Remove(key);
             }
             else
             {
-                favorites.Add(modName);
+                favorites.Add(key);
             }
             
             SaveFavorites();

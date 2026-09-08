@@ -32,12 +32,14 @@ namespace FlairX_Mod_Manager.Pages
             
             return _allModData.Where(modData => 
             {
+                var cacheKey = $"{modData.Category ?? "Other"}|{modData.Name}";
+                
                 // Filter broken mods if setting is enabled AND cache exists
-                if (hideBroken && brokenMods != null && brokenMods.Contains(modData.Name))
+                if (hideBroken && brokenMods != null && brokenMods.Contains(cacheKey))
                     return false;
                 
                 // Filter NSFW mods if setting is enabled AND cache exists
-                if (hideNSFW && nsfwMods != null && nsfwMods.Contains(modData.Name))
+                if (hideNSFW && nsfwMods != null && nsfwMods.Contains(cacheKey))
                     return false;
                 
                 return true;
@@ -394,7 +396,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var gameTag = SettingsManager.CurrentSelectedGame ?? "";
                 _allModData = _allModData
-                    .OrderByDescending(m => SettingsManager.IsModFavorite(gameTag, m.Name))
+                    .OrderByDescending(m => SettingsManager.IsModFavorite(gameTag, m.Category ?? "Other", m.Name))
                     .ThenByDescending(m => m.IsActive)
                     .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
@@ -403,7 +405,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 var gameTag = SettingsManager.CurrentSelectedGame ?? "";
                 _allModData = _allModData
-                    .OrderByDescending(m => SettingsManager.IsModFavorite(gameTag, m.Name))
+                    .OrderByDescending(m => SettingsManager.IsModFavorite(gameTag, m.Category ?? "Other", m.Name))
                     .ThenBy(m => m.Name, StringComparer.OrdinalIgnoreCase)
                     .ToList();
             }
@@ -431,7 +433,7 @@ namespace FlairX_Mod_Manager.Pages
                     ImagePath = modData.ImagePath, 
                     Directory = modData.Directory, 
                     IsActive = modData.IsActive,
-                    Category = modData.Category,
+                    Category = modData.Category ?? "Other", // Prevent null warning
                     Author = modData.Author,
                     Url = modData.Url,
                     LastChecked = modData.LastChecked,
@@ -440,7 +442,7 @@ namespace FlairX_Mod_Manager.Pages
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
                     IsNSFW = modData.IsNSFW,
-                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name), // Load favorite status
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Category ?? "Other", modData.Name), // Load favorite status
                     ImageSource = null // Start with no image - lazy load when visible
                 };
                 
@@ -585,7 +587,7 @@ namespace FlairX_Mod_Manager.Pages
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
                     IsNSFW = modData.IsNSFW,
-                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Category ?? "Other", modData.Name),
                     ImageSource = null // Lazy load when visible
                 });
                 _lastLoadedModDataIndex = i + 1;
@@ -684,9 +686,9 @@ namespace FlairX_Mod_Manager.Pages
                         var isActive = IsModActive(dirName);
                         
                         // Build persistent lists
-                        if (isNSFW) nsfwMods.Add(cleanName);
-                        if (isBroken) brokenMods.Add(cleanName);
-                        if (hasUpdate) outdatedMods.Add(cleanName);
+                        if (isNSFW) nsfwMods.Add($"{categoryName}|{cleanName}"); // Include category
+                        if (isBroken) brokenMods.Add($"{categoryName}|{cleanName}"); // Include category
+                        if (hasUpdate) outdatedMods.Add($"{categoryName}|{cleanName}"); // Include category
                         
                         var modData = new ModData
                         {
@@ -730,7 +732,7 @@ namespace FlairX_Mod_Manager.Pages
             var favoritesList = new HashSet<string>();
             foreach (var mod in _allModData)
             {
-                if (SettingsManager.IsModFavorite(gameTag, mod.Name))
+                if (SettingsManager.IsModFavorite(gameTag, mod.Category ?? "Other", mod.Name))
                 {
                     favoritesList.Add(mod.Name);
                 }
@@ -777,7 +779,7 @@ namespace FlairX_Mod_Manager.Pages
             var favoritesList = new HashSet<string>();
             foreach (var mod in _allModData)
             {
-                if (SettingsManager.IsModFavorite(gameTag, mod.Name))
+                if (SettingsManager.IsModFavorite(gameTag, mod.Category ?? "Other", mod.Name))
                 {
                     favoritesList.Add(mod.Name);
                 }
@@ -936,7 +938,7 @@ namespace FlairX_Mod_Manager.Pages
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
                     IsNSFW = modData.IsNSFW,
-                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Category ?? "Other", modData.Name),
                     ImageSource = null
                 });
                 _lastLoadedModDataIndex = i + 1;
@@ -1020,7 +1022,7 @@ namespace FlairX_Mod_Manager.Pages
                     IsVisible = true,
                     IsBroken = true,
                     IsNSFW = modData.IsNSFW,
-                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Category ?? "Other", modData.Name),
                     ImageSource = null
                 });
                 _lastLoadedModDataIndex = i + 1;
@@ -1109,7 +1111,7 @@ namespace FlairX_Mod_Manager.Pages
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
                     IsNSFW = modData.IsNSFW,
-                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Category ?? "Other", modData.Name),
                     ImageSource = null
                 });
                 _lastLoadedModDataIndex = i + 1;
@@ -1137,17 +1139,37 @@ namespace FlairX_Mod_Manager.Pages
             LogToGridLog("LoadOutdatedModsOnly() called");
             
             // Get outdated mods from ModListManager (fast - no file I/O)
-            var outdatedMods = ModListManager.GetOutdatedMods();
+            var outdatedModsList = ModListManager.GetOutdatedMods();
+            
+            // Parse "Category|ModName" format and build lookup dictionary
+            var outdatedLookup = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+            foreach (var entry in outdatedModsList)
+            {
+                var parts = entry.Name.Split('|');
+                if (parts.Length == 2)
+                {
+                    var category = parts[0];
+                    var modName = parts[1];
+                    
+                    if (!outdatedLookup.ContainsKey(category))
+                        outdatedLookup[category] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    
+                    outdatedLookup[category].Add(modName);
+                }
+            }
             
             // Apply filters based on settings
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
             bool hideNSFW = SettingsManager.Current.HideNSFWMods;
             
-            var filteredMods = outdatedMods.Where(mod =>
+            var filteredMods = _allModData.Where(mod =>
             {
                 if (hideBroken && mod.IsBroken) return false;
                 if (hideNSFW && mod.IsNSFW) return false;
-                return true;
+                
+                // Check if this mod is in the outdated list for its category
+                return outdatedLookup.ContainsKey(mod.Category ?? "Other") && 
+                       outdatedLookup[mod.Category ?? "Other"].Contains(mod.Name);
             }).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
             
             // Convert to lightweight ModData for lazy loading
@@ -1156,22 +1178,7 @@ namespace FlairX_Mod_Manager.Pages
             
             foreach (var modInfo in filteredMods)
             {
-                _allModData.Add(new ModData
-                {
-                    Name = modInfo.Name,
-                    Directory = modInfo.Directory,
-                    ImagePath = modInfo.ImagePath,
-                    IsActive = modInfo.IsActive,
-                    Category = modInfo.Category,
-                    Author = modInfo.Author,
-                    Url = modInfo.Url,
-                    LastChecked = modInfo.LastChecked,
-                    LastUpdated = modInfo.LastUpdated,
-                    HasUpdate = modInfo.HasUpdate,
-                    IsNSFW = modInfo.IsNSFW,
-                    IsBroken = modInfo.IsBroken,
-                    Character = modInfo.Character
-                });
+                _allModData.Add(modInfo);
             }
             
             // Load only first batch of tiles (lazy loading)
@@ -1196,7 +1203,7 @@ namespace FlairX_Mod_Manager.Pages
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
                     IsNSFW = modData.IsNSFW,
-                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Category ?? "Other", modData.Name),
                     ImageSource = null
                 });
                 _lastLoadedModDataIndex = i + 1;
@@ -1334,7 +1341,7 @@ namespace FlairX_Mod_Manager.Pages
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
                     IsNSFW = modData.IsNSFW,
-                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Name),
+                    IsFavorite = SettingsManager.IsModFavorite(SettingsManager.CurrentSelectedGame ?? "", modData.Category ?? "Other", modData.Name),
                     ImageSource = null
                 });
                 _lastLoadedModDataIndex = i + 1;

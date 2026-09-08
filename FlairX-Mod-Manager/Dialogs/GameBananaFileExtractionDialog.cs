@@ -93,7 +93,8 @@ namespace FlairX_Mod_Manager.Dialogs
             GameBananaService.PreviewMedia? previewMedia = null,
             bool isNSFW = false,
             string? version = null,
-            string? existingModPath = null)
+            string? existingModPath = null,
+            bool showFileSelection = false)
         {
             _selectedFiles = selectedFiles;
             _modName = modName;
@@ -166,8 +167,8 @@ namespace FlairX_Mod_Manager.Dialogs
                 _modNameTextBox.TextChanged += (s, e) => ValidateInputs();
                 stackPanel.Children.Add(_modNameTextBox);
 
-                // File Selection (show if multiple files available)
-                if (selectedFiles != null && selectedFiles.Count > 0)
+                // File Selection (show only if showFileSelection is true and multiple files available)
+                if (showFileSelection && selectedFiles != null && selectedFiles.Count > 0)
                 {
                     var filesLabel = new TextBlock
                     {
@@ -985,7 +986,7 @@ namespace FlairX_Mod_Manager.Dialogs
                     {
                         Directory.CreateDirectory(modPath);
                         // Create mod.json for new mod
-                        await CreateModJson(modPath);
+                        await CreateModJson(modPath, _categoryComboBox.Text.Trim());
                     }
                 }
 
@@ -1288,7 +1289,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 }
 
                 // Create mod.json
-                await CreateModJson(modPath);
+                await CreateModJson(modPath, _categoryComboBox.Text.Trim());
                 
                 // Save mod path for preview download
                 _installedModPath = modPath;
@@ -1445,7 +1446,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 }
 
                 // Create mod.json in main mod folder
-                await CreateModJson(modPath);
+                await CreateModJson(modPath, _categoryComboBox.Text.Trim());
 
                 // If mod was active before update, reactivate it
                 if (wasActive)
@@ -1528,7 +1529,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 }
 
                 // Create mod.json
-                await CreateModJson(modPath);
+                await CreateModJson(modPath, _categoryComboBox.Text.Trim());
 
                 // Restore active status if mod was active before update
                 if (wasActive)
@@ -1554,27 +1555,30 @@ namespace FlairX_Mod_Manager.Dialogs
             }
         }
 
-        private async Task CreateModJson(string modPath)
+        private async Task CreateModJson(string modPath, string categoryName)
         {
             var modJsonPath = Path.Combine(modPath, "mod.json");
             
-            // Use version from API (_sVersion)
+            // Use version from API (_version)
             string version = _version ?? "";
             
-            // Convert timestamp to date string
-            string dateUpdated = "0000-00-00";
+            // gbChangeDate = server's last update date (from GameBanana)
+            string gbChangeDate = "0000-00-00";
             if (_dateUpdatedTimestamp > 0)
             {
                 try
                 {
                     var date = DateTimeOffset.FromUnixTimeSeconds(_dateUpdatedTimestamp).DateTime;
-                    dateUpdated = date.ToString("yyyy-MM-dd");
+                    gbChangeDate = date.ToString("yyyy-MM-dd");
                 }
                 catch
                 {
-                    dateUpdated = "0000-00-00";
+                    gbChangeDate = "0000-00-00";
                 }
             }
+            
+            // dateUpdated = when user installed/updated the mod locally (now)
+            string dateUpdated = DateTime.Now.ToString("yyyy-MM-dd");
             
             var modJson = new
             {
@@ -1583,12 +1587,19 @@ namespace FlairX_Mod_Manager.Dialogs
                 version = string.IsNullOrWhiteSpace(version) ? " " : version,
                 dateChecked = DateTime.Now.ToString("yyyy-MM-dd"),
                 dateUpdated = dateUpdated,
+                gbChangeDate = gbChangeDate,
                 isNSFW = _isNSFW,
                 hotkeys = new object[] { }
             };
 
             var json = System.Text.Json.JsonSerializer.Serialize(modJson, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
             await Services.FileAccessQueue.WriteAllTextAsync(modJsonPath, json);
+            
+            // Remove from outdated list since we just installed/updated it
+            var modName = Path.GetFileName(modPath);
+            if (modName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase))
+                modName = modName.Substring(9);
+            ModListManager.RemoveFromOutdatedList(categoryName, modName);
         }
         
         private async Task<string> FetchVersionFromGameBanana(string url)
@@ -2317,6 +2328,12 @@ namespace FlairX_Mod_Manager.Dialogs
             {
                 var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
                 mainWindow?.CurrentModGridPage?.RefreshModTileImage(modPath);
+                
+                // Also refresh HasUpdate status by re-reading mod.json
+                mainWindow?.CurrentModGridPage?.RefreshModTileStatus(modPath);
+                
+                // Force reload of outdated mods view if it's currently shown
+                mainWindow?.CurrentModGridPage?.RefreshOutdatedView();
             }
             catch (Exception ex)
             {

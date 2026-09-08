@@ -2577,23 +2577,38 @@ namespace FlairX_Mod_Manager.Pages
                                 ? modDirName.Substring(9) 
                                 : modDirName;
                             
+                            // Extract category from path (parent folder of mod)
+                            var categoryName = "Other";
+                            try
+                            {
+                                if (!string.IsNullOrEmpty(_currentModDirectory))
+                                {
+                                    var modParent = Directory.GetParent(_currentModDirectory);
+                                    if (modParent != null)
+                                    {
+                                        categoryName = modParent.Name;
+                                    }
+                                }
+                            }
+                            catch { }
+                            
                             if (field == "isNSFW")
                             {
                                 if (value)
-                                    ModListManager.AddToNSFWList(cleanName);
+                                    ModListManager.AddToNSFWList(categoryName, cleanName);
                                 else
-                                    ModListManager.RemoveFromNSFWList(cleanName);
+                                    ModListManager.RemoveFromNSFWList(categoryName, cleanName);
                                     
-                                Logger.LogInfo($"Updated NSFW list for mod: {cleanName} (isNSFW: {value})");
+                                Logger.LogInfo($"Updated NSFW list for mod: {categoryName}|{cleanName} (isNSFW: {value})");
                             }
                             else if (field == "modBroken")
                             {
                                 if (value)
-                                    ModListManager.AddToBrokenList(cleanName);
+                                    ModListManager.AddToBrokenList(categoryName, cleanName);
                                 else
-                                    ModListManager.RemoveFromBrokenList(cleanName);
+                                    ModListManager.RemoveFromBrokenList(categoryName, cleanName);
                                     
-                                Logger.LogInfo($"Updated Broken list for mod: {cleanName} (modBroken: {value})");
+                                Logger.LogInfo($"Updated Broken list for mod: {categoryName}|{cleanName} (modBroken: {value})");
                             }
                         }
                     }

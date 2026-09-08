@@ -2662,12 +2662,20 @@ namespace FlairX_Mod_Manager.Pages
                         }
                         
                         var modDirName = Path.GetFileName(e.ModPath);
-                        var cleanName = modDirName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase) 
-                            ? modDirName.Substring(9) 
-                            : modDirName;
+                        var isActive = !modDirName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase);
+                        var cleanName = isActive ? modDirName : modDirName.Substring(9);
                         
-                        ModListManager.UpdateModInLists(cleanName, isNSFW, isBroken, hasUpdate);
-                        Logger.LogInfo($"Updated persistent lists for installed mod: {cleanName} (NSFW: {isNSFW}, Broken: {isBroken}, HasUpdate: {hasUpdate})");
+                        // Extract category from path
+                        var categoryName = "Other";
+                        try
+                        {
+                            var parent = Directory.GetParent(e.ModPath);
+                            if (parent != null) categoryName = parent.Name;
+                        }
+                        catch { }
+                        
+                        ModListManager.UpdateModInLists(categoryName, cleanName, isActive, isNSFW, isBroken, hasUpdate);
+                        Logger.LogInfo($"Updated persistent lists for installed mod: {cleanName} (Category: {categoryName}, Active: {isActive}, NSFW: {isNSFW}, Broken: {isBroken}, HasUpdate: {hasUpdate})");
                     }
                 }
                 catch (Exception ex)

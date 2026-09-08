@@ -47,9 +47,11 @@ namespace FlairX_Mod_Manager
             public List<string> IniFiles { get; set; } = new List<string>();
         }
 
-        private class ModListData
+        public class ModListData
         {
             public DateTime LastUpdated { get; set; }
+            // Format: "CategoryName|ModName" to support duplicate mod names across categories
+            // Used for: NSFW, Broken, Outdated lists
             public List<string> Mods { get; set; } = new List<string>();
         }
 
@@ -227,7 +229,7 @@ namespace FlairX_Mod_Manager
                             }
                         }
 
-                        var isFavorite = SettingsManager.IsModFavorite(gameTag, cleanName);
+                        var isFavorite = SettingsManager.IsModFavorite(gameTag, categoryName, cleanName);
                         var imagePath = GetOptimalImagePath(modDir);
 
                         var modInfo = new ModInfo
@@ -255,10 +257,10 @@ namespace FlairX_Mod_Manager
                         processedMods++;
 
                         // Build filter lists
-                        if (isActive) activeList.Add(cleanName);
-                        if (isNSFW) nsfwList.Add(cleanName);
-                        if (isBroken) brokenList.Add(cleanName);
-                        if (hasUpdate) outdatedList.Add(cleanName);
+                        if (isActive) activeList.Add($"{categoryName}|{cleanName}"); // Include category
+                        if (isNSFW) nsfwList.Add($"{categoryName}|{cleanName}"); // Include category
+                        if (isBroken) brokenList.Add($"{categoryName}|{cleanName}"); // Include category
+                        if (hasUpdate) outdatedList.Add($"{categoryName}|{cleanName}"); // Include category
                     }
                     catch (Exception ex)
                     {
@@ -370,7 +372,7 @@ namespace FlairX_Mod_Manager
         /// <summary>
         /// Check if mod is in NSFW list (fast HashSet lookup)
         /// </summary>
-        public static bool IsModNSFW(string modName)
+        public static bool IsModNSFW(string categoryName, string modName)
         {
             lock (_listLock)
             {
@@ -378,14 +380,14 @@ namespace FlairX_Mod_Manager
                 {
                     _cachedNSFWList = LoadNSFWModsList();
                 }
-                return _cachedNSFWList.Contains(modName);
+                return _cachedNSFWList.Contains($"{categoryName}|{modName}");
             }
         }
 
         /// <summary>
         /// Check if mod is in Broken list (fast HashSet lookup)
         /// </summary>
-        public static bool IsModBroken(string modName)
+        public static bool IsModBroken(string categoryName, string modName)
         {
             lock (_listLock)
             {
@@ -393,14 +395,14 @@ namespace FlairX_Mod_Manager
                 {
                     _cachedBrokenList = LoadBrokenModsList();
                 }
-                return _cachedBrokenList.Contains(modName);
+                return _cachedBrokenList.Contains($"{categoryName}|{modName}");
             }
         }
 
         /// <summary>
         /// Check if mod is in Outdated list (fast HashSet lookup)
         /// </summary>
-        public static bool IsModOutdated(string modName)
+        public static bool IsModOutdated(string categoryName, string modName)
         {
             lock (_listLock)
             {
@@ -408,14 +410,14 @@ namespace FlairX_Mod_Manager
                 {
                     _cachedOutdatedList = LoadOutdatedModsList();
                 }
-                return _cachedOutdatedList.Contains(modName);
+                return _cachedOutdatedList.Contains($"{categoryName}|{modName}");
             }
         }
 
         /// <summary>
         /// Check if mod is active (fast HashSet lookup)
         /// </summary>
-        public static bool IsModActive(string modName)
+        public static bool IsModActive(string categoryName, string modName)
         {
             lock (_listLock)
             {
@@ -423,7 +425,7 @@ namespace FlairX_Mod_Manager
                 {
                     _cachedActiveList = LoadActiveModsList();
                 }
-                return _cachedActiveList.Contains(modName);
+                return _cachedActiveList.Contains($"{categoryName}|{modName}");
             }
         }
 
@@ -665,71 +667,71 @@ namespace FlairX_Mod_Manager
         /// <summary>
         /// Add a single mod to NSFW list (incremental update)
         /// </summary>
-        public static void AddToNSFWList(string modName)
+        public static void AddToNSFWList(string categoryName, string modName)
         {
             var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
             var filename = AppConstants.GameConfig.GetNSFWModsFilename(gameTag);
-            AddToList(filename, modName);
+            AddToList(filename, $"{categoryName}|{modName}");
         }
 
         /// <summary>
         /// Remove a single mod from NSFW list (incremental update)
         /// </summary>
-        public static void RemoveFromNSFWList(string modName)
+        public static void RemoveFromNSFWList(string categoryName, string modName)
         {
             var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
             var filename = AppConstants.GameConfig.GetNSFWModsFilename(gameTag);
-            RemoveFromList(filename, modName);
+            RemoveFromList(filename, $"{categoryName}|{modName}");
         }
 
         /// <summary>
         /// Add a single mod to Broken list (incremental update)
         /// </summary>
-        public static void AddToBrokenList(string modName)
+        public static void AddToBrokenList(string categoryName, string modName)
         {
             var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
             var filename = AppConstants.GameConfig.GetBrokenModsFilename(gameTag);
-            AddToList(filename, modName);
+            AddToList(filename, $"{categoryName}|{modName}");
         }
 
         /// <summary>
         /// Remove a single mod from Broken list (incremental update)
         /// </summary>
-        public static void RemoveFromBrokenList(string modName)
+        public static void RemoveFromBrokenList(string categoryName, string modName)
         {
             var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
             var filename = AppConstants.GameConfig.GetBrokenModsFilename(gameTag);
-            RemoveFromList(filename, modName);
+            RemoveFromList(filename, $"{categoryName}|{modName}");
         }
 
         /// <summary>
         /// Add a single mod to Outdated list (incremental update)
         /// </summary>
-        public static void AddToOutdatedList(string modName)
+        public static void AddToOutdatedList(string categoryName, string modName)
         {
             var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
             var filename = AppConstants.GameConfig.GetOutdatedModsFilename(gameTag);
-            AddToList(filename, modName);
+            AddToList(filename, $"{categoryName}|{modName}");
         }
 
         /// <summary>
         /// Remove a single mod from Outdated list (incremental update)
         /// </summary>
-        public static void RemoveFromOutdatedList(string modName)
+        public static void RemoveFromOutdatedList(string categoryName, string modName)
         {
             var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
             var filename = AppConstants.GameConfig.GetOutdatedModsFilename(gameTag);
-            RemoveFromList(filename, modName);
+            RemoveFromList(filename, $"{categoryName}|{modName}");
         }
 
         /// <summary>
         /// Remove a mod from all lists (when mod is deleted)
         /// </summary>
-        public static void RemoveFromAllLists(string modName)
+        public static void RemoveFromAllLists(string categoryName, string modName)
         {
-            RemoveFromNSFWList(modName);
-            RemoveFromBrokenList(modName);
-            RemoveFromOutdatedList(modName);
+            RemoveFromNSFWList(categoryName, modName);
+            RemoveFromBrokenList(categoryName, modName);
+            RemoveFromOutdatedList(categoryName, modName);
         }
 
         /// <summary>
@@ -768,7 +770,7 @@ namespace FlairX_Mod_Manager
                 {
                     // Add new mod
                     var gameTag = SettingsManager.CurrentSelectedGame ?? "ZZMI";
-                    var isFavorite = SettingsManager.IsModFavorite(gameTag, modName);
+                    var isFavorite = SettingsManager.IsModFavorite(gameTag, category, modName);
                     
                     var modInfo = new ModInfo
                     {
@@ -794,7 +796,7 @@ namespace FlairX_Mod_Manager
                 SaveMasterList(_cachedMasterList);
 
                 // Update filter lists
-                UpdateFilterLists(modName, isActive, isNSFW, isBroken, hasUpdate);
+                UpdateFilterLists(category, modName, isActive, isNSFW, isBroken, hasUpdate);
             }
 
             Logger.LogInfo($"ModListManager: Added/updated mod '{modName}' in lists");
@@ -861,14 +863,14 @@ namespace FlairX_Mod_Manager
                 _cachedMasterList.RemoveAll(m => m.Name == modName);
                 SaveMasterList(_cachedMasterList);
 
-                // Remove from all filter lists
-                RemoveFromAllLists(modName);
+                // Remove from all filter lists (category unknown at deletion, will be cleaned up by next rebuild)
+                // Note: Can't remove without category, will be cleaned up by next RebuildAllLists
             }
 
             Logger.LogDebug($"ModListManager: Removed mod '{modName}' from all lists");
         }
 
-        private static void UpdateFilterLists(string modName, bool isActive, bool isNSFW, bool isBroken, bool hasUpdate)
+        private static void UpdateFilterLists(string category, string modName, bool isActive, bool isNSFW, bool isBroken, bool hasUpdate)
         {
             // Load all filter lists if not cached
             if (_cachedActiveList == null) _cachedActiveList = LoadActiveModsList();
@@ -876,29 +878,31 @@ namespace FlairX_Mod_Manager
             if (_cachedBrokenList == null) _cachedBrokenList = LoadBrokenModsList();
             if (_cachedOutdatedList == null) _cachedOutdatedList = LoadOutdatedModsList();
 
+            var cacheKey = $"{category}|{modName}";
+            
             // Update active list
             if (isActive)
-                _cachedActiveList.Add(modName);
+                _cachedActiveList.Add(cacheKey);
             else
-                _cachedActiveList.Remove(modName);
+                _cachedActiveList.Remove(cacheKey);
 
             // Update NSFW list
             if (isNSFW)
-                _cachedNSFWList.Add(modName);
+                _cachedNSFWList.Add(cacheKey);
             else
-                _cachedNSFWList.Remove(modName);
+                _cachedNSFWList.Remove(cacheKey);
 
             // Update broken list
             if (isBroken)
-                _cachedBrokenList.Add(modName);
+                _cachedBrokenList.Add(cacheKey);
             else
-                _cachedBrokenList.Remove(modName);
+                _cachedBrokenList.Remove(cacheKey);
 
             // Update outdated list
             if (hasUpdate)
-                _cachedOutdatedList.Add(modName);
+                _cachedOutdatedList.Add(cacheKey);
             else
-                _cachedOutdatedList.Remove(modName);
+                _cachedOutdatedList.Remove(cacheKey);
 
             // Save all lists
             SaveActiveModsList(_cachedActiveList.ToList());
@@ -910,11 +914,11 @@ namespace FlairX_Mod_Manager
         /// <summary>
         /// Update mod in lists based on mod.json properties (when mod is installed/updated)
         /// </summary>
-        public static void UpdateModInLists(string modName, bool isNSFW, bool isBroken, bool hasUpdate)
+        public static void UpdateModInLists(string categoryName, string modName, bool isActive, bool isNSFW, bool isBroken, bool hasUpdate)
         {
             lock (_listLock)
             {
-                UpdateFilterLists(modName, IsModActive(modName), isNSFW, isBroken, hasUpdate);
+                UpdateFilterLists(categoryName, modName, isActive, isNSFW, isBroken, hasUpdate);
             }
         }
 

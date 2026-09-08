@@ -1072,7 +1072,11 @@ namespace FlairX_Mod_Manager.Pages
                 if (_cachedOutdatedMods == null)
                     return false;
                 
-                return _cachedOutdatedMods.Contains(cleanName);
+                // Extract category from modData
+                var modData = _allModData.FirstOrDefault(m => m.Directory == modDirectory);
+                var cacheKey = $"{modData?.Category ?? "Other"}|{cleanName}";
+                
+                return _cachedOutdatedMods.Contains(cacheKey);
             }
             catch (Exception ex)
             {
@@ -1386,6 +1390,118 @@ namespace FlairX_Mod_Manager.Pages
             else
             {
                 Logger.LogGrid($"Mod data not found in cache: {modDirectoryName}");
+            }
+        }
+        
+        // Refresh mod tile status (HasUpdate, dates, etc.) by re-reading mod.json
+        public void RefreshModTileStatus(string modPath)
+        {
+            try
+            {
+                if (ModsGrid?.ItemsSource is not ObservableCollection<ModTile> mods) return;
+                
+                var modDirName = Path.GetFileName(modPath);
+                var modJsonPath = Path.Combine(modPath, "mod.json");
+                
+                if (!File.Exists(modJsonPath))
+                {
+                    Logger.LogGrid($"mod.json not found for: {modDirName}");
+                    return;
+                }
+                
+                // Read mod.json
+                var jsonText = File.ReadAllText(modJsonPath);
+                using var doc = System.Text.Json.JsonDocument.Parse(jsonText);
+                var root = doc.RootElement;
+                
+                // Parse dates
+                DateTime lastUpdated = DateTime.MinValue;
+                if (root.TryGetProperty("dateUpdated", out var dateUpdatedProp) && dateUpdatedProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    DateTime.TryParse(dateUpdatedProp.GetString(), out lastUpdated);
+                }
+                
+                // Calculate HasUpdate
+                bool hasUpdate = false;
+                if (root.TryGetProperty("gbChangeDate", out var gbChangeProp) && gbChangeProp.ValueKind == System.Text.Json.JsonValueKind.String)
+                {
+                    var gbChangeDateStr = gbChangeProp.GetString();
+                    if (!string.IsNullOrEmpty(gbChangeDateStr) && lastUpdated != DateTime.MinValue)
+                    {
+                        if (DateTime.TryParse(gbChangeDateStr, out var gbDate))
+                        {
+                            hasUpdate = gbDate > lastUpdated;
+                        }
+                    }
+                }
+                
+                Logger.LogGrid($"RefreshModTileStatus: {modDirName}, HasUpdate={hasUpdate}");
+                
+                // Update mod tile in UI
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    var modTile = mods.FirstOrDefault(m => 
+                        m.Directory.Equals(modDirName, StringComparison.OrdinalIgnoreCase) ||
+                        m.Directory.EndsWith("\\" + modDirName, StringComparison.OrdinalIgnoreCase) ||
+                        m.Directory.EndsWith("/" + modDirName, StringComparison.OrdinalIgnoreCase));
+                    
+                    if (modTile != null)
+                    {
+                        modTile.HasUpdate = hasUpdate;
+                        modTile.LastUpdated = lastUpdated;
+                        Logger.LogGrid($"Updated mod tile status: {modDirName} -> HasUpdate={hasUpdate}");
+                    }
+                });
+                
+                // Update cached data
+                var modData = _allModData.FirstOrDefault(m => m.Directory == modDirName);
+                if (modData != null)
+                {
+                    modData.HasUpdate = hasUpdate;
+                    modData.LastUpdated = lastUpdated;
+                }
+                
+                // Update persistent lists
+                var categoryName = modData?.Category ?? "Other";
+                if (hasUpdate)
+                {
+                    ModListManager.AddToOutdatedList(categoryName, modData?.Name ?? modDirName);
+                }
+                else
+                {
+                    ModListManager.RemoveFromOutdatedList(categoryName, modData?.Name ?? modDirName);
+                }
+                
+                // Update cached list
+                if (_cachedOutdatedMods != null)
+                {
+                    var cacheKey = $"{categoryName}|{modData?.Name ?? modDirName}";
+                    if (hasUpdate)
+                        _cachedOutdatedMods.Add(cacheKey);
+                    else
+                        _cachedOutdatedMods.Remove(cacheKey);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to refresh mod tile status: {modPath}", ex);
+            }
+        }
+        
+        // Refresh outdated view if currently shown
+        public void RefreshOutdatedView()
+        {
+            try
+            {
+                if (_currentCategory == "Outdated")
+                {
+                    Logger.LogGrid("Refreshing outdated view");
+                    LoadOutdatedModsOnly();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to refresh outdated view", ex);
             }
         }
 

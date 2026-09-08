@@ -293,7 +293,7 @@ namespace FlairX_Mod_Manager.Pages
                 var favoritesList = new HashSet<string>();
                 foreach (var mod in filteredData)
                 {
-                    if (SettingsManager.IsModFavorite(gameTag, mod.Name))
+                    if (SettingsManager.IsModFavorite(gameTag, mod.Category ?? "Other", mod.Name))
                     {
                         favoritesList.Add(mod.Name);
                     }
