@@ -847,11 +847,8 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogInfo("SendF10KeyPress: Starting...");
 
-                // Ensure d3dx.ini is configured to accept background keypresses
-                if (SettingsManager.Current.SendF10OnModChange)
-                {
-                    Pages.GameOverlayPage.EnsureBackgroundKeypressIni(true);
-                }
+                // Note: d3dx.ini is ensured on startup and when settings change
+                // No need to check here on every F10 press to avoid UI freeze
 
                 const ushort SCAN_F10 = 0x44;
                 var sizeOfInput = Marshal.SizeOf<INPUT>();

@@ -22,6 +22,9 @@ namespace FlairX_Mod_Manager.Pages
         private static readonly object _syncLock = new object();
         private static FileSystemWatcher? _fileWatcher;
         private static Timer? _periodicSyncTimer;
+        private static Timer? _debounceTimer; // Debounce timer for file watcher
+        private static readonly object _debounceLock = new object();
+        private const int DEBOUNCE_DELAY_MS = 1000; // Wait 1 second after last file change
         
 
 
@@ -1147,23 +1150,31 @@ namespace FlairX_Mod_Manager.Pages
 
                 _fileWatcher.Changed += async (sender, e) =>
                 {
-                    LogStatic("d3dx_user.ini changed, triggering auto-sync...");
+                    LogStatic("d3dx_user.ini changed, debouncing...");
                     
-                    await Task.Delay(100); // Small delay to avoid blocking
-                    
-                    try
+                    // Debounce - reset timer on each change
+                    lock (_debounceLock)
                     {
-                        var result = await SyncPersistentVariables();
-                        var logMessage = $"Auto-sync completed: {result.updateCount} variables in {result.fileCount} files";
-                        if (result.lodSyncCount > 0)
+                        _debounceTimer?.Dispose();
+                        _debounceTimer = new Timer(async _ =>
                         {
-                            logMessage += $", {result.lodSyncCount} LOD files synced";
-                        }
-                        LogStatic(logMessage);
-                    }
-                    catch (Exception error)
-                    {
-                        LogStatic($"Auto-sync failed: {error.Message}", "ERROR");
+                            LogStatic("Debounce timer fired - starting auto-sync...");
+                            
+                            try
+                            {
+                                var result = await SyncPersistentVariables();
+                                var logMessage = $"Auto-sync completed: {result.updateCount} variables in {result.fileCount} files";
+                                if (result.lodSyncCount > 0)
+                                {
+                                    logMessage += $", {result.lodSyncCount} LOD files synced";
+                                }
+                                LogStatic(logMessage);
+                            }
+                            catch (Exception error)
+                            {
+                                LogStatic($"Auto-sync failed: {error.Message}", "ERROR");
+                            }
+                        }, null, DEBOUNCE_DELAY_MS, Timeout.Infinite);
                     }
                 };
 
@@ -1183,6 +1194,13 @@ namespace FlairX_Mod_Manager.Pages
                 _fileWatcher.Dispose();
                 _fileWatcher = null;
                 LogStatic("✅ File watcher stopped");
+            }
+            
+            // Stop debounce timer
+            lock (_debounceLock)
+            {
+                _debounceTimer?.Dispose();
+                _debounceTimer = null;
             }
         }
         
