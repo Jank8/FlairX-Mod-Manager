@@ -1138,27 +1138,14 @@ namespace FlairX_Mod_Manager.Pages
         {
             LogToGridLog("LoadOutdatedModsOnly() called");
             
-            // Get outdated mods from ModListManager (fast - no file I/O)
-            var outdatedModsList = ModListManager.GetOutdatedMods();
-            
-            // Parse "Category|ModName" format and build lookup dictionary
-            var outdatedLookup = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
-            foreach (var entry in outdatedModsList)
+            // If _allModData is empty, load all mods first (like LoadAllMods does)
+            if (_allModData.Count == 0)
             {
-                var parts = entry.Name.Split('|');
-                if (parts.Length == 2)
-                {
-                    var category = parts[0];
-                    var modName = parts[1];
-                    
-                    if (!outdatedLookup.ContainsKey(category))
-                        outdatedLookup[category] = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                    
-                    outdatedLookup[category].Add(modName);
-                }
+                LogToGridLog("Loading all mods first for outdated filtering");
+                LoadAllMods();
             }
             
-            // Apply filters based on settings
+            // Filter to only outdated mods (those with HasUpdate = true)
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
             bool hideNSFW = SettingsManager.Current.HideNSFWMods;
             
@@ -1166,13 +1153,12 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (hideBroken && mod.IsBroken) return false;
                 if (hideNSFW && mod.IsNSFW) return false;
-                
-                // Check if this mod is in the outdated list for its category
-                return outdatedLookup.ContainsKey(mod.Category ?? "Other") && 
-                       outdatedLookup[mod.Category ?? "Other"].Contains(mod.Name);
+                return mod.HasUpdate; // Only mods with updates
             }).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase).ToList();
             
-            // Convert to lightweight ModData for lazy loading
+            LogToGridLog($"Filtered to {filteredMods.Count} outdated mods from {_allModData.Count} total mods");
+            
+            // Replace _allModData with filtered results
             _allModData.Clear();
             _lastLoadedModDataIndex = 0;
             
