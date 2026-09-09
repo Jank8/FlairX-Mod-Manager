@@ -20,8 +20,8 @@ namespace FlairX_Mod_Manager
         private readonly SemaphoreSlim _menuGenerationLock = new SemaphoreSlim(1, 1);
         private volatile bool _suppressMenuRegeneration = false;
         
-        // Dictionary to store star buttons for each category
-        private readonly Dictionary<string, (Button button, FontIcon icon)> _categoryStarButtons = new Dictionary<string, (Button, FontIcon)>();
+        // Dictionary to store star buttons, presenters, and grid columns for each category
+        private readonly Dictionary<string, (Button button, FontIcon icon, ContentPresenter? presenter, ColumnDefinition? column)> _categoryStarButtons = new Dictionary<string, (Button, FontIcon, ContentPresenter?, ColumnDefinition?)>();
         
         private void UpdateGameSelectionComboBoxTexts()
         {
@@ -414,8 +414,8 @@ namespace FlairX_Mod_Manager
                                                 Tag = category
                                             };
                                             
-                                            // Store in dictionary for later access
-                                            _categoryStarButtons[category] = (starButton, starIcon);
+                                            // Store in dictionary for later access (presenter and column will be added when item loads)
+                                            _categoryStarButtons[category] = (starButton, starIcon, null, null);
                                             
                                             var menuItem = new NavigationViewItem
                                             {
@@ -504,6 +504,9 @@ namespace FlairX_Mod_Manager
                             {
                                 Logger.LogError("Error ensuring presets menu item exists in finally", innerEx);
                             }
+                            
+                            // Update star buttons visibility based on current display mode
+                            UpdateStarButtonsVisibility();
                             
                             // Signal completion so callers can rely on menu being populated
                             tcs.TrySetResult(true);
@@ -1081,6 +1084,27 @@ namespace FlairX_Mod_Manager
                 if (starPresenter != null)
                 {
                     starPresenter.Content = starButton;
+                    
+                    // Find the Grid that contains the StarPresenter and get its column
+                    var parentGrid = starPresenter.Parent as Grid;
+                    ColumnDefinition? starColumn = null;
+                    
+                    if (parentGrid != null && parentGrid.ColumnDefinitions.Count > 0)
+                    {
+                        // StarPresenter is typically in the last column (column 2)
+                        var columnIndex = Grid.GetColumn(starPresenter);
+                        if (columnIndex < parentGrid.ColumnDefinitions.Count)
+                        {
+                            starColumn = parentGrid.ColumnDefinitions[columnIndex];
+                        }
+                    }
+                    
+                    // Update dictionary with presenter and column reference
+                    var categoryName = (string)starButton.Tag;
+                    if (_categoryStarButtons.TryGetValue(categoryName, out var starData))
+                    {
+                        _categoryStarButtons[categoryName] = (starData.button, starData.icon, starPresenter, starColumn);
+                    }
                 }
             }
             catch (Exception ex)
@@ -1828,6 +1852,47 @@ namespace FlairX_Mod_Manager
             {
                 Logger.LogError("Error generating pinned categories", ex);
             }
+        }
+        
+        /// <summary>
+        /// Update star button visibility based on NavigationView pane display mode
+        /// </summary>
+        private void UpdateStarButtonsVisibility()
+        {
+            if (nvSample == null) return;
+            
+            Logger.LogInfo($"UpdateStarButtonsVisibility called - IsPaneOpen: {nvSample.IsPaneOpen}");
+            
+            // Hide stars when pane is closed (collapsed/compact mode)
+            var isVisible = nvSample.IsPaneOpen;
+            
+            Logger.LogInfo($"Star visibility: {isVisible}, Star buttons count: {_categoryStarButtons.Count}");
+            
+            // Update all star columns - set width to 0 to remove the space
+            foreach (var starData in _categoryStarButtons.Values)
+            {
+                if (starData.column != null)
+                {
+                    if (isVisible)
+                    {
+                        // Restore original width (Auto)
+                        starData.column.Width = new GridLength(1, GridUnitType.Auto);
+                    }
+                    else
+                    {
+                        // Hide column by setting width to 0
+                        starData.column.Width = new GridLength(0);
+                    }
+                }
+                
+                // Also update presenter visibility as backup
+                if (starData.presenter != null)
+                {
+                    starData.presenter.Visibility = isVisible ? Visibility.Visible : Visibility.Collapsed;
+                }
+            }
+            
+            Logger.LogInfo($"Star columns updated - visible: {isVisible}");
         }
     }
 }

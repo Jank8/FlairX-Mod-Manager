@@ -488,6 +488,26 @@ namespace FlairX_Mod_Manager
             };
 
             nvSample.Loaded += NvSample_Loaded;
+            
+            // Handle pane open/close to show/hide star buttons
+            nvSample.PaneClosing += (s, args) =>
+            {
+                Logger.LogInfo("Pane closing - hiding stars");
+                UpdateStarButtonsVisibility();
+            };
+            
+            nvSample.PaneOpening += (s, args) =>
+            {
+                Logger.LogInfo("Pane opening - showing stars");
+                UpdateStarButtonsVisibility();
+            };
+            
+            nvSample.DisplayModeChanged += (s, args) =>
+            {
+                Logger.LogInfo($"DisplayModeChanged fired - new mode: {nvSample.DisplayMode}");
+                UpdateStarButtonsVisibility();
+            };
+            
             nvSample.Loaded += (s, e) =>
             {
                 if (OrangeAnimationProgressBar != null)
