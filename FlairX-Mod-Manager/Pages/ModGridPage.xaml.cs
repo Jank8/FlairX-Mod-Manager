@@ -1488,15 +1488,32 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
         
-        // Refresh outdated view if currently shown
+        // Check if currently showing outdated mods view
+        public bool IsOutdatedView()
+        {
+            return _currentCategory == "Outdated";
+        }
+        
+        // Reload outdated mods data (always reloads, even if not currently viewing)
         public void RefreshOutdatedView()
         {
             try
             {
+                Logger.LogGrid("Reloading all mods data to refresh outdated status");
+                
+                // Clear all mod data to force full reload from disk
+                _allModData.Clear();
+                _lastLoadedModDataIndex = 0;
+                
+                // If currently viewing outdated mods, reload the view
                 if (_currentCategory == "Outdated")
                 {
-                    Logger.LogGrid("Refreshing outdated view");
+                    Logger.LogGrid("Refreshing outdated view (currently visible)");
                     LoadOutdatedModsOnly();
+                }
+                else
+                {
+                    Logger.LogGrid("Outdated data refreshed (will be reloaded when user navigates to Outdated)");
                 }
             }
             catch (Exception ex)

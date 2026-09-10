@@ -73,11 +73,20 @@ namespace FlairX_Mod_Manager.Services
                 
                 Logger.LogInfo($"GameBanana auto-update completed - Success: {_success}, Failed: {_fail}, Skipped: {_skip}");
 
-                // Show success notification
+                // Refresh outdated mods page to show new outdated mods
                 if (mainWindow != null)
                 {
                     mainWindow.DispatcherQueue.TryEnqueue(() =>
-                        mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "UpdateSuccess")));
+                    {
+                        var modGridPage = mainWindow.GetCurrentModGridPage();
+                        if (modGridPage != null)
+                        {
+                            Logger.LogInfo("Refreshing outdated mods view after GameBanana auto-update");
+                            modGridPage.RefreshOutdatedView();
+                        }
+                        
+                        mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "UpdateSuccess"));
+                    });
                 }
             }
             catch (Exception ex)
