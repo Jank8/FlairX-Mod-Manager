@@ -25,6 +25,7 @@ namespace FlairX_Mod_Manager.Dialogs
         private ProgressBar _progressBar = null!;
         private TextBlock _statusText = null!;
         private string? _downloadedArchivePath = null;
+        private string? _currentTempDir = null; // For cleanup only
         private string? _modProfileUrl;
         private TextBox _modNameTextBox = null!;
         private ProgressBar _downloadProgressBar = null!;
@@ -792,6 +793,7 @@ namespace FlairX_Mod_Manager.Dialogs
                 // Download files (only selected ones)
                 var tempDir = Path.Combine(Path.GetTempPath(), "FlairX_Downloads", Guid.NewGuid().ToString());
                 Directory.CreateDirectory(tempDir);
+                _currentTempDir = tempDir; // Store for cleanup
 
                 var downloadedFiles = new List<(string filePath, string fileName)>();
 
@@ -818,7 +820,16 @@ namespace FlairX_Mod_Manager.Dialogs
                     if (!success)
                     {
                         await ShowError(string.Format(SharedUtilities.GetTranslation(_lang, "FailedToDownload"), file.FileName));
-                        Directory.Delete(tempDir, true);
+                        try
+                        {
+                            if (_currentTempDir != null && Directory.Exists(_currentTempDir))
+                                Directory.Delete(_currentTempDir, true);
+                        }
+                        catch { }
+                        finally
+                        {
+                            _currentTempDir = null;
+                        }
                         IsPrimaryButtonEnabled = true;
                         IsSecondaryButtonEnabled = true;
                         return;
@@ -855,6 +866,24 @@ namespace FlairX_Mod_Manager.Dialogs
                 if (_downloadPreviews && _previewMedia?.Images != null && !string.IsNullOrEmpty(_installedModPath))
                 {
                     await DownloadPreviewImagesAsync(_installedModPath);
+                }
+
+                // Cleanup downloaded files after successful installation
+                try
+                {
+                    if (_currentTempDir != null && Directory.Exists(_currentTempDir))
+                    {
+                        Directory.Delete(_currentTempDir, true);
+                        Logger.LogInfo($"Cleaned up temp download directory: {_currentTempDir}");
+                    }
+                }
+                catch (Exception cleanupEx)
+                {
+                    Logger.LogWarning($"Failed to cleanup temp directory: {cleanupEx.Message}");
+                }
+                finally
+                {
+                    _currentTempDir = null;
                 }
 
                 // Success
@@ -914,6 +943,16 @@ namespace FlairX_Mod_Manager.Dialogs
             catch (OperationCanceledException)
             {
                 // User cancelled password entry — show info and re-enable buttons
+                try
+                {
+                    if (_currentTempDir != null && Directory.Exists(_currentTempDir))
+                        Directory.Delete(_currentTempDir, true);
+                }
+                catch { }
+                finally
+                {
+                    _currentTempDir = null;
+                }
                 _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ArchivePassword_Cancelled");
                 _extractProgressBar.IsIndeterminate = false;
                 _extractProgressBar.Value = 0;
@@ -922,6 +961,16 @@ namespace FlairX_Mod_Manager.Dialogs
             }
             catch (AggregateException ae) when (ae.InnerException is OperationCanceledException)
             {
+                try
+                {
+                    if (_currentTempDir != null && Directory.Exists(_currentTempDir))
+                        Directory.Delete(_currentTempDir, true);
+                }
+                catch { }
+                finally
+                {
+                    _currentTempDir = null;
+                }
                 _extractStatusText.Text = SharedUtilities.GetTranslation(_lang, "ArchivePassword_Cancelled");
                 _extractProgressBar.IsIndeterminate = false;
                 _extractProgressBar.Value = 0;
@@ -934,6 +983,18 @@ namespace FlairX_Mod_Manager.Dialogs
                 
                 // Cleanup failed installation if it was a new mod
                 CleanupFailedInstallation();
+                
+                // Cleanup downloaded files
+                try
+                {
+                    if (_currentTempDir != null && Directory.Exists(_currentTempDir))
+                        Directory.Delete(_currentTempDir, true);
+                }
+                catch { }
+                finally
+                {
+                    _currentTempDir = null;
+                }
                 
                 await ShowError(string.Format(SharedUtilities.GetTranslation(_lang, "InstallationFailed"), ex.Message));
                 IsPrimaryButtonEnabled = true;
