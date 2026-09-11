@@ -791,7 +791,21 @@ namespace FlairX_Mod_Manager.Dialogs
                 string categoryFolderName = SanitizeCategoryName(category);
 
                 // Download files (only selected ones)
-                var tempDir = Path.Combine(Path.GetTempPath(), "FlairX_Downloads", Guid.NewGuid().ToString());
+                var tempDir = Path.Combine(Path.GetTempPath(), "FlairX_Downloads");
+                
+                // Clean up if folder exists from previous interrupted session
+                if (Directory.Exists(tempDir))
+                {
+                    try
+                    {
+                        Directory.Delete(tempDir, true);
+                    }
+                    catch (Exception cleanEx)
+                    {
+                        Logger.LogWarning($"Failed to cleanup existing temp dir: {cleanEx.Message}");
+                    }
+                }
+                
                 Directory.CreateDirectory(tempDir);
                 _currentTempDir = tempDir; // Store for cleanup
 

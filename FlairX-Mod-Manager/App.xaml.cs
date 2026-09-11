@@ -766,33 +766,8 @@ namespace FlairX_Mod_Manager
                 if (Directory.Exists(tempDownloadsPath))
                 {
                     Logger.LogInfo($"Cleaning up old downloads from: {tempDownloadsPath}");
-                    
-                    // Delete all subdirectories and files
-                    foreach (var dir in Directory.GetDirectories(tempDownloadsPath))
-                    {
-                        try
-                        {
-                            Directory.Delete(dir, true);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogWarning($"Failed to delete temp directory {dir}: {ex.Message}");
-                        }
-                    }
-                    
-                    // Try to delete the parent directory if empty
-                    try
-                    {
-                        if (!Directory.EnumerateFileSystemEntries(tempDownloadsPath).Any())
-                        {
-                            Directory.Delete(tempDownloadsPath);
-                            Logger.LogInfo("Temp downloads directory deleted successfully");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogWarning($"Failed to delete temp downloads parent directory: {ex.Message}");
-                    }
+                    Directory.Delete(tempDownloadsPath, true);
+                    Logger.LogInfo("Temp downloads directory deleted successfully");
                 }
             }
             catch (Exception ex)
