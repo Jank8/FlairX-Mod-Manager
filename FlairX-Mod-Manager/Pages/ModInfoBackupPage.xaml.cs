@@ -281,9 +281,11 @@ namespace FlairX_Mod_Manager.Pages
                     
                     bool hasCatprev = File.Exists(catprevJpgPath) || File.Exists(catprevWebpPath);
                     bool hasCatmini = File.Exists(catminiJpgPath) || File.Exists(catminiWebpPath);
+                    bool hasCatprevWide = File.Exists(Path.Combine(categoryDir, "catprev-wide.jpg")) || File.Exists(Path.Combine(categoryDir, "catprev-wide.webp"));
+                    bool hasCatminiWide = File.Exists(Path.Combine(categoryDir, "catmini-wide.jpg")) || File.Exists(Path.Combine(categoryDir, "catmini-wide.webp"));
                     
                     // Only create backup if there are files to backup
-                    if (!hasCatprev && !hasCatmini)
+                    if (!hasCatprev && !hasCatmini && !hasCatprevWide && !hasCatminiWide)
                     {
                         Logger.LogInfo($"Skipping category backup for {categoryName} - no catprev or catmini found");
                         continue;
@@ -326,6 +328,34 @@ namespace FlairX_Mod_Manager.Pages
                             filesToBackup["catmini.jpg"] = catminiJpgPath;
                             Logger.LogInfo($"Added catmini.jpg to backup for category: {categoryName}");
                         }
+                    }
+                    
+                    // Add catprev-wide (check both formats)
+                    var catprevWideWebpPath = Path.Combine(categoryDir, "catprev-wide.webp");
+                    var catprevWideJpgPath = Path.Combine(categoryDir, "catprev-wide.jpg");
+                    if (File.Exists(catprevWideWebpPath))
+                    {
+                        filesToBackup["catprev-wide.webp"] = catprevWideWebpPath;
+                        Logger.LogInfo($"Added catprev-wide.webp to backup for category: {categoryName}");
+                    }
+                    else if (File.Exists(catprevWideJpgPath))
+                    {
+                        filesToBackup["catprev-wide.jpg"] = catprevWideJpgPath;
+                        Logger.LogInfo($"Added catprev-wide.jpg to backup for category: {categoryName}");
+                    }
+
+                    // Add catmini-wide (check both formats)
+                    var catminiWideWebpPath = Path.Combine(categoryDir, "catmini-wide.webp");
+                    var catminiWideJpgPath = Path.Combine(categoryDir, "catmini-wide.jpg");
+                    if (File.Exists(catminiWideWebpPath))
+                    {
+                        filesToBackup["catmini-wide.webp"] = catminiWideWebpPath;
+                        Logger.LogInfo($"Added catmini-wide.webp to backup for category: {categoryName}");
+                    }
+                    else if (File.Exists(catminiWideJpgPath))
+                    {
+                        filesToBackup["catmini-wide.jpg"] = catminiWideJpgPath;
+                        Logger.LogInfo($"Added catmini-wide.jpg to backup for category: {categoryName}");
                     }
                     
                     if (filesToBackup.Count > 0)
@@ -423,6 +453,18 @@ namespace FlairX_Mod_Manager.Pages
                     else if (File.Exists(minitileJpgPath))
                     {
                         filesToBackup["minitile.jpg"] = minitileJpgPath;
+                    }
+                    
+                    // Add minitile-wide (check both formats)
+                    var minitileWideWebpPath = Path.Combine(dir, "minitile-wide.webp");
+                    var minitileWideJpgPath = Path.Combine(dir, "minitile-wide.jpg");
+                    if (File.Exists(minitileWideWebpPath))
+                    {
+                        filesToBackup["minitile-wide.webp"] = minitileWideWebpPath;
+                    }
+                    else if (File.Exists(minitileWideJpgPath))
+                    {
+                        filesToBackup["minitile-wide.jpg"] = minitileWideJpgPath;
                     }
                     
                     // Add all preview images (preview.jpg/webp, preview-01.jpg/webp, etc.)

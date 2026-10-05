@@ -2223,6 +2223,8 @@ namespace FlairX_Mod_Manager.Services
                 // Check if we need to handle minitile even when no new files
                 var minitileFilePath = Path.Combine(modDir, GetMinitileFilename());
                 var minitileFileExists = File.Exists(minitileFilePath);
+                var minitileWideFilePath = Path.Combine(modDir, GetMinitileWideFilename());
+                var minitileWideFileExists = File.Exists(minitileWideFilePath);
                 bool hasPreviewFiles = alreadyOptimizedFiles.Count > 0 || newFilesToProcess.Count > 0;
                 
                 // If no new files to process AND minitile exists (or no preview files for minitile), nothing to do
@@ -2298,11 +2300,11 @@ namespace FlairX_Mod_Manager.Services
                 bool skipMinitileOnly = false;
                 List<string> filesToChooseFrom = new();
                 
-                Logger.LogInfo($"[PREVIEW_LITE] Minitile check - Path: {minitileFilePath}, Exists: {minitileFileExists}");
+                Logger.LogInfo($"[PREVIEW_LITE] Minitile check - Path: {minitileFilePath}, Exists: {minitileFileExists}, WideExists: {minitileWideFileExists}");
                 Logger.LogInfo($"[PREVIEW_LITE] Files count - newFilesToProcess: {newFilesToProcess.Count}, alreadyOptimizedFiles: {alreadyOptimizedFiles.Count}");
                 Logger.LogInfo($"[PREVIEW_LITE] Context - CreateMinitile: {context.CreateMinitile}, AllowUIInteraction: {context.AllowUIInteraction}");
                 
-                if (context.CreateMinitile && (!minitileFileExists || newFilesToProcess.Count > 0))
+                if (context.CreateMinitile && (!minitileFileExists || !minitileWideFileExists || newFilesToProcess.Count > 0))
                 {
                     // Get list of files to choose from - prefer new files, fallback to already optimized
                     filesToChooseFrom = newFilesToProcess.Count > 0 
@@ -2339,7 +2341,7 @@ namespace FlairX_Mod_Manager.Services
                     Logger.LogInfo("[PREVIEW_LITE] Minitile creation disabled - skipping minitile source selection");
                     skipMinitileOnly = true;
                 }
-                else if (minitileFileExists)
+                else if (minitileFileExists && minitileWideFileExists)
                 {
                     Logger.LogInfo("[PREVIEW_LITE] Minitile already exists and no new files - skipping minitile source selection");
                     skipMinitileOnly = true;
@@ -3386,6 +3388,11 @@ namespace FlairX_Mod_Manager.Services
             if (!File.Exists(minitilePath))
                 return false;
             
+            // Also check if minitile-wide exists (wide format)
+            var minitileWidePath = Path.Combine(modDir, $"minitile-wide{currentExtension}");
+            if (!File.Exists(minitileWidePath))
+                return false;  // Wide minitile missing - needs regeneration
+            
             // Check if preview files exist in current format
             var previewFiles = Directory.GetFiles(modDir)
                 .Where(f =>
@@ -3431,6 +3438,16 @@ namespace FlairX_Mod_Manager.Services
             // Check if catmini exists in current format
             var catminiPath = Path.Combine(categoryDir, $"catmini{currentExtension}");
             if (!File.Exists(catminiPath))
+                return false;
+            
+            // Check if catprev-wide exists in current format
+            var catprevWidePath = Path.Combine(categoryDir, $"catprev-wide{currentExtension}");
+            if (!File.Exists(catprevWidePath))
+                return false;
+
+            // Check if catmini-wide exists in current format
+            var catminiWidePath = Path.Combine(categoryDir, $"catmini-wide{currentExtension}");
+            if (!File.Exists(catminiWidePath))
                 return false;
             
             // Both catprev and catmini exist in current format - category is fully optimized
