@@ -3307,8 +3307,11 @@ namespace FlairX_Mod_Manager.Services
                 NotifyProgressChanged();
                 
                 // Check if we need sequential processing for crop inspection
-                // Sequential processing is needed when InspectAndEditEnabled (preview before crop)
-                bool needsSequentialProcessing = context.InspectAndEditEnabled;
+                // Sequential processing is needed when:
+                // 1. InspectAndEditEnabled - user wants to see/edit each crop
+                // 2. AllowUIInteraction AND NOT AutoCreateModThumbnails - minitile source selection panel will be shown
+                bool needsSequentialProcessing = context.InspectAndEditEnabled || 
+                    (context.AllowUIInteraction && !SettingsManager.Current.AutoCreateModThumbnails);
                 
                 bool wasCancelled = false;
                 
@@ -3337,7 +3340,15 @@ namespace FlairX_Mod_Manager.Services
                             SetCurrentProcessingMod(modName);
                             NotifyProgressChanged();
                             
-                            await ProcessModPreviewImagesAsync(modDir, context);
+                            try
+                            {
+                                await ProcessModPreviewImagesAsync(modDir, context);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                wasCancelled = true;
+                                break;
+                            }
                             IncrementProcessed();
                         }
                         
