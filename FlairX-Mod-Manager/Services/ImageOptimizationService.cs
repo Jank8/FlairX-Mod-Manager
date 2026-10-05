@@ -2990,15 +2990,56 @@ namespace FlairX_Mod_Manager.Services
                 
                 // ========== WIDE FORMAT (1280x720) ==========
                 var minitileWidePath = Path.Combine(modDir, GetMinitileWideFilename());
-                var currentWidePath = previewPath; // Start with same source, but user can change
+                
+                // In auto mode (no inspection), prefer the widest source file for wide format
+                bool isAutoMode = !context.InspectAndEditEnabled || SettingsManager.Current.AutoCreateModThumbnails;
+                var currentWidePath = previewPath; // default: same source as classic
+                
+                if (isAutoMode && filesToShow.Count > 1)
+                {
+                    // Pick the file with the widest aspect ratio as source for wide format
+                    var widestFile = filesToShow
+                        .Select(f => {
+                            try {
+                                using var img = Image.Load<Rgba32>(f);
+                                return (path: f, ratio: (double)img.Width / img.Height);
+                            } catch { return (path: f, ratio: 0.0); }
+                        })
+                        .OrderByDescending(x => x.ratio)
+                        .First().path;
+                    
+                    if (widestFile != previewPath)
+                    {
+                        currentWidePath = widestFile;
+                        Logger.LogInfo($"Auto mode: selected widest source for wide minitile: {Path.GetFileName(widestFile)}");
+                    }
+                }
                 
                 while (true)
                 {
                     using (var img = Image.Load<Rgba32>(currentWidePath))
                     {
+                        // In auto mode, skip inspection for wide - just use auto-crop
+                        var wideContext = isAutoMode
+                            ? new OptimizationContext
+                            {
+                                Mode = context.Mode,
+                                JpegQuality = context.JpegQuality,
+                                ThreadCount = context.ThreadCount,
+                                CreateBackups = context.CreateBackups,
+                                KeepOriginals = context.KeepOriginals,
+                                CropStrategy = context.CropStrategy,
+                                InspectAndEditEnabled = false, // force no inspection for wide in auto mode
+                                Trigger = context.Trigger,
+                                AllowUIInteraction = context.AllowUIInteraction,
+                                Reoptimize = context.Reoptimize,
+                                CreateMinitile = context.CreateMinitile
+                            }
+                            : context;
+                        
                         // Get crop rectangle with optional inspection for wide format
                         var srcRect = await GetCropRectangleWithInspectionAsync(
-                            img, 1280, 720, context, "minitile-wide (1280x720)", isProtected: false, isThumbnail: true);
+                            img, 1280, 720, wideContext, "minitile-wide (1280x720)", isProtected: false, isThumbnail: true);
                         
                         if (srcRect == null)
                         {
