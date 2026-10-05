@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Журналювання сітки",
   "SettingsPage_GridLogging_Tooltip": "Увімкнути детальне журналювання для налагодження продуктивності сітки",
   "SettingsPage_Language": "Мова:",
-  "SettingsPage_ModGridZoom_Label": "Масштабування сітки",
-  "SettingsPage_ModGridZoom_Tooltip": "Функція наполовину з помилками. Колесо прокрутки миші може перестати працювати, перетягування смуги прокрутки або використання колеса миші на смузі прокрутки все ще працює. Це проблема WinUI 3, не вдалося виправити.",
   "SettingsPage_OptimizePreviews_Label": "Оптимізувати мініатюри модів",
   "SettingsPage_DefaultResolutionOnStart_Label": "Типова роздільна здатність при запуску",
   "SettingsPage_DefaultResolutionOnStart_Description": "Використовувати фіксований розмір вікна замість запам'ятовування останнього розміру",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Перемістити активні моди вгору списку",
   "SettingsPage_DynamicModSearch_Description": "Увімкнути фільтрацію в реальному часі під час введення",
   "SettingsPage_ShowOrangeAnimation_Description": "Показувати декоративну анімацію під заголовком менеджера",
-  "SettingsPage_ModGridZoom_Description": "Увімкнути функцію масштабування для сітки модів",
   "SettingsPage_GridLogging_Description": "Увімкнути детальне журналювання для налагодження продуктивності",
   "SettingsPage_ErrorOnlyLogging_Label": "Журналювання лише помилок",
   "SettingsPage_ErrorOnlyLogging_Description": "Записувати лише помилки та попередження у файл, зменшуючи розмір журналу",
@@ -403,5 +400,9 @@
   "Loading": "Завантаження...",
   "ConnectionErrorTitle": "Помилка з'єднання",
   "ConnectionErrorMessage": "Не вдалося підключитися до GameBanana. Перевірте підключення до Інтернету та повторіть спробу.",
-  "Favourites": "Вибране"
+  "Favourites": "Вибране",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

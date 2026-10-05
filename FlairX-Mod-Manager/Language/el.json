@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Καταγραφή πλέγματος",
   "SettingsPage_GridLogging_Tooltip": "Ενεργοποίηση λεπτομερούς καταγραφής για αποσφαλμάτωση απόδοσης πλέγματος",
   "SettingsPage_Language": "Γλώσσα:",
-  "SettingsPage_ModGridZoom_Label": "Ζουμ Πλέγματος",
-  "SettingsPage_ModGridZoom_Tooltip": "Η λειτουργία έχει μερικά σφάλματα. Ο τροχός του ποντικιού μπορεί να σταματήσει να λειτουργεί, το σύρσιμο της μπάρας κύλισης ή η χρήση του τροχού στη μπάρα κύλισης εξακολουθεί να λειτουργεί. Αυτό είναι πρόβλημα του WinUI 3, δεν μπόρεσε να διορθωθεί.",
   "SettingsPage_OptimizePreviews_Label": "Βελτιστοποίηση μικρογραφιών mod",
   "SettingsPage_DefaultResolutionOnStart_Label": "Προεπιλεγμένη ανάλυση κατά την εκκίνηση",
   "SettingsPage_DefaultResolutionOnStart_Description": "Χρήση σταθερού μεγέθους παραθύρου αντί για απομνημόνευση του τελευταίου μεγέθους",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Μετακίνηση ενεργών mods στην κορυφή της λίστας",
   "SettingsPage_DynamicModSearch_Description": "Ενεργοποίηση φιλτραρίσματος σε πραγματικό χρόνο καθώς πληκτρολογείτε",
   "SettingsPage_ShowOrangeAnimation_Description": "Εμφάνιση διακοσμητικών κινούμενων γραφικών κάτω από τον τίτλο του διαχειριστή",
-  "SettingsPage_ModGridZoom_Description": "Ενεργοποίηση λειτουργίας ζουμ για το πλέγμα mod",
   "SettingsPage_GridLogging_Description": "Ενεργοποίηση λεπτομερούς καταγραφής για αποσφαλμάτωση απόδοσης",
   "SettingsPage_ErrorOnlyLogging_Label": "Καταγραφή μόνο σφαλμάτων",
   "SettingsPage_ErrorOnlyLogging_Description": "Καταγραφή μόνο σφαλμάτων και προειδοποιήσεων σε αρχείο, μειώνοντας το μέγεθος του αρχείου καταγραφής",
@@ -403,5 +400,9 @@
   "Loading": "Φόρτωση...",
   "ConnectionErrorTitle": "Σφάλμα σύνδεσης",
   "ConnectionErrorMessage": "Αποτυχία σύνδεσης στο GameBanana. Ελέγξτε τη σύνδεσή σας στο Διαδίκτυο και δοκιμάστε ξανά.",
-  "Favourites": "Αγαπημένα"
+  "Favourites": "Αγαπημένα",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

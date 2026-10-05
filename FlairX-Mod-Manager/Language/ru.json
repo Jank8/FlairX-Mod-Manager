@@ -78,8 +78,6 @@
   "SettingsPage_GridLogging_Label": "Подробные логи",
   "SettingsPage_GridLogging_Tooltip": "Включить подробные логи для отладки",
   "SettingsPage_Language": "Язык:",
-  "SettingsPage_ModGridZoom_Label": "Увеличение изображения",
-  "SettingsPage_ModGridZoom_Tooltip": "Функция наполовину сломана. Колесо мыши может перестать работать, перетаскивание полосы прокрутки или использование колеса мыши на полосе прокрутки все еще работает. Это проблема WinUI 3, не удалось ее исправить.",
   "SettingsPage_OptimizePreviews_Label": "Оптимизация эскизов модов",
   "SettingsPage_DefaultResolutionOnStart_Label": "Фиксированный размер окна",
   "SettingsPage_DefaultResolutionOnStart_Description": "Использовать фиксированный размер окна",
@@ -152,7 +150,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Переместить активные моды в верхнюю часть списка",
   "SettingsPage_DynamicModSearch_Description": "Включить фильтрацию в реальном времени при вводе текста",
   "SettingsPage_ShowOrangeAnimation_Description": "Показать анимацию под заголовком программы",
-  "SettingsPage_ModGridZoom_Description": "Включить функцию масштабирования для сетки модов",
   "SettingsPage_GridLogging_Description": "Включить подробный логи для отладки программы",
   "SettingsPage_ErrorOnlyLogging_Label": "Только ошибки",
   "SettingsPage_ErrorOnlyLogging_Description": "Записывать только ошибки и предупреждения, уменьшая размер файла",
@@ -403,5 +400,9 @@
   "Loading": "Загрузка...",
   "ConnectionErrorTitle": "Ошибка подключения",
   "ConnectionErrorMessage": "Не удалось подключиться к GameBanana. Проверьте подключение к Интернету и повторите попытку.",
-  "Favourites": "Избранное"
+  "Favourites": "Избранное",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

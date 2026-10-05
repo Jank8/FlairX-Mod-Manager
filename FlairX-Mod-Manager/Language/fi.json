@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Ruudukon lokitus",
   "SettingsPage_GridLogging_Tooltip": "Ota käyttöön yksityiskohtainen lokitus ruudukon suorituskyvyn virheenkorjaukseen",
   "SettingsPage_Language": "Kieli:",
-  "SettingsPage_ModGridZoom_Label": "Ruudukon zoomaus",
-  "SettingsPage_ModGridZoom_Tooltip": "Ominaisuus on puoliksi buginen. Hiiren vierityspyörä voi lakata toimimasta, vierityspalkin vetäminen tai hiiren vierityspyörän käyttö vierityspalkin päällä toimii edelleen. Tämä on WinUI 3 -ongelma, ei voitu korjata.",
   "SettingsPage_OptimizePreviews_Label": "Optimoi modin pikkukuvat",
   "SettingsPage_DefaultResolutionOnStart_Label": "Oletustarkkuus käynnistyksessä",
   "SettingsPage_DefaultResolutionOnStart_Description": "Käytä kiinteää ikkunan kokoa sen sijaan, että muistettaisiin viimeisin koko",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Siirrä aktiiviset modit listan yläosaan",
   "SettingsPage_DynamicModSearch_Description": "Ota käyttöön reaaliaikainen suodatus kirjoittaessasi",
   "SettingsPage_ShowOrangeAnimation_Description": "Näytä koristeellinen animaatio hallinnan otsikon alla",
-  "SettingsPage_ModGridZoom_Description": "Ota käyttöön zoomaus-toiminto modiruudukolle",
   "SettingsPage_GridLogging_Description": "Ota käyttöön yksityiskohtainen lokitus suorituskyvyn virheenkorjaukseen",
   "SettingsPage_ErrorOnlyLogging_Label": "Vain virhelokitus",
   "SettingsPage_ErrorOnlyLogging_Description": "Kirjaa vain virheet ja varoitukset tiedostoon, pienentäen lokin kokoa",
@@ -403,5 +400,9 @@
   "Loading": "Ladataan...",
   "ConnectionErrorTitle": "Yhteysvirhe",
   "ConnectionErrorMessage": "GameBananaan yhdistäminen epäonnistui. Tarkista internet-yhteytesi ja yritä uudelleen.",
-  "Favourites": "Suosikit"
+  "Favourites": "Suosikit",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

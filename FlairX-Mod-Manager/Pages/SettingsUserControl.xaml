@@ -530,35 +530,6 @@
                         </Grid>
                     </Border>
                     
-                    <!-- Grid Zoom -->
-                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
-                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
-                            BorderThickness="1" 
-                            CornerRadius="8" 
-                            Padding="16" 
-                            Margin="0,0,0,2">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="150"/>
-                            </Grid.ColumnDefinitions>
-                            
-                            <FontIcon Grid.Column="0" Glyph="&#xE8A3;" FontSize="20" VerticalAlignment="Center"/>
-                            
-                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                <TextBlock x:Name="ModGridZoomLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="ModGridZoomDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
-                            </StackPanel>
-                            
-                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
-                                <TextBlock x:Name="ModGridZoomToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
-                                <ToggleSwitch x:Name="ModGridZoomToggle" Toggled="ModGridZoomToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                    
                     <!-- Grid Logging -->
                     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 

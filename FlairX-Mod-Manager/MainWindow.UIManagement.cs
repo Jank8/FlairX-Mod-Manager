@@ -807,18 +807,6 @@ namespace FlairX_Mod_Manager
                 // Enable/disable launcher FAB
                 if (LauncherFabBorder != null) LauncherFabBorder.IsHitTestVisible = gameSelected;
                 
-                // Enable/disable zoom indicator based on game selection and zoom settings
-                if (ZoomIndicatorBorder != null) 
-                {
-                    ZoomIndicatorBorder.IsHitTestVisible = gameSelected;
-                    // Also update visibility based on zoom settings
-                    bool zoomEnabled = SettingsManager.Current.ModGridZoomEnabled;
-                    if (!gameSelected || !zoomEnabled)
-                    {
-                        ZoomIndicatorBorder.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
-                    }
-                }
-                
                 // Ensure the game selection ComboBox stays enabled (double-check)
                 if (GameSelectionComboBox != null) GameSelectionComboBox.IsEnabled = true;
                 

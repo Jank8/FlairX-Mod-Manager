@@ -307,8 +307,6 @@ namespace FlairX_Mod_Manager.Pages
                 DynamicModSearchToggleLabel.Text = DynamicModSearchToggle.IsOn ? onText : offText;
             if (ShowOrangeAnimationToggleLabel != null && ShowOrangeAnimationToggle != null)
                 ShowOrangeAnimationToggleLabel.Text = ShowOrangeAnimationToggle.IsOn ? onText : offText;
-            if (ModGridZoomToggleLabel != null && ModGridZoomToggle != null)
-                ModGridZoomToggleLabel.Text = ModGridZoomToggle.IsOn ? onText : offText;
             if (GridLoggingToggleLabel != null && GridLoggingToggle != null)
                 GridLoggingToggleLabel.Text = GridLoggingToggle.IsOn ? onText : offText;
             if (ErrorOnlyLoggingToggleLabel != null && ErrorOnlyLoggingToggle != null)
@@ -471,7 +469,6 @@ namespace FlairX_Mod_Manager.Pages
             if (AutoDeactivateConflictingModsLabel != null) AutoDeactivateConflictingModsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoDeactivateConflictingMods_Label");
             if (DynamicModSearchLabel != null) DynamicModSearchLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Label");
             if (ShowOrangeAnimationLabel != null) ShowOrangeAnimationLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Label");
-            if (ModGridZoomLabel != null) ModGridZoomLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Label");
             if (GridLoggingLabel != null) GridLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Label");
             if (ErrorOnlyLoggingLabel != null) ErrorOnlyLoggingLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Label");
             if (AnonymizeLogsLabel != null) AnonymizeLogsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AnonymizeLogs_Label");
@@ -550,7 +547,6 @@ namespace FlairX_Mod_Manager.Pages
             if (BackdropSelectorNoneText != null) BackdropSelectorNoneText.Text = SharedUtilities.GetTranslation(lang, "None");
             
             // Tooltips - use null checks
-            if (ModGridZoomToggle != null) ToolTipService.SetToolTip(ModGridZoomToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Tooltip"));
             if (GridLoggingToggle != null) ToolTipService.SetToolTip(GridLoggingToggle, SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Tooltip"));
 
             if (ActiveModsToTopToggle != null) ToolTipService.SetToolTip(ActiveModsToTopToggle, SharedUtilities.GetTranslation(lang, "ActiveModsToTop_Tooltip"));
@@ -738,7 +734,6 @@ namespace FlairX_Mod_Manager.Pages
             UpdateHotkeysSectionState(SettingsManager.Current.HotkeysEnabled);
 
             ShowOrangeAnimationToggle.IsOn = SettingsManager.Current.ShowOrangeAnimation;
-            ModGridZoomToggle.IsOn = SettingsManager.Current.ModGridZoomEnabled;
             SkipXXMILauncherToggle.IsOn = SettingsManager.Current.SkipXXMILauncherEnabled;
             ActiveModsToTopToggle.IsOn = SettingsManager.Current.ActiveModsToTopEnabled;
             AutoDeactivateConflictingModsToggle.IsOn = SettingsManager.Current.AutoDeactivateConflictingMods;
@@ -1634,37 +1629,6 @@ namespace FlairX_Mod_Manager.Pages
             if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
             {
                 mainWindow.UpdateOrangeAnimationVisibility(ShowOrangeAnimationToggle.IsOn);
-            }
-        }
-
-        private void ModGridZoomToggle_Toggled(object sender, RoutedEventArgs e)
-        {
-            SettingsManager.Current.ModGridZoomEnabled = ModGridZoomToggle.IsOn;
-            SettingsManager.Save();
-            UpdateToggleLabels();
-
-            // If the user disabled zooming, reset zoom to 100% immediately
-            if (!ModGridZoomToggle.IsOn)
-            {
-                try
-                {
-                    var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
-                    if (mainWindow != null)
-                    {
-                        // contentFrame is a private field on MainWindow; use reflection to access it safely
-                        var field = mainWindow.GetType().GetField("contentFrame", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                        if (field != null)
-                        {
-                            var frame = field.GetValue(mainWindow) as Microsoft.UI.Xaml.Controls.Frame;
-                            var modGridPage = frame?.Content as FlairX_Mod_Manager.Pages.ModGridPage;
-                            modGridPage?.ResetZoom();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to reset mod grid zoom after disabling zoom setting", ex);
-                }
             }
         }
 

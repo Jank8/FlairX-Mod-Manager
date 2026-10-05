@@ -78,8 +78,6 @@
   "SettingsPage_GridLogging_Label": "การบันทึกกริด",
   "SettingsPage_GridLogging_Tooltip": "เปิดใช้งานการบันทึกรายละเอียดสำหรับการดีบักประสิทธิภาพกริด",
   "SettingsPage_Language": "ภาษา:",
-  "SettingsPage_ModGridZoom_Label": "ซูมกริด",
-  "SettingsPage_ModGridZoom_Tooltip": "ฟีเจอร์มีปัญหาครึ่งหนึ่ง ล้อเลื่อนเมาส์อาจหยุดทำงาน การลากแถบเลื่อนหรือใช้ล้อเลื่อนเมาส์บนแถบเลื่อนยังคงใช้งานได้ นี่เป็นปัญหาของ WinUI 3 ไม่สามารถแก้ไขได้",
   "SettingsPage_OptimizePreviews_Label": "ปรับภาพขนาดย่อ mod ให้เหมาะสม",
   "SettingsPage_DefaultResolutionOnStart_Label": "ความละเอียดเริ่มต้นเมื่อเริ่มต้น",
   "SettingsPage_DefaultResolutionOnStart_Description": "ใช้ขนาดหน้าต่างคงที่แทนการจดจำขนาดล่าสุด",
@@ -152,7 +150,6 @@
   "SettingsPage_ActiveModsToTop_Description": "ย้ายม็อดที่ใช้งานไปด้านบนของรายการ",
   "SettingsPage_DynamicModSearch_Description": "เปิดใช้งานการกรองแบบเรียลไทม์ขณะที่คุณพิมพ์",
   "SettingsPage_ShowOrangeAnimation_Description": "แสดงแอนิเมชันตกแต่งใต้ชื่อตัวจัดการ",
-  "SettingsPage_ModGridZoom_Description": "เปิดใช้งานฟังก์ชันซูมสำหรับตารางม็อด",
   "SettingsPage_GridLogging_Description": "เปิดใช้งานการบันทึกรายละเอียดสำหรับการดีบักประสิทธิภาพ",
   "SettingsPage_ErrorOnlyLogging_Label": "เฉพาะข้อผิดพลาด",
   "SettingsPage_ErrorOnlyLogging_Description": "บันทึกเฉพาะข้อผิดพลาดและคำเตือน ลดขนาดไฟล์",
@@ -403,5 +400,9 @@
   "Loading": "กำลังโหลด...",
   "ConnectionErrorTitle": "ข้อผิดพลาดในการเชื่อมต่อ",
   "ConnectionErrorMessage": "ไม่สามารถเชื่อมต่อกับ GameBanana โปรดตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณและลองอีกครั้ง",
-  "Favourites": "รายการโปรด"
+  "Favourites": "รายการโปรด",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

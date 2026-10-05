@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Rutnätsloggning",
   "SettingsPage_GridLogging_Tooltip": "Aktivera detaljerad loggning för felsökning av rutnätsprestanda",
   "SettingsPage_Language": "Språk:",
-  "SettingsPage_ModGridZoom_Label": "Rutnätszoom",
-  "SettingsPage_ModGridZoom_Tooltip": "Funktionen är halvbuggig. Musens rullhjul kan sluta fungera, att dra rullningslisten eller använda mushjulet på rullningslisten fungerar fortfarande. Det är ett WinUI 3-problem, kunde inte fixa detta.",
   "SettingsPage_OptimizePreviews_Label": "Optimera mod-miniatyrer",
   "SettingsPage_DefaultResolutionOnStart_Label": "Standardupplösning vid start",
   "SettingsPage_DefaultResolutionOnStart_Description": "Använd fast fönsterstorlek istället för att komma ihåg senaste storlek",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Flytta aktiva moddar till toppen av listan",
   "SettingsPage_DynamicModSearch_Description": "Aktivera realtidsfiltrering medan du skriver",
   "SettingsPage_ShowOrangeAnimation_Description": "Visa dekorativ animation under hanterarens titel",
-  "SettingsPage_ModGridZoom_Description": "Aktivera zoomfunktionalitet för mod-rutnät",
   "SettingsPage_GridLogging_Description": "Aktivera detaljerad loggning för prestandafelsökning",
   "SettingsPage_ErrorOnlyLogging_Label": "Endast felloggning",
   "SettingsPage_ErrorOnlyLogging_Description": "Logga endast fel och varningar till fil, minskar loggstorlek",
@@ -403,5 +400,9 @@
   "Loading": "Laddar...",
   "ConnectionErrorTitle": "Anslutningsfel",
   "ConnectionErrorMessage": "Det gick inte att ansluta till GameBanana. Kontrollera din internetanslutning och försök igen.",
-  "Favourites": "Favoriter"
+  "Favourites": "Favoriter",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

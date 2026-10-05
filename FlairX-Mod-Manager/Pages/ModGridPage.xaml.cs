@@ -997,6 +997,12 @@ namespace FlairX_Mod_Manager.Pages
                 // Initialize ItemsSource with empty collection
                 ModsGrid.ItemsSource = _allMods;
                 
+                // Initialize WrapGrid ItemWidth/Height early to ensure correct tile sizes from the start
+                // Try multiple times with increasing delays to catch when ItemsPanelRoot becomes available
+                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.High, () => InitializeGridItemSizes());
+                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () => InitializeGridItemSizes());
+                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => InitializeGridItemSizes());
+                
                 Logger.LogInfo("Loading active mods state");
                 LoadActiveMods();
                 
@@ -1010,12 +1016,6 @@ namespace FlairX_Mod_Manager.Pages
                 
                 Logger.LogInfo("Setting up pointer event handlers");
                 this.AddHandler(PointerPressedEvent, new PointerEventHandler(ModGridPage_PointerPressed), handledEventsToo: true);
-                
-                Logger.LogInfo($"Loading zoom settings - Current zoom factor: {FlairX_Mod_Manager.SettingsManager.Current.ZoomLevel}");
-                _zoomFactor = FlairX_Mod_Manager.SettingsManager.Current.ZoomLevel;
-                
-                Logger.LogInfo("Setting up container content changing handler");
-                ModsGrid.ContainerContentChanging += ModsGrid_ContainerContentChanging;
                 
                 Logger.LogInfo("Starting background loading");
                 StartBackgroundLoadingIfNeeded();
@@ -1345,6 +1345,63 @@ namespace FlairX_Mod_Manager.Pages
                     LoadCategories();
                 }
             });
+        }
+        
+        /// <summary>
+        /// Refresh current view - reload images with updated tile width
+        /// </summary>
+        public async Task RefreshCurrentViewAsync()
+        {
+            await Task.Run(() =>
+            {
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    if (CurrentViewMode == ViewMode.Categories)
+                    {
+                        if (_currentCategory == null)
+                        {
+                            // Reload all categories
+                            LoadCategories();
+                        }
+                        else
+                        {
+                            // Reload specific category
+                            LoadModsByCategory(_currentCategory);
+                        }
+                    }
+                    else
+                    {
+                        // Reload all mods
+                        LoadAllMods();
+                    }
+                    
+                    // Ensure grid sizes are updated after reload completes
+                    DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+                    {
+                        UpdateGridItemSizes();
+                    });
+                });
+            });
+        }
+        
+        /// <summary>
+        /// Update TileWidth for all existing tiles without reloading
+        /// </summary>
+        public void UpdateAllTileWidths()
+        {
+            bool isWide = SettingsManager.Current.UseWideTileFormat;
+            double newWidth = isWide ? 592 : 277;
+            var newMargin = new Microsoft.UI.Xaml.Thickness(isWide ? 4 : 12);
+            
+            if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> mods)
+            {
+                foreach (var mod in mods)
+                {
+                    mod.TileWidth = newWidth;
+                    mod.TileMargin = newMargin;
+                }
+                Logger.LogInfo($"Updated TileWidth to {newWidth}px, TileMargin to {newMargin.Left}px for {mods.Count} tiles");
+            }
         }
         
         // DISABLED: Blur mechanism not used - mods are hidden instead

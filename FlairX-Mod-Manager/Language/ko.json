@@ -78,8 +78,6 @@
   "SettingsPage_GridLogging_Label": "그리드 로깅",
   "SettingsPage_GridLogging_Tooltip": "그리드 성능 디버깅을 위한 상세 로깅 활성화",
   "SettingsPage_Language": "언어:",
-  "SettingsPage_ModGridZoom_Label": "그리드 줌",
-  "SettingsPage_ModGridZoom_Tooltip": "기능이 반쯤 버그가 있습니다. 마우스 스크롤 휠이 작동하지 않을 수 있지만, 스크롤 바 드래그나 스크롤 바에서 마우스 휠 사용은 여전히 작동합니다. 이는 WinUI 3 문제로 수정할 수 없었습니다.",
   "SettingsPage_OptimizePreviews_Label": "모드 썸네일 최적화",
   "SettingsPage_DefaultResolutionOnStart_Label": "시작 시 기본 해상도",
   "SettingsPage_DefaultResolutionOnStart_Description": "마지막 크기를 기억하는 대신 고정 창 크기 사용",
@@ -152,7 +150,6 @@
   "SettingsPage_ActiveModsToTop_Description": "활성 모드를 목록 상단으로 이동",
   "SettingsPage_DynamicModSearch_Description": "입력하는 동안 실시간 필터링 활성화",
   "SettingsPage_ShowOrangeAnimation_Description": "매니저 제목 아래 장식 애니메이션 표시",
-  "SettingsPage_ModGridZoom_Description": "모드 그리드의 줌 기능 활성화",
   "SettingsPage_GridLogging_Description": "성능 디버깅을 위한 상세 로깅 활성화",
   "SettingsPage_ErrorOnlyLogging_Label": "오류만 기록",
   "SettingsPage_ErrorOnlyLogging_Description": "오류와 경고만 파일에 기록하여 로그 크기 감소",
@@ -403,5 +400,9 @@
   "Loading": "로딩 중...",
   "ConnectionErrorTitle": "연결 오류",
   "ConnectionErrorMessage": "GameBanana에 연결할 수 없습니다. 인터넷 연결을 확인하고 다시 시도하십시오.",
-  "Favourites": "즐겨찾기"
+  "Favourites": "즐겨찾기",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

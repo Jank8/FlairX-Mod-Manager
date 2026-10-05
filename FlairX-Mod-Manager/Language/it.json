@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Registrazione griglia",
   "SettingsPage_GridLogging_Tooltip": "Abilita registrazione dettagliata per il debug delle prestazioni della griglia",
   "SettingsPage_Language": "Lingua:",
-  "SettingsPage_ModGridZoom_Label": "Zoom Griglia",
-  "SettingsPage_ModGridZoom_Tooltip": "La funzione è parzialmente difettosa. La rotella del mouse potrebbe smettere di funzionare, trascinare la barra di scorrimento o usare la rotella sulla barra funziona ancora. È un problema di WinUI 3, non è stato possibile risolverlo.",
   "SettingsPage_OptimizePreviews_Label": "Ottimizza miniature mod",
   "SettingsPage_DefaultResolutionOnStart_Label": "Risoluzione predefinita all'avvio",
   "SettingsPage_DefaultResolutionOnStart_Description": "Usa dimensione finestra fissa invece di ricordare l'ultima dimensione",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Sposta le mod attive in cima alla lista",
   "SettingsPage_DynamicModSearch_Description": "Abilita filtro in tempo reale mentre digiti",
   "SettingsPage_ShowOrangeAnimation_Description": "Mostra animazione decorativa sotto il titolo del manager",
-  "SettingsPage_ModGridZoom_Description": "Abilita funzionalità zoom per la griglia mod",
   "SettingsPage_GridLogging_Description": "Abilita registrazione dettagliata per il debug delle prestazioni",
   "SettingsPage_ErrorOnlyLogging_Label": "Registra solo errori",
   "SettingsPage_ErrorOnlyLogging_Description": "Registra solo errori e avvisi su file, riducendo la dimensione del log",
@@ -403,5 +400,9 @@
   "Loading": "Caricamento...",
   "ConnectionErrorTitle": "Errore di connessione",
   "ConnectionErrorMessage": "Impossibile connettersi a GameBanana. Controlla la tua connessione Internet e riprova.",
-  "Favourites": "Preferiti"
+  "Favourites": "Preferiti",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Raster-Protokollierung",
   "SettingsPage_GridLogging_Tooltip": "Detaillierte Protokollierung für Raster-Leistungsdiagnose aktivieren",
   "SettingsPage_Language": "Sprache:",
-  "SettingsPage_ModGridZoom_Label": "Raster-Zoom",
-  "SettingsPage_ModGridZoom_Tooltip": "Funktion ist halb fehlerhaft. Mausrad funktioniert möglicherweise nicht mehr, Ziehen der Bildlaufleiste oder Verwenden des Mausrads auf der Bildlaufleiste funktioniert weiterhin. Das ist ein WinUI 3-Problem, konnte nicht behoben werden.",
   "SettingsPage_OptimizePreviews_Label": "Mod-Miniaturansichten optimieren",
   "SettingsPage_DefaultResolutionOnStart_Label": "Standardauflösung beim Start",
   "SettingsPage_DefaultResolutionOnStart_Description": "Feste Fenstergröße verwenden, anstatt letzte Größe zu merken",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Aktive Mods an den Anfang der Liste verschieben",
   "SettingsPage_DynamicModSearch_Description": "Echtzeit-Filterung beim Tippen aktivieren",
   "SettingsPage_ShowOrangeAnimation_Description": "Dekorative Animation unter dem Manager-Titel anzeigen",
-  "SettingsPage_ModGridZoom_Description": "Zoom-Funktionalität für Mod-Raster aktivieren",
   "SettingsPage_GridLogging_Description": "Detaillierte Protokollierung für Leistungsdiagnose aktivieren",
   "SettingsPage_ErrorOnlyLogging_Label": "Nur-Fehler-Protokollierung",
   "SettingsPage_ErrorOnlyLogging_Description": "Nur Fehler und Warnungen in Datei protokollieren, Protokollgröße reduzieren",
@@ -403,5 +400,9 @@
   "Loading": "Wird geladen...",
   "ConnectionErrorTitle": "Verbindungsfehler",
   "ConnectionErrorMessage": "Verbindung zu GameBanana fehlgeschlagen. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
-  "Favourites": "Favoriten"
+  "Favourites": "Favoriten",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

@@ -78,8 +78,6 @@
   "SettingsPage_GridLogging_Label": "Grid logging",
   "SettingsPage_GridLogging_Tooltip": "Paganahin ang detalyadong logging para sa grid performance debugging",
   "SettingsPage_Language": "Wika:",
-  "SettingsPage_ModGridZoom_Label": "Grid zoom",
-  "SettingsPage_ModGridZoom_Tooltip": "Ang feature ay kalahating sira. Maaaring tumigil ang mouse scroll wheel, pero gumagana pa rin ang pag-drag ng scroll bar o paggamit ng mouse wheel sa scroll bar. Ito ay problema ng WinUI 3, hindi naayos.",
   "SettingsPage_OptimizePreviews_Label": "I-optimize ang mga mod thumbnail",
   "SettingsPage_DefaultResolutionOnStart_Label": "Default resolution sa simula",
   "SettingsPage_DefaultResolutionOnStart_Description": "Gamitin ang fixed window size sa halip na tandaan ang huling laki",
@@ -152,7 +150,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Ilipat ang mga active mod sa tuktok ng listahan",
   "SettingsPage_DynamicModSearch_Description": "I-enable ang real-time filtering habang nagtataype",
   "SettingsPage_ShowOrangeAnimation_Description": "Ipakita ang decorative animation sa ilalim ng manager title",
-  "SettingsPage_ModGridZoom_Description": "I-enable ang zoom functionality para sa mod grid",
   "SettingsPage_GridLogging_Description": "I-enable ang detalyadong logging para sa performance debugging",
   "SettingsPage_ErrorOnlyLogging_Label": "Mga error lamang",
   "SettingsPage_ErrorOnlyLogging_Description": "Mag-log lamang ng mga error at babala, binabawasan ang laki ng file",
@@ -403,5 +400,9 @@
   "ConnectionErrorMessage": "Hindi makakonekta sa GameBanana. Pakisuri ang iyong koneksyon sa internet at subukan muli.",
   "Category_Duplicates": "Mga Duplikado",
   "ShowDuplicates": "Ipakita ang mga duplikado",
-  "Favourites": "Mga Paborito"
+  "Favourites": "Mga Paborito",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

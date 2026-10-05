@@ -78,8 +78,6 @@
   "SettingsPage_GridLogging_Label": "Registo de grelha",
   "SettingsPage_GridLogging_Tooltip": "Activar registo detalhado para depuração de desempenho de grelha",
   "SettingsPage_Language": "Idioma:",
-  "SettingsPage_ModGridZoom_Label": "Zoom da grelha",
-  "SettingsPage_ModGridZoom_Tooltip": "A funcionalidade está meio com erros. A roda de deslocamento do rato pode parar de funcionar, arrastar a barra de deslocamento ou usar a roda do rato na barra de deslocamento ainda funciona. É um problema do WinUI 3, não consegui corrigir.",
   "SettingsPage_OptimizePreviews_Label": "Optimizar miniaturas de mods",
   "SettingsPage_DefaultResolutionOnStart_Label": "Resolução padrão no início",
   "SettingsPage_DefaultResolutionOnStart_Description": "Usar tamanho de janela fixo em vez de lembrar o último tamanho",
@@ -152,7 +150,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Mover mods activos para o topo da lista",
   "SettingsPage_DynamicModSearch_Description": "Activar filtragem em tempo real enquanto escreve",
   "SettingsPage_ShowOrangeAnimation_Description": "Mostrar animação decorativa sob o título do gestor",
-  "SettingsPage_ModGridZoom_Description": "Activar funcionalidade de zoom para grelha de mods",
   "SettingsPage_GridLogging_Description": "Activar registo detalhado para depuração de desempenho",
   "SettingsPage_ErrorOnlyLogging_Label": "Apenas erros",
   "SettingsPage_ErrorOnlyLogging_Description": "Registrar apenas erros e avisos, reduzindo o tamanho do arquivo",
@@ -403,5 +400,9 @@
   "Loading": "A carregar...",
   "ConnectionErrorTitle": "Erro de conexão",
   "ConnectionErrorMessage": "Falha ao conectar ao GameBanana. Verifique sua conexão com a Internet e tente novamente.",
-  "Favourites": "Favoritos"
+  "Favourites": "Favoritos",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

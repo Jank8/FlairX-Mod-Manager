@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Rács naplózás",
   "SettingsPage_GridLogging_Tooltip": "Részletes naplózás engedélyezése a rács teljesítmény hibakereséséhez",
   "SettingsPage_Language": "Nyelv:",
-  "SettingsPage_ModGridZoom_Label": "Rács Nagyítás",
-  "SettingsPage_ModGridZoom_Tooltip": "A funkció félig hibás. Az egér görgője leállhat, a görgetősáv húzása vagy az egérgörgő használata a görgetősávon még működik. Ez WinUI 3 probléma, nem lehetett javítani.",
   "SettingsPage_OptimizePreviews_Label": "Mod miniatűrök optimalizálása",
   "SettingsPage_DefaultResolutionOnStart_Label": "Alapértelmezett felbontás indításkor",
   "SettingsPage_DefaultResolutionOnStart_Description": "Fix ablakméret használata az utolsó méret megjegyzése helyett",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Aktív modok áthelyezése a lista tetejére",
   "SettingsPage_DynamicModSearch_Description": "Valós idejű szűrés engedélyezése gépelés közben",
   "SettingsPage_ShowOrangeAnimation_Description": "Dekoratív animáció megjelenítése a kezelő címe alatt",
-  "SettingsPage_ModGridZoom_Description": "Nagyítás funkció engedélyezése a mod rácshoz",
   "SettingsPage_GridLogging_Description": "Részletes naplózás engedélyezése teljesítmény hibakereséshez",
   "SettingsPage_ErrorOnlyLogging_Label": "Csak hibák naplózása",
   "SettingsPage_ErrorOnlyLogging_Description": "Csak hibák és figyelmeztetések naplózása fájlba, csökkentve a napló méretét",
@@ -403,5 +400,9 @@
   "Loading": "Betöltés...",
   "ConnectionErrorTitle": "Kapcsolati hiba",
   "ConnectionErrorMessage": "Nem sikerült csatlakozni a GameBananához. Ellenőrizze az internetkapcsolatát, és próbálja újra.",
-  "Favourites": "Kedvencek"
+  "Favourites": "Kedvencek",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

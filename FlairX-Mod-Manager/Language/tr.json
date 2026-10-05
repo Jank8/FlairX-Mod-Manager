@@ -78,8 +78,6 @@
   "SettingsPage_GridLogging_Label": "Izgara günlükleme",
   "SettingsPage_GridLogging_Tooltip": "Izgara performans hata ayıklama için ayrıntılı günlüklemeyi etkinleştir",
   "SettingsPage_Language": "Dil:",
-  "SettingsPage_ModGridZoom_Label": "Izgara yakınlaştırma",
-  "SettingsPage_ModGridZoom_Tooltip": "Özellik yarı hatalı. Fare kaydırma tekerleği çalışmayı durdurabilir, kaydırma çubuğunu sürüklemek veya kaydırma çubuğunda fare tekerleğini kullanmak hala çalışıyor. Bu WinUI 3 sorunu, düzeltemedim.",
   "SettingsPage_OptimizePreviews_Label": "Mod küçük resimlerini optimize et",
   "SettingsPage_DefaultResolutionOnStart_Label": "Başlangıçta varsayılan çözünürlük",
   "SettingsPage_DefaultResolutionOnStart_Description": "Son boyutu hatırlamak yerine sabit pencere boyutu kullan",
@@ -152,7 +150,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Aktif modları listenin üstüne taşı",
   "SettingsPage_DynamicModSearch_Description": "Yazarken gerçek zamanlı filtrelemeyi etkinleştir",
   "SettingsPage_ShowOrangeAnimation_Description": "Yönetici başlığının altında dekoratif animasyon göster",
-  "SettingsPage_ModGridZoom_Description": "Mod ızgarası için yakınlaştırma işlevini etkinleştir",
   "SettingsPage_GridLogging_Description": "Performans hata ayıklama için ayrıntılı günlüğü etkinleştir",
   "SettingsPage_ErrorOnlyLogging_Label": "Sadece hatalar",
   "SettingsPage_ErrorOnlyLogging_Description": "Sadece hataları ve uyarıları kaydet, dosya boyutunu azalt",
@@ -403,5 +400,9 @@
   "Loading": "Yükleniyor...",
   "ConnectionErrorTitle": "Bağlantı Hatası",
   "ConnectionErrorMessage": "GameBanana'ya bağlanılamadı. İnternet bağlantınızı kontrol edin ve tekrar deneyin.",
-  "Favourites": "Favoriler"
+  "Favourites": "Favoriler",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

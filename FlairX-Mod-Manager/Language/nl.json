@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Rasterregistratie",
   "SettingsPage_GridLogging_Tooltip": "Schakel gedetailleerde logging in voor grid prestatie debugging",
   "SettingsPage_Language": "Taal:",
-  "SettingsPage_ModGridZoom_Label": "Rasterzoom",
-  "SettingsPage_ModGridZoom_Tooltip": "Functie is half-buggy. Muiswiel kan stoppen met werken, slepen van scrollbalk of muiswiel op scrollbalk werkt nog steeds. Dit is een WinUI 3 probleem, kon dit niet oplossen.",
   "SettingsPage_OptimizePreviews_Label": "Mod miniaturen optimaliseren",
   "SettingsPage_DefaultResolutionOnStart_Label": "Standaard resolutie bij opstarten",
   "SettingsPage_DefaultResolutionOnStart_Description": "Gebruik vaste venstergrootte in plaats van laatste grootte onthouden",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Verplaats actieve mods naar de bovenkant van de lijst",
   "SettingsPage_DynamicModSearch_Description": "Schakel realtime filteren in tijdens het typen",
   "SettingsPage_ShowOrangeAnimation_Description": "Toon decoratieve animatie onder de manager titel",
-  "SettingsPage_ModGridZoom_Description": "Schakel zoomfunctionaliteit in voor mod grid",
   "SettingsPage_GridLogging_Description": "Schakel gedetailleerde logging in voor prestatie debugging",
   "SettingsPage_ErrorOnlyLogging_Label": "Alleen fouten loggen",
   "SettingsPage_ErrorOnlyLogging_Description": "Log alleen fouten en waarschuwingen naar bestand, vermindert loggrootte",
@@ -403,5 +400,9 @@
   "Loading": "Laden...",
   "ConnectionErrorTitle": "Verbindingsfout",
   "ConnectionErrorMessage": "Kan geen verbinding maken met GameBanana. Controleer je internetverbinding en probeer het opnieuw.",
-  "Favourites": "Favorieten"
+  "Favourites": "Favorieten",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

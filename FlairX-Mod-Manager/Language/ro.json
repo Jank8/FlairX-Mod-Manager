@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Înregistrare grilă",
   "SettingsPage_GridLogging_Tooltip": "Activează înregistrarea detaliată pentru depanarea performanței grilei",
   "SettingsPage_Language": "Limbă:",
-  "SettingsPage_ModGridZoom_Label": "Zoom Grilă",
-  "SettingsPage_ModGridZoom_Tooltip": "Funcția este pe jumătate defectă. Rotița mouse-ului poate înceta să funcționeze, tragerea barei de derulare sau folosirea rotii mouse-ului pe bara de derulare încă funcționează. Este o problemă WinUI 3, nu am putut repara.",
   "SettingsPage_OptimizePreviews_Label": "Optimizează miniaturile modurilor",
   "SettingsPage_DefaultResolutionOnStart_Label": "Rezoluție implicită la pornire",
   "SettingsPage_DefaultResolutionOnStart_Description": "Folosește dimensiune fixă a ferestrei în loc să rețină ultima dimensiune",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Mută modurile active în partea de sus a listei",
   "SettingsPage_DynamicModSearch_Description": "Activează filtrarea în timp real pe măsură ce tastezi",
   "SettingsPage_ShowOrangeAnimation_Description": "Arată animație decorativă sub titlul managerului",
-  "SettingsPage_ModGridZoom_Description": "Activează funcționalitatea de zoom pentru grila de moduri",
   "SettingsPage_GridLogging_Description": "Activează înregistrarea detaliată pentru depanarea performanței",
   "SettingsPage_ErrorOnlyLogging_Label": "Înregistrare doar erori",
   "SettingsPage_ErrorOnlyLogging_Description": "Înregistrează doar erori și avertismente în fișier, reducând dimensiunea jurnalului",
@@ -403,5 +400,9 @@
   "Loading": "Se încarcă...",
   "ConnectionErrorTitle": "Eroare de conexiune",
   "ConnectionErrorMessage": "Nu s-a putut conecta la GameBanana. Verificați conexiunea la internet și încercați din nou.",
-  "Favourites": "Favorite"
+  "Favourites": "Favorite",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

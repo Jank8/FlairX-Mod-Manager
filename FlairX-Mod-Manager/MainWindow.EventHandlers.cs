@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using FlairX_Mod_Manager.Services;
 
@@ -715,6 +716,73 @@ namespace FlairX_Mod_Manager
             }
         }
 
+        private void ClassicFormatButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Switch to classic tile format
+            SettingsManager.Current.UseWideTileFormat = false;
+            SettingsManager.Save();
+            
+            // Update button styles
+            UpdateTileFormatButtonStyles();
+            
+            // Refresh current page
+            RefreshCurrentModGridPage();
+        }
+
+        private void WideFormatButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Switch to wide tile format
+            SettingsManager.Current.UseWideTileFormat = true;
+            SettingsManager.Save();
+            
+            // Update button styles
+            UpdateTileFormatButtonStyles();
+            
+            // Refresh current page
+            RefreshCurrentModGridPage();
+        }
+
+        private void UpdateTileFormatButtonStyles()
+        {
+            bool isWideFormat = SettingsManager.Current.UseWideTileFormat;
+            
+            if (ClassicFormatButton != null && WideFormatButton != null)
+            {
+                if (isWideFormat)
+                {
+                    // Wide format active
+                    ClassicFormatButton.Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                    WideFormatButton.Background = (Brush)Application.Current.Resources["AccentFillColorDefaultBrush"];
+                }
+                else
+                {
+                    // Classic format active
+                    ClassicFormatButton.Background = (Brush)Application.Current.Resources["AccentFillColorDefaultBrush"];
+                    WideFormatButton.Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
+                }
+            }
+        }
+
+        private void RefreshCurrentModGridPage()
+        {
+            if (contentFrame.Content is FlairX_Mod_Manager.Pages.ModGridPage modGridPage)
+            {
+                // Update TileWidth for all existing tiles immediately
+                DispatcherQueue.TryEnqueue(() =>
+                {
+                    modGridPage.UpdateAllTileWidths();
+                    // Update grid item sizes to reflect new tile width
+                    modGridPage.UpdateGridItemSizes();
+                });
+                
+                // Then trigger full refresh
+                DispatcherQueue.TryEnqueue(async () =>
+                {
+                    await modGridPage.RefreshCurrentViewAsync();
+                });
+            }
+        }
+
         private void GameSelectionComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             // Ignore selection changes during initialization
@@ -1109,31 +1177,6 @@ namespace FlairX_Mod_Manager
         {
             // Don't handle wheel events - let them bubble through to the page content below
             e.Handled = false;
-        }
-
-        private void ZoomIndicatorBorder_PointerWheelChanged(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            // Don't handle wheel events - let them bubble through to the page content below
-            e.Handled = false;
-        }
-
-        public void UpdateZoomIndicator(double zoomLevel)
-        {
-            if (ZoomIndicatorText != null && ZoomIndicatorBorder != null)
-            {
-                ZoomIndicatorText.Text = $"{(int)(zoomLevel * 100)}%";
-                
-                // Only show zoom indicator if zoom is enabled in settings
-                bool zoomEnabled = SettingsManager.Current.ModGridZoomEnabled;
-                bool gameSelected = SettingsManager.Current.SelectedGameIndex > 0;
-                
-                // Hide indicator if zoom is disabled, no game selected, or at 100% zoom
-                bool shouldShow = zoomEnabled && gameSelected && Math.Abs(zoomLevel - 1.0) >= 0.001;
-                
-                ZoomIndicatorBorder.Visibility = shouldShow ? 
-                    Microsoft.UI.Xaml.Visibility.Visible : 
-                    Microsoft.UI.Xaml.Visibility.Collapsed;
-            }
         }
 
         // Symlink cleanup removed - no longer needed with DISABLED_ prefix system

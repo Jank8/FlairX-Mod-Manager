@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Rutenettlogging",
   "SettingsPage_GridLogging_Tooltip": "Aktiver detaljert logging for rutenett ytelsesdebugging",
   "SettingsPage_Language": "Språk:",
-  "SettingsPage_ModGridZoom_Label": "Rutenett Zoom",
-  "SettingsPage_ModGridZoom_Tooltip": "Funksjonen er halvveis bugget. Musehjulet kan slutte å fungere, men dra i rullefelt eller bruke musehjul på rullefelt fungerer fortsatt. Dette er et WinUI 3-problem, kunne ikke fikse dette.",
   "SettingsPage_OptimizePreviews_Label": "Optimaliser mod-miniatyrbilder",
   "SettingsPage_DefaultResolutionOnStart_Label": "Standard oppløsning ved oppstart",
   "SettingsPage_DefaultResolutionOnStart_Description": "Bruk fast vindustørrelse i stedet for å huske siste størrelse",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Flytt aktive mods til toppen av listen",
   "SettingsPage_DynamicModSearch_Description": "Aktiver sanntidsfiltrering mens du skriver",
   "SettingsPage_ShowOrangeAnimation_Description": "Vis dekorativ animasjon under manager-tittelen",
-  "SettingsPage_ModGridZoom_Description": "Aktiver zoomfunksjonalitet for mod-rutenett",
   "SettingsPage_GridLogging_Description": "Aktiver detaljert logging for ytelsesdebugging",
   "SettingsPage_ErrorOnlyLogging_Label": "Kun feillogging",
   "SettingsPage_ErrorOnlyLogging_Description": "Logg kun feil og advarsler til fil, reduserer loggstørrelse",
@@ -403,5 +400,9 @@
   "Loading": "Laster...",
   "ConnectionErrorTitle": "Tilkoblingsfeil",
   "ConnectionErrorMessage": "Kunne ikke koble til GameBanana. Sjekk internettforbindelsen din og prøv igjen.",
-  "Favourites": "Favoritter"
+  "Favourites": "Favoritter",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

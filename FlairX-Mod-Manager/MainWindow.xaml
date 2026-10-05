@@ -221,22 +221,36 @@
         <!-- Custom notification popup - always on top -->
         <controls:NotificationPopup x:Name="MainNotificationPopup"/>
 
-        <!-- Zoom Indicator in top right corner -->
-        <Border x:Name="ZoomIndicatorBorder"
-                Width="64" Height="32"
+        <!-- Tile Format Toggle in top right corner -->
+        <Border x:Name="TileFormatToggleBorder"
+                Height="32"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Top"
-                Margin="40"
+                Margin="112,40,40,0"
                 CornerRadius="16"
-                PointerWheelChanged="ZoomIndicatorBorder_PointerWheelChanged"
                 Background="{ThemeResource LauncherAcrylicBrush}">
-            <TextBlock x:Name="ZoomIndicatorText" 
-                       Text="100%" 
-                       FontSize="12" 
-                       FontWeight="Bold"
-                       Foreground="{ThemeResource ButtonForeground}" 
-                       HorizontalAlignment="Center" 
-                       VerticalAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" Spacing="0">
+                <Button x:Name="ClassicFormatButton"
+                        Height="28"
+                        Margin="2,0,0,0"
+                        Padding="12,4"
+                        FontSize="11"
+                        FontWeight="SemiBold"
+                        CornerRadius="14,0,0,14"
+                        Click="ClassicFormatButton_Click"
+                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                        BorderThickness="0"/>
+                <Button x:Name="WideFormatButton"
+                        Height="28"
+                        Margin="0,0,2,0"
+                        Padding="12,4"
+                        FontSize="11"
+                        FontWeight="SemiBold"
+                        CornerRadius="0,14,14,0"
+                        Click="WideFormatButton_Click"
+                        Background="Transparent"
+                        BorderThickness="0"/>
+            </StackPanel>
         </Border>
 
         <!-- Category Image Preview Popup -->

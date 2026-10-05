@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Logowanie siatki",
   "SettingsPage_GridLogging_Tooltip": "Włącz szczegółowe logowanie do debugowania wydajności siatki",
   "SettingsPage_Language": "Język:",
-  "SettingsPage_ModGridZoom_Label": "Powiększenie siatki",
-  "SettingsPage_ModGridZoom_Tooltip": "Funkcja jest w połowie zepsuta. Kółko myszy może przestać działać, przeciąganie paska przewijania lub używanie kółka myszy na pasku przewijania nadal działa. To problem WinUI 3, nie udało się tego naprawić.",
   "SettingsPage_OptimizePreviews_Label": "Optymalizuj miniatury modów",
   "SettingsPage_DefaultResolutionOnStart_Label": "Domyślna rozdzielczość przy starcie",
   "SettingsPage_DefaultResolutionOnStart_Description": "Używaj stałego rozmiaru okna zamiast zapamiętywania ostatniego",
@@ -175,7 +173,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Przenieś aktywne mody na górę listy",
   "SettingsPage_DynamicModSearch_Description": "Włącz filtrowanie w czasie rzeczywistym podczas pisania",
   "SettingsPage_ShowOrangeAnimation_Description": "Pokaż animację dekoracyjną pod tytułem menedżera",
-  "SettingsPage_ModGridZoom_Description": "Włącz funkcję powiększania dla siatki modów",
   "SettingsPage_GridLogging_Description": "Włącz szczegółowe logowanie do debugowania wydajności",
   "SettingsPage_ErrorOnlyLogging_Label": "Loguj tylko błędy",
   "SettingsPage_ErrorOnlyLogging_Description": "Zapisuj do pliku tylko błędy i ostrzeżenia, zmniejszając rozmiar logów",
@@ -403,5 +400,9 @@
   "Loading": "Ładowanie...",
   "ConnectionErrorTitle": "Błąd połączenia",
   "ConnectionErrorMessage": "Nie udało się połączyć z GameBanana. Sprawdź połączenie internetowe i spróbuj ponownie.",
-  "Favourites": "Ulubione"
+  "Favourites": "Ulubione",
+  "TileFormat_Classic": "Klasyczny",
+  "TileFormat_Wide": "Szeroki",
+  "ContextMenu_RegenerateMinitile": "Regeneruj miniaturę",
+  "ContextMenu_RegenerateThumbnails": "Regeneruj miniatury"
 }

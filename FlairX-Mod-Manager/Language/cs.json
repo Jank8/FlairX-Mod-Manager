@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Protokolování mřížky",
   "SettingsPage_GridLogging_Tooltip": "Povolit podrobné protokolování pro ladění výkonu mřížky",
   "SettingsPage_Language": "Jazyk:",
-  "SettingsPage_ModGridZoom_Label": "Přiblížení Mřížky",
-  "SettingsPage_ModGridZoom_Tooltip": "Funkce je napůl vadná. Kolečko myši může přestat fungovat, tažení posuvníku nebo použití kolečka myši na posuvníku stále funguje. To je problém WinUI 3, nedalo se to opravit.",
   "SettingsPage_OptimizePreviews_Label": "Optimalizovat miniatury modů",
   "SettingsPage_DefaultResolutionOnStart_Label": "Výchozí rozlišení při spuštění",
   "SettingsPage_DefaultResolutionOnStart_Description": "Použít pevnou velikost okna místo zapamatování poslední velikosti",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Přesunout aktivní mody na začátek seznamu",
   "SettingsPage_DynamicModSearch_Description": "Povolit filtrování v reálném čase při psaní",
   "SettingsPage_ShowOrangeAnimation_Description": "Zobrazit dekorativní animaci pod názvem správce",
-  "SettingsPage_ModGridZoom_Description": "Povolit funkci přiblížení pro mřížku modů",
   "SettingsPage_GridLogging_Description": "Povolit podrobné protokolování pro ladění výkonu",
   "SettingsPage_ErrorOnlyLogging_Label": "Protokolovat pouze chyby",
   "SettingsPage_ErrorOnlyLogging_Description": "Protokolovat pouze chyby a varování do souboru, snížení velikosti protokolu",
@@ -403,5 +400,9 @@
   "Loading": "Načítání...",
   "ConnectionErrorTitle": "Chyba připojení",
   "ConnectionErrorMessage": "Nepodařilo se připojit k GameBanana. Zkontrolujte připojení k internetu a zkuste to znovu.",
-  "Favourites": "Oblíbené"
+  "Favourites": "Oblíbené",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

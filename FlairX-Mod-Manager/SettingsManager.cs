@@ -49,10 +49,6 @@ namespace FlairX_Mod_Manager
         public bool StatusKeeperBackupOverride2Enabled { get; set; } = false;
         public bool StatusKeeperBackupOverride3Enabled { get; set; } = false;
         
-        // Zoom settings
-        public double ZoomLevel { get; set; } = 1.0;
-        public bool ModGridZoomEnabled { get; set; } = false;
-        
         // Mod sorting settings
         public bool ActiveModsToTopEnabled { get; set; } = true;
         public bool AutoDeactivateConflictingMods { get; set; } = true;
@@ -158,6 +154,9 @@ namespace FlairX_Mod_Manager
         public bool ImageOptimizerKeepOriginals { get; set; } = false;
         public string ImageCropType { get; set; } = "Center"; // Center, Smart, Entropy, Attention
         public bool PreviewBeforeCrop { get; set; } = false; // Show preview dialog before each crop
+        
+        // Tile format display setting
+        public bool UseWideTileFormat { get; set; } = false; // Use wide (16:9) tiles instead of classic format for display
         public bool AutoCreateModThumbnails { get; set; } = false; // Auto-create mod thumbnails without manual selection/cropping
         public bool ImageOptimizerReoptimize { get; set; } = false; // Re-optimize already optimized files
         public string ScreenshotCaptureDirectory { get; set; } = ""; // Directory to monitor for screenshot capture, empty = default %USERPROFILE%\Pictures\Screenshots

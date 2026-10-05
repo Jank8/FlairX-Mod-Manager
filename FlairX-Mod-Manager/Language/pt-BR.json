@@ -78,8 +78,6 @@
   "SettingsPage_GridLogging_Label": "Log da grade",
   "SettingsPage_GridLogging_Tooltip": "Habilitar log detalhado para depuração de desempenho da grade",
   "SettingsPage_Language": "Idioma:",
-  "SettingsPage_ModGridZoom_Label": "Zoom da grade",
-  "SettingsPage_ModGridZoom_Tooltip": "O recurso está meio com defeito. A roda do mouse pode parar de funcionar, arrastar a barra de rolagem ou usar a roda do mouse na barra de rolagem ainda funciona. Esse é um problema do WinUI 3, não consegui corrigir.",
   "SettingsPage_OptimizePreviews_Label": "Otimizar miniaturas de mods",
   "SettingsPage_DefaultResolutionOnStart_Label": "Resolução padrão na inicialização",
   "SettingsPage_DefaultResolutionOnStart_Description": "Usar tamanho de janela fixo em vez de lembrar o último tamanho",
@@ -152,7 +150,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Mover mods ativos para o topo da lista",
   "SettingsPage_DynamicModSearch_Description": "Habilitar filtragem em tempo real enquanto você digita",
   "SettingsPage_ShowOrangeAnimation_Description": "Mostrar animação decorativa sob o título do gerenciador",
-  "SettingsPage_ModGridZoom_Description": "Habilitar funcionalidade de zoom para grade de mods",
   "SettingsPage_GridLogging_Description": "Habilitar log detalhado para depuração de desempenho",
   "SettingsPage_ErrorOnlyLogging_Label": "Apenas erros",
   "SettingsPage_ErrorOnlyLogging_Description": "Registrar apenas erros e avisos, reduzindo o tamanho do arquivo",
@@ -403,5 +400,9 @@
   "ConnectionErrorMessage": "Falha ao conectar ao GameBanana. Verifique sua conexão com a internet e tente novamente.",
   "Category_Duplicates": "Duplicados",
   "ShowDuplicates": "Mostrar duplicados",
-  "Favourites": "Favoritos"
+  "Favourites": "Favoritos",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

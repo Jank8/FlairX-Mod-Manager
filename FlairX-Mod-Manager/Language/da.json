@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Gitter logning",
   "SettingsPage_GridLogging_Tooltip": "Aktiver detaljeret logning til gitter ydeevne fejlfinding",
   "SettingsPage_Language": "Sprog:",
-  "SettingsPage_ModGridZoom_Label": "Gitter Zoom",
-  "SettingsPage_ModGridZoom_Tooltip": "Funktionen er halvt fejlbehæftet. Musens rullehjul kan stoppe med at virke, træk i rullebjælken eller brug musens rullehjul på rullebjælken virker stadig. Det er et WinUI 3 problem, kunne ikke rette dette.",
   "SettingsPage_OptimizePreviews_Label": "Optimer mod-miniaturer",
   "SettingsPage_DefaultResolutionOnStart_Label": "Standard opløsning ved start",
   "SettingsPage_DefaultResolutionOnStart_Description": "Brug fast vinduesstørrelse i stedet for at huske sidste størrelse",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Flyt aktive mods til toppen af listen",
   "SettingsPage_DynamicModSearch_Description": "Aktiver realtidsfiltrering mens du skriver",
   "SettingsPage_ShowOrangeAnimation_Description": "Vis dekorativ animation under manager-titlen",
-  "SettingsPage_ModGridZoom_Description": "Aktiver zoom-funktionalitet for mod-gitter",
   "SettingsPage_GridLogging_Description": "Aktiver detaljeret logning til ydeevne fejlfinding",
   "SettingsPage_ErrorOnlyLogging_Label": "Kun fejl-logning",
   "SettingsPage_ErrorOnlyLogging_Description": "Log kun fejl og advarsler til fil, reducerer logstørrelse",
@@ -403,5 +400,9 @@
   "Loading": "Indlæser...",
   "ConnectionErrorTitle": "Forbindelsesfejl",
   "ConnectionErrorMessage": "Kunne ikke oprette forbindelse til GameBanana. Tjek din internetforbindelse og prøv igen.",
-  "Favourites": "Favoritter"
+  "Favourites": "Favoritter",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

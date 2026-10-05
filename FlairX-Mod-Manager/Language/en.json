@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Grid logging",
   "SettingsPage_GridLogging_Tooltip": "Enable detailed logging for grid performance debugging",
   "SettingsPage_Language": "Language:",
-  "SettingsPage_ModGridZoom_Label": "Grid Zoom",
-  "SettingsPage_ModGridZoom_Tooltip": "Feature is half-bugged. Mouse scroll wheel may stop working, dragging scroll bar or using mouse wheel on scroll bar still works. That's WinUI 3 problem, couldn't fix this.",
   "SettingsPage_OptimizePreviews_Label": "Optimize mod thumbnails",
   "SettingsPage_DefaultResolutionOnStart_Label": "Default resolution on start",
   "SettingsPage_DefaultResolutionOnStart_Description": "Use fixed window size instead of remembering last size",
@@ -177,7 +175,6 @@
   "SettingsPage_AutoDeactivateConflictingMods_Description": "Auto-deactivate conflicting mods. Hold Shift to ignore this setting.",
   "SettingsPage_DynamicModSearch_Description": "Enable real-time filtering as you type",
   "SettingsPage_ShowOrangeAnimation_Description": "Show decorative animation under the manager title",
-  "SettingsPage_ModGridZoom_Description": "Enable zoom functionality for mod grid",
   "CategoryConflict_Activate": "Yes, activate",
   "CategoryConflict_Cancel": "Cancel",
   "CategoryConflict_Message": "There is already an active mod in this category. Are you sure you want to activate another one?",
@@ -403,5 +400,9 @@
   "Loading": "Loading...",
   "ConnectionErrorTitle": "Connection Error",
   "ConnectionErrorMessage": "Failed to connect to GameBanana. Please check your internet connection and try again.",
-  "Favourites": "Favourites"
+  "Favourites": "Favourites",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails"
 }

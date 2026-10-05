@@ -78,8 +78,6 @@
   "SettingsPage_GridLogging_Label": "グリッドログ",
   "SettingsPage_GridLogging_Tooltip": "グリッドパフォーマンスのデバッグのための詳細なログの記録を有効化します",
   "SettingsPage_Language": "言語:",
-  "SettingsPage_ModGridZoom_Label": "グリッドズーム",
-  "SettingsPage_ModGridZoom_Tooltip": "機能にバグが少し存在します。マウスのスクロールホイールが動作しなくなることがありますが、スクロールバーをドラッグしたり、スクロールバー上でマウスホイールを使うことはできます。これは WinUI 3 の問題であり、修正ができませんでした。",
   "SettingsPage_OptimizePreviews_Label": "Mod のサムネイルを最適化",
   "SettingsPage_DefaultResolutionOnStart_Label": "起動時のデフォルト解像度",
   "SettingsPage_DefaultResolutionOnStart_Description": "最後のサイズを記憶する代わりに固定ウィンドウサイズを使用",
@@ -152,7 +150,6 @@
   "SettingsPage_ActiveModsToTop_Description": "アクティブなModをリストの上部に移動",
   "SettingsPage_DynamicModSearch_Description": "入力中のリアルタイムフィルタリングを有効にする",
   "SettingsPage_ShowOrangeAnimation_Description": "マネージャータイトル下の装飾アニメーションを表示",
-  "SettingsPage_ModGridZoom_Description": "Modグリッドのズーム機能を有効にする",
   "SettingsPage_GridLogging_Description": "パフォーマンスデバッグ用の詳細ログを有効にする",
   "SettingsPage_ErrorOnlyLogging_Label": "エラーのみ記録",
   "SettingsPage_ErrorOnlyLogging_Description": "エラーと警告のみをファイルに記録し、ログサイズを削減",
@@ -403,5 +400,9 @@
   "Loading": "読み込み中...",
   "ConnectionErrorTitle": "接続エラー",
   "ConnectionErrorMessage": "GameBananaへの接続に失敗しました。インターネット接続を確認して、もう一度お試しください。",
-  "Favourites": "お気に入り"
+  "Favourites": "お気に入り",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

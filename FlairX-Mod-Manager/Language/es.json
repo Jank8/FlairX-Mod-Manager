@@ -78,8 +78,6 @@
   "SettingsPage_GridLogging_Label": "Registro de cuadrícula",
   "SettingsPage_GridLogging_Tooltip": "Habilitar registro detallado para depuración de rendimiento de cuadrícula",
   "SettingsPage_Language": "Idioma:",
-  "SettingsPage_ModGridZoom_Label": "Zoom de cuadrícula",
-  "SettingsPage_ModGridZoom_Tooltip": "La función está medio bugueada. La rueda de desplazamiento del ratón puede dejar de funcionar, arrastrar la barra de desplazamiento o usar la rueda del ratón en la barra de desplazamiento aún funciona. Es un problema de WinUI 3, no pude arreglarlo.",
   "SettingsPage_OptimizePreviews_Label": "Optimizar miniaturas de mods",
   "SettingsPage_DefaultResolutionOnStart_Label": "Resolución predeterminada al iniciar",
   "SettingsPage_DefaultResolutionOnStart_Description": "Usar tamaño de ventana fijo en lugar de recordar el último tamaño",
@@ -152,7 +150,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Mover mods activos a la parte superior de la lista",
   "SettingsPage_DynamicModSearch_Description": "Habilitar filtrado en tiempo real mientras escribes",
   "SettingsPage_ShowOrangeAnimation_Description": "Mostrar animación decorativa bajo el título del gestor",
-  "SettingsPage_ModGridZoom_Description": "Habilitar funcionalidad de zoom para la cuadrícula de mods",
   "SettingsPage_GridLogging_Description": "Habilitar registro detallado para depuración de rendimiento",
   "SettingsPage_ErrorOnlyLogging_Label": "Solo errores",
   "SettingsPage_ErrorOnlyLogging_Description": "Registrar solo errores y advertencias, reduciendo el tamaño del archivo",
@@ -403,5 +400,9 @@
   "Loading": "Cargando...",
   "ConnectionErrorTitle": "Error de conexión",
   "ConnectionErrorMessage": "No se pudo conectar a GameBanana. Por favor, verifique su conexión a Internet e intente nuevamente.",
-  "Favourites": "Favoritos"
+  "Favourites": "Favoritos",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

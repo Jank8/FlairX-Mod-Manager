@@ -78,8 +78,6 @@
   "SettingsPage_GridLogging_Label": "网格日志",
   "SettingsPage_GridLogging_Tooltip": "启用详细日志记录以调试网格性能",
   "SettingsPage_Language": "语言:",
-  "SettingsPage_ModGridZoom_Label": "网格缩放",
-  "SettingsPage_ModGridZoom_Tooltip": "功能有一半问题。鼠标滚轮可能停止工作，拖动滚动条或在滚动条上使用鼠标滚轮仍然有效。这是WinUI 3的问题，无法修复。",
   "SettingsPage_OptimizePreviews_Label": "优化模组缩略图",
   "SettingsPage_DefaultResolutionOnStart_Label": "启动时默认分辨率",
   "SettingsPage_DefaultResolutionOnStart_Description": "使用固定窗口大小而不是记住上次大小",
@@ -152,7 +150,6 @@
   "SettingsPage_ActiveModsToTop_Description": "将活跃模组移至列表顶部",
   "SettingsPage_DynamicModSearch_Description": "启用输入时的实时过滤",
   "SettingsPage_ShowOrangeAnimation_Description": "在管理器标题下显示装饰动画",
-  "SettingsPage_ModGridZoom_Description": "启用模组网格的缩放功能",
   "SettingsPage_GridLogging_Description": "启用详细日志记录以进行性能调试",
   "SettingsPage_ErrorOnlyLogging_Label": "仅记录错误",
   "SettingsPage_ErrorOnlyLogging_Description": "仅记录错误和警告，减少日志文件大小",
@@ -403,5 +400,9 @@
   "ConnectionErrorMessage": "无法连接到GameBanana。请检查您的互联网连接并重试。",
   "Category_Duplicates": "重复项",
   "ShowDuplicates": "显示重复项",
-  "Favourites": "收藏夹"
+  "Favourites": "收藏夹",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

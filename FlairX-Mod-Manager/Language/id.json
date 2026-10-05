@@ -86,8 +86,6 @@
   "SettingsPage_GridLogging_Label": "Pencatatan grid",
   "SettingsPage_GridLogging_Tooltip": "Aktifkan pencatatan detail untuk debugging performa grid",
   "SettingsPage_Language": "Bahasa:",
-  "SettingsPage_ModGridZoom_Label": "Zoom Grid",
-  "SettingsPage_ModGridZoom_Tooltip": "Fitur setengah rusak. Scroll mouse mungkin berhenti bekerja, menyeret scroll bar atau menggunakan scroll mouse pada scroll bar masih berfungsi. Itu masalah WinUI 3, tidak bisa diperbaiki.",
   "SettingsPage_OptimizePreviews_Label": "Optimalkan thumbnail mod",
   "SettingsPage_DefaultResolutionOnStart_Label": "Resolusi default saat mulai",
   "SettingsPage_DefaultResolutionOnStart_Description": "Gunakan ukuran jendela tetap daripada mengingat ukuran terakhir",
@@ -174,7 +172,6 @@
   "SettingsPage_ActiveModsToTop_Description": "Pindahkan mod aktif ke bagian atas daftar",
   "SettingsPage_DynamicModSearch_Description": "Aktifkan filter real-time saat Anda mengetik",
   "SettingsPage_ShowOrangeAnimation_Description": "Tampilkan animasi dekoratif di bawah judul manager",
-  "SettingsPage_ModGridZoom_Description": "Aktifkan fungsi zoom untuk grid mod",
   "SettingsPage_GridLogging_Description": "Aktifkan pencatatan detail untuk debugging performa",
   "SettingsPage_ErrorOnlyLogging_Label": "Pencatatan hanya kesalahan",
   "SettingsPage_ErrorOnlyLogging_Description": "Catat hanya kesalahan dan peringatan ke file, mengurangi ukuran log",
@@ -403,5 +400,9 @@
   "Loading": "Memuat...",
   "ConnectionErrorTitle": "Kesalahan Koneksi",
   "ConnectionErrorMessage": "Gagal terhubung ke GameBanana. Harap periksa koneksi internet Anda dan coba lagi.",
-  "Favourites": "Favorit"
+  "Favourites": "Favorit",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }

@@ -197,24 +197,16 @@ namespace FlairX_Mod_Manager.Pages
             // Monitor window size changes to reload visible images
             this.SizeChanged += ModGridPage_SizeChanged;
             
-            // Apply saved zoom level when page loads
-            if (Math.Abs(_zoomFactor - 1.0) > 0.001)
+            // Always update grid item sizes on load to ensure correct tile width
+            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
             {
                 UpdateGridItemSizes();
-            }
-            
-            // Update zoom indicator on startup
-            var mainWindow = (Application.Current as App)?.MainWindow as MainWindow;
-            if (mainWindow != null)
-            {
-                mainWindow.UpdateZoomIndicator(_zoomFactor);
-            }
+            });
             
             // Force focus for WinUI 3 wheel event handling
             if (ModsScrollViewer != null)
             {
                 ModsScrollViewer.Focus(Microsoft.UI.Xaml.FocusState.Programmatic);
-                ModsScrollViewer.PointerWheelChanged += ModsScrollViewer_PointerWheelChanged;
             }
             
             // Add global pointer handler to refocus on click
@@ -386,35 +378,16 @@ namespace FlairX_Mod_Manager.Pages
                 _lastLoadedModDataIndex = i + 1;
             }
             
-            // Apply zoom scaling to newly added containers after they're realized
-            if (added > 0 && Math.Abs(_zoomFactor - 1.0) > 0.001)
-            {
-                var currentCount = _allMods.Count - added;
-                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
-                {
-                    ApplyZoomToNewContainers(currentCount, _allMods.Count);
-                });
-            }
         }
         
-        private void ApplyZoomToNewContainers(int startIndex, int endIndex)
-        {
-            if (ModsGrid == null) return;
-            
-            for (int i = startIndex; i < endIndex; i++)
-            {
-                var container = ModsGrid.ContainerFromIndex(i) as GridViewItem;
-                if (container?.ContentTemplateRoot is FrameworkElement root)
-                {
-                    ApplyScalingToContainer(container, root);
-                }
-            }
-        }
-
         // Fixed tile dimensions for index-based visibility
-        private const double TILE_HEIGHT = 333.0; // 277 image + 56 caption
-        private const double TILE_WIDTH = 277.0;
+        private const double TILE_HEIGHT = 333.0; // Actual tile height
         private const double TILE_MARGIN = 24.0;
+        
+        // Dynamic tile width based on current format
+        private double GetCurrentTileWidth() => SettingsManager.Current.UseWideTileFormat ? 592.0 : 277.0;
+        // Dynamic tile margin based on current format (wide tiles use smaller margin to fit more)
+        private double GetCurrentTileMargin() => SettingsManager.Current.UseWideTileFormat ? 8.0 : 24.0;
         
         private async void LoadVisibleImages()
         {
@@ -442,11 +415,11 @@ namespace FlairX_Mod_Manager.Pages
             else
             {
                 // Calculate items per row based on viewport width
-                var effectiveTileWidth = (TILE_WIDTH + TILE_MARGIN) * _zoomFactor;
+                var effectiveTileWidth = GetCurrentTileWidth() + GetCurrentTileMargin();
                 var itemsPerRow = Math.Max(1, (int)(viewportWidth / effectiveTileWidth));
 
                 // Calculate visible row range with buffer
-                var effectiveTileHeight = (TILE_HEIGHT + TILE_MARGIN) * _zoomFactor;
+                var effectiveTileHeight = TILE_HEIGHT + GetCurrentTileMargin();
                 var firstVisibleRow = Math.Max(0, (int)(scrollOffset / effectiveTileHeight) - 2); // 2 row buffer above
                 var lastVisibleRow = (int)((scrollOffset + viewportHeight) / effectiveTileHeight) + 2; // 2 row buffer below
 
@@ -499,6 +472,10 @@ namespace FlairX_Mod_Manager.Pages
             if (string.IsNullOrEmpty(imagePath))
                 return;
             
+            // Set tile width based on current format setting
+            // Wide format: 592px, Classic format: 277px
+            mod.TileWidth = SettingsManager.Current.UseWideTileFormat ? 592 : 277;
+            
             // Skip if already loading this image (thread-safe check and add)
             lock (_loadingLock)
             {
@@ -516,7 +493,8 @@ namespace FlairX_Mod_Manager.Pages
                     DispatcherQueue.TryEnqueue(() =>
                     {
                         mod.ImageSource = cachedImage;
-                        Logger.LogDebug($"LoadImageAsync: Loaded from cache {imagePath}");
+                        // TileWidth is already set above
+                        Logger.LogDebug($"LoadImageAsync: Loaded from cache {imagePath}, TileWidth={mod.TileWidth}");
                     });
                     return;
                 }
@@ -560,16 +538,6 @@ namespace FlairX_Mod_Manager.Pages
                             // Assign immediately - WinUI will decode async, ImageOpened fires when done
                             mod.ImageSource = bitmap;
                             Logger.LogDebug($"LoadImageAsync: ImageSource assigned for {imagePath}");
-
-                            // Apply scaling only if not at 100% zoom
-                            if (Math.Abs(ZoomFactor - 1.0) > 0.001)
-                            {
-                                var container = ModsGrid.ContainerFromItem(mod) as GridViewItem;
-                                if (container?.ContentTemplateRoot is FrameworkElement root)
-                                {
-                                    ApplyScalingToContainer(container, root);
-                                }
-                            }
                         }
                         catch (Exception ex)
                         {
@@ -654,10 +622,10 @@ namespace FlairX_Mod_Manager.Pages
             var viewportHeight = ModsScrollViewer.ViewportHeight;
             var viewportWidth = ModsScrollViewer.ActualWidth;
             
-            var effectiveTileWidth = (TILE_WIDTH + TILE_MARGIN) * _zoomFactor;
+            var effectiveTileWidth = GetCurrentTileWidth() + GetCurrentTileMargin();
             var itemsPerRow = Math.Max(1, (int)(viewportWidth / effectiveTileWidth));
             
-            var effectiveTileHeight = (TILE_HEIGHT + TILE_MARGIN) * _zoomFactor;
+            var effectiveTileHeight = TILE_HEIGHT + GetCurrentTileMargin();
             var firstVisibleRow = Math.Max(0, (int)(scrollOffset / effectiveTileHeight) - 2);
             var lastVisibleRow = (int)((scrollOffset + viewportHeight) / effectiveTileHeight) + 2;
             
@@ -680,6 +648,30 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         /// <summary>
+        /// Get the correct minitile image path based on current format setting (wide or classic)
+        /// </summary>
+        private static string GetRefreshedImagePath(string modPath)
+        {
+            bool useWide = SettingsManager.Current.UseWideTileFormat;
+            
+            if (useWide)
+            {
+                if (File.Exists(Path.Combine(modPath, "minitile-wide.webp")))
+                    return Path.Combine(modPath, "minitile-wide.webp");
+                if (File.Exists(Path.Combine(modPath, "minitile-wide.jpg")))
+                    return Path.Combine(modPath, "minitile-wide.jpg");
+            }
+            
+            // Fallback to classic
+            if (File.Exists(Path.Combine(modPath, "minitile.webp")))
+                return Path.Combine(modPath, "minitile.webp");
+            if (File.Exists(Path.Combine(modPath, "minitile.jpg")))
+                return Path.Combine(modPath, "minitile.jpg");
+            
+            return string.Empty;
+        }
+
+        /// <summary>
         /// Refresh a single mod tile's image after preview download/optimization
         /// </summary>
         public void RefreshModTileImage(string modPath)
@@ -690,6 +682,9 @@ namespace FlairX_Mod_Manager.Pages
                 
                 DispatcherQueue.TryEnqueue(() =>
                 {
+                    // Find the optimal image path (wide or classic based on setting)
+                    var imagePath = GetRefreshedImagePath(modPath);
+                    
                     // Find the tile in grid view
                     if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> gridCollection)
                     {
@@ -700,22 +695,10 @@ namespace FlairX_Mod_Manager.Pages
                         
                         if (tile != null)
                         {
-                            // Clear image to force reload
                             tile.ImageSource = null;
-                            
-                            // Update image path to new minitile if exists (check both formats)
-                            var minitileWebpPath = Path.Combine(modPath, "minitile.webp");
-                            var minitileJpgPath = Path.Combine(modPath, "minitile.jpg");
-                            if (File.Exists(minitileWebpPath))
-                            {
-                                tile.ImagePath = minitileWebpPath;
-                            }
-                            else if (File.Exists(minitileJpgPath))
-                            {
-                                tile.ImagePath = minitileJpgPath;
-                            }
-                            
-                            Logger.LogInfo($"Refreshing tile image for: {modDirName}");
+                            if (!string.IsNullOrEmpty(imagePath))
+                                tile.ImagePath = imagePath;
+                            Logger.LogInfo($"Refreshing tile image for: {modDirName}, path: {imagePath}");
                         }
                     }
                     
@@ -730,17 +713,8 @@ namespace FlairX_Mod_Manager.Pages
                         if (tile != null)
                         {
                             tile.ImageSource = null;
-                            
-                            var minitileWebpPath = Path.Combine(modPath, "minitile.webp");
-                            var minitileJpgPath = Path.Combine(modPath, "minitile.jpg");
-                            if (File.Exists(minitileWebpPath))
-                            {
-                                tile.ImagePath = minitileWebpPath;
-                            }
-                            else if (File.Exists(minitileJpgPath))
-                            {
-                                tile.ImagePath = minitileJpgPath;
-                            }
+                            if (!string.IsNullOrEmpty(imagePath))
+                                tile.ImagePath = imagePath;
                         }
                     }
                     

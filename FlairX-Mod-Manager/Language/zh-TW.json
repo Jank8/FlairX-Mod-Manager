@@ -78,8 +78,6 @@
   "SettingsPage_GridLogging_Label": "網格日誌",
   "SettingsPage_GridLogging_Tooltip": "啟用詳細日誌記錄以除錯網格效能",
   "SettingsPage_Language": "語言:",
-  "SettingsPage_ModGridZoom_Label": "網格縮放",
-  "SettingsPage_ModGridZoom_Tooltip": "功能有一半問題。滑鼠滾輪可能停止工作，拖動捲軸或在捲軸上使用滑鼠滾輪仍然有效。這是WinUI 3的問題，無法修復。",
   "SettingsPage_OptimizePreviews_Label": "最佳化模組縮圖",
   "SettingsPage_DefaultResolutionOnStart_Label": "啟動時預設解析度",
   "SettingsPage_DefaultResolutionOnStart_Description": "使用固定視窗大小而不是記住上次大小",
@@ -152,7 +150,6 @@
   "SettingsPage_ActiveModsToTop_Description": "將活躍模組移至清單頂部",
   "SettingsPage_DynamicModSearch_Description": "啟用輸入時的即時過濾",
   "SettingsPage_ShowOrangeAnimation_Description": "在管理器標題下顯示裝飾動畫",
-  "SettingsPage_ModGridZoom_Description": "啟用模組網格的縮放功能",
   "SettingsPage_GridLogging_Description": "啟用詳細記錄以進行效能除錯",
   "SettingsPage_ErrorOnlyLogging_Label": "僅記錄錯誤",
   "SettingsPage_ErrorOnlyLogging_Description": "僅記錄錯誤和警告，減少日誌檔案大小",
@@ -403,5 +400,9 @@
   "Loading": "載入中...",
   "ConnectionErrorTitle": "連接錯誤",
   "ConnectionErrorMessage": "無法連接到GameBanana。請檢查您的網路連接並重試。",
-  "Favourites": "我的最愛"
+  "Favourites": "我的最愛",
+  "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
+  "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
+  "TileFormat_Classic": "Classic",
+  "TileFormat_Wide": "Wide"
 }
