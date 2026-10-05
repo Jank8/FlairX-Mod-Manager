@@ -6,11 +6,8 @@ namespace FlairX_Mod_Manager.Pages
 {
     public sealed partial class ModGridPage : Page
     {
-        private double _zoomFactor = 1.0;
         private double _baseTileSize = 277;
         private double _baseTileSizeWide = 592;
-        private double _baseTileHeight = 333;
-        private double _baseDescHeight = 56;
 
         private double GetCurrentBaseTileSize() => SettingsManager.Current.UseWideTileFormat ? _baseTileSizeWide : _baseTileSize;
 

@@ -504,7 +504,6 @@ namespace FlairX_Mod_Manager.Pages
             if (AutoDeactivateConflictingModsDescription != null) AutoDeactivateConflictingModsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoDeactivateConflictingMods_Description") ?? string.Empty;
             if (DynamicModSearchDescription != null) DynamicModSearchDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Description") ?? string.Empty;
             if (ShowOrangeAnimationDescription != null) ShowOrangeAnimationDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ShowOrangeAnimation_Description") ?? string.Empty;
-            if (ModGridZoomDescription != null) ModGridZoomDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ModGridZoom_Description") ?? string.Empty;
             if (GridLoggingDescription != null) GridLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_GridLogging_Description") ?? string.Empty;
             if (ErrorOnlyLoggingDescription != null) ErrorOnlyLoggingDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ErrorOnlyLogging_Description") ?? string.Empty;
             if (AnonymizeLogsDescription != null) AnonymizeLogsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AnonymizeLogs_Description") ?? string.Empty;
