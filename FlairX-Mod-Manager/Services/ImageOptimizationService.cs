@@ -2505,7 +2505,12 @@ namespace FlairX_Mod_Manager.Services
                     // Show progress dialog for image conversion (only if UI interaction is allowed)
                     Dialogs.ProgressDialog? progressDialog = null;
                     
-                    if (context.AllowUIInteraction)
+                    // Show per-file progress dialog only for non-manual triggers (drag&drop, GameBanana)
+                    // Manual optimization has its own progress bar - no popup needed
+                    bool showPerFileDialog = context.AllowUIInteraction && 
+                                           context.Trigger != OptimizationTrigger.Manual;
+                    
+                    if (showPerFileDialog)
                     {
                         var lang = SharedUtilities.LoadLanguageDictionary();
                         var progressTitle = SharedUtilities.GetTranslation(lang, "ProcessingImages") ?? "Processing Images";
@@ -3325,8 +3330,8 @@ namespace FlairX_Mod_Manager.Services
                         if (_cancellationRequested) { wasCancelled = true; break; }
                         if (!Directory.Exists(categoryDir)) continue;
                         
-                        // Process category preview with dialog
-                        await ProcessCategoryPreviewLiteAsync(categoryDir, context, showProgressDialog: true);
+                        // Process category preview without dialog (main progress bar handles progress)
+                        await ProcessCategoryPreviewLiteAsync(categoryDir, context, showProgressDialog: false);
                         IncrementProcessed();
                         
                         // Process all mods in category
