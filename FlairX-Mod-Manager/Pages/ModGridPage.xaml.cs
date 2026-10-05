@@ -1360,18 +1360,20 @@ namespace FlairX_Mod_Manager.Pages
                     {
                         if (_currentCategory == null)
                         {
-                            // Reload all categories
                             LoadCategories();
                         }
                         else
                         {
-                            // Reload specific category
                             LoadModsByCategory(_currentCategory);
                         }
                     }
+                    else if (!string.IsNullOrEmpty(_currentCategory))
+                    {
+                        // In a specific category (Mods view inside a category)
+                        LoadModsByCategory(_currentCategory);
+                    }
                     else
                     {
-                        // Reload all mods
                         LoadAllMods();
                     }
                     
