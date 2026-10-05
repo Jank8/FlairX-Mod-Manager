@@ -843,6 +843,32 @@ namespace FlairX_Mod_Manager.Services
                     }
                 }
                 
+                // Convert catprev-wide if it exists in old format
+                var oldCatprevWidePath = Path.Combine(categoryDir, $"catprev-wide{oldExtension}");
+                var newCatprevWidePath = Path.Combine(categoryDir, $"catprev-wide{currentExtension}");
+                if (File.Exists(oldCatprevWidePath) && !File.Exists(newCatprevWidePath))
+                {
+                    Logger.LogInfo($"Converting catprev-wide{oldExtension} to catprev-wide{currentExtension}");
+                    using (var img = Image.Load<Rgba32>(oldCatprevWidePath))
+                    {
+                        SaveImage(img, newCatprevWidePath, context.JpegQuality);
+                    }
+                    
+                    // Handle old file based on KeepOriginals
+                    if (context.KeepOriginals)
+                    {
+                        var originalPath = Path.Combine(categoryDir, $"catprev-wide_original{oldExtension}");
+                        if (File.Exists(originalPath)) File.Delete(originalPath);
+                        File.Move(oldCatprevWidePath, originalPath);
+                        Logger.LogInfo($"Kept original: catprev-wide{oldExtension} -> catprev-wide_original{oldExtension}");
+                    }
+                    else
+                    {
+                        File.Delete(oldCatprevWidePath);
+                        Logger.LogInfo($"Deleted original: catprev-wide{oldExtension}");
+                    }
+                }
+                
                 // Convert catmini if it exists in old format
                 var oldCatminiPath = Path.Combine(categoryDir, $"catmini{oldExtension}");
                 var newCatminiPath = Path.Combine(categoryDir, $"catmini{currentExtension}");
@@ -866,6 +892,32 @@ namespace FlairX_Mod_Manager.Services
                     {
                         File.Delete(oldCatminiPath);
                         Logger.LogInfo($"Deleted original: catmini{oldExtension}");
+                    }
+                }
+                
+                // Convert catmini-wide if it exists in old format
+                var oldCatminiWidePath = Path.Combine(categoryDir, $"catmini-wide{oldExtension}");
+                var newCatminiWidePath = Path.Combine(categoryDir, $"catmini-wide{currentExtension}");
+                if (File.Exists(oldCatminiWidePath) && !File.Exists(newCatminiWidePath))
+                {
+                    Logger.LogInfo($"Converting catmini-wide{oldExtension} to catmini-wide{currentExtension}");
+                    using (var img = Image.Load<Rgba32>(oldCatminiWidePath))
+                    {
+                        SaveImage(img, newCatminiWidePath, context.JpegQuality);
+                    }
+                    
+                    // Handle old file based on KeepOriginals
+                    if (context.KeepOriginals)
+                    {
+                        var originalPath = Path.Combine(categoryDir, $"catmini-wide_original{oldExtension}");
+                        if (File.Exists(originalPath)) File.Delete(originalPath);
+                        File.Move(oldCatminiWidePath, originalPath);
+                        Logger.LogInfo($"Kept original: catmini-wide{oldExtension} -> catmini-wide_original{oldExtension}");
+                    }
+                    else
+                    {
+                        File.Delete(oldCatminiWidePath);
+                        Logger.LogInfo($"Deleted original: catmini-wide{oldExtension}");
                     }
                 }
                 
@@ -2078,6 +2130,32 @@ namespace FlairX_Mod_Manager.Services
                     {
                         File.Delete(oldMinitilePath);
                         Logger.LogInfo($"Deleted original: minitile{oldExtension}");
+                    }
+                }
+                
+                // Convert minitile-wide if it exists in old format
+                var oldMinitileWidePath = Path.Combine(modDir, $"minitile-wide{oldExtension}");
+                var newMinitileWidePath = Path.Combine(modDir, $"minitile-wide{currentExtension}");
+                if (File.Exists(oldMinitileWidePath) && !File.Exists(newMinitileWidePath))
+                {
+                    Logger.LogInfo($"Converting minitile-wide{oldExtension} to minitile-wide{currentExtension}");
+                    using (var img = Image.Load<Rgba32>(oldMinitileWidePath))
+                    {
+                        SaveImage(img, newMinitileWidePath, context.JpegQuality);
+                    }
+                    
+                    // Handle old file based on KeepOriginals
+                    if (context.KeepOriginals)
+                    {
+                        var originalPath = Path.Combine(modDir, $"minitile-wide_original{oldExtension}");
+                        if (File.Exists(originalPath)) File.Delete(originalPath);
+                        File.Move(oldMinitileWidePath, originalPath);
+                        Logger.LogInfo($"Kept original: minitile-wide{oldExtension} -> minitile-wide_original{oldExtension}");
+                    }
+                    else
+                    {
+                        File.Delete(oldMinitileWidePath);
+                        Logger.LogInfo($"Deleted original: minitile-wide{oldExtension}");
                     }
                 }
                 
