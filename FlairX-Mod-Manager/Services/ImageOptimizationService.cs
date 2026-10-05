@@ -3105,8 +3105,7 @@ namespace FlairX_Mod_Manager.Services
             // 3. Critical thumbnails (catprev, catmini, minitile) always need crop inspection
             //    Exception: minitile only skipped if AutoCreateModThumbnails is enabled (automatic mode)
             bool isCriticalThumbnail = imageType.ToLower().Contains("catprev") || 
-                                      imageType.ToLower().Contains("catmini") || 
-                                      imageType.ToLower().Contains("minitile");
+                                      imageType.ToLower().Contains("catmini");
             bool isMinitile = imageType.ToLower().Contains("minitile");
             bool skipMinitileDueToAutoCreate = isMinitile && SettingsManager.Current.AutoCreateModThumbnails;
             
