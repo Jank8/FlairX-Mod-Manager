@@ -2347,8 +2347,8 @@ namespace FlairX_Mod_Manager.Services
                 var minitileWideFileExists = File.Exists(minitileWideFilePath);
                 bool hasPreviewFiles = alreadyOptimizedFiles.Count > 0 || newFilesToProcess.Count > 0;
                 
-                // If no new files to process AND minitile exists (or no preview files for minitile), nothing to do
-                if (newFilesToProcess.Count == 0 && (minitileFileExists || !hasPreviewFiles))
+                // If no new files to process AND both minitile variants exist (or no preview files for minitile), nothing to do
+                if (newFilesToProcess.Count == 0 && ((minitileFileExists && minitileWideFileExists) || !hasPreviewFiles))
                 {
                     Logger.LogInfo($"No new preview files to process in: {modDir}");
                     return;
