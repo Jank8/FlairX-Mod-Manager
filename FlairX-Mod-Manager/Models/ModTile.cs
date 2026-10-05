@@ -13,6 +13,9 @@ namespace FlairX_Mod_Manager.Pages
             _activateText = SharedUtilities.GetTranslation(langDict, "ModTile_Activate");
             _deactivateText = SharedUtilities.GetTranslation(langDict, "ModTile_Deactivate");
             _openDirectoryText = SharedUtilities.GetTranslation(langDict, "ModTile_OpenDirectory");
+            
+            // Initialize TileWidth based on current format setting
+            InitializeTileWidth();
         }
         
         private string _name = "";
@@ -136,6 +139,28 @@ namespace FlairX_Mod_Manager.Pages
         {
             get => _isFavorite;
             set { if (_isFavorite != value) { _isFavorite = value; OnPropertyChanged(nameof(IsFavorite)); } }
+        }
+        
+        private double _tileWidth = 277; // Default classic width (277px), wide is 592px
+        public double TileWidth
+        {
+            get => _tileWidth;
+            set { if (Math.Abs(_tileWidth - value) > 0.01) { _tileWidth = value; OnPropertyChanged(nameof(TileWidth)); } }
+        }
+        
+        private Microsoft.UI.Xaml.Thickness _tileMargin = new(12);
+        public Microsoft.UI.Xaml.Thickness TileMargin
+        {
+            get => _tileMargin;
+            set { _tileMargin = value; OnPropertyChanged(nameof(TileMargin)); }
+        }
+        
+        // Constructor to set correct initial TileWidth based on current format
+        private void InitializeTileWidth()
+        {
+            bool isWide = SettingsManager.Current.UseWideTileFormat;
+            _tileWidth = isWide ? 592 : 277;
+            _tileMargin = new Microsoft.UI.Xaml.Thickness(isWide ? 4 : 12);
         }
         
         // Removed IsInViewport - using new scroll-based lazy loading instead

@@ -478,68 +478,129 @@ namespace FlairX_Mod_Manager.Services
                     ? Path.Combine(categoryDir, $"_temp_catprev_{Guid.NewGuid()}{GetImageExtension()}")
                     : catprevPath;
                 
+                var catprevWidePath = Path.Combine(categoryDir, GetCatprevWideFilename());
+                var catminiWidePath = Path.Combine(categoryDir, GetCatminiWideFilename());
+                
                 using (var img = Image.Load<Rgba32>(previewPath))
                 {
-                    // Get crop rectangle with optional inspection for catprev
+                    // ========== CATPREV (722x722 - квадратний для списку) ==========
                     var catprevCropRect = await GetCropRectangleWithInspectionAsync(
-                        img, 722, 722, context, GetCatprevFilename());
+                        img, 722, 722, context, "catprev (722x722 for list)");
                     
                     if (catprevCropRect == null)
                     {
-                        Logger.LogInfo($"Deleted {GetCatprevFilename()} generation");
-                        return; // User chose to delete
+                        Logger.LogInfo($"Deleted catprev generation");
+                        return; // User chose to delete - abort all
                     }
                     
-                    // Skip not allowed for category - crop is required
                     if (catprevCropRect.Value.X == -1 && catprevCropRect.Value.Y == -1)
                     {
-                        Logger.LogInfo($"Skipping {GetCatprevFilename()} generation (user chose skip)");
+                        Logger.LogInfo($"Skipping catprev generation (user chose skip)");
                         return;
                     }
                     
-                    // Generate catprev (722x722) - crop and resize
+                    // Generate catprev (722x722)
                     using (var catprev = img.Clone(ctx => ctx
                         .Crop(catprevCropRect.Value)
                         .Resize(new ResizeOptions
                         {
                             Size = new Size(722, 722),
                             Mode = ResizeMode.Stretch,
-                            Sampler = KnownResamplers.Bicubic  // = HighQualityBicubic
+                            Sampler = KnownResamplers.Bicubic
                         })))
                     {
                         SaveImage(catprev, actualCatprevPath, context.JpegQuality);
                         Logger.LogInfo($"Generated {GetCatprevFilename()}");
                     }
                     
-                    // Get crop rectangle with optional inspection for catmini (thumbnail)
-                    var catminiCropRect = await GetCropRectangleWithInspectionAsync(
-                        img, 600, 722, context, GetCatminiFilename(), isProtected: false, isThumbnail: true);
+                    // ========== CATPREV-WIDE (1280x720) ==========
+                    var catprevWideCropRect = await GetCropRectangleWithInspectionAsync(
+                        img, 1280, 720, context, "catprev-wide (1280x720)", isProtected: false, isThumbnail: false);
                     
-                    if (catminiCropRect == null)
+                    if (catprevWideCropRect == null)
                     {
-                        Logger.LogInfo($"Deleted {GetCatminiFilename()} generation");
-                        return; // User chose to delete
-                    }
-                    
-                    // Skip not allowed for category - crop is required
-                    if (catminiCropRect.Value.X == -1 && catminiCropRect.Value.Y == -1)
-                    {
-                        Logger.LogInfo($"Skipping {GetCatminiFilename()} generation (user chose skip)");
+                        Logger.LogInfo($"Deleted catprev-wide generation");
                         return;
                     }
                     
-                    // Generate catmini (600x722) - crop and resize
+                    if (catprevWideCropRect.Value.X == -1 && catprevWideCropRect.Value.Y == -1)
+                    {
+                        Logger.LogInfo($"Skipping catprev-wide generation");
+                        return;
+                    }
+                    
+                    // Generate catprev-wide (1280x720)
+                    using (var catprevWide = img.Clone(ctx => ctx
+                        .Crop(catprevWideCropRect.Value)
+                        .Resize(new ResizeOptions
+                        {
+                            Size = new Size(1280, 720),
+                            Mode = ResizeMode.Stretch,
+                            Sampler = KnownResamplers.Bicubic
+                        })))
+                    {
+                        SaveImage(catprevWide, catprevWidePath, context.JpegQuality);
+                        Logger.LogInfo($"Generated {GetCatprevWideFilename()}");
+                    }
+                    
+                    // ========== CATMINI (600x722 - classic thumbnail) ==========
+                    var catminiCropRect = await GetCropRectangleWithInspectionAsync(
+                        img, 600, 722, context, "catmini (600x722 classic)", isProtected: false, isThumbnail: true);
+                    
+                    if (catminiCropRect == null)
+                    {
+                        Logger.LogInfo($"Deleted catmini generation");
+                        return;
+                    }
+                    
+                    if (catminiCropRect.Value.X == -1 && catminiCropRect.Value.Y == -1)
+                    {
+                        Logger.LogInfo($"Skipping catmini generation");
+                        return;
+                    }
+                    
+                    // Generate catmini (600x722)
                     using (var catmini = img.Clone(ctx => ctx
                         .Crop(catminiCropRect.Value)
                         .Resize(new ResizeOptions
                         {
                             Size = new Size(600, 722),
                             Mode = ResizeMode.Stretch,
-                            Sampler = KnownResamplers.Bicubic  // = HighQualityBicubic
+                            Sampler = KnownResamplers.Bicubic
                         })))
                     {
                         SaveImage(catmini, catminiPath, context.JpegQuality);
                         Logger.LogInfo($"Generated {GetCatminiFilename()}");
+                    }
+                    
+                    // ========== CATMINI-WIDE (1280x720 - wide thumbnail) ==========
+                    var catminiWideCropRect = await GetCropRectangleWithInspectionAsync(
+                        img, 1280, 720, context, "catmini-wide (1280x720)", isProtected: false, isThumbnail: true);
+                    
+                    if (catminiWideCropRect == null)
+                    {
+                        Logger.LogInfo($"Deleted catmini-wide generation");
+                        return;
+                    }
+                    
+                    if (catminiWideCropRect.Value.X == -1 && catminiWideCropRect.Value.Y == -1)
+                    {
+                        Logger.LogInfo($"Skipping catmini-wide generation");
+                        return;
+                    }
+                    
+                    // Generate catmini-wide (1280x720)
+                    using (var catminiWide = img.Clone(ctx => ctx
+                        .Crop(catminiWideCropRect.Value)
+                        .Resize(new ResizeOptions
+                        {
+                            Size = new Size(1280, 720),
+                            Mode = ResizeMode.Stretch,
+                            Sampler = KnownResamplers.Bicubic
+                        })))
+                    {
+                        SaveImage(catminiWide, catminiWidePath, context.JpegQuality);
+                        Logger.LogInfo($"Generated {GetCatminiWideFilename()}");
                     }
                 }
                 
@@ -573,7 +634,9 @@ namespace FlairX_Mod_Manager.Services
                         // Skip if already _original or is output file
                         if (fileNameWithoutExt.EndsWith("_original", StringComparison.OrdinalIgnoreCase) ||
                             file.Equals(catprevPath, StringComparison.OrdinalIgnoreCase) ||
-                            file.Equals(catminiPath, StringComparison.OrdinalIgnoreCase))
+                            file.Equals(catprevWidePath, StringComparison.OrdinalIgnoreCase) ||
+                            file.Equals(catminiPath, StringComparison.OrdinalIgnoreCase) ||
+                            file.Equals(catminiWidePath, StringComparison.OrdinalIgnoreCase))
                             continue;
                             
                         try
@@ -604,7 +667,9 @@ namespace FlairX_Mod_Manager.Services
                         // Skip _original files and output files
                         if (fileNameWithoutExt.EndsWith("_original", StringComparison.OrdinalIgnoreCase) ||
                             file.Equals(catprevPath, StringComparison.OrdinalIgnoreCase) ||
-                            file.Equals(catminiPath, StringComparison.OrdinalIgnoreCase))
+                            file.Equals(catprevWidePath, StringComparison.OrdinalIgnoreCase) ||
+                            file.Equals(catminiPath, StringComparison.OrdinalIgnoreCase) ||
+                            file.Equals(catminiWidePath, StringComparison.OrdinalIgnoreCase))
                             continue;
                             
                         try
@@ -1842,9 +1907,19 @@ namespace FlairX_Mod_Manager.Services
         private static string GetCatprevFilename() => $"catprev{GetImageExtension()}";
         
         /// <summary>
+        /// Get standard filename for category preview (wide format 16:9)
+        /// </summary>
+        private static string GetCatprevWideFilename() => $"catprev-wide{GetImageExtension()}";
+        
+        /// <summary>
         /// Get standard filename for category mini thumbnail
         /// </summary>
         private static string GetCatminiFilename() => $"catmini{GetImageExtension()}";
+        
+        /// <summary>
+        /// Get standard filename for category mini thumbnail (wide format 16:9)
+        /// </summary>
+        private static string GetCatminiWideFilename() => $"catmini-wide{GetImageExtension()}";
         
         /// <summary>
         /// Get standard filename for mod preview (index 0 = preview, 1+ = preview-01, preview-02, etc.)
@@ -1855,6 +1930,11 @@ namespace FlairX_Mod_Manager.Services
         /// Get standard filename for mod minitile thumbnail
         /// </summary>
         private static string GetMinitileFilename() => $"minitile{GetImageExtension()}";
+        
+        /// <summary>
+        /// Get standard filename for mod minitile thumbnail (wide format 16:9)
+        /// </summary>
+        private static string GetMinitileWideFilename() => $"minitile-wide{GetImageExtension()}";
         
         /// <summary>
         /// Get quality value for current format (WebP and JPEG use their respective user settings)
@@ -2708,66 +2788,67 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
-        /// Generate minitile.jpg thumbnail (600x722) from preview image
+        /// Generate both minitile.jpg (600x722) and minitile-wide.jpg (1280x720) from preview images
+        /// User can select different source files for each format
         /// </summary>
         private static async Task GenerateMinitileAsync(string modDir, string previewPath, OptimizationContext context, List<string>? originalFiles = null)
         {
             try
             {
-                Logger.LogInfo($"Generating minitile for: {modDir} from source: {Path.GetFileName(previewPath)}");
+                Logger.LogInfo($"Generating minitiles (classic + wide) for: {modDir}");
                 Logger.LogInfo($"Minitile generation context: InspectAndEditEnabled={context.InspectAndEditEnabled}, AllowUIInteraction={context.AllowUIInteraction}, AutoCreateModThumbnails={SettingsManager.Current.AutoCreateModThumbnails}");
                 
+                // Prepare file list for source selection
+                var filesToShow = originalFiles?.Count > 0
+                    ? originalFiles
+                    : Directory.GetFiles(modDir)
+                        .Where(f => {
+                            var name = Path.GetFileNameWithoutExtension(f).ToLower();
+                            return IsImageFile(f) && (name == "preview" || System.Text.RegularExpressions.Regex.IsMatch(name, @"^preview-\d+$"));
+                        })
+                        .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
+                        .ToList();
+                
+                if (filesToShow.Count == 0)
+                    filesToShow = new List<string> { previewPath };
+                
+                // ========== CLASSIC FORMAT (600x722) ==========
                 var minitilePath = Path.Combine(modDir, GetMinitileFilename());
-                var currentPreviewPath = previewPath;
+                var currentClassicPath = previewPath;
                 
                 while (true)
                 {
-                    using (var img = Image.Load<Rgba32>(currentPreviewPath))
+                    using (var img = Image.Load<Rgba32>(currentClassicPath))
                     {
-                        // Get crop rectangle with optional inspection (minitile is a thumbnail)
+                        // Get crop rectangle with optional inspection for classic format
                         var srcRect = await GetCropRectangleWithInspectionAsync(
-                            img, 600, 722, context, GetMinitileFilename(), isProtected: false, isThumbnail: true);
+                            img, 600, 722, context, "minitile (classic 600x722)", isProtected: false, isThumbnail: true);
                         
                         if (srcRect == null)
                         {
-                            Logger.LogInfo($"Deleted minitile generation for: {modDir}");
-                            return; // User chose to delete
+                            Logger.LogInfo($"Deleted classic minitile generation for: {modDir}");
+                            return; // User chose to delete - abort both formats
                         }
                         
-                        // Check if user chose to skip optimization (rename only)
+                        // Check if user chose to skip optimization
                         if (srcRect.Value.X == -1 && srcRect.Value.Y == -1)
                         {
-                            Logger.LogInfo($"Skipping minitile optimization for: {modDir}, rename only");
-                            return;
+                            Logger.LogInfo($"Skipping classic minitile optimization for: {modDir}");
+                            return; // Skip both formats
                         }
                         
-                        // Check if user wants to choose a different file
+                        // Check if user wants to choose a different file for classic
                         if (srcRect.Value.X == -2 && srcRect.Value.Y == -2)
                         {
-                            Logger.LogInfo($"User wants to choose a different file for minitile in: {modDir}");
-                            
-                            // Use original files list if available, otherwise fall back to disk scan
-                            var filesToShow = originalFiles?.Count > 0
-                                ? originalFiles
-                                : Directory.GetFiles(modDir)
-                                    .Where(f => {
-                                        var name = Path.GetFileNameWithoutExtension(f).ToLower();
-                                        return IsImageFile(f) && (name == "preview" || System.Text.RegularExpressions.Regex.IsMatch(name, @"^preview-\d+$"));
-                                    })
-                                    .OrderBy(f => PreviewSortHelper.GetSortOrder(Path.GetFileName(f)))
-                                    .ToList();
-                            
-                            if (filesToShow.Count == 0)
-                                filesToShow = new List<string> { currentPreviewPath };
-                            
+                            Logger.LogInfo($"User wants to choose a different file for classic minitile in: {modDir}");
                             var newSource = await SelectMinitileSourceAsync(filesToShow, modDir, context);
                             if (string.IsNullOrEmpty(newSource))
-                                return; // Skipped or stopped during re-selection
-                            currentPreviewPath = newSource;
+                                return; // Skipped or stopped
+                            currentClassicPath = newSource;
                             continue; // Loop back with new file
                         }
                         
-                        // Generate minitile (600x722)
+                        // Generate classic minitile (600x722)
                         using (var minitile = img.Clone(ctx => ctx
                             .Crop(srcRect.Value)
                             .Resize(new ResizeOptions
@@ -2778,10 +2859,64 @@ namespace FlairX_Mod_Manager.Services
                             })))
                         {
                             SaveImage(minitile, minitilePath, context.JpegQuality);
-                            Logger.LogInfo($"Minitile generated: {minitilePath}");
+                            Logger.LogInfo($"Classic minitile generated: {minitilePath}");
                             ImageCacheManager.InvalidateImage(minitilePath);
                         }
-                        return;
+                        break; // Exit classic loop
+                    }
+                }
+                
+                // ========== WIDE FORMAT (1280x720) ==========
+                var minitileWidePath = Path.Combine(modDir, GetMinitileWideFilename());
+                var currentWidePath = previewPath; // Start with same source, but user can change
+                
+                while (true)
+                {
+                    using (var img = Image.Load<Rgba32>(currentWidePath))
+                    {
+                        // Get crop rectangle with optional inspection for wide format
+                        var srcRect = await GetCropRectangleWithInspectionAsync(
+                            img, 1280, 720, context, "minitile-wide (1280x720)", isProtected: false, isThumbnail: true);
+                        
+                        if (srcRect == null)
+                        {
+                            Logger.LogInfo($"Deleted wide minitile generation for: {modDir}");
+                            return; // User chose to delete
+                        }
+                        
+                        // Check if user chose to skip wide format
+                        if (srcRect.Value.X == -1 && srcRect.Value.Y == -1)
+                        {
+                            Logger.LogInfo($"Skipping wide minitile optimization for: {modDir}");
+                            return;
+                        }
+                        
+                        // Check if user wants to choose a different file for wide
+                        if (srcRect.Value.X == -2 && srcRect.Value.Y == -2)
+                        {
+                            Logger.LogInfo($"User wants to choose a different file for wide minitile in: {modDir}");
+                            var newSource = await SelectMinitileSourceAsync(filesToShow, modDir, context);
+                            if (string.IsNullOrEmpty(newSource))
+                                return; // Skipped or stopped
+                            currentWidePath = newSource;
+                            continue; // Loop back with new file
+                        }
+                        
+                        // Generate wide minitile (1280x720)
+                        using (var minitileWide = img.Clone(ctx => ctx
+                            .Crop(srcRect.Value)
+                            .Resize(new ResizeOptions
+                            {
+                                Size = new Size(1280, 720),
+                                Mode = ResizeMode.Stretch,
+                                Sampler = KnownResamplers.Bicubic
+                            })))
+                        {
+                            SaveImage(minitileWide, minitileWidePath, context.JpegQuality);
+                            Logger.LogInfo($"Wide minitile generated: {minitileWidePath}");
+                            ImageCacheManager.InvalidateImage(minitileWidePath);
+                        }
+                        break; // Exit wide loop
                     }
                 }
             }
@@ -2791,7 +2926,7 @@ namespace FlairX_Mod_Manager.Services
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Failed to generate minitile for {modDir}", ex);
+                Logger.LogError($"Failed to generate minitiles for {modDir}", ex);
             }
         }
         

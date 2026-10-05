@@ -482,6 +482,23 @@ namespace FlairX_Mod_Manager
 
         private static string GetOptimalImagePath(string modDirectory)
         {
+            // Determine which format to use based on user setting
+            bool useWide = SettingsManager.Current.UseWideTileFormat;
+            
+            // Try wide format first if enabled
+            if (useWide)
+            {
+                var wideWebpPath = Path.Combine(modDirectory, "minitile-wide.webp");
+                var wideJpegPath = Path.Combine(modDirectory, "minitile-wide.jpg");
+                
+                if (File.Exists(wideWebpPath))
+                    return wideWebpPath;
+                
+                if (File.Exists(wideJpegPath))
+                    return wideJpegPath;
+            }
+            
+            // Fall back to classic format
             var webpPath = Path.Combine(modDirectory, "minitile.webp");
             var jpegPath = Path.Combine(modDirectory, "minitile.jpg");
             

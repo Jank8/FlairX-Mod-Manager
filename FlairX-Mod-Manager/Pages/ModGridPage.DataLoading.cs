@@ -127,6 +127,9 @@ namespace FlairX_Mod_Manager.Pages
                 // Update context flyout to disable context menu for category tiles
                 UpdateContextFlyout();
                 
+                // Update grid item sizes to reflect current tile format
+                UpdateGridItemSizes();
+                
                 LogToGridLog($"Loaded {categories.Count} categories");
             });
         }
@@ -139,7 +142,28 @@ namespace FlairX_Mod_Manager.Pages
             var gameModsPath = AppConstants.GameConfig.GetModsPath(gameTag);
             string categoryPath = PathManager.GetAbsolutePath(Path.Combine(gameModsPath, categoryName));
             
-            // Look for category mini tile image (check both formats)
+            // Determine which format to use based on user setting
+            bool useWide = SettingsManager.Current.UseWideTileFormat;
+            
+            // Try wide format first if enabled
+            if (useWide)
+            {
+                string categoryMiniWideWebp = Path.Combine(categoryPath, "catmini-wide.webp");
+                string categoryMiniWideJpg = Path.Combine(categoryPath, "catmini-wide.jpg");
+                
+                if (File.Exists(categoryMiniWideWebp))
+                {
+                    LogToGridLog($"Found category mini tile (wide): {categoryMiniWideWebp}");
+                    return categoryMiniWideWebp;
+                }
+                else if (File.Exists(categoryMiniWideJpg))
+                {
+                    LogToGridLog($"Found category mini tile (wide): {categoryMiniWideJpg}");
+                    return categoryMiniWideJpg;
+                }
+            }
+            
+            // Fall back to classic format
             string categoryMiniWebp = Path.Combine(categoryPath, "catmini.webp");
             string categoryMiniJpg = Path.Combine(categoryPath, "catmini.jpg");
             

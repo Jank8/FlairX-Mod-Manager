@@ -680,6 +680,16 @@ namespace FlairX_Mod_Manager.Pages
                     pinItem.Click += ContextMenu_PinUnpinCategory_Click;
                     menuFlyout.Items.Add(pinItem);
                     
+                    // Regenerate Thumbnails option
+                    var regenerateThumbnailsItem = new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_RegenerateThumbnails"),
+                        Icon = new FontIcon { Glyph = "\uE91B" }, // Refresh icon
+                        Tag = modTile
+                    };
+                    regenerateThumbnailsItem.Click += ContextMenu_RegenerateThumbnails_Click;
+                    menuFlyout.Items.Add(regenerateThumbnailsItem);
+                    
                     // Delete option (always show, will auto-unpin if needed)
                     menuFlyout.Items.Add(new MenuFlyoutSeparator());
                     
@@ -773,6 +783,16 @@ namespace FlairX_Mod_Manager.Pages
                     });
                     var moveIndex = menuFlyout.Items.Count - 1;
                     ((MenuFlyoutItem)menuFlyout.Items[moveIndex]).Click += ContextMenu_Move_Click;
+                    
+                    // Regenerate Minitile option
+                    var regenerateMinitileItem = new MenuFlyoutItem
+                    {
+                        Text = SharedUtilities.GetTranslation(lang, "ContextMenu_RegenerateMinitile"),
+                        Icon = new FontIcon { Glyph = "\uE91B" }, // Refresh icon
+                        Tag = modTile
+                    };
+                    regenerateMinitileItem.Click += ContextMenu_RegenerateMinitile_Click;
+                    menuFlyout.Items.Add(regenerateMinitileItem);
                     
                     menuFlyout.Items.Add(new MenuFlyoutSeparator());
                     
@@ -1796,6 +1816,117 @@ namespace FlairX_Mod_Manager.Pages
                             Logger.LogError("Failed to open URL", ex);
                         }
                     }
+                }
+            }
+        }
+
+        private async void ContextMenu_RegenerateMinitile_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
+            {
+                try
+                {
+                    var gameTag = SettingsManager.CurrentSelectedGame;
+                    if (string.IsNullOrEmpty(gameTag))
+                    {
+                        Logger.LogWarning("No game selected");
+                        return;
+                    }
+                    
+                    // Get mod path using the same logic as OpenFolder
+                    var modLibraryDir = SettingsManager.GetCurrentXXMIModsDirectory();
+                    var fullModPath = FindModFolderPath(modLibraryDir, modTile.Directory);
+                    
+                    if (string.IsNullOrEmpty(fullModPath) || !Directory.Exists(fullModPath))
+                    {
+                        Logger.LogWarning($"Mod directory not found: {modTile.Directory}");
+                        return;
+                    }
+                    
+                    // Show loading info
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    if (App.Current is App _app && _app.MainWindow is MainWindow _mw)
+                        _mw.ShowInfoBar("", SharedUtilities.GetTranslation(lang, "Loading") ?? "Loading...", Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational, 3000);
+                    
+                    // Delete existing minitile files to force re-cropping
+                    var ext = SettingsManager.GetImageExtension();
+                    var filesToDelete = new[]
+                    {
+                        Path.Combine(fullModPath, $"minitile{ext}"),
+                        Path.Combine(fullModPath, $"minitile.jpg"),
+                        Path.Combine(fullModPath, $"minitile.webp"),
+                        Path.Combine(fullModPath, $"minitile-wide{ext}"),
+                        Path.Combine(fullModPath, $"minitile-wide.jpg"),
+                        Path.Combine(fullModPath, $"minitile-wide.webp"),
+                    };
+                    foreach (var f in filesToDelete)
+                        if (File.Exists(f)) File.Delete(f);
+                    
+                    // Now regenerate - will trigger crop UI since minitiles are missing
+                    await Services.ImageOptimizationService.ProcessModPreviewImagesAsync(
+                        fullModPath, 
+                        Models.OptimizationMode.Standard);
+                    
+                    // Refresh the tile image after regeneration
+                    await Task.Delay(300); // Small delay to ensure files are written
+                    RefreshModTileImage(fullModPath);
+                    
+                    Logger.LogInfo($"Regenerated minitile for mod: {modTile.Directory}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to regenerate minitile", ex);
+                    await ShowErrorDialog("Failed to regenerate minitile");
+                }
+            }
+        }
+        
+        private async void ContextMenu_RegenerateThumbnails_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem item && item.Tag is ModTile modTile)
+            {
+                try
+                {
+                    var gameTag = SettingsManager.CurrentSelectedGame;
+                    if (string.IsNullOrEmpty(gameTag))
+                    {
+                        Logger.LogWarning("No game selected");
+                        return;
+                    }
+                    
+                    // Get category path
+                    var modLibraryDir = SettingsManager.GetCurrentXXMIModsDirectory();
+                    var categoryPath = Path.Combine(modLibraryDir, modTile.Name);
+                    
+                    if (!Directory.Exists(categoryPath))
+                    {
+                        Logger.LogWarning($"Category directory not found: {categoryPath}");
+                        return;
+                    }
+                    
+                    // Show loading info
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    if (App.Current is App _app && _app.MainWindow is MainWindow _mw)
+                        _mw.ShowInfoBar("", SharedUtilities.GetTranslation(lang, "Loading") ?? "Loading...", Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational, 3000);
+                    
+                    // Regenerate category thumbnails (all 4 formats: catprev, catprev-wide, catmini, catmini-wide)
+                    await Services.ImageOptimizationService.ProcessCategoryPreviewAsync(
+                        categoryPath, 
+                        Models.OptimizationMode.CategoryFull);
+                    
+                    // Refresh category view
+                    await Task.Delay(500); // Small delay to ensure files are written
+                    if (CurrentViewMode == ViewMode.Categories && _currentCategory == null)
+                    {
+                        LoadCategories();
+                    }
+                    
+                    Logger.LogInfo($"Regenerated thumbnails for category: {modTile.Name}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"Failed to regenerate category thumbnails", ex);
+                    await ShowErrorDialog("Failed to regenerate thumbnails");
                 }
             }
         }

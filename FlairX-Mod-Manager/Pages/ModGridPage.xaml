@@ -336,11 +336,19 @@
                         <WrapGrid Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </GridView.ItemsPanel>
+                <GridView.ItemContainerStyle>
+                    <Style TargetType="GridViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="Padding" Value="0"/>
+                    </Style>
+                </GridView.ItemContainerStyle>
                 <GridView.ItemTemplate>
                     <DataTemplate>
                         <Button x:Name="TileButton" 
                                 Style="{StaticResource NoHoverTileButtonStyle}"
-                                Margin="12"
+                                Margin="{Binding TileMargin}"
                                 Click="ModName_Click"
                                 Tag="{Binding}"
                                 Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
@@ -363,7 +371,7 @@
                             <Border x:Name="TileBorder" 
                                     CornerRadius="8" 
                                     Height="333"
-                                    Width="277"
+                                    Width="{Binding TileWidth}"
                                     Padding="0">
                             <Grid>
                                 <!-- Full Image Background -->

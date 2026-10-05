@@ -591,6 +591,9 @@ namespace FlairX_Mod_Manager
                 OrangeAnimationProgressBar.Opacity = FlairX_Mod_Manager.SettingsManager.Current?.ShowOrangeAnimation == true ? 1 : 0;
             }
             
+            // Initialize tile format toggle button styles
+            UpdateTileFormatButtonStyles();
+            
             // Add global keyboard handler for hotkeys - handle at content level
             if (this.Content is FrameworkElement contentElement)
             {
@@ -710,6 +713,11 @@ namespace FlairX_Mod_Manager
             if (RestartAppButton != null)
                 ToolTipService.SetToolTip(RestartAppButton, SharedUtilities.GetTranslation(_lang, "SettingsPage_RestartApp_Tooltip"));
 
+            // Set tile format toggle button texts
+            if (ClassicFormatButton != null)
+                ClassicFormatButton.Content = SharedUtilities.GetTranslation(_lang, "TileFormat_Classic");
+            if (WideFormatButton != null)
+                WideFormatButton.Content = SharedUtilities.GetTranslation(_lang, "TileFormat_Wide");
             
             // Update view mode tooltip based on current state
             if (ViewModeToggleButton?.Content is FontIcon icon)
