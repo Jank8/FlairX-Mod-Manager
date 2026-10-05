@@ -924,10 +924,14 @@ namespace FlairX_Mod_Manager.Services
                 // Check if catprev exists but catmini is missing - only generate catmini
                 var existingCatprevPath = Path.Combine(categoryDir, GetCatprevFilename());
                 var existingCatminiPath = Path.Combine(categoryDir, GetCatminiFilename());
+                var existingCatminiWidePath = Path.Combine(categoryDir, GetCatminiWideFilename());
                 
-                if (File.Exists(existingCatprevPath) && !File.Exists(existingCatminiPath) && !context.Reoptimize)
+                bool catminiMissing = !File.Exists(existingCatminiPath);
+                bool catminiWideMissing = !File.Exists(existingCatminiWidePath);
+                
+                if (File.Exists(existingCatprevPath) && (catminiMissing || catminiWideMissing) && !context.Reoptimize)
                 {
-                    Logger.LogInfo($"{GetCatprevFilename()} exists but {GetCatminiFilename()} missing - generating catmini only (Lite)");
+                    Logger.LogInfo($"catprev exists but catmini/catmini-wide missing - generating missing thumbnails (Lite)");
                     GenerateCatminiFromCatprevLite(categoryDir, context);
                     return;
                 }
@@ -1074,6 +1078,22 @@ namespace FlairX_Mod_Manager.Services
                         {
                             SaveImage(catmini, catminiPath, context.JpegQuality);
                             Logger.LogInfo($"Generated {GetCatminiFilename()} (Standard)");
+                        }
+                        
+                        // Generate catmini-wide (1280x720) - wide cropped thumbnail
+                        var catminiWidePath = Path.Combine(categoryDir, GetCatminiWideFilename());
+                        var catminiWideCropRect = ImageCropService.CalculateCropRectangle(img, 1280, 720, CropType.Center);
+                        using (var catminiWide = img.Clone(ctx => ctx
+                            .Crop(catminiWideCropRect)
+                            .Resize(new ResizeOptions
+                            {
+                                Size = new Size(1280, 720),
+                                Mode = ResizeMode.Stretch,
+                                Sampler = KnownResamplers.Bicubic
+                            })))
+                        {
+                            SaveImage(catminiWide, catminiWidePath, context.JpegQuality);
+                            Logger.LogInfo($"Generated {GetCatminiWideFilename()} (Standard)");
                         }
                     }
                     
@@ -1264,22 +1284,44 @@ namespace FlairX_Mod_Manager.Services
             {
                 var catprevPath = Path.Combine(categoryDir, GetCatprevFilename());
                 var catminiPath = Path.Combine(categoryDir, GetCatminiFilename());
+                var catminiWidePath = Path.Combine(categoryDir, GetCatminiWideFilename());
                 
                 using (var img = Image.Load<Rgba32>(catprevPath))
                 {
                     // Generate catmini (600x722) with auto crop
-                    var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
-                    using (var catmini = img.Clone(ctx => ctx
-                        .Crop(catminiCropRect)
-                        .Resize(new ResizeOptions
-                        {
-                            Size = new Size(600, 722),
-                            Mode = ResizeMode.Stretch,
-                            Sampler = KnownResamplers.Bicubic
-                        })))
+                    if (!File.Exists(catminiPath))
                     {
-                        SaveImage(catmini, catminiPath, context.JpegQuality);
-                        Logger.LogInfo($"Generated {GetCatminiFilename()} from existing {GetCatprevFilename()} (Standard)");
+                        var catminiCropRect = ImageCropService.CalculateCropRectangle(img, 600, 722, CropType.Center);
+                        using (var catmini = img.Clone(ctx => ctx
+                            .Crop(catminiCropRect)
+                            .Resize(new ResizeOptions
+                            {
+                                Size = new Size(600, 722),
+                                Mode = ResizeMode.Stretch,
+                                Sampler = KnownResamplers.Bicubic
+                            })))
+                        {
+                            SaveImage(catmini, catminiPath, context.JpegQuality);
+                            Logger.LogInfo($"Generated {GetCatminiFilename()} from existing {GetCatprevFilename()} (Standard)");
+                        }
+                    }
+                    
+                    // Generate catmini-wide (1280x720) with auto crop
+                    if (!File.Exists(catminiWidePath))
+                    {
+                        var catminiWideCropRect = ImageCropService.CalculateCropRectangle(img, 1280, 720, CropType.Center);
+                        using (var catminiWide = img.Clone(ctx => ctx
+                            .Crop(catminiWideCropRect)
+                            .Resize(new ResizeOptions
+                            {
+                                Size = new Size(1280, 720),
+                                Mode = ResizeMode.Stretch,
+                                Sampler = KnownResamplers.Bicubic
+                            })))
+                        {
+                            SaveImage(catminiWide, catminiWidePath, context.JpegQuality);
+                            Logger.LogInfo($"Generated {GetCatminiWideFilename()} from existing {GetCatprevFilename()} (Standard)");
+                        }
                     }
                 }
             }

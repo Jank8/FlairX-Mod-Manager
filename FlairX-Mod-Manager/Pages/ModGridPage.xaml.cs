@@ -1687,16 +1687,24 @@ namespace FlairX_Mod_Manager.Pages
                         return ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".webp";
                     }));
                 
-                // Add catprev and catmini if they exist (both formats)
+                // Add catprev and catmini if they exist (both formats, classic and wide)
                 var catprevJpgPath = Path.Combine(categoryFolderPath, "catprev.jpg");
                 var catprevWebpPath = Path.Combine(categoryFolderPath, "catprev.webp");
                 var catminiJpgPath = Path.Combine(categoryFolderPath, "catmini.jpg");
                 var catminiWebpPath = Path.Combine(categoryFolderPath, "catmini.webp");
+                var catprevWideJpgPath = Path.Combine(categoryFolderPath, "catprev-wide.jpg");
+                var catprevWideWebpPath = Path.Combine(categoryFolderPath, "catprev-wide.webp");
+                var catminiWideJpgPath = Path.Combine(categoryFolderPath, "catmini-wide.jpg");
+                var catminiWideWebpPath = Path.Combine(categoryFolderPath, "catmini-wide.webp");
                 
                 if (File.Exists(catprevJpgPath)) filesToDelete.Add(catprevJpgPath);
                 if (File.Exists(catprevWebpPath)) filesToDelete.Add(catprevWebpPath);
                 if (File.Exists(catminiJpgPath)) filesToDelete.Add(catminiJpgPath);
                 if (File.Exists(catminiWebpPath)) filesToDelete.Add(catminiWebpPath);
+                if (File.Exists(catprevWideJpgPath)) filesToDelete.Add(catprevWideJpgPath);
+                if (File.Exists(catprevWideWebpPath)) filesToDelete.Add(catprevWideWebpPath);
+                if (File.Exists(catminiWideJpgPath)) filesToDelete.Add(catminiWideJpgPath);
+                if (File.Exists(catminiWideWebpPath)) filesToDelete.Add(catminiWideWebpPath);
                 
                 foreach (var existingFile in filesToDelete)
                 {
