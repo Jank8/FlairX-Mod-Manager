@@ -404,5 +404,9 @@
   "ContextMenu_RegenerateMinitile": "Regenerate Minitile",
   "ContextMenu_RegenerateThumbnails": "Regenerate Thumbnails",
   "TileFormat_Classic": "Classic",
-  "TileFormat_Wide": "Wide"
+  "TileFormat_Wide": "Wide",
+  "CropPanel_Status_Edited": "Edited",
+  "CropPanel_Status_NoCrop": "No crop",
+  "CropPanel_Status_Pending": "Pending",
+  "CropPanel_Status_WillBeDeleted": "Will be deleted"
 }
