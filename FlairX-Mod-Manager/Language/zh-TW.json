@@ -1,4 +1,4 @@
-﻿{
+{
   "Language_DisplayName": "繁體中文",
   "AboutButton_Label": "關於",
   "AboutDialog_AI": "AI:",
@@ -146,7 +146,9 @@
   "SettingsPage_OptimizePreviews_Description": "優化模組預覽圖像以獲得更好的效能",
   "SettingsPage_XXMIRootDirectory_Description": "XXMI安裝目錄的路徑",
   "SettingsPage_SkipXXMILauncher_Label": "跳過XXMI啟動器啟動",
+  "SettingsPage_AutoReloadMods_Label": "Auto Reload Mods",
   "SettingsPage_SkipXXMILauncher_Description": "請記住，跳過啟動器意味著您不會自動下載更新",
+  "SettingsPage_AutoReloadMods_Description": "Automatically send F10 to reload mods when the overlay closes",
   "SettingsPage_ActiveModsToTop_Description": "將活躍模組移至清單頂部",
   "SettingsPage_DynamicModSearch_Description": "啟用輸入時的即時過濾",
   "SettingsPage_ShowOrangeAnimation_Description": "在管理器標題下顯示裝飾動畫",

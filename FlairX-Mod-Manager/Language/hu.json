@@ -1,4 +1,4 @@
-﻿{
+{
   "Language_DisplayName": "Magyar",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Névjegy",
@@ -131,6 +131,7 @@
   "ViewModeToggle_DefaultMode_Tooltip": "Alapértelmezett módban van",
   "ActiveModsToTop_Tooltip": "Ha engedélyezve van, az aktív modok a lista tetején jelennek meg",
   "SettingsPage_SkipXXMILauncher_Label": "XXMI Indító indításának kihagyása",
+  "SettingsPage_AutoReloadMods_Label": "Auto Reload Mods",
   "SettingsPage_ActiveModsToTop_Label": "Aktív modok felülre helyezése",
   "SettingsPage_ShuffleActiveMods_Label": "Aktív modok keverése",
   "SettingsPage_DeactivateAllMods_Label": "Összes mod kikapcsolása",
@@ -169,6 +170,7 @@
   "SettingsPage_OptimizePreviews_Description": "Mod előnézeti képek optimalizálása jobb teljesítményért",
   "SettingsPage_XXMIRootDirectory_Description": "XXMI telepítési könyvtár útvonala",
   "SettingsPage_SkipXXMILauncher_Description": "Ne feledje, hogy az indító kihagyása azt jelenti, hogy nem tölti le automatikusan a frissítéseket",
+  "SettingsPage_AutoReloadMods_Description": "Automatically send F10 to reload mods when the overlay closes",
   "SettingsPage_ActiveModsToTop_Description": "Aktív modok áthelyezése a lista tetejére",
   "SettingsPage_DynamicModSearch_Description": "Valós idejű szűrés engedélyezése gépelés közben",
   "SettingsPage_ShowOrangeAnimation_Description": "Dekoratív animáció megjelenítése a kezelő címe alatt",

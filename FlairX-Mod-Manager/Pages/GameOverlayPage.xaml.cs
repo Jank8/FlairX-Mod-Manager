@@ -85,10 +85,6 @@ namespace FlairX_Mod_Manager.Pages
             // Filter Active Hotkey
             if (FilterActiveHotkeyLabel != null) FilterActiveHotkeyLabel.Text = SharedUtilities.GetTranslation(lang, "FilterActiveHotkey_Label");
             
-            // Send F10 on Mod Change
-            if (SendF10OnModChangeLabel != null) SendF10OnModChangeLabel.Text = SharedUtilities.GetTranslation(lang, "SendF10OnOverlayClose_Label");
-            if (SendF10OnModChangeDescription != null) SendF10OnModChangeDescription.Text = SharedUtilities.GetTranslation(lang, "SendF10OnOverlayClose_Description");
-            
             // Gamepad Enabled
             if (GamepadEnabledLabel != null) GamepadEnabledLabel.Text = SharedUtilities.GetTranslation(lang, "GamepadEnabled_Label");
             if (GamepadEnabledDescription != null) GamepadEnabledDescription.Text = SharedUtilities.GetTranslation(lang, "GamepadEnabled_Description");
@@ -192,15 +188,6 @@ namespace FlairX_Mod_Manager.Pages
             // Initialize hotkey visual panels
             InitializeHotkeyPanel(OverlayHotkeyKeysPanel, overlayHotkey);
             InitializeHotkeyPanel(FilterActiveHotkeyKeysPanel, filterActiveHotkey);
-            
-            // Load Send F10 on mod change
-            SendF10OnModChangeToggle.IsOn = settings.SendF10OnModChange;
-            
-            // Ensure background_keypress.ini exists if setting is enabled
-            if (settings.SendF10OnModChange)
-            {
-                EnsureBackgroundKeypressIni(true);
-            }
             
             // Load gamepad enabled
             GamepadEnabledToggle.IsOn = settings.GamepadEnabled;
@@ -327,21 +314,6 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private void SendF10OnModChangeToggle_Toggled(object sender, RoutedEventArgs e)
-        {
-            if (_isInitializing) return;
-            
-            // Simply enable/disable the feature without requiring admin
-            // check_foreground_window = 0 in d3dx.ini allows this to work without admin
-            SettingsManager.Current.SendF10OnModChange = SendF10OnModChangeToggle.IsOn;
-            SettingsManager.Save();
-            
-            // Modify d3dx.ini to enable/disable background keypresses
-            EnsureBackgroundKeypressIni(SendF10OnModChangeToggle.IsOn);
-            
-            Logger.LogInfo($"Auto-reload mods: {SendF10OnModChangeToggle.IsOn}");
-        }
-        
         /// <summary>
         /// Modifies d3dx.ini to enable/disable background keypresses.
         /// This tells 3DMigoto to accept keypresses even when game is not in foreground.

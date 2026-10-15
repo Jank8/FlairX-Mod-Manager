@@ -1,4 +1,4 @@
-﻿{
+{
   "Language_DisplayName": "हिन्दी",
   "AboutButton_Label": "के बारे में",
   "AboutDialog_AI": "AI:",
@@ -146,7 +146,9 @@
   "SettingsPage_OptimizePreviews_Description": "बेहतर प्रदर्शन के लिए मॉड पूर्वावलोकन छवियों को अनुकूलित करें",
   "SettingsPage_XXMIRootDirectory_Description": "XXMI इंस्टॉलेशन निर्देशिका का पथ",
   "SettingsPage_SkipXXMILauncher_Label": "XXMI लॉन्चर स्टार्टअप छोड़ें",
+  "SettingsPage_AutoReloadMods_Label": "Auto Reload Mods",
   "SettingsPage_SkipXXMILauncher_Description": "याद रखें कि लॉन्चर को छोड़ने का मतलब है कि आप अपडेट स्वचालित रूप से डाउनलोड नहीं करेंगे",
+  "SettingsPage_AutoReloadMods_Description": "Automatically send F10 to reload mods when the overlay closes",
   "SettingsPage_ActiveModsToTop_Description": "सक्रिय मॉड को सूची के शीर्ष पर ले जाएं",
   "SettingsPage_DynamicModSearch_Description": "टाइप करते समय रीयल-टाइम फ़िल्टरिंग सक्षम करें",
   "SettingsPage_ShowOrangeAnimation_Description": "प्रबंधक शीर्षक के नीचे सजावटी एनिमेशन दिखाएं",

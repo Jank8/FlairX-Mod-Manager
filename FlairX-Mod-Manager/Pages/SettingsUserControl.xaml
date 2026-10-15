@@ -414,6 +414,35 @@
                         </Grid>
                     </Border>
 
+                    <!-- Auto Reload Mods -->
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                            BorderThickness="1" 
+                            CornerRadius="8" 
+                            Padding="16" 
+                            Margin="0,0,0,2">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <FontIcon Grid.Column="0" Glyph="&#xE72C;" FontSize="20" VerticalAlignment="Center"/>
+                            
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock x:Name="AutoReloadModsLabel" Text="" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="AutoReloadModsDescription" Text="" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            
+                            <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                                <TextBlock x:Name="AutoReloadModsToggleLabel" VerticalAlignment="Center" Opacity="0.8"/>
+                                <ToggleSwitch x:Name="AutoReloadModsToggle" Toggled="AutoReloadModsToggle_Toggled" OnContent="" OffContent="" MinWidth="0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
                     <!-- Active Mods to Top -->
                     <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 

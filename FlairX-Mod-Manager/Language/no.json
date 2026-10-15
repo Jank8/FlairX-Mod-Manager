@@ -1,4 +1,4 @@
-﻿{
+{
   "Language_DisplayName": "Norsk",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Om",
@@ -131,6 +131,7 @@
   "ViewModeToggle_DefaultMode_Tooltip": "Du er i standardmodus",
   "ActiveModsToTop_Tooltip": "Når aktivert, vil aktive mods vises øverst i listen",
   "SettingsPage_SkipXXMILauncher_Label": "Hopp over XXMI Launcher oppstart",
+  "SettingsPage_AutoReloadMods_Label": "Auto Reload Mods",
   "SettingsPage_ActiveModsToTop_Label": "Flytt aktive mods til toppen",
   "SettingsPage_ShuffleActiveMods_Label": "Stokk aktive mods",
   "SettingsPage_DeactivateAllMods_Label": "Deaktiver alle mods",
@@ -169,6 +170,7 @@
   "SettingsPage_OptimizePreviews_Description": "Optimaliser mod-forhåndsvisningsbilder for bedre ytelse",
   "SettingsPage_XXMIRootDirectory_Description": "Sti til XXMI installasjonsmappe",
   "SettingsPage_SkipXXMILauncher_Description": "Husk at å hoppe over launcheren betyr at du ikke laster ned oppdateringer automatisk",
+  "SettingsPage_AutoReloadMods_Description": "Automatically send F10 to reload mods when the overlay closes",
   "SettingsPage_ActiveModsToTop_Description": "Flytt aktive mods til toppen av listen",
   "SettingsPage_DynamicModSearch_Description": "Aktiver sanntidsfiltrering mens du skriver",
   "SettingsPage_ShowOrangeAnimation_Description": "Vis dekorativ animasjon under manager-tittelen",

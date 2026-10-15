@@ -1,4 +1,4 @@
-﻿{
+{
   "Language_DisplayName": "日本語",
   "AboutButton_Label": "バージョン情報",
   "AboutDialog_AI": "AI:",
@@ -116,6 +116,7 @@
   "ViewModeToggle_DefaultMode_Tooltip": "デフォルトモードです",
   "ActiveModsToTop_Tooltip": "有効にすると、アクティブなModがリストの上部に表示されます",
   "SettingsPage_SkipXXMILauncher_Label": "XXMI Launcherの起動をスキップ",
+  "SettingsPage_AutoReloadMods_Label": "Auto Reload Mods",
   "SettingsPage_ActiveModsToTop_Label": "アクティブなModを上部に移動",
   "SettingsPage_ShuffleActiveMods_Label": "アクティブなModをシャッフル",
   "SettingsPage_DeactivateAllMods_Label": "すべてのModを無効化",
@@ -147,6 +148,7 @@
   "SettingsPage_OptimizePreviews_Description": "パフォーマンス向上のためModプレビュー画像を最適化",
   "SettingsPage_XXMIRootDirectory_Description": "XXMIインストールディレクトリへのパス",
   "SettingsPage_SkipXXMILauncher_Description": "ランチャーをスキップすると自動的にアップデートをダウンロードしないことを覚えておいてください",
+  "SettingsPage_AutoReloadMods_Description": "Automatically send F10 to reload mods when the overlay closes",
   "SettingsPage_ActiveModsToTop_Description": "アクティブなModをリストの上部に移動",
   "SettingsPage_DynamicModSearch_Description": "入力中のリアルタイムフィルタリングを有効にする",
   "SettingsPage_ShowOrangeAnimation_Description": "マネージャータイトル下の装飾アニメーションを表示",

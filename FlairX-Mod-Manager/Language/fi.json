@@ -1,4 +1,4 @@
-﻿{
+{
   "Language_DisplayName": "Suomi",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Tietoja",
@@ -131,6 +131,7 @@
   "ViewModeToggle_DefaultMode_Tooltip": "Olet oletusnäkymässä",
   "ActiveModsToTop_Tooltip": "Kun käytössä, aktiiviset modit näytetään listan yläosassa",
   "SettingsPage_SkipXXMILauncher_Label": "Ohita XXMI Launcherin käynnistys",
+  "SettingsPage_AutoReloadMods_Label": "Auto Reload Mods",
   "SettingsPage_ActiveModsToTop_Label": "Siirrä aktiiviset modit ylös",
   "SettingsPage_ShuffleActiveMods_Label": "Sekoita aktiiviset modit",
   "SettingsPage_DeactivateAllMods_Label": "Poista kaikki modit käytöstä",
@@ -169,6 +170,7 @@
   "SettingsPage_OptimizePreviews_Description": "Optimoi modin esikatselukuvat parempaa suorituskykyä varten",
   "SettingsPage_XXMIRootDirectory_Description": "Polku XXMI-asennushakemistoon",
   "SettingsPage_SkipXXMILauncher_Description": "Muista, että launcherin ohittaminen tarkoittaa, että et lataa päivityksiä automaattisesti.",
+  "SettingsPage_AutoReloadMods_Description": "Automatically send F10 to reload mods when the overlay closes",
   "SettingsPage_ActiveModsToTop_Description": "Siirrä aktiiviset modit listan yläosaan",
   "SettingsPage_DynamicModSearch_Description": "Ota käyttöön reaaliaikainen suodatus kirjoittaessasi",
   "SettingsPage_ShowOrangeAnimation_Description": "Näytä koristeellinen animaatio hallinnan otsikon alla",

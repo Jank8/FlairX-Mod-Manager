@@ -1,4 +1,4 @@
-﻿{
+{
   "Language_DisplayName": "Français",
   "AboutButton_Label": "À propos",
   "AboutDialog_AI": "IA :",
@@ -115,6 +115,7 @@
   "ViewModeToggle_DefaultMode_Tooltip": "Vous êtes en mode par défaut",
   "ActiveModsToTop_Tooltip": "Lorsqu'activé, les mods actifs seront affichés en haut de la liste",
   "SettingsPage_SkipXXMILauncher_Label": "Ignorer le démarrage du Lanceur XXMI",
+  "SettingsPage_AutoReloadMods_Label": "Auto Reload Mods",
   "SettingsPage_ActiveModsToTop_Label": "Déplacer les mods actifs en haut",
   "SettingsPage_ShuffleActiveMods_Label": "Mélanger les mods actifs",
   "SettingsPage_DeactivateAllMods_Label": "Désactiver tous les mods",
@@ -147,6 +148,7 @@
   "SettingsPage_OptimizePreviews_Description": "Optimisez les images d'aperçu des mods pour de meilleures performances",
   "SettingsPage_XXMIRootDirectory_Description": "Chemin vers le répertoire d'installation XXMI",
   "SettingsPage_SkipXXMILauncher_Description": "Rappelez-vous qu'ignorer le lanceur signifie que vous ne téléchargerez pas les mises à jour automatiquement",
+  "SettingsPage_AutoReloadMods_Description": "Automatically send F10 to reload mods when the overlay closes",
   "SettingsPage_ActiveModsToTop_Description": "Déplacer les mods actifs en haut de la liste",
   "SettingsPage_DynamicModSearch_Description": "Activer le filtrage en temps réel pendant que vous tapez",
   "SettingsPage_ShowOrangeAnimation_Description": "Afficher l'animation décorative sous le titre du gestionnaire",

@@ -299,6 +299,8 @@ namespace FlairX_Mod_Manager.Pages
                 DefaultResolutionOnStartToggleLabel.Text = DefaultResolutionOnStartToggle.IsOn ? onText : offText;
             if (SkipXXMILauncherToggleLabel != null && SkipXXMILauncherToggle != null)
                 SkipXXMILauncherToggleLabel.Text = SkipXXMILauncherToggle.IsOn ? onText : offText;
+            if (AutoReloadModsToggleLabel != null && AutoReloadModsToggle != null)
+                AutoReloadModsToggleLabel.Text = AutoReloadModsToggle.IsOn ? onText : offText;
             if (ActiveModsToTopToggleLabel != null && ActiveModsToTopToggle != null)
                 ActiveModsToTopToggleLabel.Text = ActiveModsToTopToggle.IsOn ? onText : offText;
             if (AutoDeactivateConflictingModsToggleLabel != null && AutoDeactivateConflictingModsToggle != null)
@@ -465,6 +467,7 @@ namespace FlairX_Mod_Manager.Pages
             if (DefaultStartResolutionLabel != null) DefaultStartResolutionLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Label");
             if (XXMIRootDirectoryLabel != null) XXMIRootDirectoryLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory");
                         if (SkipXXMILauncherLabel != null) SkipXXMILauncherLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_SkipXXMILauncher_Label");
+            if (AutoReloadModsLabel != null) AutoReloadModsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoReloadMods_Label") ?? "Auto Reload Mods";
             if (ActiveModsToTopLabel != null) ActiveModsToTopLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Label");
             if (AutoDeactivateConflictingModsLabel != null) AutoDeactivateConflictingModsLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoDeactivateConflictingMods_Label");
             if (DynamicModSearchLabel != null) DynamicModSearchLabel.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Label");
@@ -500,6 +503,7 @@ namespace FlairX_Mod_Manager.Pages
             if (DefaultStartResolutionDescription != null) DefaultStartResolutionDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DefaultStartResolution_Description") ?? string.Empty;
             if (XXMIRootDirectoryDescription != null) XXMIRootDirectoryDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_XXMIRootDirectory_Description") ?? string.Empty;
                         if (SkipXXMILauncherDescription != null) SkipXXMILauncherDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_SkipXXMILauncher_Description") ?? string.Empty;
+            if (AutoReloadModsDescription != null) AutoReloadModsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoReloadMods_Description") ?? "Automatically send F10 to reload mods when the overlay closes";
             if (ActiveModsToTopDescription != null) ActiveModsToTopDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_ActiveModsToTop_Description") ?? string.Empty;
             if (AutoDeactivateConflictingModsDescription != null) AutoDeactivateConflictingModsDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_AutoDeactivateConflictingMods_Description") ?? string.Empty;
             if (DynamicModSearchDescription != null) DynamicModSearchDescription.Text = SharedUtilities.GetTranslation(lang, "SettingsPage_DynamicModSearch_Description") ?? string.Empty;
@@ -734,6 +738,11 @@ namespace FlairX_Mod_Manager.Pages
 
             ShowOrangeAnimationToggle.IsOn = SettingsManager.Current.ShowOrangeAnimation;
             SkipXXMILauncherToggle.IsOn = SettingsManager.Current.SkipXXMILauncherEnabled;
+            AutoReloadModsToggle.IsOn = SettingsManager.Current.SendF10OnModChange;
+            if (SettingsManager.Current.SendF10OnModChange)
+            {
+                GameOverlayPage.EnsureBackgroundKeypressIni(true);
+            }
             ActiveModsToTopToggle.IsOn = SettingsManager.Current.ActiveModsToTopEnabled;
             AutoDeactivateConflictingModsToggle.IsOn = SettingsManager.Current.AutoDeactivateConflictingMods;
             
@@ -2369,6 +2378,23 @@ namespace FlairX_Mod_Manager.Pages
             SettingsManager.Save();
             Logger.LogInfo($"SkipXXMILauncher setting saved: {SettingsManager.Current.SkipXXMILauncherEnabled}");
             UpdateToggleLabels();
+        }
+
+        private void AutoReloadModsToggle_Toggled(object sender, RoutedEventArgs e)
+        {
+            SettingsManager.Current.SendF10OnModChange = AutoReloadModsToggle.IsOn;
+            SettingsManager.Save();
+            
+            GameOverlayPage.EnsureBackgroundKeypressIni(AutoReloadModsToggle.IsOn);
+            
+            // Update toggle label
+            var lang = SharedUtilities.LoadLanguageDictionary();
+            var onText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_On");
+            var offText = SharedUtilities.GetTranslation(lang, "ToggleSwitch_Off");
+            if (AutoReloadModsToggleLabel != null)
+                AutoReloadModsToggleLabel.Text = AutoReloadModsToggle.IsOn ? onText : offText;
+            
+            Logger.LogInfo($"Auto-reload mods: {AutoReloadModsToggle.IsOn}");
         }
 
         // Clean up event subscription when control is unloaded

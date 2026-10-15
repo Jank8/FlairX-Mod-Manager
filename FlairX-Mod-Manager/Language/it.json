@@ -1,4 +1,4 @@
-﻿{
+{
   "Language_DisplayName": "Italiano",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Informazioni",
@@ -131,6 +131,7 @@
   "ViewModeToggle_DefaultMode_Tooltip": "Sei in modalità predefinita",
   "ActiveModsToTop_Tooltip": "Quando abilitato, le mod attive verranno visualizzate in cima alla lista",
   "SettingsPage_SkipXXMILauncher_Label": "Salta avvio Launcher XXMI",
+  "SettingsPage_AutoReloadMods_Label": "Auto Reload Mods",
   "SettingsPage_ActiveModsToTop_Label": "Sposta mod attive in alto",
   "SettingsPage_ShuffleActiveMods_Label": "Mescola mod attive",
   "SettingsPage_DeactivateAllMods_Label": "Disattiva tutte le mod",
@@ -169,6 +170,7 @@
   "SettingsPage_OptimizePreviews_Description": "Ottimizza le immagini di anteprima delle mod per prestazioni migliori",
   "SettingsPage_XXMIRootDirectory_Description": "Percorso della cartella di installazione XXMI",
   "SettingsPage_SkipXXMILauncher_Description": "Ricorda che saltare il launcher significa che non scaricherai gli aggiornamenti automaticamente",
+  "SettingsPage_AutoReloadMods_Description": "Automatically send F10 to reload mods when the overlay closes",
   "SettingsPage_ActiveModsToTop_Description": "Sposta le mod attive in cima alla lista",
   "SettingsPage_DynamicModSearch_Description": "Abilita filtro in tempo reale mentre digiti",
   "SettingsPage_ShowOrangeAnimation_Description": "Mostra animazione decorativa sotto il titolo del manager",

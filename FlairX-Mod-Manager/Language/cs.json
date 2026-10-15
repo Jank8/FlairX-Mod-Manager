@@ -1,4 +1,4 @@
-﻿{
+{
   "Language_DisplayName": "Čeština",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "O aplikaci",
@@ -131,6 +131,7 @@
   "ViewModeToggle_DefaultMode_Tooltip": "Jste ve výchozím režimu",
   "ActiveModsToTop_Tooltip": "Když je povoleno, aktivní mody budou zobrazeny v horní části seznamu",
   "SettingsPage_SkipXXMILauncher_Label": "Přeskočit spuštění Spouštěče XXMI",
+  "SettingsPage_AutoReloadMods_Label": "Auto Reload Mods",
   "SettingsPage_ActiveModsToTop_Label": "Přesunout aktivní mody nahoru",
   "SettingsPage_ShuffleActiveMods_Label": "Zamíchat aktivní mody",
   "SettingsPage_DeactivateAllMods_Label": "Deaktivovat všechny mody",
@@ -169,6 +170,7 @@
   "SettingsPage_OptimizePreviews_Description": "Optimalizovat náhledové obrázky modů pro lepší výkon",
   "SettingsPage_XXMIRootDirectory_Description": "Cesta k instalačnímu adresáři XXMI",
   "SettingsPage_SkipXXMILauncher_Description": "Pamatujte, že přeskočení spouštěče znamená, že nebudete stahovat aktualizace automaticky.",
+  "SettingsPage_AutoReloadMods_Description": "Automatically send F10 to reload mods when the overlay closes",
   "SettingsPage_ActiveModsToTop_Description": "Přesunout aktivní mody na začátek seznamu",
   "SettingsPage_DynamicModSearch_Description": "Povolit filtrování v reálném čase při psaní",
   "SettingsPage_ShowOrangeAnimation_Description": "Zobrazit dekorativní animaci pod názvem správce",

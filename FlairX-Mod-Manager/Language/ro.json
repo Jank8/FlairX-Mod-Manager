@@ -1,4 +1,4 @@
-﻿{
+{
   "Language_DisplayName": "Română",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Despre",
@@ -131,6 +131,7 @@
   "ViewModeToggle_DefaultMode_Tooltip": "Ești în modul implicit",
   "ActiveModsToTop_Tooltip": "Când este activat, modurile active vor fi afișate în partea de sus a listei",
   "SettingsPage_SkipXXMILauncher_Label": "Omite pornirea XXMI Launcher",
+  "SettingsPage_AutoReloadMods_Label": "Auto Reload Mods",
   "SettingsPage_ActiveModsToTop_Label": "Mută modurile active în partea de sus",
   "SettingsPage_ShuffleActiveMods_Label": "Amestecă modurile active",
   "SettingsPage_DeactivateAllMods_Label": "Dezactivează toate modurile",
@@ -169,6 +170,7 @@
   "SettingsPage_OptimizePreviews_Description": "Optimizează imaginile de previzualizare ale modurilor pentru performanță mai bună",
   "SettingsPage_XXMIRootDirectory_Description": "Cale către directorul de instalare XXMI",
   "SettingsPage_SkipXXMILauncher_Description": "Reține că omiterea launcher-ului înseamnă că nu vei descărca actualizări automat",
+  "SettingsPage_AutoReloadMods_Description": "Automatically send F10 to reload mods when the overlay closes",
   "SettingsPage_ActiveModsToTop_Description": "Mută modurile active în partea de sus a listei",
   "SettingsPage_DynamicModSearch_Description": "Activează filtrarea în timp real pe măsură ce tastezi",
   "SettingsPage_ShowOrangeAnimation_Description": "Arată animație decorativă sub titlul managerului",
