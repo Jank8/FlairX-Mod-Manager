@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Dansk",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Om",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Færdig",
   "CropPanel_FilesToProcess": "Filer at Behandle",
   "MinitileSelection_Title": "Vælg Miniflise Kilde",
+  "MinitileSelection_Title_Classic": "Vælg Miniflise Kilde",
+  "MinitileSelection_Title_Wide": "Vælg Bred Miniflise Kilde",
   "MinitileSelection_Subtitle": "Vælg hvilket billede der skal bruges til miniaturen",
+  "MinitileSelection_Subtitle_Wide": "Vælg hvilket billede der skal bruges til den brede miniatur (1280×720)",
   "MinitileSelection_NoSelection": "Intet billede valgt",
   "MinitileSelection_Selected": "Valgt: {0}",
   "ImagePreview_Close_Tooltip": "Luk forhåndsvisning",

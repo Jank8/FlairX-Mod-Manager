@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Nederlands",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Over",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Klaar",
   "CropPanel_FilesToProcess": "Te Verwerken Bestanden",
   "MinitileSelection_Title": "Selecteer Minitile Bron",
+  "MinitileSelection_Title_Classic": "Selecteer Minitile Bron",
+  "MinitileSelection_Title_Wide": "Selecteer Brede Minitile Bron",
   "MinitileSelection_Subtitle": "Kies welke afbeelding te gebruiken voor de miniatuur",
+  "MinitileSelection_Subtitle_Wide": "Kies welke afbeelding te gebruiken voor de brede miniatuur (1280×720)",
   "MinitileSelection_NoSelection": "Geen afbeelding geselecteerd",
   "MinitileSelection_Selected": "Geselecteerd: {0}",
   "ImagePreview_Close_Tooltip": "Voorbeeld sluiten",

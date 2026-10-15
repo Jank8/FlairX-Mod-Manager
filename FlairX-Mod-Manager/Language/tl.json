@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Filipino",
   "AboutButton_Label": "Tungkol",
   "AboutDialog_AI": "AI:",
@@ -198,7 +198,10 @@
   "CropPanel_Next": "Susunod",
   "CropPanel_FilesToProcess": "Mga File na Ipoproseso",
   "MinitileSelection_Title": "Pumili ng Minitile Source",
+  "MinitileSelection_Title_Classic": "Pumili ng Minitile Source",
+  "MinitileSelection_Title_Wide": "Pumili ng Wide Minitile Source",
   "MinitileSelection_Subtitle": "Piliin kung aling larawan ang gagamitin para sa thumbnail",
+  "MinitileSelection_Subtitle_Wide": "Piliin kung aling larawan ang gagamitin para sa malawak na thumbnail (1280×720)",
   "MinitileSelection_NoSelection": "Walang napiling larawan",
   "MinitileSelection_Selected": "Napili: {0}",
   "CropPanel_Reset": "I-reset ang Crop",

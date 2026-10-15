@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Italiano",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Informazioni",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Fatto",
   "CropPanel_FilesToProcess": "File da Elaborare",
   "MinitileSelection_Title": "Seleziona Sorgente Miniatura",
+  "MinitileSelection_Title_Classic": "Seleziona Sorgente Miniatura",
+  "MinitileSelection_Title_Wide": "Seleziona Sorgente Miniatura Larga",
   "MinitileSelection_Subtitle": "Scegli quale immagine usare per la miniatura",
+  "MinitileSelection_Subtitle_Wide": "Scegli quale immagine usare per la miniatura larga (1280×720)",
   "MinitileSelection_NoSelection": "Nessuna immagine selezionata",
   "MinitileSelection_Selected": "Selezionata: {0}",
   "ImagePreview_Close_Tooltip": "Chiudi anteprima",

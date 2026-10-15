@@ -40,6 +40,9 @@
     
     <!-- Fix version conflicts -->
     <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+    
+    <!-- Suppress ImageSharp 3.x vulnerability warnings (v4+ requires commercial license; staying on 3.x intentionally) -->
+    <NuGetAuditSuppress>https://github.com/advisories/GHSA-gwg2-r3hj-4w44;https://github.com/advisories/GHSA-j3p4-wp97-rph4;https://github.com/advisories/GHSA-j9gm-c75j-xc9q;https://github.com/advisories/GHSA-jjfr-hcj7-qf5w;https://github.com/advisories/GHSA-wmxv-xphr-5c9g</NuGetAuditSuppress>
   </PropertyGroup>
 
   <!-- ========================================
@@ -47,31 +50,31 @@
        
        IMPORTANT: Check for package updates regularly!
        Command: dotnet list package (outdated flag)
-       Last updated: 2026-07-06 (v4.0.9 with ImageSharp 3.1.12)
+       Last updated: 2026-10-15 (v4.1.5)
        ======================================== -->
   <ItemGroup>
     <!-- WinUI 3 Community Toolkit -->
     <PackageReference Include="CommunityToolkit.Common" Version="8.4.2" />
     <PackageReference Include="CommunityToolkit.WinUI" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.251219" />
-    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" Version="0.1.251030-build.2370" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.Controls.MarkdownTextBlock" Version="0.1.251217-build.2433" />
     <PackageReference Include="CommunityToolkit.WinUI.Behaviors" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.251219" />
     
     <!-- Microsoft Packages -->
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.4.0" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
     <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
     <PackageReference Include="ReverseMarkdown" Version="6.2.1" />
-    <PackageReference Include="SharpSevenZip" Version="2.0.121" />
+    <PackageReference Include="SharpSevenZip" Version="2.0.128" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     
     <!-- Graphics & Scripting -->
-    <PackageReference Include="System.Drawing.Common" Version="10.0.11" />
+    <PackageReference Include="System.Drawing.Common" Version="10.0.13" />
     <PackageReference Include="NLua" Version="1.7.9" />
     
     <!-- WebView2 for Cloudflare bypass -->
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4191.47" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
 
   </ItemGroup>
 
@@ -110,12 +113,12 @@
     <PropertyGroup>
       <PackageVersionsJson>
 {
-  "Microsoft.WindowsAppSDK": "2.4.0",
-  "SharpSevenZip": "2.0.121",
+  "Microsoft.WindowsAppSDK": "2.5.1",
+  "SharpSevenZip": "2.0.128",
   "NLua": "1.7.9",
   "CommunityToolkit.WinUI.Media": "8.2.251219",
   "ppy.SDL3-CS": "2026.629.0",
-  "System.Drawing.Common": "10.0.11",
+  "System.Drawing.Common": "10.0.13",
   "SixLabors.ImageSharp": "3.1.12"
 }
       </PackageVersionsJson>

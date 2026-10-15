@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Русский",
   "AboutButton_Label": "О программе",
   "AboutDialog_AI": "ИИ:",
@@ -198,7 +198,10 @@
   "CropPanel_Next": "Далее",
   "CropPanel_FilesToProcess": "Файлы для обработки",
   "MinitileSelection_Title": "Выбрать источник миниатюры",
+  "MinitileSelection_Title_Classic": "Выбрать источник миниатюры",
+  "MinitileSelection_Title_Wide": "Выбрать источник широкой миниатюры",
   "MinitileSelection_Subtitle": "Выберите изображение для миниатюры",
+  "MinitileSelection_Subtitle_Wide": "Выберите изображение для широкой миниатюры (1280×720)",
   "MinitileSelection_NoSelection": "Изображение не выбрано",
   "MinitileSelection_Selected": "Выбрано: {0}",
   "CropPanel_Reset": "Сбросить Обрезку",

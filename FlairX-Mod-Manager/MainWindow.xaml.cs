@@ -1495,7 +1495,7 @@ namespace FlairX_Mod_Manager
         {
             var window = this;
             
-            Services.ImageOptimizationService.MinitileSourceSelectionRequested += async (availableFiles, modDirectory) =>
+            Services.ImageOptimizationService.MinitileSourceSelectionRequested += async (availableFiles, modDirectory, titleOverride, subtitleOverride) =>
             {
                 Logger.LogInfo($"[MINITILE_HANDLER] Event triggered with {availableFiles.Count} files for: {modDirectory}");
                 var tcs = new TaskCompletionSource<Services.MinitileSourceResult?>();
@@ -1511,14 +1511,14 @@ namespace FlairX_Mod_Manager
                         
                         Logger.LogInfo($"[MINITILE_HANDLER] Loading language dictionary");
                         var lang = SharedUtilities.LoadLanguageDictionary();
-                        var title = SharedUtilities.GetTranslation(lang, "MinitileSelection_Title") ?? "Select Minitile Source";
+                        var title = titleOverride ?? SharedUtilities.GetTranslation(lang, "MinitileSelection_Title") ?? "Select Minitile Source";
                         
                         Logger.LogInfo($"[MINITILE_HANDLER] Showing sliding panel with title: {title}");
                         ShowSlidingPanel(selectionPanel, title);
                         Logger.LogInfo($"[MINITILE_HANDLER] Sliding panel shown");
                         
                         Logger.LogInfo($"[MINITILE_HANDLER] Starting ShowForSelectionAsync");
-                        var selectionTask = selectionPanel.ShowForSelectionAsync(availableFiles, modDirectory);
+                        var selectionTask = selectionPanel.ShowForSelectionAsync(availableFiles, modDirectory, subtitleOverride);
                         
                         // Wait for the result - panel will close itself when button is clicked
                         var selectionResult = await selectionTask;

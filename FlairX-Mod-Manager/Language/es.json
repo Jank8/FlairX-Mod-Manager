@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Español",
   "AboutButton_Label": "Acerca de",
   "AboutDialog_AI": "IA:",
@@ -198,7 +198,10 @@
   "CropPanel_Next": "Siguiente",
   "CropPanel_FilesToProcess": "Archivos a Procesar",
   "MinitileSelection_Title": "Seleccionar Fuente de Miniatura",
+  "MinitileSelection_Title_Classic": "Seleccionar Fuente de Miniatura",
+  "MinitileSelection_Title_Wide": "Seleccionar Fuente de Miniatura Ancha",
   "MinitileSelection_Subtitle": "Elige qué imagen usar para la miniatura",
+  "MinitileSelection_Subtitle_Wide": "Elige qué imagen usar para la miniatura ancha (1280×720)",
   "MinitileSelection_NoSelection": "Ninguna imagen seleccionada",
   "MinitileSelection_Selected": "Seleccionado: {0}",
   "CropPanel_Reset": "Restablecer Recorte",

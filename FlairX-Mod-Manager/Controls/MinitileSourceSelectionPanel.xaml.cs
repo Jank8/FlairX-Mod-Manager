@@ -45,7 +45,7 @@ namespace FlairX_Mod_Manager.Controls
             }
         }
 
-        public Task<MinitileSourceResult> ShowForSelectionAsync(List<string> availableFiles, string modDirectory)
+        public Task<MinitileSourceResult> ShowForSelectionAsync(List<string> availableFiles, string modDirectory, string? subtitleOverride = null)
         {
             _availableFiles = availableFiles;
             _completionSource = new TaskCompletionSource<MinitileSourceResult>();
@@ -53,7 +53,9 @@ namespace FlairX_Mod_Manager.Controls
             // Load translations
             var lang = SharedUtilities.LoadLanguageDictionary();
             TitleText.Text = SharedUtilities.GetTranslation(lang, "MinitileSelection_Title") ?? "Select Minitile Source";
-            SubtitleText.Text = SharedUtilities.GetTranslation(lang, "MinitileSelection_Subtitle") ?? "Choose which image to use for the thumbnail";
+            SubtitleText.Text = subtitleOverride 
+                ?? SharedUtilities.GetTranslation(lang, "MinitileSelection_Subtitle") 
+                ?? "Choose which image to use for the thumbnail";
             StopButtonText.Text = SharedUtilities.GetTranslation(lang, "Stop") ?? "Stop";
             SkipButtonText.Text = SharedUtilities.GetTranslation(lang, "Skip") ?? "Skip";
             ConfirmButtonText.Text = SharedUtilities.GetTranslation(lang, "Confirm") ?? "Confirm";

@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Norsk",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Om",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Ferdig",
   "CropPanel_FilesToProcess": "Filer å Behandle",
   "MinitileSelection_Title": "Velg Minitile-kilde",
+  "MinitileSelection_Title_Classic": "Velg Minitile-kilde",
+  "MinitileSelection_Title_Wide": "Velg Bred Minitile-kilde",
   "MinitileSelection_Subtitle": "Velg hvilket bilde som skal brukes til miniatyrbildet",
+  "MinitileSelection_Subtitle_Wide": "Velg hvilket bilde som skal brukes til det brede miniatyrbildet (1280×720)",
   "MinitileSelection_NoSelection": "Ingen bilde valgt",
   "MinitileSelection_Selected": "Valgt: {0}",
   "ImagePreview_Close_Tooltip": "Lukk forhåndsvisning",

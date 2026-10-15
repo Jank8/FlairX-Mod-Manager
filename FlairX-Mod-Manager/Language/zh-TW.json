@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "繁體中文",
   "AboutButton_Label": "關於",
   "AboutDialog_AI": "AI:",
@@ -198,7 +198,10 @@
   "CropPanel_Next": "下一個",
   "CropPanel_FilesToProcess": "待處理檔案",
   "MinitileSelection_Title": "選擇縮圖來源",
+  "MinitileSelection_Title_Classic": "選擇縮圖來源",
+  "MinitileSelection_Title_Wide": "選擇寬縮圖來源",
   "MinitileSelection_Subtitle": "選擇用於縮圖的圖片",
+  "MinitileSelection_Subtitle_Wide": "選擇用於寬縮圖 (1280×720) 的圖像",
   "MinitileSelection_NoSelection": "未選擇圖片",
   "MinitileSelection_Selected": "已選擇: {0}",
   "CropPanel_Reset": "重置裁剪",

@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Suomi",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Tietoja",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Valmis",
   "CropPanel_FilesToProcess": "Käsiteltävät tiedostot",
   "MinitileSelection_Title": "Valitse minilaatan lähde",
+  "MinitileSelection_Title_Classic": "Valitse minilaatan lähde",
+  "MinitileSelection_Title_Wide": "Valitse leveän minilaatan lähde",
   "MinitileSelection_Subtitle": "Valitse mikä kuva käytetään pikkukuvana",
+  "MinitileSelection_Subtitle_Wide": "Valitse mikä kuva käytetään leveänä pikkukuvana (1280×720)",
   "MinitileSelection_NoSelection": "Ei kuvaa valittuna",
   "MinitileSelection_Selected": "Valittu: {0}",
   "ImagePreview_Close_Tooltip": "Sulje esikatselu",

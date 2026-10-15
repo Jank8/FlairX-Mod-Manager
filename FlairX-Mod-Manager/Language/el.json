@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Ελληνικά",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Σχετικά",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Ολοκληρώθηκε",
   "CropPanel_FilesToProcess": "Αρχεία προς Επεξεργασία",
   "MinitileSelection_Title": "Επιλογή Πηγής Μικρογραφίας",
+  "MinitileSelection_Title_Classic": "Επιλογή Πηγής Μικρογραφίας",
+  "MinitileSelection_Title_Wide": "Επιλογή Πηγής Πλατιάς Μικρογραφίας",
   "MinitileSelection_Subtitle": "Επιλέξτε ποια εικόνα θα χρησιμοποιηθεί για τη μικρογραφία",
+  "MinitileSelection_Subtitle_Wide": "Επιλέξτε ποια εικόνα θα χρησιμοποιηθεί για την πλατιά μικρογραφία (1280×720)",
   "MinitileSelection_NoSelection": "Δεν επιλέχθηκε εικόνα",
   "MinitileSelection_Selected": "Επιλέχθηκε: {0}",
   "ImagePreview_Close_Tooltip": "Κλείσιμο προεπισκόπησης",

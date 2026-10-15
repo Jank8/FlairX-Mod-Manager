@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Čeština",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "O aplikaci",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Hotovo",
   "CropPanel_FilesToProcess": "Soubory ke Zpracování",
   "MinitileSelection_Title": "Vybrat Zdroj Miniatury",
+  "MinitileSelection_Title_Classic": "Vybrat Zdroj Miniatury",
+  "MinitileSelection_Title_Wide": "Vybrat Zdroj Široké Miniatury",
   "MinitileSelection_Subtitle": "Vyberte, který obrázek použít pro miniaturu",
+  "MinitileSelection_Subtitle_Wide": "Vyberte, který obrázek použít pro širokou miniaturu (1280×720)",
   "MinitileSelection_NoSelection": "Žádný obrázek vybrán",
   "MinitileSelection_Selected": "Vybráno: {0}",
   "ImagePreview_Close_Tooltip": "Zavřít náhled",

@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Tiếng việt",
   "AboutButton_Label": "Giới thiệu",
   "AboutDialog_AI": "AI:",
@@ -198,7 +198,10 @@
   "CropPanel_Next": "Tiếp theo",
   "CropPanel_FilesToProcess": "Tệp cần xử lý",
   "MinitileSelection_Title": "Chọn Nguồn Hình Thu Nhỏ",
+  "MinitileSelection_Title_Classic": "Chọn Nguồn Hình Thu Nhỏ",
+  "MinitileSelection_Title_Wide": "Chọn Nguồn Hình Thu Nhỏ Rộng",
   "MinitileSelection_Subtitle": "Chọn hình ảnh để sử dụng cho hình thu nhỏ",
+  "MinitileSelection_Subtitle_Wide": "Chọn hình ảnh để sử dụng cho hình thu nhỏ rộng (1280×720)",
   "MinitileSelection_NoSelection": "Chưa chọn hình ảnh",
   "MinitileSelection_Selected": "Đã chọn: {0}",
   "CropPanel_Reset": "Đặt Lại Cắt",

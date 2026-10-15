@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Română",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Despre",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Gata",
   "CropPanel_FilesToProcess": "Fișiere de Procesat",
   "MinitileSelection_Title": "Selectează Sursa Minitile",
+  "MinitileSelection_Title_Classic": "Selectează Sursa Minitile",
+  "MinitileSelection_Title_Wide": "Selectează Sursa Minitile Lat",
   "MinitileSelection_Subtitle": "Alege ce imagine să folosești pentru miniatură",
+  "MinitileSelection_Subtitle_Wide": "Alege ce imagine să folosești pentru miniatura lată (1280×720)",
   "MinitileSelection_NoSelection": "Nicio imagine selectată",
   "MinitileSelection_Selected": "Selectat: {0}",
   "ImagePreview_Close_Tooltip": "Închide previzualizarea",

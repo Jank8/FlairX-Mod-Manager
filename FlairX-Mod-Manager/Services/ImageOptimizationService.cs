@@ -54,7 +54,7 @@ namespace FlairX_Mod_Manager.Services
     /// <summary>
     /// Delegate for minitile source selection callback
     /// </summary>
-    public delegate Task<MinitileSourceResult?> MinitileSourceSelectionHandler(List<string> availableFiles, string modDirectory);
+    public delegate Task<MinitileSourceResult?> MinitileSourceSelectionHandler(List<string> availableFiles, string modDirectory, string? titleOverride = null, string? subtitleOverride = null);
 
     /// <summary>
     /// Result from minitile source selection
@@ -2484,6 +2484,19 @@ namespace FlairX_Mod_Manager.Services
                 
                 Logger.LogInfo($"[PREVIEW_LITE] Processing mode determined: {(useBatchMode ? "BATCH" : context.InspectAndEditEnabled && context.AllowUIInteraction ? "SINGLE" : "STANDARD")}");
                 
+                // Generate minitile BEFORE processing preview files:
+                // Step 1: Select minitile source (already done above)
+                // Step 2: Crop minitile (classic 600x722)
+                // Step 3: Select minitile-wide source (inside GenerateMinitileAsync)
+                // Step 4: Crop minitile-wide (1280x720)
+                // Step 5: Process preview files (below)
+                if (!skipMinitileOnly && !string.IsNullOrEmpty(selectedMinitileSource) && context.CreateMinitile)
+                {
+                    Logger.LogInfo($"[PREVIEW_LITE] Generating minitile BEFORE preview file processing");
+                    await GenerateMinitileAsync(modDir, selectedMinitileSource, context, filesToChooseFrom);
+                    Logger.LogInfo($"[PREVIEW_LITE] Minitile generation completed");
+                }
+                
                 if (useBatchMode)
                 {
                     Logger.LogInfo($"[PREVIEW_LITE] Starting BATCH MODE processing");
@@ -2634,41 +2647,6 @@ namespace FlairX_Mod_Manager.Services
                                     progressDialog.Hide();
                                 });
                             }
-                        }
-                    }
-                }
-                
-                // Generate minitile.jpg (600x722 thumbnail) from the correct source file
-                // Find the actual position of selected minitile source in the processed files
-                if (!skipMinitileOnly && !string.IsNullOrEmpty(selectedMinitileSource) && context.CreateMinitile)
-                {
-                    // First try to use the original file if it still exists
-                    if (File.Exists(selectedMinitileSource))
-                    {
-                        await GenerateMinitileAsync(modDir, selectedMinitileSource, context, filesToChooseFrom);
-                    }
-                    else
-                    {
-                        // Find the index of selected source in the newFilesToProcess list
-                        int selectedIndex = newFilesToProcess.FindIndex(f => f.Equals(selectedMinitileSource, StringComparison.OrdinalIgnoreCase));
-                        if (selectedIndex >= 0)
-                        {
-                            // Calculate the actual target index for this file
-                            int actualTargetIndex = startIndex + selectedIndex;
-                            string minitileSourceFileName = GetPreviewFilename(actualTargetIndex);
-                            string minitileSourceProcessed = Path.Combine(modDir, minitileSourceFileName);
-                            if (File.Exists(minitileSourceProcessed))
-                            {
-                                await GenerateMinitileAsync(modDir, minitileSourceProcessed, context, filesToChooseFrom);
-                            }
-                            else
-                            {
-                                Logger.LogWarning($"Processed minitile source not found: {minitileSourceProcessed}");
-                            }
-                        }
-                        else
-                        {
-                            Logger.LogWarning($"Selected minitile source not found in processed files list: {selectedMinitileSource}");
                         }
                     }
                 }
@@ -2825,7 +2803,7 @@ namespace FlairX_Mod_Manager.Services
         /// <summary>
         /// Select source file for minitile generation with optional UI selection
         /// </summary>
-        private static async Task<string?> SelectMinitileSourceAsync(List<string> availableFiles, string modDir, OptimizationContext context)
+        private static async Task<string?> SelectMinitileSourceAsync(List<string> availableFiles, string modDir, OptimizationContext context, string? titleOverride = null, string? subtitleOverride = null)
         {
             // If only one file, use it directly
             if (availableFiles.Count <= 1)
@@ -2866,7 +2844,7 @@ namespace FlairX_Mod_Manager.Services
                     }
                     
                     Logger.LogInfo($"Requesting minitile source selection for: {modDir}");
-                    var result = await MinitileSourceSelectionRequested(availableFiles, modDir);
+                    var result = await MinitileSourceSelectionRequested(availableFiles, modDir, titleOverride, subtitleOverride);
                     
                     // Check if cancellation was requested while waiting for UI
                     if (_cancellationRequested)
@@ -2968,7 +2946,10 @@ namespace FlairX_Mod_Manager.Services
                         if (srcRect.Value.X == -2 && srcRect.Value.Y == -2)
                         {
                             Logger.LogInfo($"User wants to choose a different file for classic minitile in: {modDir}");
-                            var newSource = await SelectMinitileSourceAsync(filesToShow, modDir, context);
+                            var lang = SharedUtilities.LoadLanguageDictionary();
+                            var titleClassic = SharedUtilities.GetTranslation(lang, "MinitileSelection_Title_Classic") ?? "Select Minitile Source";
+                            var subtitleClassic = SharedUtilities.GetTranslation(lang, "MinitileSelection_Subtitle") ?? "Choose which image to use for the thumbnail";
+                            var newSource = await SelectMinitileSourceAsync(filesToShow, modDir, context, titleClassic, subtitleClassic);
                             if (string.IsNullOrEmpty(newSource))
                                 return; // Skipped or stopped
                             currentClassicPath = newSource;
@@ -2993,12 +2974,28 @@ namespace FlairX_Mod_Manager.Services
                     }
                 }
                 
-                // ========== WIDE FORMAT (1280x720) ==========
-                var minitileWidePath = Path.Combine(modDir, GetMinitileWideFilename());
-                
-                // In auto mode (no inspection), prefer the widest source file for wide format
+                // ========== SELECT SOURCE FOR WIDE FORMAT ==========
+                // Ask user to pick a dedicated source image for minitile-wide (unless auto mode or only one file)
                 bool isAutoMode = !context.InspectAndEditEnabled || SettingsManager.Current.AutoCreateModThumbnails;
                 var currentWidePath = previewPath; // default: same source as classic
+                
+                if (!isAutoMode && filesToShow.Count > 1)
+                {
+                    Logger.LogInfo($"Asking user to select source for minitile-wide in: {modDir}");
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+                    var titleWide = SharedUtilities.GetTranslation(lang, "MinitileSelection_Title_Wide") ?? "Select Minitile-Wide Source";
+                    var subtitleWide = SharedUtilities.GetTranslation(lang, "MinitileSelection_Subtitle_Wide") ?? "Choose which image to use for the wide thumbnail (1280×720)";
+                    var wideSource = await SelectMinitileSourceAsync(filesToShow, modDir, context, titleWide, subtitleWide);
+                    if (wideSource == null)
+                    {
+                        Logger.LogInfo($"User skipped minitile-wide source selection for: {modDir}");
+                        return; // User skipped or stopped
+                    }
+                    currentWidePath = wideSource;
+                }
+                
+                // ========== WIDE FORMAT (1280x720) ==========
+                var minitileWidePath = Path.Combine(modDir, GetMinitileWideFilename());
                 
                 if (isAutoMode && filesToShow.Count > 1)
                 {
@@ -3063,7 +3060,10 @@ namespace FlairX_Mod_Manager.Services
                         if (srcRect.Value.X == -2 && srcRect.Value.Y == -2)
                         {
                             Logger.LogInfo($"User wants to choose a different file for wide minitile in: {modDir}");
-                            var newSource = await SelectMinitileSourceAsync(filesToShow, modDir, context);
+                            var lang = SharedUtilities.LoadLanguageDictionary();
+                            var titleWide = SharedUtilities.GetTranslation(lang, "MinitileSelection_Title_Wide") ?? "Select Minitile-Wide Source";
+                            var subtitleWide = SharedUtilities.GetTranslation(lang, "MinitileSelection_Subtitle_Wide") ?? "Choose which image to use for the wide thumbnail (1280×720)";
+                            var newSource = await SelectMinitileSourceAsync(filesToShow, modDir, context, titleWide, subtitleWide);
                             if (string.IsNullOrEmpty(newSource))
                                 return; // Skipped or stopped
                             currentWidePath = newSource;

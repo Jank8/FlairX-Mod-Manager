@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "简体中文",
   "AboutButton_Label": "关于",
   "AboutDialog_AI": "AI:",
@@ -198,7 +198,10 @@
   "CropPanel_Next": "下一个",
   "CropPanel_FilesToProcess": "待处理文件",
   "MinitileSelection_Title": "选择缩略图来源",
+  "MinitileSelection_Title_Classic": "选择缩略图来源",
+  "MinitileSelection_Title_Wide": "选择宽缩略图来源",
   "MinitileSelection_Subtitle": "选择用于缩略图的图片",
+  "MinitileSelection_Subtitle_Wide": "选择用于宽缩略图 (1280×720) 的图像",
   "MinitileSelection_NoSelection": "未选择图片",
   "MinitileSelection_Selected": "已选择: {0}",
   "CropPanel_Reset": "重置裁剪",

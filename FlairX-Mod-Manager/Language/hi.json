@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "हिन्दी",
   "AboutButton_Label": "के बारे में",
   "AboutDialog_AI": "AI:",
@@ -198,7 +198,10 @@
   "CropPanel_Next": "अगला",
   "CropPanel_FilesToProcess": "प्रोसेस करने के लिए फ़ाइलें",
   "MinitileSelection_Title": "मिनीटाइल स्रोत चुनें",
+  "MinitileSelection_Title_Classic": "मिनीटाइल स्रोत चुनें",
+  "MinitileSelection_Title_Wide": "वाइड मिनीटाइल स्रोत चुनें",
   "MinitileSelection_Subtitle": "थंबनेल के लिए कौन सी छवि उपयोग करनी है चुनें",
+  "MinitileSelection_Subtitle_Wide": "वाइड थंबनेल (1280×720) के लिए कौन सी छवि उपयोग करनी है चुनें",
   "MinitileSelection_NoSelection": "कोई छवि नहीं चुनी गई",
   "MinitileSelection_Selected": "चयनित: {0}",
   "CropPanel_Reset": "क्रॉप रीसेट करें",

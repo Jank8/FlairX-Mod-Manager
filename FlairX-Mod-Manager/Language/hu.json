@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Magyar",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Névjegy",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Kész",
   "CropPanel_FilesToProcess": "Feldolgozandó Fájlok",
   "MinitileSelection_Title": "Miniatűr Forrás Kiválasztása",
+  "MinitileSelection_Title_Classic": "Miniatűr Forrás Kiválasztása",
+  "MinitileSelection_Title_Wide": "Széles Miniatűr Forrás Kiválasztása",
   "MinitileSelection_Subtitle": "Válassza ki, melyik képet használja a miniatűrhöz",
+  "MinitileSelection_Subtitle_Wide": "Válassza ki, melyik képet használja a széles miniatűrhöz (1280×720)",
   "MinitileSelection_NoSelection": "Nincs kép kiválasztva",
   "MinitileSelection_Selected": "Kiválasztva: {0}",
   "ImagePreview_Close_Tooltip": "Előnézet bezárása",

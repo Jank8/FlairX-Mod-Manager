@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Bahasa Indonesia",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Tentang",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Selesai",
   "CropPanel_FilesToProcess": "File untuk Diproses",
   "MinitileSelection_Title": "Pilih Sumber Minitile",
+  "MinitileSelection_Title_Classic": "Pilih Sumber Minitile",
+  "MinitileSelection_Title_Wide": "Pilih Sumber Minitile Lebar",
   "MinitileSelection_Subtitle": "Pilih gambar mana yang akan digunakan untuk thumbnail",
+  "MinitileSelection_Subtitle_Wide": "Pilih gambar mana yang akan digunakan untuk thumbnail lebar (1280×720)",
   "MinitileSelection_NoSelection": "Tidak ada gambar dipilih",
   "MinitileSelection_Selected": "Dipilih: {0}",
   "ImagePreview_Close_Tooltip": "Tutup pratinjau",

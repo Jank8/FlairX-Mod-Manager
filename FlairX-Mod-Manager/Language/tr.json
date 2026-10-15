@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Türkçe",
   "AboutButton_Label": "Hakkında",
   "AboutDialog_AI": "AI:",
@@ -198,7 +198,10 @@
   "CropPanel_Next": "Sonraki",
   "CropPanel_FilesToProcess": "İşlenecek Dosyalar",
   "MinitileSelection_Title": "Küçük Resim Kaynağını Seç",
+  "MinitileSelection_Title_Classic": "Minitile Kaynağı Seç",
+  "MinitileSelection_Title_Wide": "Geniş Minitile Kaynağı Seç",
   "MinitileSelection_Subtitle": "Küçük resim için hangi görüntüyü kullanacağınızı seçin",
+  "MinitileSelection_Subtitle_Wide": "Geniş küçük resim (1280×720) için kullanılacak görüntüyü seçin",
   "MinitileSelection_NoSelection": "Görüntü seçilmedi",
   "MinitileSelection_Selected": "Seçildi: {0}",
   "CropPanel_Reset": "Kırpmayı Sıfırla",

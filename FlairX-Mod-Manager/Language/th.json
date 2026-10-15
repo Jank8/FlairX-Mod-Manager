@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "ไทย",
   "AboutButton_Label": "เกี่ยวกับ",
   "AboutDialog_AI": "AI:",
@@ -198,7 +198,10 @@
   "CropPanel_Next": "ถัดไป",
   "CropPanel_FilesToProcess": "ไฟล์ที่ต้องประมวลผล",
   "MinitileSelection_Title": "เลือกแหล่งที่มาของภาพขนาดย่อ",
+  "MinitileSelection_Title_Classic": "เลือกแหล่งที่มาของภาพขนาดย่อ",
+  "MinitileSelection_Title_Wide": "เลือกแหล่งที่มาของภาพขนาดย่อแบบกว้าง",
   "MinitileSelection_Subtitle": "เลือกภาพที่จะใช้สำหรับภาพขนาดย่อ",
+  "MinitileSelection_Subtitle_Wide": "เลือกภาพที่จะใช้สำหรับภาพขนาดย่อแบบกว้าง (1280×720)",
   "MinitileSelection_NoSelection": "ไม่ได้เลือกภาพ",
   "MinitileSelection_Selected": "เลือกแล้ว: {0}",
   "CropPanel_Reset": "รีเซ็ตการครอบตัด",

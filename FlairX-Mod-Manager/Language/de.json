@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Deutsch",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Über",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Fertig",
   "CropPanel_FilesToProcess": "Zu verarbeitende Dateien",
   "MinitileSelection_Title": "Minikachel-Quelle auswählen",
+  "MinitileSelection_Title_Classic": "Minikachel-Quelle auswählen",
+  "MinitileSelection_Title_Wide": "Breite Minikachel-Quelle auswählen",
   "MinitileSelection_Subtitle": "Wählen Sie, welches Bild für die Miniaturansicht verwendet werden soll",
+  "MinitileSelection_Subtitle_Wide": "Wählen Sie, welches Bild für die breite Miniaturansicht (1280×720) verwendet werden soll",
   "MinitileSelection_NoSelection": "Kein Bild ausgewählt",
   "MinitileSelection_Selected": "Ausgewählt: {0}",
   "ImagePreview_Close_Tooltip": "Vorschau schließen",

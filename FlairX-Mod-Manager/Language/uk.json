@@ -1,4 +1,4 @@
-{
+﻿{
   "Language_DisplayName": "Українська",
   "App_Name": "FlairX Mod Manager",
   "AboutButton_Label": "Про програму",
@@ -234,7 +234,10 @@
   "CropPanel_Done": "Готово",
   "CropPanel_FilesToProcess": "Файли для обробки",
   "MinitileSelection_Title": "Вибрати джерело мініатюри",
+  "MinitileSelection_Title_Classic": "Вибрати джерело мініатюри",
+  "MinitileSelection_Title_Wide": "Вибрати джерело широкої мініатюри",
   "MinitileSelection_Subtitle": "Виберіть зображення для використання як мініатюру",
+  "MinitileSelection_Subtitle_Wide": "Виберіть зображення для використання як широку мініатюру (1280×720)",
   "MinitileSelection_NoSelection": "Зображення не вибрано",
   "MinitileSelection_Selected": "Вибрано: {0}",
   "ImagePreview_Close_Tooltip": "Закрити попередній перегляд",
