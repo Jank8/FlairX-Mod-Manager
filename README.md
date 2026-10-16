@@ -286,15 +286,12 @@ dotnet publish "FlairX-Mod-Manager Launcher/FlairX Mod Manager Launcher.csproj" 
 ```
 
 ### Key Technologies Used
-- **Microsoft.WindowsAppSDK (2.0.1)** - Modern Windows UI
-- **CommunityToolkit.WinUI (7.1.2)** - UI components
-- **Microsoft.Web.WebView2 (1.0.3912.50)** - GameBanana browser
-- **SharpSevenZip (2.0.45)** - Archive extraction
-- **System.Drawing.Common (10.0.7)** - Image processing
-
-## Custom GameBanana maintenance
-
-See [docs/CUSTOM_UPDATE_ZH-CN.md](docs/CUSTOM_UPDATE_ZH-CN.md) for the safe custom update workflow.
+- **Microsoft.WindowsAppSDK (2.5.1)** - Modern Windows UI
+- **CommunityToolkit.WinUI (8.2.251219)** - UI components
+- **Microsoft.Web.WebView2 (1.0.4258.31)** - GameBanana browser
+- **SharpSevenZip (2.0.128)** - Archive extraction
+- **SixLabors.ImageSharp (4.1.3)** - Image processing
+- **NLua (1.7.9)** - Lua scripting
 
 ## 📄 License
 
@@ -303,6 +300,8 @@ GNU General Public License v3.0
 ## 🙏 Credits
 
 **Author:** [Jank8](https://github.com/Jank8)
+
+**Contributors:** [Dyendless](https://github.com/Dyendless) - GameBanana enhancements (character filter, time range sorting, secondary sort)
 
 **AI Assistance:** [Kiro](https://kiro.dev/), [GitHub Copilot](https://github.com/features/copilot), [Qoder](https://qoder.org/)
 
