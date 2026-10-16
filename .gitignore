@@ -24,3 +24,4 @@ remove_unused_keys.py
 remove_gbauthor_keys.py
 check_missing_keys.py
 /.worktrees/
+.gitignore

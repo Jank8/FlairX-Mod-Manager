@@ -51,12 +51,15 @@ internal sealed class GameBananaRecentWindowCollector
     private readonly long? _cutoff;
     private readonly HashSet<int> _seenIds = [];
     private readonly List<GameBananaService.ModRecord> _records = [];
+    private readonly Action<int, int>? _progressCallback;
 
     internal GameBananaRecentWindowCollector(
         GameBananaUpdatedTimeRange range,
-        DateTimeOffset nowUtc)
+        DateTimeOffset nowUtc,
+        Action<int, int>? progressCallback = null)
     {
         _cutoff = GameBananaRecentSecondarySorter.GetCutoffUnixSeconds(range, nowUtc);
+        _progressCallback = progressCallback;
     }
 
     internal IReadOnlyList<GameBananaService.ModRecord> Records => _records;
@@ -74,6 +77,7 @@ internal sealed class GameBananaRecentWindowCollector
         }
 
         PagesProcessed++;
+        _progressCallback?.Invoke(PagesProcessed, MaxPages);
         if (page.Count == 0)
         {
             return Stop(GameBananaRecentStopReason.EmptyPage);

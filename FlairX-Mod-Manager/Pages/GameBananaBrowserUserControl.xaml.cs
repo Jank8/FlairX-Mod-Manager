@@ -791,6 +791,11 @@ namespace FlairX_Mod_Manager.Pages
                 ConnectionErrorBar.Severity = InfoBarSeverity.Error;
                 ConnectionErrorBar.IsOpen = false;
 
+                // Reset loading UI
+                LoadingProgressBar.IsIndeterminate = true;
+                LoadingProgressBar.Value = 0;
+                LoadingText.Text = GetTranslationOrDefault("Loading", "Loading...");
+
                 _mods.Clear();
                 _loadedModIds.Clear();
 
@@ -835,9 +840,22 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (windowEligible)
                 {
+                    // Reset progress bar to determinate mode and 0%
+                    LoadingProgressBar.IsIndeterminate = false;
+                    LoadingProgressBar.Value = 0;
+
                     var collector = new GameBananaRecentWindowCollector(
                         selection.TimeRange,
-                        DateTimeOffset.UtcNow);
+                        DateTimeOffset.UtcNow,
+                        (currentPage, totalPages) =>
+                        {
+                            DispatcherQueue.TryEnqueue(() =>
+                            {
+                                LoadingProgressBar.Value = (currentPage * 100.0) / totalPages;
+                                var loadingText = GetTranslationOrDefault("Loading", "Loading...");
+                                LoadingText.Text = $"{loadingText} ({currentPage}/{totalPages})";
+                            });
+                        });
                     var sourceComplete = response.Metadata?.IsComplete ?? firstPageRecords.Count < 50;
                     var decision = collector.AddPage(firstPageRecords, sourceComplete);
 

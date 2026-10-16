@@ -7,10 +7,10 @@
 FlairX Mod Manager is a powerful application for managing game modifications across XXMI-supported games. Built with .NET 10 and WinUI 3, it offers intuitive mod management with advanced features.
 
 ✨ **Key Features:**
-- Supports 1100+ mods with optimized performance
+- Handles 1500+ mods with optimized performance
 - GameBanana integration with auto-update, author search, and Cloudflare support
-- Screenshot capture with AI-powered cropping and preview management
-- Game overlay with full controller support
+- Screenshot capture with smart cropping and preview management
+- Game overlay with full controller support (native XInput)
 - 29 languages with specialized font support
 - One-click updates and automatic XXMI framework installation
 
@@ -76,7 +76,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - GameBanana: Automatic with downloads or use "Download Previews" button
 
 **Optimize:**
-- AI-powered cropping (Center, Smart, Entropy, Attention)
+- Smart cropping (Center, Smart, Entropy, Attention)
 - Automatic thumbnail generation
 - Multi-threaded batch processing
 
@@ -132,7 +132,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 
 ### 🎨 **Image System**
 - **Screenshot Capture**: Built-in capture with cropping
-- **AI-Powered Cropping**: Center, Smart, Entropy, Attention, and Manual modes
+- **Smart Cropping**: Center, Smart, Entropy, Attention, and Manual modes
 - **Multi-threaded Processing**: Configurable threads for batch optimization
 - **Automatic Thumbnails**: Generate minitile, catprev, catmini
 - **Drag & Drop**: Add images with automatic optimization
@@ -146,8 +146,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Virtualized Loading**: Optimal performance with large collections
 - **Customizable Theme**: Auto/Light/Dark with backdrop effects
 
-**Controller Support (SDL3):**
-- **Supported**: Xbox, PlayStation, Nintendo Switch, Steam Controller, generic gamepads
+**Controller Support (Native XInput):**
 - **Navigation**: D-Pad or Left Stick with 2D grid navigation
 - **Haptic Feedback**: Configurable vibration on actions
 - **Button Mapping**: A (select), B (back), LB/RB (categories), Back+Start (toggle), Back+A (filter)
@@ -165,7 +164,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 
 ### 💾 **Additional Features**
 - **Preset System**: Save and load mod configurations per game
-- **StatusKeeper Integration**: Sync with XXMI launcher via d3dx_user.ini
+- **StatusKeeper**: Built-in function that syncs mod states directly to mods .ini files, bypassing unreliable XXMI save functions
 - **ModInfo Backup**: Up to 3 backup versions with one-click restore
 - **Sliding Panels**: Non-blocking UI panels that don't cover the menu
 
@@ -287,9 +286,8 @@ dotnet publish "FlairX-Mod-Manager Launcher/FlairX Mod Manager Launcher.csproj" 
 ```
 
 ### Key Technologies Used
-- **Microsoft.WindowsAppSDK (2.0.1)** - Modern Windows UI with SemVer
+- **Microsoft.WindowsAppSDK (2.0.1)** - Modern Windows UI
 - **CommunityToolkit.WinUI (7.1.2)** - UI components
-- **ppy.SDL3-CS (2026.429.0)** - Controller support
 - **Microsoft.Web.WebView2 (1.0.3912.50)** - GameBanana browser
 - **SharpSevenZip (2.0.45)** - Archive extraction
 - **System.Drawing.Common (10.0.7)** - Image processing
