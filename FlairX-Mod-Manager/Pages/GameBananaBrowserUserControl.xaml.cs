@@ -101,6 +101,8 @@ namespace FlairX_Mod_Manager.Pages
         // Infinite scroll
         private bool _isLoadingMore = false;
         private bool _hasMorePages = true;
+        private bool _windowWasCapped = false;
+        private int _windowLastPage = 0;
         private ScrollViewer? _modsScrollViewer = null;
         private DateTime _lastScrollTime = DateTime.MinValue;
 
@@ -798,6 +800,8 @@ namespace FlairX_Mod_Manager.Pages
 
                 _mods.Clear();
                 _loadedModIds.Clear();
+                _windowWasCapped = false;
+                _windowLastPage = 0;
 
                 var windowEligible = IsRecentWindowEligible();
                 var selection = GameBananaRecentSecondarySorter.Normalize(
@@ -858,6 +862,7 @@ namespace FlairX_Mod_Manager.Pages
                         });
                     var sourceComplete = response.Metadata?.IsComplete ?? firstPageRecords.Count < 50;
                     var decision = collector.AddPage(firstPageRecords, sourceComplete);
+                    _windowLastPage = firstPage;
 
                     while (decision.ShouldContinue)
                     {
@@ -877,6 +882,7 @@ namespace FlairX_Mod_Manager.Pages
                         var nextRecords = nextResponse.Records ?? [];
                         sourceComplete = nextResponse.Metadata?.IsComplete ?? nextRecords.Count < 50;
                         decision = collector.AddPage(nextRecords, sourceComplete);
+                        _windowLastPage = nextPage;
                     }
 
                     records = GameBananaRecentSecondarySorter.FilterAndOrder(
@@ -886,6 +892,7 @@ namespace FlairX_Mod_Manager.Pages
                     cappedWindow = collector.StopReason is
                         GameBananaRecentStopReason.PageLimit or
                         GameBananaRecentStopReason.RecordLimit;
+                    _windowWasCapped = cappedWindow;
                     Logger.LogInfo(
                         $"GameBanana recent window stopped with {collector.StopReason}: " +
                         $"pages={collector.PagesProcessed}, raw={collector.RawRecordsProcessed}, " +
@@ -971,7 +978,7 @@ namespace FlairX_Mod_Manager.Pages
                 _ = LoadImagesAsync();
                 LoadingPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Visible;
-                LoadMoreMainModsButton.Visibility = !windowEligible && _hasMorePages
+                LoadMoreMainModsButton.Visibility = (!windowEligible && _hasMorePages) || (windowEligible && _windowWasCapped)
                     ? Visibility.Visible
                     : Visibility.Collapsed;
                 LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
@@ -1293,8 +1300,15 @@ namespace FlairX_Mod_Manager.Pages
         {
             if ((expectedLoadGeneration.HasValue && expectedLoadGeneration.Value != _loadGeneration) ||
                 _isLoadingMore ||
-                IsRecentWindowEligible() ||
                 !_hasMorePages)
+            {
+                return;
+            }
+
+            var isWindowMode = IsRecentWindowEligible();
+            
+            // In window mode, we can only load more if it was capped
+            if (isWindowMode && !_windowWasCapped)
             {
                 return;
             }
@@ -1303,53 +1317,61 @@ namespace FlairX_Mod_Manager.Pages
             
             try
             {
-                _currentPage++;
-                
-                var response = await FetchModsPageAsync(_currentPage);
-                if (expectedLoadGeneration.HasValue && expectedLoadGeneration.Value != _loadGeneration) return;
-
-                if (response?.Records == null || response.Records.Count == 0)
+                if (isWindowMode)
                 {
-                    _hasMorePages = false;
-                    return;
-                }
-
-                // Check if there are more pages
-                if (response.Metadata != null)
-                {
-                    _hasMorePages = !response.Metadata.IsComplete;
+                    // Window mode: load next batch of pages
+                    await LoadMoreWindowPagesAsync();
                 }
                 else
                 {
-                    _hasMorePages = response.Records.Count >= 50;
-                }
+                    // Normal pagination mode
+                    _currentPage++;
+                
+                    var response = await FetchModsPageAsync(_currentPage);
+                    if (expectedLoadGeneration.HasValue && expectedLoadGeneration.Value != _loadGeneration) return;
 
-                var installedText = SharedUtilities.GetTranslation(_lang, "Installed");
-                var newViewModels = new List<ModViewModel>();
+                    if (response?.Records == null || response.Records.Count == 0)
+                    {
+                        _hasMorePages = false;
+                        return;
+                    }
 
-                foreach (var record in response.Records)
-                {
-                    // Skip duplicates (important for infinite scroll and auto-load)
-                    if (_loadedModIds.Contains(record.Id))
-                        continue;
+                    // Check if there are more pages
+                    if (response.Metadata != null)
+                    {
+                        _hasMorePages = !response.Metadata.IsComplete;
+                    }
+                    else
+                    {
+                        _hasMorePages = response.Records.Count >= 50;
+                    }
 
-                    if (!ShouldIncludeMod(record))
-                        continue;
+                    var installedText = SharedUtilities.GetTranslation(_lang, "Installed");
+                    var newViewModels = new List<ModViewModel>();
 
-                    var viewModel = CreateModViewModel(
-                        record,
-                        installedText,
-                        isInstalled: false);
+                    foreach (var record in response.Records)
+                    {
+                        // Skip duplicates (important for infinite scroll and auto-load)
+                        if (_loadedModIds.Contains(record.Id))
+                            continue;
 
-                    _mods.Add(viewModel);
-                    _loadedModIds.Add(record.Id);
-                    newViewModels.Add(viewModel);
-                }
+                        if (!ShouldIncludeMod(record))
+                            continue;
 
-                // Check installed status in background to avoid blocking UI during load-more
-                _ = Task.Run(async () =>
-                {
-                    foreach (var vm in newViewModels)
+                        var viewModel = CreateModViewModel(
+                            record,
+                            installedText,
+                            isInstalled: false);
+
+                        _mods.Add(viewModel);
+                        _loadedModIds.Add(record.Id);
+                        newViewModels.Add(viewModel);
+                    }
+
+                    // Check installed status in background to avoid blocking UI during load-more
+                    _ = Task.Run(async () =>
+                    {
+                        foreach (var vm in newViewModels)
                     {
                         if (string.IsNullOrEmpty(vm.ProfileUrl)) continue;
                         var installed = !string.IsNullOrEmpty(await GetInstalledModPathAsync(vm.ProfileUrl));
@@ -1362,7 +1384,7 @@ namespace FlairX_Mod_Manager.Pages
                 _ = LoadImagesAsync();
                 
                 // Update Load More button visibility
-                LoadMoreMainModsButton.Visibility = !IsRecentWindowEligible() && _hasMorePages
+                LoadMoreMainModsButton.Visibility = _hasMorePages
                     ? Visibility.Visible
                     : Visibility.Collapsed;
                 LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
@@ -1384,6 +1406,107 @@ namespace FlairX_Mod_Manager.Pages
             finally
             {
                 _isLoadingMore = false;
+            }
+        }
+
+        private async Task LoadMoreWindowPagesAsync()
+        {
+            try
+            {
+                var selection = GameBananaRecentSecondarySorter.Normalize(
+                    _currentCategoryFilter == CategoryFilter.CharacterSkins,
+                    _currentSortOrder,
+                    _currentSearch,
+                    new GameBananaRecentSelection(_currentTimeRange, _currentSecondarySort));
+
+                var collector = new GameBananaRecentWindowCollector(
+                    selection.TimeRange,
+                    DateTimeOffset.UtcNow,
+                    (currentPage, totalPages) =>
+                    {
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            LoadingProgressBar.Value = (currentPage * 100.0) / totalPages;
+                            var loadingText = GetTranslationOrDefault("Loading", "Loading...");
+                            LoadingText.Text = $"{loadingText} ({currentPage}/{totalPages})";
+                        });
+                    });
+
+                // Start from the next page after where we stopped
+                var startPage = _windowLastPage + 1;
+                Logger.LogInfo($"Loading more window pages starting from page {startPage}");
+
+                for (var page = startPage; page < startPage + GameBananaRecentWindowCollector.MaxPages; page++)
+                {
+                    var response = await FetchModsPageAsync(page);
+                    if (response?.Records == null || response.Records.Count == 0)
+                    {
+                        _windowWasCapped = false;
+                        break;
+                    }
+
+                    var sourceComplete = response.Metadata?.IsComplete ?? response.Records.Count < 50;
+                    var decision = collector.AddPage(response.Records, sourceComplete);
+                    _windowLastPage = page;
+
+                    if (!decision.ShouldContinue)
+                    {
+                        _windowWasCapped = collector.StopReason is
+                            GameBananaRecentStopReason.PageLimit or
+                            GameBananaRecentStopReason.RecordLimit;
+                        break;
+                    }
+                }
+
+                var records = GameBananaRecentSecondarySorter.FilterAndOrder(
+                    collector.Records,
+                    ShouldIncludeMod,
+                    selection.Sort);
+
+                Logger.LogInfo(
+                    $"Loaded {records.Count} more mods from window (pages {startPage}-{_windowLastPage}), capped: {_windowWasCapped}");
+
+                var installedText = SharedUtilities.GetTranslation(_lang, "Installed");
+                var newViewModels = new List<ModViewModel>();
+
+                foreach (var record in records)
+                {
+                    if (_loadedModIds.Contains(record.Id))
+                        continue;
+
+                    var viewModel = CreateModViewModel(
+                        record,
+                        installedText,
+                        isInstalled: false);
+
+                    _mods.Add(viewModel);
+                    _loadedModIds.Add(record.Id);
+                    newViewModels.Add(viewModel);
+                }
+
+                // Check installed status in background
+                _ = Task.Run(async () =>
+                {
+                    foreach (var vm in newViewModels)
+                    {
+                        if (string.IsNullOrEmpty(vm.ProfileUrl)) continue;
+                        var installed = !string.IsNullOrEmpty(await GetInstalledModPathAsync(vm.ProfileUrl));
+                        if (installed)
+                            DispatcherQueue.TryEnqueue(() => vm.IsInstalled = true);
+                    }
+                });
+
+                // Load images
+                _ = LoadImagesAsync();
+
+                // Update button visibility
+                LoadMoreMainModsButton.Visibility = _windowWasCapped ? Visibility.Visible : Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to load more window pages", ex);
+                _windowWasCapped = false;
+                LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -2008,9 +2131,12 @@ namespace FlairX_Mod_Manager.Pages
             
             await LoadMoreModsAsync();
             
-            // Hide progress bar and show button again
+            // Hide progress bar and show button again based on context
             LoadMoreProgressBar.Visibility = Visibility.Collapsed;
-            LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
+            var isWindowMode = IsRecentWindowEligible();
+            LoadMoreMainModsButton.Visibility = (isWindowMode && _windowWasCapped) || (!isWindowMode && _hasMorePages)
+                ? Visibility.Visible 
+                : Visibility.Collapsed;
         }
 
         private void ModsGridView_ItemClick(object sender, ItemClickEventArgs e)
