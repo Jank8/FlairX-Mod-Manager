@@ -2537,17 +2537,15 @@ namespace FlairX_Mod_Manager.Pages
                 
                 if (File.Exists(avatarPath))
                 {
-                    // Create square border container with rounded corners
                     var avatarBorder = new Microsoft.UI.Xaml.Controls.Border
                     {
-                        Width = 80,
-                        Height = 80,
-                        CornerRadius = new Microsoft.UI.Xaml.CornerRadius(8), // Rounded corners
+                        Width = 88,
+                        Height = 88,
+                        CornerRadius = new Microsoft.UI.Xaml.CornerRadius(44),
                         BorderThickness = new Microsoft.UI.Xaml.Thickness(2),
                         BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.LightGray),
                         HorizontalAlignment = HorizontalAlignment.Center,
                         Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 12),
-                        Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.White)
                     };
                     
                     var avatarImage = new Microsoft.UI.Xaml.Controls.Image
@@ -2556,9 +2554,7 @@ namespace FlairX_Mod_Manager.Pages
                     };
                     
                     var avatarBitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                    // IMPORTANT: Must use absolute path for WebP to work
-                    var absolutePath = Path.GetFullPath(avatarPath);
-                    avatarBitmap.UriSource = new Uri(absolutePath, UriKind.Absolute);
+                    avatarBitmap.UriSource = new Uri(Path.GetFullPath(avatarPath), UriKind.Absolute);
                     avatarImage.Source = avatarBitmap;
                     
                     avatarBorder.Child = avatarImage;
@@ -2570,45 +2566,46 @@ namespace FlairX_Mod_Manager.Pages
                 Logger.LogWarning($"Failed to load avatar image: {ex.Message}");
             }
             
-            // Add GitHub link directly under avatar (no "Author" label)
-            stackPanel.Children.Add(new HyperlinkButton { Content = "Jank8", NavigateUri = new Uri("https://github.com/Jank8"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,16), HorizontalAlignment = HorizontalAlignment.Center });
-            
-            // Add version information and update button
-            var versionBlock = new TextBlock
+            // Author link
+            stackPanel.Children.Add(new HyperlinkButton
             {
-                Text = $"{SharedUtilities.GetTranslation(lang, "AboutDialog_Version")}: {currentVersion}",
-                FontSize = 14,
+                Content = "Jank8",
+                NavigateUri = new Uri("https://github.com/Jank8"),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                FontSize = 15,
                 FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 4)
+            });
+
+            // Version
+            stackPanel.Children.Add(new TextBlock
+            {
+                Text = $"v{currentVersion}",
+                FontSize = 13,
+                Opacity = 0.6,
                 TextAlignment = TextAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Center,
-                Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 8)
-            };
-            stackPanel.Children.Add(versionBlock);
-            
-            // Credits section
-            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Fonts"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,8,0,4) });
-            var fontsPanel = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) };
-            fontsPanel.Children.Add(new HyperlinkButton { Content = "Noto Fonts", NavigateUri = new Uri("https://notofonts.github.io/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
-            fontsPanel.Children.Add(new TextBlock { Text = ", ", VerticalAlignment = VerticalAlignment.Center });
-            fontsPanel.Children.Add(new HyperlinkButton { Content = "Kenney Input Prompts", NavigateUri = new Uri("https://kenney.nl/assets/input-prompts"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0) });
-            stackPanel.Children.Add(fontsPanel);
-            
-            // 7-Zip section
-            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Compression"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
-            stackPanel.Children.Add(new HyperlinkButton { Content = "7-Zip", NavigateUri = new Uri("https://www.7-zip.org/"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,8) });
-            
-            stackPanel.Children.Add(new TextBlock { Text = SharedUtilities.GetTranslation(lang, "AboutDialog_Thanks"), FontWeight = Microsoft.UI.Text.FontWeights.Bold, Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,4) });
-            var thanksPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
-            thanksPanel.Children.Add(new StackPanel {
-                Orientation = Orientation.Vertical,
-                Children = {
-                    new HyperlinkButton { Content = "XLXZ", NavigateUri = new Uri("https://github.com/XiaoLinXiaoZhu"), Margin = new Microsoft.UI.Xaml.Thickness(0,0,0,0), HorizontalAlignment = HorizontalAlignment.Left },
-                }
+                Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 20)
             });
-            stackPanel.Children.Add(thanksPanel);
-            
-            var gplPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, Margin = new Microsoft.UI.Xaml.Thickness(0,8,0,0) };
-            gplPanel.Children.Add(new HyperlinkButton { Content = SharedUtilities.GetTranslation(lang, "AboutDialog_License"), NavigateUri = new Uri("https://www.gnu.org/licenses/gpl-3.0.html#license-text") });
+
+            // Separator
+            stackPanel.Children.Add(new Microsoft.UI.Xaml.Controls.Border
+            {
+                Height = 1,
+                Opacity = 0.15,
+                Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Gray),
+                Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 12)
+            });
+
+            // License link
+            var gplPanel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center };
+            gplPanel.Children.Add(new HyperlinkButton
+            {
+                Content = SharedUtilities.GetTranslation(lang, "AboutDialog_License"),
+                NavigateUri = new Uri("https://www.gnu.org/licenses/gpl-3.0.html#license-text"),
+                FontSize = 12,
+                Opacity = 0.7
+            });
             stackPanel.Children.Add(gplPanel);
             
             dialog.Content = stackPanel;
