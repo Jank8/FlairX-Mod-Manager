@@ -337,24 +337,15 @@ namespace FlairX_Mod_Manager
             // Set window icon on taskbar
             try
             {
-                // Try Assets folder path first
-                appWindow.SetIcon("Assets/app.ico");
+                var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "app.ico");
+                if (File.Exists(iconPath))
+                {
+                    appWindow.SetIcon(iconPath);
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                try
-                {
-                    // Fallback to full path
-                    var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "app.ico");
-                    if (File.Exists(iconPath))
-                    {
-                        appWindow.SetIcon(iconPath);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to set window icon", ex);
-                }
+                Logger.LogError("Failed to set window icon", ex);
             }
             
             // Disable maximize on double-click title bar

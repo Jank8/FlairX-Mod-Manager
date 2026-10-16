@@ -217,17 +217,10 @@ namespace FlairX_Mod_Manager
 
                 if (appWindow != null)
                 {
-                    try
+                    var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "app.ico");
+                    if (System.IO.File.Exists(iconPath))
                     {
-                        appWindow.SetIcon("Assets/app.ico");
-                    }
-                    catch
-                    {
-                        var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "app.ico");
-                        if (System.IO.File.Exists(iconPath))
-                        {
-                            appWindow.SetIcon(iconPath);
-                        }
+                        appWindow.SetIcon(iconPath);
                     }
                 }
             }
