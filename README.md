@@ -294,6 +294,10 @@ dotnet publish "FlairX-Mod-Manager Launcher/FlairX Mod Manager Launcher.csproj" 
 - **SharpSevenZip (2.0.45)** - Archive extraction
 - **System.Drawing.Common (10.0.7)** - Image processing
 
+## Custom GameBanana maintenance
+
+See [docs/CUSTOM_UPDATE_ZH-CN.md](docs/CUSTOM_UPDATE_ZH-CN.md) for the safe custom update workflow.
+
 ## 📄 License
 
 GNU General Public License v3.0

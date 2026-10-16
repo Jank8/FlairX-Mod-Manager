@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.IO;
@@ -25,9 +26,19 @@ namespace FlairX_Mod_Manager.Pages
 
         private string _gameTag = "";
         private int _currentPage = 1;
+        private int _loadGeneration;
         private string? _currentSearch = null;
         private CategoryFilter _currentCategoryFilter = CategoryFilter.AllMods;
         private GameBananaService.CategorySortOrder _currentSortOrder = GameBananaService.CategorySortOrder.LatestUpdated;
+        private IReadOnlyList<GameBananaCharacterOption> _characterOptions = Array.Empty<GameBananaCharacterOption>();
+        private int? _selectedCharacterCategoryId;
+        private bool _isUpdatingCharacterSelection;
+        private ComboBox CharacterFilterComboBox = null!;
+        private ComboBox TimeRangeComboBox = null!;
+        private ComboBox SecondarySortComboBox = null!;
+        private GameBananaUpdatedTimeRange _currentTimeRange = GameBananaUpdatedTimeRange.Last90Days;
+        private GameBananaRecentSecondarySort _currentSecondarySort = GameBananaRecentSecondarySort.LatestUpdated;
+        private bool _isUpdatingRecentWindowControls;
         private ObservableCollection<ModViewModel> _mods = new();
         private HashSet<int> _loadedModIds = new(); // Track loaded mod IDs to prevent duplicates
         private System.Collections.Generic.Dictionary<string, string> _lang = new();
@@ -139,7 +150,10 @@ namespace FlairX_Mod_Manager.Pages
             double ScrollOffset = 0,
             int Page = 1,
             CategoryFilter Filter = CategoryFilter.AllMods,
-            GameBananaService.CategorySortOrder SortOrder = GameBananaService.CategorySortOrder.LatestUpdated
+            GameBananaService.CategorySortOrder SortOrder = GameBananaService.CategorySortOrder.LatestUpdated,
+            int? CharacterCategoryId = null,
+            GameBananaUpdatedTimeRange TimeRange = GameBananaUpdatedTimeRange.Last90Days,
+            GameBananaRecentSecondarySort SecondarySort = GameBananaRecentSecondarySort.LatestUpdated
         );
 
         private readonly Stack<NavigationEntry> _navigationStack = new();
@@ -161,6 +175,7 @@ namespace FlairX_Mod_Manager.Pages
             public string? CategoryIconUrl { get; set; }
             public int DownloadCount { get; set; }
             public int LikeCount { get; set; }
+            public int CommentCount { get; set; }
             public int ViewCount { get; set; }
             public long DateAdded { get; set; }
             public long DateModified { get; set; }
@@ -257,6 +272,8 @@ namespace FlairX_Mod_Manager.Pages
         public GameBananaBrowserUserControl(string gameTag, string? modUrl = null, string? sourceModPath = null)
         {
             InitializeComponent();
+            CreateCharacterFilterComboBox();
+            CreateRecentWindowComboBoxes();
             _gameTag = gameTag;
             _sourceModPath = sourceModPath;
             
@@ -296,6 +313,15 @@ namespace FlairX_Mod_Manager.Pages
             CategoryFilterComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Filter_CharacterSkins") ?? "Character Skins");
             CategoryFilterComboBox.SelectedIndex = 0;
 
+            var parentCategoryId = GameBananaService.GetCharacterCategoryId(_gameTag);
+            ApplyCharacterOptions(
+                GameBananaCharacterFilter.BuildOptions(
+                    Array.Empty<GameBananaService.CategoryRecord>(),
+                    parentCategoryId,
+                    GetTranslationOrDefault("Filter_AllCharacters", "All Characters")),
+                parentCategoryId,
+                false);
+
             // Populate sort order ComboBox (only visible for Character Skins filter)
             SortOrderComboBox.Items.Clear();
             SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_LatestUpdated") ?? "Latest Updated");
@@ -306,6 +332,29 @@ namespace FlairX_Mod_Manager.Pages
             SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_MostDownloaded") ?? "Most Downloaded");
             SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_MostCommented") ?? "Most Commented");
             SortOrderComboBox.SelectedIndex = 0;
+
+            _isUpdatingRecentWindowControls = true;
+            try
+            {
+                TimeRangeComboBox.Header = GetTranslationOrDefault("TimeRange_Header", "Time Range");
+                TimeRangeComboBox.Items.Add(GetTranslationOrDefault("TimeRange_Last30Days", "Last 30 Days"));
+                TimeRangeComboBox.Items.Add(GetTranslationOrDefault("TimeRange_Last90Days", "Last 90 Days"));
+                TimeRangeComboBox.Items.Add(GetTranslationOrDefault("TimeRange_Last180Days", "Last 180 Days"));
+                TimeRangeComboBox.Items.Add(GetTranslationOrDefault("TimeRange_Unlimited", "Unlimited (up to 500)"));
+                TimeRangeComboBox.SelectedIndex = 1;
+
+                SecondarySortComboBox.Header = GetTranslationOrDefault("WindowSort_Header", "Sort Within Range");
+                SecondarySortComboBox.Items.Add(GetTranslationOrDefault("WindowSort_LatestUpdated", "Latest Updated"));
+                SecondarySortComboBox.Items.Add(GetTranslationOrDefault("WindowSort_MostLiked", "Most Liked"));
+                SecondarySortComboBox.Items.Add(GetTranslationOrDefault("WindowSort_MostDownloaded", "Most Downloaded"));
+                SecondarySortComboBox.Items.Add(GetTranslationOrDefault("WindowSort_MostCommented", "Most Commented"));
+                SecondarySortComboBox.SelectedIndex = 0;
+            }
+            finally
+            {
+                _isUpdatingRecentWindowControls = false;
+            }
+            UpdateRecentWindowAvailability();
 
             // Set loading / empty state text
             LoadingText.Text = SharedUtilities.GetTranslation(_lang, "Loading") ?? "Loading...";
@@ -337,6 +386,87 @@ namespace FlairX_Mod_Manager.Pages
                 // Load mods (sections will be extracted from loaded mods)
                 _ = LoadModsAsync();
             }
+        }
+
+        internal static ModViewModel CreateModViewModel(
+            GameBananaService.ModRecord record,
+            string installedText,
+            bool isInstalled)
+        {
+            var image = record.PreviewMedia?.Images?.FirstOrDefault();
+            return new ModViewModel
+            {
+                Id = record.Id,
+                Name = record.Name ?? "",
+                AuthorName = record.Submitter?.Name ?? "Unknown",
+                ProfileUrl = record.ProfileUrl ?? "",
+                ImageUrl = image is null ? null : GameBananaService.GetListPreviewImageUrl(image),
+                DownloadCount = record.GetDownloadCount(),
+                LikeCount = record.GetLikeCount(),
+                CommentCount = record.GetPostCount(),
+                ViewCount = record.GetViewCount(),
+                DateAdded = record.DateAdded,
+                DateModified = record.DateModified,
+                DateUpdated = record.DateUpdated,
+                IsRated = record.HasAnyContentWarning,
+                IsInstalled = isInstalled,
+                InstalledText = installedText
+            };
+        }
+
+        private bool ShouldIncludeMod(GameBananaService.ModRecord record)
+        {
+            if (record.HasAnyContentWarning && SettingsManager.Current.HideNSFWMods)
+            {
+                return false;
+            }
+
+            return !IsModBlacklisted(record.Submitter?.Name ?? "", record.Name ?? "");
+        }
+
+        private void CreateCharacterFilterComboBox()
+        {
+            CharacterFilterComboBox = new ComboBox
+            {
+                MinWidth = 180,
+                MaxWidth = 260,
+                Margin = new Thickness(0, 0, 12, 0),
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Visibility = Visibility.Collapsed
+            };
+            Grid.SetColumn(CharacterFilterComboBox, 1);
+            CharacterFilterComboBox.SelectionChanged += CharacterFilterComboBox_SelectionChanged;
+            FiltersToolbarGrid.Children.Add(CharacterFilterComboBox);
+        }
+
+        private void CreateRecentWindowComboBoxes()
+        {
+            FiltersToolbarGrid.ColumnDefinitions.Insert(3, new ColumnDefinition { Width = GridLength.Auto });
+            FiltersToolbarGrid.ColumnDefinitions.Insert(4, new ColumnDefinition { Width = GridLength.Auto });
+            Grid.SetColumn(SearchBox, 5);
+            Grid.SetColumn(StarterPackButton, 6);
+
+            TimeRangeComboBox = new ComboBox
+            {
+                MinWidth = 150,
+                Margin = new Thickness(0, 0, 12, 0),
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Visibility = Visibility.Collapsed
+            };
+            Grid.SetColumn(TimeRangeComboBox, 3);
+            TimeRangeComboBox.SelectionChanged += TimeRangeComboBox_SelectionChanged;
+            FiltersToolbarGrid.Children.Add(TimeRangeComboBox);
+
+            SecondarySortComboBox = new ComboBox
+            {
+                MinWidth = 160,
+                Margin = new Thickness(0, 0, 12, 0),
+                VerticalAlignment = VerticalAlignment.Bottom,
+                Visibility = Visibility.Collapsed
+            };
+            Grid.SetColumn(SecondarySortComboBox, 4);
+            SecondarySortComboBox.SelectionChanged += SecondarySortComboBox_SelectionChanged;
+            FiltersToolbarGrid.Children.Add(SecondarySortComboBox);
         }
 
         private void GameBananaBrowserUserControl_Loaded(object sender, RoutedEventArgs e)
@@ -622,87 +752,74 @@ namespace FlairX_Mod_Manager.Pages
             
             // Trigger search
             _currentSearch = searchQuery;
+            UpdateRecentWindowAvailability();
             _currentPage = 1;
             _ = LoadModsAsync();
         }
 
+        private Task<GameBananaService.ModListResponse?> FetchModsPageAsync(int page)
+        {
+            if (_currentCategoryFilter == CategoryFilter.CharacterSkins)
+            {
+                return GameBananaService.GetModsByCategoryAsync(
+                    _gameTag,
+                    GetActiveCharacterCategoryId(),
+                    page,
+                    _currentSearch,
+                    _currentSortOrder);
+            }
+
+            return GameBananaService.GetModsAsync(
+                _gameTag, page, _currentSearch, null, null, null, null, null, null);
+        }
+
+        private bool IsRecentWindowEligible() =>
+            GameBananaRecentSecondarySorter.IsEligible(
+                _currentCategoryFilter == CategoryFilter.CharacterSkins,
+                _currentSortOrder,
+                _currentSearch);
+
         private async Task LoadModsAsync()
         {
+            var loadGeneration = Interlocked.Increment(ref _loadGeneration);
+
             try
             {
                 LoadingPanel.Visibility = Visibility.Visible;
                 EmptyPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Collapsed;
+                ConnectionErrorBar.Severity = InfoBarSeverity.Error;
                 ConnectionErrorBar.IsOpen = false;
 
                 _mods.Clear();
-                _loadedModIds.Clear(); // Reset tracking for new search/page
-                
-                // Fetch single page from API
-                GameBananaService.ModListResponse? response;
+                _loadedModIds.Clear();
 
-                if (_currentCategoryFilter == CategoryFilter.CharacterSkins)
-                {
-                    var categoryId = GameBananaService.GetCharacterCategoryId(_gameTag);
-                    response = await GameBananaService.GetModsByCategoryAsync(
-                        _gameTag,
-                        categoryId,
-                        _currentPage,
-                        _currentSearch,
-                        _currentSortOrder);
-                }
-                else
-                {
-                    response = await GameBananaService.GetModsAsync(
-                        _gameTag,
-                        _currentPage,
-                        _currentSearch,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null);
-                }
+                var windowEligible = IsRecentWindowEligible();
+                var selection = GameBananaRecentSecondarySorter.Normalize(
+                    _currentCategoryFilter == CategoryFilter.CharacterSkins,
+                    _currentSortOrder,
+                    _currentSearch,
+                    new GameBananaRecentSelection(_currentTimeRange, _currentSecondarySort));
+                var firstPage = windowEligible ? 1 : _currentPage;
+                var response = await FetchModsPageAsync(firstPage);
+                if (loadGeneration != _loadGeneration) return;
 
                 if (response == null)
                 {
-                    // Try Cloudflare bypass
                     Logger.LogInfo("Response is null, attempting Cloudflare bypass...");
-                    var (cookies, userAgent) = await Services.CloudflareBypassService.BypassCloudflareAsync(this.XamlRoot);
-                    
+                    var (cookies, _) = await Services.CloudflareBypassService.BypassCloudflareAsync(this.XamlRoot);
+                    if (loadGeneration != _loadGeneration) return;
+
                     if (!string.IsNullOrEmpty(cookies))
                     {
-                        // Retry the request
-                        if (_currentCategoryFilter == CategoryFilter.CharacterSkins)
-                        {
-                            var categoryId = GameBananaService.GetCharacterCategoryId(_gameTag);
-                            response = await GameBananaService.GetModsByCategoryAsync(
-                                _gameTag,
-                                categoryId,
-                                _currentPage,
-                                _currentSearch,
-                                _currentSortOrder);
-                        }
-                        else
-                        {
-                            response = await GameBananaService.GetModsAsync(
-                                _gameTag,
-                                _currentPage,
-                                _currentSearch,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null,
-                                null);
-                        }
+                        response = await FetchModsPageAsync(firstPage);
+                        if (loadGeneration != _loadGeneration) return;
                     }
-                    
+
                     if (response == null)
                     {
-                        // Still failed - show error
                         LoadingPanel.Visibility = Visibility.Collapsed;
+                        ConnectionErrorBar.Severity = InfoBarSeverity.Error;
                         ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
                         ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
                         ConnectionErrorBar.IsOpen = true;
@@ -711,109 +828,143 @@ namespace FlairX_Mod_Manager.Pages
                     }
                 }
 
-                if (response.Records == null || response.Records.Count == 0)
+                var firstPageRecords = response.Records ?? [];
+                IReadOnlyList<GameBananaService.ModRecord> records;
+                var partialWindow = false;
+                var cappedWindow = false;
+
+                if (windowEligible)
+                {
+                    var collector = new GameBananaRecentWindowCollector(
+                        selection.TimeRange,
+                        DateTimeOffset.UtcNow);
+                    var sourceComplete = response.Metadata?.IsComplete ?? firstPageRecords.Count < 50;
+                    var decision = collector.AddPage(firstPageRecords, sourceComplete);
+
+                    while (decision.ShouldContinue)
+                    {
+                        var nextPage = collector.PagesProcessed + 1;
+                        var nextResponse = await FetchModsPageAsync(nextPage);
+                        if (loadGeneration != _loadGeneration) return;
+
+                        if (nextResponse is null)
+                        {
+                            partialWindow = true;
+                            Logger.LogWarning(
+                                $"GameBanana recent window page {nextPage} failed after " +
+                                $"{collector.PagesProcessed} successful page(s).");
+                            break;
+                        }
+
+                        var nextRecords = nextResponse.Records ?? [];
+                        sourceComplete = nextResponse.Metadata?.IsComplete ?? nextRecords.Count < 50;
+                        decision = collector.AddPage(nextRecords, sourceComplete);
+                    }
+
+                    records = GameBananaRecentSecondarySorter.FilterAndOrder(
+                        collector.Records,
+                        ShouldIncludeMod,
+                        selection.Sort);
+                    cappedWindow = collector.StopReason is
+                        GameBananaRecentStopReason.PageLimit or
+                        GameBananaRecentStopReason.RecordLimit;
+                    Logger.LogInfo(
+                        $"GameBanana recent window stopped with {collector.StopReason}: " +
+                        $"pages={collector.PagesProcessed}, raw={collector.RawRecordsProcessed}, " +
+                        $"uniqueInRange={collector.Records.Count}, displayed={records.Count}.");
+                    _hasMorePages = false;
+                }
+                else
+                {
+                    records = firstPageRecords;
+                    _hasMorePages = response.Metadata != null
+                        ? !response.Metadata.IsComplete
+                        : firstPageRecords.Count >= 50;
+                }
+
+                if (partialWindow)
+                {
+                    ConnectionErrorBar.Severity = InfoBarSeverity.Warning;
+                    ConnectionErrorBar.Title = GetTranslationOrDefault(
+                        "RecentWindow_PartialTitle",
+                        "Partial results");
+                    ConnectionErrorBar.Message = GetTranslationOrDefault(
+                        "RecentWindow_PartialWarning",
+                        "A later GameBanana page could not be loaded; the available results are shown.");
+                    ConnectionErrorBar.IsOpen = true;
+                }
+                else if (cappedWindow)
+                {
+                    ConnectionErrorBar.Severity = InfoBarSeverity.Warning;
+                    ConnectionErrorBar.Title = GetTranslationOrDefault(
+                        "RecentWindow_CappedTitle",
+                        "Results limited");
+                    ConnectionErrorBar.Message = GetTranslationOrDefault(
+                        "RecentWindow_CappedWarning",
+                        "Results reached the safety limit of 10 pages or 500 records.");
+                    ConnectionErrorBar.IsOpen = true;
+                }
+
+                if (records.Count == 0)
                 {
                     LoadingPanel.Visibility = Visibility.Collapsed;
                     EmptyPanel.Visibility = Visibility.Visible;
-                    EmptyText.Text = string.IsNullOrEmpty(_currentSearch) 
+                    EmptyText.Text = string.IsNullOrEmpty(_currentSearch)
                         ? SharedUtilities.GetTranslation(_lang, "NoModsFound")
                         : SharedUtilities.GetTranslation(_lang, "NoModsMatchSearch");
                     _hasMorePages = false;
                     return;
                 }
 
-                // Check if there are more pages
-                if (response.Metadata != null)
-                {
-                    _hasMorePages = !response.Metadata.IsComplete;
-                }
-                else
-                {
-                    _hasMorePages = response.Records.Count >= 50;
-                }
-
                 var installedText = SharedUtilities.GetTranslation(_lang, "Installed");
-                
-                foreach (var record in response.Records)
+                foreach (var record in records)
                 {
-                    // Skip duplicates (important for infinite scroll and auto-load)
-                    if (_loadedModIds.Contains(record.Id))
+                    if (_loadedModIds.Contains(record.Id) ||
+                        (!windowEligible && !ShouldIncludeMod(record)))
                     {
                         continue;
                     }
 
-                    // Skip NSFW content if setting is enabled
-                    if (record.HasAnyContentWarning && SettingsManager.Current.HideNSFWMods)
-                    {
-                        continue;
-                    }
-
-                    // Skip blacklisted mods
-                    var authorName = record.Submitter?.Name ?? "";
-                    var modName = record.Name ?? "";
-                    if (IsModBlacklisted(authorName, modName))
-                    {
-                        continue;
-                    }
-
-                    var viewModel = new ModViewModel
-                    {
-                        Id = record.Id,
-                        Name = record.Name ?? "",
-                        AuthorName = record.Submitter?.Name ?? "Unknown",
-                        ProfileUrl = record.ProfileUrl ?? "",
-                        LikeCount = record.GetLikeCount(),
-                        ViewCount = record.GetViewCount(),
-                        DateAdded = record.DateAdded,
-                        DateModified = record.DateModified,
-                        DateUpdated = record.DateUpdated,
-                        IsRated = record.HasAnyContentWarning,
-                        IsInstalled = IsModInstalled(record.ProfileUrl ?? ""),
-                        InstalledText = installedText
-                    };
-
-                    // Get preview image
-                    var image = record.PreviewMedia?.Images?.FirstOrDefault();
-                    if (image != null)
-                    {
-                        viewModel.ImageUrl = $"{image.BaseUrl}/{image.File220 ?? image.File100 ?? image.File}";
-                    }
-
+                    var viewModel = CreateModViewModel(
+                        record,
+                        installedText,
+                        IsModInstalled(record.ProfileUrl ?? ""));
                     _mods.Add(viewModel);
-                    _loadedModIds.Add(record.Id); // Track to prevent duplicates
+                    _loadedModIds.Add(record.Id);
                 }
 
-                // If we have very few mods (likely due to NSFW filtering), load more automatically
-                if (_mods.Count < 20 && _hasMorePages)
+                if (!windowEligible && _mods.Count < 20 && _hasMorePages)
                 {
                     Logger.LogInfo($"Only {_mods.Count} mods loaded after NSFW filtering, auto-loading more pages...");
-                    await AutoLoadMorePagesAsync();
+                    await AutoLoadMorePagesAsync(loadGeneration);
+                    if (loadGeneration != _loadGeneration) return;
                 }
-                
+
                 if (_mods.Count == 0)
                 {
                     LoadingPanel.Visibility = Visibility.Collapsed;
                     EmptyPanel.Visibility = Visibility.Visible;
-                    EmptyText.Text = string.IsNullOrEmpty(_currentSearch) 
+                    EmptyText.Text = string.IsNullOrEmpty(_currentSearch)
                         ? SharedUtilities.GetTranslation(_lang, "NoModsFound")
                         : SharedUtilities.GetTranslation(_lang, "NoModsMatchSearch");
                     return;
                 }
 
-                // Load images asynchronously
                 _ = LoadImagesAsync();
-
                 LoadingPanel.Visibility = Visibility.Collapsed;
                 ModsGridView.Visibility = Visibility.Visible;
-                
-                // Show Load More button if there are more pages
-                LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
+                LoadMoreMainModsButton.Visibility = !windowEligible && _hasMorePages
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
                 LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex)
             {
+                if (loadGeneration != _loadGeneration) return;
+
                 Logger.LogError("Failed to load mods from GameBanana", ex);
                 LoadingPanel.Visibility = Visibility.Collapsed;
+                ConnectionErrorBar.Severity = InfoBarSeverity.Error;
                 ConnectionErrorBar.Title = SharedUtilities.GetTranslation(_lang, "ConnectionErrorTitle");
                 ConnectionErrorBar.Message = SharedUtilities.GetTranslation(_lang, "ConnectionErrorMessage");
                 ConnectionErrorBar.IsOpen = true;
@@ -962,7 +1113,7 @@ namespace FlairX_Mod_Manager.Pages
                                 if (modDetails.PreviewMedia?.Images?.Any() == true)
                                 {
                                     var image = modDetails.PreviewMedia.Images.First();
-                                    viewModel.ImageUrl = $"{image.BaseUrl}/{image.File220 ?? image.File100 ?? image.File}";
+                                    viewModel.ImageUrl = GameBananaService.GetListPreviewImageUrl(image);
                                 }
                                 
                                 return viewModel;
@@ -1103,22 +1254,32 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
-        private async Task AutoLoadMorePagesAsync()
+        private async Task AutoLoadMorePagesAsync(int loadGeneration)
         {
             // Auto-load up to 5 more pages if we have too few mods (handles heavy NSFW filtering)
             int pagesLoaded = 0;
-            while (_mods.Count < 20 && _hasMorePages && pagesLoaded < 5)
+            while (loadGeneration == _loadGeneration &&
+                   _mods.Count < 20 &&
+                   _hasMorePages &&
+                   pagesLoaded < 5)
             {
-                await LoadMoreModsAsync();
+                await LoadMoreModsAsync(loadGeneration);
+                if (loadGeneration != _loadGeneration) return;
                 pagesLoaded++;
                 await Task.Delay(100); // Small delay between requests
             }
             Logger.LogInfo($"AutoLoadMorePages finished: {_mods.Count} mods after {pagesLoaded} extra pages");
         }
 
-        private async Task LoadMoreModsAsync()
+        private async Task LoadMoreModsAsync(int? expectedLoadGeneration = null)
         {
-            if (_isLoadingMore || !_hasMorePages) return;
+            if ((expectedLoadGeneration.HasValue && expectedLoadGeneration.Value != _loadGeneration) ||
+                _isLoadingMore ||
+                IsRecentWindowEligible() ||
+                !_hasMorePages)
+            {
+                return;
+            }
             
             _isLoadingMore = true;
             
@@ -1126,31 +1287,8 @@ namespace FlairX_Mod_Manager.Pages
             {
                 _currentPage++;
                 
-                GameBananaService.ModListResponse? response;
-
-                if (_currentCategoryFilter == CategoryFilter.CharacterSkins)
-                {
-                    var categoryId = GameBananaService.GetCharacterCategoryId(_gameTag);
-                    response = await GameBananaService.GetModsByCategoryAsync(
-                        _gameTag,
-                        categoryId,
-                        _currentPage,
-                        _currentSearch,
-                        _currentSortOrder);
-                }
-                else
-                {
-                    response = await GameBananaService.GetModsAsync(
-                        _gameTag,
-                        _currentPage,
-                        _currentSearch,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null);
-                }
+                var response = await FetchModsPageAsync(_currentPage);
+                if (expectedLoadGeneration.HasValue && expectedLoadGeneration.Value != _loadGeneration) return;
 
                 if (response?.Records == null || response.Records.Count == 0)
                 {
@@ -1177,35 +1315,13 @@ namespace FlairX_Mod_Manager.Pages
                     if (_loadedModIds.Contains(record.Id))
                         continue;
 
-                    // Skip NSFW content if setting is enabled
-                    if (record.HasAnyContentWarning && SettingsManager.Current.HideNSFWMods)
+                    if (!ShouldIncludeMod(record))
                         continue;
 
-                    // Skip blacklisted mods
-                    var authorName = record.Submitter?.Name ?? "";
-                    var modName = record.Name ?? "";
-                    if (IsModBlacklisted(authorName, modName))
-                        continue;
-
-                    var viewModel = new ModViewModel
-                    {
-                        Id = record.Id,
-                        Name = record.Name ?? "",
-                        AuthorName = record.Submitter?.Name ?? "Unknown",
-                        ProfileUrl = record.ProfileUrl ?? "",
-                        LikeCount = record.GetLikeCount(),
-                        ViewCount = record.GetViewCount(),
-                        DateAdded = record.DateAdded,
-                        DateModified = record.DateModified,
-                        DateUpdated = record.DateUpdated,
-                        IsRated = record.HasAnyContentWarning,
-                        IsInstalled = false, // Checked lazily in background below
-                        InstalledText = installedText
-                    };
-
-                    var image = record.PreviewMedia?.Images?.FirstOrDefault();
-                    if (image != null)
-                        viewModel.ImageUrl = $"{image.BaseUrl}/{image.File220 ?? image.File100 ?? image.File}";
+                    var viewModel = CreateModViewModel(
+                        record,
+                        installedText,
+                        isInstalled: false);
 
                     _mods.Add(viewModel);
                     _loadedModIds.Add(record.Id);
@@ -1228,15 +1344,20 @@ namespace FlairX_Mod_Manager.Pages
                 _ = LoadImagesAsync();
                 
                 // Update Load More button visibility
-                LoadMoreMainModsButton.Visibility = _hasMorePages ? Visibility.Visible : Visibility.Collapsed;
+                LoadMoreMainModsButton.Visibility = !IsRecentWindowEligible() && _hasMorePages
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
                 LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
                 
                 // Check if we still need more content after loading
                 await Task.Delay(200); // Wait for layout to update
+                if (expectedLoadGeneration.HasValue && expectedLoadGeneration.Value != _loadGeneration) return;
                 CheckIfNeedMoreContent();
             }
             catch (Exception ex)
             {
+                if (expectedLoadGeneration.HasValue && expectedLoadGeneration.Value != _loadGeneration) return;
+
                 Logger.LogError("Failed to load more mods from GameBanana", ex);
                 _hasMorePages = false;
                 LoadMoreMainModsButton.Visibility = Visibility.Collapsed;
@@ -1251,7 +1372,10 @@ namespace FlairX_Mod_Manager.Pages
         private void CheckIfNeedMoreContent()
         {
             // If ScrollViewer doesn't have enough content to scroll, load more
-            if (_modsScrollViewer != null && _hasMorePages && !_isLoadingMore)
+            if (_modsScrollViewer != null &&
+                !IsRecentWindowEligible() &&
+                _hasMorePages &&
+                !_isLoadingMore)
             {
                 var scrollableHeight = _modsScrollViewer.ScrollableHeight;
                 
@@ -1379,6 +1503,94 @@ namespace FlairX_Mod_Manager.Pages
             }
         }
 
+        private string GetTranslationOrDefault(string key, string fallback)
+        {
+            var value = SharedUtilities.GetTranslation(_lang, key);
+            return string.IsNullOrWhiteSpace(value) || value.StartsWith("[MISSING:", StringComparison.Ordinal)
+                ? fallback
+                : value;
+        }
+
+        private int GetActiveCharacterCategoryId()
+        {
+            var parentCategoryId = GameBananaService.GetCharacterCategoryId(_gameTag);
+            return GameBananaCharacterFilter.ResolveCategoryId(
+                parentCategoryId,
+                _selectedCharacterCategoryId,
+                _characterOptions);
+        }
+
+        private void ApplyCharacterOptions(
+            IReadOnlyList<GameBananaCharacterOption> options,
+            int? preferredCategoryId,
+            bool enableSelection)
+        {
+            var parentCategoryId = GameBananaService.GetCharacterCategoryId(_gameTag);
+            var resolvedCategoryId = GameBananaCharacterFilter.ResolveCategoryId(
+                parentCategoryId,
+                preferredCategoryId,
+                options);
+
+            _isUpdatingCharacterSelection = true;
+            try
+            {
+                _characterOptions = options;
+                CharacterFilterComboBox.Items.Clear();
+                foreach (var option in _characterOptions)
+                {
+                    CharacterFilterComboBox.Items.Add(new ComboBoxItem
+                    {
+                        Content = option.DisplayName,
+                        Tag = option
+                    });
+                }
+
+                CharacterFilterComboBox.SelectedItem = CharacterFilterComboBox.Items
+                    .OfType<ComboBoxItem>()
+                    .FirstOrDefault(item =>
+                        item.Tag is GameBananaCharacterOption option &&
+                        option.CategoryId == resolvedCategoryId);
+                CharacterFilterComboBox.IsEnabled = enableSelection && _characterOptions.Count > 1;
+                _selectedCharacterCategoryId = resolvedCategoryId;
+            }
+            finally
+            {
+                _isUpdatingCharacterSelection = false;
+            }
+        }
+
+        private async Task LoadCharacterOptionsAsync(int? preferredCategoryId = null)
+        {
+            var parentCategoryId = GameBananaService.GetCharacterCategoryId(_gameTag);
+            var allCharactersLabel = GetTranslationOrDefault("Filter_AllCharacters", "All Characters");
+            var fallbackOptions = GameBananaCharacterFilter.BuildOptions(
+                Array.Empty<GameBananaService.CategoryRecord>(),
+                parentCategoryId,
+                allCharactersLabel);
+
+            ApplyCharacterOptions(fallbackOptions, preferredCategoryId ?? parentCategoryId, false);
+
+            try
+            {
+                var categories = await GameBananaService.GetCharacterCategoriesAsync(_gameTag);
+                if (categories is not { Count: > 0 })
+                {
+                    Logger.LogWarning($"No GameBanana character categories were returned for {_gameTag}; using the parent category.");
+                    return;
+                }
+
+                var options = GameBananaCharacterFilter.BuildOptions(
+                    categories,
+                    parentCategoryId,
+                    allCharactersLabel);
+                ApplyCharacterOptions(options, preferredCategoryId ?? parentCategoryId, true);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Failed to load GameBanana character options for {_gameTag}; using the parent category.", ex);
+            }
+        }
+
         private void CategoryFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is ComboBox cb)
@@ -1387,19 +1599,45 @@ namespace FlairX_Mod_Manager.Pages
                     ? CategoryFilter.CharacterSkins
                     : CategoryFilter.AllMods;
 
-                // Sort ComboBox only makes sense for Character Skins (apiv6 ByCategory supports it)
-                SortOrderComboBox.Visibility = _currentCategoryFilter == CategoryFilter.CharacterSkins
+                var characterFilterVisibility = _currentCategoryFilter == CategoryFilter.CharacterSkins
                     ? Visibility.Visible
                     : Visibility.Collapsed;
+                CharacterFilterComboBox.Visibility = characterFilterVisibility;
+                SortOrderComboBox.Visibility = characterFilterVisibility;
+
+                if (_currentCategoryFilter == CategoryFilter.CharacterSkins)
+                {
+                    _selectedCharacterCategoryId = GameBananaService.GetCharacterCategoryId(_gameTag);
+                    _ = LoadCharacterOptionsAsync();
+                }
+                else
+                {
+                    _selectedCharacterCategoryId = null;
+                }
 
                 _currentSortOrder = GameBananaService.CategorySortOrder.LatestUpdated;
                 SortOrderComboBox.SelectedIndex = 0;
 
                 _currentSearch = null;
                 SearchBox.Text = "";
+                UpdateRecentWindowAvailability();
                 _currentPage = 1;
                 _ = LoadModsAsync();
             }
+        }
+
+        private void CharacterFilterComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_isUpdatingCharacterSelection ||
+                _currentCategoryFilter != CategoryFilter.CharacterSkins ||
+                sender is not ComboBox { SelectedItem: ComboBoxItem { Tag: GameBananaCharacterOption option } })
+            {
+                return;
+            }
+
+            _selectedCharacterCategoryId = option.CategoryId;
+            _currentPage = 1;
+            _ = LoadModsAsync();
         }
 
         private void SortOrderComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1417,9 +1655,92 @@ namespace FlairX_Mod_Manager.Pages
                     _ => GameBananaService.CategorySortOrder.LatestUpdated,
                 };
 
+                UpdateRecentWindowAvailability();
                 _currentPage = 1;
                 _ = LoadModsAsync();
             }
+        }
+
+        private void TimeRangeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_isUpdatingRecentWindowControls || sender is not ComboBox comboBox)
+            {
+                return;
+            }
+
+            _currentTimeRange = comboBox.SelectedIndex switch
+            {
+                0 => GameBananaUpdatedTimeRange.Last30Days,
+                2 => GameBananaUpdatedTimeRange.Last180Days,
+                3 => GameBananaUpdatedTimeRange.Unlimited,
+                _ => GameBananaUpdatedTimeRange.Last90Days
+            };
+
+            var selection = GameBananaRecentSecondarySorter.Normalize(
+                _currentCategoryFilter == CategoryFilter.CharacterSkins,
+                _currentSortOrder,
+                _currentSearch,
+                new GameBananaRecentSelection(_currentTimeRange, _currentSecondarySort));
+            _currentTimeRange = selection.TimeRange;
+            _currentSecondarySort = selection.Sort;
+
+            _currentPage = 1;
+            _ = LoadModsAsync();
+        }
+
+        private void SecondarySortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_isUpdatingRecentWindowControls || sender is not ComboBox comboBox)
+            {
+                return;
+            }
+
+            _currentSecondarySort = comboBox.SelectedIndex switch
+            {
+                1 => GameBananaRecentSecondarySort.MostLiked,
+                2 => GameBananaRecentSecondarySort.MostDownloaded,
+                3 => GameBananaRecentSecondarySort.MostCommented,
+                _ => GameBananaRecentSecondarySort.LatestUpdated
+            };
+
+            var selection = GameBananaRecentSecondarySorter.Normalize(
+                _currentCategoryFilter == CategoryFilter.CharacterSkins,
+                _currentSortOrder,
+                _currentSearch,
+                new GameBananaRecentSelection(_currentTimeRange, _currentSecondarySort));
+            _currentTimeRange = selection.TimeRange;
+            _currentSecondarySort = selection.Sort;
+
+            _currentPage = 1;
+            _ = LoadModsAsync();
+        }
+
+        private void UpdateRecentWindowAvailability(bool resetIfIneligible = true)
+        {
+            var isEligible = GameBananaRecentSecondarySorter.IsEligible(
+                _currentCategoryFilter == CategoryFilter.CharacterSkins,
+                _currentSortOrder,
+                _currentSearch);
+
+            if (resetIfIneligible && !isEligible)
+            {
+                var selection = GameBananaRecentSelection.Default;
+                _currentTimeRange = selection.TimeRange;
+                _currentSecondarySort = selection.Sort;
+                _isUpdatingRecentWindowControls = true;
+                try
+                {
+                    TimeRangeComboBox.SelectedIndex = 1;
+                    SecondarySortComboBox.SelectedIndex = 0;
+                }
+                finally
+                {
+                    _isUpdatingRecentWindowControls = false;
+                }
+            }
+
+            TimeRangeComboBox.Visibility = isEligible ? Visibility.Visible : Visibility.Collapsed;
+            SecondarySortComboBox.Visibility = isEligible ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
@@ -1436,10 +1757,14 @@ namespace FlairX_Mod_Manager.Pages
                         ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
                         Page: _currentPage,
                         Filter: _currentCategoryFilter,
-                        SortOrder: _currentSortOrder));
+                        SortOrder: _currentSortOrder,
+                        CharacterCategoryId: _selectedCharacterCategoryId,
+                        TimeRange: _currentTimeRange,
+                        SecondarySort: _currentSecondarySort));
                     UpdateBackButtonIcon();
                 }
                 _currentSearch = null;
+                UpdateRecentWindowAvailability();
                 _currentPage = 1;
                 _ = LoadModsAsync();
             }
@@ -1478,10 +1803,14 @@ namespace FlairX_Mod_Manager.Pages
                     ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
                     Page: _currentPage,
                     Filter: _currentCategoryFilter,
-                    SortOrder: _currentSortOrder));
+                    SortOrder: _currentSortOrder,
+                    CharacterCategoryId: _selectedCharacterCategoryId,
+                    TimeRange: _currentTimeRange,
+                    SecondarySort: _currentSecondarySort));
                 UpdateBackButtonIcon();
             }
             _currentSearch = newSearch;
+            UpdateRecentWindowAvailability();
             _currentPage = 1;
             _ = LoadModsAsync();
         }
@@ -1498,10 +1827,14 @@ namespace FlairX_Mod_Manager.Pages
                     ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
                     Page: _currentPage,
                     Filter: _currentCategoryFilter,
-                    SortOrder: _currentSortOrder));
+                    SortOrder: _currentSortOrder,
+                    CharacterCategoryId: _selectedCharacterCategoryId,
+                    TimeRange: _currentTimeRange,
+                    SecondarySort: _currentSecondarySort));
                 UpdateBackButtonIcon();
             }
             _currentSearch = newSearch;
+            UpdateRecentWindowAvailability();
             _currentPage = 1;
             await LoadModsAsync();
         }
@@ -1813,13 +2146,18 @@ namespace FlairX_Mod_Manager.Pages
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
+            _ = NavigateBackAsync();
+        }
+
+        private async Task NavigateBackAsync()
+        {
             if (_isNavigating) return;
 
             if (_navigationStack.Count > 0)
             {
                 var previous = _navigationStack.Pop();
                 _isNavigating = true; // Set synchronously before async call to prevent race condition
-                _ = RestoreNavigationEntryAsync(previous);
+                await RestoreNavigationEntryAsync(previous);
             }
             else
             {
@@ -1860,6 +2198,9 @@ namespace FlairX_Mod_Manager.Pages
                         // Reload if search, page, filter or sort changed — or if list is empty
                         if (entry.Search != _currentSearch || entry.Page != _currentPage || 
                             entry.Filter != _currentCategoryFilter || entry.SortOrder != _currentSortOrder ||
+                            entry.CharacterCategoryId != _selectedCharacterCategoryId ||
+                            entry.TimeRange != _currentTimeRange ||
+                            entry.SecondarySort != _currentSecondarySort ||
                             _mods.Count == 0)
                         {
                             _currentSearch = entry.Search;
@@ -1870,8 +2211,10 @@ namespace FlairX_Mod_Manager.Pages
                             _currentCategoryFilter = entry.Filter;
                             CategoryFilterComboBox.SelectionChanged -= CategoryFilterComboBox_SelectionChanged;
                             CategoryFilterComboBox.SelectedIndex = entry.Filter == CategoryFilter.CharacterSkins ? 1 : 0;
-                            SortOrderComboBox.Visibility = entry.Filter == CategoryFilter.CharacterSkins
+                            var characterFilterVisibility = entry.Filter == CategoryFilter.CharacterSkins
                                 ? Visibility.Visible : Visibility.Collapsed;
+                            CharacterFilterComboBox.Visibility = characterFilterVisibility;
+                            SortOrderComboBox.Visibility = characterFilterVisibility;
                             CategoryFilterComboBox.SelectionChanged += CategoryFilterComboBox_SelectionChanged;
 
                             // Restore sort order without triggering SelectionChanged reload
@@ -1888,6 +2231,46 @@ namespace FlairX_Mod_Manager.Pages
                                 _ => 0
                             };
                             SortOrderComboBox.SelectionChanged += SortOrderComboBox_SelectionChanged;
+
+                            var recentSelection = GameBananaRecentSecondarySorter.Normalize(
+                                entry.Filter == CategoryFilter.CharacterSkins,
+                                entry.SortOrder,
+                                entry.Search,
+                                new GameBananaRecentSelection(entry.TimeRange, entry.SecondarySort));
+                            _currentTimeRange = recentSelection.TimeRange;
+                            _currentSecondarySort = recentSelection.Sort;
+                            _isUpdatingRecentWindowControls = true;
+                            try
+                            {
+                                TimeRangeComboBox.SelectedIndex = _currentTimeRange switch
+                                {
+                                    GameBananaUpdatedTimeRange.Last30Days => 0,
+                                    GameBananaUpdatedTimeRange.Last180Days => 2,
+                                    GameBananaUpdatedTimeRange.Unlimited => 3,
+                                    _ => 1
+                                };
+                                SecondarySortComboBox.SelectedIndex = _currentSecondarySort switch
+                                {
+                                    GameBananaRecentSecondarySort.MostLiked => 1,
+                                    GameBananaRecentSecondarySort.MostDownloaded => 2,
+                                    GameBananaRecentSecondarySort.MostCommented => 3,
+                                    _ => 0
+                                };
+                            }
+                            finally
+                            {
+                                _isUpdatingRecentWindowControls = false;
+                            }
+                            UpdateRecentWindowAvailability(resetIfIneligible: false);
+
+                            if (entry.Filter == CategoryFilter.CharacterSkins)
+                            {
+                                await LoadCharacterOptionsAsync(entry.CharacterCategoryId);
+                            }
+                            else
+                            {
+                                _selectedCharacterCategoryId = null;
+                            }
 
                             await LoadModsAsync();
                         }
@@ -2116,7 +2499,10 @@ namespace FlairX_Mod_Manager.Pages
                             ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
                             Page: _currentPage,
                             Filter: _currentCategoryFilter,
-                            SortOrder: _currentSortOrder));
+                            SortOrder: _currentSortOrder,
+                            CharacterCategoryId: _selectedCharacterCategoryId,
+                            TimeRange: _currentTimeRange,
+                            SecondarySort: _currentSecondarySort));
                     }
                     else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
                     {
@@ -2420,7 +2806,10 @@ namespace FlairX_Mod_Manager.Pages
                             ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
                             Page: _currentPage,
                             Filter: _currentCategoryFilter,
-                            SortOrder: _currentSortOrder));
+                            SortOrder: _currentSortOrder,
+                            CharacterCategoryId: _selectedCharacterCategoryId,
+                            TimeRange: _currentTimeRange,
+                            SecondarySort: _currentSecondarySort));
                     }
                     else if (_currentState == NavigationState.AuthorMods && _currentAuthorId.HasValue)
                     {
@@ -2604,15 +2993,27 @@ namespace FlairX_Mod_Manager.Pages
                 existingModPath); // Pass existing mod path if installed
             extractDialog.XamlRoot = XamlRoot;
             
-            // Subscribe to ModInstalled event to update tile status
-            extractDialog.ModInstalled += OnModInstalled;
-            
-            var result = await extractDialog.ShowAsync();
+            var installationCompleted = false;
+            EventHandler<Dialogs.GameBananaFileExtractionDialog.ModInstalledEventArgs> installedHandler =
+                (dialogSender, eventArgs) =>
+                {
+                    installationCompleted = true;
+                    OnModInstalled(dialogSender, eventArgs);
+                };
 
-            if (result == ContentDialogResult.Primary)
+            extractDialog.ModInstalled += installedHandler;
+            try
             {
-                CloseDetailsPanel();
-                // Reload will happen when browser is closed (if mod was installed)
+                await extractDialog.ShowAsync();
+            }
+            finally
+            {
+                extractDialog.ModInstalled -= installedHandler;
+            }
+
+            if (installationCompleted)
+            {
+                await NavigateBackAsync();
             }
         }
         
@@ -3578,7 +3979,12 @@ namespace FlairX_Mod_Manager.Pages
                                 NavigationState.ModsList,
                                 Search: _currentSearch,
                                 ScrollOffset: _modsScrollViewer?.VerticalOffset ?? 0,
-                                Page: _currentPage));
+                                Page: _currentPage,
+                                Filter: _currentCategoryFilter,
+                                SortOrder: _currentSortOrder,
+                                CharacterCategoryId: _selectedCharacterCategoryId,
+                                TimeRange: _currentTimeRange,
+                                SecondarySort: _currentSecondarySort));
                         }
                         else if (_currentState == NavigationState.ModDetails && _currentModDetails != null)
                         {

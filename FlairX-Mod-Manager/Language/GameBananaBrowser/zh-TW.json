@@ -95,5 +95,20 @@
   "Sort_MostCommented": "最多留言",
   "GB_LoadImages": "載入圖片",
   "GB_NoDescription": "暫無描述。",
-  "SelectFilesToDownload": "選擇要下載的文件"
+  "SelectFilesToDownload": "選擇要下載的文件",
+  "Filter_AllCharacters": "全部角色",
+  "TimeRange_Header": "時間範圍",
+  "TimeRange_Last30Days": "最近 30 天",
+  "TimeRange_Last90Days": "最近 90 天",
+  "TimeRange_Last180Days": "最近 180 天",
+  "TimeRange_Unlimited": "不限時間（最多 500 筆）",
+  "WindowSort_Header": "範圍內排序",
+  "WindowSort_LatestUpdated": "最近更新",
+  "WindowSort_MostLiked": "最多喜愛",
+  "WindowSort_MostDownloaded": "最多下載",
+  "WindowSort_MostCommented": "最多評論",
+  "RecentWindow_PartialTitle": "部分結果",
+  "RecentWindow_PartialWarning": "GameBanana 後續頁面載入失敗，已顯示目前可用結果。",
+  "RecentWindow_CappedTitle": "結果受限",
+  "RecentWindow_CappedWarning": "結果已達到 10 頁或 500 筆的安全上限。"
 }

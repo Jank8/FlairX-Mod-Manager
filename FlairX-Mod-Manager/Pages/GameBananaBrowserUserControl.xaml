@@ -96,8 +96,9 @@
                 </Grid.RowDefinitions>
 
             <!-- Search and filters -->
-            <Grid Grid.Row="0" Padding="16">
+            <Grid x:Name="FiltersToolbarGrid" Grid.Row="0" Padding="16">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -109,20 +110,20 @@
                           Grid.Column="0"
                           MinWidth="160"
                           Margin="0,0,12,0"
-                          VerticalAlignment="Center"
+                          VerticalAlignment="Bottom"
                           SelectionChanged="CategoryFilterComboBox_SelectionChanged"/>
 
                 <!-- Sort order (only visible for Character Skins) -->
                 <ComboBox x:Name="SortOrderComboBox"
-                          Grid.Column="1"
+                          Grid.Column="2"
                           MinWidth="160"
                           Margin="0,0,12,0"
-                          VerticalAlignment="Center"
+                          VerticalAlignment="Bottom"
                           Visibility="Collapsed"
                           SelectionChanged="SortOrderComboBox_SelectionChanged"/>
                 
                 <AutoSuggestBox x:Name="SearchBox"
-                                Grid.Column="2"
+                                Grid.Column="3"
                                 PlaceholderText="Search mods or enter URL/ID..."
                                 QueryIcon="Find"
                                 QuerySubmitted="SearchBox_QuerySubmitted"
@@ -130,7 +131,7 @@
                 
                 <!-- Starter Pack button -->
                 <Button x:Name="StarterPackButton"
-                        Grid.Column="3"
+                        Grid.Column="4"
                         Margin="12,0,0,0"
                         Click="StarterPackButton_Click"
                         ToolTipService.ToolTip="Download Starter Pack">

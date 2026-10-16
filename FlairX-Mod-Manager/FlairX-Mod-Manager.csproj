@@ -75,6 +75,10 @@
 
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="FlairX-Mod-Manager.Tests" />
+  </ItemGroup>
+
   <!-- ========================================
        APPLICATION RESOURCES
        ======================================== -->

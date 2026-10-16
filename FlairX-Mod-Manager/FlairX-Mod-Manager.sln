@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36221.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlairX-Mod-Manager", "FlairX-Mod-Manager.csproj", "{BA4784EA-BB08-4FE8-9EAA-83B7097422DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlairX-Mod-Manager.Tests", "..\FlairX-Mod-Manager.Tests\FlairX-Mod-Manager.Tests.csproj", "{671FE1F3-8738-45C8-99A2-38308276937A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -17,6 +19,10 @@ Global
 		{BA4784EA-BB08-4FE8-9EAA-83B7097422DF}.Release|x64.ActiveCfg = Release|x64
 		{BA4784EA-BB08-4FE8-9EAA-83B7097422DF}.Release|x64.Build.0 = Release|x64
 		{BA4784EA-BB08-4FE8-9EAA-83B7097422DF}.Release|x64.Deploy.0 = Release|x64
+		{671FE1F3-8738-45C8-99A2-38308276937A}.Debug|x64.ActiveCfg = Debug|x64
+		{671FE1F3-8738-45C8-99A2-38308276937A}.Debug|x64.Build.0 = Debug|x64
+		{671FE1F3-8738-45C8-99A2-38308276937A}.Release|x64.ActiveCfg = Release|x64
+		{671FE1F3-8738-45C8-99A2-38308276937A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

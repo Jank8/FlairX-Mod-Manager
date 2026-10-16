@@ -203,6 +203,18 @@ namespace FlairX_Mod_Manager.Services
                 }
                 return 0;
             }
+
+            public int GetPostCount()
+            {
+                if (PostCount > 0) return PostCount;
+                if (Metadata != null && Metadata.TryGetValue("_nPostCount", out var value) &&
+                    value is JsonElement element && element.ValueKind == JsonValueKind.Number)
+                {
+                    return element.GetInt32();
+                }
+
+                return 0;
+            }
         }
 
         public class PreviewMedia
@@ -230,6 +242,19 @@ namespace FlairX_Mod_Manager.Services
             
             [JsonPropertyName("_sFile100")]
             public string? File100 { get; set; }
+        }
+
+        internal static string? GetListPreviewImageUrl(ImageInfo image)
+        {
+            var fileName = !string.IsNullOrWhiteSpace(image.File530) ? image.File530
+                : !string.IsNullOrWhiteSpace(image.File220) ? image.File220
+                : !string.IsNullOrWhiteSpace(image.File100) ? image.File100
+                : image.File;
+
+            if (string.IsNullOrWhiteSpace(image.BaseUrl) || string.IsNullOrWhiteSpace(fileName))
+                return null;
+
+            return $"{image.BaseUrl.TrimEnd('/')}/{fileName}";
         }
 
         public class ModCategory
@@ -470,7 +495,7 @@ namespace FlairX_Mod_Manager.Services
             MostCommented,   // _nPostCount,DESC
         }
 
-        private static string GetSortParam(CategorySortOrder sort) => sort switch
+        internal static string GetSortParam(CategorySortOrder sort) => sort switch
         {
             CategorySortOrder.Newest         => "_tsDateAdded,DESC",
             CategorySortOrder.Oldest         => "_tsDateAdded,ASC",
@@ -1045,7 +1070,8 @@ namespace FlairX_Mod_Manager.Services
             [JsonPropertyName("_tsDateAdded")]
             public long? DateAdded { get; set; }
 
-            /// <summary>Children (subcategories) - populated when parsing cattree</summary>
+            /// <summary>Children (subcategories) returned by the nested category API</summary>
+            [JsonPropertyName("_aChildren")]
             public List<CategoryRecord> Children { get; set; } = new();
             
             /// <summary>
@@ -1092,14 +1118,79 @@ namespace FlairX_Mod_Manager.Services
 
         public static void ClearCategoryTreeCache() => _categoryTreeCache.Clear();
 
+        /// <summary>
+        /// Parse and flatten GameBanana's nested category response in pre-order.
+        /// Duplicate category IDs are ignored after their first occurrence.
+        /// </summary>
+        internal static List<CategoryRecord> ParseCategoryTreeFromJson(string json)
+        {
+            var roots = JsonSerializer.Deserialize<List<CategoryRecord>>(json) ?? new List<CategoryRecord>();
+            var categories = new List<CategoryRecord>();
+            var seenIds = new HashSet<int>();
+
+            void AddCategoryAndChildren(CategoryRecord category)
+            {
+                if (seenIds.Add(category.Id))
+                {
+                    categories.Add(category);
+                }
+
+                if (category.Children == null)
+                {
+                    return;
+                }
+
+                foreach (var child in category.Children)
+                {
+                    AddCategoryAndChildren(child);
+                }
+            }
+
+            foreach (var root in roots)
+            {
+                AddCategoryAndChildren(root);
+            }
+
+            return categories;
+        }
+
+        internal static async Task<List<CategoryRecord>?> FetchCategoryTreeWithFallbackAsync(
+            int gameId,
+            Func<string, Task<string>> fetchJsonAsync,
+            Func<Task<List<CategoryRecord>?>> fetchFallbackAsync)
+        {
+            var apiUrl = $"https://gamebanana.com/apiv13/Util/ModCategory/NestedStructure?_idGameRow={gameId}";
+
+            try
+            {
+                Logger.LogInfo($"Fetching category tree from GameBanana JSON API: {apiUrl}");
+                var json = await fetchJsonAsync(apiUrl);
+                var categories = ParseCategoryTreeFromJson(json);
+
+                if (categories.Count > 0)
+                {
+                    Logger.LogInfo($"GameBanana JSON API returned {categories.Count} categories for game {gameId}");
+                    return categories;
+                }
+
+                Logger.LogWarning($"GameBanana JSON API returned no categories for game {gameId}; using WebView2 fallback");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"GameBanana JSON API failed for game {gameId}: {ex.Message}; using WebView2 fallback");
+            }
+
+            return await fetchFallbackAsync();
+        }
+
         public static async Task<List<CategoryRecord>?> GetCharacterCategoriesAsync(string gameTag)
         {
-            // Return cached result if available
             if (_categoryTreeCache.TryGetValue(gameTag, out var cached))
             {
                 Logger.LogInfo($"GetCharacterCategoriesAsync: returning cached {cached.Count} categories for {gameTag}");
                 return cached;
             }
+
             try
             {
                 var gameId = GetGameId(gameTag);
@@ -1109,62 +1200,18 @@ namespace FlairX_Mod_Manager.Services
                     return null;
                 }
 
-                var url = $"https://gamebanana.com/games/cattree/{gameId}";
-                Logger.LogInfo($"Fetching category tree from: {url}");
+                var categories = await FetchCategoryTreeWithFallbackAsync(
+                    gameId,
+                    url => _httpClient.GetStringAsync(url),
+                    () => FetchCategoryTreeWithWebView2Async(gameTag, gameId));
 
-                var html = await RenderPageWithWebView2Async(url);
-
-                if (string.IsNullOrEmpty(html))
+                if (categories == null || categories.Count == 0)
                 {
-                    Logger.LogError("Failed to render cattree page with WebView2");
+                    Logger.LogError($"Failed to fetch any categories for {gameTag}");
                     return null;
                 }
 
-                Logger.LogInfo($"Received rendered HTML length: {html.Length} characters");
-
-                var categories = ParseCategoryTreeFromHtml(html);
-                Logger.LogInfo($"Found {categories.Count} categories for {gameTag} from cattree");
-
-                // Some games have additional category pages not covered by the cattree
-                var additionalCatUrls = new Dictionary<string, List<string>>
-                {
-                    { "GIMI", new List<string> { "https://gamebanana.com/mods/cats/18140" } },
-                    { "EFMI", new List<string> { "https://gamebanana.com/mods/cats/42770" } },
-                    { "HIMI", new List<string> { "https://gamebanana.com/mods/cats/23620" } },
-                    { "SRMI", new List<string> { "https://gamebanana.com/mods/cats/22832" } },
-                };
-
-                if (additionalCatUrls.TryGetValue(gameTag, out var extraUrls))
-                {
-                    var existingIds = new HashSet<int>(categories.Select(c => c.Id));
-                    foreach (var extraUrl in extraUrls)
-                    {
-                        Logger.LogInfo($"{gameTag}: also fetching from {extraUrl}");
-                        var extraHtml = await RenderPageWithWebView2Async(extraUrl);
-                        if (!string.IsNullOrEmpty(extraHtml))
-                        {
-                            var extraCategories = ParseCategoryTreeFromHtml(extraHtml);
-                            Logger.LogInfo($"{gameTag}: found {extraCategories.Count} entries from {extraUrl}");
-                            foreach (var cat in extraCategories)
-                            {
-                                if (existingIds.Add(cat.Id))
-                                {
-                                    categories.Add(cat);
-                                    Logger.LogInfo($"{gameTag}: added missing category: {cat.Name} (ID: {cat.Id})");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Logger.LogWarning($"{gameTag}: failed to fetch from {extraUrl}");
-                        }
-                    }
-                    Logger.LogInfo($"{gameTag}: total categories after merge: {categories.Count}");
-                }
-
-                // Cache the result
                 _categoryTreeCache[gameTag] = categories;
-
                 return categories;
             }
             catch (Exception ex)
@@ -1174,12 +1221,74 @@ namespace FlairX_Mod_Manager.Services
             }
         }
 
+        private static async Task<List<CategoryRecord>?> FetchCategoryTreeWithWebView2Async(string gameTag, int gameId)
+        {
+            var url = $"https://gamebanana.com/games/cattree/{gameId}";
+            Logger.LogInfo($"Fetching category tree through WebView2 fallback: {url}");
+
+            var html = await RenderPageWithWebView2Async(url);
+            if (string.IsNullOrEmpty(html))
+            {
+                Logger.LogError("Failed to render cattree page with WebView2");
+                return null;
+            }
+
+            Logger.LogInfo($"Received rendered HTML length: {html.Length} characters");
+            var categories = ParseCategoryTreeFromHtml(html);
+            Logger.LogInfo($"Found {categories.Count} categories for {gameTag} from WebView2 cattree fallback");
+
+            // Preserve the legacy supplemental pages when the JSON API is unavailable.
+            var additionalCatUrls = new Dictionary<string, List<string>>
+            {
+                { "GIMI", new List<string> { "https://gamebanana.com/mods/cats/18140" } },
+                { "EFMI", new List<string> { "https://gamebanana.com/mods/cats/42770" } },
+                { "HIMI", new List<string> { "https://gamebanana.com/mods/cats/23620" } },
+                { "SRMI", new List<string> { "https://gamebanana.com/mods/cats/22832" } },
+            };
+
+            if (additionalCatUrls.TryGetValue(gameTag, out var extraUrls))
+            {
+                var existingIds = new HashSet<int>(categories.Select(c => c.Id));
+                foreach (var extraUrl in extraUrls)
+                {
+                    Logger.LogInfo($"{gameTag}: also fetching fallback categories from {extraUrl}");
+                    var extraHtml = await RenderPageWithWebView2Async(extraUrl);
+                    if (string.IsNullOrEmpty(extraHtml))
+                    {
+                        Logger.LogWarning($"{gameTag}: failed to fetch fallback categories from {extraUrl}");
+                        continue;
+                    }
+
+                    var extraCategories = ParseCategoryTreeFromHtml(extraHtml);
+                    Logger.LogInfo($"{gameTag}: found {extraCategories.Count} fallback entries from {extraUrl}");
+                    foreach (var category in extraCategories)
+                    {
+                        if (existingIds.Add(category.Id))
+                        {
+                            categories.Add(category);
+                            Logger.LogInfo($"{gameTag}: added missing fallback category: {category.Name} (ID: {category.Id})");
+                        }
+                    }
+                }
+
+                Logger.LogInfo($"{gameTag}: total fallback categories after merge: {categories.Count}");
+            }
+
+            return categories.Count > 0 ? categories : null;
+        }
+
         /// <summary>
         /// Render a page using WebView2 and return the HTML after JavaScript execution
         /// </summary>
         private static async Task<string?> RenderPageWithWebView2Async(string url)
         {
             Microsoft.UI.Xaml.Controls.WebView2? webView = null;
+            Microsoft.UI.Xaml.Controls.Grid? hiddenContainer = null;
+            MainWindow? mainWindow = null;
+            Windows.Foundation.TypedEventHandler<
+                Microsoft.Web.WebView2.Core.CoreWebView2,
+                Microsoft.Web.WebView2.Core.CoreWebView2NavigationCompletedEventArgs>? navigationHandler = null;
+
             try
             {
                 Logger.LogInfo($"Initializing WebView2 for URL: {url}");
@@ -1197,22 +1306,30 @@ namespace FlairX_Mod_Manager.Services
                     var wv2Window = wv2App?.MainWindow as MainWindow;
                     if (wv2Window != null)
                     {
-                        var tcs2 = new TaskCompletionSource<bool>();
-                        wv2Window.DispatcherQueue.TryEnqueue(async () =>
+                        var runtimePrompt = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                        if (!wv2Window.DispatcherQueue.TryEnqueue(async () =>
                         {
-                            await FlairX_Mod_Manager.DispatcherQueueExtensions.EnsureWebView2Available(wv2Window.Content.XamlRoot);
-                            tcs2.SetResult(true);
-                        });
-                        await tcs2.Task;
+                            try
+                            {
+                                await FlairX_Mod_Manager.DispatcherQueueExtensions.EnsureWebView2Available(wv2Window.Content.XamlRoot);
+                            }
+                            finally
+                            {
+                                runtimePrompt.TrySetResult(true);
+                            }
+                        }))
+                        {
+                            Logger.LogError("Could not enqueue the WebView2 runtime prompt");
+                            return null;
+                        }
+
+                        await runtimePrompt.Task.WaitAsync(TimeSpan.FromSeconds(30));
                     }
                     return null;
                 }
 
-                var tcs = new TaskCompletionSource<string?>();
-
-                // Must run on UI thread - get from App.Current
                 var app = App.Current as App;
-                var mainWindow = app?.MainWindow as MainWindow;
+                mainWindow = app?.MainWindow as MainWindow;
 
                 if (mainWindow == null)
                 {
@@ -1220,91 +1337,161 @@ namespace FlairX_Mod_Manager.Services
                     return null;
                 }
 
-                mainWindow.DispatcherQueue.TryEnqueue(async () =>
+                var initialized = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                var navigationCompleted = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+                if (!mainWindow.DispatcherQueue.TryEnqueue(async () =>
                 {
                     try
                     {
                         webView = new Microsoft.UI.Xaml.Controls.WebView2();
+                        hiddenContainer = mainWindow.GetHiddenWebViewContainer();
+                        hiddenContainer.Children.Add(webView);
 
-                        // Initialize WebView2
                         await webView.EnsureCoreWebView2Async();
+                        Logger.LogInfo("WebView2 initialized in hidden container, navigating to URL");
 
-                        Logger.LogInfo("WebView2 initialized, navigating to URL");
-
-                        // Set up navigation completed handler
-                        webView.CoreWebView2.NavigationCompleted += async (sender, args) =>
+                        navigationHandler = (sender, args) =>
                         {
-                            try
+                            if (args.IsSuccess)
                             {
-                                if (args.IsSuccess)
-                                {
-                                    Logger.LogInfo("Navigation completed successfully, waiting for content to load");
-
-                                    // Wait for JavaScript to render content
-                                    await Task.Delay(5000);
-
-                                    // Expand all tree nodes to ensure subcategories are in DOM
-                                    await webView.CoreWebView2.ExecuteScriptAsync(@"
-                                        (function() {
-                                            var buttons = document.querySelectorAll('.PrimeTree_NodeToggleButton');
-                                            buttons.forEach(function(btn) {
-                                                var li = btn.closest('li');
-                                                if (li && li.getAttribute('aria-expanded') === 'false') {
-                                                    btn.click();
-                                                }
-                                            });
-                                        })();
-                                    ");
-
-                                    // Wait for expanded content to render
-                                    await Task.Delay(2000);
-
-                                    // Get the rendered HTML
-                                    var renderedHtml = await webView.CoreWebView2.ExecuteScriptAsync("document.documentElement.outerHTML");
-
-                                    // Remove JSON string quotes
-                                    if (!string.IsNullOrEmpty(renderedHtml) && renderedHtml.StartsWith("\"") && renderedHtml.EndsWith("\""))
-                                    {
-                                        renderedHtml = System.Text.Json.JsonSerializer.Deserialize<string>(renderedHtml);
-                                    }
-
-                                    Logger.LogInfo($"Retrieved rendered HTML, length: {renderedHtml?.Length ?? 0}");
-                                    tcs.SetResult(renderedHtml);
-                                }
-                                else
-                                {
-                                    Logger.LogError($"Navigation failed: {args.WebErrorStatus}");
-                                    tcs.SetResult(null);
-                                }
+                                Logger.LogInfo("WebView2 navigation completed successfully");
+                                navigationCompleted.TrySetResult(true);
                             }
-                            catch (Exception ex)
+                            else
                             {
-                                Logger.LogError($"Error in NavigationCompleted handler: {ex.Message}", ex);
-                                tcs.SetResult(null);
+                                Logger.LogError($"WebView2 navigation failed: {args.WebErrorStatus}");
+                                navigationCompleted.TrySetResult(false);
                             }
                         };
+                        webView.CoreWebView2.NavigationCompleted += navigationHandler;
 
-                        // Navigate to the URL
                         webView.CoreWebView2.Navigate(url);
+                        initialized.TrySetResult(true);
                     }
                     catch (Exception ex)
                     {
                         Logger.LogError($"Error initializing WebView2: {ex.Message}", ex);
-                        tcs.SetResult(null);
+                        initialized.TrySetException(ex);
+                        navigationCompleted.TrySetResult(false);
                     }
-                });
-
-                // Wait for the result with timeout
-                var timeoutTask = Task.Delay(30000);
-                var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
-
-                if (completedTask == timeoutTask)
+                }))
                 {
-                    Logger.LogError("WebView2 rendering timed out");
+                    Logger.LogError("Could not enqueue WebView2 initialization");
                     return null;
                 }
 
-                return await tcs.Task;
+                try
+                {
+                    await initialized.Task.WaitAsync(TimeSpan.FromSeconds(20));
+                }
+                catch (TimeoutException)
+                {
+                    Logger.LogError("WebView2 initialization timed out after 20 seconds");
+                    return null;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"WebView2 initialization failed: {ex.Message}", ex);
+                    return null;
+                }
+
+                bool navigationSucceeded;
+                try
+                {
+                    navigationSucceeded = await navigationCompleted.Task.WaitAsync(TimeSpan.FromSeconds(45));
+                }
+                catch (TimeoutException)
+                {
+                    Logger.LogError("WebView2 navigation timed out after 45 seconds");
+                    return null;
+                }
+
+                if (!navigationSucceeded || webView == null)
+                {
+                    return null;
+                }
+
+                var rendered = new TaskCompletionSource<string?>(TaskCreationOptions.RunContinuationsAsynchronously);
+                if (!mainWindow.DispatcherQueue.TryEnqueue(async () =>
+                {
+                    try
+                    {
+                        Logger.LogInfo("WebView2 navigation finished; expanding category tree");
+                        var lastClusterCount = -1;
+                        var stablePolls = 0;
+
+                        for (var attempt = 0; attempt < 40; attempt++)
+                        {
+                            var stateJson = await webView.CoreWebView2.ExecuteScriptAsync(@"
+                                (function() {
+                                    var clicked = 0;
+                                    document.querySelectorAll('.PrimeTree_NodeToggleButton').forEach(function(btn) {
+                                        var li = btn.closest('li');
+                                        if (li && li.getAttribute('aria-expanded') === 'false') {
+                                            btn.click();
+                                            clicked++;
+                                        }
+                                    });
+                                    return {
+                                        clicked: clicked,
+                                        clusters: document.querySelectorAll('div.Cluster').length
+                                    };
+                                })();
+                            ");
+
+                            using var state = JsonDocument.Parse(stateJson);
+                            var root = state.RootElement;
+                            var clicked = root.GetProperty("clicked").GetInt32();
+                            var clusterCount = root.GetProperty("clusters").GetInt32();
+
+                            if (clicked == 0 && clusterCount > 0 && clusterCount == lastClusterCount)
+                            {
+                                stablePolls++;
+                                if (stablePolls >= 3)
+                                {
+                                    Logger.LogInfo($"WebView2 category DOM stabilized at {clusterCount} clusters");
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                stablePolls = 0;
+                            }
+
+                            lastClusterCount = clusterCount;
+                            await Task.Delay(250);
+                        }
+
+                        var renderedHtml = await webView.CoreWebView2.ExecuteScriptAsync("document.documentElement.outerHTML");
+                        if (!string.IsNullOrEmpty(renderedHtml) && renderedHtml.StartsWith("\"") && renderedHtml.EndsWith("\""))
+                        {
+                            renderedHtml = JsonSerializer.Deserialize<string>(renderedHtml);
+                        }
+
+                        Logger.LogInfo($"Retrieved rendered HTML, length: {renderedHtml?.Length ?? 0}");
+                        rendered.TrySetResult(renderedHtml);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError($"Error rendering category DOM in WebView2: {ex.Message}", ex);
+                        rendered.TrySetResult(null);
+                    }
+                }))
+                {
+                    Logger.LogError("Could not enqueue WebView2 DOM rendering");
+                    return null;
+                }
+
+                try
+                {
+                    return await rendered.Task.WaitAsync(TimeSpan.FromSeconds(20));
+                }
+                catch (TimeoutException)
+                {
+                    Logger.LogError("WebView2 category DOM rendering timed out after 20 seconds");
+                    return null;
+                }
             }
             catch (Exception ex)
             {
@@ -1313,18 +1500,21 @@ namespace FlairX_Mod_Manager.Services
             }
             finally
             {
-                // Clean up WebView2 to prevent memory leaks
-                if (webView != null)
+                if (webView != null && mainWindow != null)
                 {
                     try
                     {
-                        var app = App.Current as App;
-                        var mainWindow = app?.MainWindow as MainWindow;
-
-                        mainWindow?.DispatcherQueue.TryEnqueue(() =>
+                        var cleanedUp = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                        if (mainWindow.DispatcherQueue.TryEnqueue(() =>
                         {
                             try
                             {
+                                if (navigationHandler != null && webView.CoreWebView2 != null)
+                                {
+                                    webView.CoreWebView2.NavigationCompleted -= navigationHandler;
+                                }
+
+                                hiddenContainer?.Children.Remove(webView);
                                 webView.Close();
                                 Logger.LogInfo("WebView2 cleaned up successfully");
                             }
@@ -1332,7 +1522,22 @@ namespace FlairX_Mod_Manager.Services
                             {
                                 Logger.LogWarning($"Error cleaning up WebView2: {ex.Message}");
                             }
-                        });
+                            finally
+                            {
+                                cleanedUp.TrySetResult(true);
+                            }
+                        }))
+                        {
+                            await cleanedUp.Task.WaitAsync(TimeSpan.FromSeconds(5));
+                        }
+                        else
+                        {
+                            Logger.LogWarning("Could not enqueue WebView2 cleanup");
+                        }
+                    }
+                    catch (TimeoutException)
+                    {
+                        Logger.LogWarning("WebView2 cleanup timed out after 5 seconds");
                     }
                     catch (Exception ex)
                     {
