@@ -142,6 +142,9 @@ namespace FlairX_Mod_Manager
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
         private static extern uint ExtractIconEx(string lpszFile, int nIconIndex, IntPtr[] phiconLarge, IntPtr[] phiconSmall, uint nIcons);
 
+        [DllImport("shell32.dll")]
+        private static extern void SHChangeNotify(uint wEventId, uint uFlags, IntPtr dwItem1, IntPtr dwItem2);
+
         private const uint WM_SETICON = 0x0080;
         private const int ICON_SMALL = 0;
         private const int ICON_BIG = 1;
@@ -360,6 +363,9 @@ namespace FlairX_Mod_Manager
                         SendMessage(hwnd, WM_SETICON, new IntPtr(ICON_BIG), largeIcons[0]);
                     if (smallIcons[0] != IntPtr.Zero)
                         SendMessage(hwnd, WM_SETICON, new IntPtr(ICON_SMALL), smallIcons[0]);
+
+                    // Flush Windows icon cache so the correct icon appears on first launch
+                    SHChangeNotify(0x08000000, 0x0000, IntPtr.Zero, IntPtr.Zero);
                 }
             }
             catch (Exception ex)
