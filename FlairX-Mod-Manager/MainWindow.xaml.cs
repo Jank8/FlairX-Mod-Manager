@@ -135,6 +135,16 @@ namespace FlairX_Mod_Manager
         
         [DllImport("user32.dll")]
         private static extern IntPtr LoadIcon(IntPtr hInstance, IntPtr lpIconName);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        private static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
+        private static extern uint ExtractIconEx(string lpszFile, int nIconIndex, IntPtr[] phiconLarge, IntPtr[] phiconSmall, uint nIcons);
+
+        private const uint WM_SETICON = 0x0080;
+        private const int ICON_SMALL = 0;
+        private const int ICON_BIG = 1;
         
         [DllImport("user32.dll")]
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
@@ -341,6 +351,15 @@ namespace FlairX_Mod_Manager
                 if (File.Exists(iconPath))
                 {
                     appWindow.SetIcon(iconPath);
+
+                    // Also set via WM_SETICON for proper taskbar icon on unpackaged WinUI 3
+                    var largeIcons = new IntPtr[1];
+                    var smallIcons = new IntPtr[1];
+                    ExtractIconEx(iconPath, 0, largeIcons, smallIcons, 1);
+                    if (largeIcons[0] != IntPtr.Zero)
+                        SendMessage(hwnd, WM_SETICON, new IntPtr(ICON_BIG), largeIcons[0]);
+                    if (smallIcons[0] != IntPtr.Zero)
+                        SendMessage(hwnd, WM_SETICON, new IntPtr(ICON_SMALL), smallIcons[0]);
                 }
             }
             catch (Exception ex)
