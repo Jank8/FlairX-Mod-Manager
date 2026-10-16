@@ -292,6 +292,8 @@ namespace FlairX_Mod_Manager.Pages
             var otherPackages = new[]
             {
                 "SharpSevenZip",
+                "SixLabors.ImageSharp",
+                "System.Drawing.Common",
                 "NLua",
                 "CommunityToolkit.WinUI.Media"
             };

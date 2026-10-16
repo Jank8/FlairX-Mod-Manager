@@ -2975,11 +2975,12 @@ namespace FlairX_Mod_Manager.Services
                 }
                 
                 // ========== SELECT SOURCE FOR WIDE FORMAT ==========
-                // Ask user to pick a dedicated source image for minitile-wide (unless auto mode or only one file)
-                bool isAutoMode = !context.InspectAndEditEnabled || SettingsManager.Current.AutoCreateModThumbnails;
+                // isAutoMode: true only when AutoCreateModThumbnails is explicitly enabled
+                // When disabled, always show source selection and crop inspection (if UI available)
+                bool isAutoMode = SettingsManager.Current.AutoCreateModThumbnails;
                 var currentWidePath = previewPath; // default: same source as classic
                 
-                if (!isAutoMode && filesToShow.Count > 1)
+                if (!isAutoMode && context.AllowUIInteraction && filesToShow.Count > 1)
                 {
                     Logger.LogInfo($"Asking user to select source for minitile-wide in: {modDir}");
                     var lang = SharedUtilities.LoadLanguageDictionary();
@@ -3021,7 +3022,8 @@ namespace FlairX_Mod_Manager.Services
                 {
                     using (var img = Image.Load<Rgba32>(currentWidePath))
                     {
-                        // In auto mode, skip inspection for wide - just use auto-crop
+                        // In auto mode, force no inspection for wide - just use auto-crop
+                        // Otherwise respect the context's InspectAndEditEnabled setting
                         var wideContext = isAutoMode
                             ? new OptimizationContext
                             {
@@ -3031,13 +3033,13 @@ namespace FlairX_Mod_Manager.Services
                                 CreateBackups = context.CreateBackups,
                                 KeepOriginals = context.KeepOriginals,
                                 CropStrategy = context.CropStrategy,
-                                InspectAndEditEnabled = false, // force no inspection for wide in auto mode
+                                InspectAndEditEnabled = false, // force no inspection in auto mode
                                 Trigger = context.Trigger,
                                 AllowUIInteraction = context.AllowUIInteraction,
                                 Reoptimize = context.Reoptimize,
                                 CreateMinitile = context.CreateMinitile
                             }
-                            : context;
+                            : context; // respect InspectAndEditEnabled when not in auto mode
                         
                         // Get crop rectangle with optional inspection for wide format
                         var srcRect = await GetCropRectangleWithInspectionAsync(
@@ -3148,7 +3150,7 @@ namespace FlairX_Mod_Manager.Services
             // Show inspection panel ONLY IF:
             // 1. UI interaction is allowed (not background processing)
             // 2. Inspect&Edit is enabled (PreviewBeforeCrop setting) OR this is a critical thumbnail
-            // 3. Critical thumbnails (catprev, catmini, minitile) always need crop inspection
+            // 3. Critical thumbnails (catprev, catmini, minitile, minitile-wide) always need crop inspection
             //    Exception: minitile only skipped if AutoCreateModThumbnails is enabled (automatic mode)
             bool isCriticalThumbnail = imageType.ToLower().Contains("catprev") || 
                                       imageType.ToLower().Contains("catmini");
@@ -3156,7 +3158,7 @@ namespace FlairX_Mod_Manager.Services
             bool skipMinitileDueToAutoCreate = isMinitile && SettingsManager.Current.AutoCreateModThumbnails;
             
             bool needsInspection = context.AllowUIInteraction && 
-                                  (context.InspectAndEditEnabled || isCriticalThumbnail) &&
+                                  (context.InspectAndEditEnabled || isCriticalThumbnail || isMinitile) &&
                                   !skipMinitileDueToAutoCreate;
 
             Logger.LogInfo($"Crop inspection check for {imageType}: AllowUIInteraction={context.AllowUIInteraction}, InspectAndEditEnabled={context.InspectAndEditEnabled}, isCriticalThumbnail={isCriticalThumbnail}, isMinitile={isMinitile}, AutoCreateModThumbnails={SettingsManager.Current.AutoCreateModThumbnails}, skipMinitileDueToAutoCreate={skipMinitileDueToAutoCreate}, needsInspection={needsInspection}");
