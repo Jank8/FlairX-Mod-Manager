@@ -2513,7 +2513,7 @@ namespace FlairX_Mod_Manager.Pages
             
             var dialog = new ContentDialog
             {
-                CloseButtonText = "OK",
+                PrimaryButtonText = "OK",
                 XamlRoot = this.XamlRoot,
             };
             var stackPanel = new StackPanel();
