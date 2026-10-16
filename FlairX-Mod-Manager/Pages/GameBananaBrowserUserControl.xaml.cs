@@ -399,9 +399,9 @@ namespace FlairX_Mod_Manager.Pages
             return new ModViewModel
             {
                 Id = record.Id,
-                Name = record.Name ,
-                AuthorName = record.Submitter?.Name ,
-                ProfileUrl = record.ProfileUrl ,
+                Name = record.Name ?? "",
+                AuthorName = record.Submitter?.Name ?? "",
+                ProfileUrl = record.ProfileUrl ?? "",
                 ImageUrl = image is null ? null : GameBananaService.GetListPreviewImageUrl(image),
                 DownloadCount = record.GetDownloadCount(),
                 LikeCount = record.GetLikeCount(),
@@ -423,7 +423,7 @@ namespace FlairX_Mod_Manager.Pages
                 return false;
             }
 
-            return !IsModBlacklisted(record.Submitter?.Name , record.Name );
+            return !IsModBlacklisted(record.Submitter?.Name ?? "", record.Name ?? "");
         }
 
         private void CreateCharacterFilterComboBox()
@@ -1117,12 +1117,12 @@ namespace FlairX_Mod_Manager.Pages
                                 {
                                     Id = modDetails.Id,
                                     Name = modDetails.Name,
-                                    AuthorName = modDetails.Submitter?.Name ,
-                                    AuthorProfileUrl = modDetails.Submitter?.ProfileUrl ,
+                                    AuthorName = modDetails.Submitter?.Name ?? "",
+                                    AuthorProfileUrl = modDetails.Submitter?.ProfileUrl ?? "",
                                     AuthorAvatarUrl = modDetails.Submitter?.AvatarUrl,
                                     ProfileUrl = modDetails.ProfileUrl,
-                                    CategoryName = modDetails.Category?.Name ,
-                                    CategoryUrl = modDetails.Category?.ProfileUrl ,
+                                    CategoryName = modDetails.Category?.Name ?? "",
+                                    CategoryUrl = modDetails.Category?.ProfileUrl ?? "",
                                     LikeCount = modDetails.GetLikeCount(),
                                     ViewCount = modDetails.GetViewCount(),
                                     DownloadCount = modDetails.GetDownloadCount(),
@@ -3746,7 +3746,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 // Open image preview in sliding panel
                 var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
-                var modName = _currentModDetails?.Name ;
+                var modName = _currentModDetails?.Name ?? "Preview";
                 mainWindow?.ShowImagePreviewPanel(_detailPreviewImages, _currentDetailImageIndex, modName);
             }
         }
