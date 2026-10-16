@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Bình luận nhiều nhất",
   "GB_LoadImages": "Tải hình ảnh",
   "GB_NoDescription": "Không có mô tả.",
-  "SelectFilesToDownload": "Chọn tệp để tải xuống"
+  "SelectFilesToDownload": "Chọn tệp để tải xuống",
+  "Filter_AllCharacters": "Tất cả nhân vật",
+  "TimeRange_Header": "Khoảng thời gian",
+  "TimeRange_Last30Days": "30 ngày qua",
+  "TimeRange_Last90Days": "90 ngày qua",
+  "TimeRange_Last180Days": "180 ngày qua",
+  "TimeRange_Unlimited": "Không giới hạn (tối đa 500)",
+  "WindowSort_Header": "Sắp xếp trong khoảng",
+  "WindowSort_LatestUpdated": "Mới cập nhật",
+  "WindowSort_MostLiked": "Được thích nhiều nhất",
+  "WindowSort_MostDownloaded": "Được tải xuống nhiều nhất",
+  "WindowSort_MostCommented": "Được bình luận nhiều nhất",
+  "RecentWindow_PartialTitle": "Kết quả từng phần",
+  "RecentWindow_PartialWarning": "Không thể tải trang GameBanana sau; hiển thị kết quả có sẵn.",
+  "RecentWindow_CappedTitle": "Kết quả bị giới hạn",
+  "RecentWindow_CappedWarning": "Kết quả đã đạt giới hạn an toàn là 10 trang hoặc 500 bản ghi."
 }

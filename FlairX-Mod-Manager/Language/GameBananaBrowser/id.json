@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Paling dikomentari",
   "GB_LoadImages": "Muat Gambar",
   "GB_NoDescription": "Tidak ada deskripsi tersedia.",
-  "SelectFilesToDownload": "Pilih file untuk diunduh"
+  "SelectFilesToDownload": "Pilih file untuk diunduh",
+  "Filter_AllCharacters": "Semua karakter",
+  "TimeRange_Header": "Rentang waktu",
+  "TimeRange_Last30Days": "30 hari terakhir",
+  "TimeRange_Last90Days": "90 hari terakhir",
+  "TimeRange_Last180Days": "180 hari terakhir",
+  "TimeRange_Unlimited": "Tidak terbatas (maks. 500)",
+  "WindowSort_Header": "Urutkan dalam rentang",
+  "WindowSort_LatestUpdated": "Terakhir diperbarui",
+  "WindowSort_MostLiked": "Paling disukai",
+  "WindowSort_MostDownloaded": "Paling banyak diunduh",
+  "WindowSort_MostCommented": "Paling banyak dikomentari",
+  "RecentWindow_PartialTitle": "Hasil sebagian",
+  "RecentWindow_PartialWarning": "Halaman GameBanana selanjutnya tidak dapat dimuat; hasil yang tersedia ditampilkan.",
+  "RecentWindow_CappedTitle": "Hasil terbatas",
+  "RecentWindow_CappedWarning": "Hasil mencapai batas keamanan 10 halaman atau 500 catatan."
 }

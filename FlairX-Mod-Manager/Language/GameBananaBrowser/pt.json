@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Mais comentados",
   "GB_LoadImages": "Carregar imagens",
   "GB_NoDescription": "Nenhuma descrição disponível.",
-  "SelectFilesToDownload": "Seleccionar ficheiros para transferir"
+  "SelectFilesToDownload": "Seleccionar ficheiros para transferir",
+  "Filter_AllCharacters": "Todos os personagens",
+  "TimeRange_Header": "Intervalo de tempo",
+  "TimeRange_Last30Days": "Últimos 30 dias",
+  "TimeRange_Last90Days": "Últimos 90 dias",
+  "TimeRange_Last180Days": "Últimos 180 dias",
+  "TimeRange_Unlimited": "Ilimitado (máx. 500)",
+  "WindowSort_Header": "Ordenar dentro do intervalo",
+  "WindowSort_LatestUpdated": "Atualizados recentemente",
+  "WindowSort_MostLiked": "Mais curtidos",
+  "WindowSort_MostDownloaded": "Mais baixados",
+  "WindowSort_MostCommented": "Mais comentados",
+  "RecentWindow_PartialTitle": "Resultados parciais",
+  "RecentWindow_PartialWarning": "Uma página posterior do GameBanana não pôde ser carregada; os resultados disponíveis são exibidos.",
+  "RecentWindow_CappedTitle": "Resultados limitados",
+  "RecentWindow_CappedWarning": "Os resultados atingiram o limite de segurança de 10 páginas ou 500 registos."
 }

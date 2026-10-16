@@ -95,5 +95,20 @@
   "Sort_MostCommented": "แสดงความคิดเห็นมากที่สุด",
   "GB_LoadImages": "โหลดรูปภาพ",
   "GB_NoDescription": "ไม่มีคำอธิบาย",
-  "SelectFilesToDownload": "เลือกไฟล์ที่จะดาวน์โหลด"
+  "SelectFilesToDownload": "เลือกไฟล์ที่จะดาวน์โหลด",
+  "Filter_AllCharacters": "ตัวละครทั้งหมด",
+  "TimeRange_Header": "ช่วงเวลา",
+  "TimeRange_Last30Days": "30 วันที่แล้ว",
+  "TimeRange_Last90Days": "90 วันที่แล้ว",
+  "TimeRange_Last180Days": "180 วันที่แล้ว",
+  "TimeRange_Unlimited": "ไม่จำกัด (สูงสุด 500)",
+  "WindowSort_Header": "เรียงลำดับในช่วง",
+  "WindowSort_LatestUpdated": "อัปเดตล่าสุด",
+  "WindowSort_MostLiked": "ได้รับความนิยมมากที่สุด",
+  "WindowSort_MostDownloaded": "ดาวน์โหลดมากที่สุด",
+  "WindowSort_MostCommented": "แสดงความคิดเห็นมากที่สุด",
+  "RecentWindow_PartialTitle": "ผลลัพธ์บางส่วน",
+  "RecentWindow_PartialWarning": "ไม่สามารถโหลดหน้า GameBanana หลังจากนี้ได้ จะแสดงผลลัพธ์ที่มีอยู่",
+  "RecentWindow_CappedTitle": "ผลลัพธ์ถูกจำกัด",
+  "RecentWindow_CappedWarning": "ผลลัพธ์ถึงขีดจำกัดความปลอดภัยที่ 10 หน้าหรือ 500 รายการ"
 }

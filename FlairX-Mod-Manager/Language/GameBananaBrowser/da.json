@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Mest kommenterede",
   "GB_LoadImages": "Indlæs billeder",
   "GB_NoDescription": "Ingen beskrivelse tilgængelig.",
-  "SelectFilesToDownload": "Vælg filer til download"
+  "SelectFilesToDownload": "Vælg filer til download",
+  "Filter_AllCharacters": "Alle karakterer",
+  "TimeRange_Header": "Tidsområde",
+  "TimeRange_Last30Days": "Sidste 30 dage",
+  "TimeRange_Last90Days": "Sidste 90 dage",
+  "TimeRange_Last180Days": "Sidste 180 dage",
+  "TimeRange_Unlimited": "Ubegrænset (maks. 500)",
+  "WindowSort_Header": "Sorter inden for område",
+  "WindowSort_LatestUpdated": "Senest opdateret",
+  "WindowSort_MostLiked": "Mest likede",
+  "WindowSort_MostDownloaded": "Mest downloadede",
+  "WindowSort_MostCommented": "Mest kommenterede",
+  "RecentWindow_PartialTitle": "Delvise resultater",
+  "RecentWindow_PartialWarning": "En senere GameBanana-side kunne ikke indlæses; tilgængelige resultater vises.",
+  "RecentWindow_CappedTitle": "Resultater begrænset",
+  "RecentWindow_CappedWarning": "Resultater nåede sikkerhedsgrænsen på 10 sider eller 500 poster."
 }

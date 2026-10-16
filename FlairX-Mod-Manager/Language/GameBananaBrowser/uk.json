@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Найбільше коментарів",
   "GB_LoadImages": "Завантажити зображення",
   "GB_NoDescription": "Опис недоступний.",
-  "SelectFilesToDownload": "Виберіть файли для завантаження"
+  "SelectFilesToDownload": "Виберіть файли для завантаження",
+  "Filter_AllCharacters": "Усі персонажі",
+  "TimeRange_Header": "Часовий діапазон",
+  "TimeRange_Last30Days": "Останні 30 днів",
+  "TimeRange_Last90Days": "Останні 90 днів",
+  "TimeRange_Last180Days": "Останні 180 днів",
+  "TimeRange_Unlimited": "Необмежено (макс. 500)",
+  "WindowSort_Header": "Сортувати в діапазоні",
+  "WindowSort_LatestUpdated": "Нещодавно оновлені",
+  "WindowSort_MostLiked": "Найбільш вподобані",
+  "WindowSort_MostDownloaded": "Найбільш завантажувані",
+  "WindowSort_MostCommented": "Найбільш коментовані",
+  "RecentWindow_PartialTitle": "Часткові результати",
+  "RecentWindow_PartialWarning": "Не вдалося завантажити подальшу сторінку GameBanana; відображаються доступні результати.",
+  "RecentWindow_CappedTitle": "Результати обмежені",
+  "RecentWindow_CappedWarning": "Результати досягли межі безпеки у 10 сторінок або 500 записів."
 }

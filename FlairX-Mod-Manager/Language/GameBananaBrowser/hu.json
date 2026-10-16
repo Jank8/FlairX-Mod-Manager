@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Legtöbb hozzászólás",
   "GB_LoadImages": "Képek betöltése",
   "GB_NoDescription": "Nincs elérhető leírás.",
-  "SelectFilesToDownload": "Válassza ki a letöltendő fájlokat"
+  "SelectFilesToDownload": "Válassza ki a letöltendő fájlokat",
+  "Filter_AllCharacters": "Minden karakter",
+  "TimeRange_Header": "Időtartomány",
+  "TimeRange_Last30Days": "Elmúlt 30 nap",
+  "TimeRange_Last90Days": "Elmúlt 90 nap",
+  "TimeRange_Last180Days": "Elmúlt 180 nap",
+  "TimeRange_Unlimited": "Korlátlan (max. 500)",
+  "WindowSort_Header": "Rendezés tartományon belül",
+  "WindowSort_LatestUpdated": "Legutóbb frissítve",
+  "WindowSort_MostLiked": "Legtöbbet kedveltek",
+  "WindowSort_MostDownloaded": "Legtöbbet letöltöttek",
+  "WindowSort_MostCommented": "Legtöbbet kommenteltek",
+  "RecentWindow_PartialTitle": "Részleges eredmények",
+  "RecentWindow_PartialWarning": "Egy későbbi GameBanana oldal nem töltődött be; az elérhető eredmények jelennek meg.",
+  "RecentWindow_CappedTitle": "Eredmények korlátozva",
+  "RecentWindow_CappedWarning": "Az eredmények elérték a biztonsági korlátot: 10 oldal vagy 500 rekord."
 }

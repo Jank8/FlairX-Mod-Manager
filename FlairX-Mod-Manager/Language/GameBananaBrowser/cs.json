@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Nejvíce komentářů",
   "GB_LoadImages": "Načíst obrázky",
   "GB_NoDescription": "Popis není k dispozici.",
-  "SelectFilesToDownload": "Vyberte soubory ke stažení"
+  "SelectFilesToDownload": "Vyberte soubory ke stažení",
+  "Filter_AllCharacters": "Všechny postavy",
+  "TimeRange_Header": "Časové rozmezí",
+  "TimeRange_Last30Days": "Posledních 30 dní",
+  "TimeRange_Last90Days": "Posledních 90 dní",
+  "TimeRange_Last180Days": "Posledních 180 dní",
+  "TimeRange_Unlimited": "Neomezeno (max. 500)",
+  "WindowSort_Header": "Řadit v rozmezí",
+  "WindowSort_LatestUpdated": "Naposledy aktualizováno",
+  "WindowSort_MostLiked": "Nejvíce oblíbených",
+  "WindowSort_MostDownloaded": "Nejvíce stažených",
+  "WindowSort_MostCommented": "Nejvíce komentovaných",
+  "RecentWindow_PartialTitle": "Částečné výsledky",
+  "RecentWindow_PartialWarning": "Pozdější stránka GameBanana se nepodařila načíst; zobrazeny dostupné výsledky.",
+  "RecentWindow_CappedTitle": "Výsledky omezeny",
+  "RecentWindow_CappedWarning": "Výsledky dosáhly bezpečnostního limitu 10 stránek nebo 500 záznamů."
 }

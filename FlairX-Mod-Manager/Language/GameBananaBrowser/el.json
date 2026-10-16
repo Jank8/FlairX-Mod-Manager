@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Περισσότερα σχόλια",
   "GB_LoadImages": "Φόρτωση εικόνων",
   "GB_NoDescription": "Δεν υπάρχει διαθέσιμη περιγραφή.",
-  "SelectFilesToDownload": "Επιλέξτε αρχεία για λήψη"
+  "SelectFilesToDownload": "Επιλέξτε αρχεία για λήψη",
+  "Filter_AllCharacters": "Όλοι οι χαρακτήρες",
+  "TimeRange_Header": "Χρονικό εύρος",
+  "TimeRange_Last30Days": "Τελευταίες 30 ημέρες",
+  "TimeRange_Last90Days": "Τελευταίες 90 ημέρες",
+  "TimeRange_Last180Days": "Τελευταίες 180 ημέρες",
+  "TimeRange_Unlimited": "Απεριόριστο (μέγ. 500)",
+  "WindowSort_Header": "Ταξινόμηση εντός εύρους",
+  "WindowSort_LatestUpdated": "Πιο πρόσφατα ενημερωμένα",
+  "WindowSort_MostLiked": "Περισσότερα αρέσει",
+  "WindowSort_MostDownloaded": "Περισσότερες λήψεις",
+  "WindowSort_MostCommented": "Περισσότερα σχόλια",
+  "RecentWindow_PartialTitle": "Μερικά αποτελέσματα",
+  "RecentWindow_PartialWarning": "Μια μεταγενέστερη σελίδα GameBanana δεν μπόρεσε να φορτωθεί· εμφανίζονται τα διαθέσιμα αποτελέσματα.",
+  "RecentWindow_CappedTitle": "Αποτελέσματα περιορισμένα",
+  "RecentWindow_CappedWarning": "Τα αποτελέσματα έφτασαν το όριο ασφαλείας των 10 σελίδων ή 500 εγγραφών."
 }

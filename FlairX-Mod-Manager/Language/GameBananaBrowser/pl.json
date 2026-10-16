@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Najwięcej komentarzy",
   "GB_LoadImages": "Wczytaj obrazy",
   "GB_NoDescription": "Brak dostępnego opisu.",
-  "SelectFilesToDownload": "Wybierz pliki do pobrania"
+  "SelectFilesToDownload": "Wybierz pliki do pobrania",
+  "Filter_AllCharacters": "Wszystkie postacie",
+  "TimeRange_Header": "Zakres czasu",
+  "TimeRange_Last30Days": "Ostatnie 30 dni",
+  "TimeRange_Last90Days": "Ostatnie 90 dni",
+  "TimeRange_Last180Days": "Ostatnie 180 dni",
+  "TimeRange_Unlimited": "Bez limitu (maks. 500)",
+  "WindowSort_Header": "Sortuj w zakresie",
+  "WindowSort_LatestUpdated": "Ostatnio zaktualizowane",
+  "WindowSort_MostLiked": "Najwięcej polubień",
+  "WindowSort_MostDownloaded": "Najwięcej pobrań",
+  "WindowSort_MostCommented": "Najwięcej komentarzy",
+  "RecentWindow_PartialTitle": "Częściowe wyniki",
+  "RecentWindow_PartialWarning": "Nie udało się załadować późniejszej strony GameBanana; pokazano dostępne wyniki.",
+  "RecentWindow_CappedTitle": "Wyniki ograniczone",
+  "RecentWindow_CappedWarning": "Wyniki osiągnęły limit bezpieczeństwa 10 stron lub 500 rekordów."
 }

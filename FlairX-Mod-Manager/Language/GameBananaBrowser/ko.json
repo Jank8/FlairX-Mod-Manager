@@ -95,5 +95,20 @@
   "Sort_MostCommented": "댓글 많은순",
   "GB_LoadImages": "이미지 불러오기",
   "GB_NoDescription": "설명을 사용할 수 없습니다.",
-  "SelectFilesToDownload": "다운로드할 파일 선택"
+  "SelectFilesToDownload": "다운로드할 파일 선택",
+  "Filter_AllCharacters": "모든 캐릭터",
+  "TimeRange_Header": "시간 범위",
+  "TimeRange_Last30Days": "지난 30일",
+  "TimeRange_Last90Days": "지난 90일",
+  "TimeRange_Last180Days": "지난 180일",
+  "TimeRange_Unlimited": "무제한 (최대 500개)",
+  "WindowSort_Header": "범위 내 정렬",
+  "WindowSort_LatestUpdated": "최근 업데이트됨",
+  "WindowSort_MostLiked": "좋아요가 가장 많음",
+  "WindowSort_MostDownloaded": "다운로드가 가장 많음",
+  "WindowSort_MostCommented": "댓글이 가장 많음",
+  "RecentWindow_PartialTitle": "부분 결과",
+  "RecentWindow_PartialWarning": "이후 GameBanana 페이지를 로드할 수 없습니다. 사용 가능한 결과가 표시됩니다.",
+  "RecentWindow_CappedTitle": "결과 제한됨",
+  "RecentWindow_CappedWarning": "결과가 안전 제한인 10페이지 또는 500개 레코드에 도달했습니다."
 }

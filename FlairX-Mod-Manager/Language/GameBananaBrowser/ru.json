@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Больше комментариев",
   "GB_LoadImages": "Загрузить изображения",
   "GB_NoDescription": "Описание недоступно.",
-  "SelectFilesToDownload": "Выберите файлы для загрузки"
+  "SelectFilesToDownload": "Выберите файлы для загрузки",
+  "Filter_AllCharacters": "Все персонажи",
+  "TimeRange_Header": "Временной диапазон",
+  "TimeRange_Last30Days": "Последние 30 дней",
+  "TimeRange_Last90Days": "Последние 90 дней",
+  "TimeRange_Last180Days": "Последние 180 дней",
+  "TimeRange_Unlimited": "Неограниченно (макс. 500)",
+  "WindowSort_Header": "Сортировать в диапазоне",
+  "WindowSort_LatestUpdated": "Недавно обновлённые",
+  "WindowSort_MostLiked": "Самые понравившиеся",
+  "WindowSort_MostDownloaded": "Самые скачиваемые",
+  "WindowSort_MostCommented": "Самые комментируемые",
+  "RecentWindow_PartialTitle": "Частичные результаты",
+  "RecentWindow_PartialWarning": "Не удалось загрузить последующую страницу GameBanana; отображаются доступные результаты.",
+  "RecentWindow_CappedTitle": "Результаты ограничены",
+  "RecentWindow_CappedWarning": "Результаты достигли предела безопасности в 10 страниц или 500 записей."
 }

@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Eniten kommentoidut",
   "GB_LoadImages": "Lataa kuvat",
   "GB_NoDescription": "Ei kuvausta saatavilla.",
-  "SelectFilesToDownload": "Valitse ladattavat tiedostot"
+  "SelectFilesToDownload": "Valitse ladattavat tiedostot",
+  "Filter_AllCharacters": "Kaikki hahmot",
+  "TimeRange_Header": "Aikaväli",
+  "TimeRange_Last30Days": "Viimeiset 30 päivää",
+  "TimeRange_Last90Days": "Viimeiset 90 päivää",
+  "TimeRange_Last180Days": "Viimeiset 180 päivää",
+  "TimeRange_Unlimited": "Rajoittamaton (max. 500)",
+  "WindowSort_Header": "Lajittele aikavälillä",
+  "WindowSort_LatestUpdated": "Viimeksi päivitetty",
+  "WindowSort_MostLiked": "Eniten tykätty",
+  "WindowSort_MostDownloaded": "Eniten ladattu",
+  "WindowSort_MostCommented": "Eniten kommentoitu",
+  "RecentWindow_PartialTitle": "Osittaiset tulokset",
+  "RecentWindow_PartialWarning": "Myöhempää GameBanana-sivua ei voitu ladata; saatavilla olevat tulokset näytetään.",
+  "RecentWindow_CappedTitle": "Tulokset rajoitettu",
+  "RecentWindow_CappedWarning": "Tulokset saavuttivat turvallisuusrajan 10 sivua tai 500 tietuetta."
 }

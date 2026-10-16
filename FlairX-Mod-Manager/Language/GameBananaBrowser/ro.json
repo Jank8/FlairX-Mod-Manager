@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Cele mai comentate",
   "GB_LoadImages": "Încarcă imagini",
   "GB_NoDescription": "Nicio descriere disponibilă.",
-  "SelectFilesToDownload": "Selectați fișierele de descărcat"
+  "SelectFilesToDownload": "Selectați fișierele de descărcat",
+  "Filter_AllCharacters": "Toate personajele",
+  "TimeRange_Header": "Interval de timp",
+  "TimeRange_Last30Days": "Ultimele 30 de zile",
+  "TimeRange_Last90Days": "Ultimele 90 de zile",
+  "TimeRange_Last180Days": "Ultimele 180 de zile",
+  "TimeRange_Unlimited": "Nelimitat (max. 500)",
+  "WindowSort_Header": "Sortare în interval",
+  "WindowSort_LatestUpdated": "Actualizate recent",
+  "WindowSort_MostLiked": "Cele mai apreciate",
+  "WindowSort_MostDownloaded": "Cele mai descărcate",
+  "WindowSort_MostCommented": "Cele mai comentate",
+  "RecentWindow_PartialTitle": "Rezultate parțiale",
+  "RecentWindow_PartialWarning": "O pagină GameBanana ulterioară nu a putut fi încărcată; sunt afișate rezultatele disponibile.",
+  "RecentWindow_CappedTitle": "Rezultate limitate",
+  "RecentWindow_CappedWarning": "Rezultatele au atins limita de siguranță de 10 pagini sau 500 de înregistrări."
 }
