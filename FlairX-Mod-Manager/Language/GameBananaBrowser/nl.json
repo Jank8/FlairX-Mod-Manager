@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Meest becommentarieerd",
   "GB_LoadImages": "Afbeeldingen laden",
   "GB_NoDescription": "Geen beschrijving beschikbaar.",
-  "SelectFilesToDownload": "Selecteer bestanden om te downloaden"
+  "SelectFilesToDownload": "Selecteer bestanden om te downloaden",
+  "Filter_AllCharacters": "Alle personages",
+  "TimeRange_Header": "Tijdsbereik",
+  "TimeRange_Last30Days": "Laatste 30 dagen",
+  "TimeRange_Last90Days": "Laatste 90 dagen",
+  "TimeRange_Last180Days": "Laatste 180 dagen",
+  "TimeRange_Unlimited": "Onbeperkt (max. 500)",
+  "WindowSort_Header": "Sorteren binnen bereik",
+  "WindowSort_LatestUpdated": "Laatst bijgewerkt",
+  "WindowSort_MostLiked": "Meest geliked",
+  "WindowSort_MostDownloaded": "Meest gedownload",
+  "WindowSort_MostCommented": "Meest becommentarieerd",
+  "RecentWindow_PartialTitle": "Gedeeltelijke resultaten",
+  "RecentWindow_PartialWarning": "Een latere GameBanana-pagina kon niet worden geladen; beschikbare resultaten worden weergegeven.",
+  "RecentWindow_CappedTitle": "Resultaten beperkt",
+  "RecentWindow_CappedWarning": "Resultaten hebben de veiligheidslimiet van 10 pagina's of 500 records bereikt."
 }

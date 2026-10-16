@@ -95,5 +95,20 @@
   "Sort_MostCommented": "En çok yorumlanan",
   "GB_LoadImages": "Görselleri Yükle",
   "GB_NoDescription": "Açıklama mevcut değil.",
-  "SelectFilesToDownload": "İndirilecek dosyaları seçin"
+  "SelectFilesToDownload": "İndirilecek dosyaları seçin",
+  "Filter_AllCharacters": "Tüm karakterler",
+  "TimeRange_Header": "Zaman aralığı",
+  "TimeRange_Last30Days": "Son 30 gün",
+  "TimeRange_Last90Days": "Son 90 gün",
+  "TimeRange_Last180Days": "Son 180 gün",
+  "TimeRange_Unlimited": "Sınırsız (maks. 500)",
+  "WindowSort_Header": "Aralıkta sırala",
+  "WindowSort_LatestUpdated": "En son güncellenen",
+  "WindowSort_MostLiked": "En çok beğenilen",
+  "WindowSort_MostDownloaded": "En çok indirilen",
+  "WindowSort_MostCommented": "En çok yorumlanan",
+  "RecentWindow_PartialTitle": "Kısmi sonuçlar",
+  "RecentWindow_PartialWarning": "Daha sonraki bir GameBanana sayfası yüklenemedi; mevcut sonuçlar gösteriliyor.",
+  "RecentWindow_CappedTitle": "Sonuçlar sınırlı",
+  "RecentWindow_CappedWarning": "Sonuçlar 10 sayfa veya 500 kayıt güvenlik sınırına ulaştı."
 }

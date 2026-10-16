@@ -95,5 +95,20 @@
   "Sort_MostCommented": "सर्वाधिक टिप्पणियाँ",
   "GB_LoadImages": "छवियां लोड करें",
   "GB_NoDescription": "कोई विवरण उपलब्ध नहीं है।",
-  "SelectFilesToDownload": "डाउनलोड करने के लिए फ़ाइलें चुनें"
+  "SelectFilesToDownload": "डाउनलोड करने के लिए फ़ाइलें चुनें",
+  "Filter_AllCharacters": "सभी पात्र",
+  "TimeRange_Header": "समय सीमा",
+  "TimeRange_Last30Days": "पिछले 30 दिन",
+  "TimeRange_Last90Days": "पिछले 90 दिन",
+  "TimeRange_Last180Days": "पिछले 180 दिन",
+  "TimeRange_Unlimited": "असीमित (अधिकतम 500)",
+  "WindowSort_Header": "सीमा में क्रमबद्ध करें",
+  "WindowSort_LatestUpdated": "हाल ही में अपडेट किया गया",
+  "WindowSort_MostLiked": "सबसे अधिक पसंद किए गए",
+  "WindowSort_MostDownloaded": "सबसे अधिक डाउनलोड किए गए",
+  "WindowSort_MostCommented": "सबसे अधिक टिप्पणी की गई",
+  "RecentWindow_PartialTitle": "आंशिक परिणाम",
+  "RecentWindow_PartialWarning": "बाद का GameBanana पृष्ठ लोड नहीं किया जा सका; उपलब्ध परिणाम दिखाए गए हैं।",
+  "RecentWindow_CappedTitle": "परिणाम सीमित",
+  "RecentWindow_CappedWarning": "परिणाम 10 पृष्ठों या 500 रिकॉर्ड की सुरक्षा सीमा तक पहुंच गए।"
 }

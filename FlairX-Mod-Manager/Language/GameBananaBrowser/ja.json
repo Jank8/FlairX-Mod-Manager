@@ -95,5 +95,20 @@
   "Sort_MostCommented": "コメント数",
   "GB_LoadImages": "画像を読み込む",
   "GB_NoDescription": "説明がありません。",
-  "SelectFilesToDownload": "ダウンロードするファイルを選択"
+  "SelectFilesToDownload": "ダウンロードするファイルを選択",
+  "Filter_AllCharacters": "すべてのキャラクター",
+  "TimeRange_Header": "期間",
+  "TimeRange_Last30Days": "過去30日間",
+  "TimeRange_Last90Days": "過去90日間",
+  "TimeRange_Last180Days": "過去180日間",
+  "TimeRange_Unlimited": "無制限（最大500件）",
+  "WindowSort_Header": "範囲内で並べ替え",
+  "WindowSort_LatestUpdated": "最近更新された",
+  "WindowSort_MostLiked": "最も高評価",
+  "WindowSort_MostDownloaded": "最もダウンロードされた",
+  "WindowSort_MostCommented": "最もコメントされた",
+  "RecentWindow_PartialTitle": "部分的な結果",
+  "RecentWindow_PartialWarning": "後のGameBananaページを読み込めませんでした。利用可能な結果が表示されます。",
+  "RecentWindow_CappedTitle": "結果の制限",
+  "RecentWindow_CappedWarning": "結果が安全制限の10ページまたは500レコードに達しました。"
 }

@@ -291,7 +291,7 @@ namespace FlairX_Mod_Manager.Pages
             TitleText.Text = string.Format(titleFormat, gameName);
 
             // Set UI text
-            SearchBox.PlaceholderText = SharedUtilities.GetTranslation(_lang, "SearchPlaceholder") ?? "Search mods or enter URL/ID...";
+            SearchBox.PlaceholderText = SharedUtilities.GetTranslation(_lang, "SearchPlaceholder") ;
             DetailInstalledBadgeText.Text = SharedUtilities.GetTranslation(_lang, "Installed");
             DetailAuthorLabel.Text = SharedUtilities.GetTranslation(_lang, "Author");
             DetailViewProfileText.Text = SharedUtilities.GetTranslation(_lang, "ViewProfile");
@@ -304,15 +304,15 @@ namespace FlairX_Mod_Manager.Pages
             DetailOpenBrowserButtonText.Text = SharedUtilities.GetTranslation(_lang, "OpenInBrowser");
             DetailDownloadPreviewsButtonText.Text = SharedUtilities.GetTranslation(_lang, "DownloadPreviews");
             RetryButton.Content = SharedUtilities.GetTranslation(_lang, "Retry");
-            StarterPackButtonText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_Button") ?? "Starter Pack";
-            ToolTipService.SetToolTip(StarterPackButton, SharedUtilities.GetTranslation(_lang, "StarterPack_Button_Tooltip") ?? "Download Starter Pack for this game");
+            StarterPackButtonText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_Button") ;
+            ToolTipService.SetToolTip(StarterPackButton, SharedUtilities.GetTranslation(_lang, "StarterPack_Button_Tooltip") );
             LoadMoreButtonText.Text = SharedUtilities.GetTranslation(_lang, "LoadMore");
             LoadMoreMainButtonText.Text = SharedUtilities.GetTranslation(_lang, "LoadMore");
 
             // Populate category filter ComboBox
             CategoryFilterComboBox.Items.Clear();
-            CategoryFilterComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Filter_AllMods") ?? "All Mods");
-            CategoryFilterComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Filter_CharacterSkins") ?? "Character Skins");
+            CategoryFilterComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Filter_AllMods") );
+            CategoryFilterComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Filter_CharacterSkins") );
             CategoryFilterComboBox.SelectedIndex = 0;
 
             var parentCategoryId = GameBananaService.GetCharacterCategoryId(_gameTag);
@@ -326,13 +326,13 @@ namespace FlairX_Mod_Manager.Pages
 
             // Populate sort order ComboBox (only visible for Character Skins filter)
             SortOrderComboBox.Items.Clear();
-            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_LatestUpdated") ?? "Latest Updated");
-            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_Newest") ?? "Newest");
-            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_Oldest") ?? "Oldest");
-            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_MostLiked") ?? "Most Liked");
-            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_MostViewed") ?? "Most Viewed");
-            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_MostDownloaded") ?? "Most Downloaded");
-            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_MostCommented") ?? "Most Commented");
+            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_LatestUpdated") );
+            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_Newest") );
+            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_Oldest") );
+            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_MostLiked") );
+            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_MostViewed") );
+            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_MostDownloaded") );
+            SortOrderComboBox.Items.Add(SharedUtilities.GetTranslation(_lang, "Sort_MostCommented") );
             SortOrderComboBox.SelectedIndex = 0;
 
             _isUpdatingRecentWindowControls = true;
@@ -359,9 +359,9 @@ namespace FlairX_Mod_Manager.Pages
             UpdateRecentWindowAvailability();
 
             // Set loading / empty state text
-            LoadingText.Text = SharedUtilities.GetTranslation(_lang, "Loading") ?? "Loading...";
-            EmptyText.Text = SharedUtilities.GetTranslation(_lang, "NoModsFound") ?? "No mods found";
-            CommentsLoadingText.Text = SharedUtilities.GetTranslation(_lang, "LoadingComments") ?? "Loading comments...";
+            LoadingText.Text = SharedUtilities.GetTranslation(_lang, "Loading") ;
+            EmptyText.Text = SharedUtilities.GetTranslation(_lang, "NoModsFound") ;
+            CommentsLoadingText.Text = SharedUtilities.GetTranslation(_lang, "LoadingComments") ;
             
             // Hide Starter Pack button if not available for this game
             StarterPackButton.Visibility = Dialogs.StarterPackDialog.IsStarterPackAvailable(_gameTag) 
@@ -399,9 +399,9 @@ namespace FlairX_Mod_Manager.Pages
             return new ModViewModel
             {
                 Id = record.Id,
-                Name = record.Name ?? "",
-                AuthorName = record.Submitter?.Name ?? "Unknown",
-                ProfileUrl = record.ProfileUrl ?? "",
+                Name = record.Name ,
+                AuthorName = record.Submitter?.Name ,
+                ProfileUrl = record.ProfileUrl ,
                 ImageUrl = image is null ? null : GameBananaService.GetListPreviewImageUrl(image),
                 DownloadCount = record.GetDownloadCount(),
                 LikeCount = record.GetLikeCount(),
@@ -423,7 +423,7 @@ namespace FlairX_Mod_Manager.Pages
                 return false;
             }
 
-            return !IsModBlacklisted(record.Submitter?.Name ?? "", record.Name ?? "");
+            return !IsModBlacklisted(record.Submitter?.Name , record.Name );
         }
 
         private void CreateCharacterFilterComboBox()
@@ -953,7 +953,7 @@ namespace FlairX_Mod_Manager.Pages
                     var viewModel = CreateModViewModel(
                         record,
                         installedText,
-                        IsModInstalled(record.ProfileUrl ?? ""));
+                        IsModInstalled(record.ProfileUrl ));
                     _mods.Add(viewModel);
                     _loadedModIds.Add(record.Id);
                 }
@@ -1117,12 +1117,12 @@ namespace FlairX_Mod_Manager.Pages
                                 {
                                     Id = modDetails.Id,
                                     Name = modDetails.Name,
-                                    AuthorName = modDetails.Submitter?.Name ?? "Unknown",
-                                    AuthorProfileUrl = modDetails.Submitter?.ProfileUrl ?? "",
+                                    AuthorName = modDetails.Submitter?.Name ,
+                                    AuthorProfileUrl = modDetails.Submitter?.ProfileUrl ,
                                     AuthorAvatarUrl = modDetails.Submitter?.AvatarUrl,
                                     ProfileUrl = modDetails.ProfileUrl,
-                                    CategoryName = modDetails.Category?.Name ?? "",
-                                    CategoryUrl = modDetails.Category?.ProfileUrl ?? "",
+                                    CategoryName = modDetails.Category?.Name ,
+                                    CategoryUrl = modDetails.Category?.ProfileUrl ,
                                     LikeCount = modDetails.GetLikeCount(),
                                     ViewCount = modDetails.GetViewCount(),
                                     DownloadCount = modDetails.GetDownloadCount(),
@@ -1254,7 +1254,7 @@ namespace FlairX_Mod_Manager.Pages
                 if (!Dialogs.StarterPackDialog.IsStarterPackAvailable(_gameTag))
                 {
                     var lang = SharedUtilities.LoadLanguageDictionary();
-                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "StarterPack_NotAvailable") ?? "Starter Pack is not available for this game yet.");
+                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowWarningInfo(SharedUtilities.GetTranslation(lang, "StarterPack_NotAvailable") );
                     return;
                 }
 
@@ -1372,27 +1372,28 @@ namespace FlairX_Mod_Manager.Pages
                     _ = Task.Run(async () =>
                     {
                         foreach (var vm in newViewModels)
-                    {
-                        if (string.IsNullOrEmpty(vm.ProfileUrl)) continue;
-                        var installed = !string.IsNullOrEmpty(await GetInstalledModPathAsync(vm.ProfileUrl));
-                        if (installed)
-                            DispatcherQueue.TryEnqueue(() => vm.IsInstalled = true);
-                    }
-                });
+                        {
+                            if (string.IsNullOrEmpty(vm.ProfileUrl)) continue;
+                            var installed = !string.IsNullOrEmpty(await GetInstalledModPathAsync(vm.ProfileUrl));
+                            if (installed)
+                                DispatcherQueue.TryEnqueue(() => vm.IsInstalled = true);
+                        }
+                    });
 
-                // Load images for new mods
-                _ = LoadImagesAsync();
+                    // Load images for new mods
+                    _ = LoadImagesAsync();
                 
-                // Update Load More button visibility
-                LoadMoreMainModsButton.Visibility = _hasMorePages
-                    ? Visibility.Visible
-                    : Visibility.Collapsed;
-                LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
+                    // Update Load More button visibility
+                    LoadMoreMainModsButton.Visibility = _hasMorePages
+                        ? Visibility.Visible
+                        : Visibility.Collapsed;
+                    LoadMoreAuthorModsButton.Visibility = Visibility.Collapsed;
                 
-                // Check if we still need more content after loading
-                await Task.Delay(200); // Wait for layout to update
-                if (expectedLoadGeneration.HasValue && expectedLoadGeneration.Value != _loadGeneration) return;
-                CheckIfNeedMoreContent();
+                    // Check if we still need more content after loading
+                    await Task.Delay(200); // Wait for layout to update
+                    if (expectedLoadGeneration.HasValue && expectedLoadGeneration.Value != _loadGeneration) return;
+                    CheckIfNeedMoreContent();
+                }
             }
             catch (Exception ex)
             {
@@ -2221,7 +2222,7 @@ namespace FlairX_Mod_Manager.Pages
 
                         var dialog = new ContentDialog
                         {
-                            Title = SharedUtilities.GetTranslation(langDict, "GameBanana_Blacklist_Title") ?? "Blacklist",
+                            Title = SharedUtilities.GetTranslation(langDict, "GameBanana_Blacklist_Title") ,
                             Content = message,
                             CloseButtonText = "OK",
                             XamlRoot = this.XamlRoot
@@ -2270,7 +2271,7 @@ namespace FlairX_Mod_Manager.Pages
 
                         var dialog = new ContentDialog
                         {
-                            Title = SharedUtilities.GetTranslation(langDict, "GameBanana_Blacklist_Title") ?? "Blacklist",
+                            Title = SharedUtilities.GetTranslation(langDict, "GameBanana_Blacklist_Title") ,
                             Content = message,
                             CloseButtonText = "OK",
                             XamlRoot = this.XamlRoot
@@ -2349,7 +2350,7 @@ namespace FlairX_Mod_Manager.Pages
                         {
                             _currentSearch = entry.Search;
                             _currentPage = entry.Page;
-                            SearchBox.Text = entry.Search ?? "";
+                            SearchBox.Text = entry.Search ;
 
                             // Restore filter without triggering SelectionChanged reload
                             _currentCategoryFilter = entry.Filter;
@@ -2716,8 +2717,8 @@ namespace FlairX_Mod_Manager.Pages
                     // Mod is private or has been removed - go back without clearing history
                     CloseDetailsPanelNoHistory();
                     UpdateBackButtonIcon();
-                    ModUnavailableBar.Title = SharedUtilities.GetTranslation(_lang, "ModUnavailableTitle") ?? "Mod Unavailable";
-                    ModUnavailableBar.Message = SharedUtilities.GetTranslation(_lang, "ModUnavailableMessage") ?? "This mod is private or has been removed.";
+                    ModUnavailableBar.Title = SharedUtilities.GetTranslation(_lang, "ModUnavailableTitle") ;
+                    ModUnavailableBar.Message = SharedUtilities.GetTranslation(_lang, "ModUnavailableMessage") ;
                     ModUnavailableBar.IsOpen = true;
                     return;
                 }
@@ -2759,7 +2760,7 @@ namespace FlairX_Mod_Manager.Pages
                     DetailVersionBadge.Visibility = Visibility.Collapsed;
                 }
                 
-                DetailAuthor.Text = _currentModDetails.Submitter?.Name ?? "Unknown";
+                DetailAuthor.Text = _currentModDetails.Submitter?.Name ;
                 
                 // Load description in MarkdownTextBlock
                 LoadDescriptionInMarkdown(_currentModDetails.Description);
@@ -2790,7 +2791,7 @@ namespace FlairX_Mod_Manager.Pages
                 // Load category info
                 if (_currentModDetails.Category != null)
                 {
-                    DetailCategory.Text = _currentModDetails.Category.Name ?? "Unknown";
+                    DetailCategory.Text = _currentModDetails.Category.Name ;
                     
                     // Load category icon
                     if (!string.IsNullOrEmpty(_currentModDetails.Category.IconUrl))
@@ -2903,7 +2904,7 @@ namespace FlairX_Mod_Manager.Pages
                 CommentsLoadingPanel.Visibility = Visibility.Collapsed;
                 CommentsErrorText.Visibility = Visibility.Collapsed;
                 ShowCommentsButton.Visibility = Visibility.Visible;
-                ShowCommentsButtonText.Text = SharedUtilities.GetTranslation(_lang, "ShowComments") ?? "Show Comments";
+                ShowCommentsButtonText.Text = SharedUtilities.GetTranslation(_lang, "ShowComments") ;
                 ShowCommentsIcon.Glyph = "\uE8F2";
                 
                 // Ensure size changed event is attached for markdown images
@@ -3108,7 +3109,7 @@ namespace FlairX_Mod_Manager.Pages
             _currentModDetails = freshModDetails;
             
             // Use fresh data from API for installation dialog
-            var authorName = freshModDetails.Submitter?.Name ?? "unknown";
+            var authorName = freshModDetails.Submitter?.Name ;
             var dateUpdated = (freshModDetails.DateUpdated ?? 0) > 0 ? freshModDetails.DateUpdated ?? 0 : freshModDetails.DateAdded ?? 0;
             var categoryName = freshModDetails.Category?.Name; // Fresh category from API
             var modName = freshModDetails.Name; // Fresh mod name from API
@@ -3247,14 +3248,14 @@ namespace FlairX_Mod_Manager.Pages
             {
                 CommentsSection.Visibility = Visibility.Collapsed;
                 ShowCommentsIcon.Glyph = "\uE8F2";
-                ShowCommentsButtonText.Text = SharedUtilities.GetTranslation(_lang, "ShowComments") ?? "Show Comments";
+                ShowCommentsButtonText.Text = SharedUtilities.GetTranslation(_lang, "ShowComments") ;
                 return;
             }
 
             // Show section
             CommentsSection.Visibility = Visibility.Visible;
             ShowCommentsIcon.Glyph = "\uE8F2";
-            ShowCommentsButtonText.Text = SharedUtilities.GetTranslation(_lang, "ShowComments") ?? "Show Comments";
+            ShowCommentsButtonText.Text = SharedUtilities.GetTranslation(_lang, "ShowComments") ;
 
             // If already loaded, just show
             if (_commentsLoaded) return;
@@ -3279,7 +3280,7 @@ namespace FlairX_Mod_Manager.Pages
             // Load comments (first page only — no Load More clicks)
             CommentsLoadingPanel.Visibility = Visibility.Visible;
             CommentsErrorText.Visibility = Visibility.Collapsed;
-            CommentsLoadingText.Text = SharedUtilities.GetTranslation(_lang, "LoadingComments") ?? "Loading comments...";
+            CommentsLoadingText.Text = SharedUtilities.GetTranslation(_lang, "LoadingComments") ;
             _comments.Clear();
 
             try
@@ -3291,14 +3292,14 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (comments == null)
                 {
-                    CommentsErrorText.Text = SharedUtilities.GetTranslation(_lang, "CommentsLoadFailed") ?? "Failed to load comments.";
+                    CommentsErrorText.Text = SharedUtilities.GetTranslation(_lang, "CommentsLoadFailed") ;
                     CommentsErrorText.Visibility = Visibility.Visible;
                     return;
                 }
 
                 if (comments.Count == 0)
                 {
-                    CommentsErrorText.Text = SharedUtilities.GetTranslation(_lang, "NoComments") ?? "No comments yet.";
+                    CommentsErrorText.Text = SharedUtilities.GetTranslation(_lang, "NoComments") ;
                     CommentsErrorText.Visibility = Visibility.Visible;
                     _commentsLoaded = true;
                     return;
@@ -3335,7 +3336,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogError("Failed to load comments", ex);
                 CommentsLoadingPanel.Visibility = Visibility.Collapsed;
-                CommentsErrorText.Text = SharedUtilities.GetTranslation(_lang, "CommentsLoadFailed") ?? "Failed to load comments.";
+                CommentsErrorText.Text = SharedUtilities.GetTranslation(_lang, "CommentsLoadFailed") ;
                 CommentsErrorText.Visibility = Visibility.Visible;
             }
         }
@@ -3353,7 +3354,7 @@ namespace FlairX_Mod_Manager.Pages
                 Children =
                 {
                     new ProgressRing { IsActive = true, Width = 16, Height = 16 },
-                    new TextBlock { Text = SharedUtilities.GetTranslation(_lang, "LoadingComments") ?? "Loading..." }
+                    new TextBlock { Text = SharedUtilities.GetTranslation(_lang, "LoadingComments")  }
                 }
             };
 
@@ -3416,7 +3417,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 _commentsLoadingMore = false;
                 CommentsLoadMoreButton.IsEnabled = true;
-                CommentsLoadMoreButton.Content = new TextBlock { Text = SharedUtilities.GetTranslation(_lang, "LoadMore") ?? "Load More" };
+                CommentsLoadMoreButton.Content = new TextBlock { Text = SharedUtilities.GetTranslation(_lang, "LoadMore")  };
             }
         }
 
@@ -3460,9 +3461,9 @@ namespace FlairX_Mod_Manager.Pages
                 }
 
                 // Use fresh data from API
-                var authorName = freshModDetails.Submitter?.Name ?? "unknown";
-                var categoryName = freshModDetails.Category?.Name ?? "Unknown";
-                var modName = freshModDetails.Name ?? "Unknown Mod";
+                var authorName = freshModDetails.Submitter?.Name ;
+                var categoryName = freshModDetails.Category?.Name ;
+                var modName = freshModDetails.Name ;
 
                 // Create installation dialog in preview-only mode
                 var extractDialog = new Dialogs.GameBananaFileExtractionDialog(
@@ -3745,7 +3746,7 @@ namespace FlairX_Mod_Manager.Pages
             {
                 // Open image preview in sliding panel
                 var mainWindow = (App.Current as App)?.MainWindow as MainWindow;
-                var modName = _currentModDetails?.Name ?? "Preview";
+                var modName = _currentModDetails?.Name ;
                 mainWindow?.ShowImagePreviewPanel(_detailPreviewImages, _currentDetailImageIndex, modName);
             }
         }
@@ -3879,7 +3880,7 @@ namespace FlairX_Mod_Manager.Pages
 
                 if (string.IsNullOrWhiteSpace(htmlContent))
                 {
-                    DetailDescriptionMarkdown.Text = SharedUtilities.GetTranslation(_lang, "GB_NoDescription") ?? "No description available.";
+                    DetailDescriptionMarkdown.Text = SharedUtilities.GetTranslation(_lang, "GB_NoDescription") ;
                     return;
                 }
                 
@@ -3927,7 +3928,7 @@ namespace FlairX_Mod_Manager.Pages
                     DetailDescriptionMarkdown.Text = strippedMarkdown;
 
                     // Show the load-images button with translated label
-                    LoadImagesButtonText.Text = SharedUtilities.GetTranslation(_lang, "GB_LoadImages") ?? "Load Images";
+                    LoadImagesButtonText.Text = SharedUtilities.GetTranslation(_lang, "GB_LoadImages") ;
                     LoadImagesButton.Visibility = Visibility.Visible;
                 }
                 else

@@ -95,5 +95,20 @@
   "Sort_MostCommented": "Mest kommenterade",
   "GB_LoadImages": "Ladda bilder",
   "GB_NoDescription": "Ingen beskrivning tillgänglig.",
-  "SelectFilesToDownload": "Välj filer att ladda ner"
+  "SelectFilesToDownload": "Välj filer att ladda ner",
+  "Filter_AllCharacters": "Alla karaktärer",
+  "TimeRange_Header": "Tidsintervall",
+  "TimeRange_Last30Days": "Senaste 30 dagarna",
+  "TimeRange_Last90Days": "Senaste 90 dagarna",
+  "TimeRange_Last180Days": "Senaste 180 dagarna",
+  "TimeRange_Unlimited": "Obegränsat (max. 500)",
+  "WindowSort_Header": "Sortera inom intervall",
+  "WindowSort_LatestUpdated": "Senast uppdaterade",
+  "WindowSort_MostLiked": "Mest gillad",
+  "WindowSort_MostDownloaded": "Mest nedladdade",
+  "WindowSort_MostCommented": "Mest kommenterade",
+  "RecentWindow_PartialTitle": "Delresultat",
+  "RecentWindow_PartialWarning": "En senare GameBanana-sida kunde inte laddas; tillgängliga resultat visas.",
+  "RecentWindow_CappedTitle": "Resultat begränsade",
+  "RecentWindow_CappedWarning": "Resultaten nådde säkerhetsgränsen på 10 sidor eller 500 poster."
 }
