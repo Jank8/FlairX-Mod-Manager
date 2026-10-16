@@ -3000,21 +3000,22 @@ namespace FlairX_Mod_Manager.Services
                 
                 if (isAutoMode && filesToShow.Count > 1)
                 {
-                    // Pick the file with the widest aspect ratio as source for wide format
-                    var widestFile = filesToShow
+                    // Pick the file with aspect ratio closest to 16:9 (1.7778) as source for wide format
+                    const double target169 = 16.0 / 9.0;
+                    var bestFile = filesToShow
                         .Select(f => {
                             try {
                                 using var img = Image.Load<Rgba32>(f);
-                                return (path: f, ratio: (double)img.Width / img.Height);
-                            } catch { return (path: f, ratio: 0.0); }
+                                return (path: f, diff: Math.Abs((double)img.Width / img.Height - target169));
+                            } catch { return (path: f, diff: double.MaxValue); }
                         })
-                        .OrderByDescending(x => x.ratio)
+                        .OrderBy(x => x.diff)
                         .First().path;
                     
-                    if (widestFile != previewPath)
+                    if (bestFile != previewPath)
                     {
-                        currentWidePath = widestFile;
-                        Logger.LogInfo($"Auto mode: selected widest source for wide minitile: {Path.GetFileName(widestFile)}");
+                        currentWidePath = bestFile;
+                        Logger.LogInfo($"Auto mode: selected closest-to-16:9 source for wide minitile: {Path.GetFileName(bestFile)}");
                     }
                 }
                 
