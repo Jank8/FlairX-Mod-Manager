@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Bahagyang mga resulta",
   "RecentWindow_PartialWarning": "Hindi ma-load ang kasunod na pahina ng GameBanana; ipinapakita ang magagamit na mga resulta.",
   "RecentWindow_CappedTitle": "Limitadong mga resulta",
-  "RecentWindow_CappedWarning": "Umabottom ang mga resulta sa limitasyon sa seguridad ng 10 pahina o 500 talaan."
+  "RecentWindow_CappedWarning": "Umabottom ang mga resulta sa limitasyon sa seguridad ng 10 pahina o 500 talaan.",
+  "Comments_Login": "Mag-login",
+  "Comments_Logout": "Mag-logout",
+  "Comments_Cancel": "Kanselahin",
+  "Comments_Continue": "Magpatuloy",
+  "Comments_Reload": "I-reload",
+  "Comments_Zoom": "Zoom"
 }

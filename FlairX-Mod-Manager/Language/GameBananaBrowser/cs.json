@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Částečné výsledky",
   "RecentWindow_PartialWarning": "Pozdější stránka GameBanana se nepodařila načíst; zobrazeny dostupné výsledky.",
   "RecentWindow_CappedTitle": "Výsledky omezeny",
-  "RecentWindow_CappedWarning": "Výsledky dosáhly bezpečnostního limitu 10 stránek nebo 500 záznamů."
+  "RecentWindow_CappedWarning": "Výsledky dosáhly bezpečnostního limitu 10 stránek nebo 500 záznamů.",
+  "Comments_Login": "Přihlásit",
+  "Comments_Logout": "Odhlásit",
+  "Comments_Cancel": "Zrušit",
+  "Comments_Continue": "Pokračovat",
+  "Comments_Reload": "Obnovit",
+  "Comments_Zoom": "Přiblížení"
 }

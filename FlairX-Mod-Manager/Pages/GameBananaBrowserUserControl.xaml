@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ctk="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ctrl="using:FlairX_Mod_Manager.Controls"
     mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -82,6 +83,23 @@
                         <TextBlock x:Name="DetailInstalledBadgeText" Text="Installed" FontSize="14" Foreground="White" FontWeight="SemiBold"/>
                     </StackPanel>
                 </Border>
+            </StackPanel>
+
+            <!-- Session widget: profile (click = author's mods) + logout, or just Login -->
+            <StackPanel Orientation="Horizontal"
+                        Spacing="8"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center">
+                <Button x:Name="SessionProfileButton"
+                        Click="SessionProfileButton_Click"
+                        Padding="8,4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <PersonPicture x:Name="SessionAvatar" Width="26" Height="26"/>
+                        <TextBlock x:Name="SessionNameText" Text="Login" VerticalAlignment="Center" FontSize="14"/>
+                        <FontIcon x:Name="SessionChevron" Glyph="&#xE70D;" FontSize="10"
+                                  VerticalAlignment="Center" Opacity="0.6" Visibility="Collapsed"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
         </Grid>
         
@@ -410,6 +428,7 @@
                                             BorderThickness="2"
                                             PointerEntered="AuthorAvatar_PointerEntered"
                                             PointerExited="AuthorAvatar_PointerExited"
+                                            Tapped="AuthorProfile_Tapped"
                                             Background="Transparent"
                                             VerticalAlignment="Center">
                                         <Border.RenderTransform>
@@ -424,7 +443,7 @@
                                     
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                         <TextBlock x:Name="DetailAuthorLabel" Text="Author" FontWeight="SemiBold" FontSize="14"/>
-                                        <TextBlock x:Name="DetailAuthor" FontSize="12" Opacity="0.7" Margin="0,2,0,0"/>
+                                        <TextBlock x:Name="DetailAuthor" FontSize="12" Opacity="0.7" Margin="0,2,0,0" Tapped="AuthorProfile_Tapped"/>
                                         <StackPanel Orientation="Horizontal" Spacing="4">
                                             <HyperlinkButton x:Name="DetailAuthorProfileLink" 
                                                             FontSize="11"
@@ -735,8 +754,18 @@
                             <TextBlock x:Name="CommentsErrorText"
                                        FontSize="14" Opacity="0.6"
                                        HorizontalAlignment="Center"
-                                       Margin="0,16,0,16"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="560"
+                                       Margin="0,16,0,8"
                                        Visibility="Collapsed"/>
+
+                            <Button x:Name="CommentsLoginButton"
+                                    Content="Login"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,0,0,16"
+                                    Visibility="Collapsed"
+                                    Click="CommentsLoginButton_Click"/>
 
                             <!-- Comments list -->
                             <ItemsControl x:Name="CommentsList">

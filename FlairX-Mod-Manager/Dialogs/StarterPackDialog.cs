@@ -216,79 +216,37 @@ namespace FlairX_Mod_Manager.Dialogs
 
         private async void OnPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            args.Cancel = true; // Prevent dialog from closing
-
-            _cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = _cancellationTokenSource.Token;
-            var tempFiles = new List<string>();
-
             try
             {
-                IsPrimaryButtonEnabled = false;
-                IsSecondaryButtonEnabled = false;
-                CloseButtonText = "";
-                _dontShowAgainCheckBox.IsEnabled = false;
-                _cancelButton.Visibility = Visibility.Visible;
-                _cancelButton.IsEnabled = true;
+                args.Cancel = true; // Prevent dialog from closing
 
-                // Fetch download info from GameBanana API
-                _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_FetchingInfo") ?? "Fetching download info...";
-                _progressBar.Visibility = Visibility.Visible;
-                _progressBar.IsIndeterminate = true;
+                _cancellationTokenSource = new CancellationTokenSource();
+                var cancellationToken = _cancellationTokenSource.Token;
+                var tempFiles = new List<string>();
 
-                var hasFiles = await FetchDownloadInfoAsync(cancellationToken);
-                if (!hasFiles)
+                try
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        ResetToInitialState();
-                        return;
-                    }
-                    _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_FetchFailed") ?? "Failed to fetch download info.";
-                    _progressBar.Visibility = Visibility.Collapsed;
-                    _cancelButton.Visibility = Visibility.Collapsed;
-                    IsPrimaryButtonEnabled = true;
-                    CloseButtonText = SharedUtilities.GetTranslation(_lang, "Close") ?? "Close";
-                    _dontShowAgainCheckBox.IsEnabled = true;
-                    return;
-                }
+                    IsPrimaryButtonEnabled = false;
+                    IsSecondaryButtonEnabled = false;
+                    CloseButtonText = "";
+                    _dontShowAgainCheckBox.IsEnabled = false;
+                    _cancelButton.Visibility = Visibility.Visible;
+                    _cancelButton.IsEnabled = true;
 
-                // Download all files
-                var totalSizeMB = _totalSize / (1024.0 * 1024.0);
-                _statusText.Text = string.Format(
-                    SharedUtilities.GetTranslation(_lang, "StarterPack_Downloading") ?? "Downloading {0} files... ({1:F1} MB total)",
-                    _downloadFiles.Count, totalSizeMB);
-                _progressBar.IsIndeterminate = false;
-                _progressBar.Value = 0;
+                    // Fetch download info from GameBanana API
+                    _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_FetchingInfo") ?? "Fetching download info...";
+                    _progressBar.Visibility = Visibility.Visible;
+                    _progressBar.IsIndeterminate = true;
 
-                long totalDownloaded = 0;
-                
-                for (int i = 0; i < _downloadFiles.Count; i++)
-                {
-                    var (url, size, filename) = _downloadFiles[i];
-                    
-                    _statusText.Text = string.Format(
-                        SharedUtilities.GetTranslation(_lang, "StarterPack_DownloadingFile") ?? "Downloading file {0}/{1}: {2}",
-                        i + 1, _downloadFiles.Count, filename);
-                    
-                    var tempPath = Path.Combine(Path.GetTempPath(), $"starterpack_{_gameTag}_{i}_{Guid.NewGuid()}_{filename}");
-                    tempFiles.Add(tempPath);
-                    
-                    var success = await DownloadFileAsync(url, tempPath, size, totalDownloaded, cancellationToken);
-                    if (!success)
+                    var hasFiles = await FetchDownloadInfoAsync(cancellationToken);
+                    if (!hasFiles)
                     {
-                        // Clean up partial downloads
-                        foreach (var temp in tempFiles)
-                        {
-                            try { if (File.Exists(temp)) File.Delete(temp); } catch { }
-                        }
-                        
                         if (cancellationToken.IsCancellationRequested)
                         {
                             ResetToInitialState();
                             return;
                         }
-                        _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_DownloadFailed") ?? "Download failed.";
+                        _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_FetchFailed") ?? "Failed to fetch download info.";
                         _progressBar.Visibility = Visibility.Collapsed;
                         _cancelButton.Visibility = Visibility.Collapsed;
                         IsPrimaryButtonEnabled = true;
@@ -296,102 +254,155 @@ namespace FlairX_Mod_Manager.Dialogs
                         _dontShowAgainCheckBox.IsEnabled = true;
                         return;
                     }
-                    
-                    totalDownloaded += size;
-                }
 
-                // Disable cancel during extraction (can't cancel easily)
-                _cancelButton.IsEnabled = false;
-
-                // Extract all files to mods folder
-                _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_Extracting") ?? "Extracting...";
-                _progressBar.IsIndeterminate = false;
-                _progressBar.Value = 0;
-
-                var modsPath = AppConstants.GameConfig.GetModsPath(_gameTag);
-                var fullModsPath = PathManager.GetAbsolutePath(modsPath);
-
-                for (int i = 0; i < tempFiles.Count; i++)
-                {
-                    var tempPath = tempFiles[i];
-                    var filename = _downloadFiles[i].filename;
-                    
+                    // Download all files
+                    var totalSizeMB = _totalSize / (1024.0 * 1024.0);
                     _statusText.Text = string.Format(
-                        SharedUtilities.GetTranslation(_lang, "StarterPack_ExtractingFile") ?? "Extracting file {0}/{1}: {2}",
-                        i + 1, tempFiles.Count, filename);
-                    
-                    _progressBar.Value = (double)i / tempFiles.Count * 100;
-                    
-                    // Ensure mods directory exists
-                    Directory.CreateDirectory(fullModsPath);
+                        SharedUtilities.GetTranslation(_lang, "StarterPack_Downloading") ?? "Downloading {0} files... ({1:F1} MB total)",
+                        _downloadFiles.Count, totalSizeMB);
+                    _progressBar.IsIndeterminate = false;
+                    _progressBar.Value = 0;
 
-                    var extractProgress = new Progress<int>(percent =>
+                    long totalDownloaded = 0;
+
+                    for (int i = 0; i < _downloadFiles.Count; i++)
                     {
-                        DispatcherQueue.TryEnqueue(() =>
+                        var (url, size, filename) = _downloadFiles[i];
+
+                        _statusText.Text = string.Format(
+                            SharedUtilities.GetTranslation(_lang, "StarterPack_DownloadingFile") ?? "Downloading file {0}/{1}: {2}",
+                            i + 1, _downloadFiles.Count, filename);
+
+                        var tempPath = Path.Combine(PathManager.GetTempDirectory("StarterPack"), $"starterpack_{_gameTag}_{i}_{Guid.NewGuid()}_{filename}");
+                        tempFiles.Add(tempPath);
+
+                        var success = await DownloadFileAsync(url, tempPath, size, totalDownloaded, cancellationToken);
+                        if (!success)
                         {
-                            var overallProgress = ((double)i / tempFiles.Count * 100) + (percent / tempFiles.Count);
-                            _progressBar.Value = Math.Min(overallProgress, 100);
+                            // Clean up partial downloads
+                            foreach (var temp in tempFiles)
+                            {
+                                try { if (File.Exists(temp)) File.Delete(temp); } catch { }
+                            }
+
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                ResetToInitialState();
+                                return;
+                            }
+                            _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_DownloadFailed") ?? "Download failed.";
+                            _progressBar.Visibility = Visibility.Collapsed;
+                            _cancelButton.Visibility = Visibility.Collapsed;
+                            IsPrimaryButtonEnabled = true;
+                            CloseButtonText = SharedUtilities.GetTranslation(_lang, "Close") ?? "Close";
+                            _dontShowAgainCheckBox.IsEnabled = true;
+                            return;
+                        }
+
+                        totalDownloaded += size;
+                    }
+
+                    // Disable cancel during extraction (can't cancel easily)
+                    _cancelButton.IsEnabled = false;
+
+                    // Extract all files to mods folder
+                    _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_Extracting") ?? "Extracting...";
+                    _progressBar.IsIndeterminate = false;
+                    _progressBar.Value = 0;
+
+                    var modsPath = AppConstants.GameConfig.GetModsPath(_gameTag);
+                    var fullModsPath = PathManager.GetAbsolutePath(modsPath);
+
+                    for (int i = 0; i < tempFiles.Count; i++)
+                    {
+                        var tempPath = tempFiles[i];
+                        var filename = _downloadFiles[i].filename;
+
+                        _statusText.Text = string.Format(
+                            SharedUtilities.GetTranslation(_lang, "StarterPack_ExtractingFile") ?? "Extracting file {0}/{1}: {2}",
+                            i + 1, tempFiles.Count, filename);
+
+                        _progressBar.Value = (double)i / tempFiles.Count * 100;
+
+                        // Ensure mods directory exists
+                        Directory.CreateDirectory(fullModsPath);
+
+                        var extractProgress = new Progress<int>(percent =>
+                        {
+                            DispatcherQueue.TryEnqueue(() =>
+                            {
+                                var overallProgress = ((double)i / tempFiles.Count * 100) + (percent / tempFiles.Count);
+                                _progressBar.Value = Math.Min(overallProgress, 100);
+                            });
                         });
-                    });
 
-                    // Check if archive key is needed for this game
-                    var archiveKey = GetArchiveKey(_gameTag);
-                    if (!string.IsNullOrEmpty(archiveKey))
-                    {
-                        await Task.Run(() => ArchiveHelper.ExtractToDirectory(tempPath, fullModsPath, archiveKey, extractProgress));
+                        // Check if archive key is needed for this game
+                        var archiveKey = GetArchiveKey(_gameTag);
+                        if (!string.IsNullOrEmpty(archiveKey))
+                        {
+                            await Task.Run(() => ArchiveHelper.ExtractToDirectory(tempPath, fullModsPath, archiveKey, extractProgress));
+                        }
+                        else
+                        {
+                            await Task.Run(() => ArchiveHelper.ExtractToDirectory(tempPath, fullModsPath, extractProgress));
+                        }
+
+                        // Clean up temp file
+                        try { File.Delete(tempPath); } catch { }
                     }
-                    else
+
+                    // Mark as dismissed so we don't show again
+                    DismissStarterPack(_gameTag);
+
+                    _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_Complete") ?? "Starter Pack installed successfully!";
+                    _progressBar.Value = 100;
+                    _cancelButton.Visibility = Visibility.Collapsed;
+
+                    // Raise event to trigger reload
+                    InstallationComplete?.Invoke(this, EventArgs.Empty);
+
+                    // Close dialog after short delay
+                    await Task.Delay(1500);
+                    Hide();
+                }
+                catch (OperationCanceledException)
+                {
+                    // Clean up partial downloads
+                    foreach (var temp in tempFiles)
                     {
-                        await Task.Run(() => ArchiveHelper.ExtractToDirectory(tempPath, fullModsPath, extractProgress));
+                        try { if (File.Exists(temp)) File.Delete(temp); } catch { }
                     }
-
-                    // Clean up temp file
-                    try { File.Delete(tempPath); } catch { }
+                    ResetToInitialState();
                 }
-
-                // Mark as dismissed so we don't show again
-                DismissStarterPack(_gameTag);
-
-                _statusText.Text = SharedUtilities.GetTranslation(_lang, "StarterPack_Complete") ?? "Starter Pack installed successfully!";
-                _progressBar.Value = 100;
-                _cancelButton.Visibility = Visibility.Collapsed;
-
-                // Raise event to trigger reload
-                InstallationComplete?.Invoke(this, EventArgs.Empty);
-
-                // Close dialog after short delay
-                await Task.Delay(1500);
-                Hide();
-            }
-            catch (OperationCanceledException)
-            {
-                // Clean up partial downloads
-                foreach (var temp in tempFiles)
+                catch (Exception ex)
                 {
-                    try { if (File.Exists(temp)) File.Delete(temp); } catch { }
+                    Logger.LogError("Failed to download/install Starter Pack", ex);
+                    _statusText.Text = $"{SharedUtilities.GetTranslation(_lang, "StarterPack_Error") ?? "Error"}: {ex.Message}";
+                    _progressBar.Visibility = Visibility.Collapsed;
+                    _cancelButton.Visibility = Visibility.Collapsed;
+                    IsPrimaryButtonEnabled = true;
+                    CloseButtonText = SharedUtilities.GetTranslation(_lang, "Close") ?? "Close";
+                    _dontShowAgainCheckBox.IsEnabled = true;
+
+                    // Clean up temp files
+                    foreach (var temp in tempFiles)
+                    {
+                        try { if (File.Exists(temp)) File.Delete(temp); } catch { }
+                    }
                 }
-                ResetToInitialState();
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Failed to download/install Starter Pack", ex);
-                _statusText.Text = $"{SharedUtilities.GetTranslation(_lang, "StarterPack_Error") ?? "Error"}: {ex.Message}";
-                _progressBar.Visibility = Visibility.Collapsed;
-                _cancelButton.Visibility = Visibility.Collapsed;
-                IsPrimaryButtonEnabled = true;
-                CloseButtonText = SharedUtilities.GetTranslation(_lang, "Close") ?? "Close";
-                _dontShowAgainCheckBox.IsEnabled = true;
-                
-                // Clean up temp files
-                foreach (var temp in tempFiles)
+                finally
                 {
-                    try { if (File.Exists(temp)) File.Delete(temp); } catch { }
+                    _cancellationTokenSource?.Dispose();
+                    _cancellationTokenSource = null;
                 }
             }
-            finally
+            catch (System.OperationCanceledException)
             {
-                _cancellationTokenSource?.Dispose();
-                _cancellationTokenSource = null;
+                Logger.LogDebug("StarterPackDialog.OnPrimaryButtonClick failed: canceled");
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("StarterPackDialog.OnPrimaryButtonClick failed", ex);
             }
         }
 

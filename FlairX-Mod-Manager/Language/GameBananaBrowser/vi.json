@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Kết quả từng phần",
   "RecentWindow_PartialWarning": "Không thể tải trang GameBanana sau; hiển thị kết quả có sẵn.",
   "RecentWindow_CappedTitle": "Kết quả bị giới hạn",
-  "RecentWindow_CappedWarning": "Kết quả đã đạt giới hạn an toàn là 10 trang hoặc 500 bản ghi."
+  "RecentWindow_CappedWarning": "Kết quả đã đạt giới hạn an toàn là 10 trang hoặc 500 bản ghi.",
+  "Comments_Login": "Đăng nhập",
+  "Comments_Logout": "Đăng xuất",
+  "Comments_Cancel": "Hủy",
+  "Comments_Continue": "Tiếp tục",
+  "Comments_Reload": "Tải lại",
+  "Comments_Zoom": "Thu phóng"
 }

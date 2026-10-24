@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "부분 결과",
   "RecentWindow_PartialWarning": "이후 GameBanana 페이지를 로드할 수 없습니다. 사용 가능한 결과가 표시됩니다.",
   "RecentWindow_CappedTitle": "결과 제한됨",
-  "RecentWindow_CappedWarning": "결과가 안전 제한인 10페이지 또는 500개 레코드에 도달했습니다."
+  "RecentWindow_CappedWarning": "결과가 안전 제한인 10페이지 또는 500개 레코드에 도달했습니다.",
+  "Comments_Login": "로그인",
+  "Comments_Logout": "로그아웃",
+  "Comments_Cancel": "취소",
+  "Comments_Continue": "계속",
+  "Comments_Reload": "새로 고침",
+  "Comments_Zoom": "확대"
 }

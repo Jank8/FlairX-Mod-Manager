@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "部分结果",
   "RecentWindow_PartialWarning": "GameBanana 后续页面加载失败，已显示当前可用结果。",
   "RecentWindow_CappedTitle": "结果受限",
-  "RecentWindow_CappedWarning": "结果已达到 10 页或 500 条的安全上限。"
+  "RecentWindow_CappedWarning": "结果已达到 10 页或 500 条的安全上限。",
+  "Comments_Login": "登录",
+  "Comments_Logout": "退出",
+  "Comments_Cancel": "取消",
+  "Comments_Continue": "继续",
+  "Comments_Reload": "重新加载",
+  "Comments_Zoom": "缩放"
 }

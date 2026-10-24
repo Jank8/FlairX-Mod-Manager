@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Osittaiset tulokset",
   "RecentWindow_PartialWarning": "Myöhempää GameBanana-sivua ei voitu ladata; saatavilla olevat tulokset näytetään.",
   "RecentWindow_CappedTitle": "Tulokset rajoitettu",
-  "RecentWindow_CappedWarning": "Tulokset saavuttivat turvallisuusrajan 10 sivua tai 500 tietuetta."
+  "RecentWindow_CappedWarning": "Tulokset saavuttivat turvallisuusrajan 10 sivua tai 500 tietuetta.",
+  "Comments_Login": "Kirjaudu sisään",
+  "Comments_Logout": "Kirjaudu ulos",
+  "Comments_Cancel": "Peruuta",
+  "Comments_Continue": "Jatka",
+  "Comments_Reload": "Lataa uudelleen",
+  "Comments_Zoom": "Zoom"
 }

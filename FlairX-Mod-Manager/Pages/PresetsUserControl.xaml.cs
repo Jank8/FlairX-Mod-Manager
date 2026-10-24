@@ -27,6 +27,9 @@ namespace FlairX_Mod_Manager.Pages
 
         private List<string> _presetNames = new();
 
+        // Root element we attached ActualThemeChanged to, so Unloaded can detach cleanly.
+        private FrameworkElement? _themeRoot;
+
         public event EventHandler? CloseRequested; // Event to notify parent to close
 
         public PresetsUserControl()
@@ -37,6 +40,7 @@ namespace FlairX_Mod_Manager.Pages
             
             // Subscribe to theme changes to update this UserControl immediately
             this.Loaded += PresetsUserControl_Loaded;
+            this.Unloaded += PresetsUserControl_Unloaded;
         }
         
         private void PresetsUserControl_Loaded(object sender, RoutedEventArgs e)
@@ -46,8 +50,21 @@ namespace FlairX_Mod_Manager.Pages
             {
                 if (mainWindow.Content is FrameworkElement root)
                 {
+                    // Remember the root so Unloaded can detach from the same element; the root
+                    // outlives this control and used to keep it (and its XAML tree) alive.
+                    _themeRoot = root;
+                    root.ActualThemeChanged -= Root_ActualThemeChanged;
                     root.ActualThemeChanged += Root_ActualThemeChanged;
                 }
+            }
+        }
+
+        private void PresetsUserControl_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (_themeRoot != null)
+            {
+                _themeRoot.ActualThemeChanged -= Root_ActualThemeChanged;
+                _themeRoot = null;
             }
         }
         
@@ -229,128 +246,172 @@ namespace FlairX_Mod_Manager.Pages
 
         private async void LoadPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            if (PresetComboBox.SelectedItem is string presetName)
+            try
             {
-                var fileName = GetPresetFileNameFromComboBox(presetName);
-                try
+                if (PresetComboBox.SelectedItem is string presetName)
                 {
-                    // Default Preset = deactivate all (respects shuffle-excluded categories)
-                    if (fileName == "Default Preset")
+                    var fileName = GetPresetFileNameFromComboBox(presetName);
+                    try
                     {
-                        if (App.Current is App appD && appD.MainWindow is MainWindow mwD)
+                        // Default Preset = deactivate all (respects shuffle-excluded categories)
+                        if (fileName == "Default Preset")
                         {
-                            mwD.ExecuteDeactivateAllModsHotkey();
-                            var langDictD = SharedUtilities.LoadLanguageDictionary();
-                            if (App.Current is App app2 && app2.MainWindow is MainWindow mw2)
-                                mw2.ShowSuccessInfo(SharedUtilities.GetTranslation(langDictD, "Preset_Loaded"));
-                        }
-                        return;
-                    }
-
-                    FlairX_Mod_Manager.Pages.ModGridPage.ApplyPreset(fileName);
-                    
-                    // Reload manager to refresh the view (same pattern as shuffle/deactivate)
-                    if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
-                    {
-                        mainWindow.DispatcherQueue.TryEnqueue(async () =>
-                        {
-                            await mainWindow.ReloadModsAsync();
-                            if (SettingsManager.Current.SendF10OnModChange)
+                            if (App.Current is App appD && appD.MainWindow is MainWindow mwD)
                             {
-                                // Wait for LoadingWindow to close and game to regain focus
-                                await Task.Delay(500);
-                                mainWindow.SendF10KeyPress();
+                                await mwD.ExecuteDeactivateAllModsHotkey();
+                                var langDictD = SharedUtilities.LoadLanguageDictionary();
+                                if (App.Current is App app2 && app2.MainWindow is MainWindow mw2)
+                                    mw2.ShowSuccessInfo(SharedUtilities.GetTranslation(langDictD, "Preset_Loaded"));
                             }
-                            
-                            // Show success message after reload
-                            var langDict = SharedUtilities.LoadLanguageDictionary();
-                            mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(langDict, "Preset_Loaded"));
-                        });
+                            return;
+                        }
+
+                        FlairX_Mod_Manager.Pages.ModGridPage.ApplyPreset(fileName);
+
+                        // Reload manager to refresh the view (same pattern as shuffle/deactivate)
+                        if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                        {
+                            mainWindow.DispatcherQueue.TryEnqueue(async () =>
+                            {
+                                try
+                                {
+                                    await mainWindow.ReloadModsAsync();
+                                    if (SettingsManager.Current.SendF10OnModChange)
+                                    {
+                                        // Wait for LoadingWindow to close and game to regain focus
+                                        await Task.Delay(500);
+                                        mainWindow.SendF10KeyPress();
+                                    }
+
+                                    // Show success message after reload
+                                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                                    mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(langDict, "Preset_Loaded"));
+                                }
+                                catch (System.OperationCanceledException)
+                                {
+                                    Logger.LogDebug("PresetsUserControl.LoadPresetButton_Click failed: canceled");
+                                }
+                                catch (System.Exception ex)
+                                {
+                                    Logger.LogError("PresetsUserControl.LoadPresetButton_Click failed", ex);
+                                }
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        if (App.Current is App appE && appE.MainWindow is MainWindow mwE)
+                            mwE.ShowErrorInfo(ex.Message);
                     }
                 }
-                catch (Exception ex)
-                {
-                    if (App.Current is App appE && appE.MainWindow is MainWindow mwE)
-                        mwE.ShowErrorInfo(ex.Message);
-                }
+            }
+            catch (System.OperationCanceledException)
+            {
+                Logger.LogDebug("PresetsUserControl.LoadPresetButton_Click failed: canceled");
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("PresetsUserControl.LoadPresetButton_Click failed", ex);
             }
         }
 
         private async void SavePresetButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(PresetNameTextBox.Text))
+            try
             {
-                EnsurePresetsDir();
-                var presetName = PresetNameTextBox.Text.Trim();
-                var presetPath = Path.Combine(PresetsDir, presetName + ".json");
-                
-                // Use game-specific ActiveMods file name
-                var activeModsFileName = AppConstants.GameConfig.GetActiveModsFilename(SettingsManager.CurrentSelectedGame);
-                var activeModsPath = PathManager.GetSettingsPath(activeModsFileName);
-                
-                // Get current active mods state, excluding shuffle-excluded categories
-                var activeMods = new Dictionary<string, bool>();
-                var gameTag = SettingsManager.CurrentSelectedGame ?? "";
-                var excludedCategories = SettingsManager.GetShuffleExcludedCategories(gameTag);
-                var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
-
-                if (!string.IsNullOrEmpty(modsPath) && Directory.Exists(modsPath))
+                if (!string.IsNullOrWhiteSpace(PresetNameTextBox.Text))
                 {
-                    foreach (var categoryDir in Directory.GetDirectories(modsPath))
-                    {
-                        var categoryName = Path.GetFileName(categoryDir);
-                        if (excludedCategories.Contains(categoryName, StringComparer.OrdinalIgnoreCase))
-                            continue;
+                    EnsurePresetsDir();
+                    var presetName = PresetNameTextBox.Text.Trim();
+                    var presetPath = Path.Combine(PresetsDir, presetName + ".json");
 
-                        foreach (var modDir in Directory.GetDirectories(categoryDir))
+                    // Use game-specific ActiveMods file name
+                    var activeModsFileName = AppConstants.GameConfig.GetActiveModsFilename(SettingsManager.CurrentSelectedGame);
+                    var activeModsPath = PathManager.GetSettingsPath(activeModsFileName);
+
+                    // Get current active mods state, excluding shuffle-excluded categories
+                    var activeMods = new Dictionary<string, bool>();
+                    var gameTag = SettingsManager.CurrentSelectedGame ?? "";
+                    var excludedCategories = SettingsManager.GetShuffleExcludedCategories(gameTag);
+                    var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
+
+                    if (!string.IsNullOrEmpty(modsPath) && Directory.Exists(modsPath))
+                    {
+                        foreach (var categoryDir in Directory.GetDirectories(modsPath))
                         {
-                            var modFolderName = Path.GetFileName(modDir);
-                            var cleanName = FlairX_Mod_Manager.Pages.ModGridPage.GetCleanModName(modFolderName);
-                            var isActive = !modFolderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase);
-                            var presetKey = $"{categoryName}|{cleanName}"; // Use "Category|ModName" format
-                            activeMods[presetKey] = isActive;
+                            var categoryName = Path.GetFileName(categoryDir);
+                            if (excludedCategories.Contains(categoryName, StringComparer.OrdinalIgnoreCase))
+                                continue;
+
+                            foreach (var modDir in Directory.GetDirectories(categoryDir))
+                            {
+                                var modFolderName = Path.GetFileName(modDir);
+                                var cleanName = GetCleanModName(modFolderName);
+                                var isActive = !modFolderName.StartsWith("DISABLED_", StringComparison.OrdinalIgnoreCase);
+                                var presetKey = $"{categoryName}|{cleanName}"; // Use "Category|ModName" format
+                                activeMods[presetKey] = isActive;
+                            }
                         }
                     }
+
+                    try
+                    {
+                        // Save the current state to preset (includes both active=true and inactive=false mods)
+                        var json = System.Text.Json.JsonSerializer.Serialize(activeMods, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                        Services.FileAccessQueue.WriteAllText(presetPath, json);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (App.Current is App _a1 && _a1.MainWindow is MainWindow _mw1) _mw1.ShowErrorInfo(ex.Message);
+                        return;
+                    }
+                    LoadPresetsToComboBox();
+                    var langDict = SharedUtilities.LoadLanguageDictionary();
+                    if (App.Current is App _a2 && _a2.MainWindow is MainWindow _mw2) _mw2.ShowSuccessInfo(SharedUtilities.GetTranslation(langDict, "Preset_Saved"));
                 }
-                
-                try
-                {
-                    // Save the current state to preset (includes both active=true and inactive=false mods)
-                    var json = System.Text.Json.JsonSerializer.Serialize(activeMods, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                    Services.FileAccessQueue.WriteAllText(presetPath, json);
-                }
-                catch (Exception ex)
-                {
-                    if (App.Current is App _a1 && _a1.MainWindow is MainWindow _mw1) _mw1.ShowErrorInfo(ex.Message);
-                    return;
-                }
-                LoadPresetsToComboBox();
-                var langDict = SharedUtilities.LoadLanguageDictionary();
-                if (App.Current is App _a2 && _a2.MainWindow is MainWindow _mw2) _mw2.ShowSuccessInfo(SharedUtilities.GetTranslation(langDict, "Preset_Saved"));
+            }
+            catch (System.OperationCanceledException)
+            {
+                Logger.LogDebug("PresetsUserControl.SavePresetButton_Click failed: canceled");
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("PresetsUserControl.SavePresetButton_Click failed", ex);
             }
         }
 
         private async void DeletePresetButton_Click(object sender, RoutedEventArgs e)
         {
-            if (PresetComboBox.SelectedItem is string presetName)
+            try
             {
-                var fileName = GetPresetFileNameFromComboBox(presetName);
-                var path = Path.Combine(PresetsDir, fileName + ".json");
-                try
+                if (PresetComboBox.SelectedItem is string presetName)
                 {
-                    if (File.Exists(path))
+                    var fileName = GetPresetFileNameFromComboBox(presetName);
+                    var path = Path.Combine(PresetsDir, fileName + ".json");
+                    try
                     {
-                        File.Delete(path);
+                        if (File.Exists(path))
+                        {
+                            File.Delete(path);
+                        }
+                        LoadPresetsToComboBox();
+                        var langDict = SharedUtilities.LoadLanguageDictionary();
+                        if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowSuccessInfo(SharedUtilities.GetTranslation(langDict, "Preset_Deleted"));
                     }
-                    LoadPresetsToComboBox();
-                    var langDict = SharedUtilities.LoadLanguageDictionary();
-                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowSuccessInfo(SharedUtilities.GetTranslation(langDict, "Preset_Deleted"));
+                    catch (Exception ex)
+                    {
+                        var langDict = SharedUtilities.LoadLanguageDictionary();
+                        if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    var langDict = SharedUtilities.LoadLanguageDictionary();
-                    if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo(ex.Message);
-                }
+            }
+            catch (System.OperationCanceledException)
+            {
+                Logger.LogDebug("PresetsUserControl.DeletePresetButton_Click failed: canceled");
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("PresetsUserControl.DeletePresetButton_Click failed", ex);
             }
         }
 
@@ -414,10 +475,7 @@ namespace FlairX_Mod_Manager.Pages
 
         public void CreateDefaultPresetAllInactive_Click(object sender, RoutedEventArgs e)
         {
-            // Create a new instance of ModGridPage to call the method
-            // This follows the pattern used in other parts of the application
-            var gridPage = new FlairX_Mod_Manager.Pages.ModGridPage();
-            gridPage.SaveDefaultPresetAllInactive();
+            FlairX_Mod_Manager.Pages.ModGridPage.SaveDefaultPresetAllInactive();
             LoadPresetsToComboBox();
         }
 
@@ -440,3 +498,4 @@ namespace FlairX_Mod_Manager.Pages
         }
     }
 }
+

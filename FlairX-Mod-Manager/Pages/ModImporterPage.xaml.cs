@@ -47,6 +47,8 @@ namespace FlairX_Mod_Manager.Pages
             AliasesTitle.Text = SharedUtilities.GetTranslation(lang, "ModImporter_AliasesTitle");
             AliasesDescription.Text = SharedUtilities.GetTranslation(lang, "ModImporter_AliasesDesc");
             AddAliasButtonText.Text = SharedUtilities.GetTranslation(lang, "Add");
+            AliasCategoryComboBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "ModImporter_SelectCategoryPlaceholder");
+            AliasTextBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "ModImporter_EnterAliasPlaceholder");
             
             SourceFolderLabel.Text = SharedUtilities.GetTranslation(lang, "ModImporter_SourceFolder");
             SelectFolderButtonText.Text = SharedUtilities.GetTranslation(lang, "ModImporter_SelectFolder");
@@ -62,6 +64,26 @@ namespace FlairX_Mod_Manager.Pages
             
             ResolveAndImportButtonText.Text = SharedUtilities.GetTranslation(lang, "ModImporter_ResolveAndImport");
             ProgressTitle.Text = SharedUtilities.GetTranslation(lang, "ModImporter_Importing");
+        }
+
+        // The conflicts list is built from a DataTemplate, so its controls cannot be reached
+        // from UpdateTexts - translate them when each row is created.
+        private void ConflictCategoryComboBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is ComboBox comboBox)
+            {
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                comboBox.PlaceholderText = SharedUtilities.GetTranslation(lang, "ModImporter_SelectCategoryPlaceholder");
+            }
+        }
+
+        private void ConflictOverwriteCheckBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox)
+            {
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                checkBox.Content = SharedUtilities.GetTranslation(lang, "ModImporter_Overwrite");
+            }
         }
 
         private void NestedStructureCheckBox_Changed(object sender, RoutedEventArgs e)
@@ -218,79 +240,101 @@ namespace FlairX_Mod_Manager.Pages
 
         private async void SelectFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            var folderPicker = new FolderPicker();
-            folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-            folderPicker.FileTypeFilter.Add("*");
-
-            if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+            try
             {
-                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
-                WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+                var folderPicker = new FolderPicker();
+                folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
+                folderPicker.FileTypeFilter.Add("*");
+
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                {
+                    var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
+                    WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+                }
+
+                var folder = await folderPicker.PickSingleFolderAsync();
+                if (folder != null)
+                {
+                    _selectedSourceFolder = folder.Path;
+                    SourceFolderPath.Text = _selectedSourceFolder;
+                    StatusCard.Visibility = Visibility.Visible;
+
+                    // Reset state
+                    _allMods.Clear();
+                    _autoAssignedMods.Clear();
+                    _conflicts.Clear();
+                    ConflictsPanel.Visibility = Visibility.Collapsed;
+                }
             }
-
-            var folder = await folderPicker.PickSingleFolderAsync();
-            if (folder != null)
+            catch (System.OperationCanceledException)
             {
-                _selectedSourceFolder = folder.Path;
-                SourceFolderPath.Text = _selectedSourceFolder;
-                StatusCard.Visibility = Visibility.Visible;
-                
-                // Reset state
-                _allMods.Clear();
-                _autoAssignedMods.Clear();
-                _conflicts.Clear();
-                ConflictsPanel.Visibility = Visibility.Collapsed;
+                Logger.LogDebug("ModImporterPage.SelectFolderButton_Click failed: canceled");
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("ModImporterPage.SelectFolderButton_Click failed", ex);
             }
         }
 
         private async void StartScanButton_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(_selectedSourceFolder))
-                return;
-
-            // Reset previous results
-            _allMods.Clear();
-            _autoAssignedMods.Clear();
-            _conflicts.Clear();
-            ConflictsPanel.Visibility = Visibility.Collapsed;
-            ResolvePanel.Visibility = Visibility.Collapsed;
-            FoundModsCount.Text = "0";
-            AutoAssignedCount.Text = "0";
-            NeedsAttentionCount.Text = "0";
-
-            StartScanButton.IsEnabled = false;
-            
             try
             {
-                await ScanAndAnalyzeModsAsync();
-                
-                // Update UI
-                FoundModsCount.Text = _allMods.Count.ToString();
-                AutoAssignedCount.Text = _autoAssignedMods.Count.ToString();
-                NeedsAttentionCount.Text = _conflicts.Count.ToString();
+                if (string.IsNullOrEmpty(_selectedSourceFolder))
+                    return;
 
-                if (_conflicts.Count > 0)
+                // Reset previous results
+                _allMods.Clear();
+                _autoAssignedMods.Clear();
+                _conflicts.Clear();
+                ConflictsPanel.Visibility = Visibility.Collapsed;
+                ResolvePanel.Visibility = Visibility.Collapsed;
+                FoundModsCount.Text = "0";
+                AutoAssignedCount.Text = "0";
+                NeedsAttentionCount.Text = "0";
+
+                StartScanButton.IsEnabled = false;
+
+                try
                 {
-                    var lang = SharedUtilities.LoadLanguageDictionary();
-                    ConflictsTitle.Text = $"{SharedUtilities.GetTranslation(lang, "ModImporter_Conflicts")} ({_conflicts.Count})";
-                    ConflictsPanel.Visibility = Visibility.Visible;
-                    ResolvePanel.Visibility = Visibility.Visible;
+                    await ScanAndAnalyzeModsAsync();
+
+                    // Update UI
+                    FoundModsCount.Text = _allMods.Count.ToString();
+                    AutoAssignedCount.Text = _autoAssignedMods.Count.ToString();
+                    NeedsAttentionCount.Text = _conflicts.Count.ToString();
+
+                    if (_conflicts.Count > 0)
+                    {
+                        var lang = SharedUtilities.LoadLanguageDictionary();
+                        ConflictsTitle.Text = $"{SharedUtilities.GetTranslation(lang, "ModImporter_Conflicts")} ({_conflicts.Count})";
+                        ConflictsPanel.Visibility = Visibility.Visible;
+                        ResolvePanel.Visibility = Visibility.Visible;
+                    }
+                    else
+                    {
+                        // No conflicts, can import directly
+                        await ImportModsAsync();
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    // No conflicts, can import directly
-                    await ImportModsAsync();
+                    Logger.LogError("Failed to scan mods", ex);
+                    if (App.Current is App app && app.MainWindow is MainWindow mw)
+                        mw.ShowErrorInfo(ex.Message);
+                }
+                finally
+                {
+                    StartScanButton.IsEnabled = true;
                 }
             }
-            catch (Exception ex)
+            catch (System.OperationCanceledException)
             {
-                Logger.LogError("Failed to scan mods", ex);
-                if (App.Current is App app && app.MainWindow is MainWindow mw)
-                    mw.ShowErrorInfo(ex.Message);
+                Logger.LogDebug("ModImporterPage.StartScanButton_Click failed: canceled");
             }
-            finally
+            catch (System.Exception ex)
             {
-                StartScanButton.IsEnabled = true;
+                Logger.LogError("ModImporterPage.StartScanButton_Click failed", ex);
             }
         }
 
@@ -527,34 +571,45 @@ namespace FlairX_Mod_Manager.Pages
 
         private async void ResolveAndImportButton_Click(object sender, RoutedEventArgs e)
         {
-            // Validate all conflicts have selections
-            var lang = SharedUtilities.LoadLanguageDictionary();
-            foreach (var conflict in _conflicts)
+            try
             {
-                if (string.IsNullOrEmpty(conflict.SelectedCategory))
+                // Validate all conflicts have selections
+                var lang = SharedUtilities.LoadLanguageDictionary();
+                foreach (var conflict in _conflicts)
                 {
-                    if (App.Current is App app && app.MainWindow is MainWindow mw)
-                        mw.ShowErrorInfo(SharedUtilities.GetTranslation(lang, "ModImporter_SelectAllCategories"));
-                    return;
-                }
-            }
-
-            // Add resolved conflicts to auto-assigned list
-            foreach (var conflict in _conflicts)
-            {
-                if (!string.IsNullOrEmpty(conflict.SelectedCategory))
-                {
-                    _autoAssignedMods.Add(new ModImportItem
+                    if (string.IsNullOrEmpty(conflict.SelectedCategory))
                     {
-                        SourcePath = conflict.SourcePath,
-                        ModName = conflict.ModName,
-                        TargetCategory = conflict.SelectedCategory,
-                        ShouldOverwrite = conflict.ShouldOverwrite
-                    });
+                        if (App.Current is App app && app.MainWindow is MainWindow mw)
+                            mw.ShowErrorInfo(SharedUtilities.GetTranslation(lang, "ModImporter_SelectAllCategories"));
+                        return;
+                    }
                 }
-            }
 
-            await ImportModsAsync();
+                // Add resolved conflicts to auto-assigned list
+                foreach (var conflict in _conflicts)
+                {
+                    if (!string.IsNullOrEmpty(conflict.SelectedCategory))
+                    {
+                        _autoAssignedMods.Add(new ModImportItem
+                        {
+                            SourcePath = conflict.SourcePath,
+                            ModName = conflict.ModName,
+                            TargetCategory = conflict.SelectedCategory,
+                            ShouldOverwrite = conflict.ShouldOverwrite
+                        });
+                    }
+                }
+
+                await ImportModsAsync();
+            }
+            catch (System.OperationCanceledException)
+            {
+                Logger.LogDebug("ModImporterPage.ResolveAndImportButton_Click failed: canceled");
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("ModImporterPage.ResolveAndImportButton_Click failed", ex);
+            }
         }
 
         private async Task ImportModsAsync()

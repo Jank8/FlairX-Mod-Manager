@@ -2,7 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,73 +11,77 @@ namespace FlairX_Mod_Manager.Services
     /// Thread-safe file access queue that serializes read/write operations per file path.
     /// Prevents race conditions when multiple parts of the app access the same file.
     /// </summary>
+    /// <remarks>
+    /// This type sits on the hottest path of the application (a mod rebuild performs thousands
+    /// of calls), so the fast path allocates nothing: the path is normalized once, uncontended
+    /// acquisitions never start a timer, and nothing is logged unless a caller actually blocks.
+    /// </remarks>
     public static class FileAccessQueue
     {
-        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks = new();
-        private static readonly ConcurrentDictionary<string, int> _waitingCount = new();
+        private static readonly ConcurrentDictionary<string, SemaphoreSlim> _fileLocks =
+            new(StringComparer.OrdinalIgnoreCase);
 
-        private static SemaphoreSlim GetLock(string filePath)
+        /// <summary>Contention slow enough to be worth a log line.</summary>
+        private const double ContentionLogThresholdMs = 50;
+
+        private static SemaphoreSlim GetLock(string normalizedPath) =>
+            _fileLocks.GetOrAdd(normalizedPath, static _ => new SemaphoreSlim(1, 1));
+
+        private static string Normalize(string filePath) => Path.GetFullPath(filePath);
+
+        private static void LogContention(string filePath, string operation, long startTimestamp)
         {
-            var normalizedPath = Path.GetFullPath(filePath).ToLowerInvariant();
-            return _fileLocks.GetOrAdd(normalizedPath, _ => new SemaphoreSlim(1, 1));
-        }
+            if (startTimestamp == 0)
+                return;
 
-        private static string GetFileName(string filePath) => Path.GetFileName(filePath);
+            var elapsedMs = Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds;
+            if (elapsedMs < ContentionLogThresholdMs)
+                return;
 
-        private static void LogWaitStart(string filePath, string operation)
-        {
-            var fileName = GetFileName(filePath);
-            var normalizedPath = Path.GetFullPath(filePath).ToLowerInvariant();
-            var waiting = _waitingCount.AddOrUpdate(normalizedPath, 1, (_, count) => count + 1);
-            
-            if (waiting > 1)
-            {
-                Logger.LogInfo($"[FileQueue] Waiting for {fileName} ({operation}) - {waiting} in queue");
-            }
-        }
-
-        private static void LogWaitEnd(string filePath, string operation, long elapsedMs)
-        {
-            var fileName = GetFileName(filePath);
-            var normalizedPath = Path.GetFullPath(filePath).ToLowerInvariant();
-            _waitingCount.AddOrUpdate(normalizedPath, 0, (_, count) => Math.Max(0, count - 1));
-            
-            if (elapsedMs > 100) // Only log if waited more than 100ms
-            {
-                Logger.LogInfo($"[FileQueue] Acquired {fileName} ({operation}) after {elapsedMs}ms");
-            }
+            Logger.LogInfo($"[FileQueue] Waited {elapsedMs:F0}ms for {Path.GetFileName(filePath)} ({operation})");
         }
 
         /// <summary>
-        /// Read file content with queued access
+        /// Read file content with queued access.
         /// </summary>
         public static async Task<string> ReadAllTextAsync(string filePath, CancellationToken token = default)
         {
-            var semaphore = GetLock(filePath);
-            LogWaitStart(filePath, "read");
-            var sw = Stopwatch.StartNew();
-            await semaphore.WaitAsync(token);
-            LogWaitEnd(filePath, "read", sw.ElapsedMilliseconds);
+            var path = Normalize(filePath);
+            var semaphore = GetLock(path);
+
+            long start = 0;
+            if (!semaphore.Wait(0))
+            {
+                start = Stopwatch.GetTimestamp();
+                await semaphore.WaitAsync(token).ConfigureAwait(false);
+            }
+
             try
             {
-                return await File.ReadAllTextAsync(filePath, token);
+                return await File.ReadAllTextAsync(filePath, token).ConfigureAwait(false);
             }
             finally
             {
                 semaphore.Release();
+                LogContention(path, "read", start);
             }
         }
 
         /// <summary>
-        /// Read file content synchronously with queued access
+        /// Read file content synchronously with queued access.
         /// </summary>
         public static string ReadAllText(string filePath)
         {
-            var semaphore = GetLock(filePath);
-            LogWaitStart(filePath, "read");
-            var sw = Stopwatch.StartNew();
-            semaphore.Wait();
-            LogWaitEnd(filePath, "read", sw.ElapsedMilliseconds);
+            var path = Normalize(filePath);
+            var semaphore = GetLock(path);
+
+            long start = 0;
+            if (!semaphore.Wait(0))
+            {
+                start = Stopwatch.GetTimestamp();
+                semaphore.Wait();
+            }
+
             try
             {
                 return File.ReadAllText(filePath);
@@ -86,91 +89,207 @@ namespace FlairX_Mod_Manager.Services
             finally
             {
                 semaphore.Release();
+                LogContention(path, "read", start);
             }
         }
 
         /// <summary>
-        /// Write file content with queued access
+        /// Write file content with queued access.
         /// </summary>
         public static async Task WriteAllTextAsync(string filePath, string content, CancellationToken token = default)
         {
-            var semaphore = GetLock(filePath);
-            LogWaitStart(filePath, "write");
-            var sw = Stopwatch.StartNew();
-            await semaphore.WaitAsync(token);
-            LogWaitEnd(filePath, "write", sw.ElapsedMilliseconds);
+            var path = Normalize(filePath);
+            var semaphore = GetLock(path);
+
+            long start = 0;
+            if (!semaphore.Wait(0))
+            {
+                start = Stopwatch.GetTimestamp();
+                await semaphore.WaitAsync(token).ConfigureAwait(false);
+            }
+
             try
             {
-                await File.WriteAllTextAsync(filePath, content, token);
+                await WriteAtomicallyAsync(path, content, token).ConfigureAwait(false);
             }
             finally
             {
                 semaphore.Release();
+                LogContention(path, "write", start);
             }
         }
 
         /// <summary>
-        /// Write file content synchronously with queued access
+        /// Write file content synchronously with queued access.
         /// </summary>
         public static void WriteAllText(string filePath, string content)
         {
-            var semaphore = GetLock(filePath);
-            LogWaitStart(filePath, "write");
-            var sw = Stopwatch.StartNew();
-            semaphore.Wait();
-            LogWaitEnd(filePath, "write", sw.ElapsedMilliseconds);
+            var path = Normalize(filePath);
+            var semaphore = GetLock(path);
+
+            long start = 0;
+            if (!semaphore.Wait(0))
+            {
+                start = Stopwatch.GetTimestamp();
+                semaphore.Wait();
+            }
+
             try
             {
-                File.WriteAllText(filePath, content);
+                WriteAtomically(path, content);
             }
             finally
             {
                 semaphore.Release();
+                LogContention(path, "write", start);
             }
         }
 
         /// <summary>
-        /// Execute custom file operation with queued access
+        /// Execute a custom file operation with queued access.
         /// </summary>
         public static async Task<T> ExecuteAsync<T>(string filePath, Func<Task<T>> operation, CancellationToken token = default)
         {
-            var semaphore = GetLock(filePath);
-            LogWaitStart(filePath, "execute");
-            var sw = Stopwatch.StartNew();
-            await semaphore.WaitAsync(token);
-            LogWaitEnd(filePath, "execute", sw.ElapsedMilliseconds);
+            var path = Normalize(filePath);
+            var semaphore = GetLock(path);
+
+            long start = 0;
+            if (!semaphore.Wait(0))
+            {
+                start = Stopwatch.GetTimestamp();
+                await semaphore.WaitAsync(token).ConfigureAwait(false);
+            }
+
             try
             {
-                return await operation();
+                return await operation().ConfigureAwait(false);
             }
             finally
             {
                 semaphore.Release();
+                LogContention(path, "execute", start);
             }
         }
 
         /// <summary>
-        /// Execute custom file operation with queued access (no return value)
+        /// Execute a custom file operation with queued access (no return value).
         /// </summary>
         public static async Task ExecuteAsync(string filePath, Func<Task> operation, CancellationToken token = default)
         {
-            var semaphore = GetLock(filePath);
-            LogWaitStart(filePath, "execute");
-            var sw = Stopwatch.StartNew();
-            await semaphore.WaitAsync(token);
-            LogWaitEnd(filePath, "execute", sw.ElapsedMilliseconds);
+            var path = Normalize(filePath);
+            var semaphore = GetLock(path);
+
+            long start = 0;
+            if (!semaphore.Wait(0))
+            {
+                start = Stopwatch.GetTimestamp();
+                await semaphore.WaitAsync(token).ConfigureAwait(false);
+            }
+
             try
             {
-                await operation();
+                await operation().ConfigureAwait(false);
             }
             finally
             {
                 semaphore.Release();
+                LogContention(path, "execute", start);
             }
         }
 
         /// <summary>
-        /// Clean up unused locks (call periodically if needed)
+        /// Atomic write for callers that already hold the path lock - i.e. inside an
+        /// <see cref="ExecuteAsync(string, Func{Task}, CancellationToken)"/> block, where calling
+        /// <see cref="WriteAllTextAsync"/> would deadlock on the same non-reentrant semaphore.
+        /// </summary>
+        public static Task WriteAllTextUnlockedAsync(string filePath, string content, CancellationToken token = default)
+            => WriteAtomicallyAsync(Path.GetFullPath(filePath), content, token);
+
+        #region Atomic writes
+
+        /// <summary>
+        /// Writes through a temporary file in the same directory and swaps it in.
+        /// </summary>
+        /// <remarks>
+        /// <c>File.WriteAllText</c> truncates the target in place: a crash, power loss or failed
+        /// write part-way leaves a truncated JSON file. For mod.json that was actively
+        /// destructive, because the startup repair path in <c>App.EnsureModJsonInXXMIMods</c>
+        /// replaces an unparsable file with defaults - silently discarding the mod's metadata.
+        /// </remarks>
+        private static void WriteAtomically(string filePath, string content)
+        {
+            var tempPath = PrepareTempPath(filePath);
+            try
+            {
+                File.WriteAllText(tempPath, content);
+                CommitTempFile(tempPath, filePath);
+            }
+            finally
+            {
+                TryDeleteTempFile(tempPath);
+            }
+        }
+
+        private static async Task WriteAtomicallyAsync(string filePath, string content, CancellationToken token)
+        {
+            var tempPath = PrepareTempPath(filePath);
+            try
+            {
+                await File.WriteAllTextAsync(tempPath, content, token).ConfigureAwait(false);
+                CommitTempFile(tempPath, filePath);
+            }
+            finally
+            {
+                TryDeleteTempFile(tempPath);
+            }
+        }
+
+        private static string PrepareTempPath(string filePath)
+        {
+            var fullPath = Path.GetFullPath(filePath);
+
+            var directory = Path.GetDirectoryName(fullPath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
+            // Same directory, so the swap stays on one volume.
+            return fullPath + ".tmp-" + Guid.NewGuid().ToString("N");
+        }
+
+        private static void CommitTempFile(string tempPath, string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                // Atomic on NTFS and keeps the original file's ACLs.
+                File.Replace(tempPath, filePath, destinationBackupFileName: null, ignoreMetadataErrors: true);
+            }
+            else
+            {
+                File.Move(tempPath, filePath);
+            }
+        }
+
+        private static void TryDeleteTempFile(string tempPath)
+        {
+            try
+            {
+                if (File.Exists(tempPath))
+                {
+                    File.Delete(tempPath);
+                }
+            }
+            catch
+            {
+                // Best effort - a leftover temp file is harmless.
+            }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Clean up unused locks (call periodically if needed).
         /// </summary>
         public static void Cleanup()
         {
@@ -181,11 +300,11 @@ namespace FlairX_Mod_Manager.Services
                 {
                     if (_fileLocks.TryRemove(kvp.Key, out _))
                     {
-                        _waitingCount.TryRemove(kvp.Key, out _);
                         removed++;
                     }
                 }
             }
+
             if (removed > 0)
             {
                 Logger.LogInfo($"[FileQueue] Cleanup: removed {removed} unused locks");
@@ -193,38 +312,52 @@ namespace FlairX_Mod_Manager.Services
         }
 
         /// <summary>
-        /// Move directory with queued access (for both source and destination)
+        /// Move directory with queued access (for both source and destination).
         /// </summary>
         public static void MoveDirectory(string sourcePath, string destPath)
         {
-            var sourceLock = GetLock(sourcePath);
-            var destLock = GetLock(destPath);
-            
-            // Acquire locks in consistent order to prevent deadlocks
-            var locks = string.Compare(sourcePath, destPath, StringComparison.OrdinalIgnoreCase) < 0
-                ? new[] { sourceLock, destLock }
-                : new[] { destLock, sourceLock };
-            
-            LogWaitStart(sourcePath, "move");
-            var sw = Stopwatch.StartNew();
-            
-            locks[0].Wait();
+            var normalizedSource = Normalize(sourcePath);
+            var normalizedDest = Normalize(destPath);
+
+            var sourceLock = GetLock(normalizedSource);
+            var destLock = GetLock(normalizedDest);
+
+            // Acquire locks in a consistent order to prevent deadlocks. The order is decided on
+            // the normalized keys, otherwise two threads could disagree about which is "first".
+            var (first, firstPath, second, _) =
+                string.Compare(normalizedSource, normalizedDest, StringComparison.OrdinalIgnoreCase) < 0
+                    ? (sourceLock, normalizedSource, destLock, normalizedDest)
+                    : (destLock, normalizedDest, sourceLock, normalizedSource);
+
+            long start = 0;
+            if (!first.Wait(0))
+            {
+                start = Stopwatch.GetTimestamp();
+                first.Wait();
+            }
+
             try
             {
-                locks[1].Wait();
+                if (!second.Wait(0))
+                {
+                    if (start == 0)
+                        start = Stopwatch.GetTimestamp();
+                    second.Wait();
+                }
+
                 try
                 {
-                    LogWaitEnd(sourcePath, "move", sw.ElapsedMilliseconds);
                     Directory.Move(sourcePath, destPath);
                 }
                 finally
                 {
-                    locks[1].Release();
+                    second.Release();
                 }
             }
             finally
             {
-                locks[0].Release();
+                first.Release();
+                LogContention(firstPath, "move", start);
             }
         }
     }

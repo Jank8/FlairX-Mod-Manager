@@ -25,3 +25,6 @@ remove_gbauthor_keys.py
 check_missing_keys.py
 /.worktrees/
 .gitignore
+*.md
+/Backups/
+

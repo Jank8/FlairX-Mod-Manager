@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "部分的な結果",
   "RecentWindow_PartialWarning": "後のGameBananaページを読み込めませんでした。利用可能な結果が表示されます。",
   "RecentWindow_CappedTitle": "結果の制限",
-  "RecentWindow_CappedWarning": "結果が安全制限の10ページまたは500レコードに達しました。"
+  "RecentWindow_CappedWarning": "結果が安全制限の10ページまたは500レコードに達しました。",
+  "Comments_Login": "ログイン",
+  "Comments_Logout": "ログアウト",
+  "Comments_Cancel": "キャンセル",
+  "Comments_Continue": "続行",
+  "Comments_Reload": "再読み込み",
+  "Comments_Zoom": "ズーム"
 }

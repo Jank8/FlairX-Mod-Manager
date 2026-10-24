@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "ผลลัพธ์บางส่วน",
   "RecentWindow_PartialWarning": "ไม่สามารถโหลดหน้า GameBanana หลังจากนี้ได้ จะแสดงผลลัพธ์ที่มีอยู่",
   "RecentWindow_CappedTitle": "ผลลัพธ์ถูกจำกัด",
-  "RecentWindow_CappedWarning": "ผลลัพธ์ถึงขีดจำกัดความปลอดภัยที่ 10 หน้าหรือ 500 รายการ"
+  "RecentWindow_CappedWarning": "ผลลัพธ์ถึงขีดจำกัดความปลอดภัยที่ 10 หน้าหรือ 500 รายการ",
+  "Comments_Login": "เข้าสู่ระบบ",
+  "Comments_Logout": "ออกจากระบบ",
+  "Comments_Cancel": "ยกเลิก",
+  "Comments_Continue": "ดำเนินการต่อ",
+  "Comments_Reload": "โหลดใหม่",
+  "Comments_Zoom": "ซูม"
 }

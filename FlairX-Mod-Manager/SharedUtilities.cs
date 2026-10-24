@@ -1,6 +1,7 @@
-﻿using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -174,56 +175,64 @@ namespace FlairX_Mod_Manager
 
         // ==================== LANGUAGE UTILITIES ====================
         
+        // Parsed language files, keyed by absolute path. The key already contains the language
+        // file name, so switching language naturally misses the cache - no explicit invalidation.
+        private static readonly ConcurrentDictionary<string, Dictionary<string, string>> _languageCache =
+            new(StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
-        /// Loads language dictionary from specified subfolder
+        /// Loads language dictionary from specified subfolder.
         /// </summary>
+        /// <remarks>
+        /// The returned dictionary is cached and shared: callers must treat it as read-only.
+        /// This was previously re-read from disk on every call, and it is called from the
+        /// ModTile constructor and from value converters used by the tile template - i.e. once
+        /// (or several times) per tile, on the UI thread, for 1500+ tiles.
+        /// </remarks>
         public static Dictionary<string, string> LoadLanguageDictionary(string? subfolder = null)
         {
+            var langFile = SettingsManager.Current?.LanguageFile ?? "en.json";
+
+            // Determine the exact language file path
+            string langPath = string.IsNullOrEmpty(subfolder)
+                ? PathManager.GetLanguagePath(langFile)          // Main language file
+                : PathManager.GetLanguagePath(langFile, subfolder); // Module-specific language file
+
+            if (_languageCache.TryGetValue(langPath, out var cached))
+                return cached;
+
+            var loaded = ReadLanguageFile(langPath, subfolder);
+            return _languageCache.GetOrAdd(langPath, loaded);
+        }
+
+        private static Dictionary<string, string> ReadLanguageFile(string langPath, string? subfolder)
+        {
             var dictionary = new Dictionary<string, string>();
-            
+
             try
             {
-                var langFile = SettingsManager.Current?.LanguageFile ?? "en.json";
-                
-                // Determine the exact language file path
-                string langPath;
-                if (!string.IsNullOrEmpty(subfolder))
-                {
-                    // Module-specific language file
-                    langPath = PathManager.GetLanguagePath(langFile, subfolder);
-                }
-                else
-                {
-                    // Main language file
-                    langPath = PathManager.GetLanguagePath(langFile);
-                }
-                
-                // Add debug logging to track when this is called
                 Logger.LogDebug($"LoadLanguageDictionary called - Path: {PathManager.GetRelativePath(langPath)}, Subfolder: {subfolder ?? "main"}");
-                
-                // Load the specified file
-                if (File.Exists(langPath))
-                {
-                    var json = File.ReadAllText(langPath, System.Text.Encoding.UTF8);
-                    var loadedDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-                    
-                    if (loadedDictionary != null)
-                    {
-                        // Add all keys except Language_DisplayName
-                        foreach (var kvp in loadedDictionary)
-                        {
-                            if (kvp.Key != "Language_DisplayName")
-                            {
-                                dictionary[kvp.Key] = kvp.Value;
-                            }
-                        }
-                        Logger.LogInfo($"Loaded language file: {PathManager.GetRelativePath(langPath)}");
-                    }
-                }
-                else
+
+                if (!File.Exists(langPath))
                 {
                     Logger.LogError($"Required language file not found: {PathManager.GetRelativePath(langPath)}");
                     throw new FileNotFoundException($"Language file not found: {langPath}");
+                }
+
+                var json = File.ReadAllText(langPath, System.Text.Encoding.UTF8);
+                var loadedDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+
+                if (loadedDictionary != null)
+                {
+                    // Add all keys except Language_DisplayName
+                    foreach (var kvp in loadedDictionary)
+                    {
+                        if (kvp.Key != "Language_DisplayName")
+                        {
+                            dictionary[kvp.Key] = kvp.Value;
+                        }
+                    }
+                    Logger.LogInfo($"Loaded language file: {PathManager.GetRelativePath(langPath)}");
                 }
             }
             catch (Exception ex)
@@ -231,8 +240,17 @@ namespace FlairX_Mod_Manager
                 Logger.LogError($"Failed to load language from subfolder: {subfolder}", ex);
                 throw;
             }
-            
+
             return dictionary;
+        }
+
+        /// <summary>
+        /// Drops every cached language dictionary. Used when a language file is edited on disk.
+        /// </summary>
+        public static void InvalidateLanguageCache()
+        {
+            _languageCache.Clear();
+            Logger.LogInfo("Language cache invalidated");
         }
         
         /// <summary>

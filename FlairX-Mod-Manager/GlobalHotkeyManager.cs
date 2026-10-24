@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using WinRT.Interop;
@@ -79,6 +80,8 @@ namespace FlairX_Mod_Manager
         private const uint MOD_CONTROL = 0x0002;
         private const uint MOD_SHIFT = 0x0004;
         private const uint MOD_WIN = 0x0008;
+        // Suppresses auto-repeat while the user holds the combination down.
+        private const uint MOD_NOREPEAT = 0x4000;
 
         // Windows message constants
         private const int WM_HOTKEY = 0x0312;
@@ -95,6 +98,7 @@ namespace FlairX_Mod_Manager
         private readonly MainWindow _mainWindow;
         private readonly Dictionary<int, Func<Task>> _hotkeyActions;
         private readonly HashSet<int> _registeredHotkeys;
+        private int _actionRunning;
         private bool _disposed = false;
 
         private static readonly Dictionary<int, string> _hotkeyNames = new()
@@ -265,7 +269,7 @@ namespace FlairX_Mod_Manager
                 if (ParseHotkeyString(hotkeyString, out uint modifiers, out uint virtualKey))
                 {
                     Logger.LogInfo($"RegisterHotkey: Parsed '{hotkeyString}' - modifiers=0x{modifiers:X}, virtualKey=0x{virtualKey:X}");
-                    if (RegisterHotKey(_windowHandle, id, modifiers, virtualKey))
+                    if (RegisterHotKey(_windowHandle, id, modifiers | MOD_NOREPEAT, virtualKey))
                     {
                         _registeredHotkeys.Add(id);
                         Logger.LogInfo($"RegisterHotkey: SUCCESS - Registered global hotkey: {hotkeyString} (ID: {id})");
@@ -431,15 +435,30 @@ namespace FlairX_Mod_Manager
                     return;
                 }
 
-                if (_hotkeyActions.TryGetValue(id, out var action))
+                if (!_hotkeyActions.TryGetValue(id, out var action))
+                {
+                    Logger.LogWarning($"OnHotkeyPressed: No action found for hotkey ID {id}");
+                    return;
+                }
+
+                // A held hotkey must not start a second file operation that moves the same
+                // mod folders. Overlay shortcuts stay responsive and are not serialised.
+                if (!isOverlayHotkey && Interlocked.CompareExchange(ref _actionRunning, 1, 0) != 0)
+                {
+                    Logger.LogInfo($"OnHotkeyPressed: action already running - ignoring hotkey ID {id}");
+                    return;
+                }
+
+                try
                 {
                     Logger.LogInfo($"OnHotkeyPressed: Executing action for hotkey ID {id}");
                     await action();
                     Logger.LogInfo($"OnHotkeyPressed: Action completed for hotkey ID {id}");
                 }
-                else
+                finally
                 {
-                    Logger.LogWarning($"OnHotkeyPressed: No action found for hotkey ID {id}");
+                    if (!isOverlayHotkey)
+                        Interlocked.Exchange(ref _actionRunning, 0);
                 }
             }
             catch (Exception ex)
@@ -456,6 +475,7 @@ namespace FlairX_Mod_Manager
                 UnregisterAllHotkeys();
                 _disposed = true;
                 Logger.LogInfo("GlobalHotkeyManager.Dispose: Completed");
+                Logger.Flush();
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
@@ -360,99 +360,29 @@ namespace FlairX_Mod_Manager.Pages
 
         private void LoadActiveMods()
         {
-            if (File.Exists(ActiveModsStatePath))
-            {
-                try
-                {
-                    var json = Services.FileAccessQueue.ReadAllText(ActiveModsStatePath);
-                    
-                    // Try to deserialize as Dictionary<string, bool> first
-                    try
-                    {
-                        _activeMods = JsonSerializer.Deserialize<Dictionary<string, bool>>(json) ?? new();
-                    }
-                    catch (JsonException)
-                    {
-                        // If that fails, it might be an old format with LastUpdated field
-                        // Try to parse as JsonDocument and extract just the mod states
-                        using var doc = JsonDocument.Parse(json);
-                        _activeMods = new Dictionary<string, bool>();
-                        
-                        foreach (var property in doc.RootElement.EnumerateObject())
-                        {
-                            // Skip non-boolean properties like LastUpdated
-                            if (property.Value.ValueKind == JsonValueKind.True || 
-                                property.Value.ValueKind == JsonValueKind.False)
-                            {
-                                _activeMods[property.Name] = property.Value.GetBoolean();
-                            }
-                        }
-                    }
-                    
-                    // Migrate old format (with DISABLED_ prefixes) to new format (clean names only)
-                    MigrateActiveModsFormat();
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError("Failed to load active mods", ex);
-                    _activeMods = new();
-                }
-            }
-        }
-        
-        private void MigrateActiveModsFormat()
-        {
-            var keysToMigrate = new List<string>();
-            var newEntries = new Dictionary<string, bool>();
-            
-            foreach (var kvp in _activeMods)
-            {
-                var key = kvp.Key;
-                var value = kvp.Value;
-                
-                // If key has DISABLED_ prefix, migrate to clean name
-                if (key.StartsWith(DISABLED_PREFIX))
-                {
-                    var cleanName = GetCleanModName(key);
-                    keysToMigrate.Add(key);
-                    newEntries[cleanName] = value;
-                }
-                // If key doesn't have prefix but value is false, it might be an old inactive mod
-                // Keep it as is since it's already using clean name
-            }
-            
-            // Remove old entries and add new ones
-            foreach (var oldKey in keysToMigrate)
-            {
-                _activeMods.Remove(oldKey);
-            }
-            
-            foreach (var newEntry in newEntries)
-            {
-                _activeMods[newEntry.Key] = newEntry.Value;
-            }
-            
-            // Save migrated format
-            if (keysToMigrate.Count > 0)
-            {
-                Logger.LogInfo($"Migrated {keysToMigrate.Count} active mod entries to new format");
-                SaveActiveMods();
-            }
-        }
-
-        private void SaveActiveMods()
-        {
             try
             {
-                var json = JsonSerializer.Serialize(_activeMods, new JsonSerializerOptions { WriteIndented = true });
-                Services.FileAccessQueue.WriteAllText(ActiveModsStatePath, json);
+                // Active state comes from the folder names (DISABLED_ prefix), which are the
+                // single source of truth. This used to parse ActiveMods.json as a
+                // Dictionary<string,bool> while ModListManager wrote {LastUpdated, Mods[]},
+                // so the two formats kept overwriting each other on every reload.
+                var state = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+                foreach (var mod in ModListManager.GetAllMods())
+                {
+                    var cleanName = GetCleanModName(mod.Directory);
+                    if (!string.IsNullOrEmpty(cleanName))
+                        state[cleanName] = mod.IsActive;
+                }
+
+                _activeMods = state;
+                Logger.LogInfo($"Loaded active state for {_activeMods.Count} mods from the mod list cache");
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to save active mods", ex);
+                Logger.LogError("Failed to load active mods state", ex);
+                _activeMods = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
             }
         }
-
         /// <summary>
         /// Sync _activeMods dictionary with actual folder state (DISABLED_ prefix)
         /// Call this after RebuildAllLists to ensure in-memory state matches disk
@@ -481,7 +411,6 @@ namespace FlairX_Mod_Manager.Pages
 
                 // Update _activeMods with actual state
                 _activeMods = actualState;
-                SaveActiveMods();
                 
                 Logger.LogInfo($"Synced active mods state: {actualState.Count} mods");
             }

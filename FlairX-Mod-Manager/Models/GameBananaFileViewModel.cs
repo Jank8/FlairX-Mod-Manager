@@ -50,15 +50,6 @@ namespace FlairX_Mod_Manager.Models
             return $"{len:0.##} {sizes[order]}";
         }
 
-        private static string FormatCount(int count)
-        {
-            if (count >= 1000000)
-                return $"{count / 1000000.0:F1}M";
-            if (count >= 1000)
-                return $"{count / 1000.0:F1}K";
-            return count.ToString();
-        }
-
         private static string FormatDate(long timestamp)
         {
             if (timestamp == 0) return "";

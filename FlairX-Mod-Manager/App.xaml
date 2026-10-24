@@ -178,6 +178,13 @@
                                   TintOpacity="0.15"
                                   FallbackColor="#C8C8C8"
                                   AlwaysUseFallback="False" />
+                    <!-- Reload veil: same acrylic material as the launcher button, but a much
+                         heavier tint so the grid underneath is only a soft shape. Light theme. -->
+                    <AcrylicBrush x:Key="ReloadVeilBrush"
+                                  TintColor="#FFFFFFFF"
+                                  TintOpacity="0.85"
+                                  FallbackColor="#F2F2F2"
+                                  AlwaysUseFallback="False" />
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <AcrylicBrush x:Key="LauncherAcrylicBrush"
@@ -208,6 +215,13 @@
                                   TintColor="#FFFFFFFF"
                                   TintOpacity="0.15"
                                   FallbackColor="#505050"
+                                  AlwaysUseFallback="False" />
+                    <!-- Reload veil: same acrylic material as the launcher button, but a much
+                         heavier tint so the grid underneath is only a soft shape. Dark theme. -->
+                    <AcrylicBrush x:Key="ReloadVeilBrush"
+                                  TintColor="#FF1F1F1F"
+                                  TintOpacity="0.85"
+                                  FallbackColor="#1F1F1F"
                                   AlwaysUseFallback="False" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>

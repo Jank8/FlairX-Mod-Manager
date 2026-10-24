@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Resultados parciais",
   "RecentWindow_PartialWarning": "Uma página posterior do GameBanana não pôde ser carregada; os resultados disponíveis são exibidos.",
   "RecentWindow_CappedTitle": "Resultados limitados",
-  "RecentWindow_CappedWarning": "Os resultados atingiram o limite de segurança de 10 páginas ou 500 registros."
+  "RecentWindow_CappedWarning": "Os resultados atingiram o limite de segurança de 10 páginas ou 500 registros.",
+  "Comments_Login": "Entrar",
+  "Comments_Logout": "Sair",
+  "Comments_Cancel": "Cancelar",
+  "Comments_Continue": "Continuar",
+  "Comments_Reload": "Recarregar",
+  "Comments_Zoom": "Zoom"
 }

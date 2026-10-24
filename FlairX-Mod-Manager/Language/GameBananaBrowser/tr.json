@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Kısmi sonuçlar",
   "RecentWindow_PartialWarning": "Daha sonraki bir GameBanana sayfası yüklenemedi; mevcut sonuçlar gösteriliyor.",
   "RecentWindow_CappedTitle": "Sonuçlar sınırlı",
-  "RecentWindow_CappedWarning": "Sonuçlar 10 sayfa veya 500 kayıt güvenlik sınırına ulaştı."
+  "RecentWindow_CappedWarning": "Sonuçlar 10 sayfa veya 500 kayıt güvenlik sınırına ulaştı.",
+  "Comments_Login": "Giriş yap",
+  "Comments_Logout": "Çıkış yap",
+  "Comments_Cancel": "İptal",
+  "Comments_Continue": "Devam et",
+  "Comments_Reload": "Yeniden yükle",
+  "Comments_Zoom": "Yakınlaştır"
 }

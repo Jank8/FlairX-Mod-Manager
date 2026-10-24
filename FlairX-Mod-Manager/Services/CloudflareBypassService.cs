@@ -1,4 +1,3 @@
-using Microsoft.UI.Xaml;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -17,36 +16,41 @@ namespace FlairX_Mod_Manager.Services
             LoadCookiesFromFile();
         }
 
-        public static async Task<(string? cookies, string? userAgent)> BypassCloudflareAsync(XamlRoot xamlRoot)
+        public static async Task<(string? cookies, string? userAgent)> BypassCloudflareAsync()
         {
             try
             {
-                var dialog = new Dialogs.CloudflareBypassDialog
+                // The login and the Cloudflare challenge share one slide-out WebView panel.
+                // The old ContentDialog duplicated WebView2 lifetime handling and leaked a
+                // renderer (plus its session) on every attempt.
+                if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                 {
-                    XamlRoot = xamlRoot
-                };
+                    var (panelCookies, panelUserAgent) = await mainWindow.ShowCloudflareBypassPanelAsync();
+                    if (string.IsNullOrEmpty(panelCookies))
+                    {
+                        Logger.LogInfo("Cloudflare bypass cancelled or no cookies were captured");
+                        return (null, null);
+                    }
 
-                var result = await dialog.ShowAsync();
+                    _cookies = panelCookies;
+                    _userAgent = panelUserAgent;
 
-                if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary && dialog.IsVerified)
-                {
-                    _cookies = dialog.Cookies;
-                    _userAgent = dialog.UserAgent;
-                    
-                    Logger.LogInfo($"Cloudflare bypass successful. Cookies: {_cookies?.Substring(0, Math.Min(50, _cookies?.Length ?? 0))}...");
-                    Logger.LogInfo($"User-Agent: {_userAgent}");
-                    
-                    // Save cookies to file
+                    // Values are session data - log only the shape, never the cookie itself.
+                    Logger.LogInfo(
+                        $"Cloudflare bypass successful. Cookie header length: {_cookies.Length}, " +
+                        $"cookie count: {_cookies.Split(';').Length}");
+                    Logger.LogInfo($"User-Agent: {_userAgent ?? "DEFAULT"}");
+
                     SaveCookiesToFile();
-                    
                     return (_cookies, _userAgent);
                 }
 
+                Logger.LogError("Cloudflare bypass requested before the main window existed");
                 return (null, null);
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to show Cloudflare bypass dialog", ex);
+                Logger.LogError("Failed to show Cloudflare bypass", ex);
                 return (null, null);
             }
         }

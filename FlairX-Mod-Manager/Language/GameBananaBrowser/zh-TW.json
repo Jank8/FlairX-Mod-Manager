@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "部分結果",
   "RecentWindow_PartialWarning": "GameBanana 後續頁面載入失敗，已顯示目前可用結果。",
   "RecentWindow_CappedTitle": "結果受限",
-  "RecentWindow_CappedWarning": "結果已達到 10 頁或 500 筆的安全上限。"
+  "RecentWindow_CappedWarning": "結果已達到 10 頁或 500 筆的安全上限。",
+  "Comments_Login": "登入",
+  "Comments_Logout": "登出",
+  "Comments_Cancel": "取消",
+  "Comments_Continue": "繼續",
+  "Comments_Reload": "重新載入",
+  "Comments_Zoom": "縮放"
 }

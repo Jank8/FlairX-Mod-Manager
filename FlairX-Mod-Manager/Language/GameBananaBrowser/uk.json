@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Часткові результати",
   "RecentWindow_PartialWarning": "Не вдалося завантажити подальшу сторінку GameBanana; відображаються доступні результати.",
   "RecentWindow_CappedTitle": "Результати обмежені",
-  "RecentWindow_CappedWarning": "Результати досягли межі безпеки у 10 сторінок або 500 записів."
+  "RecentWindow_CappedWarning": "Результати досягли межі безпеки у 10 сторінок або 500 записів.",
+  "Comments_Login": "Увійти",
+  "Comments_Logout": "Вийти",
+  "Comments_Cancel": "Скасувати",
+  "Comments_Continue": "Продовжити",
+  "Comments_Reload": "Оновити",
+  "Comments_Zoom": "Масштаб"
 }

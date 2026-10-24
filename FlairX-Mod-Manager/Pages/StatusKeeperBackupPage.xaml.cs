@@ -170,11 +170,14 @@ namespace FlairX_Mod_Manager.Pages
                 var modLibraryPath = FlairX_Mod_Manager.SettingsManager.GetCurrentXXMIModsDirectory();
                 
 
-                // Count existing backups before operation
+                // Count existing backups before operation.
+                // This is a recursive enumeration of the whole mod library; on a large library it
+                // took long enough to visibly freeze the page, so it runs off the UI thread.
                 int beforeBackup = 0;
                 if (Directory.Exists(modLibraryPath))
                 {
-                    beforeBackup = Directory.GetFiles(modLibraryPath, "*.msk", SearchOption.AllDirectories).Length;
+                    beforeBackup = await Task.Run(() =>
+                        Directory.GetFiles(modLibraryPath, "*.msk", SearchOption.AllDirectories).Length);
                 }
 
                 await Task.Run(() => BackupIniFiles(modLibraryPath, ref backupCount, ref skipCount));
@@ -183,7 +186,8 @@ namespace FlairX_Mod_Manager.Pages
                 int afterBackup = 0;
                 if (Directory.Exists(modLibraryPath))
                 {
-                    afterBackup = Directory.GetFiles(modLibraryPath, "*.msk", SearchOption.AllDirectories).Length;
+                    afterBackup = await Task.Run(() =>
+                        Directory.GetFiles(modLibraryPath, "*.msk", SearchOption.AllDirectories).Length);
                 }
 
                 int newBackups = afterBackup - beforeBackup;
@@ -357,6 +361,17 @@ namespace FlairX_Mod_Manager.Pages
                     mwC.ShowInfoBar(SharedUtilities.GetTranslation(lang, "StatusKeeper_CheckBackup_Dialog_Title"), message,
                         incompleteCount > 0 ? Microsoft.UI.Xaml.Controls.InfoBarSeverity.Warning : Microsoft.UI.Xaml.Controls.InfoBarSeverity.Success,
                         incompleteCount > 0 ? 0 : 5000);
+            }
+            catch (Exception ex)
+            {
+                // An async void handler with only try/finally lets any I/O failure (access
+                // denied, over-long path) escape as an unhandled exception and kill the process.
+                Logger.LogError("Failed to check backup state", ex);
+                if (App.Current is App appOnError && appOnError.MainWindow is MainWindow mwOnError)
+                {
+                    var baseLang = SharedUtilities.LoadLanguageDictionary();
+                    mwOnError.ShowErrorInfo(SharedUtilities.GetTranslation(baseLang, "Notify_BackupCheckFailed"));
+                }
             }
             finally
             {

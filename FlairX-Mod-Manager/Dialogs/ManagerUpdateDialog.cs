@@ -86,47 +86,58 @@ namespace FlairX_Mod_Manager.Dialogs
 
         private async void OnPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            args.Cancel = true;
-            
-            var lang = SharedUtilities.LoadLanguageDictionary();
-
             try
             {
-                IsPrimaryButtonEnabled = false;
-                CloseButtonText = "";
+                args.Cancel = true;
 
-                _statusText.Text = SharedUtilities.GetTranslation(lang, "DownloadingUpdate");
-                _progressBar.Visibility = Visibility.Visible;
-                _progressBar.IsIndeterminate = false;
-                _progressBar.Value = 0;
+                var lang = SharedUtilities.LoadLanguageDictionary();
 
-                var progress = new Progress<int>(percent =>
+                try
                 {
-                    DispatcherQueue.TryEnqueue(() =>
+                    IsPrimaryButtonEnabled = false;
+                    CloseButtonText = "";
+
+                    _statusText.Text = SharedUtilities.GetTranslation(lang, "DownloadingUpdate");
+                    _progressBar.Visibility = Visibility.Visible;
+                    _progressBar.IsIndeterminate = false;
+                    _progressBar.Value = 0;
+
+                    var progress = new Progress<int>(percent =>
                     {
-                        _progressBar.Value = percent;
+                        DispatcherQueue.TryEnqueue(() =>
+                        {
+                            _progressBar.Value = percent;
+                        });
                     });
-                });
 
-                var success = await UpdateChecker.DownloadAndInstallUpdateAsync(_downloadUrl, progress,
-                    clearSettings: _clearSettings);
+                    var success = await UpdateChecker.DownloadAndInstallUpdateAsync(_downloadUrl, progress,
+                        clearSettings: _clearSettings);
 
-                if (!success)
+                    if (!success)
+                    {
+                        _statusText.Text = SharedUtilities.GetTranslation(lang, "UpdateDownloadFailed");
+                        _progressBar.Visibility = Visibility.Collapsed;
+                        IsPrimaryButtonEnabled = true;
+                        CloseButtonText = SharedUtilities.GetTranslation(lang, "Close");
+                    }
+                    // If successful, app will close and restart
+                }
+                catch (Exception ex)
                 {
-                    _statusText.Text = SharedUtilities.GetTranslation(lang, "UpdateDownloadFailed");
+                    Logger.LogError("Failed to download update", ex);
+                    _statusText.Text = $"{SharedUtilities.GetTranslation(lang, "UpdateFailed")}: {ex.Message}";
                     _progressBar.Visibility = Visibility.Collapsed;
                     IsPrimaryButtonEnabled = true;
                     CloseButtonText = SharedUtilities.GetTranslation(lang, "Close");
                 }
-                // If successful, app will close and restart
             }
-            catch (Exception ex)
+            catch (System.OperationCanceledException)
             {
-                Logger.LogError("Failed to download update", ex);
-                _statusText.Text = $"{SharedUtilities.GetTranslation(lang, "UpdateFailed")}: {ex.Message}";
-                _progressBar.Visibility = Visibility.Collapsed;
-                IsPrimaryButtonEnabled = true;
-                CloseButtonText = SharedUtilities.GetTranslation(lang, "Close");
+                Logger.LogDebug("ManagerUpdateDialog.OnPrimaryButtonClick failed: canceled");
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("ManagerUpdateDialog.OnPrimaryButtonClick failed", ex);
             }
         }
     }

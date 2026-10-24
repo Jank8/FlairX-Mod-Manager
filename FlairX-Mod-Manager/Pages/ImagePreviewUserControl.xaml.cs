@@ -20,6 +20,11 @@ namespace FlairX_Mod_Manager.Pages
         // Image cache for URLs
         private static readonly HttpClient _imageHttpClient = new();
         private readonly Dictionary<string, BitmapImage> _imageCache = new();
+
+        // WebP previews are staged through temp files (BitmapImage needs a URI), and these used
+        // to be created with Path.GetTempFileName() and never deleted - one leaked file per
+        // previewed image, for the lifetime of the machine.
+        private readonly List<string> _tempPreviewFiles = new();
         
         // Animation throttling
         private DateTime _lastAnimationUpdate = DateTime.MinValue;
@@ -51,6 +56,25 @@ namespace FlairX_Mod_Manager.Pages
             }
             // Clear cache on unload
             _imageCache.Clear();
+            CleanupTempPreviewFiles();
+        }
+
+        private void CleanupTempPreviewFiles()
+        {
+            foreach (var path in _tempPreviewFiles)
+            {
+                try
+                {
+                    if (File.Exists(path))
+                        File.Delete(path);
+                }
+                catch
+                {
+                    // Best effort - a locked preview file will be picked up by the OS temp cleanup.
+                }
+            }
+
+            _tempPreviewFiles.Clear();
         }
 
         public void LoadImages(List<string> imagePaths, int startIndex = 0, string title = "Preview")
@@ -169,7 +193,7 @@ namespace FlairX_Mod_Manager.Pages
                 memoryStream.Position = 0;
                 var bitmap = new BitmapImage();
                 // Use UriSource for WebP support - save to temp file first
-                var tempPath = Path.GetTempFileName();
+                var tempPath = Path.Combine(PathManager.GetTempDirectory("Preview"), $"preview_{Guid.NewGuid():N}.tmp");
                 File.WriteAllBytes(tempPath, memoryStream.ToArray());
                 // IMPORTANT: Must use absolute path for WebP to work
                 var absolutePath = Path.GetFullPath(tempPath);
@@ -177,6 +201,7 @@ namespace FlairX_Mod_Manager.Pages
                 
                 // Cache the bitmap
                 _imageCache[imageUrl] = bitmap;
+                _tempPreviewFiles.Add(tempPath);
                 
                 PreviewImage.Source = bitmap;
                 ImageLoadingBar.Visibility = Visibility.Collapsed;

@@ -144,6 +144,9 @@ namespace FlairX_Mod_Manager
 
         // GameBanana comments settings
         public bool CommentsLoginPromptDismissed { get; set; } = false;
+
+        // Runtime check prompt - show at most once per application version
+        public string? RuntimeCheckDismissedVersion { get; set; } = null;
         
         // Image Optimizer settings
         public int ImageOptimizerJpegQuality { get; set; } = 85;
@@ -184,6 +187,9 @@ namespace FlairX_Mod_Manager
     {
         private static readonly string SettingsPath = PathManager.GetSettingsPath();
         private static readonly string FavoritesPath = PathManager.GetSettingsPath("Favorites.json");
+
+        private static readonly object _saveLock = new object();
+        private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
         public static Settings Current { get; private set; } = new Settings();
         public static FavoritesData Favorites { get; private set; } = new FavoritesData();
 
@@ -216,8 +222,8 @@ namespace FlairX_Mod_Manager
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError("Failed to deserialize settings file, using defaults", ex);
-                    Current = new Settings();
+                    Logger.LogError("Failed to deserialize settings file, trying backup", ex);
+                    Current = TryLoadSettingsBackup() ?? new Settings();
                     Logger.AnonymizeOutput = Current.AnonymizeLogsEnabled;
                 }
             }
@@ -238,20 +244,86 @@ namespace FlairX_Mod_Manager
             Logger.LogDebug("Saving settings to file");
             try
             {
-                var dir = Path.GetDirectoryName(SettingsPath);
-                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-                {
-                    Directory.CreateDirectory(dir);
-                    Logger.LogInfo($"Created settings directory: {PathManager.GetRelativePath(dir)}");
-                }
-                
-                var json = JsonSerializer.Serialize(Current, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(SettingsPath, json);
+                var json = JsonSerializer.Serialize(Current, JsonOptions);
+                WriteJsonAtomically(SettingsPath, json);
                 Logger.LogDebug($"Settings saved successfully - {json.Length} characters written");
             }
             catch (Exception ex)
             {
                 Logger.LogError("Failed to save settings file", ex);
+            }
+        }
+
+        /// <summary>
+        /// Serialises concurrent writes and swaps the file in atomically, keeping one previous
+        /// generation as <c>.bak</c>.
+        /// </summary>
+        /// <remarks>
+        /// A plain <c>File.WriteAllText</c> truncates in place: an interrupted save (or two
+        /// concurrent saves) left a corrupt settings.json, which <see cref="Load"/> then replaced
+        /// with defaults - silently wiping every preference.
+        /// </remarks>
+        private static void WriteJsonAtomically(string path, string json)
+        {
+            lock (_saveLock)
+            {
+                var dir = Path.GetDirectoryName(path);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                    Logger.LogInfo($"Created settings directory: {PathManager.GetRelativePath(dir)}");
+                }
+
+                var tempPath = path + ".tmp-" + Guid.NewGuid().ToString("N");
+                try
+                {
+                    File.WriteAllText(tempPath, json);
+
+                    if (File.Exists(path))
+                    {
+                        // Keeps the previous version for recovery.
+                        File.Replace(tempPath, path, path + ".bak", ignoreMetadataErrors: true);
+                    }
+                    else
+                    {
+                        File.Move(tempPath, path);
+                    }
+                }
+                finally
+                {
+                    try
+                    {
+                        if (File.Exists(tempPath))
+                            File.Delete(tempPath);
+                    }
+                    catch
+                    {
+                        // Best effort.
+                    }
+                }
+            }
+        }
+
+        private static Settings? TryLoadSettingsBackup()
+        {
+            var backupPath = SettingsPath + ".bak";
+            try
+            {
+                if (!File.Exists(backupPath))
+                    return null;
+
+                var json = File.ReadAllText(backupPath);
+                var restored = JsonSerializer.Deserialize<Settings>(json);
+                if (restored != null)
+                {
+                    Logger.LogWarning("Settings restored from backup file");
+                }
+                return restored;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Failed to restore settings backup", ex);
+                return null;
             }
         }
 
@@ -286,14 +358,8 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                var dir = Path.GetDirectoryName(FavoritesPath);
-                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-                {
-                    Directory.CreateDirectory(dir);
-                }
-                
-                var json = JsonSerializer.Serialize(Favorites, new JsonSerializerOptions { WriteIndented = true });
-                File.WriteAllText(FavoritesPath, json);
+                var json = JsonSerializer.Serialize(Favorites, JsonOptions);
+                WriteJsonAtomically(FavoritesPath, json);
                 Logger.LogDebug($"Favorites saved successfully - {json.Length} characters written");
             }
             catch (Exception ex)

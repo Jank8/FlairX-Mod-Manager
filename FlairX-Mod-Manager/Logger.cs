@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace FlairX_Mod_Manager
 {
@@ -12,25 +14,40 @@ namespace FlairX_Mod_Manager
         private static readonly string StatusKeeperLogPath = PathManager.GetSettingsPath("StatusKeeper.log");
         private static readonly string HotkeyFinderLogPath = PathManager.GetSettingsPath("HotkeyFinder.log");
         private static readonly string GameBananaLogPath = PathManager.GetSettingsPath("GameBanana.log");
-        private static readonly object LogLock = new object();
-        private static readonly object GridLogLock = new object();
+
+        private static readonly ConcurrentDictionary<string, LogFileWriter> _writers =
+            new(StringComparer.OrdinalIgnoreCase);
+
         private static readonly object StatusKeeperLogLock = new object();
-        private static readonly object HotkeyFinderLogLock = new object();
-        private static readonly object GameBananaLogLock = new object();
         private static bool _statusKeeperLogInitialized = false;
-        
+
         // Anonymization setting (default: true for privacy)
         public static bool AnonymizeOutput { get; set; } = true;
 
+        static Logger()
+        {
+            // Buffered writers flush on a timer; make sure the tail of the log survives shutdown.
+            try
+            {
+                AppDomain.CurrentDomain.ProcessExit += static (_, _) => Flush();
+            }
+            catch
+            {
+                // Not fatal - log tail may be lost on exit.
+            }
+        }
+
+        #region Public API
+
         public static void LogInfo(string message, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
-            Log("INFO", FormatMessage(message, callerName, callerFile, lineNumber));
+            Log(LogPath, "INFO", message, callerName, callerFile, lineNumber, flushImmediately: false);
         }
 
         public static void LogPerformance(string operation, TimeSpan duration, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
             var message = $"PERFORMANCE: {operation} took {duration.TotalMilliseconds:F2}ms";
-            Log("PERF", FormatMessage(message, callerName, callerFile, lineNumber));
+            Log(LogPath, "PERF", message, callerName, callerFile, lineNumber, flushImmediately: false);
         }
 
         public static IDisposable MeasurePerformance(string operation, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
@@ -38,13 +55,13 @@ namespace FlairX_Mod_Manager
             return new PerformanceMeasurement(operation, callerName, callerFile, lineNumber);
         }
 
-        private class PerformanceMeasurement : IDisposable
+        private sealed class PerformanceMeasurement : IDisposable
         {
             private readonly string _operation;
             private readonly string? _callerName;
             private readonly string? _callerFile;
             private readonly int _lineNumber;
-            private readonly System.Diagnostics.Stopwatch _stopwatch;
+            private readonly Stopwatch _stopwatch;
 
             public PerformanceMeasurement(string operation, string? callerName, string? callerFile, int lineNumber)
             {
@@ -52,7 +69,7 @@ namespace FlairX_Mod_Manager
                 _callerName = callerName;
                 _callerFile = callerFile;
                 _lineNumber = lineNumber;
-                _stopwatch = System.Diagnostics.Stopwatch.StartNew();
+                _stopwatch = Stopwatch.StartNew();
             }
 
             public void Dispose()
@@ -64,32 +81,35 @@ namespace FlairX_Mod_Manager
 
         public static void LogWarning(string message, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
-            Log("WARNING", FormatMessage(message, callerName, callerFile, lineNumber));
+            Log(LogPath, "WARNING", message, callerName, callerFile, lineNumber, flushImmediately: true);
         }
 
         public static void LogError(string message, Exception? exception = null, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
             var fullMessage = exception != null ? $"{message} - Exception: {PathAnonymizer.AnonymizeException(exception)}" : message;
-            Log("ERROR", FormatMessage(fullMessage, callerName, callerFile, lineNumber));
+            Log(LogPath, "ERROR", fullMessage, callerName, callerFile, lineNumber, flushImmediately: true);
         }
 
+        /// <summary>
+        /// Debug-only trace. Compiled out entirely in Release builds, so no string formatting
+        /// and no dictionary lookups happen for these calls in shipped binaries.
+        /// </summary>
+        [Conditional("DEBUG")]
         public static void LogDebug(string message, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
-            var formattedMessage = FormatMessage(message, callerName, callerFile, lineNumber);
-            Debug.WriteLine($"[DEBUG] {formattedMessage}");
-            // Only log debug messages to console, not to file
+            Debug.WriteLine($"[DEBUG] {FormatMessage(GetMessagePrefix(callerFile, callerName, lineNumber), message)}");
         }
 
+        [Conditional("DEBUG")]
         public static void LogMethodEntry(string? additionalInfo = null, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
-            var message = string.IsNullOrEmpty(additionalInfo) ? "Method entered" : $"Method entered: {additionalInfo}";
-            LogDebug(message, callerName, callerFile, lineNumber);
+            LogDebug(string.IsNullOrEmpty(additionalInfo) ? "Method entered" : $"Method entered: {additionalInfo}", callerName, callerFile, lineNumber);
         }
 
+        [Conditional("DEBUG")]
         public static void LogMethodExit(string? additionalInfo = null, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
-            var message = string.IsNullOrEmpty(additionalInfo) ? "Method exited" : $"Method exited: {additionalInfo}";
-            LogDebug(message, callerName, callerFile, lineNumber);
+            LogDebug(string.IsNullOrEmpty(additionalInfo) ? "Method exited" : $"Method exited: {additionalInfo}", callerName, callerFile, lineNumber);
         }
 
         public static void LogGrid(string message, [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
@@ -103,12 +123,12 @@ namespace FlairX_Mod_Manager
             {
                 return; // SettingsManager not initialized - skip grid logging
             }
-            
-            var formattedMessage = FormatMessage(message, callerName, callerFile, lineNumber);
-            
+
+            var formattedMessage = FormatMessage(GetMessagePrefix(callerFile, callerName, lineNumber), message);
+
             // Log to debug console
             Debug.WriteLine($"[GRID] {formattedMessage}");
-            
+
             // If ErrorOnlyLogging is enabled, skip file logging for non-errors/warnings
             try
             {
@@ -118,9 +138,9 @@ namespace FlairX_Mod_Manager
             {
                 // SettingsManager not initialized - continue logging
             }
-            
+
             // Log to GridLog.log file
-            LogToFile(GridLogPath, GridLogLock, "GRID", formattedMessage);
+            WriteToFile(GridLogPath, "GRID", formattedMessage, flushImmediately: false);
         }
 
         /// <summary>
@@ -129,19 +149,21 @@ namespace FlairX_Mod_Manager
         public static void InitStatusKeeperLog()
         {
             if (_statusKeeperLogInitialized) return;
-            
+
             try
             {
                 lock (StatusKeeperLogLock)
                 {
+                    if (_statusKeeperLogInitialized) return;
+
                     var logDir = Path.GetDirectoryName(StatusKeeperLogPath);
                     if (!string.IsNullOrEmpty(logDir) && !Directory.Exists(logDir))
                     {
                         Directory.CreateDirectory(logDir);
                     }
-                    
+
                     var timestamp = DateTime.Now.ToString("yyyy-MM-dd | HH:mm:ss");
-                    File.WriteAllText(StatusKeeperLogPath, $"=== ModStatusKeeper Log Started at {timestamp} ===\n", System.Text.Encoding.UTF8);
+                    File.WriteAllText(StatusKeeperLogPath, $"=== ModStatusKeeper Log Started at {timestamp} ===\n", new UTF8Encoding(false));
                     _statusKeeperLogInitialized = true;
                 }
             }
@@ -165,12 +187,12 @@ namespace FlairX_Mod_Manager
             {
                 return; // SettingsManager not initialized - skip StatusKeeper logging
             }
-            
-            var formattedMessage = FormatMessage(message, callerName, callerFile, lineNumber);
-            
+
+            var formattedMessage = FormatMessage(GetMessagePrefix(callerFile, callerName, lineNumber), message);
+
             // Log to debug console
             Debug.WriteLine($"[StatusKeeper] [{level}] {formattedMessage}");
-            
+
             // If ErrorOnlyLogging is enabled, only log errors and warnings
             try
             {
@@ -180,15 +202,15 @@ namespace FlairX_Mod_Manager
             {
                 // SettingsManager not initialized - continue logging
             }
-            
+
             // Ensure log is initialized
             if (!_statusKeeperLogInitialized)
             {
                 InitStatusKeeperLog();
             }
-            
+
             // Log to StatusKeeper.log file
-            LogToFile(StatusKeeperLogPath, StatusKeeperLogLock, level, formattedMessage);
+            WriteToFile(StatusKeeperLogPath, level, formattedMessage, level == "ERROR" || level == "WARNING");
         }
 
         /// <summary>
@@ -205,11 +227,11 @@ namespace FlairX_Mod_Manager
         /// </summary>
         public static void LogHotkeyFinder(string message, string level = "INFO", [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
-            var formattedMessage = FormatMessage(message, callerName, callerFile, lineNumber);
-            
+            var formattedMessage = FormatMessage(GetMessagePrefix(callerFile, callerName, lineNumber), message);
+
             // Log to debug console
             Debug.WriteLine($"[HotkeyFinder] [{level}] {formattedMessage}");
-            
+
             // If ErrorOnlyLogging is enabled, only log errors and warnings
             try
             {
@@ -219,9 +241,9 @@ namespace FlairX_Mod_Manager
             {
                 // SettingsManager not initialized - continue logging
             }
-            
+
             // Log to HotkeyFinder.log file
-            LogToFile(HotkeyFinderLogPath, HotkeyFinderLogLock, level, formattedMessage);
+            WriteToFile(HotkeyFinderLogPath, level, formattedMessage, level == "ERROR" || level == "WARNING");
         }
 
         /// <summary>
@@ -238,9 +260,9 @@ namespace FlairX_Mod_Manager
         /// </summary>
         public static void LogGameBanana(string message, string level = "INFO", [CallerMemberName] string? callerName = null, [CallerFilePath] string? callerFile = null, [CallerLineNumber] int lineNumber = 0)
         {
-            var formattedMessage = FormatMessage(message, callerName, callerFile, lineNumber);
+            var formattedMessage = FormatMessage(GetMessagePrefix(callerFile, callerName, lineNumber), message);
             Debug.WriteLine($"[GameBanana] [{level}] {formattedMessage}");
-            LogToFile(GameBananaLogPath, GameBananaLogLock, level, formattedMessage);
+            WriteToFile(GameBananaLogPath, level, formattedMessage, level == "ERROR" || level == "WARNING");
         }
 
         /// <summary>
@@ -252,50 +274,74 @@ namespace FlairX_Mod_Manager
             LogGameBanana(fullMessage, "ERROR", callerName, callerFile, lineNumber);
         }
 
-        private static string FormatMessage(string message, string? callerName, string? callerFile, int lineNumber = 0)
+        /// <summary>
+        /// Flushes every buffered log file to disk.
+        /// </summary>
+        public static void Flush()
         {
-            var fileName = !string.IsNullOrEmpty(callerFile) ? Path.GetFileNameWithoutExtension(callerFile) : "Unknown";
-            var methodName = !string.IsNullOrEmpty(callerName) ? callerName : "Unknown";
-            var lineInfo = lineNumber > 0 ? $":{lineNumber}" : "";
-            return $"[{fileName}.{methodName}{lineInfo}] {message}";
+            foreach (var writer in _writers.Values)
+            {
+                writer.Flush();
+            }
         }
 
-        private static void LogToFile(string logPath, object lockObj, string level, string message)
+        public static void ClearLog()
         {
-            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            var anonymizedMessage = AnonymizeOutput ? PathAnonymizer.Anonymize(message) : message;
-            var logMessage = $"[{timestamp}] [{level}] {anonymizedMessage}";
-            
             try
             {
-                lock (lockObj)
+                if (_writers.TryRemove(LogPath, out var writer))
                 {
-                    var logDir = Path.GetDirectoryName(logPath);
-                    if (!string.IsNullOrEmpty(logDir) && !Directory.Exists(logDir))
-                    {
-                        Directory.CreateDirectory(logDir);
-                    }
-                    
-                    File.AppendAllText(logPath, logMessage + Environment.NewLine);
+                    writer.Dispose();
+                }
+
+                if (File.Exists(LogPath))
+                {
+                    File.Delete(LogPath);
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to write to log file {logPath}: {ex.Message}");
+                Debug.WriteLine($"Failed to clear log file: {ex.Message}");
             }
         }
 
-        private static void Log(string level, string message)
-        {
-            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            var anonymizedMessage = AnonymizeOutput ? PathAnonymizer.Anonymize(message) : message;
-            var logMessage = $"[{timestamp}] [{level}] {anonymizedMessage}";
-            
-            // Always log to debug console
-            Debug.WriteLine(logMessage);
+        #endregion
 
-            // If ErrorOnlyLogging is enabled, only log errors and warnings to file
-            // Use try-catch to handle case when SettingsManager is not yet initialized
+        #region Formatting
+
+        // Call sites are compile-time constants, so their formatted prefix is computed once.
+        private static readonly ConcurrentDictionary<(string File, string Method, int Line), string> _prefixCache = new();
+
+        private static string GetMessagePrefix(string? callerFile, string? callerName, int lineNumber)
+        {
+            return _prefixCache.GetOrAdd(
+                (callerFile ?? string.Empty, callerName ?? string.Empty, lineNumber),
+                static key => BuildMessagePrefix(key.File, key.Method, key.Line));
+        }
+
+        private static string BuildMessagePrefix(string callerFile, string callerName, int lineNumber)
+        {
+            var fileName = !string.IsNullOrEmpty(callerFile) ? Path.GetFileNameWithoutExtension(callerFile) : "Unknown";
+            var methodName = !string.IsNullOrEmpty(callerName) ? callerName : "Unknown";
+            var lineInfo = lineNumber > 0 ? $":{lineNumber}" : "";
+            return $"[{fileName}.{methodName}{lineInfo}] ";
+        }
+
+        private static string FormatMessage(string prefix, string message) => prefix + message;
+
+        #endregion
+
+        #region File writing
+
+        private static void Log(string logPath, string level, string message, string? callerName, string? callerFile, int lineNumber, bool flushImmediately)
+        {
+            var formattedMessage = FormatMessage(GetMessagePrefix(callerFile, callerName, lineNumber), message);
+
+            // Always log to debug console
+            Debug.WriteLine($"[{level}] {formattedMessage}");
+
+            // If ErrorOnlyLogging is enabled, only log errors and warnings to file.
+            // Use try-catch to handle case when SettingsManager is not yet initialized.
             try
             {
                 if (SettingsManager.Current?.ErrorOnlyLogging == true && level != "ERROR" && level != "WARNING")
@@ -308,42 +354,128 @@ namespace FlairX_Mod_Manager
                 // SettingsManager not initialized yet - log everything during startup
             }
 
-            // Log to file with thread safety
+            WriteToFile(logPath, level, formattedMessage, flushImmediately);
+        }
+
+        private static void WriteToFile(string logPath, string level, string formattedMessage, bool flushImmediately)
+        {
+            string line;
             try
             {
-                lock (LogLock)
-                {
-                    var logDir = Path.GetDirectoryName(LogPath);
-                    if (!string.IsNullOrEmpty(logDir) && !Directory.Exists(logDir))
-                    {
-                        Directory.CreateDirectory(logDir);
-                    }
-                    
-                    File.AppendAllText(LogPath, logMessage + Environment.NewLine);
-                }
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                var anonymizedMessage = AnonymizeOutput ? PathAnonymizer.Anonymize(formattedMessage) : formattedMessage;
+                line = $"[{timestamp}] [{level}] {anonymizedMessage}";
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Failed to write to log file: {ex.Message}");
+                Debug.WriteLine($"Failed to format log entry: {ex.Message}");
+                return;
+            }
+
+            var writer = _writers.GetOrAdd(logPath, static path => new LogFileWriter(path));
+            writer.Write(line, flushImmediately);
+        }
+
+        /// <summary>
+        /// Buffered append-only writer for a single log file.
+        /// Keeping the handle open removes a CreateFile/CloseHandle pair per log line, which used
+        /// to run under a process-wide lock and stall every thread that logged.
+        /// </summary>
+        private sealed class LogFileWriter : IDisposable
+        {
+            private const int FlushIntervalMs = 1000;
+            private const int FileBufferSize = 64 * 1024;
+
+            private readonly string _path;
+            private readonly object _gate = new object();
+            private StreamWriter? _writer;
+            private long _lastFlushTick;
+
+            public LogFileWriter(string path)
+            {
+                _path = path;
+            }
+
+            public void Write(string line, bool flushImmediately)
+            {
+                lock (_gate)
+                {
+                    try
+                    {
+                        _writer ??= CreateWriter();
+                        _writer.WriteLine(line);
+
+                        var now = Environment.TickCount64;
+                        if (flushImmediately || now - _lastFlushTick >= FlushIntervalMs)
+                        {
+                            _writer.Flush();
+                            _lastFlushTick = now;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Failed to write to log file {_path}: {ex.Message}");
+                        DisposeLocked();
+                    }
+                }
+            }
+
+            public void Flush()
+            {
+                lock (_gate)
+                {
+                    try
+                    {
+                        _writer?.Flush();
+                        _lastFlushTick = Environment.TickCount64;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Failed to flush log file {_path}: {ex.Message}");
+                    }
+                }
+            }
+
+            private StreamWriter CreateWriter()
+            {
+                var logDir = Path.GetDirectoryName(_path);
+                if (!string.IsNullOrEmpty(logDir) && !Directory.Exists(logDir))
+                {
+                    Directory.CreateDirectory(logDir);
+                }
+
+                // Shares read access so the user can tail the log while the app is running.
+                var stream = new FileStream(_path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, FileBufferSize);
+                var writer = new StreamWriter(stream, new UTF8Encoding(false), 4096) { AutoFlush = false };
+                _lastFlushTick = Environment.TickCount64;
+                return writer;
+            }
+
+            private void DisposeLocked()
+            {
+                try
+                {
+                    _writer?.Dispose();
+                }
+                catch
+                {
+                    // Ignore - we are already on the error path.
+                }
+                finally
+                {
+                    _writer = null;
+                }
+            }
+
+            public void Dispose()
+            {
+                lock (_gate)
+                {
+                    DisposeLocked();
+                }
             }
         }
 
-        public static void ClearLog()
-        {
-            try
-            {
-                lock (LogLock)
-                {
-                    if (File.Exists(LogPath))
-                    {
-                        File.Delete(LogPath);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Failed to clear log file: {ex.Message}");
-            }
-        }
+        #endregion
     }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
@@ -29,7 +29,7 @@ namespace FlairX_Mod_Manager.Pages
         {
             this.InitializeComponent();
             this.Loaded += ImageOptimizerPage_Loaded;
-            Services.ImageOptimizationService.OptimizationProgressChanged += OnOptimizationProgressChanged;
+            this.Unloaded += ImageOptimizerPage_Unloaded;
         }
         
         private void OnOptimizationProgressChanged()
@@ -81,6 +81,12 @@ namespace FlairX_Mod_Manager.Pages
 
         private void ImageOptimizerPage_Loaded(object sender, RoutedEventArgs e)
         {
+            // Re-subscribe idempotently. A new ImageOptimizerPage is created on every navigation,
+            // and because the handler was never removed, the static event kept every previous
+            // page - and its whole XAML tree - alive for the lifetime of the process.
+            Services.ImageOptimizationService.OptimizationProgressChanged -= OnOptimizationProgressChanged;
+            Services.ImageOptimizationService.OptimizationProgressChanged += OnOptimizationProgressChanged;
+
             LoadSettings();
             InitializeUI();
             UpdateAllDescriptions();
@@ -106,7 +112,14 @@ namespace FlairX_Mod_Manager.Pages
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-            // Keep subscription active - don't unsubscribe so progress continues
+            // Progress state lives in ImageOptimizationService and is restored by
+            // UpdateProgressBarUI() in OnNavigatedTo, so the subscription is released in
+            // Unloaded rather than being leaked here.
+        }
+
+        private void ImageOptimizerPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Services.ImageOptimizationService.OptimizationProgressChanged -= OnOptimizationProgressChanged;
         }
 
         private void LoadSettings()
@@ -311,90 +324,101 @@ namespace FlairX_Mod_Manager.Pages
         
         private async void ImageFormatComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (ImageFormatComboBox.SelectedItem is ComboBoxItem item && item.Tag is string format)
+            try
             {
-                var lang = SharedUtilities.LoadLanguageDictionary();
-                
-                // Check if switching to WebP and codec is not installed
-                if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase) && 
-                    !WebPCodecChecker.IsWebPCodecInstalled())
+                if (ImageFormatComboBox.SelectedItem is ComboBoxItem item && item.Tag is string format)
                 {
-                    var dialog = new ContentDialog
+                    var lang = SharedUtilities.LoadLanguageDictionary();
+
+                    // Check if switching to WebP and codec is not installed
+                    if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase) &&
+                        !WebPCodecChecker.IsWebPCodecInstalled())
                     {
-                        Title = SharedUtilities.GetTranslation(lang, "WebP_Codec_Required") ?? "WebP Codec Required",
-                        Content = SharedUtilities.GetTranslation(lang, "WebP_Codec_Message") ?? 
-                            "To display WebP images, you need to install the WebP Image Extensions from Microsoft Store.\n\nClick 'Install' to open Microsoft Store.",
-                        PrimaryButtonText = SharedUtilities.GetTranslation(lang, "Install") ?? "Install",
-                        CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel",
-                        XamlRoot = this.XamlRoot
-                    };
-                    
-                    var result = await dialog.ShowAsync();
-                    if (result == ContentDialogResult.Primary)
-                    {
-                        // Open Microsoft Store to install WebP codec
-                        var storeLink = WebPCodecChecker.GetWebPCodecStoreLink();
-                        try
+                        var dialog = new ContentDialog
                         {
-                            var uri = new Uri(storeLink);
-                            await Windows.System.Launcher.LaunchUriAsync(uri);
-                        }
-                        catch (Exception ex)
+                            Title = SharedUtilities.GetTranslation(lang, "WebP_Codec_Required") ?? "WebP Codec Required",
+                            Content = SharedUtilities.GetTranslation(lang, "WebP_Codec_Message") ??
+                                "To display WebP images, you need to install the WebP Image Extensions from Microsoft Store.\n\nClick 'Install' to open Microsoft Store.",
+                            PrimaryButtonText = SharedUtilities.GetTranslation(lang, "Install") ?? "Install",
+                            CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel",
+                            XamlRoot = this.XamlRoot
+                        };
+
+                        var result = await dialog.ShowAsync();
+                        if (result == ContentDialogResult.Primary)
                         {
-                            Logger.LogError("Failed to open Microsoft Store", ex);
+                            // Open Microsoft Store to install WebP codec
+                            var storeLink = WebPCodecChecker.GetWebPCodecStoreLink();
+                            try
+                            {
+                                var uri = new Uri(storeLink);
+                                await Windows.System.Launcher.LaunchUriAsync(uri);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError("Failed to open Microsoft Store", ex);
+                            }
                         }
                     }
-                }
-                
-                var oldFormat = SettingsManager.Current.ImageFormat ?? "JPEG";
-                SettingsManager.Current.ImageFormat = format;
-                
-                // Ask if user wants to convert existing images when switching formats
-                if (!format.Equals(oldFormat, StringComparison.OrdinalIgnoreCase))
-                {
-                    var convertDialog = new ContentDialog
+
+                    var oldFormat = SettingsManager.Current.ImageFormat ?? "JPEG";
+                    SettingsManager.Current.ImageFormat = format;
+
+                    // Ask if user wants to convert existing images when switching formats
+                    if (!format.Equals(oldFormat, StringComparison.OrdinalIgnoreCase))
                     {
-                        Title = SharedUtilities.GetTranslation(lang, "ConvertImages_Title") ?? "Convert Existing Images?",
-                        Content = SharedUtilities.GetTranslation(lang, "ConvertImages_Message") ?? 
-                            "Would you like to convert all existing images to the new format?\n\nThis will:\n• Convert preview images, thumbnails, and category images\n• Keep original files if 'Keep Originals' is enabled\n\n⚠️ WARNING: Converting back and forth between formats multiple times will degrade image quality. Only convert once from your original files.",
-                        PrimaryButtonText = SharedUtilities.GetTranslation(lang, "ConvertImages_Convert") ?? "Convert Now",
-                        SecondaryButtonText = SharedUtilities.GetTranslation(lang, "ConvertImages_Later") ?? "Maybe Later",
-                        CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel",
-                        DefaultButton = ContentDialogButton.Secondary,
-                        XamlRoot = this.XamlRoot
-                    };
-                    
-                    var convertResult = await convertDialog.ShowAsync();
-                    if (convertResult == ContentDialogResult.Primary)
-                    {
-                        // User wants to convert - use existing optimization system but skip confirmation
-                        await StartOptimizationWithoutConfirmation();
+                        var convertDialog = new ContentDialog
+                        {
+                            Title = SharedUtilities.GetTranslation(lang, "ConvertImages_Title") ?? "Convert Existing Images?",
+                            Content = SharedUtilities.GetTranslation(lang, "ConvertImages_Message") ??
+                                "Would you like to convert all existing images to the new format?\n\nThis will:\n• Convert preview images, thumbnails, and category images\n• Keep original files if 'Keep Originals' is enabled\n\n⚠️ WARNING: Converting back and forth between formats multiple times will degrade image quality. Only convert once from your original files.",
+                            PrimaryButtonText = SharedUtilities.GetTranslation(lang, "ConvertImages_Convert") ?? "Convert Now",
+                            SecondaryButtonText = SharedUtilities.GetTranslation(lang, "ConvertImages_Later") ?? "Maybe Later",
+                            CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel") ?? "Cancel",
+                            DefaultButton = ContentDialogButton.Secondary,
+                            XamlRoot = this.XamlRoot
+                        };
+
+                        var convertResult = await convertDialog.ShowAsync();
+                        if (convertResult == ContentDialogResult.Primary)
+                        {
+                            // User wants to convert - use existing optimization system but skip confirmation
+                            await StartOptimizationWithoutConfirmation();
+                        }
                     }
+
+                    // Update quality slider state and switch between JPEG/WebP quality values
+                    var mainLang = SharedUtilities.LoadLanguageDictionary();
+                    if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
+                    {
+                        JpegQualitySlider.IsEnabled = true;
+                        JpegQualitySlider.Maximum = 101; // WebP supports lossless (101)
+                        JpegQualitySlider.Value = _webpQuality;
+                        // Display "Lossless" for quality 101
+                        JpegQualityValue.Text = _webpQuality >= 101 ? "Lossless" : $"{_webpQuality}%";
+                        JpegQualityDescription.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_WebP_Quality_Description")
+                            ?? "WebP quality: 1-100 = lossy (smaller files), 101 = lossless (perfect quality, larger files)";
+                    }
+                    else
+                    {
+                        JpegQualitySlider.IsEnabled = true;
+                        JpegQualitySlider.Maximum = 100; // JPEG only supports up to 100
+                        JpegQualitySlider.Value = _jpegQuality;
+                        JpegQualityValue.Text = $"{_jpegQuality}%";
+                        JpegQualityDescription.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_Quality_Description")
+                            ?? "Higher quality = larger file size";
+                    }
+
+                    SaveSettings();
                 }
-                
-                // Update quality slider state and switch between JPEG/WebP quality values
-                var mainLang = SharedUtilities.LoadLanguageDictionary();
-                if (format.Equals("WebP", StringComparison.OrdinalIgnoreCase))
-                {
-                    JpegQualitySlider.IsEnabled = true;
-                    JpegQualitySlider.Maximum = 101; // WebP supports lossless (101)
-                    JpegQualitySlider.Value = _webpQuality;
-                    // Display "Lossless" for quality 101
-                    JpegQualityValue.Text = _webpQuality >= 101 ? "Lossless" : $"{_webpQuality}%";
-                    JpegQualityDescription.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_WebP_Quality_Description") 
-                        ?? "WebP quality: 1-100 = lossy (smaller files), 101 = lossless (perfect quality, larger files)";
-                }
-                else
-                {
-                    JpegQualitySlider.IsEnabled = true;
-                    JpegQualitySlider.Maximum = 100; // JPEG only supports up to 100
-                    JpegQualitySlider.Value = _jpegQuality;
-                    JpegQualityValue.Text = $"{_jpegQuality}%";
-                    JpegQualityDescription.Text = SharedUtilities.GetTranslation(mainLang, "ImageOptimizer_Quality_Description") 
-                        ?? "Higher quality = larger file size";
-                }
-                
-                SaveSettings();
+            }
+            catch (System.OperationCanceledException)
+            {
+                Logger.LogDebug("ImageOptimizerPage.ImageFormatComboBox_SelectionChanged failed: canceled");
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("ImageOptimizerPage.ImageFormatComboBox_SelectionChanged failed", ex);
             }
         }
 
@@ -463,30 +487,41 @@ namespace FlairX_Mod_Manager.Pages
 
         private async void OptimizeButton_Click(object sender, RoutedEventArgs e)
         {
-            // Check if already optimizing (from service state)
-            if (Services.ImageOptimizationService.IsOptimizing)
+            try
             {
-                // Request safe cancellation - will finish current tasks
-                Services.ImageOptimizationService.RequestCancellation();
-                return;
+                // Check if already optimizing (from service state)
+                if (Services.ImageOptimizationService.IsOptimizing)
+                {
+                    // Request safe cancellation - will finish current tasks
+                    Services.ImageOptimizationService.RequestCancellation();
+                    return;
+                }
+
+                // Show confirmation dialog
+                var lang = SharedUtilities.LoadLanguageDictionary("ImageOptimizer");
+                var confirmDialog = new ContentDialog
+                {
+                    Title = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label"),
+                    Content = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Description"),
+                    PrimaryButtonText = SharedUtilities.GetTranslation(lang, "Continue"),
+                    CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel"),
+                    XamlRoot = this.XamlRoot
+                };
+
+                var result = await confirmDialog.ShowAsync();
+                if (result != ContentDialogResult.Primary)
+                    return;
+
+                await StartOptimizationWithoutConfirmation();
             }
-
-            // Show confirmation dialog
-            var lang = SharedUtilities.LoadLanguageDictionary("ImageOptimizer");
-            var confirmDialog = new ContentDialog
+            catch (System.OperationCanceledException)
             {
-                Title = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Label"),
-                Content = SharedUtilities.GetTranslation(lang, "SettingsPage_OptimizePreviews_Description"),
-                PrimaryButtonText = SharedUtilities.GetTranslation(lang, "Continue"),
-                CloseButtonText = SharedUtilities.GetTranslation(lang, "Cancel"),
-                XamlRoot = this.XamlRoot
-            };
-
-            var result = await confirmDialog.ShowAsync();
-            if (result != ContentDialogResult.Primary)
-                return;
-
-            await StartOptimizationWithoutConfirmation();
+                Logger.LogDebug("ImageOptimizerPage.OptimizeButton_Click failed: canceled");
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("ImageOptimizerPage.OptimizeButton_Click failed", ex);
+            }
         }
 
         private async Task StartOptimizationWithoutConfirmation()
@@ -503,10 +538,21 @@ namespace FlairX_Mod_Manager.Pages
                     // Show success notification and reload mods
                     DispatcherQueue.TryEnqueue(async () =>
                     {
-                        if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                        try
                         {
-                            mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"), 4000);
-                            await mainWindow.ReloadModsAsync();
+                            if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                            {
+                                mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "OptimizePreviews_Completed"), 4000);
+                                await mainWindow.ReloadModsAsync();
+                            }
+                        }
+                        catch (System.OperationCanceledException)
+                        {
+                            Logger.LogDebug("ImageOptimizerPage.StartOptimizationWithoutConfirmation failed: canceled");
+                        }
+                        catch (System.Exception ex)
+                        {
+                            Logger.LogError("ImageOptimizerPage.StartOptimizationWithoutConfirmation failed", ex);
                         }
                     });
                 }

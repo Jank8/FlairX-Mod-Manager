@@ -314,16 +314,6 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         /// <summary>
-        /// Get clean mod name without DISABLED_ prefix
-        /// </summary>
-        public static string GetCleanModName(string modFolderName)
-        {
-            if (modFolderName.StartsWith(DISABLED_PREFIX))
-                return modFolderName.Substring(DISABLED_PREFIX.Length);
-            return modFolderName;
-        }
-
-        /// <summary>
         /// Check if there are duplicates of the same mod across categories (both active and inactive versions)
         /// </summary>
         private static bool CheckForDuplicatesAcrossCategories(string modsPath, string cleanModName)
@@ -422,6 +412,13 @@ namespace FlairX_Mod_Manager.Pages
             catch (Exception ex)
             {
                 Logger.LogError("Failed to apply preset", ex);
+
+                // Silent before: the preset appeared to do nothing.
+                if (App.Current is App presetApp && presetApp.MainWindow is MainWindow presetWindow)
+                {
+                    var presetLang = SharedUtilities.LoadLanguageDictionary();
+                    presetWindow.ShowErrorInfo(SharedUtilities.GetTranslation(presetLang, "Notify_PresetApplyFailed"));
+                }
             }
         }
         // No cache system - direct file reading for reliability
@@ -433,7 +430,12 @@ namespace FlairX_Mod_Manager.Pages
             return path;
         }
 
-        public void SaveDefaultPresetAllInactive()
+        /// <summary>
+        /// Writes the default (all-inactive) preset by scanning the mod library.
+        /// Static because it touches no page state - callers used to construct a whole
+        /// ModGridPage (full XAML initialization) just to invoke this.
+        /// </summary>
+        public static void SaveDefaultPresetAllInactive()
         {
             var modsPath = SettingsManager.GetCurrentXXMIModsDirectory();
             if (string.IsNullOrEmpty(modsPath) || !Directory.Exists(modsPath))

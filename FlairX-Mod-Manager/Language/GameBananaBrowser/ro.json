@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Rezultate parțiale",
   "RecentWindow_PartialWarning": "O pagină GameBanana ulterioară nu a putut fi încărcată; sunt afișate rezultatele disponibile.",
   "RecentWindow_CappedTitle": "Rezultate limitate",
-  "RecentWindow_CappedWarning": "Rezultatele au atins limita de siguranță de 10 pagini sau 500 de înregistrări."
+  "RecentWindow_CappedWarning": "Rezultatele au atins limita de siguranță de 10 pagini sau 500 de înregistrări.",
+  "Comments_Login": "Conectare",
+  "Comments_Logout": "Deconectare",
+  "Comments_Cancel": "Anulare",
+  "Comments_Continue": "Continuă",
+  "Comments_Reload": "Reîncarcă",
+  "Comments_Zoom": "Zoom"
 }

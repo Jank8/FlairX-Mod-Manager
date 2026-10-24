@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Częściowe wyniki",
   "RecentWindow_PartialWarning": "Nie udało się załadować późniejszej strony GameBanana; pokazano dostępne wyniki.",
   "RecentWindow_CappedTitle": "Wyniki ograniczone",
-  "RecentWindow_CappedWarning": "Wyniki osiągnęły limit bezpieczeństwa 10 stron lub 500 rekordów."
+  "RecentWindow_CappedWarning": "Wyniki osiągnęły limit bezpieczeństwa 10 stron lub 500 rekordów.",
+  "Comments_Login": "Zaloguj",
+  "Comments_Logout": "Wyloguj",
+  "Comments_Cancel": "Anuluj",
+  "Comments_Continue": "Kontynuuj",
+  "Comments_Reload": "Odśwież",
+  "Comments_Zoom": "Powiększenie"
 }

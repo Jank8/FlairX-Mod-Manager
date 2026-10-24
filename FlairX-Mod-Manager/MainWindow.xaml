@@ -1,4 +1,4 @@
-﻿<Window
+<Window
     x:Class="FlairX_Mod_Manager.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -300,6 +300,32 @@
               IsHitTestVisible="False"
               HorizontalAlignment="Left"
               VerticalAlignment="Top"/>
+
+        <!-- Reload veil: full-window acrylic layer shown while the mod grid is rebuilt.
+             It swallows every pointer input, so no UI handler can run in the middle of a
+             layout pass - that collision is the suspected cause of the silent crash.
+             ZIndex keeps it above sliding panels, which are added to MainRoot at runtime.
+             ReloadVeilBrush is an 85% tint that follows the app theme (see App.xaml). -->
+        <Grid x:Name="ReloadOverlay"
+              Visibility="Collapsed"
+              IsHitTestVisible="True"
+              Background="{ThemeResource ReloadVeilBrush}"
+              Canvas.ZIndex="10000">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="14">
+                <ProgressRing x:Name="ReloadOverlayRing"
+                              Width="44"
+                              Height="44"
+                              IsActive="False"
+                              HorizontalAlignment="Center"/>
+                <TextBlock x:Name="ReloadOverlayText"
+                           FontSize="14"
+                           Opacity="0.85"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"/>
+            </StackPanel>
+        </Grid>
 
     </Grid>
 </Window>

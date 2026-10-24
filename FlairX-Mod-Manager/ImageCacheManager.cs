@@ -1,15 +1,22 @@
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 
 namespace FlairX_Mod_Manager
 {
     /// <summary>
     /// Thread-safe image cache manager with size limits to prevent memory leaks
     /// </summary>
+    /// <remarks>
+    /// Two things were wrong here before: the byte counters were updated inside
+    /// <see cref="ConcurrentDictionary{TKey,TValue}.AddOrUpdate(TKey, Func{TKey,TValue}, Func{TKey,TValue,TValue})"/>
+    /// factories (which may run more than once under contention, so the total drifted away from
+    /// reality and eviction stopped triggering), and eviction called
+    /// <c>ClearValue(UriSourceProperty)</c> on bitmaps that tiles were still displaying, which
+    /// blanked live tiles.
+    /// </remarks>
     public static class ImageCacheManager
     {
         private const long MAX_CACHE_SIZE_MB = 1024; // 1GB cache limit
@@ -20,6 +27,9 @@ namespace FlairX_Mod_Manager
         private static readonly ConcurrentDictionary<string, CacheEntry> _ramImageCache = new();
         private static long _currentCacheSizeBytes = 0;
         private static long _currentRamCacheSizeBytes = 0;
+
+        // Only one eviction pass at a time; overlapping passes double-counted removals.
+        private static int _cleanupRunning = 0;
 
         private class CacheEntry
         {
@@ -48,6 +58,8 @@ namespace FlairX_Mod_Manager
             }
         }
 
+        #region Public API
+
         public static BitmapImage? GetCachedImage(string key)
         {
             if (_imageCache.TryGetValue(key, out var entry))
@@ -62,31 +74,8 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                long sizeBytes = EstimateImageSize(image);
-                Logger.LogDebug($"Caching image: {key} ({sizeBytes / 1024}KB)");
-                
-                _imageCache.AddOrUpdate(key,
-                    k => {
-                        System.Threading.Interlocked.Add(ref _currentCacheSizeBytes, sizeBytes);
-                        Logger.LogDebug($"Added new image to cache: {key}");
-                        return new CacheEntry(image, sizeBytes);
-                    },
-                    (k, existing) =>
-                    {
-                        System.Threading.Interlocked.Add(ref _currentCacheSizeBytes, sizeBytes - existing.SizeBytes);
-                        existing.Image = image;
-                        existing.LastAccessed = DateTime.Now;
-                        existing.SizeBytes = sizeBytes;
-                        Logger.LogDebug($"Updated existing image in cache: {key}");
-                        return existing;
-                    });
-
-                // Cleanup if cache is getting too large
-                if (_currentCacheSizeBytes > CLEANUP_THRESHOLD_BYTES)
-                {
-                    Logger.LogInfo($"Image cache size exceeded threshold ({_currentCacheSizeBytes / (1024 * 1024)}MB), starting cleanup");
-                    CleanupCache(_imageCache, ref _currentCacheSizeBytes);
-                }
+                AddOrUpdateEntry(_imageCache, key, image, isRamCache: false);
+                TryCleanupIfNeeded(_imageCache, isRamCache: false);
             }
             catch (Exception ex)
             {
@@ -99,10 +88,10 @@ namespace FlairX_Mod_Manager
             if (_ramImageCache.TryGetValue(key, out var entry))
             {
                 entry.LastAccessed = DateTime.Now;
-                Logger.LogDebug($"🎯 RAM Cache HIT for key: {key}");
+                Logger.LogDebug($"RAM Cache HIT for key: {key}");
                 return entry.Image;
             }
-            Logger.LogDebug($"❌ RAM Cache MISS for key: {key}");
+            Logger.LogDebug($"RAM Cache MISS for key: {key}");
             return null;
         }
 
@@ -110,76 +99,12 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                long sizeBytes = EstimateImageSize(image);
-                Logger.LogDebug($"Caching RAM image: {key} ({sizeBytes / 1024}KB)");
-                
-                _ramImageCache.AddOrUpdate(key,
-                    k => {
-                        System.Threading.Interlocked.Add(ref _currentRamCacheSizeBytes, sizeBytes);
-                        Logger.LogDebug($"Added new RAM image to cache: {key}");
-                        return new CacheEntry(image, sizeBytes);
-                    },
-                    (k, existing) =>
-                    {
-                        System.Threading.Interlocked.Add(ref _currentRamCacheSizeBytes, sizeBytes - existing.SizeBytes);
-                        existing.Image = image;
-                        existing.LastAccessed = DateTime.Now;
-                        existing.SizeBytes = sizeBytes;
-                        Logger.LogDebug($"Updated existing RAM image in cache: {key}");
-                        return existing;
-                    });
-
-                // Cleanup if cache is getting too large
-                if (_currentRamCacheSizeBytes > CLEANUP_THRESHOLD_BYTES)
-                {
-                    Logger.LogInfo($"RAM cache size exceeded threshold ({_currentRamCacheSizeBytes / (1024 * 1024)}MB), starting cleanup");
-                    CleanupCache(_ramImageCache, ref _currentRamCacheSizeBytes);
-                }
+                AddOrUpdateEntry(_ramImageCache, key, image, isRamCache: true);
+                TryCleanupIfNeeded(_ramImageCache, isRamCache: true);
             }
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to cache RAM image: {key}", ex);
-            }
-        }
-
-        private static void CleanupCache(ConcurrentDictionary<string, CacheEntry> cache, ref long currentCacheSizeBytes)
-        {
-            try
-            {
-                Logger.LogInfo($"Starting cache cleanup - Current size: {currentCacheSizeBytes / (1024 * 1024)}MB, Items: {cache.Count}");
-                
-                var ordered = cache.OrderBy(kvp => kvp.Value.LastAccessed).ToList();
-                long sizeToRemove = currentCacheSizeBytes - MAX_CACHE_SIZE_BYTES;
-                long removed = 0;
-                int removedCount = 0;
-                
-                foreach (var kvp in ordered)
-                {
-                    if (currentCacheSizeBytes - removed <= MAX_CACHE_SIZE_BYTES)
-                        break;
-                        
-                    if (cache.TryRemove(kvp.Key, out var removedEntry))
-                    {
-                        removed += removedEntry.SizeBytes;
-                        removedCount++;
-                        
-                        try
-                        {
-                            removedEntry.Image?.ClearValue(BitmapImage.UriSourceProperty);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError($"Failed to clear image value for {kvp.Key}", ex);
-                        }
-                    }
-                }
-                
-                System.Threading.Interlocked.Add(ref currentCacheSizeBytes, -removed);
-                Logger.LogInfo($"Cache cleanup completed - Removed {removedCount} images ({removed / (1024 * 1024)}MB), New size: {currentCacheSizeBytes / (1024 * 1024)}MB");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("Cache cleanup failed", ex);
             }
         }
 
@@ -191,12 +116,12 @@ namespace FlairX_Mod_Manager
                 int ramCount = _ramImageCache.Count;
                 long imageMB = _currentCacheSizeBytes / (1024 * 1024);
                 long ramMB = _currentRamCacheSizeBytes / (1024 * 1024);
-                
+
                 _imageCache.Clear();
                 _ramImageCache.Clear();
-                _currentCacheSizeBytes = 0;
-                _currentRamCacheSizeBytes = 0;
-                
+                Interlocked.Exchange(ref _currentCacheSizeBytes, 0);
+                Interlocked.Exchange(ref _currentRamCacheSizeBytes, 0);
+
                 Logger.LogInfo($"All image caches cleared - Image cache: {imageCount} items ({imageMB}MB), RAM cache: {ramCount} items ({ramMB}MB)");
             }
             catch (Exception ex)
@@ -209,37 +134,17 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                bool removedFromImageCache = false;
-                bool removedFromRamCache = false;
-                
                 if (_imageCache.TryRemove(key, out var imageEntry))
                 {
-                    System.Threading.Interlocked.Add(ref _currentCacheSizeBytes, -imageEntry.SizeBytes);
-                    removedFromImageCache = true;
-                    
-                    try
-                    {
-                        imageEntry.Image?.ClearValue(BitmapImage.UriSourceProperty);
-                    }
-                    catch { }
+                    Interlocked.Add(ref _currentCacheSizeBytes, -imageEntry.SizeBytes);
                 }
-                
+
                 if (_ramImageCache.TryRemove(key, out var ramEntry))
                 {
-                    System.Threading.Interlocked.Add(ref _currentRamCacheSizeBytes, -ramEntry.SizeBytes);
-                    removedFromRamCache = true;
-                    
-                    try
-                    {
-                        ramEntry.Image?.ClearValue(BitmapImage.UriSourceProperty);
-                    }
-                    catch { }
+                    Interlocked.Add(ref _currentRamCacheSizeBytes, -ramEntry.SizeBytes);
                 }
-                
-                if (removedFromImageCache || removedFromRamCache)
-                {
-                    Logger.LogDebug($"Invalidated image cache for: {key} (ImageCache: {removedFromImageCache}, RamCache: {removedFromRamCache})");
-                }
+
+                Logger.LogDebug($"Invalidated image cache for: {key}");
             }
             catch (Exception ex)
             {
@@ -249,7 +154,119 @@ namespace FlairX_Mod_Manager
 
         public static (int ImageCache, int RamCache, long ImageCacheMB, long RamCacheMB) GetCacheSizes()
         {
-            return (_imageCache.Count, _ramImageCache.Count, _currentCacheSizeBytes / (1024 * 1024), _currentRamCacheSizeBytes / (1024 * 1024));
+            return (_imageCache.Count, _ramImageCache.Count,
+                    Interlocked.Read(ref _currentCacheSizeBytes) / (1024 * 1024),
+                    Interlocked.Read(ref _currentRamCacheSizeBytes) / (1024 * 1024));
         }
+
+        #endregion
+
+        #region Internals
+
+        private static long GetSize(bool isRamCache) =>
+            isRamCache
+                ? Interlocked.Read(ref _currentRamCacheSizeBytes)
+                : Interlocked.Read(ref _currentCacheSizeBytes);
+
+        private static void AdjustSize(bool isRamCache, long delta)
+        {
+            if (delta == 0) return;
+
+            if (isRamCache)
+                Interlocked.Add(ref _currentRamCacheSizeBytes, delta);
+            else
+                Interlocked.Add(ref _currentCacheSizeBytes, delta);
+        }
+
+        /// <summary>
+        /// Inserts or replaces an entry and keeps the byte counter exact by applying the delta
+        /// only once, after the winning insert/update.
+        /// </summary>
+        private static void AddOrUpdateEntry(ConcurrentDictionary<string, CacheEntry> cache, string key, BitmapImage image, bool isRamCache)
+        {
+            var sizeBytes = EstimateImageSize(image);
+
+            while (true)
+            {
+                if (cache.TryGetValue(key, out var existing))
+                {
+                    var replacement = new CacheEntry(image, sizeBytes);
+                    if (cache.TryUpdate(key, replacement, existing))
+                    {
+                        AdjustSize(isRamCache, sizeBytes - existing.SizeBytes);
+                        return;
+                    }
+                    continue; // lost a race - retry
+                }
+
+                var created = new CacheEntry(image, sizeBytes);
+                if (cache.TryAdd(key, created))
+                {
+                    AdjustSize(isRamCache, sizeBytes);
+                    return;
+                }
+                // another thread added it first - retry as an update
+            }
+        }
+
+        private static void TryCleanupIfNeeded(ConcurrentDictionary<string, CacheEntry> cache, bool isRamCache)
+        {
+            if (GetSize(isRamCache) <= CLEANUP_THRESHOLD_BYTES)
+                return;
+
+            // Single-flight: concurrent cleanup passes used to remove overlapping entries and
+            // subtract their sizes twice.
+            if (Interlocked.CompareExchange(ref _cleanupRunning, 1, 0) != 0)
+                return;
+
+            try
+            {
+                CleanupCache(cache, isRamCache);
+            }
+            finally
+            {
+                Interlocked.Exchange(ref _cleanupRunning, 0);
+            }
+        }
+
+        private static void CleanupCache(ConcurrentDictionary<string, CacheEntry> cache, bool isRamCache)
+        {
+            try
+            {
+                var currentSize = GetSize(isRamCache);
+                Logger.LogInfo($"Starting cache cleanup - Current size: {currentSize / (1024 * 1024)}MB, Items: {cache.Count}");
+
+                // Snapshot ordered by age; entries added while we run keep their own accounting.
+                var ordered = cache.OrderBy(kvp => kvp.Value.LastAccessed).ToList();
+                long removed = 0;
+                int removedCount = 0;
+
+                foreach (var kvp in ordered)
+                {
+                    if (currentSize - removed <= MAX_CACHE_SIZE_BYTES)
+                        break;
+
+                    if (cache.TryRemove(kvp.Key, out var removedEntry))
+                    {
+                        removed += removedEntry.SizeBytes;
+                        removedCount++;
+
+                        // Deliberately not calling ClearValue(UriSourceProperty) here: the bitmap
+                        // may still be bound to a visible tile, and clearing it blanked the tile.
+                        // Dropping the cache reference is enough for the GC.
+                    }
+                }
+
+                AdjustSize(isRamCache, -removed);
+
+                Logger.LogInfo($"Cache cleanup completed - Removed {removedCount} images ({removed / (1024 * 1024)}MB), New size: {(currentSize - removed) / (1024 * 1024)}MB");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("Cache cleanup failed", ex);
+            }
+        }
+
+        #endregion
     }
 }

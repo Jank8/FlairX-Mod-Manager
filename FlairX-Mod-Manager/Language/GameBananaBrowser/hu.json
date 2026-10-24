@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Részleges eredmények",
   "RecentWindow_PartialWarning": "Egy későbbi GameBanana oldal nem töltődött be; az elérhető eredmények jelennek meg.",
   "RecentWindow_CappedTitle": "Eredmények korlátozva",
-  "RecentWindow_CappedWarning": "Az eredmények elérték a biztonsági korlátot: 10 oldal vagy 500 rekord."
+  "RecentWindow_CappedWarning": "Az eredmények elérték a biztonsági korlátot: 10 oldal vagy 500 rekord.",
+  "Comments_Login": "Bejelentkezés",
+  "Comments_Logout": "Kijelentkezés",
+  "Comments_Cancel": "Mégse",
+  "Comments_Continue": "Tovább",
+  "Comments_Reload": "Újratöltés",
+  "Comments_Zoom": "Nagyítás"
 }

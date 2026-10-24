@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "आंशिक परिणाम",
   "RecentWindow_PartialWarning": "बाद का GameBanana पृष्ठ लोड नहीं किया जा सका; उपलब्ध परिणाम दिखाए गए हैं।",
   "RecentWindow_CappedTitle": "परिणाम सीमित",
-  "RecentWindow_CappedWarning": "परिणाम 10 पृष्ठों या 500 रिकॉर्ड की सुरक्षा सीमा तक पहुंच गए।"
+  "RecentWindow_CappedWarning": "परिणाम 10 पृष्ठों या 500 रिकॉर्ड की सुरक्षा सीमा तक पहुंच गए।",
+  "Comments_Login": "लॉग इन करें",
+  "Comments_Logout": "लॉग आउट",
+  "Comments_Cancel": "रद्द करें",
+  "Comments_Continue": "जारी रखें",
+  "Comments_Reload": "पुनः लोड करें",
+  "Comments_Zoom": "ज़ूम"
 }

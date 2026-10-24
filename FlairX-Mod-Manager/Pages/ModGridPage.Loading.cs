@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System;
@@ -225,8 +225,23 @@ namespace FlairX_Mod_Manager.Pages
             // Viewport is now known - reload images that may have been skipped or failed
             _firstLayoutDone = true;
             ModsScrollViewer.LayoutUpdated -= OnScrollViewerFirstLayout;
-            LoadVisibleImages();
-            Logger.LogInfo("OnScrollViewerFirstLayout: Triggered LoadVisibleImages after first layout pass");
+
+            // Never touch tiles from inside a layout pass. Assigning ImageSource here made XAML
+            // fail with an empty-stack "Unspecified error" that killed the process. Defer to the
+            // end of the dispatcher queue so the layout pass can finish first.
+            DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () =>
+            {
+                try
+                {
+                    LoadVisibleImages();
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError("Failed to load visible images after the first layout pass", ex);
+                }
+            });
+
+            Logger.LogInfo("OnScrollViewerFirstLayout: Deferred LoadVisibleImages after first layout pass");
         }
         
         private void ModGridPage_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -243,9 +258,12 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     await Task.Delay(100, token); // Small delay to let the layout update
                     if (token.IsCancellationRequested) return;
-                    
+
                     LoadVisibleImages();
-                    ModsScrollViewer?.UpdateLayout();
+
+                    // Deliberately not calling ModsScrollViewer.UpdateLayout(): forcing a
+                    // synchronous layout pass here threw XAML's empty-stack "Unspecified error"
+                    // when it collided with the pane animation. The framework lays out on its own.
                 }
                 catch (TaskCanceledException)
                 {
@@ -316,40 +334,30 @@ namespace FlairX_Mod_Manager.Pages
         {
             const int batchSize = 20; // Fixed batch size for incremental loading
             
-            // Load persistent lists once for fast filtering
             bool hideBroken = SettingsManager.Current.HideBrokenMods;
             bool hideNSFW = SettingsManager.Current.HideNSFWMods;
-            HashSet<string> nsfwMods = hideNSFW ? ModListManager.LoadNSFWModsList() : new HashSet<string>();
-            HashSet<string> brokenMods = hideBroken ? ModListManager.LoadBrokenModsList() : new HashSet<string>();
-            
-            // Cache favorites list once to avoid repeated calls
-            var gameTag = SettingsManager.CurrentSelectedGame ?? "";
-            var favoritesList = new HashSet<string>();
-            foreach (var mod in _allModData)
-            {
-                if (SettingsManager.IsModFavorite(gameTag, mod.Category ?? "Other", mod.Name))
-                {
-                    favoritesList.Add(mod.Name);
-                }
-            }
             
             int added = 0;
             int startIndex = _lastLoadedModDataIndex;
             
-            // Process items from _allModData starting from last processed index
+            // Broken / NSFW / favourite state is carried on ModData, so this loop touches no
+            // files and never rescans the full list. It used to re-read two JSON files and
+            // rescan all 1500 entries on every 20-tile batch, on the UI thread.
+            // (The old filter also compared names against "Category|Name" keys - so hidden mods
+            // were never actually hidden while scrolling.)
             for (int i = startIndex; i < _allModData.Count && added < batchSize; i++)
             {
                 var modData = _allModData[i];
                 
-                // Filter broken mods if setting is enabled (fast HashSet lookup)
-                if (hideBroken && brokenMods.Contains(modData.Name))
+                // Filter broken mods if setting is enabled
+                if (hideBroken && modData.IsBroken)
                 {
                     _lastLoadedModDataIndex = i + 1;
                     continue;
                 }
                 
-                // Filter NSFW mods if setting is enabled (fast HashSet lookup)
-                if (hideNSFW && nsfwMods.Contains(modData.Name))
+                // Filter NSFW mods if setting is enabled
+                if (hideNSFW && modData.IsNSFW)
                 {
                     _lastLoadedModDataIndex = i + 1;
                     continue;
@@ -370,7 +378,7 @@ namespace FlairX_Mod_Manager.Pages
                     IsVisible = true,
                     IsBroken = modData.IsBroken,
                     IsNSFW = modData.IsNSFW,
-                    IsFavorite = favoritesList.Contains(modData.Name), // Use cached favorites list
+                    IsFavorite = modData.IsFavorite,
                     ImageSource = null // Lazy load via LoadVisibleImages
                 };
                 _allMods.Add(modTile);
@@ -391,76 +399,87 @@ namespace FlairX_Mod_Manager.Pages
         
         private async void LoadVisibleImages()
         {
-            if (ModsGrid?.ItemsSource is not IEnumerable<ModTile> items) return;
-            if (ModsScrollViewer == null) return;
-
-            var itemsList = items.ToList();
-
-            // Calculate visible range using index-based approach (100x faster than TransformToVisual)
-            var scrollOffset = ModsScrollViewer.VerticalOffset;
-            var viewportHeight = ModsScrollViewer.ViewportHeight;
-            var viewportWidth = ModsScrollViewer.ActualWidth;
-
-            int firstVisibleIndex;
-            int lastVisibleIndex;
-
-            // If layout hasn't measured yet (viewport is 0), load all items.
-            // This happens on startup before the first layout pass completes and would
-            // otherwise cause the active mod thumbnail to be skipped.
-            if (viewportWidth <= 0 || viewportHeight <= 0)
+            try
             {
-                firstVisibleIndex = 0;
-                lastVisibleIndex = itemsList.Count;
-            }
-            else
-            {
-                // Calculate items per row based on viewport width
-                var effectiveTileWidth = GetCurrentTileWidth() + GetCurrentTileMargin();
-                var itemsPerRow = Math.Max(1, (int)(viewportWidth / effectiveTileWidth));
+                if (ModsGrid?.ItemsSource is not IEnumerable<ModTile> items) return;
+                if (ModsScrollViewer == null) return;
 
-                // Calculate visible row range with buffer
-                var effectiveTileHeight = TILE_HEIGHT + GetCurrentTileMargin();
-                var firstVisibleRow = Math.Max(0, (int)(scrollOffset / effectiveTileHeight) - 2); // 2 row buffer above
-                var lastVisibleRow = (int)((scrollOffset + viewportHeight) / effectiveTileHeight) + 2; // 2 row buffer below
+                var itemsList = items.ToList();
 
-                firstVisibleIndex = firstVisibleRow * itemsPerRow;
-                lastVisibleIndex = Math.Min((lastVisibleRow + 1) * itemsPerRow, itemsList.Count);
-            }
+                // Calculate visible range using index-based approach (100x faster than TransformToVisual)
+                var scrollOffset = ModsScrollViewer.VerticalOffset;
+                var viewportHeight = ModsScrollViewer.ViewportHeight;
+                var viewportWidth = ModsScrollViewer.ActualWidth;
 
-            // Collect items to load and dispose
-            var itemsToLoad = new List<ModTile>();
-            var itemsToDispose = new List<ModTile>();
+                int firstVisibleIndex;
+                int lastVisibleIndex;
 
-            for (int i = 0; i < itemsList.Count; i++)
-            {
-                var mod = itemsList[i];
-                bool isVisible = i >= firstVisibleIndex && i < lastVisibleIndex;
-                
-                if (isVisible && mod.ImageSource == null)
+                // If layout hasn't measured yet (viewport is 0), load all items.
+                // This happens on startup before the first layout pass completes and would
+                // otherwise cause the active mod thumbnail to be skipped.
+                if (viewportWidth <= 0 || viewportHeight <= 0)
                 {
-                    itemsToLoad.Add(mod);
+                    firstVisibleIndex = 0;
+                    lastVisibleIndex = itemsList.Count;
                 }
-                else if (!isVisible && mod.ImageSource != null)
+                else
                 {
-                    // Only dispose if RAM threshold exceeded (Lazy Disposal - #2)
-                    var currentMemory = GC.GetTotalMemory(false);
-                    if (currentMemory > 500 * 1024 * 1024) // 500MB threshold
+                    // Calculate items per row based on viewport width
+                    var effectiveTileWidth = GetCurrentTileWidth() + GetCurrentTileMargin();
+                    var itemsPerRow = Math.Max(1, (int)(viewportWidth / effectiveTileWidth));
+
+                    // Calculate visible row range with buffer
+                    var effectiveTileHeight = TILE_HEIGHT + GetCurrentTileMargin();
+                    var firstVisibleRow = Math.Max(0, (int)(scrollOffset / effectiveTileHeight) - 2); // 2 row buffer above
+                    var lastVisibleRow = (int)((scrollOffset + viewportHeight) / effectiveTileHeight) + 2; // 2 row buffer below
+
+                    firstVisibleIndex = firstVisibleRow * itemsPerRow;
+                    lastVisibleIndex = Math.Min((lastVisibleRow + 1) * itemsPerRow, itemsList.Count);
+                }
+
+                // Collect items to load and dispose
+                var itemsToLoad = new List<ModTile>();
+                var itemsToDispose = new List<ModTile>();
+
+                // Sampled once. Calling GC.GetTotalMemory() inside the loop below ran it once per
+                // tile on every scroll tick, for a value that cannot change meaningfully mid-loop.
+                var disposeDistantImages = GC.GetTotalMemory(false) > 500 * 1024 * 1024; // 500MB threshold
+
+                for (int i = 0; i < itemsList.Count; i++)
+                {
+                    var mod = itemsList[i];
+                    bool isVisible = i >= firstVisibleIndex && i < lastVisibleIndex;
+
+                    if (isVisible && mod.ImageSource == null)
                     {
+                        itemsToLoad.Add(mod);
+                    }
+                    else if (!isVisible && mod.ImageSource != null && disposeDistantImages)
+                    {
+                        // Only dispose if RAM threshold exceeded (Lazy Disposal - #2)
                         itemsToDispose.Add(mod);
                     }
                 }
-            }
 
-            // Load images asynchronously in background - CRITICAL: don't block UI thread!
-            foreach (var mod in itemsToLoad)
-            {
-                _ = LoadImageAsync(mod);
-            }
+                // Load images asynchronously in background - CRITICAL: don't block UI thread!
+                foreach (var mod in itemsToLoad)
+                {
+                    _ = LoadImageAsync(mod);
+                }
 
-            // Dispose images if needed
-            if (itemsToDispose.Count > 0)
+                // Dispose images if needed
+                if (itemsToDispose.Count > 0)
+                {
+                    DisposeDistantImages(itemsToDispose);
+                }
+            }
+            catch (System.OperationCanceledException)
             {
-                DisposeDistantImages(itemsToDispose);
+                Logger.LogDebug("ModGridPage.LoadVisibleImages failed: canceled");
+            }
+            catch (System.Exception ex)
+            {
+                Logger.LogError("ModGridPage.LoadVisibleImages failed", ex);
             }
         }
         
@@ -471,6 +490,8 @@ namespace FlairX_Mod_Manager.Pages
             // Skip if ImagePath is empty or null
             if (string.IsNullOrEmpty(imagePath))
                 return;
+
+            var cacheKey = GetImageCacheKey(imagePath);
             
             // Set tile width based on current format setting
             // Wide format: 592px, Classic format: 277px
@@ -487,7 +508,7 @@ namespace FlairX_Mod_Manager.Pages
             try
             {
                 // Check cache first
-                var cachedImage = ImageCacheManager.GetCachedImage(imagePath);
+                var cachedImage = ImageCacheManager.GetCachedImage(cacheKey);
                 if (cachedImage != null)
                 {
                     DispatcherQueue.TryEnqueue(() =>
@@ -513,11 +534,19 @@ namespace FlairX_Mod_Manager.Pages
                             Logger.LogDebug($"LoadImageAsync: Loading {imagePath}");
                             var bitmap = new BitmapImage();
 
+                            // Cached bitmaps outlive the tiles that requested them, so the
+                            // handlers must not hold a strong reference to the tile - doing so
+                            // kept every loaded tile (and its data) alive for the whole session.
+                            var weakMod = new WeakReference<ModTile>(mod);
+
                             // Track load failure so we can retry
                             bitmap.ImageFailed += (s, e) =>
                             {
                                 Logger.LogWarning($"LoadImageAsync: ImageFailed for {imagePath}, clearing ImageSource for retry");
-                                mod.ImageSource = null;
+                                if (weakMod.TryGetTarget(out var failedMod))
+                                {
+                                    failedMod.ImageSource = null;
+                                }
                                 lock (_loadingLock)
                                 {
                                     _currentlyLoading.Remove(imagePath);
@@ -527,7 +556,7 @@ namespace FlairX_Mod_Manager.Pages
                             bitmap.ImageOpened += (s, e) =>
                             {
                                 // Cache only after successful load
-                                ImageCacheManager.CacheImage(imagePath, bitmap);
+                                ImageCacheManager.CacheImage(cacheKey, bitmap);
                                 Logger.LogDebug($"LoadImageAsync: ImageOpened for {imagePath}");
                             };
 
@@ -591,11 +620,11 @@ namespace FlairX_Mod_Manager.Pages
 
             try
             {
-                // Force garbage collection (optimized mode)
-                GC.Collect(2, GCCollectionMode.Optimized);
-                GC.WaitForPendingFinalizers();
-                GC.Collect(2, GCCollectionMode.Optimized);
-                
+                // Non-blocking collection: this runs on the UI thread whenever more than 20
+                // tiles leave the viewport, and a blocking gen2 collection plus
+                // WaitForPendingFinalizers() showed up as scroll stutter.
+                GC.Collect(GC.MaxGeneration, GCCollectionMode.Optimized, blocking: false, compacting: false);
+
                 _lastGcTime = DateTime.Now;
             }
             catch
@@ -672,6 +701,24 @@ namespace FlairX_Mod_Manager.Pages
         }
 
         /// <summary>
+        /// Cache key includes the file timestamp and length. Thumbnails are overwritten in
+        /// place by optimization/cropping, so a path-only key kept serving the old bitmap
+        /// and the tile could stay blank even though the new file existed.
+        /// </summary>
+        private static string GetImageCacheKey(string imagePath)
+        {
+            try
+            {
+                var info = new FileInfo(imagePath);
+                return $"{imagePath}|{info.LastWriteTimeUtc.Ticks}|{info.Length}";
+            }
+            catch
+            {
+                return imagePath;
+            }
+        }
+
+        /// <summary>
         /// Refresh a single mod tile's image after preview download/optimization
         /// </summary>
         public void RefreshModTileImage(string modPath)
@@ -696,8 +743,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (tile != null)
                         {
                             tile.ImageSource = null;
-                            if (!string.IsNullOrEmpty(imagePath))
-                                tile.ImagePath = imagePath;
+                            tile.ImagePath = imagePath;
                             Logger.LogInfo($"Refreshing tile image for: {modDirName}, path: {imagePath}");
                         }
                     }
@@ -713,8 +759,7 @@ namespace FlairX_Mod_Manager.Pages
                         if (tile != null)
                         {
                             tile.ImageSource = null;
-                            if (!string.IsNullOrEmpty(imagePath))
-                                tile.ImagePath = imagePath;
+                            tile.ImagePath = imagePath;
                         }
                     }
                     

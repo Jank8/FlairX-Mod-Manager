@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace FlairX_Mod_Manager
@@ -9,6 +10,10 @@ namespace FlairX_Mod_Manager
     public static class PathManager
     {
         private static readonly string _baseDirectory = AppContext.BaseDirectory;
+
+        // Resolved once: GetSafeBaseDirectory() used to call Environment.GetFolderPath five
+        // times per call, and GetAbsolutePath() is on every path construction in the app.
+        private static readonly string _safeBaseDirectory = ResolveSafeBaseDirectory();
         
         // Core directories (relative paths)
         public const string SETTINGS_DIR = "Settings";
@@ -31,25 +36,29 @@ namespace FlairX_Mod_Manager
         }
         
         /// <summary>
-        /// Gets a safe base directory, avoiding system directories
+        /// Gets a safe base directory, avoiding system directories.
+        /// The result cannot change while the process runs, so it is computed once.
         /// </summary>
-        private static string GetSafeBaseDirectory()
+        private static string GetSafeBaseDirectory() => _safeBaseDirectory;
+
+        private static string ResolveSafeBaseDirectory()
         {
             var baseDir = _baseDirectory;
-            
+
             // Check if base directory is in a system location
-            var systemDirs = new[]
+            var systemFolders = new[]
             {
-                Environment.GetFolderPath(Environment.SpecialFolder.System),
-                Environment.GetFolderPath(Environment.SpecialFolder.SystemX86),
-                Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)
+                Environment.SpecialFolder.System,
+                Environment.SpecialFolder.SystemX86,
+                Environment.SpecialFolder.Windows,
+                Environment.SpecialFolder.ProgramFiles,
+                Environment.SpecialFolder.ProgramFilesX86
             };
-            
-            foreach (var systemDir in systemDirs)
+
+            foreach (var folder in systemFolders)
             {
-                if (!string.IsNullOrEmpty(systemDir) && 
+                var systemDir = Environment.GetFolderPath(folder);
+                if (!string.IsNullOrEmpty(systemDir) &&
                     baseDir.StartsWith(systemDir, StringComparison.OrdinalIgnoreCase))
                 {
                     // If we're in a system directory, use Documents/FlairX-Mod-Manager instead
@@ -57,7 +66,7 @@ namespace FlairX_Mod_Manager
                     return Path.Combine(documentsPath, "FlairX-Mod-Manager");
                 }
             }
-            
+
             return baseDir;
         }
         
@@ -106,6 +115,58 @@ namespace FlairX_Mod_Manager
         public static string GetSettingsPath(string fileName = AppConstants.SETTINGS_FILE)
         {
             return GetAbsolutePath(CombinePath(SETTINGS_DIR, fileName));
+        }
+
+        /// <summary>
+        /// Returns a writable directory for temporary downloads and extracted archives.
+        /// </summary>
+        /// <remarks>
+        /// <c>Path.GetTempPath()</c> is not always writable: a restricted token, an
+        /// application sandbox or security software can deny writes there, which used to
+        /// break mod installation and every GameBanana preview. The app's own folder is
+        /// known to be writable (settings and logs already live there), so it is tried
+        /// first and the user's local app data is used as a fallback.
+        /// </remarks>
+        public static string GetTempDirectory(string? subfolder = null)
+        {
+            foreach (var root in EnumerateTempRoots())
+            {
+                try
+                {
+                    var path = string.IsNullOrEmpty(subfolder) ? root : Path.Combine(root, subfolder);
+                    Directory.CreateDirectory(path);
+                    return path;
+                }
+                catch
+                {
+                    // Try the next candidate.
+                }
+            }
+
+            // Last resort - the old behaviour.
+            var fallback = Path.GetTempPath();
+            if (!string.IsNullOrEmpty(subfolder))
+                fallback = Path.Combine(fallback, subfolder);
+
+            try
+            {
+                Directory.CreateDirectory(fallback);
+            }
+            catch
+            {
+                // Caller will surface the I/O error with a meaningful path.
+            }
+
+            return fallback;
+        }
+
+        private static IEnumerable<string> EnumerateTempRoots()
+        {
+            yield return GetAbsolutePath(CombinePath(SETTINGS_DIR, "Temp"));
+
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            if (!string.IsNullOrEmpty(localAppData))
+                yield return Path.Combine(localAppData, "FlairX-Mod-Manager", "Temp");
         }
         
         /// <summary>

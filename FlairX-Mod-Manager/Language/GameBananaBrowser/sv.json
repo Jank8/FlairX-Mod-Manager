@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Delresultat",
   "RecentWindow_PartialWarning": "En senare GameBanana-sida kunde inte laddas; tillgängliga resultat visas.",
   "RecentWindow_CappedTitle": "Resultat begränsade",
-  "RecentWindow_CappedWarning": "Resultaten nådde säkerhetsgränsen på 10 sidor eller 500 poster."
+  "RecentWindow_CappedWarning": "Resultaten nådde säkerhetsgränsen på 10 sidor eller 500 poster.",
+  "Comments_Login": "Logga in",
+  "Comments_Logout": "Logga ut",
+  "Comments_Cancel": "Avbryt",
+  "Comments_Continue": "Fortsätt",
+  "Comments_Reload": "Läs in igen",
+  "Comments_Zoom": "Zoom"
 }

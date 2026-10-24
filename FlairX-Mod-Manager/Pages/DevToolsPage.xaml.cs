@@ -566,6 +566,10 @@ namespace FlairX_Mod_Manager.Pages
         private void ClearGBCookies_Click(object sender, RoutedEventArgs e)
         {
             Services.CloudflareBypassService.ClearCookies();
+
+            // The profile cache is separate from the cookie store: without this the header
+            // widget keeps showing the previous account after the session was cleared.
+            Services.GameBananaProfileService.Invalidate();
             SettingsManager.Current.CommentsLoginPromptDismissed = false;
             SettingsManager.Save();
 
@@ -704,7 +708,7 @@ namespace FlairX_Mod_Manager.Pages
 
                             var options = new JsonSerializerOptions { WriteIndented = true };
                             var cleanedJson = JsonSerializer.Serialize(cleanedData, options);
-                            System.IO.File.WriteAllText(modJsonPath, cleanedJson);
+                            Services.FileAccessQueue.WriteAllText(modJsonPath, cleanedJson);
                             cleanedCount++;
 
                             Logger.LogInfo($"Cleaned {fieldsToRemove.Count} unused fields from {System.IO.Path.GetFileName(modDir)}/mod.json: {string.Join(", ", fieldsToRemove)}");

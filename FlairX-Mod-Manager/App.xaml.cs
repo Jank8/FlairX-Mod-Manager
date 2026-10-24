@@ -46,6 +46,32 @@ namespace FlairX_Mod_Manager
         public App()
         {
             Logger.LogInfo("Application starting up");
+
+            // Without these, an exception escaping a background task or an async void handler
+            // kills the process silently - the log simply stops, as it did during the menu crash.
+            this.UnhandledException += (_, e) =>
+            {
+                var ex = e.Exception;
+                // The crash we are chasing arrives as a stack-less E_FAIL, so log the CLR type
+                // and the HRESULT next to the message - that is all that is left of it.
+                var hresult = ex == null ? "n/a" : $"0x{ex.HResult:X8}";
+                Logger.LogError(
+                    $"Unhandled UI exception (type={ex?.GetType().FullName ?? "unknown"}, HRESULT={hresult})",
+                    ex);
+                Logger.Flush();
+            };
+
+            AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+            {
+                Logger.LogError("Unhandled exception", e.ExceptionObject as Exception);
+                Logger.Flush();
+            };
+
+            TaskScheduler.UnobservedTaskException += (_, e) =>
+            {
+                Logger.LogError("Unobserved task exception", e.Exception);
+                e.SetObserved();
+            };
             
             // Check for single instance
             bool createdNew;
@@ -222,8 +248,7 @@ namespace FlairX_Mod_Manager
             // Language loading is now handled by SharedUtilities in each component
             EnsureDefaultDirectories();
             // Always generate default preset on app startup
-            FlairX_Mod_Manager.Pages.ModGridPage gridPage = new();
-            gridPage.SaveDefaultPresetAllInactive();
+            FlairX_Mod_Manager.Pages.ModGridPage.SaveDefaultPresetAllInactive();
             
             // No symlink validation needed - using DISABLED_ prefix system
             Logger.LogInfo("Mod state maintained using DISABLED_ prefix system");
@@ -336,7 +361,7 @@ namespace FlairX_Mod_Manager
                     bool needsUpdate = false;
                     
                     // Scan for namespace info
-                    var (hasNamespace, namespaceMap) = ScanModForNamespace(modDir);
+                    var (scanOk, hasNamespace, namespaceMap) = ScanModForNamespace(modDir);
                 
                 Dictionary<string, object> modData;
                 
@@ -390,8 +415,16 @@ namespace FlairX_Mod_Manager
                         // This detects when mod author changes from classic to namespace or vice versa
                         var currentSyncMethod = modData.ContainsKey("syncMethod") ? modData["syncMethod"]?.ToString() : null;
                         var expectedSyncMethod = (hasNamespace && namespaceMap.Count > 0) ? "namespace" : "classic";
-                        
-                        if (currentSyncMethod != expectedSyncMethod)
+
+                        // "Could not look" is not the same as "no namespace found". Treating a failed
+                        // scan as an empty result deleted the user's namespace configuration and
+                        // downgraded the mod to "classic" whenever a single .ini was unreadable
+                        // (long path, antivirus lock, permissions).
+                        if (!scanOk)
+                        {
+                            Logger.LogWarning($"Namespace scan incomplete for {System.IO.Path.GetFileName(modDir)}; keeping syncMethod '{currentSyncMethod ?? "null"}'");
+                        }
+                        else if (currentSyncMethod != expectedSyncMethod)
                         {
                             modData["syncMethod"] = expectedSyncMethod;
                             
@@ -421,7 +454,9 @@ namespace FlairX_Mod_Manager
                         }
                         else if (expectedSyncMethod == "namespace" && hasNamespace)
                         {
-                            // Even if syncMethod matches, update namespaces if they changed
+                            // Only rewrite when the namespace map actually changed. This branch
+                            // used to set needsUpdate unconditionally, so every game switch
+                            // rewrote mod.json for every namespace mod in the library.
                             var namespaceList = new List<object>();
                             foreach (var kvp in namespaceMap)
                             {
@@ -431,8 +466,17 @@ namespace FlairX_Mod_Manager
                                     ["iniFiles"] = kvp.Value.ToArray()
                                 });
                             }
-                            modData["namespaces"] = namespaceList;
-                            needsUpdate = true;
+
+                            var newNamespacesJson = System.Text.Json.JsonSerializer.Serialize(namespaceList);
+                            var existingNamespacesJson = modData.TryGetValue("namespaces", out var existingNamespaces)
+                                ? System.Text.Json.JsonSerializer.Serialize(existingNamespaces)
+                                : string.Empty;
+
+                            if (!string.Equals(newNamespacesJson, existingNamespacesJson, StringComparison.Ordinal))
+                            {
+                                modData["namespaces"] = namespaceList;
+                                needsUpdate = true;
+                            }
                         }
                         
                         // ONLY add missing hotkeys array if it doesn't exist
@@ -538,16 +582,33 @@ namespace FlairX_Mod_Manager
 
 
 
-        private (bool hasNamespace, Dictionary<string, List<string>> namespaceMap) ScanModForNamespace(string modDir)
+        /// <summary>
+        /// Scans a mod for namespace declarations in its .ini files.
+        /// </summary>
+        /// <returns>
+        /// <c>ok</c> is false when the scan could not be trusted (enumeration failed, or a file
+        /// could not be read and nothing was found). Callers must not treat that as "no namespace".
+        /// </returns>
+        private (bool ok, bool hasNamespace, Dictionary<string, List<string>> namespaceMap) ScanModForNamespace(string modDir)
         {
             var namespaceMap = new Dictionary<string, List<string>>();
-            
+            var anyFileFailed = false;
+
+            string[] iniFiles;
             try
             {
                 // Look for .ini files in the mod directory and subdirectories
-                var iniFiles = System.IO.Directory.GetFiles(modDir, "*.ini", SearchOption.AllDirectories);
+                iniFiles = System.IO.Directory.GetFiles(modDir, "*.ini", SearchOption.AllDirectories);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Error scanning mod {modDir} for namespace: {ex.Message}");
+                return (false, false, namespaceMap);
+            }
 
-                foreach (var iniFile in iniFiles)
+            foreach (var iniFile in iniFiles)
+            {
+                try
                 {
                     // Use regular File.ReadAllText - this is read-only scanning, no lock contention
                     var content = System.IO.File.ReadAllText(iniFile, System.Text.Encoding.UTF8);
@@ -570,18 +631,24 @@ namespace FlairX_Mod_Manager
                                 namespaceMap[namespacePath] = new List<string>();
                             }
                             namespaceMap[namespacePath].Add(relativeIniPath);
-                            
+
                             break; // Only need first namespace declaration per file
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Error scanning mod {modDir} for namespace: {ex.Message}");
+                catch (Exception ex)
+                {
+                    // One unreadable file does not invalidate a scan that already found namespaces,
+                    // but it does mean a negative result cannot be trusted.
+                    anyFileFailed = true;
+                    Logger.LogWarning($"Skipping ini {iniFile}: {ex.Message}");
+                }
             }
 
-            return (namespaceMap.Count > 0, namespaceMap);
+            // A positive result is trustworthy even if another file failed; a negative one is only
+            // trustworthy when every file was actually readable.
+            var ok = namespaceMap.Count > 0 || !anyFileFailed;
+            return (ok, namespaceMap.Count > 0, namespaceMap);
         }
 
         private async Task ShowLoadingWindowAndInitialize()
@@ -676,7 +743,18 @@ namespace FlairX_Mod_Manager
                     {
                         mainWindow.DispatcherQueue.TryEnqueue(async () =>
                         {
-                            await CheckStarterPackAfterUpdate(mainWindow);
+                            try
+                            {
+                                await CheckStarterPackAfterUpdate(mainWindow);
+                            }
+                            catch (System.OperationCanceledException)
+                            {
+                                Logger.LogDebug("App.CheckForUpdatesInBackground failed: canceled");
+                            }
+                            catch (System.Exception ex)
+                            {
+                                Logger.LogError("App.CheckForUpdatesInBackground failed", ex);
+                            }
                         });
                     }
                 }
@@ -707,7 +785,18 @@ namespace FlairX_Mod_Manager
                 {
                     mainWindow.DispatcherQueue.TryEnqueue(async () =>
                     {
-                        await CheckStarterPackAfterUpdate(mainWindow);
+                        try
+                        {
+                            await CheckStarterPackAfterUpdate(mainWindow);
+                        }
+                        catch (System.OperationCanceledException)
+                        {
+                            Logger.LogDebug("App.CheckForUpdatesInBackground failed: canceled");
+                        }
+                        catch (System.Exception ex)
+                        {
+                            Logger.LogError("App.CheckForUpdatesInBackground failed", ex);
+                        }
                     });
                 }
             }
@@ -761,13 +850,22 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                var tempDownloadsPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "FlairX_Downloads");
+                // Use the app-local temp directory: %TEMP% is not writable for every
+                // installation (sandbox, restricted token, security software).
+                var tempDownloadsPath = PathManager.GetTempDirectory("Downloads");
                 
                 if (Directory.Exists(tempDownloadsPath))
                 {
                     Logger.LogInfo($"Cleaning up old downloads from: {tempDownloadsPath}");
                     Directory.Delete(tempDownloadsPath, true);
                     Logger.LogInfo("Temp downloads directory deleted successfully");
+                }
+
+                // Best effort: remove the legacy folder from %TEMP%.
+                var legacyPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "FlairX_Downloads");
+                if (Directory.Exists(legacyPath))
+                {
+                    try { Directory.Delete(legacyPath, true); } catch { }
                 }
             }
             catch (Exception ex)

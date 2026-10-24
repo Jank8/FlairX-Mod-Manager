@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Gedeeltelijke resultaten",
   "RecentWindow_PartialWarning": "Een latere GameBanana-pagina kon niet worden geladen; beschikbare resultaten worden weergegeven.",
   "RecentWindow_CappedTitle": "Resultaten beperkt",
-  "RecentWindow_CappedWarning": "Resultaten hebben de veiligheidslimiet van 10 pagina's of 500 records bereikt."
+  "RecentWindow_CappedWarning": "Resultaten hebben de veiligheidslimiet van 10 pagina's of 500 records bereikt.",
+  "Comments_Login": "Inloggen",
+  "Comments_Logout": "Uitloggen",
+  "Comments_Cancel": "Annuleren",
+  "Comments_Continue": "Doorgaan",
+  "Comments_Reload": "Herladen",
+  "Comments_Zoom": "Zoomen"
 }

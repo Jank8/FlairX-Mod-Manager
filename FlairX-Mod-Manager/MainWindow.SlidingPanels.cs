@@ -236,6 +236,147 @@ namespace FlairX_Mod_Manager
 
 
 
+        /// <summary>
+        /// Closes the panel that hosts <paramref name="userControl"/>, immediately.
+        /// </summary>
+        public void CloseSlidingPanelFor(UserControl userControl)
+        {
+            try
+            {
+                var overlay = _openPanelOverlays
+                    .FirstOrDefault(o => FindUserControlsInOverlay<UserControl>(o).Contains(userControl));
+
+                if (overlay == null)
+                {
+                    return;
+                }
+
+                _openPanelOverlays.Remove(overlay);
+
+                if (_openPanelOverlays.Count == 0 && GameSelectionComboBox != null)
+                {
+                    GameSelectionComboBox.IsEnabled = true;
+                }
+
+                if (overlay.Parent is not Panel parent)
+                {
+                    return;
+                }
+
+                // Same slide-out (250 ms, cubic ease-in) the other panels use, so closing this one
+                // does not look different from closing the mod detail or browser panels.
+                var slideTransform = new Microsoft.UI.Xaml.Media.TranslateTransform();
+                overlay.RenderTransform = slideTransform;
+
+                var slideOut = new Microsoft.UI.Xaml.Media.Animation.DoubleAnimation
+                {
+                    From = 0,
+                    To = overlay.ActualWidth > 0 ? overlay.ActualWidth : 800,
+                    Duration = new Duration(TimeSpan.FromMilliseconds(250)),
+                    EasingFunction = new Microsoft.UI.Xaml.Media.Animation.CubicEase
+                    {
+                        EasingMode = Microsoft.UI.Xaml.Media.Animation.EasingMode.EaseIn
+                    }
+                };
+
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTarget(slideOut, slideTransform);
+                Microsoft.UI.Xaml.Media.Animation.Storyboard.SetTargetProperty(slideOut, "X");
+
+                var storyboard = new Microsoft.UI.Xaml.Media.Animation.Storyboard();
+                storyboard.Children.Add(slideOut);
+                storyboard.Completed += (_, _) => parent.Children.Remove(overlay);
+                storyboard.Begin();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("CloseSlidingPanelFor failed", ex);
+            }
+        }
+
+        /// <summary>
+        /// Opens the GameBanana login as a slide-out panel, reusing the same panel host as the
+        /// mod detail and browser panels.
+        /// </summary>
+        /// <returns>Captured cookie header, or null when the user cancelled.</returns>
+        // One WebView session for both the login and the Cloudflare challenge. Re-creating the
+        // control on every attempt dropped session-only cookies (the login cookie has no
+        // expiry), so the next panel always opened logged out and comments stayed locked.
+        private Controls.WebViewOverlay? _sharedWebViewOverlay;
+
+        private Controls.WebViewOverlay GetSharedWebViewOverlay()
+            => _sharedWebViewOverlay ??= new Controls.WebViewOverlay();
+
+        public async Task<(string? Cookies, string? UserAgent, bool DontAskAgain)> ShowLoginPanelAsync(
+            string url,
+            string title = "GameBanana Login")
+        {
+            var overlay = GetSharedWebViewOverlay();
+            ShowSlidingPanel(overlay, title);
+
+            try
+            {
+                var cookies = await overlay.ShowAsync(url, title);
+                // The User-Agent must travel with the cookies: GameBanana binds the session
+                // to it, and a mismatch leaves every later request logged out.
+                return (cookies, overlay.UserAgent, overlay.DontAskAgain);
+            }
+            finally
+            {
+                // Hide the panel but keep the WebView session alive for the next login or
+                // Cloudflare challenge. It is released with the main window.
+                CloseSlidingPanelFor(overlay);
+            }
+        }
+
+        /// <summary>
+        /// Opens the same WebView panel used for the GameBanana login, but for the Cloudflare
+        /// challenge. Returns the cookie header and the User-Agent it was issued for - the
+        /// clearance cookie is only valid with that exact User-Agent.
+        /// </summary>
+        public async Task<(string? Cookies, string? UserAgent)> ShowCloudflareBypassPanelAsync()
+        {
+            // Same persistent session as the login panel.
+            var overlay = GetSharedWebViewOverlay();
+            ShowSlidingPanel(overlay, "Cloudflare");
+
+            try
+            {
+                var cookies = await overlay.ShowAsync(
+                    "https://gamebanana.com",
+                    "Cloudflare",
+                    showDontAskAgain: false);
+
+                return (cookies, overlay.UserAgent);
+            }
+            finally
+            {
+                CloseSlidingPanelFor(overlay);
+            }
+        }
+
+        /// <summary>
+        /// Opens an arbitrary GameBanana page (e.g. an author profile) in the same shared
+        /// mini-browser, so the existing GameBanana session/cookies apply.
+        /// </summary>
+        public async Task ShowBrowserPanelAsync(string url, string title)
+        {
+            var overlay = GetSharedWebViewOverlay();
+            ShowSlidingPanel(overlay, title);
+
+            try
+            {
+                await overlay.ShowAsync(
+                    url,
+                    title,
+                    showDontAskAgain: false,
+                    showSessionActions: false);
+            }
+            finally
+            {
+                CloseSlidingPanelFor(overlay);
+            }
+        }
+
         private void ShowSlidingPanel(UserControl userControl, string title)
         {
             try
@@ -453,13 +594,24 @@ namespace FlairX_Mod_Manager
                     {
                         settingsControl.CloseRequested += async (s, args) => 
                         {
-                            await closeWithAnimationAsync();
-                            
-                            // Regenerate menu if category management changed
-                            if (args.CategoryManagementChanged)
+                            try
                             {
-                                await GenerateModCharacterMenuAsync();
-                                Logger.LogInfo("Regenerated menu after category management changes");
+                                await closeWithAnimationAsync();
+
+                                // Regenerate menu if category management changed
+                                if (args.CategoryManagementChanged)
+                                {
+                                    await GenerateModCharacterMenuAsync();
+                                    Logger.LogInfo("Regenerated menu after category management changes");
+                                }
+                            }
+                            catch (System.OperationCanceledException)
+                            {
+                                Logger.LogDebug("MainWindow.ShowSlidingPanel failed: canceled");
+                            }
+                            catch (System.Exception ex)
+                            {
+                                Logger.LogError("MainWindow.ShowSlidingPanel failed", ex);
                             }
                         };
                     }
@@ -471,13 +623,24 @@ namespace FlairX_Mod_Manager
                     {
                         gameBananaBrowser.CloseRequested += async (s, args) => 
                         {
-                            await closeWithAnimationAsync();
-                            
-                            // Reload mods if any mod was installed during this session
-                            if (args.ModWasInstalled)
+                            try
                             {
-                                await ReloadModsAsync();
-                                Logger.LogInfo("Refreshed mod grid after closing GameBanana browser (mod was installed)");
+                                await closeWithAnimationAsync();
+
+                                // Reload mods if any mod was installed during this session
+                                if (args.ModWasInstalled)
+                                {
+                                    await ReloadModsAsync();
+                                    Logger.LogInfo("Refreshed mod grid after closing GameBanana browser (mod was installed)");
+                                }
+                            }
+                            catch (System.OperationCanceledException)
+                            {
+                                Logger.LogDebug("MainWindow.ShowSlidingPanel failed: canceled");
+                            }
+                            catch (System.Exception ex)
+                            {
+                                Logger.LogError("MainWindow.ShowSlidingPanel failed", ex);
                             }
                         };
                     }
@@ -501,22 +664,33 @@ namespace FlairX_Mod_Manager
                     // Escape key handler - close ALL panels
                     overlay.KeyDown += async (s, args) =>
                     {
-                        if (args.Key == Windows.System.VirtualKey.Escape)
+                        try
                         {
-                            // Check before closing - _openPanelOverlays is cleared inside CloseAllPanelsAsync
-                            var modWasInstalled = _openPanelOverlays
-                                .SelectMany(o => FindUserControlsInOverlay<Pages.GameBananaBrowserUserControl>(o))
-                                .Any(gb => gb._modWasInstalled);
-
-                            // Close all panels instead of just this one
-                            await CloseAllPanelsAsync();
-                            args.Handled = true;
-                            
-                            if (modWasInstalled)
+                            if (args.Key == Windows.System.VirtualKey.Escape)
                             {
-                                await ReloadModsAsync();
-                                Logger.LogInfo("Refreshed mod grid after closing all panels via Escape (GameBanana mod was installed)");
+                                // Check before closing - _openPanelOverlays is cleared inside CloseAllPanelsAsync
+                                var modWasInstalled = _openPanelOverlays
+                                    .SelectMany(o => FindUserControlsInOverlay<Pages.GameBananaBrowserUserControl>(o))
+                                    .Any(gb => gb._modWasInstalled);
+
+                                // Close all panels instead of just this one
+                                await CloseAllPanelsAsync();
+                                args.Handled = true;
+
+                                if (modWasInstalled)
+                                {
+                                    await ReloadModsAsync();
+                                    Logger.LogInfo("Refreshed mod grid after closing all panels via Escape (GameBanana mod was installed)");
+                                }
                             }
+                        }
+                        catch (System.OperationCanceledException)
+                        {
+                            Logger.LogDebug("MainWindow.ShowSlidingPanel failed: canceled");
+                        }
+                        catch (System.Exception ex)
+                        {
+                            Logger.LogError("MainWindow.ShowSlidingPanel failed", ex);
                         }
                     };
 

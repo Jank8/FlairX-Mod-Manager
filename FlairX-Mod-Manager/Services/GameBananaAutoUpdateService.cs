@@ -20,6 +20,26 @@ namespace FlairX_Mod_Manager.Services
         private static readonly List<string> _failedMods = new List<string>();
 
         /// <summary>
+        /// Shared client. The update sweep used to construct one <see cref="System.Net.Http.HttpClient"/>
+        /// per mod - hundreds per run - and never disposed the responses, leaking sockets.
+        /// </summary>
+        private static readonly System.Net.Http.HttpClient _httpClient = CreateHttpClient();
+
+        private static System.Net.Http.HttpClient CreateHttpClient()
+        {
+            var handler = new System.Net.Http.SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(5),
+                AutomaticDecompression = System.Net.DecompressionMethods.All,
+                ConnectTimeout = TimeSpan.FromSeconds(30),
+            };
+
+            var client = new System.Net.Http.HttpClient(handler) { Timeout = TimeSpan.FromSeconds(30) };
+            client.DefaultRequestHeaders.UserAgent.ParseAdd($"FlairX-Mod-Manager/{AppConstants.APP_VERSION}");
+            return client;
+        }
+
+        /// <summary>
         /// Check if auto-update should run based on settings
         /// </summary>
         public static bool ShouldRunAutoUpdate()
@@ -74,16 +94,27 @@ namespace FlairX_Mod_Manager.Services
                 {
                     mainWindow.DispatcherQueue.TryEnqueue(async () =>
                     {
-                        mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "UpdateSuccess"));
-                        
-                        // Standard reload - same as manual update does
-                        Logger.LogInfo("Reloading mods after GameBanana auto-update");
-                        await mainWindow.ReloadModsAsync();
-                        Logger.LogInfo("Mods reloaded successfully");
-                        
-                        // Update last run time only after successful reload
-                        SettingsManager.Current.GameBananaLastAutoUpdate = DateTime.Now;
-                        SettingsManager.Save();
+                        try
+                        {
+                            mainWindow.ShowSuccessInfo(SharedUtilities.GetTranslation(lang, "UpdateSuccess"));
+
+                            // Standard reload - same as manual update does
+                            Logger.LogInfo("Reloading mods after GameBanana auto-update");
+                            await mainWindow.ReloadModsAsync();
+                            Logger.LogInfo("Mods reloaded successfully");
+
+                            // Update last run time only after successful reload
+                            SettingsManager.Current.GameBananaLastAutoUpdate = DateTime.Now;
+                            SettingsManager.Save();
+                        }
+                        catch (System.OperationCanceledException)
+                        {
+                            Logger.LogDebug("GameBananaAutoUpdateService.RunAutoUpdateAsync failed: canceled");
+                        }
+                        catch (System.Exception ex)
+                        {
+                            Logger.LogError("GameBananaAutoUpdateService.RunAutoUpdateAsync failed", ex);
+                        }
                     });
                 }
             }
@@ -254,7 +285,12 @@ namespace FlairX_Mod_Manager.Services
                             if (dateUpdated.HasValue)
                                 dict["gbChangeDate"] = dateUpdated.Value.ToString("yyyy-MM-dd");
                             
-                            await File.WriteAllTextAsync(modJsonPath, JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }), token);
+                            // Already inside the queue for this path - use the unlocked atomic
+                            // writer so an interrupted update cannot truncate mod.json.
+                            await Services.FileAccessQueue.WriteAllTextUnlockedAsync(
+                                modJsonPath,
+                                JsonSerializer.Serialize(dict, new JsonSerializerOptions { WriteIndented = true }),
+                                token);
                         }, token);
                         
                         SafeIncrementSuccess();
@@ -309,12 +345,9 @@ namespace FlairX_Mod_Manager.Services
                 // Combined API call to get author, version, dateAdded, and dateUpdated
                 string apiUrl = $"https://gamebanana.com/apiv11/{itemType}/{itemId}?_csvProperties=_aSubmitter,_sVersion,_tsDateAdded,_tsDateUpdated";
 
-                using var httpClient = new System.Net.Http.HttpClient();
-                httpClient.Timeout = TimeSpan.FromSeconds(30);
-                
-                var response = await httpClient.GetAsync(apiUrl, token);
+                using var response = await _httpClient.GetAsync(apiUrl, token);
                 response.EnsureSuccessStatusCode();
-                
+
                 var jsonResponse = await response.Content.ReadAsStringAsync();
                 using var doc = JsonDocument.Parse(jsonResponse);
                 var root = doc.RootElement;

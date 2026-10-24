@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Μερικά αποτελέσματα",
   "RecentWindow_PartialWarning": "Μια μεταγενέστερη σελίδα GameBanana δεν μπόρεσε να φορτωθεί· εμφανίζονται τα διαθέσιμα αποτελέσματα.",
   "RecentWindow_CappedTitle": "Αποτελέσματα περιορισμένα",
-  "RecentWindow_CappedWarning": "Τα αποτελέσματα έφτασαν το όριο ασφαλείας των 10 σελίδων ή 500 εγγραφών."
+  "RecentWindow_CappedWarning": "Τα αποτελέσματα έφτασαν το όριο ασφαλείας των 10 σελίδων ή 500 εγγραφών.",
+  "Comments_Login": "Σύνδεση",
+  "Comments_Logout": "Αποσύνδεση",
+  "Comments_Cancel": "Άκυρο",
+  "Comments_Continue": "Συνέχεια",
+  "Comments_Reload": "Επαναφόρτωση",
+  "Comments_Zoom": "Ζουμ"
 }

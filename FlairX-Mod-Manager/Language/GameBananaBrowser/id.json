@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Hasil sebagian",
   "RecentWindow_PartialWarning": "Halaman GameBanana selanjutnya tidak dapat dimuat; hasil yang tersedia ditampilkan.",
   "RecentWindow_CappedTitle": "Hasil terbatas",
-  "RecentWindow_CappedWarning": "Hasil mencapai batas keamanan 10 halaman atau 500 catatan."
+  "RecentWindow_CappedWarning": "Hasil mencapai batas keamanan 10 halaman atau 500 catatan.",
+  "Comments_Login": "Masuk",
+  "Comments_Logout": "Keluar",
+  "Comments_Cancel": "Batal",
+  "Comments_Continue": "Lanjutkan",
+  "Comments_Reload": "Muat ulang",
+  "Comments_Zoom": "Perbesar"
 }

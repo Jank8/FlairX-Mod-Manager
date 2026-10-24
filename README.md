@@ -8,7 +8,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 
 ✨ **Key Features:**
 - Handles 1500+ mods with optimized performance
-- GameBanana integration with auto-update, author search, and Cloudflare support
+- GameBanana integration with in-app author profiles, comments, auto-update and Cloudflare support
 - Screenshot capture with smart cropping and preview management
 - Game overlay with full controller support (native XInput)
 - 29 languages with specialized font support
@@ -85,7 +85,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 ### 🎯 **Mod Management**
 - **Visual Mod Tiles**: Large preview images with mod names in footer bars
 - **One-Click Activation**: Toggle mods by clicking the footer area
-- **Smart Activation**: Mods activate by removing `DISABLED_` prefix from folder names
+- **Instant Toggle**: Turn mods on and off with a single click on the tile footer
 - **Category Navigation**: Left sidebar with expandable categories
 - **Game Selection**: Top dropdown for switching between games
 - **Advanced Search**: Real-time filtering across all mods
@@ -103,7 +103,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Preview Gallery**: Navigate through multiple images
 - **Download Previews**: Fetch preview images from GameBanana for installed mods
 - **Update Monitoring**: Track dates and author changes
-- **Author Information**: Direct links to creators and GameBanana
+- **Author Information**: Avatar, name and "View Profile" open the creator's GameBanana profile in the built-in browser, using the current session
 - **NSFW Control**: Per-mod adult content marking
 - **Individual Hotkeys**: Assign keys to mod components
 
@@ -111,6 +111,9 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Built-in Browser**: Browse and search GameBanana directly
 - **Author Search**: Find mods by creator using `user:exampleuser` syntax
 - **Cloudflare Support**: Automatic handling of protection with cookie management
+- **Sign-in**: Log in to GameBanana inside an acrylic browser panel — required only for comments on age-restricted or private mods. Your avatar and name then appear in the browser header; the same menu opens all mods by that author or signs you out. The session is reused by comments and author profiles and restored on the next launch.
+- **Comments**: Public comments load without signing in. An empty list explains that the mod may be NSFW or may simply have no comments, and offers a Login button; after signing in it only reports that there are no comments. "Load More" appears after the first batch and is translated.
+- **Author profiles**: On a mod page, the avatar, author name and "View Profile" open the creator's GameBanana profile in the same sliding browser, instead of the system browser.
 - **Smart Mod Cards**: Preview images, author info, dates, and statistics
 - **Installation Status**: Visual indicators for downloaded mods
 - **Download Previews**: Fetch preview images for mods in browser or library
@@ -133,7 +136,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 ### 🎨 **Image System**
 - **Screenshot Capture**: Built-in capture with cropping
 - **Smart Cropping**: Center, Smart, Entropy, Attention, and Manual modes
-- **Multi-threaded Processing**: Configurable threads for batch optimization
+- **Batch Processing**: Optimize a whole library at once
 - **Automatic Thumbnails**: Generate minitile, catprev, catmini
 - **Drag & Drop**: Add images with automatic optimization
 - **Quality Control**: Adjustable JPEG quality (1-100%)
@@ -143,7 +146,6 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Always-On-Top**: Quick mod toggle during gameplay
 - **Category Navigation**: Browse mods by category
 - **Active-Only Filter**: Show only active mods
-- **Virtualized Loading**: Optimal performance with large collections
 - **Customizable Theme**: Auto/Light/Dark with backdrop effects
 
 **Controller Support (Native XInput):**
@@ -165,8 +167,11 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 ### 💾 **Additional Features**
 - **Preset System**: Save and load mod configurations per game
 - **StatusKeeper**: Built-in function that syncs mod states directly to mods .ini files, bypassing unreliable XXMI save functions
+- **Mod Importer**: Bulk-import mod folders with category aliases and safe filename handling, fully translated
 - **ModInfo Backup**: Up to 3 backup versions with one-click restore
 - **Sliding Panels**: Non-blocking UI panels that don't cover the menu
+- **Notifications**: In-app acrylic notifications for operations that fail (saving mod details, applying a preset, creating a backup) instead of leaving them silent
+- **Reload Overlay**: During a library reload the window is covered by a progress layer, so clicks cannot collide with the grid rebuild
 
 ## 🌍 Multi-Language Support
 
@@ -247,7 +252,6 @@ FlairX supports **29 languages** with automatic detection:
 - Path format: `XXMI/[GameTag]/Mods/[Category]/[ModName]/`
 - **Two-level organization**: Category → Mod
 - Categories created manually or during GameBanana install
-- Mods activate by removing `DISABLED_` prefix
 
 **Example:**
 - ✅ Correct: `XXMI/GIMI/Mods/Raiden/Outfit_Casual/`
@@ -274,11 +278,14 @@ For developers who want to build FlairX themselves:
 
 ### Build Steps
 ```bash
-git clone [repository-url]
-cd "FlairX Mod Manager"
-dotnet restore
-dotnet build --configuration Release
+git clone https://github.com/Jank8/FlairX-Mod-Manager.git
+cd "FlairX-Mod-Manager"
+dotnet restore "FlairX-Mod-Manager/FlairX-Mod-Manager.csproj"
+dotnet build "FlairX-Mod-Manager/FlairX-Mod-Manager.csproj" -c Release -p:Platform=x64
 ```
+
+The x64 flag matters: without it the Release output goes to `bin\Release` instead of
+`bin\x64\Release\...\win-x64`.
 
 ### Build Launcher
 ```bash
@@ -287,7 +294,7 @@ dotnet publish "FlairX-Mod-Manager Launcher/FlairX Mod Manager Launcher.csproj" 
 
 ### Key Technologies Used
 - **Microsoft.WindowsAppSDK (2.5.1)** - Modern Windows UI
-- **CommunityToolkit.WinUI (8.2.251219)** - UI components
+- **CommunityToolkit.WinUI (7.1.2) + controls (8.2.251219)** - UI components
 - **Microsoft.Web.WebView2 (1.0.4258.31)** - GameBanana browser
 - **SharpSevenZip (2.0.128)** - Archive extraction
 - **SixLabors.ImageSharp (4.1.3)** - Image processing

@@ -267,8 +267,10 @@
                                                     <ComboBox ItemsSource="{Binding AvailableCategories}"
                                                               SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
                                                               PlaceholderText="Select category..."
+                                                              Loaded="ConflictCategoryComboBox_Loaded"
                                                               HorizontalAlignment="Stretch"/>
                                                     <CheckBox Content="Overwrite"
+                                                              Loaded="ConflictOverwriteCheckBox_Loaded"
                                                               IsChecked="{Binding ShouldOverwrite, Mode=TwoWay}"
                                                               Visibility="{Binding IsDuplicate}"
                                                               FontSize="12"/>

@@ -106,7 +106,7 @@ namespace FlairX_Mod_Manager.Services
 
                 token.ThrowIfCancellationRequested();
 
-                var tempDir = Path.Combine(Path.GetTempPath(), "FlairX_XXMI_Download");
+                var tempDir = PathManager.GetTempDirectory("XXMI");
                 var archivePath = Path.Combine(tempDir, "xxmi_portable.zip");
                 
                 // Clean temp directory

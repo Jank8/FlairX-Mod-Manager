@@ -110,5 +110,11 @@
   "RecentWindow_PartialTitle": "Delvise resultater",
   "RecentWindow_PartialWarning": "En senere GameBanana-side kunne ikke lastes; tilgjengelige resultater vises.",
   "RecentWindow_CappedTitle": "Resultater begrenset",
-  "RecentWindow_CappedWarning": "Resultater nådde sikkerhetsgrensen på 10 sider eller 500 poster."
+  "RecentWindow_CappedWarning": "Resultater nådde sikkerhetsgrensen på 10 sider eller 500 poster.",
+  "Comments_Login": "Logg inn",
+  "Comments_Logout": "Logg ut",
+  "Comments_Cancel": "Avbryt",
+  "Comments_Continue": "Fortsett",
+  "Comments_Reload": "Last inn på nytt",
+  "Comments_Zoom": "Zoom"
 }

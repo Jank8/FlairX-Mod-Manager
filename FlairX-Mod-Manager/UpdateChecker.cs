@@ -191,7 +191,7 @@ namespace FlairX_Mod_Manager
         {
             try
             {
-                var tempDir = Path.Combine(Path.GetTempPath(), "FlairX_Update");
+                var tempDir = PathManager.GetTempDirectory("Update");
                 var archivePath = Path.Combine(tempDir, "update.zip");
                 
                 // Create temp directory

@@ -67,17 +67,6 @@ namespace FlairX_Mod_Manager.Pages
             UpdateToggleLabels();
         }
 
-        private string GetLogPath()
-        {
-            return PathManager.GetSettingsPath("StatusKeeper.log");
-        }
-
-        private void InitFileLogging(string logPath)
-        {
-            // Delegate to centralized Logger
-            Logger.InitStatusKeeperLog();
-        }
-
         private void LoggingToggle_Toggled(object sender, RoutedEventArgs e)
         {
             UpdateToggleLabels();
@@ -110,7 +99,9 @@ namespace FlairX_Mod_Manager.Pages
                     else
                     {
                         var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                        if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo("Failed to open log file with default application");
+                        var baseLang = SharedUtilities.LoadLanguageDictionary();
+                        if (App.Current is App _a && _a.MainWindow is MainWindow _mw)
+                            _mw.ShowErrorInfo(SharedUtilities.GetTranslation(baseLang, "Notify_LogOpenFailed"));
                     }
                 }
                 else
@@ -123,7 +114,10 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogStatusKeeperError($"Failed to open log file: {ex.Message}");
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                if (App.Current is App _a && _a.MainWindow is MainWindow _mw) _mw.ShowErrorInfo($"Failed to open log file: {ex.Message}");
+                var baseLang = SharedUtilities.LoadLanguageDictionary();
+                if (App.Current is App _a && _a.MainWindow is MainWindow _mw)
+                    _mw.ShowErrorInfo(string.Format(
+                        SharedUtilities.GetTranslation(baseLang, "Notify_LogOpenError"), ex.Message));
             }
         }
 
@@ -158,7 +152,11 @@ namespace FlairX_Mod_Manager.Pages
             {
                 Logger.LogStatusKeeperError($"Failed to clear log file: {ex.Message}");
                 var lang = SharedUtilities.LoadLanguageDictionary("StatusKeeper");
-                await SharedUtilities.ShowErrorDialog(SharedUtilities.GetTranslation(lang, "Error_Generic"), $"Failed to clear log file: {ex.Message}", this.XamlRoot);
+                var baseLang = SharedUtilities.LoadLanguageDictionary();
+                await SharedUtilities.ShowErrorDialog(
+                    SharedUtilities.GetTranslation(lang, "Error_Generic"),
+                    string.Format(SharedUtilities.GetTranslation(baseLang, "Notify_LogClearFailed"), ex.Message),
+                    this.XamlRoot);
             }
         }
     }
