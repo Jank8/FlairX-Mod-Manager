@@ -19,9 +19,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     
     <!-- Version Information -->
-    <Version>4.1.6</Version>
-    <AssemblyVersion>4.1.6.0</AssemblyVersion>
-    <FileVersion>4.1.6.0</FileVersion>
+    <Version>4.2.0</Version>
+    <AssemblyVersion>4.2.0.0</AssemblyVersion>
+    <FileVersion>4.2.0.0</FileVersion>
     <AssemblyTitle>FlairX Mod Manager</AssemblyTitle>
     <AssemblyDescription>Advanced mod manager for games with global hotkey support and WinUI3 2.0 compatibility</AssemblyDescription>
     <AssemblyCompany>FlairX</AssemblyCompany>
@@ -47,7 +47,7 @@
        
        IMPORTANT: Check for package updates regularly!
        Command: dotnet list package (outdated flag)
-       Last updated: 2026-10-15 (v4.1.5)
+       Last updated: 2026-10-24 (v4.2.0)
        ======================================== -->
   <ItemGroup>
     <!-- WinUI 3 Community Toolkit -->
