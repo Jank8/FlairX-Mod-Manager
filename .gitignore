@@ -28,3 +28,8 @@ check_missing_keys.py
 *.md
 /Backups/
 
+# Local IDE and runtime state that must never be committed or shipped
+*.csproj.user
+*.exe.WebView2/
+*.WebView2/
+

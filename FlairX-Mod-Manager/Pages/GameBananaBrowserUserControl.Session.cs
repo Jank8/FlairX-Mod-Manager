@@ -27,6 +27,14 @@ namespace FlairX_Mod_Manager.Pages
         {
             try
             {
+                // Cookies now live in the shared WebView2 profile. Load that profile once so
+                // the header and API calls see an existing login after an app restart.
+                if (string.IsNullOrEmpty(CloudflareBypassService.GetCachedCookies()) &&
+                    App.Current is App app && app.MainWindow is MainWindow mainWindow)
+                {
+                    await CloudflareBypassService.EnsureProfileSessionLoadedAsync(mainWindow);
+                }
+
                 var profile = await GameBananaProfileService.GetAsync(forceRefresh);
                 var loginText = SharedUtilities.GetTranslation(_lang, "Comments_Login");
 

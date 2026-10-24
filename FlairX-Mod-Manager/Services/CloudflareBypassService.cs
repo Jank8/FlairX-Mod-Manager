@@ -1,28 +1,37 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Web.WebView2.Core;
+using Microsoft.UI.Xaml.Controls;
 
 namespace FlairX_Mod_Manager.Services
 {
+    /// <summary>
+    /// Keeps the GameBanana session in WebView2's encrypted profile.
+    /// Only an in-memory cookie header is cached for HttpClient calls; no cookie is
+    /// written to the portable folder. The User-Agent is not secret and is persisted
+    /// in Settings so cf_clearance stays bound to the UA that obtained it.
+    /// </summary>
     public class CloudflareBypassService
     {
         private static string? _cookies;
         private static string? _userAgent;
-        private static readonly string CookieFilePath = Path.Combine(PathManager.GetAbsolutePath(PathManager.SETTINGS_DIR), "gamebanana_cookies.txt");
+        private static string? _legacyUserAgent;
+        private static bool _profileRefreshAttempted;
+        private static readonly string LegacyCookieFilePath = Path.Combine(
+            PathManager.GetAbsolutePath(PathManager.SETTINGS_DIR),
+            "gamebanana_cookies.txt");
 
         static CloudflareBypassService()
         {
-            // Load cookies from file on startup
-            LoadCookiesFromFile();
+            RemoveLegacyPlaintextFile();
         }
 
         public static async Task<(string? cookies, string? userAgent)> BypassCloudflareAsync()
         {
             try
             {
-                // The login and the Cloudflare challenge share one slide-out WebView panel.
-                // The old ContentDialog duplicated WebView2 lifetime handling and leaked a
-                // renderer (plus its session) on every attempt.
                 if (App.Current is App app && app.MainWindow is MainWindow mainWindow)
                 {
                     var (panelCookies, panelUserAgent) = await mainWindow.ShowCloudflareBypassPanelAsync();
@@ -34,6 +43,7 @@ namespace FlairX_Mod_Manager.Services
 
                     _cookies = panelCookies;
                     _userAgent = panelUserAgent;
+                    PersistUserAgent(panelUserAgent);
 
                     // Values are session data - log only the shape, never the cookie itself.
                     Logger.LogInfo(
@@ -41,7 +51,6 @@ namespace FlairX_Mod_Manager.Services
                         $"cookie count: {_cookies.Split(';').Length}");
                     Logger.LogInfo($"User-Agent: {_userAgent ?? "DEFAULT"}");
 
-                    SaveCookiesToFile();
                     return (_cookies, _userAgent);
                 }
 
@@ -55,68 +64,194 @@ namespace FlairX_Mod_Manager.Services
             }
         }
 
-        private static void SaveCookiesToFile()
+        /// <summary>
+        /// Reads the cookies that WebView2 already persisted in its profile. This is the only
+        /// source of truth; nothing is copied into a text file.
+        /// </summary>
+        public static async Task CaptureFromWebViewAsync(CoreWebView2 coreWebView)
         {
+            if (coreWebView == null)
+            {
+                return;
+            }
+
             try
             {
-                if (!string.IsNullOrEmpty(_cookies) && !string.IsNullOrEmpty(_userAgent))
+                var cookies = await coreWebView.CookieManager.GetCookiesAsync("https://gamebanana.com");
+                if (cookies == null || cookies.Count == 0)
                 {
-                    File.WriteAllText(CookieFilePath, $"{_cookies}\n{_userAgent}");
-                    Logger.LogInfo("Cookies saved to file");
+                    return;
                 }
+
+                _cookies = string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}"));
+
+                // Only adopt a UA when none is known yet. A hidden WebView that used the
+                // default UA must not overwrite the UA that originally obtained cf_clearance.
+                if (string.IsNullOrEmpty(GetCachedUserAgent()) && !string.IsNullOrEmpty(coreWebView.Settings.UserAgent))
+                {
+                    _userAgent = coreWebView.Settings.UserAgent;
+                    PersistUserAgent(_userAgent);
+                }
+
+                Logger.LogInfo(
+                    $"GameBanana session captured from WebView2. " +
+                    $"Cookie count: {cookies.Count}, header length: {_cookies.Length}");
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to save cookies to file", ex);
+                Logger.LogError("Failed to capture GameBanana cookies from WebView2", ex);
             }
         }
 
-        private static void LoadCookiesFromFile()
+        /// <summary>
+        /// Loads the persistent WebView2 profile once, so API calls made before the first
+        /// visible browser panel still see an existing login.
+        /// </summary>
+        public static async Task EnsureProfileSessionLoadedAsync(MainWindow? mainWindow)
         {
+            if (!string.IsNullOrEmpty(_cookies) || _profileRefreshAttempted || mainWindow == null)
+            {
+                return;
+            }
+
+            _profileRefreshAttempted = true;
+            Microsoft.UI.Xaml.Controls.WebView2? webView = null;
             try
             {
-                if (File.Exists(CookieFilePath))
+                var container = mainWindow.GetHiddenWebViewContainer();
+                if (container == null)
                 {
-                    var lines = File.ReadAllLines(CookieFilePath);
-                    if (lines.Length >= 2)
+                    return;
+                }
+
+                webView = new Microsoft.UI.Xaml.Controls.WebView2();
+                container.Children.Add(webView);
+                await webView.EnsureCoreWebView2Async();
+                if (webView.CoreWebView2 != null)
+                {
+                    // Keep the same UA that obtained cf_clearance.
+                    var cachedUserAgent = GetCachedUserAgent();
+                    if (!string.IsNullOrEmpty(cachedUserAgent))
                     {
-                        _cookies = lines[0];
-                        _userAgent = lines[1];
-                        Logger.LogInfo("Cookies loaded from file");
+                        webView.CoreWebView2.Settings.UserAgent = cachedUserAgent;
                     }
+
+                    await CaptureFromWebViewAsync(webView.CoreWebView2);
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to load cookies from file", ex);
+                Logger.LogError("Failed to load the GameBanana profile session", ex);
+            }
+            finally
+            {
+                if (webView != null)
+                {
+                    try
+                    {
+                        webView.Close();
+                    }
+                    catch { }
+                    if (webView.Parent is Panel parent)
+                    {
+                        parent.Children.Remove(webView);
+                    }
+                }
             }
         }
 
         public static string? GetCachedCookies() => _cookies;
-        public static string? GetCachedUserAgent() => _userAgent;
+
+        public static string? GetCachedUserAgent()
+        {
+            if (!string.IsNullOrEmpty(_userAgent))
+            {
+                return _userAgent;
+            }
+
+            if (!string.IsNullOrEmpty(_legacyUserAgent))
+            {
+                return _legacyUserAgent;
+            }
+
+            return SettingsManager.Current.GameBananaUserAgent;
+        }
 
         public static void SetCookiesManually(string cookies, string? userAgent)
         {
             _cookies = cookies;
             _userAgent = userAgent;
-            SaveCookiesToFile();
-            Logger.LogInfo("Cookies set manually and saved");
+            PersistUserAgent(userAgent);
+            Logger.LogInfo("GameBanana session updated in memory");
         }
-        
+
         public static void ClearCookies()
         {
             _cookies = null;
             _userAgent = null;
+            _legacyUserAgent = null;
+            _profileRefreshAttempted = false;
+
+            SettingsManager.Current.GameBananaUserAgent = null;
+            SettingsManager.Save();
+
+            RemoveLegacyPlaintextFile();
+            Logger.LogInfo("GameBanana in-memory session cleared");
+        }
+
+        public static void CleanupLegacyPlaintextFile() => RemoveLegacyPlaintextFile();
+
+        /// <summary>
+        /// Called after SettingsManager.Load(): moves the non-secret User-Agent from the old
+        /// plaintext cookie file into Settings, then the file is gone for good.
+        /// </summary>
+        public static void PersistLegacyUserAgentIfNeeded()
+        {
+            if (string.IsNullOrEmpty(_legacyUserAgent) ||
+                !string.IsNullOrEmpty(SettingsManager.Current.GameBananaUserAgent))
+            {
+                return;
+            }
+
+            SettingsManager.Current.GameBananaUserAgent = _legacyUserAgent;
+            SettingsManager.Save();
+        }
+
+        private static void PersistUserAgent(string? userAgent)
+        {
+            if (string.IsNullOrEmpty(userAgent) ||
+                string.Equals(SettingsManager.Current.GameBananaUserAgent, userAgent, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            SettingsManager.Current.GameBananaUserAgent = userAgent;
+            SettingsManager.Save();
+        }
+
+        private static void RemoveLegacyPlaintextFile()
+        {
             try
             {
-                if (File.Exists(CookieFilePath))
+                if (File.Exists(LegacyCookieFilePath))
                 {
-                    File.Delete(CookieFilePath);
+                    // Keep only the non-secret User-Agent from the old file, so an existing
+                    // cf_clearance cookie stays valid. The cookie line itself is discarded.
+                    // Do not touch Settings here: this runs during App startup, before
+                    // SettingsManager has necessarily loaded the user's Settings.json.
+                    var lines = File.ReadAllLines(LegacyCookieFilePath);
+                    if (lines.Length >= 2)
+                    {
+                        _legacyUserAgent = lines[1];
+                    }
+
+                    File.Delete(LegacyCookieFilePath);
+                    Logger.LogInfo("Removed legacy plaintext GameBanana cookie file");
                 }
             }
             catch (Exception ex)
             {
-                Logger.LogError("Failed to delete cookie file", ex);
+                Logger.LogWarning($"Could not remove legacy cookie file: {ex.Message}");
             }
         }
     }

@@ -145,6 +145,10 @@ namespace FlairX_Mod_Manager
         // GameBanana comments settings
         public bool CommentsLoginPromptDismissed { get; set; } = false;
 
+        // Non-secret: keeps cf_clearance bound to the exact User-Agent that obtained it.
+        // Cookies themselves live only in the WebView2 profile.
+        public string? GameBananaUserAgent { get; set; } = null;
+
         // Runtime check prompt - show at most once per application version
         public string? RuntimeCheckDismissedVersion { get; set; } = null;
         

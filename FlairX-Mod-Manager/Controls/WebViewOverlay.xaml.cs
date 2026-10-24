@@ -179,7 +179,8 @@ namespace FlairX_Mod_Manager.Controls
                         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
                 }
 
-                RestoreCachedCookies();
+                // Cookies are already in the shared WebView2 profile; do not copy them
+                // through the app in a plaintext cache.
             }
             catch (Exception ex)
             {
@@ -222,6 +223,10 @@ namespace FlairX_Mod_Manager.Controls
             if (_webView?.CoreWebView2 != null)
             {
                 AddressText.Text = _webView.CoreWebView2.Source;
+
+                // The shared WebView2 profile owns the cookies; capture the in-memory copy
+                // used by HttpClient after the page has settled.
+                _ = CloudflareBypassService.CaptureFromWebViewAsync(_webView.CoreWebView2);
 
                 // The DOM zoom is lost on every navigation - re-apply the slider value.
                 ApplyZoom(ZoomSlider.Value);
@@ -269,58 +274,6 @@ namespace FlairX_Mod_Manager.Controls
             catch (Exception ex)
             {
                 Logger.LogError("WebViewOverlay: failed to apply zoom", ex);
-            }
-        }
-
-        /// <summary>
-        /// Copies the stored session into this instance's cookie jar so the panel opens logged in.
-        /// </summary>
-        private void RestoreCachedCookies()
-        {
-            var cachedCookies = CloudflareBypassService.GetCachedCookies();
-            if (string.IsNullOrEmpty(cachedCookies) || _webView?.CoreWebView2 == null)
-            {
-                return;
-            }
-
-            try
-            {
-                var cookieManager = _webView.CoreWebView2.CookieManager;
-                var restored = 0;
-
-                foreach (var part in cachedCookies.Split(new[] { ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    var kv = part.Trim().Split(new[] { '=' }, 2);
-                    if (kv.Length != 2)
-                    {
-                        continue;
-                    }
-
-                    try
-                    {
-                        var cookie = cookieManager.CreateCookie(kv[0].Trim(), kv[1].Trim(), "gamebanana.com", "/");
-
-                        // The login session cookies are HttpOnly/Secure. Re-creating them with
-                        // defaults (SameSite=None without Secure) makes Chromium reject them,
-                        // which is why the panel reopened logged out.
-                        cookie.IsHttpOnly = true;
-                        cookie.IsSecure = true;
-                        cookie.SameSite = CoreWebView2CookieSameSiteKind.None;
-
-                        cookieManager.AddOrUpdateCookie(cookie);
-                        restored++;
-                    }
-                    catch
-                    {
-                        // One malformed cookie must not abort the whole restore.
-                    }
-                }
-
-                Logger.LogInfo($"WebViewOverlay: restored {restored} cached cookies");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("WebViewOverlay: failed to restore cached cookies", ex);
             }
         }
 

@@ -406,6 +406,18 @@ namespace FlairX_Mod_Manager
                 }
                 Logger.LogInfo($"[ShowSlidingPanel] Opening new panel: {userControl.GetType().Name}");
 
+                // The login/Cloudflare overlay is a shared instance. Its previous host can
+                // still be its visual parent when the close animation did not complete, and
+                // adding a parented control throws (WinUI reports it as a missing component).
+                if (userControl.Parent is Panel staleParent)
+                {
+                    staleParent.Children.Remove(userControl);
+                }
+                else if (userControl.Parent is ContentControl staleContent)
+                {
+                    staleContent.Content = null;
+                }
+
                 // Get current app theme and create appropriate background
                 string appTheme = FlairX_Mod_Manager.SettingsManager.Current.Theme ?? "Auto";
                 bool isDarkTheme = false;

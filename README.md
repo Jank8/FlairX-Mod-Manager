@@ -110,7 +110,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 ### 🌐 **GameBanana Integration**
 - **Built-in Browser**: Browse and search GameBanana directly; navigation is restricted to GameBanana and its sign-in/Cloudflare frames
 - **Author Search**: Find mods by creator using `user:exampleuser` syntax
-- **Cloudflare Support**: Automatic handling of protection with cookie management
+- **Cloudflare Support**: Automatic handling of protection; the GameBanana session stays in WebView2's encrypted profile, with no plaintext cookie file in the portable folder
 - **Sign-in**: Log in to GameBanana inside an acrylic browser panel — required only for comments on age-restricted or private mods. Your avatar and name then appear in the browser header; the same menu opens all mods by that author or signs you out. The session is reused by comments and author profiles and restored on the next launch.
 - **Comments**: Public comments load without signing in. An empty list explains that the mod may be NSFW or may simply have no comments, and offers a Login button; after signing in it only reports that there are no comments. "Load More" appears after the first batch and is translated.
 - **Author profiles**: On a mod page, the avatar, author name and "View Profile" open the creator's GameBanana profile in the same sliding browser, instead of the system browser.
@@ -295,7 +295,7 @@ dotnet publish "FlairX-Mod-Manager Launcher/FlairX Mod Manager Launcher.csproj" 
 ### Key Technologies Used
 - **Microsoft.WindowsAppSDK (2.5.1)** - Modern Windows UI
 - **CommunityToolkit.WinUI (7.1.2) + controls (8.2.251219)** - UI components
-- **Microsoft.Web.WebView2 (1.0.4258.31)** - GameBanana browser
+- **Microsoft.Web.WebView2 (1.0.4314.35)** - GameBanana browser
 - **SharpSevenZip (2.0.128)** - Archive extraction
 - **SixLabors.ImageSharp (4.1.3)** - Image processing
 - **NLua (1.7.9)** - Lua scripting

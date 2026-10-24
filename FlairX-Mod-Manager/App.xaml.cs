@@ -47,6 +47,10 @@ namespace FlairX_Mod_Manager
         {
             Logger.LogInfo("Application starting up");
 
+            // Old builds kept a plaintext cookie header here. Remove it even if the user
+            // never opens the GameBanana page in this session.
+            Services.CloudflareBypassService.CleanupLegacyPlaintextFile();
+
             // Without these, an exception escaping a background task or an async void handler
             // kills the process silently - the log simply stops, as it did during the menu crash.
             this.UnhandledException += (_, e) =>
@@ -135,6 +139,7 @@ namespace FlairX_Mod_Manager
                 CleanupOldDownloads();
                 
                 SettingsManager.Load(); // Load settings before creating window
+                Services.CloudflareBypassService.PersistLegacyUserAgentIfNeeded();
                 Logger.LogInfo($"Settings loaded - Selected game index: {SettingsManager.Current.SelectedGameIndex}");
                 
                 // Migrate favorites from old Settings.json format if needed

@@ -100,6 +100,11 @@ namespace FlairX_Mod_Manager.Services
                         hiddenContainer.Children.Add(webView);
 
                         await webView.EnsureCoreWebView2Async();
+                        var hiddenUserAgent = CloudflareBypassService.GetCachedUserAgent();
+                        if (!string.IsNullOrEmpty(hiddenUserAgent))
+                        {
+                            webView.CoreWebView2.Settings.UserAgent = hiddenUserAgent;
+                        }
                         webView.CoreWebView2.NavigationStarting += (_, args) =>
                         {
                             if (!WebViewNavigationPolicy.IsAllowed(args.Uri))
@@ -110,11 +115,12 @@ namespace FlairX_Mod_Manager.Services
                         };
                         Logger.LogInfo("WebView2 initialized in hidden container, navigating to URL");
 
-                        navigationHandler = (sender, args) =>
+                        navigationHandler = async (sender, args) =>
                         {
                             if (args.IsSuccess)
                             {
                                 Logger.LogInfo("WebView2 navigation completed successfully");
+                                await CloudflareBypassService.CaptureFromWebViewAsync(webView.CoreWebView2);
                                 navigationCompleted.TrySetResult(true);
                             }
                             else
@@ -375,57 +381,12 @@ namespace FlairX_Mod_Manager.Services
                                 Logger.LogGameBanana("Applied cached User-Agent to hidden WebView2");
                             }
 
-                            // Inject cached cookies so age-gated/login-required pages load correctly
+                            // The shared WebView2 profile already contains the login cookies.
+                            // Nothing is injected or copied through a plaintext cache.
                             var cachedCookies = CloudflareBypassService.GetCachedCookies();
-                            if (!string.IsNullOrEmpty(cachedCookies))
+                            if (string.IsNullOrEmpty(cachedCookies))
                             {
-                                Logger.LogGameBanana($"Injecting {cachedCookies.Length} chars of cached cookies into WebView2");
-                                var cookieMgr = webView.CoreWebView2.CookieManager;
-                                // Cookies are stored as "name=value; name2=value2". Splitting on anything
-                                // other than ';' turns the whole string into one cookie's value, so the
-                                // session cookie never reaches the page and age-gated mods stay locked.
-                                foreach (var part in cachedCookies.Split(
-                                    new[] { ';', '\n', '\r' },
-                                    StringSplitOptions.RemoveEmptyEntries))
-                                {
-                                    var kv = part.Trim().Split(new char[] { '=' }, 2);
-                                    if (kv.Length == 2)
-                                    {
-                                        try
-                                        {
-                                            var c = cookieMgr.CreateCookie(kv[0].Trim(), kv[1].Trim(), "gamebanana.com", "/");
-
-                                            // Keep the attributes the login cookie was issued with;
-                                            // a SameSite=None cookie without Secure is rejected by
-                                            // Chromium, so the comments page stayed logged out.
-                                            c.IsHttpOnly = true;
-                                            c.IsSecure = true;
-                                            c.SameSite = Microsoft.Web.WebView2.Core.CoreWebView2CookieSameSiteKind.None;
-
-                                            cookieMgr.AddOrUpdateCookie(c);
-                                        }
-                                        catch { }
-                                    }
-                                }
-                                Logger.LogGameBanana("Cookies injected OK");
-
-                                // Verify that the session cookie actually landed in this WebView's
-                                // jar; otherwise the page silently renders the logged-out layout.
-                                try
-                                {
-                                    var verified = await cookieMgr.GetCookiesAsync("https://gamebanana.com");
-                                    Logger.LogGameBanana(
-                                        "Cookies visible to hidden WebView: " +
-                                        string.Join(", ", verified.Select(c => c.Name)));
-                                }
-                                catch (Exception verifyEx)
-                                {
-                                    Logger.LogGameBananaError("Cookie verification failed", verifyEx);
-                                }
-                            }
-                            else
-                            {
-                                Logger.LogGameBanana("No cached cookies available - page may show age-gate or login wall");
+                                Logger.LogGameBanana("No in-memory session yet; WebView2 profile cookies will be used automatically");
                             }
 
                             webView.CoreWebView2.NavigationCompleted += async (sender, args) =>
@@ -439,6 +400,10 @@ namespace FlairX_Mod_Manager.Services
                                         return;
                                     }
 
+
+                                    // Keep the HttpClient cookie header in sync with the shared
+                                    // WebView2 profile after every successful load.
+                                    await CloudflareBypassService.CaptureFromWebViewAsync(webView.CoreWebView2);
 
                                     Logger.LogGameBanana("Waiting 1s for initial render...");
                                     await Task.Delay(1000);
