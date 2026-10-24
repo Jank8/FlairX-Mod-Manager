@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "Falha ao otimizar as capturas de tela: {0}",
     "Notify_LogOpenFailed": "Falha ao abrir o arquivo de log com o aplicativo padrão",
     "Notify_LogClearFailed": "Falha ao limpar o arquivo de log: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "Falha ao desativar o mod antes de renomear.",
+    "Notify_RenameDirectoryMissing": "Diretório {0} não encontrado.",
+    "Notify_RenameAlreadyExists": "Já existe um {0} com o nome «{1}».",
+    "Notify_RenameFailed": "Falha ao renomear: {0}",
+    "Notify_BackupCheckFailed": "Falha ao verificar os backups — veja o log",
+    "Notify_RestartExeMissing": "Não foi possível reiniciar — executável não encontrado"
 }

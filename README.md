@@ -28,8 +28,8 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 ## 💻 System Requirements
 
 - **Windows 11** (recommended) or **Windows 10 22H2**
-- **.NET 10.0.7 Runtime** - automatically installed if missing
-- **Windows App SDK 2.0.1** - automatically installed if missing
+- **.NET 10.0.13 Runtime** - automatically installed if missing
+- **Windows App SDK 2.5.1** - automatically installed if missing
 - 4GB RAM (8GB recommended)
 - 1280×720 display resolution
 - 500MB free disk space
@@ -39,7 +39,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 1. Download the latest release
 2. Extract files to your desired location
 3. Run `FlairX Mod Manager Launcher.exe`
-4. If .NET 10.0.7 or Windows App SDK 2.0.1 is missing, FlairX will prompt you to install it
+4. If .NET 10.0.13 or Windows App SDK 2.5.1 is missing, FlairX will prompt you to install it
 5. Select your game and start managing mods
 
 ## 🚀 Quick Start
@@ -108,7 +108,7 @@ FlairX Mod Manager is a powerful application for managing game modifications acr
 - **Individual Hotkeys**: Assign keys to mod components
 
 ### 🌐 **GameBanana Integration**
-- **Built-in Browser**: Browse and search GameBanana directly
+- **Built-in Browser**: Browse and search GameBanana directly; navigation is restricted to GameBanana and its sign-in/Cloudflare frames
 - **Author Search**: Find mods by creator using `user:exampleuser` syntax
 - **Cloudflare Support**: Automatic handling of protection with cookie management
 - **Sign-in**: Log in to GameBanana inside an acrylic browser panel — required only for comments on age-restricted or private mods. Your avatar and name then appear in the browser header; the same menu opens all mods by that author or signs you out. The session is reused by comments and author profiles and restored on the next launch.
@@ -271,8 +271,8 @@ For developers who want to build FlairX themselves:
 
 ### Prerequisites
 - **Visual Studio 2026** (required for .NET 10 support) or **Visual Studio 2022** with preview .NET 10 SDK
-- **[.NET 10.0.7 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)** (latest as of April 2026)
-- **[Windows App SDK 2.0.1](https://learn.microsoft.com/windows/apps/windows-app-sdk/downloads)** (stable release with SemVer)
+- **[.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)** (10.0.402 or newer)
+- **[Windows App SDK 2.5.1](https://learn.microsoft.com/windows/apps/windows-app-sdk/downloads)** (stable release with SemVer)
 
 ⚠️ **Important**: .NET 10 is officially supported only in Visual Studio 2026. Visual Studio 2022 requires enabling preview .NET SDK support and may have compatibility issues.
 

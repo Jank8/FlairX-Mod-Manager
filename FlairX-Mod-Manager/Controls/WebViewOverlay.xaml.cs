@@ -162,6 +162,8 @@ namespace FlairX_Mod_Manager.Controls
                 }
 
                 _webView.CoreWebView2.NavigationCompleted += CoreWebView2_NavigationCompleted;
+                _webView.CoreWebView2.NavigationStarting += CoreWebView2_NavigationStarting;
+                _webView.CoreWebView2.NewWindowRequested += CoreWebView2_NewWindowRequested;
 
                 // Reuse the stored session, otherwise this panel always opens as a stranger and the
                 // user sees themselves logged out even though the app already holds valid cookies.
@@ -183,6 +185,29 @@ namespace FlairX_Mod_Manager.Controls
             {
                 Logger.LogError("WebViewOverlay: failed to initialize WebView2", ex);
                 StatusText.Text = "Failed to start the browser.";
+            }
+        }
+
+        private void CoreWebView2_NavigationStarting(CoreWebView2 sender, CoreWebView2NavigationStartingEventArgs args)
+        {
+            if (!WebViewNavigationPolicy.IsAllowed(args.Uri))
+            {
+                args.Cancel = true;
+                Logger.LogWarning($"Blocked WebView navigation outside GameBanana: {args.Uri}");
+            }
+        }
+
+        private void CoreWebView2_NewWindowRequested(CoreWebView2 sender, CoreWebView2NewWindowRequestedEventArgs args)
+        {
+            args.Handled = true;
+
+            if (WebViewNavigationPolicy.IsAllowed(args.Uri))
+            {
+                sender.Navigate(args.Uri);
+            }
+            else
+            {
+                Logger.LogWarning($"Blocked WebView popup outside GameBanana: {args.Uri}");
             }
         }
 

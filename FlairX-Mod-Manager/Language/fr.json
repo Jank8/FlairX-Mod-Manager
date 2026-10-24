@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "Impossible d’optimiser les captures d’écran : {0}",
     "Notify_LogOpenFailed": "Impossible d’ouvrir le journal avec l’application par défaut",
     "Notify_LogClearFailed": "Impossible de vider le journal : {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "Impossible de désactiver le mod avant le renommage.",
+    "Notify_RenameDirectoryMissing": "Répertoire {0} introuvable.",
+    "Notify_RenameAlreadyExists": "Un {0} nommé « {1} » existe déjà.",
+    "Notify_RenameFailed": "Impossible de renommer : {0}",
+    "Notify_BackupCheckFailed": "Impossible de vérifier les sauvegardes – voir le journal",
+    "Notify_RestartExeMissing": "Impossible de redémarrer – exécutable introuvable"
 }

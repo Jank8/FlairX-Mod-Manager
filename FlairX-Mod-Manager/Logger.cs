@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -385,11 +386,14 @@ namespace FlairX_Mod_Manager
         {
             private const int FlushIntervalMs = 1000;
             private const int FileBufferSize = 64 * 1024;
+            private const int MaxLinesPerFile = 10_000;
+            private const int ArchivedFilesToKeep = 3;
 
             private readonly string _path;
             private readonly object _gate = new object();
             private StreamWriter? _writer;
             private long _lastFlushTick;
+            private long _linesWritten;
 
             public LogFileWriter(string path)
             {
@@ -404,12 +408,20 @@ namespace FlairX_Mod_Manager
                     {
                         _writer ??= CreateWriter();
                         _writer.WriteLine(line);
+                        _linesWritten++;
 
                         var now = Environment.TickCount64;
                         if (flushImmediately || now - _lastFlushTick >= FlushIntervalMs)
                         {
                             _writer.Flush();
                             _lastFlushTick = now;
+                        }
+
+                        // Keep the active log bounded; without this Application.log grew
+                        // for the whole session and became slow to open.
+                        if (_linesWritten >= MaxLinesPerFile)
+                        {
+                            RotateLocked();
                         }
                     }
                     catch (Exception ex)
@@ -448,7 +460,66 @@ namespace FlairX_Mod_Manager
                 var stream = new FileStream(_path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, FileBufferSize);
                 var writer = new StreamWriter(stream, new UTF8Encoding(false), 4096) { AutoFlush = false };
                 _lastFlushTick = Environment.TickCount64;
+                _linesWritten = CountExistingLines();
                 return writer;
+            }
+
+            private long CountExistingLines()
+            {
+                try
+                {
+                    return File.Exists(_path) ? File.ReadLines(_path).LongCount() : 0;
+                }
+                catch
+                {
+                    return 0;
+                }
+            }
+
+            private void RotateLocked()
+            {
+                try
+                {
+                    DisposeLocked();
+
+                    // Shift Application.log.2 -> .3, .1 -> .2, active -> .1.
+                    for (int i = ArchivedFilesToKeep - 1; i >= 1; i--)
+                    {
+                        var source = $"{_path}.{i}";
+                        var target = $"{_path}.{i + 1}";
+                        if (!File.Exists(source))
+                        {
+                            continue;
+                        }
+
+                        if (File.Exists(target))
+                        {
+                            File.Delete(target);
+                        }
+                        File.Move(source, target);
+                    }
+
+                    if (File.Exists(_path))
+                    {
+                        var firstArchive = $"{_path}.1";
+                        if (File.Exists(firstArchive))
+                        {
+                            File.Delete(firstArchive);
+                        }
+                        File.Move(_path, firstArchive);
+                    }
+
+                    _writer = CreateWriter();
+                    var stamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    _writer.WriteLine($"[{stamp}] [INFO] Log rotated after {MaxLinesPerFile} lines");
+                    _linesWritten = 1;
+                    _writer.Flush();
+                    _lastFlushTick = Environment.TickCount64;
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to rotate log file {_path}: {ex.Message}");
+                }
             }
 
             private void DisposeLocked()

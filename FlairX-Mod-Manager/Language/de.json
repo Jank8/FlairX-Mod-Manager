@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "Aufgenommene Screenshots konnten nicht optimiert werden: {0}",
     "Notify_LogOpenFailed": "Protokolldatei konnte nicht mit der Standard-App geöffnet werden",
     "Notify_LogClearFailed": "Protokolldatei konnte nicht geleert werden: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "Mod konnte vor dem Umbenennen nicht deaktiviert werden.",
+    "Notify_RenameDirectoryMissing": "Verzeichnis {0} nicht gefunden.",
+    "Notify_RenameAlreadyExists": "Ein {0} mit dem Namen „{1}“ existiert bereits.",
+    "Notify_RenameFailed": "Umbenennen fehlgeschlagen: {0}",
+    "Notify_BackupCheckFailed": "Backups konnten nicht geprüft werden – Details im Log",
+    "Notify_RestartExeMissing": "Neustart nicht möglich – ausführbare Datei nicht gefunden"
 }

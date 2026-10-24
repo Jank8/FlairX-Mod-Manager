@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "ไม่สามารถปรับแต่งภาพแคปเจอร์ได้: {0}",
     "Notify_LogOpenFailed": "ไม่สามารถเปิดไฟล์บันทึกด้วยแอปเริ่มต้นได้",
     "Notify_LogClearFailed": "ไม่สามารถล้างไฟล์บันทึกได้: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "ไม่สามารถปิดใช้งานมอดก่อนเปลี่ยนชื่อได้",
+    "Notify_RenameDirectoryMissing": "ไม่พบโฟลเดอร์ {0}",
+    "Notify_RenameAlreadyExists": "มี{0}ชื่อ '{1}' อยู่แล้ว",
+    "Notify_RenameFailed": "ไม่สามารถเปลี่ยนชื่อได้: {0}",
+    "Notify_BackupCheckFailed": "ไม่สามารถตรวจสอบข้อมูลสำรองได้ — ดูบันทึก",
+    "Notify_RestartExeMissing": "ไม่สามารถเริ่มใหม่ได้ — ไม่พบไฟล์เรียกใช้งาน"
 }

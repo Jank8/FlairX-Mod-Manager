@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "कैप्चर किए गए स्क्रीनशॉट अनुकूलित नहीं हो सके: {0}",
     "Notify_LogOpenFailed": "लॉग फ़ाइल डिफ़ॉल्ट ऐप में नहीं खुल सकी",
     "Notify_LogClearFailed": "लॉग फ़ाइल साफ़ नहीं हो सकी: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "नाम बदलने से पहले मॉड को निष्क्रिय नहीं किया जा सका।",
+    "Notify_RenameDirectoryMissing": "{0} निर्देशिका नहीं मिली।",
+    "Notify_RenameAlreadyExists": "'{1}' नाम का {0} पहले से मौजूद है।",
+    "Notify_RenameFailed": "नाम नहीं बदला जा सका: {0}",
+    "Notify_BackupCheckFailed": "बैकअप जाँचे नहीं जा सके — लॉग देखें",
+    "Notify_RestartExeMissing": "पुनः आरंभ नहीं हो सका — निष्पादन योग्य फ़ाइल नहीं मिली"
 }

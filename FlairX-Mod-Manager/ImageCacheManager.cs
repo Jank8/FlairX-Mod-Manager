@@ -131,8 +131,7 @@ namespace FlairX_Mod_Manager
         }
 
         public static void InvalidateImage(string key)
-        {
-            try
+        {            try
             {
                 if (_imageCache.TryRemove(key, out var imageEntry))
                 {
@@ -149,6 +148,28 @@ namespace FlairX_Mod_Manager
             catch (Exception ex)
             {
                 Logger.LogError($"Failed to invalidate image cache for: {key}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Removes all cache entries for a path, including versioned keys such as
+        /// "path|timestamp|length" that older loads may have left behind.
+        /// </summary>
+        public static void InvalidateByPathPrefix(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            var prefix = path.TrimEnd('\\', '/') + "|";
+            foreach (var key in _imageCache.Keys.Where(k => k.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)).ToList())
+            {
+                InvalidateImage(key);
+            }
+            foreach (var key in _ramImageCache.Keys.Where(k => k.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)).ToList())
+            {
+                InvalidateImage(key);
             }
         }
 

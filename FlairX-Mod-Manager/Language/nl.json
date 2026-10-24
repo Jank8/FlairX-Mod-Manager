@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "Vastgelegde schermafbeeldingen konden niet worden geoptimaliseerd: {0}",
     "Notify_LogOpenFailed": "Kan logbestand niet openen met de standaardapp",
     "Notify_LogClearFailed": "Kan logbestand niet wissen: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "Kan mod niet deactiveren vóór hernoemen.",
+    "Notify_RenameDirectoryMissing": "Map {0} niet gevonden.",
+    "Notify_RenameAlreadyExists": "Er bestaat al een {0} met de naam ‘{1}’.",
+    "Notify_RenameFailed": "Hernoemen mislukt: {0}",
+    "Notify_BackupCheckFailed": "Kan back-ups niet controleren – zie logboek",
+    "Notify_RestartExeMissing": "Kan niet herstarten – uitvoerbaar bestand niet gevonden"
 }

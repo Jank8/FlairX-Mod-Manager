@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "Не удалось оптимизировать снимки экрана: {0}",
     "Notify_LogOpenFailed": "Не удалось открыть файл журнала в приложении по умолчанию",
     "Notify_LogClearFailed": "Не удалось очистить файл журнала: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "Не удалось отключить мод перед переименованием.",
+    "Notify_RenameDirectoryMissing": "Папка {0} не найдена.",
+    "Notify_RenameAlreadyExists": "{0} с именем «{1}» уже существует.",
+    "Notify_RenameFailed": "Не удалось переименовать: {0}",
+    "Notify_BackupCheckFailed": "Не удалось проверить резервные копии — подробности в журнале",
+    "Notify_RestartExeMissing": "Не удалось перезапустить — исполняемый файл не найден"
 }

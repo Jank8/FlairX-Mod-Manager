@@ -7,6 +7,10 @@ using System.Text.Json;
 
 namespace FlairX_Mod_Manager.Pages
 {
+    /// <summary>
+    /// Developer diagnostics page. All notification strings in this file are intentionally
+    /// English (DevTools-only) and must not be added to Language/*.json.
+    /// </summary>
     public sealed partial class DevToolsPage : Page
     {
         public DevToolsPage()
@@ -593,6 +597,7 @@ namespace FlairX_Mod_Manager.Pages
             }
 
             RefreshDiagnostics();
+            // DevTools-only notifications are intentionally English; do not add them to Language/*.json.
             if (App.Current is App app && app.MainWindow is MainWindow mw)
                 mw.ShowSuccessInfo("GameBanana cookies & WebView2 cache cleared");
         }

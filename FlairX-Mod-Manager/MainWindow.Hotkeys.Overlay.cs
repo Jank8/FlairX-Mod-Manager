@@ -114,7 +114,10 @@ namespace FlairX_Mod_Manager
                     settingsPanel.ToggleDevTools();
 
                     if (!wasVisible)
+                    {
+                        // DevTools-only notification: intentionally English, not localized.
                         ShowSuccessInfo("Developer tools unlocked");
+                    }
 
                     Logger.LogInfo($"Dev tools section toggled: {!wasVisible}");
                 }

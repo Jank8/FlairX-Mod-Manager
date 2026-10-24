@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "Skjermbildene kunne ikke optimaliseres: {0}",
     "Notify_LogOpenFailed": "Loggfilen kunne ikke åpnes med standardappen",
     "Notify_LogClearFailed": "Loggfilen kunne ikke tømmes: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "Kunne ikke deaktivere moden før navnendring.",
+    "Notify_RenameDirectoryMissing": "Mappen {0} ble ikke funnet.",
+    "Notify_RenameAlreadyExists": "Det finnes allerede en {0} med navnet «{1}».",
+    "Notify_RenameFailed": "Kunne ikke endre navn: {0}",
+    "Notify_BackupCheckFailed": "Kunne ikke kontrollere sikkerhetskopier – se loggen",
+    "Notify_RestartExeMissing": "Kunne ikke starte på nytt – kjørbar fil ikke funnet"
 }

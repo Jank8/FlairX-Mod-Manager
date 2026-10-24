@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "Hindi na-optimize ang mga screenshot: {0}",
     "Notify_LogOpenFailed": "Hindi nabuksan ang log file sa default na app",
     "Notify_LogClearFailed": "Hindi na-clear ang log file: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "Hindi na-deactivate ang mod bago palitan ang pangalan.",
+    "Notify_RenameDirectoryMissing": "Hindi mahanap ang {0} directory.",
+    "Notify_RenameAlreadyExists": "Mayroon nang {0} na may pangalang '{1}'.",
+    "Notify_RenameFailed": "Hindi napalitan ang pangalan: {0}",
+    "Notify_BackupCheckFailed": "Hindi nasuri ang mga backup — tingnan ang log",
+    "Notify_RestartExeMissing": "Hindi na-restart — hindi mahanap ang executable"
 }

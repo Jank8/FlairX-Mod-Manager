@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "Snímky obrazovky se nepodařilo optimalizovat: {0}",
     "Notify_LogOpenFailed": "Protokol se nepodařilo otevřít ve výchozí aplikaci",
     "Notify_LogClearFailed": "Protokol se nepodařilo vymazat: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "Mod se nepodařilo deaktivovat před přejmenováním.",
+    "Notify_RenameDirectoryMissing": "Složka {0} nebyla nalezena.",
+    "Notify_RenameAlreadyExists": "Již existuje {0} s názvem „{1}“.",
+    "Notify_RenameFailed": "Přejmenování se nepodařilo: {0}",
+    "Notify_BackupCheckFailed": "Zálohy se nepodařilo zkontrolovat – viz protokol",
+    "Notify_RestartExeMissing": "Restart se nezdařil – spustitelný soubor nebyl nalezen"
 }

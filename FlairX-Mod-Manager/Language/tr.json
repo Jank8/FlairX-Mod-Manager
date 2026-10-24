@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "Yakalanan ekran görüntüleri optimize edilemedi: {0}",
     "Notify_LogOpenFailed": "Günlük dosyası varsayılan uygulamayla açılamadı",
     "Notify_LogClearFailed": "Günlük dosyası temizlenemedi: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "Mod, yeniden adlandırmadan önce devre dışı bırakılamadı.",
+    "Notify_RenameDirectoryMissing": "{0} dizini bulunamadı.",
+    "Notify_RenameAlreadyExists": "'{1}' adlı bir {0} zaten var.",
+    "Notify_RenameFailed": "Yeniden adlandırılamadı: {0}",
+    "Notify_BackupCheckFailed": "Yedekler denetlenemedi – ayrıntılar günlükte",
+    "Notify_RestartExeMissing": "Yeniden başlatılamadı – yürütülebilir dosya bulunamadı"
 }

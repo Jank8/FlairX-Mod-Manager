@@ -26,7 +26,7 @@ namespace FlairX_Mod_Manager
 
                 // .NET Runtime - compare only against versions that were actually found.
                 // A failed scan returns null and must not be reported as "outdated".
-                var requiredDotNetVersion = new Version(10, 0, 7);
+                var requiredDotNetVersion = new Version(10, 0, 13);
                 var installedDotNetVersion = GetHighestInstalledDotNetVersion();
                 bool dotNetNeedsUpdate = installedDotNetVersion != null &&
                                          installedDotNetVersion < requiredDotNetVersion;
@@ -34,7 +34,7 @@ namespace FlairX_Mod_Manager
                 // Windows App Runtime - same rule: unknown is not outdated. The old code
                 // treated a failed Appx query as "needs update", which produced a blocking
                 // dialog on every start and could not be dismissed for good.
-                var requiredWinAppVersion = new Version(2, 0, 1);
+                var requiredWinAppVersion = new Version(2, 5, 1);
                 bool winAppMissing = App.IsWindowsAppRuntimeMissing;
                 Version? installedWinAppVersion = null;
                 if (!winAppMissing)

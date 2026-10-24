@@ -62,8 +62,8 @@
     <!-- Microsoft Packages -->
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
     <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
-    <PackageReference Include="ReverseMarkdown" Version="6.2.1" />
-    <PackageReference Include="SharpSevenZip" Version="2.0.128" />
+    <PackageReference Include="ReverseMarkdown" Version="6.3.0" />
+    <PackageReference Include="SharpSevenZip" Version="2.0.130" />
     <PackageReference Include="SixLabors.ImageSharp" Version="4.1.3" />
     
     <!-- Graphics & Scripting -->
@@ -71,7 +71,7 @@
     <PackageReference Include="NLua" Version="1.7.9" />
     
     <!-- WebView2 for Cloudflare bypass -->
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4314.35" />
 
   </ItemGroup>
 
@@ -111,7 +111,7 @@
       <PackageVersionsJson>
 {
   "Microsoft.WindowsAppSDK": "2.5.1",
-  "SharpSevenZip": "2.0.128",
+  "SharpSevenZip": "2.0.130",
   "NLua": "1.7.9",
   "CommunityToolkit.WinUI.Media": "8.2.251219",
   "ppy.SDL3-CS": "2026.629.0",

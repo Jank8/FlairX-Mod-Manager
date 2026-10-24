@@ -100,6 +100,14 @@ namespace FlairX_Mod_Manager.Services
                         hiddenContainer.Children.Add(webView);
 
                         await webView.EnsureCoreWebView2Async();
+                        webView.CoreWebView2.NavigationStarting += (_, args) =>
+                        {
+                            if (!WebViewNavigationPolicy.IsAllowed(args.Uri))
+                            {
+                                args.Cancel = true;
+                                Logger.LogWarning($"Blocked hidden WebView navigation outside GameBanana: {args.Uri}");
+                            }
+                        };
                         Logger.LogInfo("WebView2 initialized in hidden container, navigating to URL");
 
                         navigationHandler = (sender, args) =>
@@ -347,6 +355,14 @@ namespace FlairX_Mod_Manager.Services
                             var container = mainWindow.GetHiddenWebViewContainer();
                             container.Children.Add(webView);
                             await webView.EnsureCoreWebView2Async();
+                            webView.CoreWebView2.NavigationStarting += (_, args) =>
+                            {
+                                if (!WebViewNavigationPolicy.IsAllowed(args.Uri))
+                                {
+                                    args.Cancel = true;
+                                    Logger.LogWarning($"Blocked hidden WebView navigation outside GameBanana: {args.Uri}");
+                                }
+                            };
                             Logger.LogGameBanana("WebView2 initialized OK, added to hidden container");
 
                             // cf_clearance is bound to the exact User-Agent that obtained it. Using the

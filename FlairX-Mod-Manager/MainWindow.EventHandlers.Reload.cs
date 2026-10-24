@@ -212,12 +212,8 @@ namespace FlairX_Mod_Manager
                 {
                     try
                     {
-                        // CRITICAL: Rebuild mod lists first to pick up new/changed mods
-                        LogToGridLog("REFRESH: Rebuilding mod lists");
-                        ModListManager.RebuildAllLists();
-                        LogToGridLog("REFRESH: Mod lists rebuilt");
-
-                        // Update mod.json files with namespace info (for new/updated mods)
+                        // Update mod.json files first; new folders may appear here and must be
+                        // present in the list scan below.
                         LogToGridLog("REFRESH: Updating mod.json files with namespace info");
                         var app = App.Current as App;
                         if (app != null)
@@ -225,6 +221,12 @@ namespace FlairX_Mod_Manager
                             await app.EnsureModJsonInXXMIMods();
                         }
                         LogToGridLog("REFRESH: Mod.json files updated");
+
+                        // Rebuild once, after the files are up to date. The old order rebuilt
+                        // before this scan and the page then rebuilt again in Loaded.
+                        LogToGridLog("REFRESH: Rebuilding mod lists");
+                        ModListManager.RebuildAllLists();
+                        LogToGridLog("REFRESH: Mod lists rebuilt");
 
                         await PreloadModImages();
                     }
@@ -241,6 +243,10 @@ namespace FlairX_Mod_Manager
                     {
                         Logger.LogInfo("Reload: applying UI update (veil is up)");
 
+                        // Capture the current category/view before navigating; otherwise the
+                        // page is reloaded here and loaded a second time by RestoreLastPosition.
+                        SaveCurrentPositionBeforeReload();
+
                         SetSearchBoxPlaceholder();
                         SetFooterMenuTranslations();
                         UpdateGameSelectionComboBoxTexts();
@@ -251,38 +257,12 @@ namespace FlairX_Mod_Manager
                         _ = GenerateModCharacterMenuAsync();
                         _suppressMenuRegeneration = wasSuppressed;
 
-                        // Refresh ModGridPage if it's currently loaded
-                        if (contentFrame.Content is Pages.ModGridPage modGridPage)
-                        {
-                            // Reload current view to show updated mods
-                            if (modGridPage.CurrentViewMode == Pages.ModGridPage.ViewMode.Categories)
-                            {
-                                Logger.LogInfo("Refreshing categories view after reload");
-                                modGridPage.LoadCategories();
-                            }
-                            else
-                            {
-                                Logger.LogInfo("Refreshing mods view after reload");
-                                modGridPage.LoadAllMods();
-                            }
-                        }
+                        // LoadAllMods/LoadCategories used to run here and then again from
+                        // RestoreLastPosition (which recreates ModGridPage). Navigate once.
+                        Logger.LogInfo("Reload: restoring the current view once");
 
-                        // LoadAllMods returns before thumbnails exist - they are assigned from
-                        // deferred dispatcher callbacks afterwards. The veil stays up for that.
-                        Logger.LogInfo("Reload: mod grid rebuilt, deferred thumbnail loading follows");
-
-                        // No symlink recreation needed - using DISABLED_ prefix system
-                        Logger.LogInfo("Mod state maintained during manager reload");
-
-                        // Update All Mods button state after reload
                         UpdateAllModsButtonState();
-
                         nvSample.SelectedItem = null; // Unselect active button
-
-                        // Save current position before restoring (to handle category mode properly)
-                        SaveCurrentPositionBeforeReload();
-
-                        // Restore last position instead of always going to All Mods
                         RestoreLastPosition();
 
                         // Auto-detect hotkeys for all mods in background

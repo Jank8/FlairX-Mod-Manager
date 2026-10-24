@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "无法优化捕获的截图: {0}",
     "Notify_LogOpenFailed": "无法用默认应用打开日志文件",
     "Notify_LogClearFailed": "无法清除日志文件: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "重命名前无法停用该模组。",
+    "Notify_RenameDirectoryMissing": "找不到 {0} 目录。",
+    "Notify_RenameAlreadyExists": "名为“{1}”的{0}已存在。",
+    "Notify_RenameFailed": "无法重命名: {0}",
+    "Notify_BackupCheckFailed": "无法检查备份 — 请查看日志",
+    "Notify_RestartExeMissing": "无法重启 — 未找到可执行文件"
 }

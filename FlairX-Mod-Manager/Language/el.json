@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "Αποτυχία βελτιστοποίησης στιγμιοτύπων: {0}",
     "Notify_LogOpenFailed": "Αποτυχία ανοίγματος αρχείου καταγραφής με την προεπιλεγμένη εφαρμογή",
     "Notify_LogClearFailed": "Αποτυχία εκκαθάρισης αρχείου καταγραφής: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "Αποτυχία απενεργοποίησης του mod πριν από τη μετονομασία.",
+    "Notify_RenameDirectoryMissing": "Ο φάκελος {0} δεν βρέθηκε.",
+    "Notify_RenameAlreadyExists": "Υπάρχει ήδη {0} με όνομα «{1}».",
+    "Notify_RenameFailed": "Αποτυχία μετονομασίας: {0}",
+    "Notify_BackupCheckFailed": "Αποτυχία ελέγχου αντιγράφων ασφαλείας – δείτε το αρχείο καταγραφής",
+    "Notify_RestartExeMissing": "Αποτυχία επανεκκίνησης – το εκτελέσιμο δεν βρέθηκε"
 }

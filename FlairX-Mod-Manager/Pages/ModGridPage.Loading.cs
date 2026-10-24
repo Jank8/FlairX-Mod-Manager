@@ -138,9 +138,10 @@ namespace FlairX_Mod_Manager.Pages
             {
                 try
                 {
-                    // Invalidate cache first to force fresh load with current paths
-                    ModListManager.InvalidateCache();
-                    ModListManager.RebuildAllLists();
+                    // Build only once per game. Loaded is called again whenever the page is
+                    // recreated after a reload or navigation; invalidating and rebuilding the
+                    // whole list every time made the reload path do the same scan twice.
+                    ModListManager.EnsureListsBuilt();
                     
                     // Sync _activeMods with actual folder state after rebuild
                     await DispatcherQueue.EnqueueAsync(() =>
@@ -731,6 +732,10 @@ namespace FlairX_Mod_Manager.Pages
                 {
                     // Find the optimal image path (wide or classic based on setting)
                     var imagePath = GetRefreshedImagePath(modPath);
+
+                    // Drop every cached variant of this path (path|ticks|length) so the
+                    // overwritten thumbnail is actually read from disk.
+                    ImageCacheManager.InvalidateByPathPrefix(imagePath);
                     
                     // Find the tile in grid view
                     if (ModsGrid?.ItemsSource is System.Collections.ObjectModel.ObservableCollection<ModTile> gridCollection)
@@ -742,6 +747,7 @@ namespace FlairX_Mod_Manager.Pages
                         
                         if (tile != null)
                         {
+                            ImageCacheManager.InvalidateByPathPrefix(tile.ImagePath);
                             tile.ImageSource = null;
                             tile.ImagePath = imagePath;
                             Logger.LogInfo($"Refreshing tile image for: {modDirName}, path: {imagePath}");
@@ -758,6 +764,7 @@ namespace FlairX_Mod_Manager.Pages
                         
                         if (tile != null)
                         {
+                            ImageCacheManager.InvalidateByPathPrefix(tile.ImagePath);
                             tile.ImageSource = null;
                             tile.ImagePath = imagePath;
                         }

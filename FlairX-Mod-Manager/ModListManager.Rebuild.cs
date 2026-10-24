@@ -20,6 +20,22 @@ namespace FlairX_Mod_Manager
         private static HashSet<string>? _cachedBrokenList = null;
         private static HashSet<string>? _cachedOutdatedList = null;
         private static DateTime _lastCacheUpdate = DateTime.MinValue;
+        private static string? _cachedGameTag;
+
+        public static void EnsureListsBuilt()
+        {
+            var gameTag = SettingsManager.CurrentSelectedGame;
+            lock (_listLock)
+            {
+                if (_cachedMasterList != null &&
+                    string.Equals(_cachedGameTag, gameTag, StringComparison.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+            }
+
+            RebuildAllLists();
+        }
 
         // Serializer options are immutable after first use; allocating them per call showed up
         // on the rebuild path, which writes one mod.json per mod.
@@ -252,6 +268,7 @@ namespace FlairX_Mod_Manager
                 _cachedBrokenList = new HashSet<string>(brokenList);
                 _cachedOutdatedList = new HashSet<string>(outdatedList);
                 _lastCacheUpdate = DateTime.UtcNow;
+                _cachedGameTag = gameTag;
                 _imagePathBaseDirectory = SettingsManager.GetCurrentXXMIModsDirectory();
                 _imagePathUseWideFormat = SettingsManager.Current.UseWideTileFormat;
             }
@@ -435,6 +452,7 @@ namespace FlairX_Mod_Manager
                 _cachedBrokenList = null;
                 _cachedOutdatedList = null;
                 _lastCacheUpdate = DateTime.MinValue;
+                _cachedGameTag = null;
             }
             Logger.LogInfo("ModListManager: Cache invalidated");
         }

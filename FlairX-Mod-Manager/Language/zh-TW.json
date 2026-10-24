@@ -433,10 +433,10 @@
     "Notify_ScreenshotOptimizeFailed": "無法最佳化擷取的螢幕擷取畫面: {0}",
     "Notify_LogOpenFailed": "無法用預設應用程式開啟記錄檔",
     "Notify_LogClearFailed": "無法清除記錄檔: {0}",
-    "Notify_RenameDeactivateFailed": "Failed to deactivate mod before rename.",
-    "Notify_RenameDirectoryMissing": "Could not find {0} directory.",
-    "Notify_RenameAlreadyExists": "A {0} with the name '{1}' already exists.",
-    "Notify_RenameFailed": "Failed to rename: {0}",
-    "Notify_BackupCheckFailed": "Failed to check backups - see log for details",
-    "Notify_RestartExeMissing": "Could not restart - executable not found"
+    "Notify_RenameDeactivateFailed": "重新命名前無法停用該模組。",
+    "Notify_RenameDirectoryMissing": "找不到 {0} 目錄。",
+    "Notify_RenameAlreadyExists": "名為「{1}」的{0}已存在。",
+    "Notify_RenameFailed": "無法重新命名: {0}",
+    "Notify_BackupCheckFailed": "無法檢查備份 — 請查看記錄檔",
+    "Notify_RestartExeMissing": "無法重新啟動 — 找不到執行檔"
 }

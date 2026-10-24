@@ -66,6 +66,32 @@ namespace FlairX_Mod_Manager
         }
 
         /// <summary>
+        /// Rejects entries whose resolved path escapes the extraction root (zip-slip).
+        /// SharpSevenZip does not validate this itself for every archive format.
+        /// </summary>
+        private static void ValidateArchiveEntries(SharpSevenZipExtractor extractor, string destinationPath)
+        {
+            var root = Path.GetFullPath(destinationPath)
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                + Path.DirectorySeparatorChar;
+
+            foreach (var entry in extractor.ArchiveFileData)
+            {
+                var name = entry.FileName?.Replace('/', Path.DirectorySeparatorChar);
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    continue;
+                }
+
+                var fullPath = Path.GetFullPath(Path.Combine(root, name));
+                if (!fullPath.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidDataException($"Archive entry escapes the destination directory: {entry.FileName}");
+                }
+            }
+        }
+
+        /// <summary>
         /// Extract archive to directory
         /// </summary>
         public static void ExtractToDirectory(string archivePath, string destinationPath)
@@ -81,6 +107,7 @@ namespace FlairX_Mod_Manager
             try
             {
                 using var extractor = new SharpSevenZipExtractor(archivePath);
+                ValidateArchiveEntries(extractor, destinationPath);
                 
                 if (progress != null)
                     extractor.Extracting += (sender, e) => progress.Report(e.PercentDone);
@@ -126,6 +153,7 @@ namespace FlairX_Mod_Manager
             try
             {
                 using var extractor = new SharpSevenZipExtractor(archivePath, format.Value);
+                ValidateArchiveEntries(extractor, destinationPath);
 
                 if (progress != null)
                     extractor.Extracting += (sender, e) => progress.Report(e.PercentDone);
@@ -148,6 +176,7 @@ namespace FlairX_Mod_Manager
             try
             {
                 using var extractor = new SharpSevenZipExtractor(archivePath, password);
+                ValidateArchiveEntries(extractor, destinationPath);
                 
                 if (progress != null)
                     extractor.Extracting += (sender, e) => progress.Report(e.PercentDone);
